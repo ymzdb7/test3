@@ -1,0 +1,987 @@
+/*      */ package com.xoa.controller.file;
+/*      */ 
+/*      */ import com.alibaba.fastjson.JSONArray;
+/*      */ import com.alibaba.fastjson.JSONObject;
+/*      */ import com.xoa.model.diary.DiaryModel;
+/*      */ import com.xoa.model.enclosure.Attachment;
+/*      */ import com.xoa.model.file.FileAuthWrapper;
+/*      */ import com.xoa.model.file.FileContentModel;
+/*      */ import com.xoa.model.file.FileSortModel;
+/*      */ import com.xoa.model.users.Users;
+/*      */ import com.xoa.service.file.FileContentService;
+/*      */ import com.xoa.service.file.FileSortService;
+import com.xoa.util.Constant;
+/*      */ import com.xoa.util.DateFormat;
+/*      */ import com.xoa.util.GetAttachmentListUtil;
+/*      */ import com.xoa.util.ToJson;
+/*      */ import com.xoa.util.common.L;
+/*      */ import com.xoa.util.common.MobileCheck;
+/*      */ import com.xoa.util.common.StringUtils;
+/*      */ import com.xoa.util.common.session.SessionUtils;
+/*      */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*      */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*      */ import com.xoa.util.dataSource.ContextHolder;
+/*      */ import com.xoa.util.netdisk.CheckAll;
+/*      */ import com.xoa.util.netdisk.ZipUtils;
+/*      */ import com.xoa.util.treeUtil.CheckTree;
+/*      */ import com.xoa.util.treeUtil.FileCommSortTreeUtil;
+/*      */ import com.xoa.util.treeUtil.FileSortTreeUtil;
+/*      */ import com.xoa.util.treeUtil.HtmlUtil;
+/*      */ import com.xoa.util.treeUtil.TreeNode;
+/*      */ import java.io.OutputStreamWriter;
+/*      */ import java.io.UnsupportedEncodingException;
+/*      */ import java.math.BigDecimal;
+/*      */ import java.net.URLDecoder;
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.Date;
+/*      */ import java.util.HashMap;
+/*      */ import java.util.Hashtable;
+/*      */ import java.util.Iterator;
+/*      */ import java.util.LinkedList;
+/*      */ import java.util.List;
+/*      */ import java.util.Map;
+/*      */ import java.util.Set;
+/*      */ import javax.annotation.Resource;
+/*      */ import javax.servlet.ServletContext;
+/*      */ import javax.servlet.ServletOutputStream;
+/*      */ import javax.servlet.http.HttpServletRequest;
+/*      */ import javax.servlet.http.HttpServletResponse;
+/*      */ import javax.servlet.http.HttpSession;
+/*      */ import org.apache.log4j.Logger;
+/*      */ import org.springframework.beans.factory.annotation.Value;
+/*      */ import org.springframework.stereotype.Controller;
+/*      */ import org.springframework.ui.Model;
+/*      */ import org.springframework.web.bind.annotation.RequestMapping;
+/*      */ import org.springframework.web.bind.annotation.RequestParam;
+/*      */ import org.springframework.web.bind.annotation.ResponseBody;
+/*      */ import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+/*      */ 
+/*      */ @Controller
+/*      */ @RequestMapping({"/file"})
+/*      */ public class FileController
+/*      */ {
+/*   77 */   private Logger loger = Logger.getLogger(FileController.class);
+/*      */ 
+/*      */   @Resource
+/*      */   FileSortService fileSortService;
+/*      */ 
+/*      */   @Resource
+/*      */   FileContentService fileContentService;
+/*      */ 
+/*      */   @Value("${file_box_new_file}")
+/*      */   String file_box_new_file;
+/*      */ 
+/*   94 */   @RequestMapping({"/home"})
+/*      */   public String fileHome(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*   96 */     return "app/file/fileHome"; }
+/*      */ 
+/*      */   @RequestMapping({"/persionBox"})
+/*      */   public String persionBox(HttpServletRequest request) {
+/*  101 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  103 */     return "app/file/fileHomePerson";
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/temp"})
+/*      */   public String temp(HttpServletRequest request, Integer sortId, Model model)
+/*      */   {
+/*  116 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  118 */     model.addAttribute("sortId", sortId);
+/*  119 */     return "app/file/temp";
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/homePerson"})
+/*      */   public String topFrame(HttpServletRequest request)
+/*      */   {
+/*  133 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  135 */     return "app/file/fileHomePerson";
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/writeTree"}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public void showFile(FileSortModel file, HttpServletResponse response, HttpSession session, HttpServletRequest request)
+/*      */   {
+/*  150 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  152 */     List treeList = treeFile(file.getSortId(), session);
+/*  153 */     HtmlUtil.writerJson(response, treeList);
+/*      */   }
+/*      */ 
+/*      */   public List<TreeNode> treeFile(Integer sortid, HttpSession session)
+/*      */   {
+/*  167 */     String userId = session.getAttribute("userId").toString();
+/*  168 */     String userPriv = session.getAttribute("userPriv").toString();
+/*  169 */     String deptId = session.getAttribute("deptId").toString();
+/*  170 */     Map map = new Hashtable();
+/*  171 */     map.put("userId", userId);
+/*  172 */     map.put("userPriv", userPriv);
+/*  173 */     map.put("deptId", deptId);
+/*      */ 
+/*  175 */     List<FileSortModel> rootTree = new LinkedList<FileSortModel>();
+/*  176 */     Map rootMap = new HashMap();
+/*  177 */     if (sortid == null) sortid = Integer.valueOf(0);
+/*  178 */     rootMap.put("sortid", sortid);
+/*  179 */     rootMap.put("sortType", "5");
+/*  180 */     rootTree = this.fileSortService.getRootTree(rootMap);
+/*      */ 
+/*  182 */     List childTree = new LinkedList();
+/*      */ 
+/*  184 */     for (FileSortModel fsm : rootTree) {
+/*  185 */       childTree.addAll(getchildTrees(fsm, map));
+/*      */     }
+/*      */ 
+/*  188 */     FileCommSortTreeUtil util = new FileCommSortTreeUtil(rootTree, childTree, map);
+/*  189 */     return util.getTreeNode();
+/*      */   }
+/*      */ 
+/*      */   public List<FileSortModel> getchildTrees(FileSortModel file, Map<String, Object> map)
+/*      */   {
+/*  203 */     List parentList = new ArrayList();
+/*  204 */     Integer tempNo = file.getSortId();
+/*  205 */     if (tempNo == null) tempNo = Integer.valueOf(0);
+/*  206 */     List<FileSortModel> childrenList = new ArrayList();
+/*  207 */     childrenList = this.fileSortService.getSortChrildren(tempNo.intValue());
+/*  208 */     if (childrenList.size() > 0)
+/*      */     {
+/*  217 */       for (FileSortModel fs : childrenList) {
+/*  218 */         parentList.addAll(getchildTrees(fs, map));
+/*      */       }
+/*  220 */       parentList.addAll(childrenList);
+/*      */     }
+/*  222 */     return parentList;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/writeTreePerson"}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public void showFilePerson(FileSortModel file, HttpServletResponse response, HttpSession session, HttpServletRequest request)
+/*      */   {
+/*  237 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  239 */     List treeList = treeFilePerson(file.getSortId(), session);
+/*  240 */     HtmlUtil.writerJson(response, treeList);
+/*      */   }
+/*      */ 
+/*      */   public List<TreeNode> treeFilePerson(Integer sortid, HttpSession session)
+/*      */   {
+/*  254 */     String userId = (String)SessionUtils.getSessionInfo(session, "userId", String.class);
+/*      */ 
+/*  257 */     List<FileSortModel> rootTree = new LinkedList<FileSortModel>();
+/*  258 */     FileSortModel fs = new FileSortModel();
+/*  259 */     fs.setUserId(userId);
+/*  260 */     fs.setSortName("根目录");
+/*  261 */     fs.setSortType("4");
+/*  262 */     fs.setSortParent(Integer.valueOf(-1));
+/*  263 */     fs.setSortId(Integer.valueOf(0));
+/*  264 */     rootTree.add(fs);
+/*  265 */     if ((!"".equals(userId)) && (userId != null)) {
+/*  266 */       FileSortModel fsm = new FileSortModel();
+/*  267 */       fsm.setUserId(userId);
+/*  268 */       fsm.setSortType("4");
+/*  269 */       fsm.setSortParent(Integer.valueOf(0));
+/*  270 */       List fList = this.fileSortService.getFileSortList(fsm);
+/*  271 */       if (fList == null) {
+/*  272 */         fList = new ArrayList();
+/*      */       }
+/*  274 */       rootTree.addAll(fList);
+/*      */     }
+/*  276 */     List childTree = new LinkedList();
+/*      */ 
+/*  278 */     for (FileSortModel fsm : rootTree) {
+/*  279 */       if (fsm.getSortParent().intValue() != -1) {
+/*  280 */         childTree.addAll(getchildTreePerson(fsm));
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/*  286 */     FileSortTreeUtil util = new FileSortTreeUtil(rootTree, childTree);
+/*  287 */     return util.getTreeNode();
+/*      */   }
+/*      */ 
+/*      */   public List<FileSortModel> getchildTreePerson(FileSortModel file)
+/*      */   {
+/*  301 */     List parentList = new ArrayList();
+/*  302 */     Integer tempNo = file.getSortId();
+/*  303 */     List<FileSortModel> childrenList = new ArrayList<FileSortModel>();
+/*  304 */     childrenList = this.fileSortService.getSortChrildren(tempNo == null ? 0 : tempNo.intValue());
+/*  305 */     if (childrenList.size() > 0) {
+/*  306 */       for (FileSortModel fs : childrenList) {
+/*  307 */         parentList.addAll(getchildTreePerson(fs));
+/*      */       }
+/*  309 */       parentList.addAll(childrenList);
+/*      */     }
+/*  311 */     return parentList;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/getFileCheck"})
+/*      */   @ResponseBody
+/*      */   public String getFileCheck(HttpServletRequest request, FileSortModel file)
+/*      */   {
+/*  325 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  327 */     int i = 0;
+/*  328 */     String userId = (String)request.getSession().getAttribute("userId");
+/*  329 */     if (userId != null) {
+/*  330 */       file.setUserId(userId);
+/*  331 */       i = this.fileSortService.getFileCheck(file);
+/*      */     }
+/*  333 */     return i + "";
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/contentAdd"})
+/*      */   public ModelAndView fileHomeOne(HttpServletRequest request, String sortId, String text, String contentId)
+/*      */   {
+/*  346 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*  347 */     Map model = new HashMap();
+/*  348 */     ModelAndView modelAndView = null;
+/*      */     try {
+/*  350 */       if (StringUtils.checkNull(contentId).booleanValue()) {
+/*  351 */         text = URLDecoder.decode(text, "UTF-8");
+/*      */       }
+/*  353 */       model.put("sortId", sortId);
+/*  354 */       model.put("text", text);
+/*  355 */       modelAndView = new ModelAndView("app/file/fileContentAdd", model);
+/*  356 */       return modelAndView;
+/*      */     } catch (Exception e) {
+/*  358 */       e.printStackTrace();
+/*      */     }
+/*  360 */     return modelAndView;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/toFileDetails"})
+/*      */   public ModelAndView toFileDetails(HttpServletRequest request)
+/*      */   {
+/*  373 */     Map model = new HashMap();
+/*  374 */     ModelAndView modelAndView = new ModelAndView("app/file/fileDetails", model);
+/*  375 */     return modelAndView;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/getContentById"})
+/*      */   @ResponseBody
+/*      */   public FileContentModel file(HttpServletRequest request, String contentId)
+/*      */   {
+/*  391 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*  392 */     FileContentModel fcm = this.fileContentService.getFileConByContentId(contentId, request);
+/*  393 */     List attachmentList = new ArrayList();
+/*  394 */     if ((fcm.getAttachmentName() != null) && (!"".equals(fcm.getAttachmentName()))) {
+/*  395 */       attachmentList = GetAttachmentListUtil.returnAttachment(fcm.getAttachmentName(), fcm.getAttachmentId(), Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "file_folder");
+/*      */     }
+/*  397 */     fcm.setAttachmentList(attachmentList);
+/*  398 */     return fcm;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/updateContent"})
+/*      */   @ResponseBody
+/*      */   public ToJson updateContent(HttpServletRequest request, FileContentModel fcm)
+/*      */   {
+/*  414 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*  415 */     ToJson to = new ToJson();
+/*  416 */     double filerSize = 0.0D;
+/*  417 */     if (!StringUtils.checkNull(fcm.getFileSize()).booleanValue()) {
+/*  418 */       String[] fileSizes = fcm.getFileSize().split(",");
+/*  419 */       for (int i = 0; i < fileSizes.length; i++) {
+/*  420 */         if (fileSizes[i].indexOf("MB") != -1) {
+/*  421 */           String file = fileSizes[i].replace("MB", "");
+/*  422 */           double size = Double.valueOf(file).doubleValue();
+/*  423 */           filerSize += size;
+/*  424 */         } else if (fileSizes[i].indexOf("KB") != -1) {
+/*  425 */           String file = fileSizes[i].replace("KB", "");
+/*  426 */           double size = Double.valueOf(file).doubleValue();
+/*  427 */           double sizeFile = ZipUtils.getM(size);
+/*  428 */           BigDecimal b = new BigDecimal(sizeFile);
+/*  429 */           double f1 = b.setScale(2, 4).doubleValue();
+/*  430 */           filerSize += f1;
+/*  431 */         } else if (fileSizes[i].indexOf("B") != -1) {
+/*  432 */           String file = fileSizes[i].replace("B", "");
+/*  433 */           double size = Double.valueOf(file).doubleValue();
+/*  434 */           double sizeFile = ZipUtils.getKB(size);
+/*  435 */           double sizeFile1 = ZipUtils.getM(sizeFile);
+/*  436 */           BigDecimal b = new BigDecimal(sizeFile1);
+/*  437 */           double f1 = b.setScale(2, 4).doubleValue();
+/*  438 */           filerSize += f1;
+/*      */         }
+/*      */       }
+/*      */     }
+/*      */ 
+/*  443 */     fcm.setFileSize(String.valueOf(filerSize));
+/*  444 */     if (fcm.getSortId().intValue() != 0) {
+/*  445 */       FileSortModel file = new FileSortModel();
+/*  446 */       file.setSortId(fcm.getSortId());
+/*  447 */       FileSortModel fileSortModel = this.fileSortService.getFileSortBySortIds(file);
+/*  448 */       if ("5".equals(fileSortModel.getSortType())) {
+/*  449 */         StringBuffer stringBuffer = new StringBuffer();
+/*      */ 
+/*  451 */         List<FileSortModel> FileSortModels = getfilesDeleteList(file);
+/*      */ 
+/*  453 */         FileSortModels.add(fileSortModel);
+/*      */ 
+/*  455 */         for (FileSortModel treeNode : FileSortModels) {
+/*  456 */           stringBuffer.append(treeNode.getSortId());
+/*  457 */           if (FileSortModels.size() > 1) {
+/*  458 */             stringBuffer.append(",");
+/*      */           }
+/*      */         }
+/*      */ 
+/*  462 */         List<FileContentModel> fileContentModels = new ArrayList<FileContentModel>();
+/*  463 */         String sortId = "";
+/*  464 */         if (!StringUtils.checkNull(stringBuffer.toString()).booleanValue()) {
+/*  465 */           if (FileSortModels.size() > 1)
+/*  466 */             sortId = stringBuffer.substring(0, stringBuffer.length() - 1);
+/*      */           else {
+/*  468 */             sortId = stringBuffer.toString();
+/*      */           }
+/*  470 */           fileContentModels = this.fileContentService.selectFileSortList(sortId);
+/*      */         }
+/*  472 */         double fileListSize = 0.0D;
+/*  473 */         for (int i = 0; i < fileContentModels.size(); i++) {
+/*  474 */           fileListSize += Double.parseDouble(((FileContentModel)fileContentModels.get(i)).getFileSize());
+/*      */         }
+/*  476 */         BaseWrapper bassWrapper = this.fileSortService.getFileAuthBySortId(fcm.getSortId(), request);
+/*  477 */         if ((bassWrapper != null) && 
+/*  478 */           (bassWrapper.getData() != null) && ((bassWrapper.getData() instanceof FileSortModel))) {
+/*  479 */           FileSortModel model = (FileSortModel)bassWrapper.getData();
+/*  480 */           if (!StringUtils.checkNull(String.valueOf(model.getSpaceLimit())).booleanValue())
+/*      */           {
+/*  482 */             double size = Double.valueOf(model.getSpaceLimit().intValue()).doubleValue();
+/*  483 */             if ((fileListSize + filerSize >= size) && (size != 0.0D))
+/*      */             {
+/*  486 */               to.setFlag(1);
+/*  487 */               to.setMsg("文件已经到最大容量");
+/*  488 */               return to;
+/*      */             }
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/*  496 */     int i = this.fileContentService.updateFileCon(fcm);
+/*      */ 
+/*  498 */     to.setFlag(0);
+/*  499 */     to.setMsg(i + "");
+/*  500 */     return to;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/content"})
+/*      */   public ModelAndView fileContent(String sortType, String sortId, String text, String postType, HttpServletRequest request)
+/*      */     throws UnsupportedEncodingException
+/*      */   {
+/*  514 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  516 */     Map model = new HashMap();
+/*  517 */     model.put("sortId", sortId);
+/*  518 */     model.put("sortType", sortType);
+/*  519 */     model.put("text", text);
+/*  520 */     model.put("postType", postType);
+/*  521 */     ModelAndView modelAndView = new ModelAndView("app/file/fileContent", model);
+/*  522 */     return modelAndView;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"saveContent"})
+/*      */   @ResponseBody
+/*      */   public ToJson<DiaryModel> addContent(FileContentModel fileContentModel, HttpServletRequest request)
+/*      */   {
+/*  536 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  538 */     ToJson diaryListToJson = new ToJson(0, "");
+/*  539 */     double filerSize = 0.0D;
+/*  540 */     if (!StringUtils.checkNull(fileContentModel.getFileSize()).booleanValue()) {
+/*  541 */       String[] fileSizes = fileContentModel.getFileSize().split(",");
+/*  542 */       for (int i = 0; i < fileSizes.length; i++) {
+/*  543 */         if (fileSizes[i].indexOf("MB") != -1) {
+/*  544 */           String file = fileSizes[i].replace("MB", "");
+/*  545 */           double size = Double.valueOf(file).doubleValue();
+/*  546 */           filerSize += size;
+/*  547 */         } else if (fileSizes[i].indexOf("KB") != -1) {
+/*  548 */           String file = fileSizes[i].replace("KB", "");
+/*  549 */           double size = Double.valueOf(file).doubleValue();
+/*  550 */           double sizeFile = ZipUtils.getM(size);
+/*  551 */           BigDecimal b = new BigDecimal(sizeFile);
+/*  552 */           double f1 = b.setScale(2, 4).doubleValue();
+/*  553 */           filerSize += f1;
+/*  554 */         } else if (fileSizes[i].indexOf("B") != -1) {
+/*  555 */           String file = fileSizes[i].replace("B", "");
+/*  556 */           double size = Double.valueOf(file).doubleValue();
+/*  557 */           double sizeFile = ZipUtils.getKB(size);
+/*  558 */           double sizeFile1 = ZipUtils.getM(sizeFile);
+/*  559 */           BigDecimal b = new BigDecimal(sizeFile1);
+/*  560 */           double f1 = b.setScale(2, 4).doubleValue();
+/*  561 */           filerSize += f1;
+/*      */         }
+/*      */       }
+/*      */     }
+/*      */ 
+/*  566 */     fileContentModel.setFileSize(String.valueOf(filerSize));
+/*  567 */     if (fileContentModel.getSortId().intValue() != 0) {
+/*  568 */       FileSortModel file = new FileSortModel();
+/*  569 */       file.setSortId(fileContentModel.getSortId());
+/*  570 */       FileSortModel fileSortModel = this.fileSortService.getFileSortBySortIds(file);
+/*  571 */       if ("5".equals(fileSortModel.getSortType())) {
+/*  572 */         StringBuffer stringBuffer = new StringBuffer();
+/*      */ 
+/*  574 */         List<FileSortModel> FileSortModels = getfilesDeleteList(file);
+/*  575 */         FileSortModels.add(fileSortModel);
+/*      */ 
+/*  577 */         for (FileSortModel treeNode : FileSortModels) {
+/*  578 */           stringBuffer.append(treeNode.getSortId());
+/*  579 */           if (FileSortModels.size() > 1) {
+/*  580 */             stringBuffer.append(",");
+/*      */           }
+/*      */         }
+/*  583 */         List fileContentModels = new ArrayList();
+/*  584 */         String sortId = "";
+/*  585 */         if (!StringUtils.checkNull(stringBuffer.toString()).booleanValue()) {
+/*  586 */           if (FileSortModels.size() > 1)
+/*  587 */             sortId = stringBuffer.substring(0, stringBuffer.length() - 1);
+/*      */           else {
+/*  589 */             sortId = stringBuffer.toString();
+/*      */           }
+/*  591 */           fileContentModels = this.fileContentService.selectFileSortList(sortId);
+/*      */         }
+/*  593 */         double fileListSize = 0.0D;
+/*  594 */         for (int i = 0; i < fileContentModels.size(); i++) {
+/*  595 */           fileListSize += Double.parseDouble(((FileContentModel)fileContentModels.get(i)).getFileSize());
+/*      */         }
+/*  597 */         BaseWrapper bassWrapper = this.fileSortService.getFileAuthBySortId(fileContentModel.getSortId(), request);
+/*  598 */         if ((bassWrapper != null) && 
+/*  599 */           (bassWrapper.getData() != null) && ((bassWrapper.getData() instanceof FileSortModel))) {
+/*  600 */           FileSortModel model = (FileSortModel)bassWrapper.getData();
+/*  601 */           if (!StringUtils.checkNull(String.valueOf(model.getSpaceLimit())).booleanValue())
+/*      */           {
+/*  603 */             double size = Double.valueOf(model.getSpaceLimit().intValue()).doubleValue();
+/*  604 */             if ((fileListSize + filerSize >= size) && (size != 0.0D))
+/*      */             {
+/*  607 */               diaryListToJson.setFlag(1);
+/*  608 */               diaryListToJson.setMsg("文件已经到最大容量");
+/*  609 */               return diaryListToJson;
+/*      */             }
+/*      */           }
+/*      */ 
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/*  619 */     fileContentModel.setSendTime(DateFormat.getStrDate(new Date()));
+/*      */ 
+/*  621 */     String userId = "";
+/*  622 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  623 */     if ((users != null) && (users.getUid() != null)) {
+/*  624 */       userId = users.getUserId();
+/*      */     }
+/*  626 */     fileContentModel.setCreater(userId);
+/*  627 */     if (fileContentModel.getSortId().intValue() == 0) {
+/*  628 */       fileContentModel.setUserId(userId);
+/*      */     }
+/*  630 */     int i = this.fileContentService.saveContent(fileContentModel);
+/*  631 */     diaryListToJson.setFlag(0);
+/*  632 */     diaryListToJson.setMsg("" + i);
+/*  633 */     return diaryListToJson;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/catContent"})
+/*      */   public ModelAndView catContent(String contentId, HttpServletRequest request)
+/*      */   {
+/*  647 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  649 */     this.loger.info("--------catContent-------");
+/*  650 */     Map model = new HashMap();
+/*  651 */     FileContentModel fcm = this.fileContentService.getFileConByContentId(contentId, request);
+/*  652 */     model.put("fcm", fcm);
+/*  653 */     ModelAndView modelAndView = new ModelAndView("app/file/fileContentDetail", model);
+/*  654 */     return modelAndView;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/catalog"})
+/*      */   public void showFiles(FileSortModel file, HttpServletResponse response, String postType, HttpServletRequest request, String deptId, String userPriv)
+/*      */   {
+/*  668 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  670 */     List fileList = new LinkedList();
+/*  671 */     List tatalList = new LinkedList();
+/*  672 */     List<FileContentModel> fileConList = new LinkedList<FileContentModel>();
+/*  673 */     Map map = new Hashtable();
+/*  674 */     String userId = request.getSession().getAttribute("userId").toString();
+/*  675 */     if (userPriv == null) {
+/*  676 */       userPriv = request.getSession().getAttribute("userPriv").toString();
+/*      */     }
+/*  678 */     if (deptId == null) {
+/*  679 */       deptId = request.getSession().getAttribute("deptId").toString();
+/*      */     }
+/*  681 */     if (file.getUserId() == null) {
+/*  682 */       file.setUserId(userId);
+/*      */     }
+/*  684 */     map.put("userId", file.getUserId() == null ? userId : file.getUserId());
+/*  685 */     map.put("userPriv", userPriv == null ? "" : userPriv);
+/*  686 */     map.put("deptId", deptId == null ? "" : deptId);
+/*  687 */     Integer tempNo = file.getSortId();
+/*      */ 
+/*  689 */     if ((tempNo != null) || (!"5".equals(file.getSortType())))
+/*      */     {
+/*  692 */       fileConList = this.fileContentService.getFileConBySortid(tempNo == null ? 0 : tempNo.intValue(), request);
+/*      */     }
+/*  694 */     for (FileContentModel fcm : fileConList) {
+/*  695 */       List attachmentList = new ArrayList();
+/*  696 */       if ((fcm.getAttachmentName() != null) && (!"".equals(fcm.getAttachmentName()))) {
+/*  697 */         attachmentList = GetAttachmentListUtil.returnAttachment(fcm.getAttachmentName(), fcm.getAttachmentId(), Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "file_folder");
+/*      */       }
+/*  699 */       fcm.setAttachmentList(attachmentList);
+/*      */     }
+/*      */ 
+/*  702 */     if (file.getSortId() == null) {
+/*  703 */       FileSortModel fileChr = new FileSortModel();
+/*  704 */       fileChr.setSortParent(Integer.valueOf(0));
+/*  705 */       fileChr.setSortType(file.getSortType());
+/*      */ 
+/*  707 */       if ("5".equals(fileChr.getSortType())) {
+/*  708 */         fileList = this.fileSortService.getFileSortList(fileChr);
+/*      */ 
+/*  710 */         if (!MobileCheck.isMobileDevice(request.getHeader("user-agent"))) {
+/*  711 */           Iterator iteratorChr = fileList.iterator();
+/*  712 */           while (iteratorChr.hasNext()) {
+/*  713 */             FileSortModel fsm = (FileSortModel)iteratorChr.next();
+/*      */ 
+/*  715 */             if (!CheckTree.checkAll(fsm.getUserId(), map)) {
+/*  716 */               iteratorChr.remove();
+/*      */             }
+/*      */           }
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  723 */       if ("4".equals(fileChr.getSortType())) {
+/*  724 */         fileChr.setUserId(file.getUserId());
+/*  725 */         fileList = this.fileSortService.getFileSortList(fileChr);
+/*      */       }
+/*      */     } else {
+/*  728 */       FileSortModel filePar = new FileSortModel();
+/*  729 */       filePar.setSortParent(file.getSortId());
+/*  730 */       filePar.setSortType(file.getSortType());
+/*  731 */       fileList = this.fileSortService.getFileSortList(filePar);
+/*      */ 
+/*  733 */       if (("5".equals(file.getSortType())) && 
+/*  734 */         (!MobileCheck.isMobileDevice(request.getHeader("user-agent")))) {
+/*  735 */         Iterator iteratorChr = fileList.iterator();
+/*  736 */         while (iteratorChr.hasNext()) {
+/*  737 */           FileSortModel fsm = (FileSortModel)iteratorChr.next();
+/*      */ 
+/*  739 */           if (!CheckTree.checkAll(fsm.getUserId(), map)) {
+/*  740 */             iteratorChr.remove();
+/*      */           }
+/*      */ 
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  747 */       if ("4".equals(file.getSortType())) {
+/*  748 */         filePar.setUserId(userId);
+/*  749 */         fileList = this.fileSortService.getFileSortList(filePar);
+/*      */       }
+/*      */     }
+/*      */ 
+/*  753 */     if (fileList != null) {
+/*  754 */       checkPriv(fileList, map);
+/*  755 */       tatalList.addAll(fileList);
+/*      */     }
+/*  757 */     if (fileConList != null)
+/*      */     {
+/*  759 */       tatalList.addAll(fileConList);
+/*      */     }
+/*  761 */     HtmlUtil.writerJson(response, tatalList);
+/*      */   }
+/*      */ 
+/*      */   private void checkPriv(List<FileSortModel> fileList, Map<String, Object> map) {
+/*  765 */     for (FileSortModel m : fileList) {
+/*  766 */       m.setDelPriv(CheckAll.checkAll(m.getDelUser(), map));
+/*  767 */       m.setMakePriv(CheckAll.checkAll(m.getNewUser(), map));
+/*  768 */       m.setDownloadPriv(CheckAll.checkAll(m.getDownUser(), map));
+/*  769 */       m.setUpdatePriv(CheckAll.checkAll(m.getManagerUser(), map));
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/setIndex"})
+/*      */   public ModelAndView tofileSet()
+/*      */   {
+/*  785 */     ModelAndView modelAndView = new ModelAndView("app/file/fileSet");
+/*  786 */     return modelAndView;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/signReading"})
+/*      */   public ModelAndView signReading()
+/*      */   {
+/*  799 */     ModelAndView modelAndView = new ModelAndView("app/file/signReading");
+/*  800 */     return modelAndView;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/toFileSet"})
+/*      */   @ResponseBody
+/*      */   public List<FileSortModel> showFileBySort_id(FileSortModel file, HttpServletRequest request)
+/*      */   {
+/*  816 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  819 */     HttpSession session = request.getSession();
+/*  820 */     String userId = session.getAttribute("userId").toString();
+/*  821 */     String userPriv = session.getAttribute("userPriv").toString();
+/*  822 */     String deptId = session.getAttribute("deptId").toString();
+/*  823 */     Map map = new Hashtable();
+/*  824 */     map.put("userId", userId == null ? "" : userId);
+/*  825 */     map.put("userPriv", userPriv == null ? "" : userPriv);
+/*  826 */     map.put("deptId", deptId == null ? "" : deptId);
+/*  827 */     file.setSortType("5");
+/*  828 */     file.setSortParent(Integer.valueOf(0));
+/*  829 */     List list = this.fileSortService.getFileSortList(file);
+/*      */ 
+/*  838 */     checkPriv(list, map);
+/*  839 */     Map model = new HashMap();
+/*  840 */     model.put("parentList", list);
+/*  841 */     return list;
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping({"/add"})
+/*      */   public ToJson<FileSortModel> fileAdd(FileSortModel file, HttpServletRequest request, HttpServletResponse response)
+/*      */     throws UnsupportedEncodingException
+/*      */   {
+/*  857 */     ToJson toJson = new ToJson(1, "err");
+/*  858 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  860 */     HttpSession session = request.getSession();
+/*  861 */     String userId = session.getAttribute("userId").toString();
+/*  862 */     Map model = null;
+/*  863 */     ModelAndView modelAndView = null;
+/*      */ 
+/*  878 */     String sname = new String(file.getSortName());
+/*  879 */     file.setSortName(sname);
+/*      */ 
+/*  882 */     if (file.getSortId() != null) {
+/*  883 */       file.setSortParent(file.getSortId());
+/*  884 */       file.setSortId(Integer.valueOf(0));
+/*  885 */       int resultSaveChr = this.fileSortService.saveFileSortChr(file);
+/*  886 */       HtmlUtil.writerJson(response, Integer.valueOf(resultSaveChr));
+/*  887 */       return null;
+/*      */     }
+/*      */ 
+/*  891 */     if ("5".equals(file.getSortType()))
+/*  892 */       file.setUserId("||" + userId + ",");
+/*      */     else {
+/*  894 */       file.setUserId(userId);
+/*      */     }
+/*  896 */     if (file.getSortParent() == null) {
+/*  897 */       file.setSortParent(Integer.valueOf(0));
+/*      */     }
+/*  899 */     if (file.getSortNo() != null) {
+/*  900 */       FileSortModel file1 = this.fileSortService.singleBySortName(file.getSortName());
+/*  901 */       if (file1 != null) {
+/*  902 */         toJson.setMsg("文件名不能重复");
+/*  903 */         file.setCount(1);
+/*  904 */         toJson.setFlag(1);
+/*  905 */         toJson.setCode("1001");
+/*      */       } else {
+/*  907 */         int resultSave = this.fileSortService.saveFileSort(file);
+/*  908 */         HtmlUtil.writerJson(response, Integer.valueOf(resultSave));
+/*      */       }
+/*      */     }
+/*  911 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/fileGetOne"})
+/*      */   @ResponseBody
+/*      */   public ToJson<FileSortModel> filegetOne(FileSortModel file, HttpServletRequest request)
+/*      */   {
+/*  926 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*  927 */     ToJson json = new ToJson();
+/*  928 */     FileSortModel fs = this.fileSortService.getFileSortBySortIds(file);
+/*  929 */     json.setObject(fs);
+/*  930 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/edit"})
+/*      */   public ModelAndView fileEdit(FileSortModel file, HttpServletRequest request)
+/*      */   {
+/*  944 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  947 */     Map fileEditMap = new HashMap();
+/*  948 */     List fileslist = this.fileSortService.getFileSortList(file);
+/*  949 */     FileSortModel files = null;
+/*  950 */     if (fileslist.size() > 0) {
+/*  951 */       files = (FileSortModel)fileslist.get(0);
+/*      */     }
+/*  953 */     fileEditMap.put("sortid", files.getSortId());
+/*  954 */     fileEditMap.put("sortno", files.getSortNo());
+/*  955 */     fileEditMap.put("sortname", files.getSortName());
+/*  956 */     ModelAndView modelAndView = new ModelAndView("app/file/fileEdit", fileEditMap);
+/*  957 */     return modelAndView;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/update"})
+/*      */   public void fileUpdate(FileSortModel file, HttpServletRequest request, HttpServletResponse response)
+/*      */   {
+/*  971 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  974 */     int resultUpdate = this.fileSortService.updateFileSort(file);
+/*  975 */     HtmlUtil.writerJson(response, Integer.valueOf(resultUpdate));
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/deleteAll"})
+/*      */   @ResponseBody
+/*      */   public ToJson fileDelete(HttpServletRequest request, FileSortModel file)
+/*      */   {
+	           int deleConNo;
+/*  991 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  994 */     List<FileSortModel> childrenList = getfilesDeleteList(file);
+/*      */ 
+/*  996 */     childrenList.add(file);
+/*      */ 
+/*  998 */     List fileContentList = new ArrayList();
+/*      */ 
+/* 1000 */     for (FileSortModel f : childrenList) {
+/* 1001 */       int tempNo = f.getSortId().intValue();
+/* 1002 */       List fileContent = this.fileContentService.getFileConBySortid(tempNo, request);
+/*      */ 
+/* 1004 */       fileContentList.addAll(fileContent);
+/*      */ 
+/* 1006 */       deleConNo = this.fileContentService.deleteBySortId(tempNo);
+/*      */     }
+/* 1012 */     int deleSortNo = 0;
+/* 1013 */     for (FileSortModel f : childrenList) {
+/* 1014 */       Map fileSortidMap = new HashMap();
+/* 1015 */       fileSortidMap.put("sortid", f.getSortId());
+/*      */ 
+/* 1017 */       deleSortNo += this.fileSortService.deleteBySortId(fileSortidMap);
+/*      */     }
+/*      */ 
+/* 1020 */     ToJson tj = new ToJson();
+/* 1021 */     if (deleSortNo > 0) {
+/* 1022 */       tj.setFlag(0);
+/* 1023 */       tj.setMsg("删除成功");
+/*      */     }
+/* 1025 */     return tj;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/deletefileAndCon"})
+/*      */   @ResponseBody
+/*      */   public ToJson conDelete(HttpServletRequest request, FileSortModel file, String contentId)
+/*      */   {
+/* 1041 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/* 1043 */     int deleSortNo = 0;
+/* 1044 */     ToJson tj = new ToJson();
+/*      */     int deleConNo;
+/* 1046 */     if (contentId == null) {
+/* 1047 */       List<FileSortModel> childrenList = getfilesDeleteList(file);
+/*      */ 
+/* 1049 */       childrenList.add(file);
+/*      */ 
+/* 1051 */       for (FileSortModel f : childrenList) {
+/* 1052 */         int tempNo = f.getSortId().intValue();
+/* 1053 */         deleConNo = this.fileContentService.deleteBySortId(tempNo);
+/*      */       }
+/* 1060 */       for (FileSortModel f : childrenList) {
+/* 1061 */         Map fileSortidMap = new HashMap();
+/* 1062 */         fileSortidMap.put("sortid", f.getSortId());
+/*      */ 
+/* 1064 */         deleSortNo += this.fileSortService.deleteBySortId(fileSortidMap);
+/*      */       }
+/*      */ 
+/* 1067 */       tj.setFlag(0);
+/* 1068 */       tj.setMsg(deleSortNo + "");
+/*      */     } else {
+/* 1070 */       Map fileConMap = new HashMap();
+/* 1071 */       fileConMap.put("contentId", contentId);
+/* 1072 */       deleSortNo = this.fileContentService.deleteByConId(fileConMap);
+/* 1073 */       tj.setFlag(0);
+/* 1074 */       tj.setMsg(deleSortNo + "");
+/*      */     }
+/* 1076 */     return tj;
+/*      */   }
+/*      */ 
+/*      */   public List<FileSortModel> getfilesDeleteList(FileSortModel file)
+/*      */   {
+/* 1090 */     List parentList = new ArrayList();
+/* 1091 */     Integer tempNo = file.getSortId();
+/* 1092 */     List<FileSortModel> childrenList = new ArrayList<FileSortModel>();
+/* 1093 */     childrenList = this.fileSortService.getSortChrildren(tempNo.intValue());
+/* 1094 */     if (childrenList.size() > 0) {
+/* 1095 */       for (FileSortModel fs : childrenList) {
+/* 1096 */         parentList.addAll(getfilesDeleteList(fs));
+/*      */       }
+/* 1098 */       parentList.addAll(childrenList);
+/*      */     }
+/* 1100 */     return parentList;
+/*      */   }
+/*      */ 
+/*      */   private boolean deleteAttachment(List<FileContentModel> fileContentList, HttpServletRequest request)
+/*      */   {
+/* 1114 */     List<Attachment> attachmentList = new ArrayList<Attachment>();
+/*      */      String path;
+/* 1116 */     for (FileContentModel fc : fileContentList) {
+/* 1117 */       String[] Att_idArray = fc.getAttachmentId().split(",");
+/* 1118 */       for (int i = 0; i < Att_idArray.length; i++) {
+/* 1119 */         String[] Att_idArrayAid = Att_idArray[i].split("@");
+/* 1120 */         Attachment att = new Attachment();
+/* 1121 */         att.setAid(Integer.valueOf(Integer.parseInt(Att_idArrayAid[0])));
+/* 1122 */         String[] ymAndAttachId = Att_idArrayAid[1].split("_");
+/* 1123 */         att.setYm(ymAndAttachId[0]);
+/* 1124 */         att.setAttachId(Integer.valueOf(Integer.parseInt(ymAndAttachId[1])));
+/* 1125 */         attachmentList.add(att);
+/*      */       }
+/*      */     }
+/* 1128 */     for (Attachment at : attachmentList)
+/*      */     {
+/* 1130 */       Map atMap = new HashMap();
+/* 1131 */       atMap.put("aidString", at.getAid());
+/* 1132 */       atMap.put("ymString", at.getYm());
+/* 1133 */       atMap.put("attachIdString", at.getAttachId());
+/*      */ 
+/* 1136 */       path = request.getSession().getServletContext().getRealPath("/");
+/*      */     }
+/*      */    
+/* 1139 */     return false;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/batchDeleteConId"})
+/*      */   @ResponseBody
+/*      */   public BaseWrapper deleteByList(@RequestParam(name="fileId[]") Integer[] fileId)
+/*      */   {
+/* 1153 */     return this.fileContentService.batchDeleteConId(fileId);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/setFileSortAuth"})
+/*      */   @ResponseBody
+/*      */   public BaseWrapper setFileAuth(@RequestParam(name="auth") String auth)
+/*      */   {
+/* 1234 */     Map mmp = (Map)JSONArray.parseObject(auth, Map.class);
+/* 1235 */     L.w(new Object[] { mmp });
+/* 1236 */     BaseWrapper wrapper = this.fileSortService.setFileSortAuth(mmp);
+/* 1237 */     return wrapper;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/queryBySearchValue"})
+/*      */   @ResponseBody
+/*      */   public BaseWrappers queryBySearchValue(HttpServletRequest req, Integer sortId, Integer sortType, String subjectName, @RequestParam(name="creater", required=false) String[] creater, Integer contentNo, String contentValue1, String contentValue2, String contentValue3, String atiachmentDesc, String atiachmentName, String atiachmentCont, String crStartDate, String crEndDate, Integer pageNo, @RequestParam(name="pageSize", defaultValue="10", required=false) Integer pageSize)
+/*      */   {
+/* 1266 */     BaseWrappers wrappers = this.fileContentService.queryBySearchValue(req, sortId, sortType, subjectName, creater, contentNo, contentValue1, contentValue2, contentValue3, atiachmentDesc, atiachmentName, atiachmentCont, crStartDate, crEndDate, pageNo, pageSize);
+/* 1267 */     return wrappers;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/getAuthBySortId"})
+/*      */   @ResponseBody
+/*      */   public FileAuthWrapper getAuthBySortId(Integer sortId)
+/*      */   {
+/* 1281 */     return this.fileSortService.getAuthBySortId(sortId);
+/*      */   }
+/* 1287 */   @RequestMapping({"/getFileAuthBySortId"})
+/*      */   @ResponseBody
+/*      */   public BaseWrapper getFileAuthBySortId(Integer sortId, HttpServletRequest request) { return this.fileSortService.getFileAuthBySortId(sortId, request);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/copyAndParse"})
+/*      */   @ResponseBody
+/*      */   public BaseWrapper copyAndParse(Integer copyId, Integer witchSortId)
+/*      */   {
+/* 1298 */     return this.fileContentService.copyAndParse(copyId, witchSortId);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/fileCut"})
+/*      */   @ResponseBody
+/*      */   public ToJson ContentCut(HttpServletRequest req, @RequestParam("contentId[]") String[] contentId)
+/*      */   {
+/* 1310 */     return this.fileContentService.contentCut(req, contentId);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/fileBoxUpload"})
+/*      */   @ResponseBody
+/*      */   public void fileBoxUpload(@RequestParam("file") MultipartFile[] files, HttpServletRequest request, HttpServletResponse response)
+/*      */   {
+/*      */     try
+/*      */     {
+/* 1322 */       BaseWrappers wrappers = this.fileContentService.uploadFile(files, request);
+/* 1323 */       response.setCharacterEncoding("utf-8");
+/* 1324 */       response.setHeader("content-type", "text/html;charset=utf-8");
+/* 1325 */       ServletOutputStream out = response.getOutputStream();
+/* 1326 */       OutputStreamWriter ow = new OutputStreamWriter(out, "UTF-8");
+/*      */ 
+/* 1328 */       ow.write(JSONObject.toJSONString(wrappers));
+/* 1329 */       ow.flush();
+/* 1330 */       ow.close();
+/*      */     } catch (Exception e) {
+/* 1332 */       e.printStackTrace();
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/newFileInBox"})
+/*      */   @ResponseBody
+/*      */   public BaseWrapper newFileInBox(String fileType)
+/*      */   {
+/* 1348 */     return this.fileContentService.newFileInBox(fileType, this.file_box_new_file);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/downFileContent"}, produces={"application/json;charset=UTF-8"})
+/*      */   public ModelAndView downFileContent(HttpServletRequest request, HttpServletResponse response, @RequestParam("contentId") String[] cIds)
+/*      */   {
+/* 1364 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/* 1365 */     ToJson tojson = new ToJson();
+/* 1366 */     tojson = this.fileContentService.downFileContent(request, response, cIds);
+/* 1367 */     Map map = new HashMap();
+/* 1368 */     map.put("msg", tojson.getMsg());
+/* 1369 */     ModelAndView mod = new ModelAndView("app/common/FileDownAlert", map);
+/* 1370 */     return mod;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/serachAll"})
+/*      */   @ResponseBody
+/*      */   public ToJson serachAll(HttpServletRequest request, HttpServletResponse response)
+/*      */   {
+/* 1388 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/* 1389 */     ToJson tojson = new ToJson();
+/* 1390 */     Map mapParamter = new HashMap();
+/* 1391 */     Map paramMap = request.getParameterMap();
+/*      */ 
+/* 1393 */     Iterator iKeys = paramMap.keySet().iterator();
+/* 1394 */     while (iKeys.hasNext()) {
+/* 1395 */       String key = (String)iKeys.next();
+/* 1396 */       String[] value = (String[])paramMap.get(key);
+/* 1397 */       if ((value != null) && (value.length > 0))
+/* 1398 */         mapParamter.put(key, value[0]);
+/*      */       else {
+/* 1400 */         mapParamter.put(key, "");
+/*      */       }
+/*      */     }
+/* 1403 */     tojson = this.fileContentService.serachAll(mapParamter, request);
+/* 1404 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/signConState"})
+/*      */   @ResponseBody
+/*      */   public ToJson signConState(HttpServletRequest request)
+/*      */   {
+/* 1420 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/* 1422 */     ToJson tojson = new ToJson();
+/* 1423 */     Map mapParamter = new HashMap();
+/* 1424 */     Map paramMap = request.getParameterMap();
+/*      */ 
+/* 1426 */     Iterator iKeys = paramMap.keySet().iterator();
+/* 1427 */     while (iKeys.hasNext()) {
+/* 1428 */       String key = (String)iKeys.next();
+/* 1429 */       String[] value = (String[])paramMap.get(key);
+/* 1430 */       if ((value != null) && (value.length > 0))
+/* 1431 */         mapParamter.put(key, value[0]);
+/*      */       else {
+/* 1433 */         mapParamter.put(key, "");
+/*      */       }
+/*      */     }
+/* 1436 */     tojson = this.fileContentService.signConState(mapParamter, request);
+/* 1437 */     return tojson;
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.file.FileController
+ * JD-Core Version:    0.6.0
+ */

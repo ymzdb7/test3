@@ -1,0 +1,140 @@
+ package com.xoa.service.workPlan;
+ 
+ import com.xoa.dao.edu.eduUser.EduUserMapper;
+ import com.xoa.dao.workPlan.WorkDetailMapper;
+ import com.xoa.model.edu.eduUser.EduUser;
+ import com.xoa.model.users.Users;
+ import com.xoa.model.workPlan.WorkDetail;
+ import com.xoa.model.workPlan.WorkDetailWithBLOBs;
+ import com.xoa.util.DateFormat;
+ import com.xoa.util.ToJson;
+ import com.xoa.util.common.L;
+ import com.xoa.util.common.StringUtils;
+ import com.xoa.util.common.session.SessionUtils;
+ import java.util.Date;
+ import java.util.List;
+ import javax.annotation.Resource;
+ import javax.servlet.http.HttpServletRequest;
+ import org.springframework.stereotype.Service;
+ import org.springframework.transaction.annotation.Transactional;
+ 
+ @Service
+ public class WorkDetailService
+ {
+ 
+   @Resource
+   private WorkDetailMapper workDetailMapper;
+ 
+   @Resource
+   private EduUserMapper eduUserMapper;
+ 
+   public ToJson<WorkDetailWithBLOBs> selWorkDetailByPlanId(WorkDetailWithBLOBs workDetailWithBLOBs)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       List<WorkDetailWithBLOBs> workDetailList = this.workDetailMapper.selWorkDetailByPlanId(workDetailWithBLOBs);
+       for (WorkDetail workDetail : workDetailList) {
+         if (this.eduUserMapper.getByuserId(workDetail.getWriter()) != null) {
+           workDetail.setWriterName(this.eduUserMapper.getByuserId(workDetail.getWriter()).getUserName());
+         }
+       }
+       json.setObj(workDetailList);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "WorkDetailService selWorkDetailByPlanId:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<WorkDetailWithBLOBs> selWorkDetailById(int detailId)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       WorkDetail workDetail = this.workDetailMapper.selWorkDetailById(detailId);
+       workDetail.setCurrent(new Date());
+       json.setObject(workDetail);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "WorkDetailService selWorkDetailById:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   @Transactional
+   public ToJson<WorkDetailWithBLOBs> updateWorkDetailById(WorkDetailWithBLOBs record)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       int count = this.workDetailMapper.updateWorkDetailById(record);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "WorkDetailService updateWorkDetailById:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   @Transactional
+   public ToJson<WorkDetailWithBLOBs> insertWorkDetail(WorkDetailWithBLOBs record, HttpServletRequest request)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       record.setWriter(user.getUserId());
+       if (!StringUtils.checkNull(record.getWriteTimeStr()).booleanValue()) {
+         record.setWriteTime(DateFormat.getDate(record.getWriteTimeStr()));
+       }
+       if (StringUtils.checkNull(record.getProgress()).booleanValue()) {
+         record.setProgress("");
+       }
+       if (StringUtils.checkNull(record.getWriter()).booleanValue()) {
+         record.setWriter("");
+       }
+       if (StringUtils.checkNull(record.getAttachmentId()).booleanValue()) {
+         record.setAttachmentId("");
+       }
+       if (StringUtils.checkNull(record.getAttachmentName()).booleanValue()) {
+         record.setAttachmentName("");
+       }
+       int count = this.workDetailMapper.insertWorkDetail(record);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "WorkDetailService insertWorkDetail:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   @Transactional
+   public ToJson<WorkDetailWithBLOBs> delWorkDetailById(int detailId)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       int count = this.workDetailMapper.delWorkDetailById(detailId);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "WorkDetailService delWorkDetailById:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ }
+

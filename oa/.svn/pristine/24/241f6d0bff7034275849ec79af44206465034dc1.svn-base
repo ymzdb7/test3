@@ -1,0 +1,598 @@
+/*     */ package com.xoa.model.sms;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class SmsExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public SmsExample()
+/*     */   {
+/*  38 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  48 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  58 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  68 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  78 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  88 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  98 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 108 */     Criteria criteria = createCriteriaInternal();
+/* 109 */     this.oredCriteria.add(criteria);
+/* 110 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 120 */     Criteria criteria = createCriteriaInternal();
+/* 121 */     if (this.oredCriteria.size() == 0) {
+/* 122 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 124 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 134 */     Criteria criteria = new Criteria();
+/* 135 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 145 */     this.oredCriteria.clear();
+/* 146 */     this.orderByClause = null;
+/* 147 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 625 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 629 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 633 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 637 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 641 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 645 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 649 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 653 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 658 */       this.condition = condition;
+/* 659 */       this.typeHandler = null;
+/* 660 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 665 */       this.condition = condition;
+/* 666 */       this.value = value;
+/* 667 */       this.typeHandler = typeHandler;
+/* 668 */       if ((value instanceof List))
+/* 669 */         this.listValue = true;
+/*     */       else
+/* 671 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 676 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 681 */       this.condition = condition;
+/* 682 */       this.value = value;
+/* 683 */       this.secondValue = secondValue;
+/* 684 */       this.typeHandler = typeHandler;
+/* 685 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 689 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends SmsExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<SmsExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 161 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 165 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<SmsExample.Criterion> getAllCriteria() {
+/* 169 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<SmsExample.Criterion> getCriteria() {
+/* 173 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 177 */       if (condition == null) {
+/* 178 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 180 */       this.criteria.add(new SmsExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 184 */       if (value == null) {
+/* 185 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 187 */       this.criteria.add(new SmsExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 191 */       if ((value1 == null) || (value2 == null)) {
+/* 192 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 194 */       this.criteria.add(new SmsExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andSmsIdIsNull() {
+/* 198 */       addCriterion("SMS_ID is null");
+/* 199 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andSmsIdIsNotNull() {
+/* 203 */       addCriterion("SMS_ID is not null");
+/* 204 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andSmsIdEqualTo(Integer value) {
+/* 208 */       addCriterion("SMS_ID =", value, "smsId");
+/* 209 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andSmsIdNotEqualTo(Integer value) {
+/* 213 */       addCriterion("SMS_ID <>", value, "smsId");
+/* 214 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andSmsIdGreaterThan(Integer value) {
+/* 218 */       addCriterion("SMS_ID >", value, "smsId");
+/* 219 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andSmsIdGreaterThanOrEqualTo(Integer value) {
+/* 223 */       addCriterion("SMS_ID >=", value, "smsId");
+/* 224 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andSmsIdLessThan(Integer value) {
+/* 228 */       addCriterion("SMS_ID <", value, "smsId");
+/* 229 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andSmsIdLessThanOrEqualTo(Integer value) {
+/* 233 */       addCriterion("SMS_ID <=", value, "smsId");
+/* 234 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andSmsIdIn(List<Integer> values) {
+/* 238 */       addCriterion("SMS_ID in", values, "smsId");
+/* 239 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andSmsIdNotIn(List<Integer> values) {
+/* 243 */       addCriterion("SMS_ID not in", values, "smsId");
+/* 244 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andSmsIdBetween(Integer value1, Integer value2) {
+/* 248 */       addCriterion("SMS_ID between", value1, value2, "smsId");
+/* 249 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andSmsIdNotBetween(Integer value1, Integer value2) {
+/* 253 */       addCriterion("SMS_ID not between", value1, value2, "smsId");
+/* 254 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andToIdIsNull() {
+/* 258 */       addCriterion("TO_ID is null");
+/* 259 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andToIdIsNotNull() {
+/* 263 */       addCriterion("TO_ID is not null");
+/* 264 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andToIdEqualTo(String value) {
+/* 268 */       addCriterion("TO_ID =", value, "toId");
+/* 269 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andToIdNotEqualTo(String value) {
+/* 273 */       addCriterion("TO_ID <>", value, "toId");
+/* 274 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andToIdGreaterThan(String value) {
+/* 278 */       addCriterion("TO_ID >", value, "toId");
+/* 279 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andToIdGreaterThanOrEqualTo(String value) {
+/* 283 */       addCriterion("TO_ID >=", value, "toId");
+/* 284 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andToIdLessThan(String value) {
+/* 288 */       addCriterion("TO_ID <", value, "toId");
+/* 289 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andToIdLessThanOrEqualTo(String value) {
+/* 293 */       addCriterion("TO_ID <=", value, "toId");
+/* 294 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andToIdLike(String value) {
+/* 298 */       addCriterion("TO_ID like", value, "toId");
+/* 299 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andToIdNotLike(String value) {
+/* 303 */       addCriterion("TO_ID not like", value, "toId");
+/* 304 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andToIdIn(List<String> values) {
+/* 308 */       addCriterion("TO_ID in", values, "toId");
+/* 309 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andToIdNotIn(List<String> values) {
+/* 313 */       addCriterion("TO_ID not in", values, "toId");
+/* 314 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andToIdBetween(String value1, String value2) {
+/* 318 */       addCriterion("TO_ID between", value1, value2, "toId");
+/* 319 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andToIdNotBetween(String value1, String value2) {
+/* 323 */       addCriterion("TO_ID not between", value1, value2, "toId");
+/* 324 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindFlagIsNull() {
+/* 328 */       addCriterion("REMIND_FLAG is null");
+/* 329 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindFlagIsNotNull() {
+/* 333 */       addCriterion("REMIND_FLAG is not null");
+/* 334 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindFlagEqualTo(String value) {
+/* 338 */       addCriterion("REMIND_FLAG =", value, "remindFlag");
+/* 339 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindFlagNotEqualTo(String value) {
+/* 343 */       addCriterion("REMIND_FLAG <>", value, "remindFlag");
+/* 344 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindFlagGreaterThan(String value) {
+/* 348 */       addCriterion("REMIND_FLAG >", value, "remindFlag");
+/* 349 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindFlagGreaterThanOrEqualTo(String value) {
+/* 353 */       addCriterion("REMIND_FLAG >=", value, "remindFlag");
+/* 354 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindFlagLessThan(String value) {
+/* 358 */       addCriterion("REMIND_FLAG <", value, "remindFlag");
+/* 359 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindFlagLessThanOrEqualTo(String value) {
+/* 363 */       addCriterion("REMIND_FLAG <=", value, "remindFlag");
+/* 364 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindFlagLike(String value) {
+/* 368 */       addCriterion("REMIND_FLAG like", value, "remindFlag");
+/* 369 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindFlagNotLike(String value) {
+/* 373 */       addCriterion("REMIND_FLAG not like", value, "remindFlag");
+/* 374 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindFlagIn(List<String> values) {
+/* 378 */       addCriterion("REMIND_FLAG in", values, "remindFlag");
+/* 379 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindFlagNotIn(List<String> values) {
+/* 383 */       addCriterion("REMIND_FLAG not in", values, "remindFlag");
+/* 384 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindFlagBetween(String value1, String value2) {
+/* 388 */       addCriterion("REMIND_FLAG between", value1, value2, "remindFlag");
+/* 389 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindFlagNotBetween(String value1, String value2) {
+/* 393 */       addCriterion("REMIND_FLAG not between", value1, value2, "remindFlag");
+/* 394 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andDeleteFlagIsNull() {
+/* 398 */       addCriterion("DELETE_FLAG is null");
+/* 399 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andDeleteFlagIsNotNull() {
+/* 403 */       addCriterion("DELETE_FLAG is not null");
+/* 404 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andDeleteFlagEqualTo(String value) {
+/* 408 */       addCriterion("DELETE_FLAG =", value, "deleteFlag");
+/* 409 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andDeleteFlagNotEqualTo(String value) {
+/* 413 */       addCriterion("DELETE_FLAG <>", value, "deleteFlag");
+/* 414 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andDeleteFlagGreaterThan(String value) {
+/* 418 */       addCriterion("DELETE_FLAG >", value, "deleteFlag");
+/* 419 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andDeleteFlagGreaterThanOrEqualTo(String value) {
+/* 423 */       addCriterion("DELETE_FLAG >=", value, "deleteFlag");
+/* 424 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andDeleteFlagLessThan(String value) {
+/* 428 */       addCriterion("DELETE_FLAG <", value, "deleteFlag");
+/* 429 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andDeleteFlagLessThanOrEqualTo(String value) {
+/* 433 */       addCriterion("DELETE_FLAG <=", value, "deleteFlag");
+/* 434 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andDeleteFlagLike(String value) {
+/* 438 */       addCriterion("DELETE_FLAG like", value, "deleteFlag");
+/* 439 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andDeleteFlagNotLike(String value) {
+/* 443 */       addCriterion("DELETE_FLAG not like", value, "deleteFlag");
+/* 444 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andDeleteFlagIn(List<String> values) {
+/* 448 */       addCriterion("DELETE_FLAG in", values, "deleteFlag");
+/* 449 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andDeleteFlagNotIn(List<String> values) {
+/* 453 */       addCriterion("DELETE_FLAG not in", values, "deleteFlag");
+/* 454 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andDeleteFlagBetween(String value1, String value2) {
+/* 458 */       addCriterion("DELETE_FLAG between", value1, value2, "deleteFlag");
+/* 459 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andDeleteFlagNotBetween(String value1, String value2) {
+/* 463 */       addCriterion("DELETE_FLAG not between", value1, value2, "deleteFlag");
+/* 464 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andBodyIdIsNull() {
+/* 468 */       addCriterion("BODY_ID is null");
+/* 469 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andBodyIdIsNotNull() {
+/* 473 */       addCriterion("BODY_ID is not null");
+/* 474 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andBodyIdEqualTo(Integer value) {
+/* 478 */       addCriterion("BODY_ID =", value, "bodyId");
+/* 479 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andBodyIdNotEqualTo(Integer value) {
+/* 483 */       addCriterion("BODY_ID <>", value, "bodyId");
+/* 484 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andBodyIdGreaterThan(Integer value) {
+/* 488 */       addCriterion("BODY_ID >", value, "bodyId");
+/* 489 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andBodyIdGreaterThanOrEqualTo(Integer value) {
+/* 493 */       addCriterion("BODY_ID >=", value, "bodyId");
+/* 494 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andBodyIdLessThan(Integer value) {
+/* 498 */       addCriterion("BODY_ID <", value, "bodyId");
+/* 499 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andBodyIdLessThanOrEqualTo(Integer value) {
+/* 503 */       addCriterion("BODY_ID <=", value, "bodyId");
+/* 504 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andBodyIdIn(List<Integer> values) {
+/* 508 */       addCriterion("BODY_ID in", values, "bodyId");
+/* 509 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andBodyIdNotIn(List<Integer> values) {
+/* 513 */       addCriterion("BODY_ID not in", values, "bodyId");
+/* 514 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andBodyIdBetween(Integer value1, Integer value2) {
+/* 518 */       addCriterion("BODY_ID between", value1, value2, "bodyId");
+/* 519 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andBodyIdNotBetween(Integer value1, Integer value2) {
+/* 523 */       addCriterion("BODY_ID not between", value1, value2, "bodyId");
+/* 524 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindTimeIsNull() {
+/* 528 */       addCriterion("REMIND_TIME is null");
+/* 529 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindTimeIsNotNull() {
+/* 533 */       addCriterion("REMIND_TIME is not null");
+/* 534 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindTimeEqualTo(Integer value) {
+/* 538 */       addCriterion("REMIND_TIME =", value, "remindTime");
+/* 539 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindTimeNotEqualTo(Integer value) {
+/* 543 */       addCriterion("REMIND_TIME <>", value, "remindTime");
+/* 544 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindTimeGreaterThan(Integer value) {
+/* 548 */       addCriterion("REMIND_TIME >", value, "remindTime");
+/* 549 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindTimeGreaterThanOrEqualTo(Integer value) {
+/* 553 */       addCriterion("REMIND_TIME >=", value, "remindTime");
+/* 554 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindTimeLessThan(Integer value) {
+/* 558 */       addCriterion("REMIND_TIME <", value, "remindTime");
+/* 559 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindTimeLessThanOrEqualTo(Integer value) {
+/* 563 */       addCriterion("REMIND_TIME <=", value, "remindTime");
+/* 564 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindTimeIn(List<Integer> values) {
+/* 568 */       addCriterion("REMIND_TIME in", values, "remindTime");
+/* 569 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindTimeNotIn(List<Integer> values) {
+/* 573 */       addCriterion("REMIND_TIME not in", values, "remindTime");
+/* 574 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindTimeBetween(Integer value1, Integer value2) {
+/* 578 */       addCriterion("REMIND_TIME between", value1, value2, "remindTime");
+/* 579 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SmsExample.Criteria andRemindTimeNotBetween(Integer value1, Integer value2) {
+/* 583 */       addCriterion("REMIND_TIME not between", value1, value2, "remindTime");
+/* 584 */       return (SmsExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.sms.SmsExample
+ * JD-Core Version:    0.6.0
+ */

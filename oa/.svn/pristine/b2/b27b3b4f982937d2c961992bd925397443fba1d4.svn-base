@@ -1,0 +1,294 @@
+/*     */ package com.xoa.util.systeminfo;
+/*     */ 
+/*     */ import java.math.BigInteger;
+/*     */ import org.apache.commons.codec.binary.StringUtils;
+/*     */ 
+/*     */ public class Base64 extends BaseNCodec
+/*     */ {
+/*     */   private static final int BITS_PER_ENCODED_BYTE = 6;
+/*     */   private static final int BYTES_PER_UNENCODED_BLOCK = 3;
+/*     */   private static final int BYTES_PER_ENCODED_BLOCK = 4;
+/*  15 */   static final byte[] CHUNK_SEPARATOR = { 13, 10 };
+/*  16 */   private static final byte[] STANDARD_ENCODE_TABLE = { 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 43, 47 };
+/*  17 */   private static final byte[] URL_SAFE_ENCODE_TABLE = { 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 45, 95 };
+/*  18 */   private static final byte[] DECODE_TABLE = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, 62, -1, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, 63, -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 };
+/*     */   private static final int MASK_6BITS = 63;
+/*     */   private final byte[] encodeTable;
+/*     */   private final byte[] decodeTable;
+/*     */   private final byte[] lineSeparator;
+/*     */   private final int decodeSize;
+/*     */   private final int encodeSize;
+/*     */ 
+/*     */   public Base64()
+/*     */   {
+/*  27 */     this(0);
+/*     */   }
+/*     */ 
+/*     */   public Base64(boolean urlSafe) {
+/*  31 */     this(76, CHUNK_SEPARATOR, urlSafe);
+/*     */   }
+/*     */ 
+/*     */   public Base64(int lineLength) {
+/*  35 */     this(lineLength, CHUNK_SEPARATOR);
+/*     */   }
+/*     */ 
+/*     */   public Base64(int lineLength, byte[] lineSeparator) {
+/*  39 */     this(lineLength, lineSeparator, false);
+/*     */   }
+/*     */ 
+/*     */   public Base64(int lineLength, byte[] lineSeparator, boolean urlSafe) {
+/*  43 */     super(3, 4, lineLength, lineSeparator == null ? 0 : lineSeparator.length);
+/*  44 */     this.decodeTable = DECODE_TABLE;
+/*  45 */     if (lineSeparator != null) {
+/*  46 */       if (containsAlphabetOrPad(lineSeparator)) {
+/*  47 */         String sep = StringUtils.newStringUtf8(lineSeparator);
+/*  48 */         throw new IllegalArgumentException("lineSeparator must not contain base64 characters: [" + sep + "]");
+/*     */       }
+/*     */ 
+/*  51 */       if (lineLength > 0) {
+/*  52 */         this.encodeSize = (4 + lineSeparator.length);
+/*  53 */         this.lineSeparator = new byte[lineSeparator.length];
+/*  54 */         System.arraycopy(lineSeparator, 0, this.lineSeparator, 0, lineSeparator.length);
+/*     */       } else {
+/*  56 */         this.encodeSize = 4;
+/*  57 */         this.lineSeparator = null;
+/*     */       }
+/*     */     } else {
+/*  60 */       this.encodeSize = 4;
+/*  61 */       this.lineSeparator = null;
+/*     */     }
+/*     */ 
+/*  64 */     this.decodeSize = (this.encodeSize - 1);
+/*  65 */     this.encodeTable = (urlSafe ? URL_SAFE_ENCODE_TABLE : STANDARD_ENCODE_TABLE);
+/*     */   }
+/*     */ 
+/*     */   public boolean isUrlSafe() {
+/*  69 */     return this.encodeTable == URL_SAFE_ENCODE_TABLE;
+/*     */   }
+/*     */ 
+/*     */   void encode(byte[] in, int inPos, int inAvail, BaseNCodec.Context context) {
+/*  73 */     if (!context.eof)
+/*  74 */       if (inAvail < 0) {
+/*  75 */         context.eof = true;
+/*  76 */         if ((0 == context.modulus) && (this.lineLength == 0)) {
+/*  77 */           return;
+/*     */         }
+/*     */ 
+/*  80 */         byte[] i = ensureBufferSize(this.encodeSize, context);
+/*  81 */         int buffer = context.pos;
+/*  82 */         switch (context.modulus) {
+/*     */         case 0:
+/*  84 */           break;
+/*     */         case 1:
+/*  86 */           i[(context.pos++)] = this.encodeTable[(context.ibitWorkArea >> 2 & 0x3F)];
+/*  87 */           i[(context.pos++)] = this.encodeTable[(context.ibitWorkArea << 4 & 0x3F)];
+/*  88 */           if (this.encodeTable != STANDARD_ENCODE_TABLE) break;
+/*  89 */           i[(context.pos++)] = 61;
+/*  90 */           i[(context.pos++)] = 61; break;
+/*     */         case 2:
+/*  94 */           i[(context.pos++)] = this.encodeTable[(context.ibitWorkArea >> 10 & 0x3F)];
+/*  95 */           i[(context.pos++)] = this.encodeTable[(context.ibitWorkArea >> 4 & 0x3F)];
+/*  96 */           i[(context.pos++)] = this.encodeTable[(context.ibitWorkArea << 2 & 0x3F)];
+/*  97 */           if (this.encodeTable != STANDARD_ENCODE_TABLE) break;
+/*  98 */           i[(context.pos++)] = 61; break;
+/*     */         default:
+/* 102 */           throw new IllegalStateException("Impossible modulus " + context.modulus);
+/*     */         }
+/*     */ 
+/* 105 */         context.currentLinePos += context.pos - buffer;
+/* 106 */         if ((this.lineLength > 0) && (context.currentLinePos > 0)) {
+/* 107 */           System.arraycopy(this.lineSeparator, 0, i, context.pos, this.lineSeparator.length);
+/* 108 */           context.pos += this.lineSeparator.length;
+/*     */         }
+/*     */       } else {
+/* 111 */         for (int var8 = 0; var8 < inAvail; var8++) {
+/* 112 */           byte[] var9 = ensureBufferSize(this.encodeSize, context);
+/* 113 */           context.modulus = ((context.modulus + 1) % 3);
+/* 114 */           int b = in[(inPos++)];
+/* 115 */           if (b < 0) {
+/* 116 */             b += 256;
+/*     */           }
+/*     */ 
+/* 119 */           context.ibitWorkArea = ((context.ibitWorkArea << 8) + b);
+/* 120 */           if (0 == context.modulus) {
+/* 121 */             var9[(context.pos++)] = this.encodeTable[(context.ibitWorkArea >> 18 & 0x3F)];
+/* 122 */             var9[(context.pos++)] = this.encodeTable[(context.ibitWorkArea >> 12 & 0x3F)];
+/* 123 */             var9[(context.pos++)] = this.encodeTable[(context.ibitWorkArea >> 6 & 0x3F)];
+/* 124 */             var9[(context.pos++)] = this.encodeTable[(context.ibitWorkArea & 0x3F)];
+/* 125 */             context.currentLinePos += 4;
+/* 126 */             if ((this.lineLength > 0) && (this.lineLength <= context.currentLinePos)) {
+/* 127 */               System.arraycopy(this.lineSeparator, 0, var9, context.pos, this.lineSeparator.length);
+/* 128 */               context.pos += this.lineSeparator.length;
+/* 129 */               context.currentLinePos = 0;
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */   }
+/*     */ 
+/*     */   void decode(byte[] in, int inPos, int inAvail, BaseNCodec.Context context)
+/*     */   {
+/* 139 */     if (!context.eof) {
+/* 140 */       if (inAvail < 0) {
+/* 141 */         context.eof = true;
+/*     */       }
+/*     */ 
+/* 144 */       for (int buffer = 0; buffer < inAvail; buffer++) {
+/* 145 */         byte[] buffer1 = ensureBufferSize(this.decodeSize, context);
+/* 146 */         byte b = in[(inPos++)];
+/* 147 */         if (b == 61) {
+/* 148 */           context.eof = true;
+/* 149 */           break;
+/*     */         }
+/*     */ 
+/* 152 */         if ((b >= 0) && (b < DECODE_TABLE.length)) {
+/* 153 */           byte result = DECODE_TABLE[b];
+/* 154 */           if (result >= 0) {
+/* 155 */             context.modulus = ((context.modulus + 1) % 4);
+/* 156 */             context.ibitWorkArea = ((context.ibitWorkArea << 6) + result);
+/* 157 */             if (context.modulus == 0) {
+/* 158 */               buffer1[(context.pos++)] = (byte)(context.ibitWorkArea >> 16 & 0xFF);
+/* 159 */               buffer1[(context.pos++)] = (byte)(context.ibitWorkArea >> 8 & 0xFF);
+/* 160 */               buffer1[(context.pos++)] = (byte)(context.ibitWorkArea & 0xFF);
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 166 */       if ((context.eof) && (context.modulus != 0)) {
+/* 167 */         byte[] var9 = ensureBufferSize(this.decodeSize, context);
+/* 168 */         switch (context.modulus) {
+/*     */         case 1:
+/* 170 */           break;
+/*     */         case 2:
+/* 172 */           context.ibitWorkArea >>= 4;
+/* 173 */           var9[(context.pos++)] = (byte)(context.ibitWorkArea & 0xFF);
+/* 174 */           break;
+/*     */         case 3:
+/* 176 */           context.ibitWorkArea >>= 2;
+/* 177 */           var9[(context.pos++)] = (byte)(context.ibitWorkArea >> 8 & 0xFF);
+/* 178 */           var9[(context.pos++)] = (byte)(context.ibitWorkArea & 0xFF);
+/* 179 */           break;
+/*     */         default:
+/* 181 */           throw new IllegalStateException("Impossible modulus " + context.modulus);
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   @Deprecated
+/*     */   public static boolean isArrayByteBase64(byte[] arrayOctet)
+/*     */   {
+/* 191 */     return isBase64(arrayOctet);
+/*     */   }
+/*     */ 
+/*     */   public static boolean isBase64(byte octet) {
+/* 195 */     return (octet == 61) || ((octet >= 0) && (octet < DECODE_TABLE.length) && (DECODE_TABLE[octet] != -1));
+/*     */   }
+/*     */ 
+/*     */   public static boolean isBase64(String base64) {
+/* 199 */     return isBase64(StringUtils.getBytesUtf8(base64));
+/*     */   }
+/*     */ 
+/*     */   public static boolean isBase64(byte[] arrayOctet) {
+/* 203 */     for (int i = 0; i < arrayOctet.length; i++) {
+/* 204 */       if ((!isBase64(arrayOctet[i])) && (!isWhiteSpace(arrayOctet[i]))) {
+/* 205 */         return false;
+/*     */       }
+/*     */     }
+/*     */ 
+/* 209 */     return true;
+/*     */   }
+/*     */ 
+/*     */   public static byte[] encodeBase64(byte[] binaryData) {
+/* 213 */     return encodeBase64(binaryData, false);
+/*     */   }
+/*     */ 
+/*     */   public static String encodeBase64String(byte[] binaryData) {
+/* 217 */     return StringUtils.newStringUtf8(encodeBase64(binaryData, false));
+/*     */   }
+/*     */ 
+/*     */   public static byte[] encodeBase64URLSafe(byte[] binaryData) {
+/* 221 */     return encodeBase64(binaryData, false, true);
+/*     */   }
+/*     */ 
+/*     */   public static String encodeBase64URLSafeString(byte[] binaryData) {
+/* 225 */     return StringUtils.newStringUtf8(encodeBase64(binaryData, false, true));
+/*     */   }
+/*     */ 
+/*     */   public static byte[] encodeBase64Chunked(byte[] binaryData) {
+/* 229 */     return encodeBase64(binaryData, true);
+/*     */   }
+/*     */ 
+/*     */   public static byte[] encodeBase64(byte[] binaryData, boolean isChunked) {
+/* 233 */     return encodeBase64(binaryData, isChunked, false);
+/*     */   }
+/*     */ 
+/*     */   public static byte[] encodeBase64(byte[] binaryData, boolean isChunked, boolean urlSafe) {
+/* 237 */     return encodeBase64(binaryData, isChunked, urlSafe, 2147483647);
+/*     */   }
+/*     */ 
+/*     */   public static byte[] encodeBase64(byte[] binaryData, boolean isChunked, boolean urlSafe, int maxResultSize) {
+/* 241 */     if ((binaryData != null) && (binaryData.length != 0)) {
+/* 242 */       Base64 b64 = isChunked ? new Base64(urlSafe) : new Base64(0, CHUNK_SEPARATOR, urlSafe);
+/* 243 */       long len = b64.getEncodedLength(binaryData);
+/* 244 */       if (len > maxResultSize) {
+/* 245 */         throw new IllegalArgumentException("Input array too big, the output array would be bigger (" + len + ") than the specified maximum size of " + maxResultSize);
+/*     */       }
+/* 247 */       return b64.encode(binaryData);
+/*     */     }
+/*     */ 
+/* 250 */     return binaryData;
+/*     */   }
+/*     */ 
+/*     */   public static byte[] decodeBase64(String base64String)
+/*     */   {
+/* 255 */     return new Base64().decode(base64String);
+/*     */   }
+/*     */ 
+/*     */   public static byte[] decodeBase64(byte[] base64Data) {
+/* 259 */     return new Base64().decode(base64Data);
+/*     */   }
+/*     */ 
+/*     */   public static BigInteger decodeInteger(byte[] pArray) {
+/* 263 */     return new BigInteger(1, decodeBase64(pArray));
+/*     */   }
+/*     */ 
+/*     */   public static byte[] encodeInteger(BigInteger bigInt) {
+/* 267 */     if (bigInt == null) {
+/* 268 */       throw new NullPointerException("encodeInteger called with null parameter");
+/*     */     }
+/* 270 */     return encodeBase64(toIntegerBytes(bigInt), false);
+/*     */   }
+/*     */ 
+/*     */   static byte[] toIntegerBytes(BigInteger bigInt)
+/*     */   {
+/* 275 */     int bitlen = bigInt.bitLength();
+/* 276 */     bitlen = bitlen + 7 >> 3 << 3;
+/* 277 */     byte[] bigBytes = bigInt.toByteArray();
+/* 278 */     if ((bigInt.bitLength() % 8 != 0) && (bigInt.bitLength() / 8 + 1 == bitlen / 8)) {
+/* 279 */       return bigBytes;
+/*     */     }
+/* 281 */     byte startSrc = 0;
+/* 282 */     int len = bigBytes.length;
+/* 283 */     if (bigInt.bitLength() % 8 == 0) {
+/* 284 */       startSrc = 1;
+/* 285 */       len--;
+/*     */     }
+/*     */ 
+/* 288 */     int startDst = bitlen / 8 - len;
+/* 289 */     byte[] resizedBytes = new byte[bitlen / 8];
+/* 290 */     System.arraycopy(bigBytes, startSrc, resizedBytes, startDst, len);
+/* 291 */     return resizedBytes;
+/*     */   }
+/*     */ 
+/*     */   protected boolean isInAlphabet(byte octet)
+/*     */   {
+/* 296 */     return (octet >= 0) && (octet < this.decodeTable.length) && (this.decodeTable[octet] != -1);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.systeminfo.Base64
+ * JD-Core Version:    0.6.0
+ */

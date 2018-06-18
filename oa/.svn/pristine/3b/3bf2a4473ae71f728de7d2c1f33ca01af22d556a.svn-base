@@ -1,0 +1,52 @@
+/*    */ package com.xoa.util.netdisk;
+/*    */ 
+/*    */ import java.io.File;
+/*    */ import java.io.PrintStream;
+/*    */ 
+/*    */ public class DeleteFile
+/*    */ {
+/*  9 */   public static int count = 0;
+/*    */ 
+/* 11 */   public static void refreshFileList(String strPath) { File dir = new File(strPath);
+/* 12 */     File[] files = dir.listFiles();
+/* 13 */     if (files == null)
+/*    */     {
+/* 15 */       System.out.println("该目录下没有任何一个文件！");
+/* 16 */       boolean result = dir.delete();
+/* 17 */       int tryCount = 0;
+/* 18 */       while ((!result) && (tryCount++ < 10)) {
+/* 19 */         System.gc();
+/* 20 */         result = dir.delete();
+/*    */       }
+/* 22 */       return;
+/*    */     }
+/* 24 */     for (int i = 0; i < files.length; i++) {
+/* 25 */       if (files[i].isDirectory()) {
+/* 26 */         refreshFileList(files[i].getAbsolutePath());
+/*    */       } else {
+/* 28 */         String strFileName = files[i].getAbsolutePath().toLowerCase();
+/* 29 */         if (strFileName.endsWith(".txt")) {
+/* 30 */           System.out.println("正在删除：" + strFileName);
+/* 31 */           boolean result = files[i].delete();
+/* 32 */           int tryCount = 0;
+/* 33 */           while ((!result) && (tryCount++ < 10)) {
+/* 34 */             System.gc();
+/* 35 */             result = files[i].delete();
+/*    */           }
+/* 37 */           count += 1;
+/*    */         }
+/*    */       }
+/*    */     }
+/* 41 */     boolean result = dir.delete();
+/* 42 */     int tryCount = 0;
+/* 43 */     while ((!result) && (tryCount++ < 10)) {
+/* 44 */       System.gc();
+/* 45 */       result = dir.delete();
+/*    */     }
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.netdisk.DeleteFile
+ * JD-Core Version:    0.6.0
+ */

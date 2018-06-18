@@ -1,0 +1,433 @@
+/*     */ package com.xoa.util;
+/*     */ 
+/*     */ import com.tencent.xinge.ClickAction;
+/*     */ import com.tencent.xinge.Message;
+/*     */ import com.tencent.xinge.MessageIOS;
+/*     */ import com.tencent.xinge.Style;
+/*     */ import com.tencent.xinge.XingeApp;
+/*     */ import com.xoa.model.attend.AttendSet;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.attend.AttendSetService;
+/*     */ import com.xoa.service.calender.CalenderService;
+/*     */ import com.xoa.service.users.UsersService;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.ipUtil.MachineCode;
+/*     */ import java.io.PrintStream;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ import java.util.Timer;
+/*     */ import org.json.JSONException;
+/*     */ import org.json.JSONObject;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Component;
+/*     */ 
+/*     */ @Component
+/*     */ public class SpringQtz
+/*     */ {
+/*     */   Timer timer;
+/*     */ 
+/*     */   @Autowired
+/*     */   AttendSetService articleService;
+/*     */ 
+/*     */   @Autowired
+/*     */   CalenderService calenderService;
+/*     */ 
+/*     */   @Autowired
+/*     */   UsersService usersService;
+/*     */   String androidKey;
+/*     */   String androidSercetKey;
+/*     */   String iosKey;
+/*     */   String iosSercetKey;
+/*     */ 
+/*     */   public String getAndroidKey()
+/*     */   {
+/*  35 */     return this.androidKey;
+/*     */   }
+/*     */ 
+/*     */   public void setAndroidKey(String androidKey) {
+/*  39 */     this.androidKey = androidKey;
+/*     */   }
+/*     */ 
+/*     */   public String getAndroidSercetKey() {
+/*  43 */     return this.androidSercetKey;
+/*     */   }
+/*     */ 
+/*     */   public void setAndroidSercetKey(String androidSercetKey) {
+/*  47 */     this.androidSercetKey = androidSercetKey;
+/*     */   }
+/*     */ 
+/*     */   public String getIosKey() {
+/*  51 */     return this.iosKey;
+/*     */   }
+/*     */ 
+/*     */   public void setIosKey(String iosKey) {
+/*  55 */     this.iosKey = iosKey;
+/*     */   }
+/*     */ 
+/*     */   public String getIosSercetKey() {
+/*  59 */     return this.iosSercetKey;
+/*     */   }
+/*     */ 
+/*     */   public void setIosSercetKey(String iosSercetKey) {
+/*  63 */     this.iosSercetKey = iosSercetKey;
+/*     */   }
+/*     */ 
+/*     */   public void springQtzBean(Integer oid, Date date)
+/*     */     throws Exception
+/*     */   {
+/*  70 */     SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+/*  71 */     String dateto = dateFormat.format(date);
+/*  72 */     String jixiema = (String)MachineCode.get16CharMacs().get(0);
+/*  73 */     List<Users> users = this.usersService.LoginUserList();
+/*  74 */     for (Users users1 : users)
+/*  75 */       if (users1.getDutyType().shortValue() != 0) {
+/*  76 */         AttendSet attendSet = this.articleService.queryAttendSetByTuiSongId(users1.getUid());
+/*  77 */         if (attendSet != null) {
+/*  78 */           java.util.Calendar nowDate = java.util.Calendar.getInstance();
+/*     */ 
+/*  80 */           if (("1".equals(attendSet.getAtime1Setother())) && 
+/*  81 */             ("1".equals(attendSet.getCommute1()))) {
+/*  82 */             Date date2 = DateFormat.getDateTimes(attendSet.getAtime1());
+/*  83 */             nowDate.setTime(date2);
+/*  84 */             nowDate.add(12, -10);
+/*  85 */             String dateStr = dateFormat.format(nowDate.getTime());
+/*  86 */             if (dateto.equals(dateStr))
+/*     */             {
+/*  88 */               String account = jixiema + users1.getUserId() + oid;
+/*  89 */               tuiSongXhH(account);
+/*     */             }
+/*     */ 
+/*     */           }
+/*     */ 
+/*  94 */           if (("1".equals(attendSet.getAtime2Setother())) && 
+/*  95 */             ("1".equals(attendSet.getCommute2()))) {
+/*  96 */             Date date2 = DateFormat.getDateTimes(attendSet.getAtime2());
+/*  97 */             nowDate.setTime(date2);
+/*  98 */             nowDate.add(12, -10);
+/*  99 */             String dateStr = dateFormat.format(nowDate.getTime());
+/* 100 */             if (dateto.equals(dateStr))
+/*     */             {
+/* 102 */               String account = jixiema + users1.getUserId() + oid;
+/* 103 */               tuiSongXhH(account);
+/*     */             }
+/*     */ 
+/*     */           }
+/*     */ 
+/* 108 */           if (("1".equals(attendSet.getAtime3Setother())) && 
+/* 109 */             ("1".equals(attendSet.getCommute3()))) {
+/* 110 */             Date date2 = DateFormat.getDateTimes(attendSet.getAtime3());
+/* 111 */             nowDate.setTime(date2);
+/* 112 */             nowDate.add(12, -10);
+/* 113 */             String dateStr = dateFormat.format(nowDate.getTime());
+/* 114 */             if (dateto.equals(dateStr))
+/*     */             {
+/* 116 */               String account = jixiema + users1.getUserId() + oid;
+/* 117 */               tuiSongXhH(account);
+/*     */             }
+/*     */ 
+/*     */           }
+/*     */ 
+/* 123 */           if (("1".equals(attendSet.getAtime4Setother())) && 
+/* 124 */             ("1".equals(attendSet.getCommute4()))) {
+/* 125 */             Date date2 = DateFormat.getDateTimes(attendSet.getAtime4());
+/* 126 */             nowDate.setTime(date2);
+/* 127 */             nowDate.add(12, -10);
+/* 128 */             String dateStr = dateFormat.format(nowDate.getTime());
+/* 129 */             if (dateto.equals(dateStr))
+/*     */             {
+/* 131 */               String account = jixiema + users1.getUserId() + oid;
+/* 132 */               tuiSongXhH(account);
+/*     */             }
+/*     */ 
+/*     */           }
+/*     */ 
+/* 138 */           if (("1".equals(attendSet.getAtime5Setother())) && 
+/* 139 */             ("1".equals(attendSet.getCommute5()))) {
+/* 140 */             Date date2 = DateFormat.getDateTimes(attendSet.getAtime5());
+/* 141 */             nowDate.setTime(date2);
+/* 142 */             nowDate.add(12, -10);
+/* 143 */             String dateStr = dateFormat.format(nowDate.getTime());
+/* 144 */             if (dateto.equals(dateStr))
+/*     */             {
+/* 146 */               String account = jixiema + users1.getUserId() + oid;
+/* 147 */               tuiSongXhH(account);
+/*     */             }
+/*     */ 
+/*     */           }
+/*     */ 
+/* 153 */           if (("1".equals(attendSet.getAtime6Setother())) && 
+/* 154 */             ("1".equals(attendSet.getCommute6()))) {
+/* 155 */             Date date2 = DateFormat.getDateTimes(attendSet.getAtime6());
+/* 156 */             nowDate.setTime(date2);
+/* 157 */             nowDate.add(12, -10);
+/* 158 */             String dateStr = dateFormat.format(nowDate.getTime());
+/* 159 */             if (dateto.equals(dateStr))
+/*     */             {
+/* 161 */               String account = jixiema + users1.getUserId() + oid;
+/* 162 */               tuiSongXhH(account);
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */   }
+/*     */ 
+/*     */   public void riCheng(Integer oid, Date date)
+/*     */     throws Exception
+/*     */   {
+/* 253 */     List<com.xoa.model.calender.Calendar> attendSet = this.calenderService.rChSelect();
+/* 254 */     java.util.Calendar calendar = java.util.Calendar.getInstance();
+/* 255 */     String jixiema = (String)MachineCode.get16CharMacs().get(0);
+/* 256 */     for (com.xoa.model.calender.Calendar calendar1 : attendSet) {
+/* 257 */       String[] account = null;
+/* 258 */       String content = calendar1.getContent();
+/* 259 */       String beforeRemaind = calendar1.getBeforeRemaind();
+/* 260 */       if (beforeRemaind != null) {
+/* 261 */         String[] time = beforeRemaind.split("\\|");
+/* 262 */         if ((!StringUtils.checkNull(time[0]).booleanValue()) && (!time[0].equals("0")) && (time[0] != null)) {
+/* 263 */           SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/* 264 */           calendar.setTime(date);
+/* 265 */           calendar.add(5, Integer.valueOf(time[0]).intValue());
+/* 266 */           Date date1 = calendar.getTime();
+/* 267 */           String dateString = dateFormat.format(date1);
+/* 268 */           if ((!StringUtils.checkNull(time[1]).booleanValue()) && (!time[1].equals("0")) && (time[1] != null)) {
+/* 269 */             calendar.setTime(date1);
+/* 270 */             calendar.add(11, Integer.valueOf(time[1]).intValue());
+/* 271 */             date1 = calendar.getTime();
+/* 272 */             String date1String = dateFormat.format(date1);
+/* 273 */             if ((!time[2].equals("0")) && (time[2] != null)) {
+/* 274 */               calendar.setTime(date1);
+/* 275 */               calendar.add(12, Integer.valueOf(time[2]).intValue());
+/* 276 */               date1 = calendar.getTime();
+/* 277 */               date1String = dateFormat.format(date1);
+/*     */ 
+/* 279 */               if (calendar1.getCalTime() != null) {
+/* 280 */                 String sd = dateFormat.format(new Date(Long.parseLong(calendar1.getCalTime().toString()) * 1000L));
+/* 281 */                 if (sd.equals(date1String)) {
+/* 282 */                   account = xunHuanPingJie(calendar1.getOwner(), calendar1.getUserId(), calendar1.getTaker(), oid, jixiema);
+/* 283 */                   tuiSongXh(account, content);
+/*     */                 }
+/*     */               }
+/*     */             }
+/* 287 */             else if (calendar1.getCalTime() != null) {
+/* 288 */               String sd = dateFormat.format(new Date(Long.parseLong(calendar1.getCalTime().toString()) * 1000L));
+/* 289 */               if (sd.equals(date1String)) {
+/* 290 */                 account = xunHuanPingJie(calendar1.getOwner(), calendar1.getUserId(), calendar1.getTaker(), oid, jixiema);
+/* 291 */                 tuiSongXh(account, content);
+/*     */               }
+/*     */             }
+/*     */           }
+/* 295 */           else if ((!StringUtils.checkNull(time[2]).booleanValue()) && (!time[2].equals("0")) && (time[2] != null)) {
+/* 296 */             calendar.setTime(date1);
+/* 297 */             calendar.add(12, -Integer.valueOf(time[2]).intValue());
+/* 298 */             date1 = calendar.getTime();
+/* 299 */             String date1String = dateFormat.format(date1);
+/*     */ 
+/* 301 */             if (calendar1.getCalTime() != null) {
+/* 302 */               String sd = dateFormat.format(new Date(Long.parseLong(calendar1.getCalTime().toString()) * 1000L));
+/* 303 */               if (sd.equals(date1String)) {
+/* 304 */                 account = xunHuanPingJie(calendar1.getOwner(), calendar1.getUserId(), calendar1.getTaker(), oid, jixiema);
+/* 305 */                 tuiSongXh(account, content);
+/*     */               }
+/*     */             }
+/* 308 */           } else if (calendar1.getCalTime() != null) {
+/* 309 */             String sd = dateFormat.format(new Date(Long.parseLong(calendar1.getCalTime().toString()) * 1000L));
+/* 310 */             if (sd.equals(dateString)) {
+/* 311 */               account = xunHuanPingJie(calendar1.getOwner(), calendar1.getUserId(), calendar1.getTaker(), oid, jixiema);
+/* 312 */               tuiSongXh(account, content);
+/*     */             }
+/*     */           }
+/*     */         }
+/* 316 */         else if ((!StringUtils.checkNull(time[1]).booleanValue()) && (!time[1].equals("0")) && (time[1] != null)) {
+/* 317 */           SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/* 318 */           calendar.setTime(date);
+/* 319 */           calendar.add(11, Integer.valueOf(time[1]).intValue());
+/* 320 */           Date date1 = calendar.getTime();
+/* 321 */           String date1String = dateFormat.format(date1);
+/* 322 */           if ((!time[2].equals("0")) && (time[2] != null)) {
+/* 323 */             calendar.setTime(date1);
+/* 324 */             calendar.add(12, Integer.valueOf(time[2]).intValue());
+/* 325 */             date1 = calendar.getTime();
+/* 326 */             date1String = dateFormat.format(date1);
+/* 327 */             date1 = dateFormat.parse(date1String);
+/* 328 */             date1String = dateFormat.format(date1);
+/*     */ 
+/* 330 */             if (calendar1.getCalTime() != null) {
+/* 331 */               String sd = dateFormat.format(new Date(Long.parseLong(calendar1.getCalTime().toString()) * 1000L));
+/* 332 */               if (sd.equals(date1String)) {
+/* 333 */                 account = xunHuanPingJie(calendar1.getOwner(), calendar1.getUserId(), calendar1.getTaker(), oid, jixiema);
+/* 334 */                 tuiSongXh(account, content);
+/*     */               }
+/*     */             }
+/* 337 */           } else if (calendar1.getCalTime() != null) {
+/* 338 */             String sd = dateFormat.format(new Date(Long.parseLong(calendar1.getCalTime().toString()) * 1000L));
+/* 339 */             if (sd.equals(date1String)) {
+/* 340 */               account = xunHuanPingJie(calendar1.getOwner(), calendar1.getUserId(), calendar1.getTaker(), oid, jixiema);
+/* 341 */               tuiSongXh(account, content);
+/*     */             }
+/*     */           }
+/* 344 */         } else if ((!StringUtils.checkNull(time[2]).booleanValue()) && (!time[2].equals("0")) && (time[2] != null)) {
+/* 345 */           SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/* 346 */           calendar.setTime(date);
+/* 347 */           calendar.add(12, Integer.valueOf(time[2]).intValue());
+/* 348 */           Date date1 = calendar.getTime();
+/* 349 */           String date1String = dateFormat.format(date1);
+/*     */ 
+/* 351 */           if (calendar1.getCalTime() != null) {
+/* 352 */             String sd = dateFormat.format(new Date(Long.parseLong(calendar1.getCalTime().toString()) * 1000L));
+/* 353 */             if (sd.equals(date1String)) {
+/* 354 */               account = xunHuanPingJie(calendar1.getOwner(), calendar1.getUserId(), calendar1.getTaker(), oid, jixiema);
+/* 355 */               tuiSongXh(account, content);
+/*     */             }
+/*     */           }
+/*     */         } else {
+/* 358 */           SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/* 359 */           calendar.setTime(date);
+/* 360 */           String dateString = dateFormat.format(date);
+/*     */ 
+/* 362 */           if (calendar1.getCalTime() != null) {
+/* 363 */             String sd = dateFormat.format(new Date(Long.parseLong(calendar1.getCalTime().toString()) * 1000L));
+/* 364 */             if (sd.equals(dateString)) {
+/* 365 */               account = xunHuanPingJie(calendar1.getOwner(), calendar1.getUserId(), calendar1.getTaker(), oid, jixiema);
+/* 366 */               tuiSongXh(account, content);
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public Date getTime(String datemon) {
+/* 374 */     Date time = null;
+/*     */     try {
+/* 376 */       java.util.Calendar calendar = java.util.Calendar.getInstance();
+/*     */ 
+/* 379 */       SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/* 380 */       SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd");
+/*     */ 
+/* 382 */       Date date = dateFormat.parse(dateFormat1.format(new Date()) + " " + datemon);
+/*     */ 
+/* 384 */       calendar.add(12, 10);
+/* 385 */       calendar.setTime(date);
+/* 386 */       time = calendar.getTime();
+/*     */     } catch (Exception e) {
+/* 388 */       e.printStackTrace();
+/*     */     }
+/* 390 */     return time;
+/*     */   }
+/*     */ 
+/*     */   public static String getTimeByMinute(int minute)
+/*     */   {
+/* 396 */     java.util.Calendar calendar = java.util.Calendar.getInstance();
+/*     */ 
+/* 398 */     calendar.add(12, minute);
+/*     */ 
+/* 400 */     return new SimpleDateFormat("yyyy-MM-dd HH:mm").format(calendar.getTime());
+/*     */   }
+/*     */ 
+/*     */   public String[] xunHuanPingJie(String owner, String userId, String taker, Integer oid, String jixiema)
+/*     */   {
+/* 406 */     String[] contGet = null;
+/* 407 */     String[] owners = null;
+/* 408 */     owner = owner + taker + "," + userId;
+/* 409 */     if (owner != null) {
+/* 410 */       owners = owner.split(",");
+/* 411 */       owners = getDistinct(owners);
+/*     */     }
+/* 413 */     contGet = new String[owners.length + 1];
+/* 414 */     for (int i = 0; i < owners.length; i++) {
+/* 415 */       contGet[i] = (jixiema + owners[i] + oid);
+/*     */     }
+/* 417 */     return contGet;
+/*     */   }
+/*     */ 
+/*     */   public void tuiSongXh(String[] account, String content)
+/*     */     throws JSONException
+/*     */   {
+/*     */     JSONObject ret3;
+/* 422 */     for (int i = 0; i < account.length; i++) {
+/* 423 */       if (account[i] == null)
+/*     */         continue;
+/* 425 */       XingeApp pushAndroid = new XingeApp(2100270598L, "82378f499570aeb8c169fa570cc33508");
+/* 426 */       XingeApp push = new XingeApp(2200269915L, "6778710490d921b42565e1b3711a3458");
+/* 427 */       ClickAction clickAction = new ClickAction();
+/* 428 */       clickAction.setActionType(1);
+/* 429 */       clickAction.setActivity("123");
+/* 430 */       Style style = new Style(0, 0, 0, 1, 1, 1, 0, 1);
+/* 431 */       Message mess = new Message();
+/* 432 */       mess.setType(1);
+/* 433 */       mess.setStyle(style);
+/* 434 */       mess.setTitle("日程提醒");
+/* 435 */       mess.setContent(content);
+/* 436 */       mess.setAction(clickAction);
+/* 437 */       JSONObject ret = pushAndroid.pushSingleAccount(0, account[i], mess);
+/* 438 */       JSONObject contentTest = new JSONObject();
+/* 439 */       JSONObject obj = new JSONObject();
+/* 440 */       JSONObject aps = new JSONObject();
+/* 441 */       contentTest.put("title", "日程提醒");
+/* 442 */       contentTest.put("body", content);
+/* 443 */       aps.put("badge", 1);
+/* 444 */       aps.put("alert", contentTest);
+/* 445 */       obj.put("aps", aps);
+/* 446 */       MessageIOS messageIOS = new MessageIOS();
+/* 447 */       messageIOS.setRaw(obj.toString());
+/* 448 */       ret3 = push.pushSingleAccount(0, account[i], messageIOS, 1);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public void tuiSongXhH(String account)
+/*     */     throws JSONException
+/*     */   {
+/* 456 */     System.out.println(account);
+/*     */ 
+/* 458 */     XingeApp pushAndroid = new XingeApp(2100270598L, "82378f499570aeb8c169fa570cc33508");
+/* 459 */     XingeApp push = new XingeApp(2200269915L, "6778710490d921b42565e1b3711a3458");
+/* 460 */     ClickAction clickAction = new ClickAction();
+/* 461 */     clickAction.setActionType(1);
+/* 462 */     clickAction.setActivity("123");
+/* 463 */     Style style = new Style(0, 0, 0, 1, 1, 1, 0, 1);
+/* 464 */     Message mess = new Message();
+/* 465 */     mess.setType(1);
+/* 466 */     mess.setStyle(style);
+/* 467 */     mess.setTitle("考勤签到提醒");
+/* 468 */     mess.setContent("离上班时间还有10分钟");
+/* 469 */     mess.setAction(clickAction);
+/* 470 */     JSONObject ret = pushAndroid.pushSingleAccount(0, account, mess);
+/*     */ 
+/* 474 */     JSONObject contentTest = new JSONObject();
+/* 475 */     JSONObject obj = new JSONObject();
+/* 476 */     JSONObject aps = new JSONObject();
+/* 477 */     contentTest.put("title", "考勤签到提醒");
+/* 478 */     contentTest.put("body", "离上班时间还有10分钟");
+/* 479 */     aps.put("badge", 1);
+/* 480 */     aps.put("alert", contentTest);
+/* 481 */     obj.put("aps", aps);
+/* 482 */     MessageIOS messageIOS = new MessageIOS();
+/* 483 */     messageIOS.setRaw(obj.toString());
+/* 484 */     JSONObject ret3 = push.pushSingleAccount(0, account, messageIOS, 1);
+/*     */   }
+/*     */ 
+/*     */   public void rcAp()
+/*     */   {
+/* 489 */     this.timer = new Timer();
+/* 490 */     this.timer.schedule(new TimeRchSpringQtz(), new Date());
+/* 491 */     this.timer.cancel();
+/*     */   }
+/*     */ 
+/*     */   static String[] getDistinct(String[] num)
+/*     */   {
+/* 496 */     List list = new ArrayList();
+/* 497 */     for (int i = 0; i < num.length; i++) {
+/* 498 */       if (!list.contains(num[i])) {
+/* 499 */         list.add(num[i]);
+/*     */       }
+/*     */     }
+/* 502 */     return (String[])list.toArray(new String[0]);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.SpringQtz
+ * JD-Core Version:    0.6.0
+ */

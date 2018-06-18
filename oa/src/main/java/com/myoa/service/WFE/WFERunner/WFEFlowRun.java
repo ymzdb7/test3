@@ -1,0 +1,110 @@
+ package com.myoa.service.WFE.WFERunner;
+ 
+ import com.myoa.dao.WFE.WFEFlowRunMapper;
+import com.myoa.model.users.Users;
+import com.myoa.model.workflow.FlowRun;
+import com.myoa.util.DateFormat;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.common.wrapper.BaseWrappers;
+import com.myoa.util.page.PageParams;
+
+ import java.util.ArrayList;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+ 
+ @Transactional(rollbackFor={Exception.class})
+ @Service
+ public class WFEFlowRun
+ {
+ 
+   @Autowired
+   WFEFlowRunMapper wfeFlowRunMapper;
+ 
+   public int getMaxRunId()
+   {
+     String runId = this.wfeFlowRunMapper.getMaxRunId();
+     if (StringUtils.checkNull(runId).booleanValue()) {
+       return 0;
+     }
+     return Integer.parseInt(runId);
+   }
+ 
+   public void save(FlowRun flowRun)
+   {
+     this.wfeFlowRunMapper.insert(flowRun);
+   }
+ 
+   public FlowRun find(Integer runId) {
+     Map map = new HashMap();
+     map.put("runId", runId);
+     FlowRun f = this.wfeFlowRunMapper.find(map);
+     if ((f != null) && 
+       (!StringUtils.checkNull(f.getBeginTime()).booleanValue())) {
+       f.setBeginTime(DateFormat.getStrTime(DateFormat.getTime(f.getBeginTime())));
+     }
+ 
+     return f;
+   }
+ 
+   public int update(FlowRun flowRun)
+   {
+     int a = this.wfeFlowRunMapper.update(flowRun);
+     return a;
+   }
+ 
+   @Transactional
+   public int updateState(Map<String, Object> map)
+   {
+     int a = this.wfeFlowRunMapper.updateState(map);
+     return a;
+   }
+ 
+   public int updateAttachment(Map<String, Object> map)
+   {
+     int a = this.wfeFlowRunMapper.updateAttachment(map);
+     return a;
+   }
+ 
+   public BaseWrappers queryFlowRun(Integer state, Integer runId, Integer flowId, String runName, String beginDate, String endDate, String workLevel, Integer page, Integer pageSize, boolean useFlag, Users users)
+   {
+     BaseWrappers baseWrapper = new BaseWrappers();
+     Map map = new HashMap();
+     PageParams pageParams = new PageParams();
+     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+     pageParams.setPage(page);
+     pageParams.setPageSize(pageSize);
+     map.put("pageParams", pageParams);
+     map.put("runId", runId);
+     map.put("flowId", flowId);
+     map.put("runName", runName);
+     map.put("beginDate", beginDate);
+     map.put("endDate", endDate);
+     map.put("workLevel", workLevel);
+     map.put("state", state);
+     map.put("userId", users.getUserId());
+     List flowRuns = new ArrayList();
+     try
+     {
+       if ((state != null) && (state.equals(Integer.valueOf(6))))
+         flowRuns = this.wfeFlowRunMapper.queryFlowRunBycy(map);
+       else {
+         flowRuns = this.wfeFlowRunMapper.queryFlowRun(map);
+       }
+       baseWrapper.setFlag(true);
+       baseWrapper.setStatus(true);
+       baseWrapper.setDatas(flowRuns);
+       baseWrapper.setTotal(pageParams.getTotal());
+     } catch (Exception e) {
+       e.printStackTrace();
+       baseWrapper.setFlag(false);
+       baseWrapper.setStatus(false);
+       baseWrapper.setMsg(e.getMessage());
+     }
+     return baseWrapper;
+   }
+ }
+

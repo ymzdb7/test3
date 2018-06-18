@@ -1,0 +1,33 @@
+package com.xoa.dao.attend;
+
+import com.xoa.model.attend.AttendEvection;
+import com.xoa.model.attend.AttendEvectionFlowRunPrcs;
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface AttendEvectionMapper
+{
+  public abstract AttendEvection queryAttendEvection(@Param("userId") String paramString1, @Param("date") String paramString2);
+
+  public abstract AttendEvection selectAttendEvection(@Param("userId") String paramString1, @Param("date") String paramString2);
+
+  public abstract List<AttendEvection> selectAttendEvectionModify(@Param("userId") String paramString1, @Param("date") String paramString2);
+
+  public abstract List<AttendEvectionFlowRunPrcs> queryAllAttendEvection(Map<String, Object> paramMap);
+
+  public abstract int updateByExampleSelective(AttendEvection paramAttendEvection);
+
+  public abstract int insertSelective(AttendEvection paramAttendEvection);
+
+  public abstract List<AttendEvectionFlowRunPrcs> backlogAttendEvection(Map<String, Object> paramMap);
+
+  public abstract List<AttendEvectionFlowRunPrcs> haveDoneAttendEvection(Map<String, Object> paramMap);
+
+  public abstract List<AttendEvection> selectAttendEvectionByUserId(String paramString);
+}
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.dao.attend.AttendEvectionMapper
+ * JD-Core Version:    0.6.0
+ */

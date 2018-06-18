@@ -1,0 +1,187 @@
+package com.myoa.model.edu.eduDepartment;
+
+public class EduDepartment {
+	private Integer deptId;
+	private String deptName;
+	private String deptOtherName;
+	private String telNo;
+	private String faxNo;
+	private String deptAddress;
+	private String deptNo;
+	private Integer deptParent;
+	private String isOrg;
+	private String orgAdmin;
+	private String deptEmailAuditsIds;
+	private String userName;
+	private Integer uid;
+	private String userPrivName;
+	private String type;
+	private String count;
+	private String sex;
+	private String userId;
+	private String isHaveCh;
+	private String deptParentName;
+
+	public Integer getDeptId() {
+		return this.deptId;
+	}
+
+	public void setDeptId(Integer deptId) {
+		this.deptId = deptId;
+	}
+
+	public String getDeptName() {
+		return this.deptName;
+	}
+
+	public void setDeptName(String deptName) {
+		this.deptName = (deptName == null ? null : deptName.trim());
+	}
+
+	public String getDeptOtherName() {
+		return this.deptOtherName == null ? "" : this.deptOtherName;
+	}
+
+	public void setDeptOtherName(String deptOtherName) {
+		this.deptOtherName = (deptOtherName == null ? null : deptOtherName
+				.trim());
+	}
+
+	public String getTelNo() {
+		return this.telNo == null ? "" : this.telNo;
+	}
+
+	public void setTelNo(String telNo) {
+		this.telNo = (telNo == null ? null : telNo.trim());
+	}
+
+	public String getFaxNo() {
+		return this.faxNo == null ? "" : this.faxNo;
+	}
+
+	public void setFaxNo(String faxNo) {
+		this.faxNo = (faxNo == null ? null : faxNo.trim());
+	}
+
+	public String getDeptAddress() {
+		return this.deptAddress == null ? "" : this.deptAddress;
+	}
+
+	public void setDeptAddress(String deptAddress) {
+		this.deptAddress = (deptAddress == null ? null : deptAddress.trim());
+	}
+
+	public String getDeptNo() {
+		return this.deptNo == null ? "" : this.deptNo;
+	}
+
+	public void setDeptNo(String deptNo) {
+		this.deptNo = (deptNo == null ? null : deptNo.trim());
+	}
+
+	public Integer getDeptParent() {
+		return Integer.valueOf(this.deptParent == null ? 0 : this.deptParent
+				.intValue());
+	}
+
+	public void setDeptParent(Integer deptParent) {
+		this.deptParent = deptParent;
+	}
+
+	public String getIsOrg() {
+		return this.isOrg == null ? "" : this.isOrg;
+	}
+
+	public void setIsOrg(String isOrg) {
+		this.isOrg = (isOrg == null ? null : isOrg.trim());
+	}
+
+	public String getOrgAdmin() {
+		return this.orgAdmin == null ? "" : this.orgAdmin;
+	}
+
+	public void setOrgAdmin(String orgAdmin) {
+		this.orgAdmin = (orgAdmin == null ? null : orgAdmin.trim());
+	}
+
+	public String getDeptEmailAuditsIds() {
+		return this.deptEmailAuditsIds == null ? "" : this.deptEmailAuditsIds;
+	}
+
+	public void setDeptEmailAuditsIds(String deptEmailAuditsIds) {
+		this.deptEmailAuditsIds = (deptEmailAuditsIds == null ? null
+				: deptEmailAuditsIds.trim());
+	}
+
+	public String getDeptParentName() {
+		return this.deptParentName;
+	}
+
+	public void setDeptParentName(String deptParentName) {
+		this.deptParentName = deptParentName;
+	}
+
+	public String getUserName() {
+		return this.userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public Integer getUid() {
+		return this.uid;
+	}
+
+	public void setUid(Integer uid) {
+		this.uid = uid;
+	}
+
+	public String getUserPrivName() {
+		return this.userPrivName;
+	}
+
+	public void setUserPrivName(String userPrivName) {
+		this.userPrivName = userPrivName;
+	}
+
+	public String getType() {
+		return this.type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getCount() {
+		return this.count;
+	}
+
+	public void setCount(String count) {
+		this.count = count;
+	}
+
+	public String getSex() {
+		return this.sex;
+	}
+
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+
+	public String getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getIsHaveCh() {
+		return this.isHaveCh;
+	}
+
+	public void setIsHaveCh(String isHaveCh) {
+		this.isHaveCh = isHaveCh;
+	}
+}

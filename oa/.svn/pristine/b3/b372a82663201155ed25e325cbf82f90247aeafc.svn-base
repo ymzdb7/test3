@@ -1,0 +1,382 @@
+/*     */ package com.xoa.model.workflow;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class FlowPrivExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public FlowPrivExample()
+/*     */   {
+/*  14 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause) {
+/*  18 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause() {
+/*  22 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct) {
+/*  26 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct() {
+/*  30 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria() {
+/*  34 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria) {
+/*  38 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or() {
+/*  42 */     Criteria criteria = createCriteriaInternal();
+/*  43 */     this.oredCriteria.add(criteria);
+/*  44 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria() {
+/*  48 */     Criteria criteria = createCriteriaInternal();
+/*  49 */     if (this.oredCriteria.size() == 0) {
+/*  50 */       this.oredCriteria.add(criteria);
+/*     */     }
+/*  52 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal() {
+/*  56 */     Criteria criteria = new Criteria();
+/*  57 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear() {
+/*  61 */     this.oredCriteria.clear();
+/*  62 */     this.orderByClause = null;
+/*  63 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 309 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 313 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 317 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 321 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 325 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 329 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 333 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 337 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 342 */       this.condition = condition;
+/* 343 */       this.typeHandler = null;
+/* 344 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 349 */       this.condition = condition;
+/* 350 */       this.value = value;
+/* 351 */       this.typeHandler = typeHandler;
+/* 352 */       if ((value instanceof List))
+/* 353 */         this.listValue = true;
+/*     */       else
+/* 355 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 360 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 366 */       this.condition = condition;
+/* 367 */       this.value = value;
+/* 368 */       this.secondValue = secondValue;
+/* 369 */       this.typeHandler = typeHandler;
+/* 370 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 374 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends FlowPrivExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<FlowPrivExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/*  71 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/*  75 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<FlowPrivExample.Criterion> getAllCriteria() {
+/*  79 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<FlowPrivExample.Criterion> getCriteria() {
+/*  83 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/*  87 */       if (condition == null) {
+/*  88 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/*  90 */       this.criteria.add(new FlowPrivExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property)
+/*     */     {
+/*  95 */       if (value == null) {
+/*  96 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/*     */ 
+/*  99 */       this.criteria.add(new FlowPrivExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property)
+/*     */     {
+/* 104 */       if ((value1 == null) || (value2 == null)) {
+/* 105 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/*     */ 
+/* 108 */       this.criteria.add(new FlowPrivExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andIdIsNull() {
+/* 112 */       addCriterion("ID is null");
+/* 113 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andIdIsNotNull() {
+/* 117 */       addCriterion("ID is not null");
+/* 118 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andIdEqualTo(Integer value) {
+/* 122 */       addCriterion("ID =", value, "id");
+/* 123 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andIdNotEqualTo(Integer value) {
+/* 127 */       addCriterion("ID <>", value, "id");
+/* 128 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andIdGreaterThan(Integer value) {
+/* 132 */       addCriterion("ID >", value, "id");
+/* 133 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andIdGreaterThanOrEqualTo(Integer value) {
+/* 137 */       addCriterion("ID >=", value, "id");
+/* 138 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andIdLessThan(Integer value) {
+/* 142 */       addCriterion("ID <", value, "id");
+/* 143 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andIdLessThanOrEqualTo(Integer value) {
+/* 147 */       addCriterion("ID <=", value, "id");
+/* 148 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andIdIn(List<Integer> values) {
+/* 152 */       addCriterion("ID in", values, "id");
+/* 153 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andIdNotIn(List<Integer> values) {
+/* 157 */       addCriterion("ID not in", values, "id");
+/* 158 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andIdBetween(Integer value1, Integer value2) {
+/* 162 */       addCriterion("ID between", value1, value2, "id");
+/* 163 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andIdNotBetween(Integer value1, Integer value2) {
+/* 167 */       addCriterion("ID not between", value1, value2, "id");
+/* 168 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andFlowIdIsNull() {
+/* 172 */       addCriterion("FLOW_ID is null");
+/* 173 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andFlowIdIsNotNull() {
+/* 177 */       addCriterion("FLOW_ID is not null");
+/* 178 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andFlowIdEqualTo(Integer value) {
+/* 182 */       addCriterion("FLOW_ID =", value, "flowId");
+/* 183 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andFlowIdNotEqualTo(Integer value) {
+/* 187 */       addCriterion("FLOW_ID <>", value, "flowId");
+/* 188 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andFlowIdGreaterThan(Integer value) {
+/* 192 */       addCriterion("FLOW_ID >", value, "flowId");
+/* 193 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andFlowIdGreaterThanOrEqualTo(Integer value) {
+/* 197 */       addCriterion("FLOW_ID >=", value, "flowId");
+/* 198 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andFlowIdLessThan(Integer value) {
+/* 202 */       addCriterion("FLOW_ID <", value, "flowId");
+/* 203 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andFlowIdLessThanOrEqualTo(Integer value) {
+/* 207 */       addCriterion("FLOW_ID <=", value, "flowId");
+/* 208 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andFlowIdIn(List<Integer> values) {
+/* 212 */       addCriterion("FLOW_ID in", values, "flowId");
+/* 213 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andFlowIdNotIn(List<Integer> values) {
+/* 217 */       addCriterion("FLOW_ID not in", values, "flowId");
+/* 218 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andFlowIdBetween(Integer value1, Integer value2) {
+/* 222 */       addCriterion("FLOW_ID between", value1, value2, "flowId");
+/* 223 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andFlowIdNotBetween(Integer value1, Integer value2) {
+/* 227 */       addCriterion("FLOW_ID not between", value1, value2, "flowId");
+/* 228 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andPrivTypeIsNull() {
+/* 232 */       addCriterion("PRIV_TYPE is null");
+/* 233 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andPrivTypeIsNotNull() {
+/* 237 */       addCriterion("PRIV_TYPE is not null");
+/* 238 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andPrivTypeEqualTo(Integer value) {
+/* 242 */       addCriterion("PRIV_TYPE =", value, "privType");
+/* 243 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andPrivTypeNotEqualTo(Integer value) {
+/* 247 */       addCriterion("PRIV_TYPE <>", value, "privType");
+/* 248 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andPrivTypeGreaterThan(Integer value) {
+/* 252 */       addCriterion("PRIV_TYPE >", value, "privType");
+/* 253 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andPrivTypeGreaterThanOrEqualTo(Integer value) {
+/* 257 */       addCriterion("PRIV_TYPE >=", value, "privType");
+/* 258 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andPrivTypeLessThan(Integer value) {
+/* 262 */       addCriterion("PRIV_TYPE <", value, "privType");
+/* 263 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andPrivTypeLessThanOrEqualTo(Integer value) {
+/* 267 */       addCriterion("PRIV_TYPE <=", value, "privType");
+/* 268 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andPrivTypeIn(List<Integer> values) {
+/* 272 */       addCriterion("PRIV_TYPE in", values, "privType");
+/* 273 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andPrivTypeNotIn(List<Integer> values) {
+/* 277 */       addCriterion("PRIV_TYPE not in", values, "privType");
+/* 278 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andPrivTypeBetween(Integer value1, Integer value2) {
+/* 282 */       addCriterion("PRIV_TYPE between", value1, value2, "privType");
+/* 283 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrivExample.Criteria andPrivTypeNotBetween(Integer value1, Integer value2) {
+/* 287 */       addCriterion("PRIV_TYPE not between", value1, value2, "privType");
+/* 288 */       return (FlowPrivExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.workflow.FlowPrivExample
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,47 @@
+package com.xoa.dao.worldnews;
+
+import com.xoa.dao.base.BaseMapper;
+import com.xoa.model.worldnews.News;
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface NewsMapper extends BaseMapper<News>
+{
+  public abstract List<News> selectNews(Map<String, Object> paramMap);
+
+  public abstract List<News> selectNewsManage(Map<String, Object> paramMap);
+
+  public abstract List<News> unreadNews(Map<String, Object> paramMap);
+
+  public abstract List<News> readNews(Map<String, Object> paramMap);
+
+  public abstract News detailedNews(Map<String, Object> paramMap);
+
+  public abstract void deleteNews(@Param("newsId") Integer paramInteger);
+
+  public abstract void updateNews(News paramNews);
+
+  public abstract void updateNewsReades(News paramNews);
+
+  public abstract void updateclickCount(News paramNews);
+
+  public abstract void updatePublish(News paramNews);
+
+  public abstract int showCountNews(Integer paramInteger);
+
+  public abstract List<News> showAllNews(@Param("start") int paramInt1, @Param("pagesize") int paramInt2);
+
+  public abstract List<News> showAllCountNews();
+
+  public abstract void deleteByids(String[] paramArrayOfString);
+
+  public abstract int updateByIds(@Param("top") String paramString1, @Param("publish") String paramString2, @Param("ids") String[] paramArrayOfString);
+
+  public abstract List<News> getNewCountByType();
+}
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.dao.worldnews.NewsMapper
+ * JD-Core Version:    0.6.0
+ */

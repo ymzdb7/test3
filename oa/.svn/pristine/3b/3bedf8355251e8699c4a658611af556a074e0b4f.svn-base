@@ -1,0 +1,94 @@
+/*     */ package com.xoa.service.edu.eduElectiveDetail.impl;
+/*     */ 
+/*     */ import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+/*     */ import com.xoa.dao.edu.eduElectiveCourse.EduElectiveCourseMapper;
+/*     */ import com.xoa.dao.edu.eduElectiveDetail.EduElectiveDetailMapper;
+/*     */ import com.xoa.dao.edu.eduElectivePublish.EduElectivePublishMapper;
+/*     */ import com.xoa.model.edu.eduElectiveDetail.EduElectiveDetail;
+/*     */ import com.xoa.model.edu.eduElectivePublish.EduElectivePublish;
+/*     */ import com.xoa.service.edu.eduElectiveDetail.IEduElectiveDetailService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.beans.Transient;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduElectiveDetailServiceImpl extends ServiceImpl<EduElectiveDetailMapper, EduElectiveDetail>
+/*     */   implements IEduElectiveDetailService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private EduElectiveDetailMapper eduElectiveDetailMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private EduElectivePublishMapper eduElectivePublishMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private EduElectiveCourseMapper eduElectiveCourseMapper;
+/*     */ 
+/*     */   public ToJson<EduElectiveDetail> eduSelectOneDetail(Integer sid)
+/*     */   {
+/*  45 */     ToJson json = new ToJson();
+/*  46 */     EduElectiveDetail eduElectiveDetail = this.eduElectiveDetailMapper.eduSelectOneDetail(sid);
+/*  47 */     if (eduElectiveDetail != null) {
+/*  48 */       json.setObject(eduElectiveDetail);
+/*  49 */       json.setFlag(0);
+/*  50 */       json.setMsg("ok");
+/*     */     } else {
+/*  52 */       json.setFlag(1);
+/*  53 */       json.setMsg("err");
+/*     */     }
+/*  55 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transient
+/*     */   public ToJson eduUpdateDetail(EduElectiveDetail eduElectiveDetail, HttpServletRequest request)
+/*     */   {
+/*  68 */     ToJson json = new ToJson();
+/*     */     try
+/*     */     {
+/*  71 */       Integer counts = Integer.valueOf(0);
+/*  72 */       EduElectivePublish eduElectivePublish = new EduElectivePublish();
+/*  73 */       eduElectivePublish.setId(eduElectiveDetail.getSid());
+/*  74 */       eduElectivePublish.setElectiveCourse(request.getParameter("electiveCourse"));
+/*     */ 
+/*  76 */       int countr = this.eduElectivePublishMapper.updateEduPublish(eduElectivePublish);
+/*  77 */       if (countr > 0)
+/*     */       {
+/*  79 */         EduElectiveDetail eduElectiveDetail1 = this.eduElectiveDetailMapper.eduSelectOneDetailTO(eduElectiveDetail.getSid());
+/*  80 */         if (eduElectiveDetail1 != null) {
+/*  81 */           int count = this.eduElectiveDetailMapper.eduUpdateDetail(eduElectiveDetail);
+/*  82 */           if (count > 0) {
+/*  83 */             json.setMsg("ok");
+/*  84 */             json.setFlag(0);
+/*     */           } else {
+/*  86 */             json.setFlag(1);
+/*  87 */             json.setMsg("err");
+/*     */           }
+/*     */         }
+/*  90 */         eduElectiveDetail.setNid(Integer.valueOf(request.getParameter("nid")));
+/*  91 */         eduElectiveDetail.setCounts(counts);
+/*  92 */         int count = this.eduElectiveDetailMapper.insertDetail(eduElectiveDetail);
+/*  93 */         if (count > 0) {
+/*  94 */           json.setMsg("ok");
+/*  95 */           json.setFlag(0);
+/*     */         } else {
+/*  97 */           json.setFlag(1);
+/*  98 */           json.setMsg("err");
+/*     */         }
+/*     */       } else {
+/* 101 */         json.setFlag(1);
+/* 102 */         json.setMsg("err");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 105 */       e.printStackTrace();
+/*     */     }
+/* 107 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduElectiveDetail.impl.EduElectiveDetailServiceImpl
+ * JD-Core Version:    0.6.0
+ */

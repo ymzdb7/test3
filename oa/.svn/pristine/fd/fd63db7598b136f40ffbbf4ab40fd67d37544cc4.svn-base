@@ -1,0 +1,235 @@
+/*     */ package com.xoa.util;
+/*     */ 
+/*     */ import java.io.IOException;
+/*     */ import java.io.InputStream;
+/*     */ import java.text.DecimalFormat;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFCell;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFDateUtil;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFRow;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.apache.poi.ss.usermodel.DateUtil;
+/*     */ import org.apache.poi.xssf.usermodel.XSSFCell;
+/*     */ import org.apache.poi.xssf.usermodel.XSSFRow;
+/*     */ import org.apache.poi.xssf.usermodel.XSSFSheet;
+/*     */ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+/*     */ import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ public class ExcelRead
+/*     */ {
+/*     */   public int totalRows;
+/*     */   public static int totalCells;
+/*     */   public static final String OFFICE_EXCEL_2003_POSTFIX = "xls";
+/*     */   public static final String OFFICE_EXCEL_2010_POSTFIX = "xlsx";
+/*     */   public static final String EMPTY = "";
+/*     */   public static final String POINT = ".";
+/* 176 */   public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+/*     */ 
+/*     */   public List<Map<String, Object>> readExcel(MultipartFile file)
+/*     */     throws IOException
+/*     */   {
+/*  34 */     if ((file == null) || ("".equals(file.getOriginalFilename().trim()))) {
+/*  35 */       return null;
+/*     */     }
+/*  37 */     String postfix = getPostfix(file.getOriginalFilename());
+/*  38 */     if (!"".equals(postfix)) {
+/*  39 */       if ("xls".equals(postfix))
+/*  40 */         return readXls(file);
+/*  41 */       if ("xlsx".equals(postfix)) {
+/*  42 */         return readXlsx(file);
+/*     */       }
+/*  44 */       return null;
+/*     */     }
+/*     */ 
+/*  48 */     return null;
+/*     */   }
+/*     */ 
+/*     */   public List<Map<String, Object>> readXlsx(MultipartFile file) {
+/*  52 */     List list = new ArrayList();
+/*  53 */     List maps = new ArrayList();
+/*     */ 
+/*  55 */     InputStream input = null;
+/*  56 */     XSSFWorkbook wb = null;
+/*  57 */     ArrayList rowList = null;
+/*     */     try {
+/*  59 */       input = file.getInputStream();
+/*     */ 
+/*  61 */       wb = new XSSFWorkbook(input);
+/*     */ 
+/*  63 */       for (int numSheet = 0; numSheet < wb.getNumberOfSheets(); numSheet++) {
+/*  64 */         XSSFSheet xssfSheet = wb.getSheetAt(numSheet);
+/*  65 */         if (xssfSheet == null) {
+/*     */           continue;
+/*     */         }
+/*  68 */         this.totalRows = xssfSheet.getLastRowNum();
+/*     */ 
+/*  70 */         for (int rowNum = 0; rowNum <= this.totalRows; rowNum++) {
+/*  71 */           XSSFRow xssfRow = xssfSheet.getRow(rowNum);
+/*     */ 
+/*  73 */           XSSFRow xssfRow1 = xssfSheet.getRow(0);
+/*  74 */           if (xssfRow != null) {
+/*  75 */             rowList = new ArrayList();
+/*  76 */             Map map = new HashMap();
+/*  77 */             totalCells = xssfRow.getLastCellNum();
+/*     */ 
+/*  79 */             for (int c = 0; c < totalCells; c++) {
+/*  80 */               XSSFCell cell = xssfRow.getCell(c);
+/*  81 */               if (cell != null) {
+/*  82 */                 map.put(getXValue(xssfRow1.getCell(c)).trim(), getXValue(cell).trim());
+/*     */               }
+/*  84 */               if (cell == null) {
+/*  85 */                 map.put(getXValue(xssfRow1.getCell(c)).trim(), "");
+/*  86 */                 rowList.add("");
+/*     */               }
+/*     */               else {
+/*  89 */                 rowList.add(getXValue(cell).trim());
+/*     */               }
+/*     */             }
+/*  91 */             list.add(rowList);
+/*  92 */             maps.add(map);
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */       return maps;
+/*     */     }
+/*     */     catch (IOException e)
+/*     */     {
+/*  98 */       e.printStackTrace();
+/*     */     } finally {
+/*     */       try {
+/* 101 */         input.close();
+/*     */       } catch (IOException e) {
+/* 103 */         e.printStackTrace();
+/*     */       }
+/*     */     }
+/* 106 */     return null;
+/*     */   }
+/*     */ 
+/*     */   public List<Map<String, Object>> readXls(MultipartFile file)
+/*     */   {
+/* 111 */     List list = new ArrayList();
+/* 112 */     List maps = new ArrayList();
+/*     */ 
+/* 114 */     InputStream input = null;
+/* 115 */     HSSFWorkbook wb = null;
+/* 116 */     ArrayList rowList = null;
+/*     */     try {
+/* 118 */       input = file.getInputStream();
+/*     */ 
+/* 120 */       wb = new HSSFWorkbook(input);
+/*     */ 
+/* 122 */       for (int numSheet = 0; numSheet < wb.getNumberOfSheets(); numSheet++) {
+/* 123 */         HSSFSheet hssfSheet = wb.getSheetAt(numSheet);
+/* 124 */         if (hssfSheet == null) {
+/*     */           continue;
+/*     */         }
+/* 127 */         this.totalRows = hssfSheet.getLastRowNum();
+/* 128 */         totalCells = hssfSheet.getRow(0).getLastCellNum();
+/*     */ 
+/* 131 */         for (int rowNum = 1; rowNum <= this.totalRows; rowNum++)
+/*     */         {
+/* 133 */           HSSFRow hssfRow1 = hssfSheet.getRow(0);
+/* 134 */           HSSFRow hssfRow = hssfSheet.getRow(rowNum);
+/* 135 */           if (hssfRow != null) {
+/* 136 */             rowList = new ArrayList();
+/* 137 */             Map map = new HashMap();
+/*     */ 
+/* 139 */             for (int c = 0; c < totalCells; c++) {
+/* 140 */               HSSFCell cell = hssfRow.getCell(c);
+/* 141 */               if (cell != null) {
+/* 142 */                 map.put(getHValue(hssfRow1.getCell(c)).trim(), getHValue(cell).trim());
+/*     */               }
+/* 144 */               if (cell == null) {
+/* 145 */                 map.put(getHValue(hssfRow1.getCell(c)).trim(), "");
+/* 146 */                 rowList.add("");
+/*     */               }
+/*     */               else {
+/* 149 */                 rowList.add(getHValue(cell).trim());
+/*     */               }
+/*     */             }
+/* 152 */             maps.add(map);
+/* 153 */             list.add(rowList);
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */       return maps;
+/*     */     }
+/*     */     catch (IOException e)
+/*     */     {
+/* 159 */       e.printStackTrace();
+/*     */     } finally {
+/*     */       try {
+/* 162 */         input.close();
+/*     */       } catch (IOException e) {
+/* 164 */         e.printStackTrace();
+/*     */       }
+/*     */     }
+/* 167 */     return null;
+/*     */   }
+/*     */ 
+/*     */   public static String getPostfix(String path)
+/*     */   {
+/* 183 */     if ((path == null) || ("".equals(path.trim()))) {
+/* 184 */       return "";
+/*     */     }
+/* 186 */     if (path.contains(".")) {
+/* 187 */       return path.substring(path.lastIndexOf(".") + 1, path.length());
+/*     */     }
+/* 189 */     return "";
+/*     */   }
+/*     */ 
+/*     */   public static String getHValue(HSSFCell hssfCell)
+/*     */   {
+/* 198 */     if (hssfCell.getCellType() == 4)
+/* 199 */       return String.valueOf(hssfCell.getBooleanCellValue());
+/* 200 */     if (hssfCell.getCellType() == 0) {
+/* 201 */       String cellValue = "";
+/* 202 */       if (HSSFDateUtil.isCellDateFormatted(hssfCell)) {
+/* 203 */         Date date = HSSFDateUtil.getJavaDate(hssfCell.getNumericCellValue());
+/* 204 */         cellValue = sdf.format(date);
+/*     */       } else {
+/* 206 */         DecimalFormat df = new DecimalFormat("#.##");
+/* 207 */         cellValue = df.format(hssfCell.getNumericCellValue());
+/* 208 */         String strArr = cellValue.substring(cellValue.lastIndexOf(".") + 1, cellValue.length());
+/* 209 */         if (strArr.equals("00")) {
+/* 210 */           cellValue = cellValue.substring(0, cellValue.lastIndexOf("."));
+/*     */         }
+/*     */       }
+/* 213 */       return cellValue;
+/*     */     }
+/* 215 */     return String.valueOf(hssfCell.getStringCellValue());
+/*     */   }
+/*     */ 
+/*     */   public static String getXValue(XSSFCell xssfCell)
+/*     */   {
+/* 224 */     if (xssfCell.getCellType() == 4)
+/* 225 */       return String.valueOf(xssfCell.getBooleanCellValue());
+/* 226 */     if (xssfCell.getCellType() == 0) {
+/* 227 */       String cellValue = "";
+/* 228 */       if (DateUtil.isCellDateFormatted(xssfCell)) {
+/* 229 */         Date date = DateUtil.getJavaDate(xssfCell.getNumericCellValue());
+/* 230 */         cellValue = sdf.format(date);
+/*     */       } else {
+/* 232 */         DecimalFormat df = new DecimalFormat("#.##");
+/* 233 */         cellValue = df.format(xssfCell.getNumericCellValue());
+/* 234 */         String strArr = cellValue.substring(cellValue.lastIndexOf(".") + 1, cellValue.length());
+/* 235 */         if (strArr.equals("00")) {
+/* 236 */           cellValue = cellValue.substring(0, cellValue.lastIndexOf("."));
+/*     */         }
+/*     */       }
+/* 239 */       return cellValue;
+/*     */     }
+/* 241 */     return String.valueOf(xssfCell.getStringCellValue());
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.ExcelRead
+ * JD-Core Version:    0.6.0
+ */

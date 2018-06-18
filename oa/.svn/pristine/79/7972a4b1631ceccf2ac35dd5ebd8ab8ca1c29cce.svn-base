@@ -1,0 +1,51 @@
+/*    */ package com.xoa.controller.seal;
+/*    */ 
+/*    */ import com.xoa.model.seal.SealJinge;
+/*    */ import com.xoa.service.seal.SealJingeSevice;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import javax.annotation.Resource;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.stereotype.Controller;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"/sealJinge"})
+/*    */ public class SealJingeController
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   SealJingeSevice sealJingeSevice;
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/addSealJinge"})
+/*    */   public ToJson<SealJinge> addSealJinge(HttpServletRequest req, SealJinge sealJinge)
+/*    */   {
+/* 29 */     return this.sealJingeSevice.addSealJinge(req, sealJinge);
+/*    */   }
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/getSealJingeList"})
+/*    */   public ToJson<SealJinge> getSealJingeList() {
+/* 36 */     return this.sealJingeSevice.getSealJingeList();
+/*    */   }
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/getSealJinge"})
+/*    */   public ToJson<SealJinge> getSealJinge(Integer sealId) {
+/* 43 */     return this.sealJingeSevice.getSealJinge(sealId);
+/*    */   }
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/updateSealJinge"})
+/*    */   public ToJson<SealJinge> updateSealJinge(SealJinge sealJinge) {
+/* 50 */     return this.sealJingeSevice.updateSealJinge(sealJinge);
+/*    */   }
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/deleteSealJinge"})
+/*    */   public ToJson<SealJinge> deleteSealJinge(Integer sealId) {
+/* 57 */     return this.sealJingeSevice.deleteSealJinge(sealId);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.seal.SealJingeController
+ * JD-Core Version:    0.6.0
+ */

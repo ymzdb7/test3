@@ -1,0 +1,590 @@
+/*     */ package com.xoa.service.wechat.weChat.impl;
+/*     */ 
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.dao.wechat.WeChatCommentMapper;
+/*     */ import com.xoa.dao.wechat.WeChatCommentReplyMapper;
+/*     */ import com.xoa.dao.wechat.WeChatMapper;
+/*     */ import com.xoa.model.enclosure.Attachment;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.wechat.LikeUser;
+/*     */ import com.xoa.model.wechat.WeChat;
+/*     */ import com.xoa.service.wechat.weChat.WeChatService;
+/*     */ import com.xoa.util.GetAttachmentListUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.UnsupportedEncodingException;
+/*     */ import java.net.URLDecoder;
+/*     */ import java.net.URLEncoder;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Collection;
+/*     */ import java.util.Date;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.List;
+/*     */ import java.util.ListIterator;
+/*     */ import java.util.Map;
+/*     */ import java.util.regex.Matcher;
+/*     */ import java.util.regex.Pattern;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class WeChatServiceImpl
+/*     */   implements WeChatService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private WeChatMapper weChatMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private WeChatCommentMapper weChatCommentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private WeChatCommentReplyMapper weChatCommentReplyMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   public static String emojiConvert1(String str)
+/*     */     throws UnsupportedEncodingException
+/*     */   {
+/*  58 */     String patternString = "([\\x{10000}-\\x{10ffff}頎€-砜縘)";
+/*     */ 
+/*  60 */     Pattern pattern = Pattern.compile(patternString);
+/*     */ 
+/*  62 */     Matcher matcher = pattern.matcher(str);
+/*     */ 
+/*  64 */     StringBuffer sb = new StringBuffer();
+/*  65 */     while (matcher.find()) {
+/*     */       try {
+/*  67 */         matcher.appendReplacement(sb, "[[" + URLEncoder.encode(matcher.group(1), "UTF-8") + "]]");
+/*     */       }
+/*     */       catch (UnsupportedEncodingException e)
+/*     */       {
+/*  73 */         e.printStackTrace();
+/*     */       }
+/*     */     }
+/*  76 */     matcher.appendTail(sb);
+/*     */ 
+/*  79 */     return sb.toString();
+/*     */   }
+/*     */ 
+/*     */   public static String emojiRecovery2(String str) throws UnsupportedEncodingException
+/*     */   {
+/*  84 */     String patternString = "\\[\\[(.*?)\\]\\]";
+/*     */ 
+/*  86 */     Pattern pattern = Pattern.compile(patternString);
+/*  87 */     Matcher matcher = pattern.matcher(str);
+/*     */ 
+/*  89 */     StringBuffer sb = new StringBuffer();
+/*  90 */     while (matcher.find()) {
+/*     */       try {
+/*  92 */         matcher.appendReplacement(sb, URLDecoder.decode(matcher.group(1), "UTF-8"));
+/*     */       }
+/*     */       catch (UnsupportedEncodingException e)
+/*     */       {
+/*  96 */         e.printStackTrace();
+/*     */       }
+/*     */     }
+/*  99 */     matcher.appendTail(sb);
+/*     */ 
+/* 101 */     return sb.toString();
+/*     */   }
+/*     */ 
+/*     */   public ToJson<WeChat> insertWeChat(WeChat weChat, Users user)
+/*     */   {
+/* 110 */     ToJson json = new ToJson();
+/*     */     try {
+/* 112 */       int uid = user.getUid().intValue();
+/* 113 */       String currentTime = String.valueOf(new Date().getTime() / 1000L);
+/* 114 */       int time = Integer.valueOf(currentTime).intValue();
+/* 115 */       weChat.setUid(Integer.valueOf(uid));
+/* 116 */       weChat.setsTime(Integer.valueOf(time));
+/* 117 */       String message = emojiConvert1(weChat.getMessage());
+/* 118 */       weChat.setMessage(message);
+/* 119 */       this.weChatMapper.insertWeChat(weChat);
+/* 120 */       json.setFlag(0);
+/* 121 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 123 */       e.printStackTrace();
+/* 124 */       json.setFlag(1);
+/* 125 */       json.setMsg("err");
+/*     */     }
+/* 127 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<WeChat> selectWeChat(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String sqlType, Users users)
+/*     */   {
+/* 141 */     ToJson json = new ToJson();
+/* 142 */     PageParams pageParams = new PageParams();
+/* 143 */     pageParams.setPage(page);
+/* 144 */     pageParams.setPageSize(pageSize);
+/* 145 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 146 */     maps.put("page", pageParams);
+/*     */     try {
+/* 148 */       List<WeChat> weChatList = this.weChatMapper.selectWeChat(maps);
+/* 149 */       for (WeChat weChat : weChatList) {
+/* 150 */         if ((weChat.getFileName() != null) && (weChat.getFileId() != null)) {
+/* 151 */           weChat.setAttachment(GetAttachmentListUtil.returnAttachment(weChat.getFileName(), weChat.getFileId(), sqlType, "wechat"));
+/*     */         } else {
+/* 153 */           weChat.setFileName("");
+/* 154 */           weChat.setFileId("");
+/* 155 */           List attachmentList = new ArrayList();
+///*     */           {
+///*     */             public int size() {
+///* 158 */               return 0;
+///*     */             }
+///*     */ 
+///*     */             public boolean isEmpty()
+///*     */             {
+///* 163 */               return false;
+///*     */             }
+///*     */ 
+///*     */             public boolean contains(Object o)
+///*     */             {
+///* 168 */               return false;
+///*     */             }
+///*     */ 
+///*     */             public Iterator<Attachment> iterator()
+///*     */             {
+///* 173 */               return null;
+///*     */             }
+///*     */ 
+///*     */             public Object[] toArray()
+///*     */             {
+///* 178 */               return new Object[0];
+///*     */             }
+///*     */ 
+///*     */             public <T> T[] toArray(T[] a)
+///*     */             {
+///* 183 */               return null;
+///*     */             }
+///*     */ 
+///*     */             public boolean add(Attachment attachment)
+///*     */             {
+///* 188 */               return false;
+///*     */             }
+///*     */ 
+///*     */             public boolean remove(Object o)
+///*     */             {
+///* 193 */               return false;
+///*     */             }
+///*     */ 
+///*     */             public boolean containsAll(Collection<?> c)
+///*     */             {
+///* 198 */               return false;
+///*     */             }
+///*     */ 
+///*     */             public boolean addAll(Collection<? extends Attachment> c)
+///*     */             {
+///* 203 */               return false;
+///*     */             }
+///*     */ 
+///*     */             public boolean addAll(int index, Collection<? extends Attachment> c)
+///*     */             {
+///* 208 */               return false;
+///*     */             }
+///*     */ 
+///*     */             public boolean removeAll(Collection<?> c)
+///*     */             {
+///* 213 */               return false;
+///*     */             }
+///*     */ 
+///*     */             public boolean retainAll(Collection<?> c)
+///*     */             {
+///* 218 */               return false;
+///*     */             }
+///*     */ 
+///*     */             public void clear()
+///*     */             {
+///*     */             }
+///*     */ 
+///*     */             public Attachment get(int index)
+///*     */             {
+///* 228 */               return null;
+///*     */             }
+///*     */ 
+///*     */             public Attachment set(int index, Attachment element)
+///*     */             {
+///* 233 */               return null;
+///*     */             }
+///*     */ 
+///*     */             public void add(int index, Attachment element)
+///*     */             {
+///*     */             }
+///*     */ 
+///*     */             public Attachment remove(int index)
+///*     */             {
+///* 243 */               return null;
+///*     */             }
+///*     */ 
+///*     */             public int indexOf(Object o)
+///*     */             {
+///* 248 */               return 0;
+///*     */             }
+///*     */ 
+///*     */             public int lastIndexOf(Object o)
+///*     */             {
+///* 253 */               return 0;
+///*     */             }
+///*     */ 
+///*     */             public ListIterator<Attachment> listIterator()
+///*     */             {
+///* 258 */               return null;
+///*     */             }
+///*     */ 
+///*     */             public ListIterator<Attachment> listIterator(int index)
+///*     */             {
+///* 263 */               return null;
+///*     */             }
+///*     */ 
+///*     */             public List<Attachment> subList(int fromIndex, int toIndex)
+///*     */             {
+///* 268 */               return null;
+///*     */             }
+///*     */           };
+/* 271 */           weChat.setAttachment(attachmentList);
+/*     */         }
+/* 273 */         String uid = users.getUid() + "";
+/* 274 */         if (users.getUid() == weChat.getUid())
+/* 275 */           weChat.setIsSend(Integer.valueOf(0));
+/*     */         else {
+/* 277 */           weChat.setIsSend(Integer.valueOf(1));
+/*     */         }
+/* 279 */         String likeIds = weChat.getLikeIds();
+/* 280 */         int result = likeIds.indexOf(",");
+/* 281 */         if ((likeIds != "") && (result != -1)) {
+/* 282 */           String[] likeIdsArray = likeIds.split(",");
+/* 283 */           int a = 0;
+/* 284 */           for (int i = 0; i < likeIdsArray.length; i++) {
+/* 285 */             if (likeIdsArray[i].equals(uid))
+/* 286 */               a += 1;
+/*     */             else {
+/* 288 */               weChat.setIsLike(Integer.valueOf(0));
+/*     */             }
+/*     */           }
+/* 291 */           if (a == 1) {
+/* 292 */             weChat.setIsLike(Integer.valueOf(1));
+/*     */           }
+/* 294 */           weChat.setLikeNum(Integer.valueOf(likeIdsArray.length));
+/* 295 */         } else if (likeIds != "")
+/*     */         {
+/* 297 */           if (likeIds.equals(uid))
+/* 298 */             weChat.setIsLike(Integer.valueOf(1));
+/*     */           else {
+/* 300 */             weChat.setIsLike(Integer.valueOf(0));
+/*     */           }
+/* 302 */           weChat.setLikeNum(Integer.valueOf(1));
+/*     */         } else {
+/* 304 */           weChat.setIsLike(Integer.valueOf(0));
+/* 305 */           weChat.setLikeNum(Integer.valueOf(0));
+/*     */         }
+/* 307 */         int sTime = weChat.getsTime().intValue();
+/* 308 */         SimpleDateFormat sformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/* 309 */         long lTime = new Long(sTime * 1000L).longValue();
+/* 310 */         Date date = new Date(lTime);
+/* 311 */         String newTime = sformat.format(date);
+/* 312 */         weChat.setTime(newTime);
+/* 313 */         Users user = new Users();
+/* 314 */         user = this.usersMapper.selectUserByUId(weChat.getUid());
+/* 315 */         if (user != null) {
+/* 316 */           weChat.setUserName(user.getUserName());
+/* 317 */           weChat.setUserAvatar(user.getAvatar());
+/* 318 */           weChat.setUserSex(Integer.valueOf(Integer.parseInt(user.getSex())));
+/* 319 */           weChat.setUserPrivName(user.getUserPrivName());
+/* 320 */           String deptName = this.departmentMapper.getDeptNameByDeptId(user.getDeptId());
+/* 321 */           weChat.setDeptName(deptName);
+/*     */         } else {
+/* 323 */           weChat.setUserName("");
+/* 324 */           weChat.setUserAvatar("");
+/*     */         }
+/*     */ 
+/* 327 */         List weChatComment = this.weChatCommentMapper.selectWeChatCommentByWID(weChat.getWid());
+/* 328 */         if (weChatComment != null)
+/* 329 */           weChat.setCommentNum(Integer.valueOf(weChatComment.size()));
+/*     */         else {
+/* 331 */           weChat.setCommentNum(Integer.valueOf(0));
+/*     */         }
+/* 333 */         String message = emojiRecovery2(weChat.getMessage());
+/* 334 */         weChat.setMessage(message);
+/*     */       }
+/*     */ 
+/* 337 */       json.setTotleNum(pageParams.getTotal());
+/* 338 */       json.setObj(weChatList);
+/* 339 */       json.setFlag(0);
+/* 340 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 342 */       e.printStackTrace();
+/* 343 */       json.setFlag(1);
+/* 344 */       json.setMsg("err");
+/*     */     }
+/* 346 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<WeChat> updateWeChatByPrimaryKey(Integer wid, Users user)
+/*     */   {
+/* 355 */     ToJson json = new ToJson();
+/*     */     try {
+/* 357 */       int uid = user.getUid().intValue();
+/* 358 */       WeChat newWeChat = this.weChatMapper.selectWeChatByPrimaryKey(wid);
+/* 359 */       String oldUIds = newWeChat.getLikeIds();
+/* 360 */       String newUIds = "";
+/* 361 */       if ((oldUIds == null) || (oldUIds == "")) {
+/* 362 */         newUIds = uid + "";
+/*     */       } else {
+/* 364 */         boolean status = oldUIds.contains(",");
+/* 365 */         if (status) {
+/* 366 */           String sUId1 = uid + "";
+/* 367 */           String[] uidArray = oldUIds.split(",");
+/* 368 */           int a = 0;
+/* 369 */           for (int i = 0; i < uidArray.length; i++) {
+/* 370 */             if (sUId1.equals(uidArray[i])) {
+/* 371 */               String sUId = "";
+/* 372 */               if (i == 0)
+/* 373 */                 sUId = uid + ",";
+/*     */               else {
+/* 375 */                 sUId = "," + uid;
+/*     */               }
+/* 377 */               newUIds = oldUIds.replace(sUId, "");
+/*     */             } else {
+/* 379 */               a += 1;
+/*     */             }
+/*     */           }
+/*     */ 
+/* 383 */           if (a == uidArray.length)
+/* 384 */             newUIds = oldUIds + "," + uid;
+/*     */         }
+/*     */         else
+/*     */         {
+/* 388 */           String sUId = uid + "";
+/* 389 */           if (sUId.equals(oldUIds))
+/* 390 */             newUIds = "";
+/*     */           else {
+/* 392 */             newUIds = oldUIds + "," + uid;
+/*     */           }
+/*     */ 
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 399 */       newWeChat.setLikeIds(newUIds);
+/* 400 */       this.weChatMapper.updateWeChatByPrimaryKey(newWeChat);
+/* 401 */       json.setFlag(0);
+/* 402 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 404 */       e.printStackTrace();
+/* 405 */       json.setFlag(1);
+/* 406 */       json.setMsg("err");
+/*     */     }
+/* 408 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<WeChat> selectWeChatByPrimaryKey(Integer wid, String sqlType)
+/*     */   {
+/* 417 */     ToJson json = new ToJson();
+/*     */     try
+/*     */     {
+/* 420 */       WeChat weChat = this.weChatMapper.selectWeChatByPrimaryKey(wid);
+/* 421 */       if ((weChat.getFileName() != null) && (weChat.getFileId() != null)) {
+/* 422 */         weChat.setAttachment(GetAttachmentListUtil.returnAttachment(weChat.getFileName(), weChat.getFileId(), sqlType, "email"));
+/*     */       } else {
+/* 424 */         weChat.setFileName("");
+/* 425 */         weChat.setFileId("");
+/* 426 */         List attachmentList = new ArrayList();
+///*     */         {
+///*     */           public int size() {
+///* 429 */             return 0;
+///*     */           }
+///*     */ 
+///*     */           public boolean isEmpty()
+///*     */           {
+///* 434 */             return false;
+///*     */           }
+///*     */ 
+///*     */           public boolean contains(Object o)
+///*     */           {
+///* 439 */             return false;
+///*     */           }
+///*     */ 
+///*     */           public Iterator<Attachment> iterator()
+///*     */           {
+///* 444 */             return null;
+///*     */           }
+///*     */ 
+///*     */           public Object[] toArray()
+///*     */           {
+///* 449 */             return new Object[0];
+///*     */           }
+///*     */ 
+///*     */           public <T> T[] toArray(T[] a)
+///*     */           {
+///* 454 */             return null;
+///*     */           }
+///*     */ 
+///*     */           public boolean add(Attachment attachment)
+///*     */           {
+///* 459 */             return false;
+///*     */           }
+///*     */ 
+///*     */           public boolean remove(Object o)
+///*     */           {
+///* 464 */             return false;
+///*     */           }
+///*     */ 
+///*     */           public boolean containsAll(Collection<?> c)
+///*     */           {
+///* 469 */             return false;
+///*     */           }
+///*     */ 
+///*     */           public boolean addAll(Collection<? extends Attachment> c)
+///*     */           {
+///* 474 */             return false;
+///*     */           }
+///*     */ 
+///*     */           public boolean addAll(int index, Collection<? extends Attachment> c)
+///*     */           {
+///* 479 */             return false;
+///*     */           }
+///*     */ 
+///*     */           public boolean removeAll(Collection<?> c)
+///*     */           {
+///* 484 */             return false;
+///*     */           }
+///*     */ 
+///*     */           public boolean retainAll(Collection<?> c)
+///*     */           {
+///* 489 */             return false;
+///*     */           }
+///*     */ 
+///*     */           public void clear()
+///*     */           {
+///*     */           }
+///*     */ 
+///*     */           public Attachment get(int index)
+///*     */           {
+///* 499 */             return null;
+///*     */           }
+///*     */ 
+///*     */           public Attachment set(int index, Attachment element)
+///*     */           {
+///* 504 */             return null;
+///*     */           }
+///*     */ 
+///*     */           public void add(int index, Attachment element)
+///*     */           {
+///*     */           }
+///*     */ 
+///*     */           public Attachment remove(int index)
+///*     */           {
+///* 514 */             return null;
+///*     */           }
+///*     */ 
+///*     */           public int indexOf(Object o)
+///*     */           {
+///* 519 */             return 0;
+///*     */           }
+///*     */ 
+///*     */           public int lastIndexOf(Object o)
+///*     */           {
+///* 524 */             return 0;
+///*     */           }
+///*     */ 
+///*     */           public ListIterator<Attachment> listIterator()
+///*     */           {
+///* 529 */             return null;
+///*     */           }
+///*     */ 
+///*     */           public ListIterator<Attachment> listIterator(int index)
+///*     */           {
+///* 534 */             return null;
+///*     */           }
+///*     */ 
+///*     */           public List<Attachment> subList(int fromIndex, int toIndex)
+///*     */           {
+///* 539 */             return null;
+///*     */           }
+/*     */         };
+///* 542 */         weChat.setAttachment(attachmentList);
+///*     */       }
+/* 544 */       json.setObject(weChat);
+/* 545 */       json.setFlag(0);
+/* 546 */       json.setMsg("ok");
+/*     */     }
+/*     */     catch (Exception e) {
+/* 549 */       e.printStackTrace();
+/* 550 */       json.setFlag(1);
+/* 551 */       json.setMsg("err");
+/*     */     }
+/* 553 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<WeChat> deleteByPrimaryKey(Integer wid) {
+/* 557 */     ToJson json = new ToJson();
+/*     */     try {
+/* 559 */       this.weChatMapper.deleteByPrimaryKey(wid);
+/* 560 */       List weChatCommentList = this.weChatCommentMapper.selectWeChatCommentByWID(wid);
+/* 561 */       if (weChatCommentList.size() != 0) {
+/* 562 */         this.weChatCommentMapper.deleteWeChatCommentByWID(wid);
+/* 563 */         List weChatCommentReplyList = this.weChatCommentReplyMapper.selectWeChatCommentReplyByWID(wid);
+/* 564 */         if (weChatCommentReplyList.size() != 0) {
+/* 565 */           this.weChatCommentReplyMapper.deleteWeChatCommentReplyByWID(wid);
+/*     */         }
+/*     */       }
+/* 568 */       json.setFlag(0);
+/* 569 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 571 */       e.printStackTrace();
+/* 572 */       json.setFlag(1);
+/* 573 */       json.setMsg("err");
+/*     */     }
+/* 575 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<LikeUser> getLikeUser(Integer wid) {
+/* 579 */     ToJson json = new ToJson();
+/*     */     try {
+/* 581 */       List likeUserList = new ArrayList();
+/* 582 */       WeChat weChat = this.weChatMapper.selectWeChatByPrimaryKey(wid);
+/* 583 */       String likeIds = weChat.getLikeIds();
+/*     */ 
+/* 585 */       int result = likeIds.indexOf(",");
+/* 586 */       if ((likeIds != null) && (result != -1)) {
+/* 587 */         String[] likeIdsArray = likeIds.split(",");
+/* 588 */         for (int i = 0; i < likeIdsArray.length; i++) {
+/* 589 */           Users user = this.usersMapper.getUserByUid(Integer.parseInt(likeIdsArray[i]));
+/* 590 */           LikeUser likeUser = new LikeUser();
+/* 591 */           likeUser.setLikeUId(Integer.parseInt(likeIdsArray[i]));
+/* 592 */           likeUser.setLikeUserName(user.getUserName());
+/* 593 */           likeUser.setLikeUserrAvatar(user.getAvatar());
+/* 594 */           likeUserList.add(likeUser);
+/*     */         }
+/* 596 */       } else if ((likeIds != "") && (result == -1)) {
+/* 597 */         Users user = this.usersMapper.getUserByUid(Integer.parseInt(likeIds));
+/* 598 */         LikeUser likeUser = new LikeUser();
+/* 599 */         likeUser.setLikeUId(Integer.parseInt(likeIds));
+/* 600 */         likeUser.setLikeUserName(user.getUserName());
+/* 601 */         likeUser.setLikeUserrAvatar(user.getAvatar());
+/* 602 */         likeUserList.add(likeUser);
+/*     */       }
+/*     */ 
+/* 606 */       json.setObj(likeUserList);
+/* 607 */       json.setFlag(0);
+/* 608 */       json.setMsg("ok");
+/*     */     }
+/*     */     catch (Exception e) {
+/* 611 */       e.printStackTrace();
+/* 612 */       json.setFlag(1);
+/* 613 */       json.setMsg("err");
+/*     */     }
+/* 615 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.wechat.weChat.impl.WeChatServiceImpl
+ * JD-Core Version:    0.6.0
+ */

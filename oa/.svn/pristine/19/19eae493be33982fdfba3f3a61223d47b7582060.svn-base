@@ -1,0 +1,821 @@
+/*      */ package com.xoa.controller.menu;
+/*      */ 
+/*      */ import com.alibaba.fastjson.JSON;
+/*      */ import com.alibaba.fastjson.serializer.SerializerFeature;
+/*      */ import com.xoa.model.common.SysParaExtend;
+/*      */ import com.xoa.model.menu.MobileApp;
+/*      */ import com.xoa.model.menu.SysFunction;
+/*      */ import com.xoa.model.menu.SysMenu;
+/*      */ import com.xoa.model.users.UserPriv;
+/*      */ import com.xoa.service.menu.MenuService;
+/*      */ import com.xoa.service.menu.MobileAppService;
+/*      */ import com.xoa.service.users.UserFunctionService;
+/*      */ import com.xoa.service.users.UsersPrivService;
+import com.xoa.util.Constant;
+/*      */ import com.xoa.util.ToJson;
+/*      */ import com.xoa.util.common.StringUtils;
+/*      */ import com.xoa.util.dataSource.ContextHolder;
+/*      */ import java.io.File;
+/*      */ import java.util.HashMap;
+/*      */ import java.util.List;
+/*      */ import java.util.Map;
+/*      */ import javax.annotation.Resource;
+/*      */ import javax.servlet.ServletContext;
+/*      */ import javax.servlet.http.HttpServletRequest;
+/*      */ import javax.servlet.http.HttpServletResponse;
+/*      */ import javax.servlet.http.HttpSession;
+/*      */ import org.springframework.context.annotation.Scope;
+/*      */ import org.springframework.stereotype.Controller;
+/*      */ import org.springframework.web.bind.annotation.RequestHeader;
+/*      */ import org.springframework.web.bind.annotation.RequestMapping;
+/*      */ import org.springframework.web.bind.annotation.ResponseBody;
+/*      */ import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+/*      */ 
+/*      */ @Controller
+/*      */ @Scope("prototype")
+/*      */ public class MenuController
+/*      */ {
+/*      */ 
+/*      */   @Resource
+/*      */   private MenuService menuService;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersPrivService usersPrivService;
+/*      */ 
+/*      */   @Resource
+/*      */   private UserFunctionService userFunctionService;
+/*      */ 
+/*      */   @Resource
+/*      */   private MobileAppService mobileAppService;
+/*      */   private int flag;
+/*   52 */   private String err = "err";
+/*   53 */   private String ok = "ok";
+/*      */ 
+/*   57 */   @RequestMapping({"deleteDatePage"})
+/*      */   public String deleteDatePage(HttpServletRequest request) { return "app/delete/delete";
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/showMenu"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public ToJson<SysMenu> showNew(HttpServletRequest request, HttpServletResponse response)
+/*      */   {
+/*   71 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*   74 */     Object locale = request.getSession().getAttribute("LOCALE_SESSION_ATTRIBUTE_NAME");
+/*      */     ToJson menuJson;
+/*      */     try
+/*      */     {
+/*      */       List munuList;
+/*   79 */       if (locale == null)
+/*   80 */         munuList = this.menuService.getAll(request, "zh_CN");
+/*      */       else
+/*   82 */         munuList = this.menuService.getAll(request, locale.toString());
+/*      */       String msg;
+/*   85 */       if (munuList.size() > 0) {
+/*   86 */         this.flag = 0;
+/*   87 */         msg = this.ok;
+/*      */       } else {
+/*   89 */         this.flag = 1;
+/*   90 */         msg = this.err;
+/*      */       }
+/*      */ 
+/*   93 */         menuJson = new ToJson(this.flag, msg);
+/*   94 */       menuJson.setObj(munuList);
+/*      */ 
+/*   96 */       Map map = new HashMap();
+/*   97 */       map.put("showMenu", JSON.toJSONStringWithDateFormat(menuJson, "yyyy-MM-dd HH:mm:ss", new SerializerFeature[0]));
+/*      */ 
+/*   99 */       return menuJson;
+/*      */     }
+/*      */     catch (Exception e) {
+/*  102 */       List munuList = this.menuService.getAll(request, "zh_CN");
+/*      */       String msg;
+/*  104 */       if (munuList.size() > 0) {
+/*  105 */         this.flag = 0;
+/*  106 */         msg = this.ok;
+/*      */       } else {
+/*  108 */         this.flag = 1;
+/*  109 */         msg = this.err;
+/*      */       }
+/*      */ 
+/*  112 */       menuJson = new ToJson(this.flag, msg);
+/*  113 */       menuJson.setObj(munuList);
+/*      */ 
+/*  115 */       Map map = new HashMap();
+/*  116 */       map.put("showMenu", JSON.toJSONStringWithDateFormat(menuJson, "yyyy-MM-dd HH:mm:ss", new SerializerFeature[0]));
+/*      */     }
+/*  118 */     return menuJson;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/showNewWithEmpty"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public ToJson<SysMenu> showNewWithEmpty(HttpServletRequest request, HttpServletResponse response)
+/*      */   {
+/*  136 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  139 */     Object locale = request.getSession().getAttribute("LOCALE_SESSION_ATTRIBUTE_NAME");
+/*      */     ToJson menuJson;
+/*      */     try
+/*      */     {
+/*      */       List munuList;
+/*  144 */       if (locale == null)
+/*  145 */         munuList = this.menuService.getAllWithEmpty(request, "zh_CN");
+/*      */       else
+/*  147 */         munuList = this.menuService.getAllWithEmpty(request, locale.toString());
+/*      */       String msg;
+/*  150 */       if (munuList.size() > 0) {
+/*  151 */         this.flag = 0;
+/*  152 */         msg = this.ok;
+/*      */       } else {
+/*  154 */         this.flag = 1;
+/*  155 */         msg = this.err;
+/*      */       }
+/*      */ 
+/*  158 */         menuJson = new ToJson(this.flag, msg);
+/*  159 */       menuJson.setObj(munuList);
+/*      */ 
+/*  161 */       Map map = new HashMap();
+/*  162 */       map.put("showMenu", JSON.toJSONStringWithDateFormat(menuJson, "yyyy-MM-dd HH:mm:ss", new SerializerFeature[0]));
+/*      */ 
+/*  164 */       return menuJson;
+/*      */     }
+/*      */     catch (Exception e) {
+/*  167 */       List munuList = this.menuService.getAllWithEmpty(request, "zh_CN");
+/*      */       String msg;
+/*  169 */       if (munuList.size() > 0) {
+/*  170 */         this.flag = 0;
+/*  171 */         msg = this.ok;
+/*      */       } else {
+/*  173 */         this.flag = 1;
+/*  174 */         msg = this.err;
+/*      */       }
+/*      */ 
+/*  177 */       menuJson = new ToJson(this.flag, msg);
+/*  178 */       menuJson.setObj(munuList);
+/*      */ 
+/*  180 */       Map map = new HashMap();
+/*  181 */       map.put("showMenu", JSON.toJSONStringWithDateFormat(menuJson, "yyyy-MM-dd HH:mm:ss", new SerializerFeature[0]));
+/*      */     }
+/*  183 */     return menuJson;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/showSubclassesMenu"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public String showDadMenu(HttpServletRequest request, HttpServletResponse response)
+/*      */   {
+/*  203 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  206 */     String LOCALE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".LOCALE";
+/*  207 */     Object locale = request.getSession().getAttribute(LOCALE_SESSION_ATTRIBUTE_NAME);
+/*  208 */     String menuId = request.getParameter("menuId");
+/*  209 */     List list = null;
+/*  210 */     if (locale == null) {
+/*  211 */       list = this.menuService.getDadMenu(menuId, "zh_CN");
+/*      */     }
+/*      */     else
+/*  214 */       list = this.menuService.getDadMenu(menuId, locale.toString());
+/*      */     String msg;
+/*  218 */     if (list.size() > 0) {
+/*  219 */       this.flag = 0;
+/*  220 */       msg = this.ok;
+/*      */     } else {
+/*  222 */       this.flag = 1;
+/*  223 */       msg = this.err;
+/*      */     }
+/*  225 */     ToJson menuJson = new ToJson(this.flag, msg);
+/*  226 */     menuJson.setObj(list);
+/*  227 */     Map map = new HashMap();
+/*  228 */     map.put("showSubclassesMenu", JSON.toJSONStringWithDateFormat(menuJson, "yyyy-MM-dd HH:mm:ss", new SerializerFeature[0]));
+/*      */ 
+/*  231 */     return JSON.toJSONStringWithDateFormat(menuJson, "yyyy-MM-dd HH:mm:ss", new SerializerFeature[0]);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/getMenu"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public ToJson<MobileApp> getMenu(HttpServletRequest request)
+/*      */   {
+/*  246 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  248 */     List munuList = this.mobileAppService.getMobileAppList(request);
+/*      */     String msg;
+/*  250 */     if (munuList.size() > 0) {
+/*  251 */       this.flag = 0;
+/*  252 */       msg = this.ok;
+/*      */     } else {
+/*  254 */       this.flag = 1;
+/*  255 */       msg = this.err;
+/*      */     }
+/*      */ 
+/*  259 */     ToJson<MobileApp> menuJson = new ToJson<MobileApp>(this.flag, msg);
+/*  260 */     menuJson.setObj(munuList);
+/*  261 */     return menuJson;
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping(value={"/updateFirstMenu"}, produces={"application/json;charset=UTF-8"})
+/*      */   public ToJson<SysMenu> updateSysMenu(SysMenu sysMenu, HttpServletRequest request, HttpServletResponse response)
+/*      */   {
+/*  277 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  279 */     String LOCALE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".LOCALE";
+/*  280 */     Object locale = request.getSession().getAttribute(LOCALE_SESSION_ATTRIBUTE_NAME);
+/*  281 */     ToJson<SysMenu> menuJson = new ToJson<SysMenu>();
+/*      */ 
+/*  283 */     if ((sysMenu != null) && (sysMenu.getId() != null) && (sysMenu.getName() != null) && (sysMenu.getName1() != null) && (sysMenu.getName2() != null) && (sysMenu.getImg() != null))
+/*      */       try
+/*      */       {
+/*  286 */         this.menuService.updateSysMenu(sysMenu);
+/*      */         try
+/*      */         {
+/*      */           List munuList;
+/*  292 */           if (locale == null)
+/*  293 */             munuList = this.menuService.getAll(request, "zh_CN");
+/*      */           else
+/*  295 */             munuList = this.menuService.getAll(request, locale.toString());
+/*      */           String msg;
+/*  298 */           if (munuList.size() > 0) {
+/*  299 */             this.flag = 0;
+/*  300 */             msg = this.ok;
+/*      */           } else {
+/*  302 */             this.flag = 1;
+/*  303 */             msg = this.err;
+/*      */           }
+/*      */ 
+/*  307 */           menuJson.setObj(munuList);
+/*      */ 
+/*  309 */           Map map = new HashMap();
+/*  310 */           map.put("showMenu", JSON.toJSONStringWithDateFormat(menuJson, "yyyy-MM-dd HH:mm:ss", new SerializerFeature[0]));
+/*      */ 
+/*  312 */           return menuJson;
+/*      */         }
+/*      */         catch (Exception e) {
+/*  315 */           List munuList = this.menuService.getAll(request, "zh_CN");
+/*      */           String msg;
+/*  317 */           if (munuList.size() > 0) {
+/*  318 */             this.flag = 0;
+/*  319 */             msg = this.ok;
+/*      */           } else {
+/*  321 */             this.flag = 1;
+/*  322 */             msg = this.err;
+/*      */           }
+/*      */ 
+/*  325 */           menuJson = new ToJson(this.flag, msg);
+/*  326 */           menuJson.setObj(munuList);
+/*      */ 
+/*  328 */           Map map = new HashMap();
+/*  329 */           map.put("showMenu", JSON.toJSONStringWithDateFormat(menuJson, "yyyy-MM-dd HH:mm:ss", new SerializerFeature[0]));
+/*      */ 
+/*  331 */           return menuJson;
+/*      */         }
+/*      */       } catch (Exception e) {
+/*  334 */         menuJson.setMsg(e.getMessage());
+/*      */       }
+/*      */     else {
+/*  337 */       menuJson.setMsg("参数传递问题。");
+/*      */     }
+/*      */ 
+/*  340 */     return menuJson;
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping(value={"/addSysMenu"}, produces={"application/json;charset=UTF-8"})
+/*      */   public ToJson<SysMenu> addSysMenu(SysMenu sysMenu, HttpServletRequest request)
+/*      */   {
+/*  354 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  357 */     ToJson menuJson = new ToJson();
+/*      */ 
+/*  359 */     if ((sysMenu != null) && (sysMenu.getId() != null) && (sysMenu.getName() != null) && (sysMenu.getName1() != null) && (sysMenu.getName2() != null) && (sysMenu.getImg() != null))
+/*      */     {
+/*  367 */       if (sysMenu.getName3() != null) {
+/*  368 */         sysMenu.setName3(sysMenu.getName3());
+/*      */       }
+/*  370 */       if (sysMenu.getName4() != null) {
+/*  371 */         sysMenu.setName4(sysMenu.getName4());
+/*      */       }
+/*  373 */       if (sysMenu.getName5() != null) {
+/*  374 */         sysMenu.setName5(sysMenu.getName5());
+/*      */       }
+/*      */ 
+/*  378 */       sysMenu.setExt("");
+/*      */ 
+/*  381 */       if (sysMenu.getId().length() == 2) {
+/*      */         try {
+/*  383 */           this.menuService.addSysMenu(sysMenu);
+/*      */ 
+/*  386 */           Object locale = request.getSession().getAttribute("LOCALE_SESSION_ATTRIBUTE_NAME");
+/*      */           try
+/*      */           {
+/*      */             List munuList;
+/*  391 */             if (locale == null)
+/*  392 */               munuList = this.menuService.getAllWithEmpty(request, "zh_CN");
+/*      */             else
+/*  394 */               munuList = this.menuService.getAllWithEmpty(request, locale.toString());
+/*      */             String msg;
+/*  397 */             if (munuList.size() > 0) {
+/*  398 */               this.flag = 0;
+/*  399 */               msg = this.ok;
+/*      */             } else {
+/*  401 */               this.flag = 1;
+/*  402 */               msg = this.err;
+/*      */             }
+/*      */ 
+/*  405 */             menuJson = new ToJson(this.flag, msg);
+/*  406 */             menuJson.setObj(munuList);
+/*      */ 
+/*  408 */             Map map = new HashMap();
+/*  409 */             map.put("showMenu", JSON.toJSONStringWithDateFormat(menuJson, "yyyy-MM-dd HH:mm:ss", new SerializerFeature[0]));
+/*      */ 
+/*  411 */             return menuJson;
+/*      */           }
+/*      */           catch (Exception e) {
+/*  414 */             List munuList = this.menuService.getAllWithEmpty(request, "zh_CN");
+/*      */             String msg;
+/*  416 */             if (munuList.size() > 0) {
+/*  417 */               this.flag = 0;
+/*  418 */               msg = this.ok;
+/*      */             } else {
+/*  420 */               this.flag = 1;
+/*  421 */               msg = this.err;
+/*      */             }
+/*      */ 
+/*  424 */             menuJson = new ToJson(this.flag, msg);
+/*  425 */             menuJson.setObj(munuList);
+/*      */ 
+/*  427 */             Map map = new HashMap();
+/*  428 */             map.put("showMenu", JSON.toJSONStringWithDateFormat(menuJson, "yyyy-MM-dd HH:mm:ss", new SerializerFeature[0]));
+/*      */ 
+/*  430 */             return menuJson;
+/*      */           }
+/*      */         }
+/*      */         catch (Exception e) {
+/*  434 */           menuJson.setFlag(1);
+/*  435 */           menuJson.setMsg("err");
+/*  436 */           menuJson.setMsg(e.getMessage());
+/*      */         }
+/*      */       }
+/*      */     }
+/*  440 */     return menuJson;
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping(value={"/deleteSysMenu"}, produces={"application/json;charset=UTF-8"})
+/*      */   public ToJson<SysMenu> deleteSysMenu(String id, HttpServletRequest request)
+/*      */   {
+/*  453 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  456 */     ToJson menuJson = new ToJson();
+/*      */ 
+/*  458 */     if ((id != null) && (id.trim().length() >= 2)) {
+/*      */       try {
+/*  460 */         this.menuService.deleteSysMenu(id);
+/*      */ 
+/*  464 */         Object locale = request.getSession().getAttribute("LOCALE_SESSION_ATTRIBUTE_NAME");
+/*      */         try
+/*      */         {
+/*      */           List munuList;
+/*  469 */           if (locale == null)
+/*  470 */             munuList = this.menuService.getAllWithEmpty(request, "zh_CN");
+/*      */           else
+/*  472 */             munuList = this.menuService.getAllWithEmpty(request, locale.toString());
+/*      */           String msg;
+/*  475 */           if (munuList.size() > 0) {
+/*  476 */             this.flag = 0;
+/*  477 */             msg = this.ok;
+/*      */           } else {
+/*  479 */             this.flag = 1;
+/*  480 */             msg = this.err;
+/*      */           }
+/*      */ 
+/*  483 */           menuJson = new ToJson(this.flag, msg);
+/*  484 */           menuJson.setObj(munuList);
+/*      */ 
+/*  486 */           Map map = new HashMap();
+/*  487 */           map.put("showMenu", JSON.toJSONStringWithDateFormat(menuJson, "yyyy-MM-dd HH:mm:ss", new SerializerFeature[0]));
+/*      */ 
+/*  489 */           return menuJson;
+/*      */         }
+/*      */         catch (Exception e) {
+/*  492 */           List munuList = this.menuService.getAll(request, "zh_CN");
+/*      */           String msg;
+/*  494 */           if (munuList.size() > 0) {
+/*  495 */             this.flag = 0;
+/*  496 */             msg = this.ok;
+/*      */           } else {
+/*  498 */             this.flag = 1;
+/*  499 */             msg = this.err;
+/*      */           }
+/*      */ 
+/*  502 */           menuJson = new ToJson(this.flag, msg);
+/*  503 */           menuJson.setObj(munuList);
+/*      */ 
+/*  505 */           Map map = new HashMap();
+/*  506 */           map.put("showMenu", JSON.toJSONStringWithDateFormat(menuJson, "yyyy-MM-dd HH:mm:ss", new SerializerFeature[0]));
+/*      */ 
+/*  508 */           return menuJson;
+/*      */         }
+/*      */       } catch (Exception e) {
+/*  511 */         menuJson.setFlag(1);
+/*  512 */         menuJson.setMsg("err");
+/*  513 */         menuJson.setMsg(e.getMessage());
+/*      */       }
+/*      */     }
+/*  516 */     return menuJson;
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping(value={"/addFunction"}, produces={"application/json;charset=UTF-8"}, name="添加子类")
+/*      */   public ToJson<SysFunction> addFunctionMenu(SysFunction sysFunction, HttpServletRequest request, String parentId)
+/*      */   {
+/*  530 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  534 */     sysFunction.setExt("");
+/*      */ 
+/*  537 */     if ((sysFunction != null) && (sysFunction.getId() != null) && (sysFunction.getName() != null) && (sysFunction.getfId() != null) && (sysFunction.getExt() != null) && (sysFunction.getUrl() != null) && (!StringUtils.checkNull(parentId).booleanValue()));
+/*  541 */     return this.menuService.addFunctionMenu(sysFunction, parentId);
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping(value={"/editSysFunction"}, produces={"application/json;charset=UTF-8"})
+/*      */   public ToJson<SysFunction> editSysFunction(SysFunction sysFunction, String parentId, HttpServletRequest request)
+/*      */   {
+/*  555 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  557 */     ToJson json = new ToJson(0, null);
+/*      */ 
+/*  559 */     if ((sysFunction != null) && (sysFunction.getfId() != null) && (parentId != null) && (sysFunction.getId() != null) && (sysFunction.getName() != null) && (sysFunction.getUrl() != null))
+/*      */     {
+/*  563 */       sysFunction.setId(parentId.concat(sysFunction.getId()));
+/*      */       try
+/*      */       {
+/*  566 */         this.menuService.editSysFunction(sysFunction);
+/*  567 */         json.setMsg("OK");
+/*  568 */         json.setFlag(0);
+/*      */       } catch (Exception e) {
+/*  570 */         json.setFlag(1);
+/*  571 */         json.setMsg("err");
+/*  572 */         json.setMsg(e.getMessage());
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/*  577 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping(value={"/findChildMenu"}, produces={"application/json;charset=UTF-8"})
+/*      */   public ToJson<SysFunction> findChildMenu(String id, HttpServletRequest request)
+/*      */   {
+/*  591 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  593 */     ToJson json = new ToJson(0, null);
+/*      */     try
+/*      */     {
+/*  597 */       String LOCALE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".LOCALE";
+/*  598 */       Object locale = request.getSession().getAttribute(LOCALE_SESSION_ATTRIBUTE_NAME);
+/*      */ 
+/*  601 */       List menuList = null;
+/*      */ 
+/*  603 */       if (locale == null)
+/*  604 */         menuList = this.menuService.findChildMenu(id, "zh_CN");
+/*      */       else {
+/*  606 */         menuList = this.menuService.findChildMenu(id, locale.toString());
+/*      */       }
+/*      */ 
+/*  610 */       json.setObj(menuList);
+/*  611 */       this.flag = 0;
+/*  612 */       String msg = this.ok;
+/*  613 */       json.setFlag(this.flag);
+/*  614 */       json.setMsg("ok");
+/*      */     } catch (Exception e) {
+/*  616 */       json.setMsg("err");
+/*  617 */       json.setFlag(1);
+/*      */     }
+/*  619 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping(value={"/getTheFirstMenu"}, produces={"application/json;charset=UTF-8"})
+/*      */   public ToJson<SysMenu> getTheFirstMenu(String id, HttpServletRequest request, @RequestHeader("Accept-Language") String acceptLang)
+/*      */   {
+/*  633 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  635 */     String LOCALE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".LOCALE";
+/*  636 */     Object locale = request.getSession().getAttribute(LOCALE_SESSION_ATTRIBUTE_NAME);
+/*  637 */     ToJson json = new ToJson(0, null);
+/*      */     try
+/*      */     {
+/*  641 */       List list = null;
+/*  642 */       if (locale == null)
+/*  643 */         list = this.menuService.getTheFirstMenu(id, "zh_CN");
+/*      */       else {
+/*  645 */         list = this.menuService.getTheFirstMenu(id, locale.toString());
+/*      */       }
+/*      */ 
+/*  649 */       if (((list != null ? 1 : 0) & (list.size() == 1 ? 1 : 0)) != 0) {
+/*  650 */         json.setObject(list.get(0));
+/*      */       }
+/*  652 */       json.setFlag(0);
+/*  653 */       json.setMsg("ok");
+/*      */     } catch (Exception e) {
+/*  655 */       json.setFlag(1);
+/*  656 */       json.setMsg("err");
+/*      */     }
+/*  658 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping({"/getAuthRoleName"})
+/*      */   public ToJson<StringBuffer> getAuthRoleName(String fid, HttpServletRequest request)
+/*      */   {
+/*  674 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  677 */     ToJson json = new ToJson(0, null);
+/*      */     try {
+/*  679 */       List userPrivList = this.usersPrivService.getUserPrivNameByFuncId(fid);
+/*      */ 
+/*  681 */       StringBuffer sb = new StringBuffer();
+/*      */ 
+/*  683 */       for (int i = 0; i < userPrivList.size(); i++) {
+/*  684 */         if (i == userPrivList.size() - 1)
+/*  685 */           sb.append(((UserPriv)userPrivList.get(i)).getPrivName());
+/*      */         else {
+/*  687 */           sb.append(((UserPriv)userPrivList.get(i)).getPrivName()).append(",");
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  692 */       json.setObject(sb);
+/*  693 */       json.setMsg("OK");
+/*  694 */       json.setFlag(0);
+/*      */     }
+/*      */     catch (Exception e) {
+/*  697 */       json.setMsg("err");
+/*  698 */       json.setFlag(1);
+/*      */     }
+/*  700 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping({"/getAuthUserName"})
+/*      */   public ToJson<StringBuffer> getAuthUserName(String fid, HttpServletRequest request)
+/*      */   {
+/*  715 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  718 */     ToJson json = new ToJson(0, null);
+/*      */     try
+/*      */     {
+/*  721 */       List list = this.userFunctionService.getUserNameByFuncId(fid);
+/*      */ 
+/*  723 */       StringBuffer sb = new StringBuffer();
+/*      */ 
+/*  725 */       for (int i = 0; i < list.size(); i++) {
+/*  726 */         if (i == list.size() - 1)
+/*  727 */           sb.append((String)list.get(i));
+/*      */         else {
+/*  729 */           sb.append((String)list.get(i)).append(",");
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  734 */       json.setObject(sb);
+/*  735 */       json.setMsg("OK");
+/*  736 */       json.setFlag(0);
+/*      */     }
+/*      */     catch (NullPointerException e) {
+/*  739 */       json.setMsg("err");
+/*  740 */       json.setFlag(1);
+/*      */     }
+/*  742 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping({"/updateUserPrivfuncIdStr"})
+/*      */   public ToJson<Object> updateUserPrivfuncIdStr(HttpServletRequest request, String privids, String funcId)
+/*      */   {
+/*  756 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  759 */     ToJson json = new ToJson(0, null);
+/*      */     try
+/*      */     {
+/*  762 */       this.usersPrivService.updateUserPrivfuncIdStr(privids, funcId);
+/*  763 */       json.setMsg("OK");
+/*  764 */       json.setFlag(0);
+/*      */     }
+/*      */     catch (Exception e) {
+/*  767 */       json.setMsg("err");
+/*  768 */       json.setFlag(1);
+/*      */     }
+/*  770 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping({"/updateAuthUser"})
+/*      */   public ToJson<Object> updateAuthUser(HttpServletRequest request, String fid, String uids)
+/*      */   {
+/*  786 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  788 */     ToJson json = new ToJson(0, null);
+/*      */     try
+/*      */     {
+/*  791 */       this.userFunctionService.updateAuthUser(fid, uids);
+/*  792 */       json.setMsg("OK");
+/*  793 */       json.setFlag(0);
+/*      */     }
+/*      */     catch (Exception e) {
+/*  796 */       json.setMsg("err");
+/*  797 */       json.setFlag(1);
+/*      */     }
+/*      */ 
+/*  800 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping(value={"deleteUserPriv"}, produces={"application/json;charset=UTF-8"})
+/*      */   public ToJson<Object> deleteUserPriv(HttpServletRequest request, String privids, String funcIds)
+/*      */   {
+/*  815 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  817 */     ToJson json = new ToJson(0, null);
+/*      */     try
+/*      */     {
+/*  820 */       this.usersPrivService.deleteUserPriv(privids, funcIds);
+/*  821 */       json.setMsg("OK");
+/*  822 */       json.setFlag(0);
+/*      */     }
+/*      */     catch (Exception e) {
+/*  825 */       json.setMsg("err");
+/*  826 */       json.setFlag(1);
+/*      */     }
+/*      */ 
+/*  830 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping({"/deleteAuthUser"})
+/*      */   public ToJson<Object> deleteAuthUser(HttpServletRequest request, String fid, String uIds)
+/*      */   {
+/*  844 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  846 */     ToJson json = new ToJson(0, null);
+/*      */     try
+/*      */     {
+/*  849 */       this.userFunctionService.deleteAuthUser(fid, uIds);
+/*  850 */       json.setMsg("OK");
+/*  851 */       json.setFlag(0);
+/*      */     }
+/*      */     catch (Exception e) {
+/*  854 */       json.setMsg("err");
+/*  855 */       json.setFlag(1);
+/*      */     }
+/*      */ 
+/*  858 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/getAllFunctionMenu"})
+/*      */   @ResponseBody
+/*      */   public ToJson<SysMenu> getAllFunctionMenu(HttpServletRequest request)
+/*      */   {
+/*  905 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  907 */     String LOCALE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".LOCALE";
+/*  908 */     Object locale = request.getSession().getAttribute(LOCALE_SESSION_ATTRIBUTE_NAME);
+/*      */     ToJson menuJson;
+/*      */     try
+/*      */     {
+/*      */       List munuList;
+/*  913 */       if (locale == null)
+/*  914 */         munuList = this.menuService.getAllMenu(request, "zh_CN");
+/*      */       else
+/*  916 */         munuList = this.menuService.getAllMenu(request, locale.toString());
+/*      */       String msg;
+/*  919 */       if (munuList.size() > 0) {
+/*  920 */         this.flag = 0;
+/*  921 */         msg = this.ok;
+/*      */       } else {
+/*  923 */         this.flag = 1;
+/*  924 */         msg = this.err;
+/*      */       }
+/*      */ 
+/*  927 */       menuJson = new ToJson(this.flag, msg);
+/*  928 */       menuJson.setObj(munuList);
+/*      */ 
+/*  930 */       Map map = new HashMap();
+/*  931 */       map.put("showMenu", JSON.toJSONStringWithDateFormat(menuJson, "yyyy-MM-dd HH:mm:ss", new SerializerFeature[0]));
+/*      */ 
+/*  933 */       return menuJson;
+/*      */     }
+/*      */     catch (Exception e) {
+/*  936 */       List munuList = this.menuService.getAll(request, "zh_CN");
+/*      */       String msg;
+/*  938 */       if (munuList.size() > 0) {
+/*  939 */         this.flag = 0;
+/*  940 */         msg = this.ok;
+/*      */       } else {
+/*  942 */         this.flag = 1;
+/*  943 */         msg = this.err;
+/*      */       }
+/*      */ 
+/*  946 */       menuJson = new ToJson(this.flag, msg);
+/*  947 */       menuJson.setObj(munuList);
+/*  948 */       menuJson.setMsg("err");
+/*  949 */       menuJson.setFlag(1);
+/*  950 */       Map map = new HashMap();
+/*  951 */       map.put("showMenu", JSON.toJSONStringWithDateFormat(menuJson, "yyyy-MM-dd HH:mm:ss", new SerializerFeature[0]));
+/*      */     }
+/*  953 */     return menuJson;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/getErrMenu"})
+/*      */   @ResponseBody
+/*      */   public ToJson<List<SysFunction>> getErrMenu()
+/*      */   {
+/* 1030 */     return this.menuService.getErrMenu();
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/ImportMenu"})
+/*      */   @ResponseBody
+/*      */   public ToJson<Object> recoverMenu(HttpServletRequest request, MultipartFile sqlFile)
+/*      */   {
+/* 1048 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/* 1052 */     String realPath = request.getSession().getServletContext().getRealPath("/");
+/* 1053 */     ToJson toJson = new ToJson(0, "");
+/*      */     try
+/*      */     {
+/* 1056 */       if ((sqlFile != null) && (sqlFile.getOriginalFilename() != null) && (!sqlFile.getOriginalFilename().equals("")))
+/*      */       {
+/* 1060 */         String originalFilename = sqlFile.getOriginalFilename();
+/*      */ 
+/* 1062 */         String fileName_new = "lec";
+/* 1063 */         String path = realPath.concat("sys_function.sql");
+/*      */ 
+/* 1065 */         File newFile = new File(path);
+/*      */ 
+/* 1067 */         sqlFile.transferTo(newFile);
+/*      */ 
+/* 1069 */         toJson = this.menuService.recoverMenu(request, path);
+/* 1070 */         toJson.setFlag(0);
+/* 1071 */         toJson.setMsg("ok");
+/*      */       }
+/*      */     }
+/*      */     catch (Exception e) {
+/* 1075 */       toJson.setFlag(1);
+/* 1076 */       toJson.setMsg("err");
+/*      */     }
+/*      */ 
+/* 1080 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/ExportMenu"})
+/*      */   @ResponseBody
+/*      */   public void exportMenu(HttpServletRequest request, HttpServletResponse response)
+/*      */   {
+/*      */     try
+/*      */     {
+/* 1095 */       this.menuService.exportMenu(request, response);
+/*      */     } catch (Exception e) {
+/* 1097 */       e.printStackTrace();
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/EditMenuPara"})
+/*      */   @ResponseBody
+/*      */   public ToJson<Object> editMenuPara(SysParaExtend sysParaExtend)
+/*      */   {
+/* 1115 */     return this.menuService.editMenuPara(sysParaExtend);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/getMenuPara"})
+/*      */   @ResponseBody
+/*      */   public ToJson<SysParaExtend> getParaInfo()
+/*      */   {
+/* 1128 */     return this.menuService.getParaInfo();
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/getSysFunctionByFid"})
+/*      */   @ResponseBody
+/*      */   public ToJson<SysFunction> getSysFunctionByFid(HttpServletRequest request, Integer fid)
+/*      */   {
+/* 1143 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/* 1145 */     ToJson tojson = new ToJson(0, "");
+/*      */     try
+/*      */     {
+/* 1148 */       SysFunction sysFunction = this.menuService.getSysFunctionByFid(fid);
+/* 1149 */       tojson.setObject(sysFunction);
+/* 1150 */       tojson.setMsg("ok");
+/* 1151 */       tojson.setFlag(0);
+/*      */     } catch (Exception e) {
+/* 1153 */       tojson.setFlag(1);
+/* 1154 */       tojson.setMsg("err");
+/*      */     }
+/* 1156 */     return tojson;
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.menu.MenuController
+ * JD-Core Version:    0.6.0
+ */

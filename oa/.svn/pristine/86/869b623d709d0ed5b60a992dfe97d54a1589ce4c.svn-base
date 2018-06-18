@@ -1,0 +1,524 @@
+ package com.myoa.model.officesupplies;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+ 
+ public class OfficeTypeExample
+ {
+   protected String orderByClause;
+   protected boolean distinct;
+   protected List<Criteria> oredCriteria;
+ 
+   public OfficeTypeExample()
+   {
+     this.oredCriteria = new ArrayList();
+   }
+ 
+   public void setOrderByClause(String orderByClause)
+   {
+     this.orderByClause = orderByClause;
+   }
+ 
+   public String getOrderByClause()
+   {
+     return this.orderByClause;
+   }
+ 
+   public void setDistinct(boolean distinct)
+   {
+     this.distinct = distinct;
+   }
+ 
+   public boolean isDistinct()
+   {
+     return this.distinct;
+   }
+ 
+   public List<Criteria> getOredCriteria()
+   {
+     return this.oredCriteria;
+   }
+ 
+   public void or(Criteria criteria)
+   {
+     this.oredCriteria.add(criteria);
+   }
+ 
+   public Criteria or()
+   {
+     Criteria criteria = createCriteriaInternal();
+     this.oredCriteria.add(criteria);
+     return criteria;
+   }
+ 
+   public Criteria createCriteria()
+   {
+     Criteria criteria = createCriteriaInternal();
+     if (this.oredCriteria.size() == 0) {
+       this.oredCriteria.add(criteria);
+     }
+     return criteria;
+   }
+ 
+   protected Criteria createCriteriaInternal()
+   {
+     Criteria criteria = new Criteria();
+     return criteria;
+   }
+ 
+   public void clear()
+   {
+     this.oredCriteria.clear();
+     this.orderByClause = null;
+     this.distinct = false;
+   }
+ 
+   public static class Criterion
+   {
+     private String condition;
+     private Object value;
+     private Object secondValue;
+     private boolean noValue;
+     private boolean singleValue;
+     private boolean betweenValue;
+     private boolean listValue;
+     private String typeHandler;
+ 
+     public String getCondition()
+     {
+       return this.condition;
+     }
+ 
+     public Object getValue() {
+       return this.value;
+     }
+ 
+     public Object getSecondValue() {
+       return this.secondValue;
+     }
+ 
+     public boolean isNoValue() {
+       return this.noValue;
+     }
+ 
+     public boolean isSingleValue() {
+       return this.singleValue;
+     }
+ 
+     public boolean isBetweenValue() {
+       return this.betweenValue;
+     }
+ 
+     public boolean isListValue() {
+       return this.listValue;
+     }
+ 
+     public String getTypeHandler() {
+       return this.typeHandler;
+     }
+ 
+     protected Criterion(String condition)
+     {
+       this.condition = condition;
+       this.typeHandler = null;
+       this.noValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value, String typeHandler)
+     {
+       this.condition = condition;
+       this.value = value;
+       this.typeHandler = typeHandler;
+       if ((value instanceof List))
+         this.listValue = true;
+       else
+         this.singleValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value)
+     {
+       this(condition, value, null);
+     }
+ 
+     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+     {
+       this.condition = condition;
+       this.value = value;
+       this.secondValue = secondValue;
+       this.typeHandler = typeHandler;
+       this.betweenValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value, Object secondValue) {
+       this(condition, value, secondValue, null);
+     }
+   }
+ 
+   public static class Criteria extends OfficeTypeExample.GeneratedCriteria
+   {
+   }
+ 
+   protected static abstract class GeneratedCriteria
+   {
+     protected List<OfficeTypeExample.Criterion> criteria;
+ 
+     protected GeneratedCriteria()
+     {
+       this.criteria = new ArrayList();
+     }
+ 
+     public boolean isValid() {
+       return this.criteria.size() > 0;
+     }
+ 
+     public List<OfficeTypeExample.Criterion> getAllCriteria() {
+       return this.criteria;
+     }
+ 
+     public List<OfficeTypeExample.Criterion> getCriteria() {
+       return this.criteria;
+     }
+ 
+     protected void addCriterion(String condition) {
+       if (condition == null) {
+         throw new RuntimeException("Value for condition cannot be null");
+       }
+       this.criteria.add(new OfficeTypeExample.Criterion(condition));
+     }
+ 
+     protected void addCriterion(String condition, Object value, String property) {
+       if (value == null) {
+         throw new RuntimeException("Value for " + property + " cannot be null");
+       }
+       this.criteria.add(new OfficeTypeExample.Criterion(condition, value));
+     }
+ 
+     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+       if ((value1 == null) || (value2 == null)) {
+         throw new RuntimeException("Between values for " + property + " cannot be null");
+       }
+       this.criteria.add(new OfficeTypeExample.Criterion(condition, value1, value2));
+     }
+ 
+     public OfficeTypeExample.Criteria andIdIsNull() {
+       addCriterion("ID is null");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andIdIsNotNull() {
+       addCriterion("ID is not null");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andIdEqualTo(Integer value) {
+       addCriterion("ID =", value, "id");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andIdNotEqualTo(Integer value) {
+       addCriterion("ID <>", value, "id");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andIdGreaterThan(Integer value) {
+       addCriterion("ID >", value, "id");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andIdGreaterThanOrEqualTo(Integer value) {
+       addCriterion("ID >=", value, "id");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andIdLessThan(Integer value) {
+       addCriterion("ID <", value, "id");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andIdLessThanOrEqualTo(Integer value) {
+       addCriterion("ID <=", value, "id");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andIdIn(List<Integer> values) {
+       addCriterion("ID in", values, "id");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andIdNotIn(List<Integer> values) {
+       addCriterion("ID not in", values, "id");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andIdBetween(Integer value1, Integer value2) {
+       addCriterion("ID between", value1, value2, "id");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andIdNotBetween(Integer value1, Integer value2) {
+       addCriterion("ID not between", value1, value2, "id");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeNameIsNull() {
+       addCriterion("TYPE_NAME is null");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeNameIsNotNull() {
+       addCriterion("TYPE_NAME is not null");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeNameEqualTo(String value) {
+       addCriterion("TYPE_NAME =", value, "typeName");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeNameNotEqualTo(String value) {
+       addCriterion("TYPE_NAME <>", value, "typeName");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeNameGreaterThan(String value) {
+       addCriterion("TYPE_NAME >", value, "typeName");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeNameGreaterThanOrEqualTo(String value) {
+       addCriterion("TYPE_NAME >=", value, "typeName");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeNameLessThan(String value) {
+       addCriterion("TYPE_NAME <", value, "typeName");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeNameLessThanOrEqualTo(String value) {
+       addCriterion("TYPE_NAME <=", value, "typeName");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeNameLike(String value) {
+       addCriterion("TYPE_NAME like", value, "typeName");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeNameNotLike(String value) {
+       addCriterion("TYPE_NAME not like", value, "typeName");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeNameIn(List<String> values) {
+       addCriterion("TYPE_NAME in", values, "typeName");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeNameNotIn(List<String> values) {
+       addCriterion("TYPE_NAME not in", values, "typeName");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeNameBetween(String value1, String value2) {
+       addCriterion("TYPE_NAME between", value1, value2, "typeName");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeNameNotBetween(String value1, String value2) {
+       addCriterion("TYPE_NAME not between", value1, value2, "typeName");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeOrderIsNull() {
+       addCriterion("TYPE_ORDER is null");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeOrderIsNotNull() {
+       addCriterion("TYPE_ORDER is not null");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeOrderEqualTo(String value) {
+       addCriterion("TYPE_ORDER =", value, "typeOrder");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeOrderNotEqualTo(String value) {
+       addCriterion("TYPE_ORDER <>", value, "typeOrder");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeOrderGreaterThan(String value) {
+       addCriterion("TYPE_ORDER >", value, "typeOrder");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeOrderGreaterThanOrEqualTo(String value) {
+       addCriterion("TYPE_ORDER >=", value, "typeOrder");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeOrderLessThan(String value) {
+       addCriterion("TYPE_ORDER <", value, "typeOrder");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeOrderLessThanOrEqualTo(String value) {
+       addCriterion("TYPE_ORDER <=", value, "typeOrder");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeOrderLike(String value) {
+       addCriterion("TYPE_ORDER like", value, "typeOrder");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeOrderNotLike(String value) {
+       addCriterion("TYPE_ORDER not like", value, "typeOrder");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeOrderIn(List<String> values) {
+       addCriterion("TYPE_ORDER in", values, "typeOrder");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeOrderNotIn(List<String> values) {
+       addCriterion("TYPE_ORDER not in", values, "typeOrder");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeOrderBetween(String value1, String value2) {
+       addCriterion("TYPE_ORDER between", value1, value2, "typeOrder");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeOrderNotBetween(String value1, String value2) {
+       addCriterion("TYPE_ORDER not between", value1, value2, "typeOrder");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeParentIdIsNull() {
+       addCriterion("TYPE_PARENT_ID is null");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeParentIdIsNotNull() {
+       addCriterion("TYPE_PARENT_ID is not null");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeParentIdEqualTo(Integer value) {
+       addCriterion("TYPE_PARENT_ID =", value, "typeParentId");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeParentIdNotEqualTo(Integer value) {
+       addCriterion("TYPE_PARENT_ID <>", value, "typeParentId");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeParentIdGreaterThan(Integer value) {
+       addCriterion("TYPE_PARENT_ID >", value, "typeParentId");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeParentIdGreaterThanOrEqualTo(Integer value) {
+       addCriterion("TYPE_PARENT_ID >=", value, "typeParentId");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeParentIdLessThan(Integer value) {
+       addCriterion("TYPE_PARENT_ID <", value, "typeParentId");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeParentIdLessThanOrEqualTo(Integer value) {
+       addCriterion("TYPE_PARENT_ID <=", value, "typeParentId");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeParentIdIn(List<Integer> values) {
+       addCriterion("TYPE_PARENT_ID in", values, "typeParentId");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeParentIdNotIn(List<Integer> values) {
+       addCriterion("TYPE_PARENT_ID not in", values, "typeParentId");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeParentIdBetween(Integer value1, Integer value2) {
+       addCriterion("TYPE_PARENT_ID between", value1, value2, "typeParentId");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeParentIdNotBetween(Integer value1, Integer value2) {
+       addCriterion("TYPE_PARENT_ID not between", value1, value2, "typeParentId");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeDepositoryIsNull() {
+       addCriterion("TYPE_DEPOSITORY is null");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeDepositoryIsNotNull() {
+       addCriterion("TYPE_DEPOSITORY is not null");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeDepositoryEqualTo(Integer value) {
+       addCriterion("TYPE_DEPOSITORY =", value, "typeDepository");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeDepositoryNotEqualTo(Integer value) {
+       addCriterion("TYPE_DEPOSITORY <>", value, "typeDepository");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeDepositoryGreaterThan(Integer value) {
+       addCriterion("TYPE_DEPOSITORY >", value, "typeDepository");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeDepositoryGreaterThanOrEqualTo(Integer value) {
+       addCriterion("TYPE_DEPOSITORY >=", value, "typeDepository");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeDepositoryLessThan(Integer value) {
+       addCriterion("TYPE_DEPOSITORY <", value, "typeDepository");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeDepositoryLessThanOrEqualTo(Integer value) {
+       addCriterion("TYPE_DEPOSITORY <=", value, "typeDepository");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeDepositoryIn(List<Integer> values) {
+       addCriterion("TYPE_DEPOSITORY in", values, "typeDepository");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeDepositoryNotIn(List<Integer> values) {
+       addCriterion("TYPE_DEPOSITORY not in", values, "typeDepository");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeDepositoryBetween(Integer value1, Integer value2) {
+       addCriterion("TYPE_DEPOSITORY between", value1, value2, "typeDepository");
+       return (OfficeTypeExample.Criteria)this;
+     }
+ 
+     public OfficeTypeExample.Criteria andTypeDepositoryNotBetween(Integer value1, Integer value2) {
+       addCriterion("TYPE_DEPOSITORY not between", value1, value2, "typeDepository");
+       return (OfficeTypeExample.Criteria)this;
+     }
+   }
+ }
+

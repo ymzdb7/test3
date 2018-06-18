@@ -1,0 +1,125 @@
+/*     */ package com.xoa.service.wechat.WeChatCommentReply.impl;
+/*     */ 
+/*     */ import com.xoa.dao.wechat.WeChatCommentReplyMapper;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.wechat.WeChatCommentReply;
+/*     */ import com.xoa.service.wechat.WeChatCommentReply.WeChatCommentReplyService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.io.UnsupportedEncodingException;
+/*     */ import java.net.URLDecoder;
+/*     */ import java.net.URLEncoder;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ import java.util.regex.Matcher;
+/*     */ import java.util.regex.Pattern;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class WeChatCommentReplyServiceImpl
+/*     */   implements WeChatCommentReplyService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private WeChatCommentReplyMapper weChatCommentReplyMapper;
+/*     */ 
+/*     */   public static String emojiConvert1(String str)
+/*     */     throws UnsupportedEncodingException
+/*     */   {
+/*  31 */     String patternString = "([\\x{10000}-\\x{10ffff}í €-í¿¿])";
+/*     */ 
+/*  33 */     Pattern pattern = Pattern.compile(patternString);
+/*     */ 
+/*  35 */     Matcher matcher = pattern.matcher(str);
+/*     */ 
+/*  37 */     StringBuffer sb = new StringBuffer();
+/*  38 */     while (matcher.find()) {
+/*     */       try {
+/*  40 */         matcher.appendReplacement(sb, "[[" + URLEncoder.encode(matcher.group(1), "UTF-8") + "]]");
+/*     */       }
+/*     */       catch (UnsupportedEncodingException e)
+/*     */       {
+/*  46 */         e.printStackTrace();
+/*     */       }
+/*     */     }
+/*  49 */     matcher.appendTail(sb);
+/*     */ 
+/*  52 */     return sb.toString();
+/*     */   }
+/*     */ 
+/*     */   public static String emojiRecovery2(String str) throws UnsupportedEncodingException
+/*     */   {
+/*  57 */     String patternString = "\\[\\[(.*?)\\]\\]";
+/*     */ 
+/*  59 */     Pattern pattern = Pattern.compile(patternString);
+/*  60 */     Matcher matcher = pattern.matcher(str);
+/*     */ 
+/*  62 */     StringBuffer sb = new StringBuffer();
+/*  63 */     while (matcher.find()) {
+/*     */       try {
+/*  65 */         matcher.appendReplacement(sb, URLDecoder.decode(matcher.group(1), "UTF-8"));
+/*     */       }
+/*     */       catch (UnsupportedEncodingException e)
+/*     */       {
+/*  69 */         e.printStackTrace();
+/*     */       }
+/*     */     }
+/*  72 */     matcher.appendTail(sb);
+/*     */ 
+/*  74 */     return sb.toString();
+/*     */   }
+/*     */ 
+/*     */   public ToJson<WeChatCommentReply> insertWeChatCommentReply(WeChatCommentReply weChatCommentReply, Users user) {
+/*  78 */     ToJson json = new ToJson();
+/*     */     try {
+/*  80 */       int uid = user.getUid().intValue();
+/*  81 */       String currentTime = String.valueOf(new Date().getTime() / 1000L);
+/*  82 */       int time = Integer.valueOf(currentTime).intValue();
+/*  83 */       weChatCommentReply.setUid(Integer.valueOf(uid));
+/*  84 */       weChatCommentReply.setrTime(Integer.valueOf(time));
+/*  85 */       String message = emojiConvert1(weChatCommentReply.getMessage());
+/*  86 */       weChatCommentReply.setMessage(message);
+/*  87 */       this.weChatCommentReplyMapper.insertWeChatCommentReply(weChatCommentReply);
+/*  88 */       json.setFlag(0);
+/*  89 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/*  91 */       e.printStackTrace();
+/*  92 */       json.setFlag(1);
+/*  93 */       json.setMsg("err");
+/*     */     }
+/*  95 */     return json;
+/*     */   }
+/*     */   public ToJson<WeChatCommentReply> selectWeChatCommentReply(Integer wid, Integer cid) {
+/*  98 */     ToJson json = new ToJson();
+/*     */     try {
+/* 100 */       List weChatCommentReplyList = this.weChatCommentReplyMapper.selectWeChatCommentReply(wid, cid);
+/* 101 */       json.setObj(weChatCommentReplyList);
+/* 102 */       json.setFlag(0);
+/* 103 */       json.setMsg("ok");
+/*     */     }
+/*     */     catch (Exception e) {
+/* 106 */       e.printStackTrace();
+/* 107 */       json.setFlag(1);
+/* 108 */       json.setMsg("err");
+/*     */     }
+/* 110 */     return json;
+/*     */   }
+/*     */   public ToJson<WeChatCommentReply> deleteByPrimaryKey(Integer rid) {
+/* 113 */     ToJson json = new ToJson();
+/*     */     try {
+/* 115 */       this.weChatCommentReplyMapper.deleteByPrimaryKey(rid);
+/* 116 */       json.setFlag(0);
+/* 117 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 119 */       e.printStackTrace();
+/* 120 */       json.setFlag(1);
+/* 121 */       json.setMsg("err");
+/*     */     }
+/* 123 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.wechat.WeChatCommentReply.impl.WeChatCommentReplyServiceImpl
+ * JD-Core Version:    0.6.0
+ */

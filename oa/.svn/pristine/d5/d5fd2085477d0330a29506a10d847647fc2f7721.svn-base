@@ -1,0 +1,267 @@
+/*     */ package com.xoa.service.portals.impl;
+/*     */ 
+/*     */ import com.xoa.dao.WFE.WFEFlowRunPrcsMapper;
+/*     */ import com.xoa.dao.common.SysParaMapper;
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.diary.DiaryModelMapper;
+/*     */ import com.xoa.dao.portals.PortalsMapper;
+/*     */ import com.xoa.dao.users.UserPrivMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.common.SysPara;
+/*     */ import com.xoa.model.diary.DiaryModel;
+/*     */ import com.xoa.model.portals.Portals;
+/*     */ import com.xoa.model.portals.PortalsUser;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.workflow.FlowRunPrcs;
+/*     */ import com.xoa.service.portals.PortalsService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.Calendar;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class PortalsServiceImpl
+/*     */   implements PortalsService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private PortalsMapper portalsMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private UserPrivMapper userPrivMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private DiaryModelMapper diaryModelMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private WFEFlowRunPrcsMapper weflowRunPrcsMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private SysParaMapper sysParaMapper;
+/*     */ 
+/*     */   public ToJson<Portals> addPortals(Portals portals)
+/*     */   {
+/*  59 */     ToJson json = new ToJson();
+/*     */     try {
+/*  61 */       this.portalsMapper.insertSelective(portals);
+/*  62 */       json.setFlag(0);
+/*  63 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/*  65 */       e.printStackTrace();
+/*  66 */       json.setFlag(1);
+/*  67 */       json.setMsg("err:" + e.getMessage());
+/*     */     }
+/*  69 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Portals> updatePortals(Portals portals)
+/*     */   {
+/*  74 */     ToJson json = new ToJson();
+/*     */     try {
+/*  76 */       this.portalsMapper.updateByPrimaryKeySelective(portals);
+/*  77 */       json.setFlag(0);
+/*  78 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/*  80 */       e.printStackTrace();
+/*  81 */       json.setFlag(1);
+/*  82 */       json.setMsg("err:" + e.getMessage());
+/*     */     }
+/*  84 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Portals> selPortals(PageParams pageParams, Portals portals)
+/*     */   {
+/*  89 */     ToJson json = new ToJson();
+/*     */     try {
+/*  91 */       Map map = new HashMap();
+/*  92 */       map.put("page", pageParams);
+/*     */ 
+/*  94 */       List portals1 = this.portalsMapper.selPortals(map);
+/*     */ 
+/*  96 */       json.setObj(portals1);
+/*  97 */       json.setFlag(0);
+/*  98 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 100 */       e.printStackTrace();
+/* 101 */       json.setFlag(1);
+/* 102 */       json.setMsg("err:" + e.getMessage());
+/*     */     }
+/* 104 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Portals> deletePortals(String PortalsIds)
+/*     */   {
+/* 109 */     ToJson json = new ToJson();
+/*     */     try {
+/* 111 */       String[] split = PortalsIds.split(",");
+/* 112 */       this.portalsMapper.deletePortalsByIds(split);
+/* 113 */       json.setFlag(0);
+/* 114 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 116 */       e.printStackTrace();
+/* 117 */       json.setFlag(1);
+/* 118 */       json.setMsg("err:" + e.getMessage());
+/*     */     }
+/* 120 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Portals> selPortalsById(Integer portalsId)
+/*     */   {
+/* 125 */     ToJson json = new ToJson();
+/*     */     try {
+/* 127 */       Portals portals = this.portalsMapper.selPortalsById(portalsId);
+/* 128 */       if (portals.getAccessPriv().equals(Integer.valueOf(1)))
+/*     */       {
+/* 130 */         String accessPrivUser = portals.getAccessPrivUser();
+/* 131 */         if (!StringUtils.checkNull(accessPrivUser).booleanValue()) {
+/* 132 */           List usersByUserIds = this.usersMapper.getUsersByUserIds(accessPrivUser.split(","));
+/* 133 */           portals.setPrivUser(usersByUserIds);
+/*     */         }
+/*     */ 
+/* 136 */         String accessPrivPriv = portals.getAccessPrivPriv();
+/* 137 */         if (!StringUtils.checkNull(accessPrivPriv).booleanValue()) {
+/* 138 */           List userPrivByIds = this.userPrivMapper.getUserPrivByIds(accessPrivPriv.split(","));
+/* 139 */           portals.setPrivPriv(userPrivByIds);
+/*     */         }
+/*     */ 
+/* 142 */         String accessPrivDept = portals.getAccessPrivDept();
+/* 143 */         if (!StringUtils.checkNull(accessPrivDept).booleanValue()) {
+/* 144 */           List departments = this.departmentMapper.selDeptByIds(accessPrivDept.split(","));
+/* 145 */           portals.setPrivDept(departments);
+/*     */         }
+/*     */       }
+/* 148 */       json.setObject(portals);
+/* 149 */       json.setFlag(0);
+/* 150 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 152 */       e.printStackTrace();
+/* 153 */       json.setFlag(1);
+/* 154 */       json.setMsg("err:" + e.getMessage());
+/*     */     }
+/* 156 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<PortalsUser> selPortalsUser(HttpServletRequest request)
+/*     */   {
+/* 161 */     ToJson json = new ToJson();
+/*     */     try {
+/* 163 */       Users sessionInfo = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 164 */       PortalsUser portalsUser = new PortalsUser();
+/* 165 */       portalsUser.setUserId(sessionInfo.getUserId());
+/* 166 */       portalsUser.setUserName(sessionInfo.getUserName());
+/* 167 */       portalsUser.setUserPrivName(sessionInfo.getUserPrivName());
+/* 168 */       portalsUser.setJobName(sessionInfo.getJobName());
+/* 169 */       portalsUser.setPostName(sessionInfo.getPostName());
+/* 170 */       if (!StringUtils.checkNull(sessionInfo.getAvatar()).booleanValue())
+/* 171 */         portalsUser.setAvatar(sessionInfo.getAvatar());
+/*     */       else {
+/* 173 */         portalsUser.setAvatar(sessionInfo.getSex());
+/*     */       }
+/*     */ 
+/* 177 */       Map map = new HashMap();
+/* 178 */       map.put("userId", sessionInfo.getUserId());
+/* 179 */       PageParams pageParams = new PageParams();
+/* 180 */       pageParams.setPage(Integer.valueOf(1));
+/* 181 */       pageParams.setPageSize(Integer.valueOf(1));
+/* 182 */       map.put("page", pageParams);
+/* 183 */       List diarySelf = this.diaryModelMapper.getDiarySelf(map);
+/* 184 */       if ((diarySelf != null) && (diarySelf.size() > 0)) {
+/* 185 */         DiaryModel diaryModel = (DiaryModel)diarySelf.get(0);
+/* 186 */         portalsUser.setDiary(diaryModel);
+/*     */       }
+/*     */ 
+/* 189 */       map.remove("page");
+/*     */ 
+/* 191 */       Calendar today = Calendar.getInstance();
+/* 192 */       today.set(11, 0);
+/* 193 */       today.set(12, 0);
+/* 194 */       today.set(13, 0);
+/* 195 */       today.set(14, 0);
+/*     */ 
+/* 197 */       map.put("beginDate", today.getTime());
+/*     */ 
+/* 199 */       today.set(11, 23);
+/* 200 */       today.set(12, 59);
+/* 201 */       today.set(13, 59);
+/* 202 */       today.set(14, 999);
+/*     */ 
+/* 204 */       map.put("endDate", today.getTime());
+/*     */ 
+/* 207 */       FlowRunPrcs flowRunPrcs1 = this.weflowRunPrcsMapper.selectObjectCounts(map);
+/* 208 */       if ((flowRunPrcs1 != null) && (flowRunPrcs1.getCounts() != null))
+/* 209 */         portalsUser.setToDoCount(flowRunPrcs1.getCounts());
+/*     */       else {
+/* 211 */         portalsUser.setToDoCount(Integer.valueOf(0));
+/*     */       }
+/*     */ 
+/* 214 */       FlowRunPrcs flowRunPrcs2 = this.weflowRunPrcsMapper.selectEndCounts(map);
+/* 215 */       if ((flowRunPrcs2 != null) && (flowRunPrcs2.getCounts() != null))
+/* 216 */         portalsUser.setDoneCount(flowRunPrcs2.getCounts());
+/*     */       else {
+/* 218 */         portalsUser.setDoneCount(Integer.valueOf(0));
+/*     */       }
+/*     */ 
+/* 221 */       json.setObject(portalsUser);
+/* 222 */       json.setFlag(0);
+/* 223 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 225 */       e.printStackTrace();
+/* 226 */       json.setFlag(1);
+/* 227 */       json.setMsg("err");
+/*     */     }
+/* 229 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Portals> selIndexPortals(HttpServletRequest request)
+/*     */   {
+/* 234 */     ToJson json = new ToJson();
+/*     */     try {
+/* 236 */       Users sessionInfo = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 237 */       Map map = new HashMap();
+/*     */ 
+/* 240 */       map.put("accessPrivDept", sessionInfo.getDeptId());
+/* 241 */       map.put("accessPrivPriv", sessionInfo.getUserPriv());
+/* 242 */       map.put("accessPrivUser", sessionInfo.getUserId());
+/* 243 */       List portals1 = this.portalsMapper.selPortals(map);
+/*     */ 
+/* 246 */       Portals portals = new Portals();
+/* 247 */       List portals_time = this.sysParaMapper.getTheSysParam("PORTALS_TIME");
+/* 248 */       if ((portals_time != null) && (portals_time.size() > 0)) {
+/* 249 */         SysPara sysPara = (SysPara)portals_time.get(0);
+/* 250 */         if (sysPara != null)
+/* 251 */           portals.setSlideShowTime(sysPara.getParaValue());
+/*     */         else {
+/* 253 */           portals.setSlideShowTime("0");
+/*     */         }
+/*     */       }
+/*     */ 
+/* 257 */       json.setObject(portals);
+/* 258 */       json.setObj(portals1);
+/* 259 */       json.setFlag(0);
+/* 260 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 262 */       e.printStackTrace();
+/* 263 */       json.setFlag(1);
+/* 264 */       json.setMsg("err:" + e.getMessage());
+/*     */     }
+/* 266 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.portals.impl.PortalsServiceImpl
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,578 @@
+/*     */ package com.xoa.model.workflow;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class FormSortExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public FormSortExample()
+/*     */   {
+/*  14 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause) {
+/*  18 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause() {
+/*  22 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct) {
+/*  26 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct() {
+/*  30 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria() {
+/*  34 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria) {
+/*  38 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or() {
+/*  42 */     Criteria criteria = createCriteriaInternal();
+/*  43 */     this.oredCriteria.add(criteria);
+/*  44 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria() {
+/*  48 */     Criteria criteria = createCriteriaInternal();
+/*  49 */     if (this.oredCriteria.size() == 0) {
+/*  50 */       this.oredCriteria.add(criteria);
+/*     */     }
+/*  52 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal() {
+/*  56 */     Criteria criteria = new Criteria();
+/*  57 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear() {
+/*  61 */     this.oredCriteria.clear();
+/*  62 */     this.orderByClause = null;
+/*  63 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 513 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 517 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 521 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 525 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 529 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 533 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 537 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 541 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 546 */       this.condition = condition;
+/* 547 */       this.typeHandler = null;
+/* 548 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 553 */       this.condition = condition;
+/* 554 */       this.value = value;
+/* 555 */       this.typeHandler = typeHandler;
+/* 556 */       if ((value instanceof List))
+/* 557 */         this.listValue = true;
+/*     */       else
+/* 559 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 564 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 569 */       this.condition = condition;
+/* 570 */       this.value = value;
+/* 571 */       this.secondValue = secondValue;
+/* 572 */       this.typeHandler = typeHandler;
+/* 573 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 577 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends FormSortExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<FormSortExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/*  71 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/*  75 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<FormSortExample.Criterion> getAllCriteria() {
+/*  79 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<FormSortExample.Criterion> getCriteria() {
+/*  83 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/*  87 */       if (condition == null) {
+/*  88 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/*  90 */       this.criteria.add(new FormSortExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/*  94 */       if (value == null) {
+/*  95 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/*  97 */       this.criteria.add(new FormSortExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 101 */       if ((value1 == null) || (value2 == null)) {
+/* 102 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 104 */       this.criteria.add(new FormSortExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortIdIsNull() {
+/* 108 */       addCriterion("SORT_ID is null");
+/* 109 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortIdIsNotNull() {
+/* 113 */       addCriterion("SORT_ID is not null");
+/* 114 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortIdEqualTo(Integer value) {
+/* 118 */       addCriterion("SORT_ID =", value, "sortId");
+/* 119 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortIdNotEqualTo(Integer value) {
+/* 123 */       addCriterion("SORT_ID <>", value, "sortId");
+/* 124 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortIdGreaterThan(Integer value) {
+/* 128 */       addCriterion("SORT_ID >", value, "sortId");
+/* 129 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortIdGreaterThanOrEqualTo(Integer value) {
+/* 133 */       addCriterion("SORT_ID >=", value, "sortId");
+/* 134 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortIdLessThan(Integer value) {
+/* 138 */       addCriterion("SORT_ID <", value, "sortId");
+/* 139 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortIdLessThanOrEqualTo(Integer value) {
+/* 143 */       addCriterion("SORT_ID <=", value, "sortId");
+/* 144 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortIdIn(List<Integer> values) {
+/* 148 */       addCriterion("SORT_ID in", values, "sortId");
+/* 149 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortIdNotIn(List<Integer> values) {
+/* 153 */       addCriterion("SORT_ID not in", values, "sortId");
+/* 154 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortIdBetween(Integer value1, Integer value2) {
+/* 158 */       addCriterion("SORT_ID between", value1, value2, "sortId");
+/* 159 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortIdNotBetween(Integer value1, Integer value2) {
+/* 163 */       addCriterion("SORT_ID not between", value1, value2, "sortId");
+/* 164 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNoIsNull() {
+/* 168 */       addCriterion("SORT_NO is null");
+/* 169 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNoIsNotNull() {
+/* 173 */       addCriterion("SORT_NO is not null");
+/* 174 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNoEqualTo(Integer value) {
+/* 178 */       addCriterion("SORT_NO =", value, "sortNo");
+/* 179 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNoNotEqualTo(Integer value) {
+/* 183 */       addCriterion("SORT_NO <>", value, "sortNo");
+/* 184 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNoGreaterThan(Integer value) {
+/* 188 */       addCriterion("SORT_NO >", value, "sortNo");
+/* 189 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNoGreaterThanOrEqualTo(Integer value) {
+/* 193 */       addCriterion("SORT_NO >=", value, "sortNo");
+/* 194 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNoLessThan(Integer value) {
+/* 198 */       addCriterion("SORT_NO <", value, "sortNo");
+/* 199 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNoLessThanOrEqualTo(Integer value) {
+/* 203 */       addCriterion("SORT_NO <=", value, "sortNo");
+/* 204 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNoIn(List<Integer> values) {
+/* 208 */       addCriterion("SORT_NO in", values, "sortNo");
+/* 209 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNoNotIn(List<Integer> values) {
+/* 213 */       addCriterion("SORT_NO not in", values, "sortNo");
+/* 214 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNoBetween(Integer value1, Integer value2) {
+/* 218 */       addCriterion("SORT_NO between", value1, value2, "sortNo");
+/* 219 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNoNotBetween(Integer value1, Integer value2) {
+/* 223 */       addCriterion("SORT_NO not between", value1, value2, "sortNo");
+/* 224 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNameIsNull() {
+/* 228 */       addCriterion("SORT_NAME is null");
+/* 229 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNameIsNotNull() {
+/* 233 */       addCriterion("SORT_NAME is not null");
+/* 234 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNameEqualTo(String value) {
+/* 238 */       addCriterion("SORT_NAME =", value, "sortName");
+/* 239 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNameNotEqualTo(String value) {
+/* 243 */       addCriterion("SORT_NAME <>", value, "sortName");
+/* 244 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNameGreaterThan(String value) {
+/* 248 */       addCriterion("SORT_NAME >", value, "sortName");
+/* 249 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNameGreaterThanOrEqualTo(String value) {
+/* 253 */       addCriterion("SORT_NAME >=", value, "sortName");
+/* 254 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNameLessThan(String value) {
+/* 258 */       addCriterion("SORT_NAME <", value, "sortName");
+/* 259 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNameLessThanOrEqualTo(String value) {
+/* 263 */       addCriterion("SORT_NAME <=", value, "sortName");
+/* 264 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNameLike(String value) {
+/* 268 */       addCriterion("SORT_NAME like", value, "sortName");
+/* 269 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNameNotLike(String value) {
+/* 273 */       addCriterion("SORT_NAME not like", value, "sortName");
+/* 274 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNameIn(List<String> values) {
+/* 278 */       addCriterion("SORT_NAME in", values, "sortName");
+/* 279 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNameNotIn(List<String> values) {
+/* 283 */       addCriterion("SORT_NAME not in", values, "sortName");
+/* 284 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNameBetween(String value1, String value2) {
+/* 288 */       addCriterion("SORT_NAME between", value1, value2, "sortName");
+/* 289 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortNameNotBetween(String value1, String value2) {
+/* 293 */       addCriterion("SORT_NAME not between", value1, value2, "sortName");
+/* 294 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortParentIsNull() {
+/* 298 */       addCriterion("SORT_PARENT is null");
+/* 299 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortParentIsNotNull() {
+/* 303 */       addCriterion("SORT_PARENT is not null");
+/* 304 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortParentEqualTo(Integer value) {
+/* 308 */       addCriterion("SORT_PARENT =", value, "sortParent");
+/* 309 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortParentNotEqualTo(Integer value) {
+/* 313 */       addCriterion("SORT_PARENT <>", value, "sortParent");
+/* 314 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortParentGreaterThan(Integer value) {
+/* 318 */       addCriterion("SORT_PARENT >", value, "sortParent");
+/* 319 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortParentGreaterThanOrEqualTo(Integer value) {
+/* 323 */       addCriterion("SORT_PARENT >=", value, "sortParent");
+/* 324 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortParentLessThan(Integer value) {
+/* 328 */       addCriterion("SORT_PARENT <", value, "sortParent");
+/* 329 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortParentLessThanOrEqualTo(Integer value) {
+/* 333 */       addCriterion("SORT_PARENT <=", value, "sortParent");
+/* 334 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortParentIn(List<Integer> values) {
+/* 338 */       addCriterion("SORT_PARENT in", values, "sortParent");
+/* 339 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortParentNotIn(List<Integer> values) {
+/* 343 */       addCriterion("SORT_PARENT not in", values, "sortParent");
+/* 344 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortParentBetween(Integer value1, Integer value2) {
+/* 348 */       addCriterion("SORT_PARENT between", value1, value2, "sortParent");
+/* 349 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andSortParentNotBetween(Integer value1, Integer value2) {
+/* 353 */       addCriterion("SORT_PARENT not between", value1, value2, "sortParent");
+/* 354 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andHaveChildIsNull() {
+/* 358 */       addCriterion("HAVE_CHILD is null");
+/* 359 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andHaveChildIsNotNull() {
+/* 363 */       addCriterion("HAVE_CHILD is not null");
+/* 364 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andHaveChildEqualTo(String value) {
+/* 368 */       addCriterion("HAVE_CHILD =", value, "haveChild");
+/* 369 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andHaveChildNotEqualTo(String value) {
+/* 373 */       addCriterion("HAVE_CHILD <>", value, "haveChild");
+/* 374 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andHaveChildGreaterThan(String value) {
+/* 378 */       addCriterion("HAVE_CHILD >", value, "haveChild");
+/* 379 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andHaveChildGreaterThanOrEqualTo(String value) {
+/* 383 */       addCriterion("HAVE_CHILD >=", value, "haveChild");
+/* 384 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andHaveChildLessThan(String value) {
+/* 388 */       addCriterion("HAVE_CHILD <", value, "haveChild");
+/* 389 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andHaveChildLessThanOrEqualTo(String value) {
+/* 393 */       addCriterion("HAVE_CHILD <=", value, "haveChild");
+/* 394 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andHaveChildLike(String value) {
+/* 398 */       addCriterion("HAVE_CHILD like", value, "haveChild");
+/* 399 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andHaveChildNotLike(String value) {
+/* 403 */       addCriterion("HAVE_CHILD not like", value, "haveChild");
+/* 404 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andHaveChildIn(List<String> values) {
+/* 408 */       addCriterion("HAVE_CHILD in", values, "haveChild");
+/* 409 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andHaveChildNotIn(List<String> values) {
+/* 413 */       addCriterion("HAVE_CHILD not in", values, "haveChild");
+/* 414 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andHaveChildBetween(String value1, String value2) {
+/* 418 */       addCriterion("HAVE_CHILD between", value1, value2, "haveChild");
+/* 419 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andHaveChildNotBetween(String value1, String value2) {
+/* 423 */       addCriterion("HAVE_CHILD not between", value1, value2, "haveChild");
+/* 424 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andDeptIdIsNull() {
+/* 428 */       addCriterion("DEPT_ID is null");
+/* 429 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andDeptIdIsNotNull() {
+/* 433 */       addCriterion("DEPT_ID is not null");
+/* 434 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andDeptIdEqualTo(Integer value) {
+/* 438 */       addCriterion("DEPT_ID =", value, "deptId");
+/* 439 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andDeptIdNotEqualTo(Integer value) {
+/* 443 */       addCriterion("DEPT_ID <>", value, "deptId");
+/* 444 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andDeptIdGreaterThan(Integer value) {
+/* 448 */       addCriterion("DEPT_ID >", value, "deptId");
+/* 449 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andDeptIdGreaterThanOrEqualTo(Integer value) {
+/* 453 */       addCriterion("DEPT_ID >=", value, "deptId");
+/* 454 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andDeptIdLessThan(Integer value) {
+/* 458 */       addCriterion("DEPT_ID <", value, "deptId");
+/* 459 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andDeptIdLessThanOrEqualTo(Integer value) {
+/* 463 */       addCriterion("DEPT_ID <=", value, "deptId");
+/* 464 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andDeptIdIn(List<Integer> values) {
+/* 468 */       addCriterion("DEPT_ID in", values, "deptId");
+/* 469 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andDeptIdNotIn(List<Integer> values) {
+/* 473 */       addCriterion("DEPT_ID not in", values, "deptId");
+/* 474 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andDeptIdBetween(Integer value1, Integer value2) {
+/* 478 */       addCriterion("DEPT_ID between", value1, value2, "deptId");
+/* 479 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FormSortExample.Criteria andDeptIdNotBetween(Integer value1, Integer value2) {
+/* 483 */       addCriterion("DEPT_ID not between", value1, value2, "deptId");
+/* 484 */       return (FormSortExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.workflow.FormSortExample
+ * JD-Core Version:    0.6.0
+ */

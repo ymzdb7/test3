@@ -1,0 +1,1339 @@
+/*      */ package com.xoa.service.todoList.impl;
+/*      */ 
+/*      */ import com.xoa.dao.document.DocumentModelMapper;
+/*      */ import com.xoa.dao.edu.voteTitle.VoteTitleMapper;
+/*      */ import com.xoa.dao.menu.SysFunctionMapper;
+/*      */ import com.xoa.dao.sms.SmsBodyMapper;
+/*      */ import com.xoa.dao.sms.SmsMapper;
+/*      */ import com.xoa.dao.users.UsersMapper;
+/*      */ import com.xoa.model.daiban.DaiBanModel;
+/*      */ import com.xoa.model.daiban.Daiban;
+/*      */ import com.xoa.model.daiban.TodoList;
+/*      */ import com.xoa.model.daiban.TodoListModel;
+/*      */ import com.xoa.model.document.DocumentModelFlowRunPrcs;
+/*      */ import com.xoa.model.document.DocumentModelWithBLOBs;
+/*      */ import com.xoa.model.edu.voteTitle.VoteTitle;
+/*      */ import com.xoa.model.email.EmailBodyModel;
+/*      */ import com.xoa.model.email.EmailModel;
+/*      */ import com.xoa.model.menu.SysFunction;
+/*      */ import com.xoa.model.notify.Notify;
+/*      */ import com.xoa.model.sms.SmsBodyExtend;
+/*      */ import com.xoa.model.users.Users;
+/*      */ import com.xoa.model.workflow.FlowRun;
+/*      */ import com.xoa.model.workflow.FlowRunPrcs;
+/*      */ import com.xoa.model.worldnews.News;
+/*      */ import com.xoa.service.email.EmailService;
+/*      */ import com.xoa.service.notify.NotifyService;
+/*      */ import com.xoa.service.syspara.SysParaService;
+/*      */ import com.xoa.service.todoList.TodolistService;
+/*      */ import com.xoa.service.users.UserFunctionService;
+/*      */ import com.xoa.service.users.UsersService;
+/*      */ import com.xoa.service.workflow.flowtype.FlowRunPrcsService;
+/*      */ import com.xoa.service.workflow.flowtype.FlowRunService;
+/*      */ import com.xoa.service.worldnews.NewService;
+/*      */ import com.xoa.util.ToJson;
+/*      */ import com.xoa.util.common.L;
+/*      */ import com.xoa.util.common.StringUtils;
+/*      */ import com.xoa.util.common.session.SessionUtils;
+/*      */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*      */ import com.xoa.util.page.PageParams;
+/*      */ import java.net.Inet4Address;
+/*      */ import java.net.InetAddress;
+/*      */ import java.net.NetworkInterface;
+/*      */ import java.net.SocketException;
+/*      */ import java.text.ParseException;
+/*      */ import java.text.SimpleDateFormat;
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.Date;
+/*      */ import java.util.Enumeration;
+/*      */ import java.util.HashMap;
+/*      */ import java.util.Iterator;
+/*      */ import java.util.List;
+/*      */ import java.util.Map;
+/*      */ import javax.annotation.Resource;
+/*      */ import javax.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Service;
+/*      */ 
+/*      */ @Service
+/*      */ public class TodolistImpl
+/*      */   implements TodolistService
+/*      */ {
+/*      */ 
+/*      */   @Resource
+/*      */   private EmailService emailService;
+/*      */ 
+/*      */   @Resource
+/*      */   private NotifyService notifyService;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersService usersService;
+/*      */ 
+/*      */   @Resource
+/*      */   private SysFunctionMapper sysFunctionMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersMapper usersMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private VoteTitleMapper voteTitleMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private FlowRunPrcsService flowRunPrcsService;
+/*      */ 
+/*      */   @Resource
+/*      */   private FlowRunService flowRunService;
+/*      */ 
+/*      */   @Resource
+/*      */   private NewService newService;
+/*      */ 
+/*      */   @Resource
+/*      */   DocumentModelMapper documentModelMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   SmsMapper smsMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   SmsBodyMapper smsBodyMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   SysParaService sysParaService;
+/*      */ 
+/*      */   @Resource
+/*      */   UserFunctionService userFunctionService;
+/*      */   private static final String EMAIL = "email";
+/*      */   private static final String NOTIFY = "notify";
+/*      */   private static final String NEWS = "news";
+/*      */   private static final String WORKFLOW = "willdo";
+/*      */   private static final String DOCTMENT = "doctment";
+/*      */   private static final String TOPIAO = "toupiao";
+/*      */   private static final int VOTELTEM_ID = 11;
+/*      */   private static final int EMAIL_ID = 2;
+/*      */   private static final int NOTIFY_ID = 1;
+/*      */   private static final int FLOWRUNPRCS_ID = 7;
+/*      */   private static final int NEWS_ID = 14;
+/*      */   private static final int DOCTMENT_ID = 70;
+/*      */ 
+/*      */   public Daiban list(String userId, String sqlType, HttpServletRequest request)
+/*      */     throws Exception
+/*      */   {
+/*   94 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*   95 */     Map maps = new HashMap();
+/*   96 */     maps.put("fromId", userId);
+/*   97 */     Users usersByuserId = this.usersMapper.findUsersByuserId(userId);
+/*   98 */     String userId1 = users.getUserId();
+/*   99 */     Integer userPriv = users.getUserPriv();
+/*  100 */     Integer deptId = users.getDeptId();
+/*  101 */     if (usersByuserId != null) {
+/*  102 */       userId1 = usersByuserId.getUserId();
+/*  103 */       userPriv = usersByuserId.getUserPriv();
+/*  104 */       deptId = usersByuserId.getDeptId();
+/*      */     }
+/*  106 */     maps.put("userId", userId1);
+/*  107 */     maps.put("name", userId);
+/*  108 */     maps.put("userPriv", userPriv);
+/*  109 */     maps.put("deptId", deptId);
+/*  110 */     PageParams pageParams = new PageParams();
+/*  111 */     pageParams.setUseFlag(Boolean.valueOf(true));
+/*  112 */     pageParams.setPage(Integer.valueOf(1));
+/*  113 */     pageParams.setPageSize(Integer.valueOf(10));
+/*  114 */     maps.put("page", pageParams);
+/*  115 */     List list = new ArrayList();
+/*  116 */     List list1 = new ArrayList();
+/*  117 */     List list2 = new ArrayList();
+/*  118 */     List list3 = new ArrayList();
+/*  119 */     List list5 = new ArrayList();
+/*  120 */     List list6 = new ArrayList();
+/*  121 */     Daiban db = new Daiban();
+/*  122 */     Integer total = Integer.valueOf(0);
+/*  123 */     InetAddress address = getCurrentIp();
+/*  124 */     ToJson tojson = this.emailService.selectInboxIsRead(maps, Integer.valueOf(1), Integer.valueOf(10), false, sqlType);
+/*  125 */     List<EmailBodyModel> le = tojson.getObj();
+/*  126 */     SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  127 */     if ((le != null) && (le.size() > 0)) {
+/*  128 */       for (EmailBodyModel em : le)
+/*      */       {
+/*  130 */         String userId2 = em.getFromId();
+/*  131 */         Users u = this.usersService.findUsersByuserId(userId2);
+/*  132 */         TodoList td = new TodoList();
+/*  133 */         td.setUid(u.getUid());
+/*  134 */         td.setAvater(u.getAvatar());
+/*  135 */         td.setContent(em.getContent());
+/*  136 */         td.setFromName(em.getSubject());
+/*  137 */         td.setImg("/img/workflow/youjian.png");
+/*  138 */         List<EmailModel> lemail = em.getEmailList();
+/*  139 */         for (EmailModel e : lemail) {
+/*  140 */           if (e.getToId().equals(userId)) {
+/*  141 */             td.setQid(e.getEmailId());
+/*  142 */             td.setDeleteFlag(e.getDeleteFlag());
+/*      */           }
+/*      */         }
+/*  145 */         td.setReadflag(em.getSendFlag());
+/*  146 */         td.setType("email");
+/*  147 */         Long e = Long.valueOf(em.getSendTime().intValue() * 1000L);
+/*  148 */         String s = f.format(e);
+/*  149 */         td.setTime(s);
+/*  150 */         td.setUserName(em.getUsers().getUserName());
+/*  151 */         td.setIsAttach(em.getAttachmentId() == "" ? "0" : "1");
+/*  152 */         td.setFromId(em.getFromId());
+/*  153 */         td.setFromUid(u.getUid());
+/*  154 */         list.add(td);
+/*      */       }
+/*      */     }
+/*      */ 
+/*  158 */     ToJson ln = this.notifyService.unreadNotify(maps, Integer.valueOf(1), Integer.valueOf(10), false, userId, sqlType);
+/*  159 */     List<Notify> l = ln.getObj();
+/*  160 */     if ((l != null) && (l.size() > 0)) {
+/*  161 */       for (Notify no : l) {
+/*  162 */         TodoList td = new TodoList();
+/*  163 */         String userId2 = no.getFromId();
+/*  164 */         Users u = this.usersService.findUsersByuserId(userId2);
+/*  165 */         td.setUid(u.getUid());
+/*  166 */         td.setAvater(u.getAvatar());
+/*  167 */         td.setContent(no.getContent());
+/*  168 */         td.setFromName(no.getSubject());
+/*  169 */         td.setImg("/img/workflow/notify.png");
+/*  170 */         td.setQid(no.getNotifyId());
+/*  171 */         td.setReadflag(no.getPublish());
+/*  172 */         String notifyType = no.getFormat();
+/*  173 */         td.setType("notify");
+/*      */ 
+/*  175 */         String s = f.format(no.getSendTime());
+/*  176 */         td.setTime(s);
+/*  177 */         td.setDeleteFlag("");
+/*  178 */         td.setUserName(no.getUsers().getUserName());
+/*  179 */         td.setIsAttach(no.getAttachmentId() == "" ? "0" : "1");
+/*  180 */         td.setFromId(no.getFromId());
+/*  181 */         td.setFromUid(u.getUid());
+/*  182 */         list1.add(td);
+/*      */       }
+/*      */     }
+/*  185 */     ToJson news = this.newService.unreadNews(maps, Integer.valueOf(1), Integer.valueOf(10), false, userId, sqlType);
+/*      */ 
+/*  187 */     List<News> newsList = news.getObj();
+/*  188 */     if ((newsList != null) && (newsList.size() > 0)) {
+/*  189 */       for (News newsOne : newsList) {
+/*  190 */         TodoList td = new TodoList();
+/*  191 */         String userId2 = newsOne.getProvider();
+/*  192 */         Users u = this.usersService.findUsersByuserId(userId2);
+/*  193 */         td.setUid(u.getUid());
+/*  194 */         td.setAvater(u.getAvatar());
+/*  195 */         td.setContent(newsOne.getContent());
+/*  196 */         td.setFromName(newsOne.getSubject());
+/*  197 */         td.setImg("/img/workflow/news.png");
+/*  198 */         td.setQid(newsOne.getNewsId());
+/*  199 */         td.setReadflag(newsOne.getPublish());
+/*  200 */         String notifyType = newsOne.getFormat();
+/*  201 */         td.setType("news");
+/*      */ 
+/*  203 */         String s = f.format(newsOne.getNewsTime());
+/*  204 */         td.setTime(s);
+/*  205 */         td.setDeleteFlag("");
+/*  206 */         td.setUserName(newsOne.getUsers().getUserName());
+/*  207 */         td.setIsAttach(newsOne.getAttachmentId() == "" ? "0" : "1");
+/*  208 */         td.setFromId(newsOne.getProvider());
+/*  209 */         td.setFromUid(u.getUid());
+/*  210 */         list3.add(td);
+/*      */       }
+/*      */     }
+/*      */ 
+/*  214 */     ToJson toJson = this.flowRunPrcsService.selectObject(maps, Integer.valueOf(1), Integer.valueOf(10), false);
+/*  215 */     List<FlowRunPrcs> listFlowRunPrcs = toJson.getObj();
+/*  216 */     if ((listFlowRunPrcs != null) && (listFlowRunPrcs.size() > 0)) {
+/*  217 */       for (FlowRunPrcs flowRunPrcs : listFlowRunPrcs) {
+/*  218 */         FlowRun flowRun = this.flowRunService.find(flowRunPrcs.getRunId());
+/*  219 */         TodoList td = new TodoList();
+/*  220 */         String userId2 = flowRunPrcs.getUserId();
+/*  221 */         Users u = this.usersService.findUsersByuserId(userId2);
+/*  222 */         td.setUid(u.getUid());
+/*  223 */         td.setAvater(u.getAvatar());
+/*  224 */         td.setContent(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/workflow/work/workform?flowId=" + flowRun.getFlowId() + "&flowStep=" + flowRunPrcs.getPrcsId() + "&runId=" + flowRunPrcs.getRunId() + "&prcsId=" + flowRunPrcs.getFlowPrcs() + "");
+/*      */ 
+/*  226 */         td.setFromName(flowRun.getRunName());
+/*  227 */         td.setImg("/img/workflow/daibanliucheng.png");
+/*  228 */         td.setQid(flowRunPrcs.getId());
+/*  229 */         td.setReadflag(flowRunPrcs.getPrcsFlag());
+/*  230 */         td.setType("willdo");
+/*  231 */         td.setRunId(flowRunPrcs.getRunId());
+/*  232 */         td.setFlowId(Integer.valueOf(flowRun.getFlowId()));
+/*      */ 
+/*  234 */         td.setTime(flowRunPrcs.getCreateTime().substring(0, flowRunPrcs.getPrcsTime().length() - 2));
+/*  235 */         td.setDeleteFlag("");
+/*  236 */         td.setUserName(u.getUserName());
+/*  237 */         td.setIsAttach("0");
+/*  238 */         td.setFromId(u.getUserId());
+/*  239 */         td.setFromUid(u.getUid());
+/*  240 */         list2.add(td);
+/*      */       }
+/*      */     }
+/*  243 */     Map param = new HashMap();
+/*  244 */     param.put("documentType", Integer.valueOf(0));
+/*  245 */     param.put("page", Integer.valueOf(0));
+/*  246 */     param.put("pageSize", Integer.valueOf(5));
+/*  247 */     param.put("userId", users.getUserId());
+/*  248 */     param.put("prcsFlag", Integer.valueOf(1));
+/*      */ 
+/*  250 */     List<DocumentModelFlowRunPrcs> datas = this.documentModelMapper.selWillDocSendOrReceive(param);
+/*  251 */     if ((datas != null) && (datas.size() > 0)) {
+/*  252 */       for (DocumentModelFlowRunPrcs documentModelOverRun : datas) {
+/*  253 */         TodoList td = new TodoList();
+/*  254 */         String userId2 = documentModelOverRun.getCreater();
+/*  255 */         Users u = this.usersService.findUsersByuserId(userId2);
+/*  256 */         td.setUid(u.getUid());
+/*  257 */         td.setAvater(u.getAvatar());
+/*  258 */         td.setContent(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/workflow/work/workform?flowId=" + documentModelOverRun.getFlowId() + "&flowStep=" + documentModelOverRun.getRealPrcsId() + "&runId=" + documentModelOverRun.getRunId() + "&prcsId=" + documentModelOverRun.getStep() + "");
+/*      */ 
+/*  260 */         td.setFromName(documentModelOverRun.getTitle() == null ? "" : documentModelOverRun.getTitle());
+/*  261 */         td.setQid(documentModelOverRun.getId());
+/*  262 */         td.setReadflag(documentModelOverRun.getRealPrcsId().toString());
+/*  263 */         td.setType("doctment");
+/*  264 */         td.setImg("/img/workflow/doctment.png");
+/*  265 */         td.setRunId(documentModelOverRun.getRunId());
+/*  266 */         td.setFlowId(documentModelOverRun.getFlowId());
+/*  267 */         td.setTime(documentModelOverRun.getCreateTime().substring(0, documentModelOverRun.getCreateTime().length() - 2));
+/*  268 */         td.setDeleteFlag("");
+/*  269 */         td.setUserName(u.getUserName());
+/*  270 */         td.setIsAttach("0");
+/*  271 */         td.setFromId(u.getUserId());
+/*  272 */         td.setFromUid(u.getUid());
+/*  273 */         list5.add(td);
+/*      */       }
+/*      */     }
+/*  276 */     list6 = touPiaoDaiBanTongJi(request, users);
+/*  277 */     db.setTotal(total);
+/*  278 */     db.setEmail(list);
+/*  279 */     db.setNotify(list1);
+/*  280 */     db.setWorkFlow(list2);
+/*  281 */     db.setNewsList(list3);
+/*  282 */     db.setDocumentList(list5);
+/*  283 */     db.setToupiao(list6);
+/*  284 */     return db;
+/*      */   }
+/*      */ 
+/*      */   public Daiban readList(String userId, String sqlType, HttpServletRequest request)
+/*      */     throws Exception
+/*      */   {
+/*  291 */     Map maps = new HashMap();
+/*  292 */     maps.put("fromId", userId);
+/*  293 */     Users usersByuserId = this.usersMapper.findUsersByuserId(userId);
+/*  294 */     maps.put("userId", usersByuserId.getUserId());
+/*  295 */     maps.put("name", userId);
+/*  296 */     maps.put("userPriv", usersByuserId.getUserPriv());
+/*  297 */     maps.put("deptId", usersByuserId.getDeptId());
+/*  298 */     PageParams pageParams = new PageParams();
+/*  299 */     pageParams.setUseFlag(Boolean.valueOf(true));
+/*  300 */     pageParams.setPage(Integer.valueOf(1));
+/*  301 */     pageParams.setPageSize(Integer.valueOf(10));
+/*  302 */     maps.put("page", pageParams);
+/*  303 */     List list = new ArrayList();
+/*  304 */     List list1 = new ArrayList();
+/*  305 */     List list2 = new ArrayList();
+/*  306 */     List list3 = new ArrayList();
+/*  307 */     Daiban db = new Daiban();
+/*  308 */     InetAddress address = getCurrentIp();
+/*  309 */     ToJson tojson = this.emailService.selectInboxIsReadList(maps, Integer.valueOf(1), Integer.valueOf(10), false, sqlType);
+/*  310 */     List<EmailBodyModel> le = tojson.getObj();
+/*  311 */     SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/*  312 */     if ((le != null) && (le.size() > 0)) {
+/*  313 */       for (EmailBodyModel em : le)
+/*      */       {
+/*  315 */         String userId2 = em.getFromId();
+/*  316 */         Users u = this.usersService.findUsersByuserId(userId2);
+/*  317 */         TodoList td = new TodoList();
+/*  318 */         td.setUid(u.getUid());
+/*  319 */         td.setAvater(u.getAvatar());
+/*  320 */         td.setContent(em.getContent());
+/*  321 */         td.setFromName(em.getSubject());
+/*  322 */         td.setImg("/img/workflow/youjian.png");
+/*  323 */         List<EmailModel> lemail = em.getEmailList();
+/*  324 */         for (EmailModel e : lemail) {
+/*  325 */           if (e.getToId().equals(userId)) {
+/*  326 */             td.setQid(e.getEmailId());
+/*  327 */             td.setDeleteFlag(e.getDeleteFlag());
+/*      */           }
+/*      */         }
+/*  330 */         td.setReadflag(em.getSendFlag());
+/*  331 */         td.setType("email");
+/*  332 */         Long e = Long.valueOf(em.getSendTime().intValue() * 1000L);
+/*  333 */         String s = f.format(e);
+/*  334 */         td.setTime(s);
+/*  335 */         td.setUserName(em.getUsers().getUserName());
+/*  336 */         td.setIsAttach(em.getAttachmentId() == "" ? "0" : "1");
+/*  337 */         td.setFromId(em.getFromId());
+/*  338 */         td.setFromUid(u.getUid());
+/*  339 */         list.add(td);
+/*      */       }
+/*      */     }
+/*  342 */     ToJson ln = this.notifyService.readNotify(maps, Integer.valueOf(1), Integer.valueOf(10), false, userId, sqlType);
+/*  343 */     List<Notify> l = ln.getObj();
+/*  344 */     if ((l != null) && (l.size() > 0)) {
+/*  345 */       for (Notify no : l) {
+/*  346 */         TodoList td = new TodoList();
+/*  347 */         String userId2 = no.getFromId();
+/*  348 */         Users u = this.usersService.findUsersByuserId(userId2);
+/*  349 */         td.setUid(u.getUid());
+/*  350 */         td.setAvater(u.getAvatar());
+/*  351 */         td.setContent(no.getContent());
+/*  352 */         td.setFromName(no.getSubject());
+/*  353 */         td.setImg("/img/workflow/notify.png");
+/*  354 */         td.setQid(no.getNotifyId());
+/*  355 */         td.setReadflag(no.getPublish());
+/*  356 */         String notifyType = no.getFormat();
+/*  357 */         td.setType("notify");
+/*      */ 
+/*  359 */         String s = f.format(no.getSendTime());
+/*  360 */         td.setTime(s);
+/*  361 */         td.setDeleteFlag("");
+/*  362 */         td.setUserName(no.getUsers().getUserName());
+/*  363 */         td.setIsAttach(no.getAttachmentId() == "" ? "0" : "1");
+/*  364 */         td.setFromId(no.getFromId());
+/*  365 */         td.setFromUid(u.getUid());
+/*  366 */         list1.add(td);
+/*      */       }
+/*      */     }
+/*  369 */     ToJson news = this.newService.readNews(maps, Integer.valueOf(1), Integer.valueOf(10), false, userId, sqlType);
+/*      */ 
+/*  371 */     List<News> newsList = news.getObj();
+/*  372 */     if ((newsList != null) && (newsList.size() > 0)) {
+/*  373 */       for (News newsOne : newsList) {
+/*  374 */         TodoList td = new TodoList();
+/*  375 */         String userId2 = newsOne.getProvider();
+/*  376 */         Users u = this.usersService.findUsersByuserId(userId2);
+/*  377 */         td.setUid(u.getUid());
+/*  378 */         td.setAvater(u.getAvatar());
+/*  379 */         td.setContent(newsOne.getContent());
+/*  380 */         td.setFromName(newsOne.getSubject());
+/*  381 */         td.setImg("/img/workflow/news.png");
+/*  382 */         td.setQid(newsOne.getNewsId());
+/*  383 */         td.setReadflag(newsOne.getPublish());
+/*  384 */         String notifyType = newsOne.getFormat();
+/*  385 */         td.setType("news");
+/*      */ 
+/*  387 */         String s = f.format(newsOne.getNewsTime());
+/*  388 */         td.setTime(s);
+/*  389 */         td.setDeleteFlag("");
+/*  390 */         td.setUserName(newsOne.getUsers().getUserName());
+/*  391 */         td.setIsAttach(newsOne.getAttachmentId() == "" ? "0" : "1");
+/*  392 */         td.setFromId(newsOne.getProvider());
+/*  393 */         td.setFromUid(u.getUid());
+/*  394 */         list3.add(td);
+/*      */       }
+/*      */     }
+/*      */ 
+/*  398 */     ToJson toJson = this.flowRunPrcsService.selectEnd(maps, Integer.valueOf(1), Integer.valueOf(10), false);
+/*  399 */     List<FlowRunPrcs> listFlowRunPrcs = toJson.getObj();
+/*  400 */     if ((listFlowRunPrcs != null) && (listFlowRunPrcs.size() > 0)) {
+/*  401 */       for (FlowRunPrcs flowRunPrcs : listFlowRunPrcs) {
+/*  402 */         FlowRun flowRun = this.flowRunService.find(flowRunPrcs.getRunId());
+/*  403 */         TodoList td = new TodoList();
+/*  404 */         String userId2 = flowRunPrcs.getUserId();
+/*  405 */         Users u = this.usersService.findUsersByuserId(userId2);
+/*  406 */         td.setUid(u.getUid());
+/*  407 */         td.setAvater(u.getAvatar());
+/*  408 */         td.setContent(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/workflow/work/workform?flowId=" + flowRun.getFlowId() + "&flowStep=" + flowRunPrcs.getPrcsId() + "&runId=" + flowRunPrcs.getRunId() + "&prcsId=" + flowRunPrcs.getPrcsFlag() + "");
+/*      */ 
+/*  410 */         td.setFromName(flowRun.getRunName());
+/*  411 */         td.setImg("/img/workflow/daibanliucheng.png");
+/*  412 */         td.setQid(flowRunPrcs.getId());
+/*  413 */         td.setReadflag(flowRunPrcs.getPrcsFlag());
+/*  414 */         td.setType("willdo");
+/*      */ 
+/*  416 */         td.setTime(flowRunPrcs.getPrcsTime().substring(0, flowRunPrcs.getPrcsTime().length() - 2));
+/*  417 */         td.setDeleteFlag("");
+/*  418 */         td.setUserName(u.getUserName());
+/*  419 */         td.setIsAttach("0");
+/*  420 */         td.setFromId(u.getUserId());
+/*  421 */         td.setFromUid(u.getUid());
+/*  422 */         list2.add(td);
+/*      */       }
+/*      */     }
+/*      */ 
+/*  426 */     db.setEmail(list);
+/*  427 */     db.setNotify(list1);
+/*  428 */     db.setWorkFlow(list2);
+/*  429 */     db.setNewsList(list3);
+/*  430 */     return db;
+/*      */   }
+/*      */ 
+/*      */   public Daiban readTotal(String userId, String sqlType, HttpServletRequest request, String superfluity) throws Exception
+/*      */   {
+/*  435 */     Daiban db = new Daiban();
+/*  436 */     Integer total = Integer.valueOf(0);
+/*  437 */     if ("1".equals(superfluity)) {
+/*  438 */       Map map = new HashMap();
+/*  439 */       map.put("userId", userId);
+/*  440 */       map.put("flag", "0");
+/*  441 */       List smsBodyExtendList = this.smsBodyMapper.SmsListByType(map);
+/*  442 */       total = Integer.valueOf(smsBodyExtendList.size());
+/*      */     } else {
+/*  444 */       Map map = new HashMap();
+/*  445 */       map.put("userId", userId);
+/*  446 */       map.put("flag", "1");
+/*  447 */       List smsBodyExtendList = this.smsBodyMapper.SmsListByType(map);
+/*  448 */       total = Integer.valueOf(smsBodyExtendList.size());
+/*      */     }
+/*      */ 
+/*  452 */     db.setTotal(total);
+/*  453 */     return db;
+/*      */   }
+/*      */ 
+/*      */   public BaseWrapper readHaveMsgList(String classification, String userId, String sqlType, HttpServletRequest request)
+/*      */     throws Exception
+/*      */   {
+/*  459 */     BaseWrapper baseWrapper = new BaseWrapper();
+/*  460 */     Map maps = new HashMap();
+/*  461 */     maps.put("fromId", userId);
+/*  462 */     Users usersByuserId = this.usersMapper.findUsersByuserId(userId);
+/*  463 */     maps.put("userId", usersByuserId.getUserId());
+/*  464 */     maps.put("name", userId);
+/*  465 */     maps.put("userPriv", usersByuserId.getUserPriv());
+/*  466 */     maps.put("deptId", usersByuserId.getDeptId());
+/*      */ 
+/*  468 */     if ("email".equals(classification))
+/*      */     {
+/*  476 */       ToJson tojson = this.emailService.selectInboxIsRead(maps, Integer.valueOf(1), Integer.valueOf(10), false, sqlType);
+/*  477 */       List<EmailBodyModel> emailBodyModels = tojson.getObj();
+/*  478 */       for (EmailBodyModel emailBodyModel : emailBodyModels) {
+/*  479 */         Map mapss = new HashMap();
+/*  480 */         mapss.put("emailId", ((EmailModel)emailBodyModel.getEmailList().get(0)).getEmailId());
+/*  481 */         mapss.put("bodyId", emailBodyModel.getBodyId());
+/*  482 */         EmailBodyModel emailBody = this.emailService.queryById(mapss, Integer.valueOf(1), Integer.valueOf(5), false, sqlType);
+/*  483 */         if (emailBody != null) {
+/*  484 */           EmailModel email = new EmailModel();
+/*  485 */           email.setEmailId(((EmailModel)emailBodyModel.getEmailList().get(0)).getEmailId());
+/*  486 */           email.setReadFlag("1");
+/*  487 */           this.emailService.updateIsRead(email);
+/*      */         }
+/*      */       }
+/*      */     }
+/*      */     else
+/*      */     {
+/*      */       Notify notifyOne;
+/*  490 */       if ("notify".equals(classification)) {
+/*  491 */         ToJson ln = this.notifyService.unreadNotify(maps, Integer.valueOf(1), Integer.valueOf(10), false, userId, sqlType);
+/*  492 */         List<Notify> notifies = ln.getObj();
+/*      */ 
+/*  494 */         for (Notify notify : notifies) {
+/*  495 */           maps.put("notifyId", notify.getNotifyId());
+/*  496 */           notifyOne = this.notifyService.queryById(maps, Integer.valueOf(1), Integer.valueOf(20), false, userId, sqlType, "2");
+/*      */         }
+/*      */       }
+/*  499 */       else if ("news".equals(classification)) {
+/*  500 */         ToJson news = this.newService.unreadNews(maps, Integer.valueOf(1), Integer.valueOf(10), false, userId, sqlType);
+/*  501 */         List<News> newsList = news.getObj();
+				   News news2;
+/*  502 */         for (News news1 : newsList) {
+/*  503 */           maps.put("newsId", news1.getNewsId());
+/*  504 */           news2 = this.newService.queryById(maps, Integer.valueOf(1), Integer.valueOf(5), false, userId, sqlType, "2");
+/*      */         }
+/*      */       }
+/*      */     }
+/*      */     
+/*  509 */     baseWrapper.setStatus(true);
+/*  510 */     baseWrapper.setFlag(true);
+/*  511 */     baseWrapper.setMsg("ok");
+/*  512 */     baseWrapper.setData("ok");
+/*      */ 
+/*  514 */     return baseWrapper;
+/*      */   }
+/*      */ 
+/*      */   public BaseWrapper readHaveList(String classification, String userId, String sqlType, HttpServletRequest request) throws Exception
+/*      */   {
+/*  519 */     BaseWrapper baseWrapper = new BaseWrapper();
+/*  520 */     Map maps = new HashMap();
+/*  521 */     maps.put("fromId", userId);
+/*  522 */     Users usersByuserId = this.usersMapper.findUsersByuserId(userId);
+/*  523 */     maps.put("userId", usersByuserId.getUserId());
+/*  524 */     maps.put("name", userId);
+/*  525 */     maps.put("userPriv", usersByuserId.getUserPriv());
+/*  526 */     maps.put("deptId", usersByuserId.getDeptId());
+/*      */ 
+/*  528 */     if ("email".equals(classification)) {
+/*  529 */       ToJson tojson = this.emailService.selectInboxIsRead(maps, Integer.valueOf(1), Integer.valueOf(10), false, sqlType);
+/*  530 */       List<EmailBodyModel> emailBodyModels = tojson.getObj();
+/*  531 */       for (EmailBodyModel emailBodyModel : emailBodyModels) {
+/*  532 */         Map mapss = new HashMap();
+/*  533 */         mapss.put("emailId", ((EmailModel)emailBodyModel.getEmailList().get(0)).getEmailId());
+/*  534 */         mapss.put("bodyId", emailBodyModel.getBodyId());
+/*  535 */         EmailBodyModel emailBody = this.emailService.queryById(mapss, Integer.valueOf(1), Integer.valueOf(5), false, sqlType);
+/*  536 */         if (emailBody != null) {
+/*  537 */           EmailModel email = new EmailModel();
+/*  538 */           email.setEmailId(((EmailModel)emailBodyModel.getEmailList().get(0)).getEmailId());
+/*  539 */           email.setReadFlag("1");
+/*  540 */           this.emailService.updateIsRead(email);
+/*      */         }
+/*      */       }
+/*      */ 
+/*  544 */       Map Objmaps = new HashMap();
+/*  545 */       Objmaps.put("userId", usersByuserId.getUserId());
+/*  546 */       Objmaps.put("flag", "1");
+/*  547 */       Objmaps.put("type", "2");
+/*  548 */       List smsBodyExtends = this.smsBodyMapper.SmsListMsgByType(Objmaps);
+/*  549 */       String[] toBeStored = (String[])smsBodyExtends.toArray(new String[smsBodyExtends.size()]);
+/*  550 */       this.smsMapper.updateSmsByIds("0", toBeStored);
+/*  551 */     } else if ("notify".equals(classification)) {
+/*  552 */       ToJson ln = this.notifyService.unreadNotify(maps, Integer.valueOf(1), Integer.valueOf(10), false, userId, sqlType);
+/*  553 */       List<Notify> notifies = ln.getObj();
+/*      */ 		 Notify notifyOne;
+/*  555 */       for (Notify notify : notifies) {
+/*  556 */         maps.put("notifyId", notify.getNotifyId());
+/*  557 */         notifyOne = this.notifyService.queryById(maps, Integer.valueOf(1), Integer.valueOf(20), false, userId, sqlType, "2");
+/*      */       }
+/*      */      
+/*  560 */       Map Objmaps = new HashMap();
+/*  561 */       Objmaps.put("userId", usersByuserId.getUserId());
+/*  562 */       Objmaps.put("flag", "1");
+/*  563 */       Objmaps.put("type", "1");
+/*  564 */       List smsBodyExtends = this.smsBodyMapper.SmsListMsgByType(Objmaps);
+/*  565 */       String[] toBeStored = (String[])smsBodyExtends.toArray(new String[smsBodyExtends.size()]);
+/*  566 */       this.smsMapper.updateSmsByIds("0", toBeStored);
+/*  567 */     } else if ("news".equals(classification)) {
+/*  568 */       ToJson news = this.newService.unreadNews(maps, Integer.valueOf(1), Integer.valueOf(10), false, userId, sqlType);
+/*  569 */       List<News> newsList = news.getObj();
+				 News news2;
+/*  570 */       for (News news1 : newsList) {
+/*  571 */         maps.put("newsId", news1.getNewsId());
+/*  572 */         news2 = this.newService.queryById(maps, Integer.valueOf(1), Integer.valueOf(5), false, userId, sqlType, "2");
+/*      */       }
+/*      */       
+/*  575 */       Map Objmaps = new HashMap();
+/*  576 */       Objmaps.put("userId", usersByuserId.getUserId());
+/*  577 */       Objmaps.put("flag", "1");
+/*  578 */       Objmaps.put("type", "14");
+/*  579 */       List smsBodyExtends = this.smsBodyMapper.SmsListMsgByType(Objmaps);
+/*  580 */       String[] toBeStored = (String[])smsBodyExtends.toArray(new String[smsBodyExtends.size()]);
+/*  581 */       this.smsMapper.updateSmsByIds("0", toBeStored);
+/*      */     }
+/*  583 */     else if ("willdo".equals(classification)) {
+/*  584 */       Map Objmaps = new HashMap();
+/*  585 */       Objmaps.put("userId", usersByuserId.getUserId());
+/*  586 */       Objmaps.put("flag", "1");
+/*  587 */       Objmaps.put("type", "7");
+/*  588 */       List smsBodyExtends = this.smsBodyMapper.SmsListMsgByType(Objmaps);
+/*  589 */       String[] toBeStored = (String[])smsBodyExtends.toArray(new String[smsBodyExtends.size()]);
+/*  590 */       this.smsMapper.updateSmsByIds("0", toBeStored);
+/*  591 */     } else if ("toupiao".equals(classification)) {
+/*  592 */       Map Objmaps = new HashMap();
+/*  593 */       Objmaps.put("userId", usersByuserId.getUserId());
+/*  594 */       Objmaps.put("flag", "1");
+/*  595 */       Objmaps.put("type", "11");
+/*  596 */       List smsBodyExtends = this.smsBodyMapper.SmsListMsgByType(Objmaps);
+/*  597 */       String[] toBeStored = (String[])smsBodyExtends.toArray(new String[smsBodyExtends.size()]);
+/*  598 */       this.smsMapper.updateSmsByIds("0", toBeStored);
+/*  599 */     } else if ("doctment".equals(classification)) {
+/*  600 */       Map Objmaps = new HashMap();
+/*  601 */       Objmaps.put("userId", usersByuserId.getUserId());
+/*  602 */       Objmaps.put("flag", "1");
+/*  603 */       Objmaps.put("type", "70");
+/*  604 */       List smsBodyExtends = this.smsBodyMapper.SmsListMsgByType(Objmaps);
+/*  605 */       String[] toBeStored = (String[])smsBodyExtends.toArray(new String[smsBodyExtends.size()]);
+/*  606 */       this.smsMapper.updateSmsByIds("0", toBeStored);
+/*      */     }
+/*  608 */     baseWrapper.setStatus(true);
+/*  609 */     baseWrapper.setFlag(true);
+/*  610 */     baseWrapper.setMsg("ok");
+/*  611 */     baseWrapper.setData("ok");
+/*      */ 
+/*  613 */     return baseWrapper;
+/*      */   }
+/*      */ 
+/*      */   public Daiban delete(Integer qid, String type)
+/*      */   {
+/*  627 */     if ((!type.equals("email")) || 
+/*  630 */       (type.equals("notify")));
+/*  633 */     return null;
+/*      */   }
+/*      */ 
+/*      */   public static InetAddress getCurrentIp()
+/*      */   {
+/*      */     try {
+/*  639 */       Enumeration networkInterfaces = NetworkInterface.getNetworkInterfaces();
+/*  640 */       while (networkInterfaces.hasMoreElements()) {
+/*  641 */         NetworkInterface ni = (NetworkInterface)networkInterfaces.nextElement();
+/*  642 */         Enumeration nias = ni.getInetAddresses();
+/*  643 */         while (nias.hasMoreElements()) {
+/*  644 */           InetAddress ia = (InetAddress)nias.nextElement();
+/*  645 */           if ((!ia.isLinkLocalAddress()) && (!ia.isLoopbackAddress()) && ((ia instanceof Inet4Address)))
+/*  646 */             return ia;
+/*      */         }
+/*      */       }
+/*      */     }
+/*      */     catch (SocketException e) {
+/*      */     }
+/*  652 */     return null;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Users> queryUserByUserId(String userName)
+/*      */   {
+/*  667 */     return this.usersService.queryUserByUserId(userName);
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Users> queryCountByUserId(String userName)
+/*      */   {
+/*  681 */     ToJson json = new ToJson(1, "error");
+/*  682 */     if (StringUtils.checkNull(userName).booleanValue()) {
+/*  683 */       json.setMsg("查询不能为空");
+/*  684 */       return json;
+/*      */     }
+/*      */     try {
+/*  687 */       json.setTotleNum(Integer.valueOf(this.usersService.queryCountByUserId(userName)));
+/*  688 */       json.setMsg("ok");
+/*  689 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  691 */       json.setMsg(e.getMessage());
+/*  692 */       L.e(new Object[] { "TodolistController queryCountByUserId:" + e });
+/*      */     }
+/*  694 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<SysFunction> getSysFunctionByName(String funName, HttpServletRequest request)
+/*      */   {
+/*  708 */     ToJson json = new ToJson(1, "error");
+/*  709 */     if (StringUtils.checkNull(funName).booleanValue()) {
+/*  710 */       json.setMsg("查询不能为空");
+/*  711 */       return json;
+/*      */     }
+/*      */ 
+/*      */     try
+/*      */     {
+/*  717 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  718 */       Integer uid = users.getUid();
+/*      */ 
+/*  721 */       String userFunctionStr = this.userFunctionService.getUserFunctionStrById(uid);
+/*  722 */       String[] funcIds = userFunctionStr.split(",");
+/*  723 */       List sys = this.sysFunctionMapper.getSysFunctionByName(funName);
+/*  724 */       List a11 = new ArrayList();
+/*  725 */       for (int o = 0; o < sys.size(); o++) {
+/*  726 */         for (int k = 0; k < funcIds.length; k++) {
+/*  727 */           if (String.valueOf(((SysFunction)sys.get(o)).getfId()).equals(funcIds[k])) {
+/*  728 */             a11.add(sys.get(o));
+/*      */           }
+/*      */ 
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  735 */       json.setObj(a11);
+/*  736 */       json.setMsg("ok");
+/*  737 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  739 */       json.setMsg(e.getMessage());
+/*  740 */       L.e(new Object[] { "TodolistImpl getSysFunctionByName:" + e });
+/*      */     }
+/*  742 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<SysFunction> getCountSysFunctionByName(String funName)
+/*      */   {
+/*  756 */     ToJson json = new ToJson(1, "error");
+/*  757 */     if (StringUtils.checkNull(funName).booleanValue()) {
+/*  758 */       json.setMsg("查询不能为空");
+/*  759 */       return json;
+/*      */     }
+/*      */     try {
+/*  762 */       json.setTotleNum(Integer.valueOf(this.sysFunctionMapper.getCountSysFunctionByName(funName)));
+/*  763 */       json.setMsg("ok");
+/*  764 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  766 */       json.setMsg(e.getMessage());
+/*  767 */       L.e(new Object[] { "TodolistImpl getCountSysFunctionByName:" + e });
+/*      */     }
+/*  769 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public static String stampToDate(String s)
+/*      */   {
+/*  780 */     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  781 */     long lt = new Long(s).longValue();
+/*  782 */     Date date = new Date(lt * 1000L);
+/*  783 */     String res = simpleDateFormat.format(date);
+/*  784 */     return res;
+/*      */   }
+/*      */ 
+/*      */   public static Long dateToStamp(String s)
+/*      */     throws ParseException
+/*      */   {
+/*  792 */     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+/*  793 */     Date date = simpleDateFormat.parse(s);
+/*  794 */     long ts = date.getTime();
+/*  795 */     return Long.valueOf(ts);
+/*      */   }
+/*      */ 
+/*      */   public List touPiaoDaiBanTongJi(HttpServletRequest request, Users users) throws Exception {
+/*  799 */     List list6 = new ArrayList();
+/*  800 */     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*      */ 
+/*  802 */     Map map = new HashMap();
+/*  803 */     map.put("smsType", "11");
+/*  804 */     map.put("toId", users.getUserId());
+/*  805 */     List<Map<String, Object>> toupiao = this.smsMapper.smsSelectBody(map);
+/*  806 */     Date dates = new Date();
+/*  807 */     if ((toupiao != null) && (toupiao.size() > 0)) {
+/*  808 */       for (Map map1 : toupiao) {
+/*  809 */         TodoList td = new TodoList();
+/*  810 */         String userId2 = map1.get("toId").toString();
+/*  811 */         Users u = this.usersService.findUsersByuserId(map1.get("fromId") + "");
+/*  812 */         td.setUid(u.getUid());
+/*  813 */         td.setAvater(u.getAvatar());
+/*  814 */         td.setContent(String.valueOf(map1.get("remindUrl")));
+/*  815 */         td.setFromName(map1.get("content").toString() == null ? "无标题" : map1.get("content").toString());
+/*  816 */         td.setImg("/img/workflow/publish.png");
+/*  817 */         td.setQid(Integer.valueOf(map1.get("bodyId").toString()));
+/*      */ 
+/*  819 */         td.setType("toupiao");
+/*  820 */         String toupiaoid = map1.get("remindUrl").toString();
+/*  821 */         if (toupiaoid.contains("resultId=")) {
+/*  822 */           toupiaoid = toupiaoid.substring(toupiaoid.indexOf("?resultId=") + 1, toupiaoid.lastIndexOf("&"));
+/*  823 */           toupiaoid = toupiaoid.replace("resultId=", "");
+/*  824 */           td.setVoteId(Integer.valueOf(toupiaoid));
+/*      */         }
+/*      */ 
+/*  827 */         td.setTime(map1.get("sendTime").toString() == null ? "" : map1.get("sendTime").toString());
+/*  828 */         td.setDeleteFlag("");
+/*  829 */         td.setUserName(u.getUserName());
+/*  830 */         td.setIsAttach("0");
+/*  831 */         td.setFromId(u.getUserId());
+/*  832 */         td.setFromUid(u.getUid());
+/*      */ 
+/*  834 */         String date1 = stampToDate(td.getTime());
+/*  835 */         String date2 = simpleDateFormat.format(dates);
+/*      */ 
+/*  837 */         if (td.getVoteId().intValue() != 0) {
+/*  838 */           VoteTitle voteTitle = this.voteTitleMapper.voteSelectOne(td.getVoteId());
+/*  839 */           if (voteTitle != null) {
+/*  840 */             Long t1 = dateToStamp(voteTitle.getEndDate());
+/*  841 */             Long t2 = dateToStamp(date2);
+/*  842 */             if (t1.longValue() >= t2.longValue()) {
+/*  843 */               td.setTime(voteTitle.getSendTime());
+/*  844 */               td.setContent("/vote/manage/voteResult?resultId=" + voteTitle.getVoteId() + "&type=1");
+/*  845 */               list6.add(td);
+/*      */             }
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */     }
+/*  851 */     return list6;
+/*      */   }
+/*      */ 
+/*      */   public BaseWrapper smsListByType(String userId, HttpServletRequest request, String type)
+/*      */   {
+/*  864 */     BaseWrapper baseWrapper = new BaseWrapper();
+/*  865 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  866 */     if (StringUtils.checkNull(userId).booleanValue()) {
+/*  867 */       userId = user.getUserId();
+/*      */     }
+/*  869 */     DaiBanModel daiBanModel = new DaiBanModel();
+/*  870 */     List list = new ArrayList();
+/*  871 */     List list1 = new ArrayList();
+/*  872 */     List list2 = new ArrayList();
+/*  873 */     List list3 = new ArrayList();
+/*  874 */     List list4 = new ArrayList();
+/*  875 */     List list5 = new ArrayList();
+/*  876 */     Map map = new HashMap();
+/*  877 */     map.put("userId", userId);
+/*  878 */     map.put("flag", "1");
+/*  879 */     List smsBodyExtendList = this.smsBodyMapper.SmsListByType(map);
+/*  880 */     Iterator iter = smsBodyExtendList.iterator();
+/*  881 */     while (iter.hasNext()) {
+/*  882 */       SmsBodyExtend smsBodyExtend = (SmsBodyExtend)iter.next();
+/*  883 */       smsBodyExtend.setFromUid(user.getUid());
+/*  884 */       smsBodyExtend.setFromName(user.getUserName());
+/*      */ 
+/*  886 */       switch (Integer.parseInt(smsBodyExtend.getSmsType())) {
+/*      */       case 2:
+/*  888 */         smsBodyExtend.setImg("/img/workflow/youjian.png");
+/*  889 */         smsBodyExtend.setType("email");
+/*  890 */         String size1 = smsBodyExtend.getRemindUrl();
+/*  891 */         String[] aStrings = size1.split("\\?");
+/*  892 */         for (int i = 0; i < aStrings.length; i++) {
+/*  893 */           if (aStrings[i].contains("id")) {
+/*  894 */             String[] s = aStrings[i].split("=");
+/*  895 */             smsBodyExtend.setQid(Integer.valueOf(Integer.parseInt(s[1])));
+/*  896 */             break;
+/*      */           }
+/*      */         }
+/*  899 */         list.add(smsBodyExtend);
+/*  900 */         break;
+/*      */       case 1:
+/*  902 */         smsBodyExtend.setImg("/img/workflow/notify.png");
+/*  903 */         smsBodyExtend.setType("notify");
+/*  904 */         String size2 = smsBodyExtend.getRemindUrl();
+/*  905 */         String[] aStrings2 = size2.split("\\?");
+/*  906 */         for (int i = 0; i < aStrings2.length; i++) {
+/*  907 */           if (aStrings2[i].contains("notifyId")) {
+/*  908 */             String[] s = aStrings2[i].split("=");
+/*  909 */             smsBodyExtend.setQid(Integer.valueOf(Integer.parseInt(s[1])));
+/*  910 */             break;
+/*      */           }
+/*      */         }
+/*  913 */         list1.add(smsBodyExtend);
+/*      */ 
+/*  915 */         break;
+/*      */       case 7:
+/*  917 */         smsBodyExtend.setImg("/img/workflow/daibanliucheng.png");
+/*  918 */         smsBodyExtend.setType("willdo");
+/*  919 */         String size4 = smsBodyExtend.getRemindUrl();
+/*  920 */         if (size4.contains("workformPreView"))
+/*  921 */           smsBodyExtend.setHandleType("0");
+/*      */         else {
+/*  923 */           smsBodyExtend.setHandleType("1");
+/*      */         }
+/*  925 */         String[] aStrings4 = size4.split("&");
+/*  926 */         for (int i = 0; i < aStrings4.length; i++) {
+/*  927 */           if (aStrings4[i].contains("flowId")) {
+/*  928 */             String[] s = aStrings4[i].split("=");
+/*  929 */             smsBodyExtend.setFlowId(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */           }
+/*  931 */           else if (aStrings4[i].contains("flowStep")) {
+/*  932 */             String[] s = aStrings4[i].split("=");
+/*  933 */             smsBodyExtend.setReadflag(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */           }
+/*  935 */           else if (aStrings4[i].contains("runId")) {
+/*  936 */             String[] s = aStrings4[i].split("=");
+/*  937 */             Integer runId = Integer.valueOf(Integer.parseInt(s[1]));
+/*  938 */             FlowRun flowRun = this.flowRunService.find(runId);
+/*  939 */             Users users = this.usersMapper.findUsersByuserId(flowRun.getBeginUser());
+/*  940 */             smsBodyExtend.setUserName(users.getUserName());
+/*  941 */             smsBodyExtend.setUid(users.getUid());
+/*  942 */             smsBodyExtend.setAvater(users.getAvatar());
+/*  943 */             smsBodyExtend.setRunId(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */           }
+/*  945 */           else if (aStrings4[i].contains("prcsId")) {
+/*  946 */             String[] s = aStrings4[i].split("=");
+/*  947 */             smsBodyExtend.setStep(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */           }
+/*      */ 
+/*      */         }
+/*      */ 
+/*  952 */         list2.add(smsBodyExtend);
+/*  953 */         break;
+/*      */       case 14:
+/*  955 */         smsBodyExtend.setImg("/img/workflow/news.png");
+/*  956 */         smsBodyExtend.setType("news");
+/*  957 */         String size3 = smsBodyExtend.getRemindUrl();
+/*  958 */         String[] aStrings3 = size3.split("\\?");
+/*  959 */         for (int i = 0; i < aStrings3.length; i++) {
+/*  960 */           if (aStrings3[i].contains("newsId")) {
+/*  961 */             String[] s = aStrings3[i].split("=");
+/*  962 */             smsBodyExtend.setQid(Integer.valueOf(Integer.parseInt(s[1])));
+/*  963 */             break;
+/*      */           }
+/*      */         }
+/*  966 */         list3.add(smsBodyExtend);
+/*  967 */         break;
+/*      */       case 70:
+/*  969 */         smsBodyExtend.setImg("/img/workflow/doctment.png");
+/*  970 */         smsBodyExtend.setType("doctment");
+/*  971 */         String size5 = smsBodyExtend.getRemindUrl();
+/*  972 */         if (size5.contains("workformPreView"))
+/*  973 */           smsBodyExtend.setHandleType("0");
+/*      */         else {
+/*  975 */           smsBodyExtend.setHandleType("1");
+/*      */         }
+/*  977 */         String[] aStrings5 = size5.split("&");
+/*  978 */         for (int i = 0; i < aStrings5.length; i++) {
+/*  979 */           if (aStrings5[i].contains("flowId")) {
+/*  980 */             String[] s = aStrings5[i].split("=");
+/*  981 */             smsBodyExtend.setFlowId(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */           }
+/*  983 */           else if (aStrings5[i].contains("flowStep")) {
+/*  984 */             String[] s = aStrings5[i].split("=");
+/*  985 */             smsBodyExtend.setReadflag(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */           }
+/*  987 */           else if (aStrings5[i].contains("runId")) {
+/*  988 */             String[] s = aStrings5[i].split("=");
+/*  989 */             Integer runId = Integer.valueOf(Integer.parseInt(s[1]));
+/*  990 */             FlowRun flowRun = this.flowRunService.find(runId);
+/*  991 */             Users users = this.usersMapper.findUsersByuserId(flowRun.getBeginUser());
+/*  992 */             smsBodyExtend.setUserName(users.getUserName());
+/*  993 */             smsBodyExtend.setUid(users.getUid());
+/*  994 */             smsBodyExtend.setAvater(users.getAvatar());
+/*  995 */             smsBodyExtend.setRunId(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */           }
+/*  997 */           else if (aStrings5[i].contains("prcsId")) {
+/*  998 */             String[] s = aStrings5[i].split("=");
+/*  999 */             smsBodyExtend.setStep(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */           }
+/*      */         }
+/*      */ 
+/* 1003 */         list4.add(smsBodyExtend);
+/* 1004 */         break;
+/*      */       case 11:
+/* 1006 */         smsBodyExtend.setImg("/img/workflow/publish.png");
+/* 1007 */         smsBodyExtend.setType("toupiao");
+/* 1008 */         String size6 = smsBodyExtend.getRemindUrl();
+/* 1009 */         String[] aStrings6 = size6.split("\\?");
+/* 1010 */         for (int i = 0; i < aStrings6.length; i++) {
+/* 1011 */           if (aStrings6[i].contains("resultId")) {
+/* 1012 */             String[] s = aStrings6[i].split("=");
+/* 1013 */             String[] s1 = s[i].split("&");
+/* 1014 */             smsBodyExtend.setQid(Integer.valueOf(Integer.parseInt(s1[0])));
+/* 1015 */             break;
+/*      */           }
+/*      */         }
+/* 1018 */         list5.add(smsBodyExtend);
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/* 1023 */     daiBanModel.setDocumentList(list4);
+/* 1024 */     daiBanModel.setEmail(list);
+/* 1025 */     daiBanModel.setNewsList(list3);
+/* 1026 */     daiBanModel.setNotify(list1);
+/* 1027 */     daiBanModel.setWorkFlow(list2);
+/* 1028 */     daiBanModel.setToupiao(list5);
+/* 1029 */     baseWrapper.setData(daiBanModel);
+/* 1030 */     baseWrapper.setFlag(true);
+/* 1031 */     baseWrapper.setStatus(true);
+/* 1032 */     return baseWrapper;
+/*      */   }
+/*      */ 
+/*      */   public BaseWrapper getWillDocSendOrReceive(String userId, String documentType, HttpServletRequest request)
+/*      */   {
+/* 1038 */     BaseWrapper baseWrapper = new BaseWrapper();
+/* 1039 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 1040 */     if (StringUtils.checkNull(userId).booleanValue()) {
+/* 1041 */       userId = user.getUserId();
+/*      */     }
+/* 1043 */     DaiBanModel daiBanModel = new DaiBanModel();
+/* 1044 */     List documentList = new ArrayList();
+/*      */ 
+/* 1046 */     Map map = new HashMap();
+/* 1047 */     map.put("userId", userId);
+/* 1048 */     map.put("smsType", "70");
+/* 1049 */     map.put("flag", "1");
+/* 1050 */     List smsBodyExtendList = this.smsBodyMapper.getWillDocSendOrReceive(map);
+/* 1051 */     Iterator iter = smsBodyExtendList.iterator();
+/* 1052 */     while (iter.hasNext()) {
+/* 1053 */       SmsBodyExtend smsBodyExtend = (SmsBodyExtend)iter.next();
+/* 1054 */       smsBodyExtend.setFromUid(user.getUid());
+/* 1055 */       smsBodyExtend.setFromName(user.getUserName());
+/* 1056 */       smsBodyExtend.setImg("/img/workflow/doctment.png");
+/* 1057 */       smsBodyExtend.setType("doctment");
+/* 1058 */       String size = smsBodyExtend.getRemindUrl();
+/* 1059 */       if (size.contains("workformPreView"))
+/* 1060 */         smsBodyExtend.setHandleType("0");
+/*      */       else {
+/* 1062 */         smsBodyExtend.setHandleType("1");
+/*      */       }
+/* 1064 */       String[] aStrings = size.split("&");
+/* 1065 */       String type = "";
+/* 1066 */       for (int i = 0; i < aStrings.length; i++) {
+/* 1067 */         if (aStrings[i].contains("flowId")) {
+/* 1068 */           String[] s = aStrings[i].split("=");
+/* 1069 */           smsBodyExtend.setFlowId(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */         }
+/* 1071 */         else if (aStrings[i].contains("flowStep")) {
+/* 1072 */           String[] s = aStrings[i].split("=");
+/* 1073 */           smsBodyExtend.setReadflag(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */         }
+/* 1075 */         else if (aStrings[i].contains("runId")) {
+/* 1076 */           String[] s = aStrings[i].split("=");
+/* 1077 */           smsBodyExtend.setRunId(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */         }
+/* 1079 */         else if (aStrings[i].contains("prcsId")) {
+/* 1080 */           String[] s = aStrings[i].split("=");
+/* 1081 */           smsBodyExtend.setStep(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */         }
+/* 1083 */         else if (aStrings[i].contains("tabId")) {
+/* 1084 */           String[] s = aStrings[i].split("=");
+/* 1085 */           DocumentModelWithBLOBs documentModelWithBLOBs = this.documentModelMapper.selectByPrimaryKey(Integer.valueOf(Integer.parseInt(s[1])));
+/* 1086 */           type = documentModelWithBLOBs.getDocumentType();
+/*      */         }
+/*      */       }
+/*      */ 
+/* 1090 */       if ((!"".equals(type)) && (documentType.equals(type))) {
+/* 1091 */         documentList.add(smsBodyExtend);
+/*      */       }
+/*      */     }
+/* 1094 */     baseWrapper.setData(documentList);
+/* 1095 */     baseWrapper.setFlag(true);
+/* 1096 */     baseWrapper.setStatus(true);
+/* 1097 */     return baseWrapper;
+/*      */   }
+/*      */ 
+/*      */   public BaseWrapper getUserFunctionByUserId(String userId, HttpServletRequest request)
+/*      */   {
+/* 1102 */     BaseWrapper baseWrapper = new BaseWrapper();
+/* 1103 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 1104 */     if (StringUtils.checkNull(userId).booleanValue()) {
+/* 1105 */       userId = user.getUserId();
+/*      */     }
+/* 1107 */     List todoListModels = new ArrayList();
+/* 1108 */     List<SysFunction> sysFunctions = this.sysFunctionMapper.getUserFunctionByUserId(userId);
+/*      */ 
+/* 1110 */     String local = getNowLanguage(request);
+/*      */ 
+/* 1112 */     for (SysFunction sysFunction : sysFunctions) {
+/* 1113 */       TodoListModel todoListModel = new TodoListModel();
+/* 1114 */       if ("email".equals(sysFunction.getUrl())) {
+/* 1115 */         todoListModel.setCode("email");
+/* 1116 */         todoListModel.setImg("/img/widget/toEmail.png");
+/* 1117 */         if (local.equals("zh_CN"))
+/* 1118 */           todoListModel.setName("发送邮件");
+/* 1119 */         else if (local.equals("zh_TW"))
+/* 1120 */           todoListModel.setName("發送郵件");
+/* 1121 */         else if (local.equals("en_US")) {
+/* 1122 */           todoListModel.setName("Send mail");
+/*      */         }
+/*      */ 
+/* 1125 */         todoListModels.add(todoListModel);
+/* 1126 */       } else if ("notes/index".equals(sysFunction.getUrl())) {
+/* 1127 */         todoListModel.setCode("notes");
+/* 1128 */         todoListModel.setImg("/img/widget/notes.png");
+/* 1129 */         if (local.equals("zh_CN"))
+/* 1130 */           todoListModel.setName("新建便签");
+/* 1131 */         else if (local.equals("zh_TW"))
+/* 1132 */           todoListModel.setName("新建便簽");
+/* 1133 */         else if (local.equals("en_US")) {
+/* 1134 */           todoListModel.setName("Newly-built note");
+/*      */         }
+/*      */ 
+/* 1137 */         todoListModels.add(todoListModel);
+/* 1138 */       } else if ("diary/show".equals(sysFunction.getUrl())) {
+/* 1139 */         todoListModel.setCode("diary");
+/* 1140 */         todoListModel.setImg("/img/widget/todiary.png");
+/* 1141 */         if (local.equals("zh_CN"))
+/* 1142 */           todoListModel.setName("撰写日志");
+/* 1143 */         else if (local.equals("zh_TW"))
+/* 1144 */           todoListModel.setName("撰写日志");
+/* 1145 */         else if (local.equals("en_US")) {
+/* 1146 */           todoListModel.setName("Write a log");
+/*      */         }
+/*      */ 
+/* 1150 */         todoListModels.add(todoListModel);
+/* 1151 */       } else if ("calendar".equals(sysFunction.getUrl())) {
+/* 1152 */         todoListModel.setCode("calendar");
+/* 1153 */         todoListModel.setImg("/img/widget/toCalendar.png");
+/* 1154 */         if (local.equals("zh_CN"))
+/* 1155 */           todoListModel.setName("新建日程");
+/* 1156 */         else if (local.equals("zh_TW"))
+/* 1157 */           todoListModel.setName("新建日程");
+/* 1158 */         else if (local.equals("en_US")) {
+/* 1159 */           todoListModel.setName("New schedule");
+/*      */         }
+/*      */ 
+/* 1162 */         todoListModels.add(todoListModel);
+/* 1163 */       } else if ("attendance/personal".equals(sysFunction.getUrl())) {
+/* 1164 */         todoListModel.setCode("qingjia");
+/* 1165 */         todoListModel.setImg("/img/widget/toQingjia.png");
+/* 1166 */         if (local.equals("zh_CN"))
+/* 1167 */           todoListModel.setName("请假申请");
+/* 1168 */         else if (local.equals("zh_TW"))
+/* 1169 */           todoListModel.setName("請假申請");
+/* 1170 */         else if (local.equals("en_US")) {
+/* 1171 */           todoListModel.setName("application for leave");
+/*      */         }
+/* 1173 */         todoListModels.add(todoListModel);
+/* 1174 */         TodoListModel todoListModel1 = new TodoListModel();
+/* 1175 */         todoListModel1.setCode("jiaban");
+/* 1176 */         todoListModel1.setImg("/img/widget/toJiaban.png");
+/* 1177 */         if (local.equals("zh_CN"))
+/* 1178 */           todoListModel1.setName("加班申请");
+/* 1179 */         else if (local.equals("zh_TW"))
+/* 1180 */           todoListModel1.setName("加班申請");
+/* 1181 */         else if (local.equals("en_US")) {
+/* 1182 */           todoListModel1.setName("Over application");
+/*      */         }
+/*      */ 
+/* 1185 */         todoListModels.add(todoListModel1);
+/*      */       }
+/*      */     }
+/*      */ 
+/* 1189 */     baseWrapper.setData(todoListModels);
+/* 1190 */     baseWrapper.setStatus(true);
+/* 1191 */     baseWrapper.setFlag(true);
+/*      */ 
+/* 1193 */     return baseWrapper;
+/*      */   }
+/*      */ 
+/*      */   public BaseWrapper smsListByReadType(String userId, HttpServletRequest request, String type)
+/*      */   {
+/* 1199 */     BaseWrapper baseWrapper = new BaseWrapper();
+/* 1200 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 1201 */     if (StringUtils.checkNull(userId).booleanValue()) {
+/* 1202 */       userId = user.getUserId();
+/*      */     }
+/* 1204 */     DaiBanModel daiBanModel = new DaiBanModel();
+/* 1205 */     List list = new ArrayList();
+/* 1206 */     List list1 = new ArrayList();
+/* 1207 */     List list2 = new ArrayList();
+/* 1208 */     List list3 = new ArrayList();
+/* 1209 */     List list4 = new ArrayList();
+/* 1210 */     List list5 = new ArrayList();
+/* 1211 */     Map map = new HashMap();
+/* 1212 */     map.put("userId", userId);
+/* 1213 */     List smsBodyExtendList = this.smsBodyMapper.SmsListByType(map);
+/* 1214 */     Iterator iter = smsBodyExtendList.iterator();
+/* 1215 */     while (iter.hasNext()) {
+/* 1216 */       SmsBodyExtend smsBodyExtend = (SmsBodyExtend)iter.next();
+/* 1217 */       smsBodyExtend.setFromUid(user.getUid());
+/* 1218 */       smsBodyExtend.setFromName(user.getUserName());
+/* 1219 */       switch (Integer.parseInt(smsBodyExtend.getSmsType())) {
+/*      */       case 2:
+/* 1221 */         smsBodyExtend.setImg("/img/workflow/youjian.png");
+/* 1222 */         smsBodyExtend.setType("email");
+/* 1223 */         String size1 = smsBodyExtend.getRemindUrl();
+/* 1224 */         String[] aStrings = size1.split("\\?");
+/* 1225 */         for (int i = 0; i < aStrings.length; i++) {
+/* 1226 */           if (aStrings[i].contains("id")) {
+/* 1227 */             String[] s = aStrings[i].split("=");
+/* 1228 */             smsBodyExtend.setQid(Integer.valueOf(Integer.parseInt(s[1])));
+/* 1229 */             break;
+/*      */           }
+/*      */         }
+/* 1232 */         list.add(smsBodyExtend);
+/* 1233 */         break;
+/*      */       case 1:
+/* 1235 */         smsBodyExtend.setImg("/img/workflow/notify.png");
+/* 1236 */         smsBodyExtend.setType("notify");
+/* 1237 */         String size2 = smsBodyExtend.getRemindUrl();
+/* 1238 */         String[] aStrings2 = size2.split("\\?");
+/* 1239 */         for (int i = 0; i < aStrings2.length; i++) {
+/* 1240 */           if (aStrings2[i].contains("notifyId")) {
+/* 1241 */             String[] s = aStrings2[i].split("=");
+/* 1242 */             smsBodyExtend.setQid(Integer.valueOf(Integer.parseInt(s[1])));
+/* 1243 */             break;
+/*      */           }
+/*      */         }
+/* 1246 */         list1.add(smsBodyExtend);
+/*      */ 
+/* 1248 */         break;
+/*      */       case 7:
+/* 1250 */         smsBodyExtend.setImg("/img/workflow/daibanliucheng.png");
+/* 1251 */         smsBodyExtend.setType("willdo");
+/* 1252 */         String size4 = smsBodyExtend.getRemindUrl();
+/* 1253 */         if (size4.contains("workformPreView"))
+/* 1254 */           smsBodyExtend.setHandleType("0");
+/*      */         else {
+/* 1256 */           smsBodyExtend.setHandleType("1");
+/*      */         }
+/* 1258 */         String[] aStrings4 = size4.split("&");
+/* 1259 */         for (int i = 0; i < aStrings4.length; i++) {
+/* 1260 */           if (aStrings4[i].contains("flowId")) {
+/* 1261 */             String[] s = aStrings4[i].split("=");
+/* 1262 */             smsBodyExtend.setFlowId(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */           }
+/* 1264 */           else if (aStrings4[i].contains("flowStep")) {
+/* 1265 */             String[] s = aStrings4[i].split("=");
+/* 1266 */             smsBodyExtend.setReadflag(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */           }
+/* 1268 */           else if (aStrings4[i].contains("runId")) {
+/* 1269 */             String[] s = aStrings4[i].split("=");
+/* 1270 */             Integer runId = Integer.valueOf(Integer.parseInt(s[1]));
+/* 1271 */             FlowRun flowRun = this.flowRunService.find(runId);
+/* 1272 */             Users users = this.usersMapper.findUsersByuserId(flowRun.getBeginUser());
+/* 1273 */             smsBodyExtend.setUserName(users.getUserName());
+/* 1274 */             smsBodyExtend.setUid(users.getUid());
+/* 1275 */             smsBodyExtend.setAvater(users.getAvatar());
+/* 1276 */             smsBodyExtend.setRunId(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */           }
+/* 1278 */           else if (aStrings4[i].contains("prcsId")) {
+/* 1279 */             String[] s = aStrings4[i].split("=");
+/* 1280 */             smsBodyExtend.setStep(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */           }
+/*      */ 
+/*      */         }
+/*      */ 
+/* 1285 */         list2.add(smsBodyExtend);
+/* 1286 */         break;
+/*      */       case 14:
+/* 1288 */         smsBodyExtend.setImg("/img/workflow/news.png");
+/* 1289 */         smsBodyExtend.setType("news");
+/* 1290 */         String size3 = smsBodyExtend.getRemindUrl();
+/* 1291 */         String[] aStrings3 = size3.split("\\?");
+/* 1292 */         for (int i = 0; i < aStrings3.length; i++) {
+/* 1293 */           if (aStrings3[i].contains("newsId")) {
+/* 1294 */             String[] s = aStrings3[i].split("=");
+/* 1295 */             smsBodyExtend.setQid(Integer.valueOf(Integer.parseInt(s[1])));
+/* 1296 */             break;
+/*      */           }
+/*      */         }
+/* 1299 */         list3.add(smsBodyExtend);
+/* 1300 */         break;
+/*      */       case 70:
+/* 1302 */         smsBodyExtend.setImg("/img/workflow/doctment.png");
+/* 1303 */         smsBodyExtend.setType("doctment");
+/* 1304 */         String size5 = smsBodyExtend.getRemindUrl();
+/* 1305 */         if (size5.contains("workformPreView"))
+/* 1306 */           smsBodyExtend.setHandleType("0");
+/*      */         else {
+/* 1308 */           smsBodyExtend.setHandleType("1");
+/*      */         }
+/* 1310 */         String[] aStrings5 = size5.split("&");
+/* 1311 */         for (int i = 0; i < aStrings5.length; i++) {
+/* 1312 */           if (aStrings5[i].contains("flowId")) {
+/* 1313 */             String[] s = aStrings5[i].split("=");
+/* 1314 */             smsBodyExtend.setFlowId(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */           }
+/* 1316 */           else if (aStrings5[i].contains("flowStep")) {
+/* 1317 */             String[] s = aStrings5[i].split("=");
+/* 1318 */             smsBodyExtend.setReadflag(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */           }
+/* 1320 */           else if (aStrings5[i].contains("runId")) {
+/* 1321 */             String[] s = aStrings5[i].split("=");
+/* 1322 */             Integer runId = Integer.valueOf(Integer.parseInt(s[1]));
+/* 1323 */             FlowRun flowRun = this.flowRunService.find(runId);
+/* 1324 */             Users users = this.usersMapper.findUsersByuserId(flowRun.getBeginUser());
+/* 1325 */             smsBodyExtend.setUserName(users.getUserName());
+/* 1326 */             smsBodyExtend.setUid(users.getUid());
+/* 1327 */             smsBodyExtend.setAvater(users.getAvatar());
+/* 1328 */             smsBodyExtend.setRunId(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */           }
+/* 1330 */           else if (aStrings5[i].contains("prcsId")) {
+/* 1331 */             String[] s = aStrings5[i].split("=");
+/* 1332 */             smsBodyExtend.setStep(Integer.valueOf(Integer.parseInt(s[1])));
+/*      */           }
+/*      */         }
+/*      */ 
+/* 1336 */         list4.add(smsBodyExtend);
+/* 1337 */         break;
+/*      */       case 11:
+/* 1339 */         smsBodyExtend.setImg("/img/workflow/publish.png");
+/* 1340 */         smsBodyExtend.setType("toupiao");
+/* 1341 */         String size6 = smsBodyExtend.getRemindUrl();
+/* 1342 */         String[] aStrings6 = size6.split("\\?");
+/* 1343 */         for (int i = 0; i < aStrings6.length; i++) {
+/* 1344 */           if (aStrings6[i].contains("resultId")) {
+/* 1345 */             String[] s = aStrings6[i].split("=");
+/* 1346 */             String[] s1 = s[i].split("&");
+/* 1347 */             smsBodyExtend.setQid(Integer.valueOf(Integer.parseInt(s1[0])));
+/* 1348 */             break;
+/*      */           }
+/*      */         }
+/* 1351 */         list5.add(smsBodyExtend);
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/* 1356 */     daiBanModel.setDocumentList(list4);
+/* 1357 */     daiBanModel.setEmail(list);
+/* 1358 */     daiBanModel.setNewsList(list3);
+/* 1359 */     daiBanModel.setNotify(list1);
+/* 1360 */     daiBanModel.setWorkFlow(list2);
+/* 1361 */     daiBanModel.setToupiao(list5);
+/* 1362 */     baseWrapper.setData(daiBanModel);
+/* 1363 */     return baseWrapper;
+/*      */   }
+/*      */ 
+/*      */   private String getNowLanguage(HttpServletRequest request) {
+/* 1367 */     Object localObj = SessionUtils.getSessionInfo(request.getSession(), "LOCALE_SESSION_ATTRIBUTE_NAME", Object.class);
+/* 1368 */     String local = "";
+/* 1369 */     if (localObj != null) {
+/* 1370 */       if (StringUtils.checkNull(localObj.toString()).booleanValue()) {
+/* 1371 */         local = "zh_CN";
+/* 1372 */         SessionUtils.putSession(request.getSession(), "LOCALE_SESSION_ATTRIBUTE_NAME", "zh_CN");
+/*      */       } else {
+/* 1374 */         local = localObj.toString();
+/*      */       }
+/*      */     } else {
+/* 1377 */       local = "zh_CN";
+/* 1378 */       SessionUtils.putSession(request.getSession(), "LOCALE_SESSION_ATTRIBUTE_NAME", "zh_CN");
+/*      */     }
+/* 1380 */     return local;
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.todoList.impl.TodolistImpl
+ * JD-Core Version:    0.6.0
+ */

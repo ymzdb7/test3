@@ -1,0 +1,153 @@
+/*     */ package com.xoa.service.workflow.flowRule.impl;
+/*     */ 
+/*     */ import com.xoa.dao.workflow.FlowRuleMapper;
+/*     */ import com.xoa.model.workflow.FlowRule;
+/*     */ import com.xoa.service.workflow.flowRule.FlowRuleService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class FlowRuleServiceImpl
+/*     */   implements FlowRuleService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowRuleMapper flowRuleMapper;
+/*     */ 
+/*     */   public ToJson<FlowRule> queryFlowRule(Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  33 */     ToJson json = new ToJson();
+/*     */     try {
+/*  35 */       Map maps = new HashMap();
+/*  36 */       PageParams pageParams = new PageParams();
+/*  37 */       pageParams.setPage(page);
+/*  38 */       pageParams.setPageSize(pageSize);
+/*  39 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  40 */       maps.put("page", pageParams);
+/*  41 */       List flowRules = this.flowRuleMapper.queryFlowRule(maps);
+/*  42 */       json.setTotleNum(pageParams.getTotal());
+/*  43 */       json.setObj(flowRules);
+/*  44 */       json.setMsg("ok");
+/*  45 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  47 */       e.printStackTrace();
+/*  48 */       json.setMsg("err");
+/*  49 */       json.setFlag(1);
+/*     */     }
+/*     */ 
+/*  52 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowRule> insertFlowRule(FlowRule flowRule)
+/*     */   {
+/*  64 */     ToJson json = new ToJson();
+/*     */     try {
+/*  66 */       this.flowRuleMapper.insertFlowRule(flowRule);
+/*  67 */       json.setObject(flowRule);
+/*  68 */       json.setMsg("ok");
+/*  69 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  71 */       e.printStackTrace();
+/*  72 */       json.setMsg("error");
+/*  73 */       json.setFlag(1);
+/*     */     }
+/*     */ 
+/*  76 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowRule> updateStatusToStart(FlowRule flowRule)
+/*     */   {
+/*  87 */     ToJson json = new ToJson();
+/*     */     try {
+/*  89 */       int a = this.flowRuleMapper.updateStatusToStart(flowRule);
+/*  90 */       if (a > 0) {
+/*  91 */         json.setFlag(0);
+/*  92 */         json.setMsg("ok");
+/*     */       }
+/*     */       else {
+/*  95 */         json.setFlag(1);
+/*  96 */         json.setMsg("err");
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 100 */       e.printStackTrace();
+/* 101 */       json.setFlag(1);
+/* 102 */       json.setMsg("error");
+/*     */     }
+/*     */ 
+/* 105 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowRule> updateStatusToEnd(FlowRule flowRule)
+/*     */   {
+/* 116 */     ToJson json = new ToJson();
+/*     */     try {
+/* 118 */       int a = this.flowRuleMapper.updateStatusToEnd(flowRule);
+/* 119 */       if (a > 0) {
+/* 120 */         json.setFlag(0);
+/* 121 */         json.setMsg("ok");
+/*     */       }
+/*     */       else {
+/* 124 */         json.setFlag(1);
+/* 125 */         json.setMsg("err");
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 129 */       e.printStackTrace();
+/* 130 */       json.setFlag(1);
+/* 131 */       json.setMsg("error");
+/*     */     }
+/*     */ 
+/* 134 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowRule> deleteFlowRule(FlowRule flowRule)
+/*     */   {
+/* 145 */     ToJson json = new ToJson();
+/*     */     try {
+/* 147 */       int a = this.flowRuleMapper.deleteFlowRule(flowRule);
+/* 148 */       if (a > 0) {
+/* 149 */         json.setFlag(0);
+/* 150 */         json.setMsg("ok");
+/*     */       }
+/*     */       else {
+/* 153 */         json.setFlag(1);
+/* 154 */         json.setMsg("err");
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 158 */       e.printStackTrace();
+/* 159 */       json.setFlag(1);
+/* 160 */       json.setMsg("error");
+/*     */     }
+/*     */ 
+/* 163 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowRule> selectFlowRule(String flowName, String userName, String toUserName)
+/*     */   {
+/* 175 */     ToJson json = new ToJson();
+/*     */     try {
+/* 177 */       List flowRules = this.flowRuleMapper.selectFlowRule(flowName, userName, toUserName);
+/* 178 */       json.setObj(flowRules);
+/* 179 */       json.setMsg("ok");
+/* 180 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 182 */       e.printStackTrace();
+/* 183 */       json.setMsg("err");
+/* 184 */       json.setFlag(1);
+/*     */     }
+/*     */ 
+/* 187 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.workflow.flowRule.impl.FlowRuleServiceImpl
+ * JD-Core Version:    0.6.0
+ */

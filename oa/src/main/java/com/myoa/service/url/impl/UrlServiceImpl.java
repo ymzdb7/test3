@@ -1,0 +1,79 @@
+ package com.myoa.service.url.impl;
+ 
+ import com.myoa.dao.url.UrlMapper;
+import com.myoa.model.url.Url;
+import com.myoa.model.users.Users;
+import com.myoa.service.url.UrlService;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.common.session.SessionUtils;
+
+ import java.util.List;
+ import javax.annotation.Resource;
+ import javax.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Service;
+ 
+ @Service
+ public class UrlServiceImpl
+   implements UrlService
+ {
+ 
+   @Resource
+   private UrlMapper urlMapper;
+ 
+   public void insertUrl(Url url)
+   {
+     this.urlMapper.insertUrl(url);
+   }
+ 
+   public List<Url> selectData(Url url)
+   {
+     List list = this.urlMapper.selectData(url);
+     return list;
+   }
+ 
+   public Url selectByUrlId(HttpServletRequest request, Integer urlId)
+   {
+     ToJson json = new ToJson(1, "error");
+     Url url = this.urlMapper.selectByUrlId(urlId);
+     if (url != null) {
+       json.setObject(url);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } else {
+       json.setMsg("数据为空");
+       json.setFlag(0);
+     }
+     return url;
+   }
+ 
+   public void deleteData(Integer urlId)
+   {
+     this.urlMapper.deleteData(urlId);
+   }
+ 
+   public void deleteAll()
+   {
+     this.urlMapper.deleteAll();
+   }
+ 
+   public void updateUrl(Url url)
+   {
+     this.urlMapper.updateUrl(url);
+   }
+ 
+   public void addUrl(Url url, HttpServletRequest request)
+   {
+     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+     Integer uid = users.getUid();
+     if (StringUtils.checkNull(url.getSubType()).booleanValue()) {
+       url.setSubType("");
+     }
+ 
+     url.setUrlIcon("");
+ 
+     url.setUser(String.valueOf(uid).concat(","));
+     this.urlMapper.insertSelective(url);
+   }
+ }
+

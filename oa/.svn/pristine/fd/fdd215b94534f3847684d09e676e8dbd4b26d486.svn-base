@@ -1,0 +1,259 @@
+/*     */ package com.xoa.controller.workflow;
+/*     */ 
+/*     */ import com.alibaba.fastjson.JSONObject;
+/*     */ import com.xoa.model.enclosure.Attachment;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.workflow.FlowTypeModel;
+/*     */ import com.xoa.service.enclosure.EnclosureService;
+/*     */ import com.xoa.service.syspara.SysParaService;
+/*     */ import com.xoa.service.workflow.flowtype.FlowTypeService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.io.IOException;
+/*     */ import java.io.OutputStream;
+/*     */ import java.io.OutputStreamWriter;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.ServletOutputStream;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.jdom2.Document;
+/*     */ import org.jdom2.output.Format;
+/*     */ import org.jdom2.output.XMLOutputter;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/flow"})
+/*     */ public class FlowTypeController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private EnclosureService enclosureService;
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowTypeService flowTypeService;
+/*     */ 
+/*     */   @Resource
+/*     */   SysParaService sysParaService;
+/*     */ 
+/*     */   @RequestMapping(value={"newFlow"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public void saveFlow(FlowTypeModel flowTypeModel, HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/*  72 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  74 */     ToJson flowTypeModelToJson = this.flowTypeService.saveFlow(flowTypeModel);
+/*  75 */     response.setContentType("text/html; charset=utf-8");
+/*     */     try {
+/*  77 */       ServletOutputStream servletOutputStream = response.getOutputStream();
+/*  78 */       OutputStreamWriter ow = new OutputStreamWriter(servletOutputStream, "UTF-8");
+/*  79 */       ow.write(JSONObject.toJSONString(flowTypeModelToJson));
+/*  80 */       ow.flush();
+/*  81 */       ow.close();
+/*     */     } catch (Exception e) {
+/*  83 */       e.printStackTrace();
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"selectAllFlow"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowTypeModel> selectAllFlow(@RequestParam("flowId") Integer flowId, HttpServletRequest request)
+/*     */   {
+/*  98 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 100 */     return this.flowTypeService.selectAllFlow(flowId, request);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"updateFlow"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   @ResponseBody
+/*     */   public void updateFlow(FlowTypeModel flowTypeModel, HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/* 114 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 116 */     response.setContentType("text/html; charset=utf-8");
+/* 117 */     ToJson flowTypeModelToJson = this.flowTypeService.updateFlow(flowTypeModel);
+/*     */     try {
+/* 119 */       ServletOutputStream servletOutputStream = response.getOutputStream();
+/* 120 */       OutputStreamWriter ow = new OutputStreamWriter(servletOutputStream, "UTF-8");
+/* 121 */       ow.write(JSONObject.toJSONString(flowTypeModelToJson));
+/* 122 */       ow.flush();
+/* 123 */       ow.close();
+/*     */     } catch (IOException e) {
+/* 125 */       e.printStackTrace();
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"selectAttachment"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   @ResponseBody
+/*     */   public ToJson selectAttachmentAndInstructions(HttpServletRequest request, @RequestParam("flowId") Integer flowId, @RequestParam("formId") Integer formId) {
+/* 134 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 136 */     ContextHolder.setConsumerType(sqlType);
+/* 137 */     return this.flowTypeService.selectAttachmentAndInstructions(flowId, formId, sqlType);
+/*     */   }
+/*     */   @RequestMapping({"/flowNews"})
+/*     */   public String flow(HttpServletRequest request) {
+/* 142 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 144 */     return "app/workflow/flowtype/flowNews";
+/*     */   }
+/*     */   @RequestMapping({"/flowNew"})
+/*     */   public String newflow(HttpServletRequest request) {
+/* 149 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 151 */     return "app/workflow/flowtype/flownew";
+/*     */   }
+/* 157 */   @RequestMapping({"/flowlistbysort"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowTypeModel> flowListBySort(Integer flowId, HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 159 */     return this.flowTypeService.quertBySortId(flowId); } 
+/*     */   @RequestMapping({"/flowBySearch"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowTypeModel> flowBySearch(String searchValue, Integer flowId, HttpServletRequest request) {
+/* 165 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 167 */     return this.flowTypeService.flowBySearch(searchValue, flowId);
+/*     */   }
+/* 173 */   @RequestMapping({"/flowAuthOrSearch"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowTypeModel> selectFlowAuthOrSearch(HttpServletRequest request, String searchValue, Integer sortId) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 175 */     return this.flowTypeService.selectFlowAuthOrSearch(request, searchValue, sortId); }
+/*     */ 
+/*     */   @RequestMapping({"/type/index"})
+/*     */   public String flowTypeIndex(HttpServletRequest request) {
+/* 180 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 182 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 183 */     if (!this.sysParaService.checkIsHaveSecure(user, Integer.valueOf(7))) {
+/* 184 */       return "app/common/development";
+/*     */     }
+/* 186 */     return "app/workflow/flowtype/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/flowDetailInfo"})
+/*     */   @ResponseBody
+/*     */   public ToJson flowDetailInfo(Integer flowId)
+/*     */   {
+/* 199 */     return this.flowTypeService.selectFlowDetailInfo(flowId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/fileUpload"})
+/*     */   @ResponseBody
+/*     */   public void uploadFile(@RequestParam("file") MultipartFile[] files, String module, @RequestParam(value="company", required=false) String company, HttpServletRequest request, HttpServletResponse response) {
+/* 207 */     BaseWrappers wrappers = new BaseWrappers();
+/* 208 */     StringBuffer sb = new StringBuffer();
+/* 209 */     if (StringUtils.checkNull(company).booleanValue()) {
+/* 210 */       if ((request.getSession().getAttribute("loginDateSouse") != null) && (!"null".equals((String)request.getSession().getAttribute("loginDateSouse"))))
+/* 211 */         sb.append(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */       else
+/* 213 */         sb.append("xoa1001");
+/*     */     }
+/*     */     else
+/* 216 */       sb.append(company);
+/*     */     try
+/*     */     {
+/* 219 */       List<Attachment> list = this.enclosureService.upload(files, sb.toString(), module);
+/* 220 */       for (Attachment attachment : list) {
+/* 221 */         int aid = attachment.getAid().intValue();
+/* 222 */         int attachId = attachment.getAttachId().intValue();
+/* 223 */         String ym = attachment.getYm();
+/* 224 */         String attachName = attachment.getAttachName();
+/* 225 */         String all = aid + "@" + ym + "_" + attachId;
+/* 226 */         attachment.setAttStrId(all);
+/* 227 */         attachment.setAttStrName(attachName);
+/*     */       }
+/* 229 */       wrappers.setDatas(list);
+/* 230 */       wrappers.setFlag(true);
+/* 231 */       wrappers.setStatus(true);
+/*     */     } catch (Exception e) {
+/* 233 */       e.printStackTrace();
+/* 234 */       wrappers.setFlag(false);
+/* 235 */       wrappers.setStatus(false);
+/* 236 */       wrappers.setMsg("error");
+/*     */     }
+/* 238 */     response.setContentType("text/html; charset=utf-8");
+/*     */     try {
+/* 240 */       ServletOutputStream servletOutputStream = response.getOutputStream();
+/* 241 */       OutputStreamWriter ow = new OutputStreamWriter(servletOutputStream, "UTF-8");
+/* 242 */       ow.write(JSONObject.toJSONString(wrappers));
+/* 243 */       ow.flush();
+/* 244 */       ow.close();
+/*     */     } catch (Exception e) {
+/* 246 */       e.printStackTrace();
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/checkOut"})
+/*     */   @ResponseBody
+/*     */   public void checkOut(HttpServletRequest request, HttpServletResponse response, Integer flowId)
+/*     */   {
+/* 261 */     response.setCharacterEncoding("utf-8");
+/* 262 */     response.setContentType("multipart/form-data");
+/* 263 */     OutputStream os = null;
+/*     */     try {
+/* 265 */       BaseWrapper wrapper = this.flowTypeService.getFlowOutModel(flowId);
+/* 266 */       Document doc = (Document)wrapper.getData();
+/* 267 */       XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
+/* 268 */       String fileName = "新建导出流程.xml";
+/* 269 */       if (!StringUtils.checkNull(wrapper.getMsg()).booleanValue()) {
+/* 270 */         fileName = wrapper.getMsg() + ".xml";
+/*     */       }
+/*     */ 
+/* 273 */       String userAgent = request.getHeader("User-Agent");
+/* 274 */       byte[] bytes = userAgent.contains("MSIE") ? fileName.getBytes() : fileName.getBytes("UTF-8");
+/*     */ 
+/* 276 */       fileName = new String(bytes, "ISO-8859-1");
+/* 277 */       response.setHeader("Content-disposition", String.format("attachment; filename=\"%s\"", new Object[] { fileName }));
+/*     */ 
+/* 279 */       os = response.getOutputStream();
+/* 280 */       xmlOutputter.output(doc, os);
+/* 281 */       os.close();
+/*     */     } catch (Exception e) {
+/* 283 */       e.printStackTrace();
+/* 284 */       if (os != null)
+/*     */         try {
+/* 286 */           os.close();
+/*     */         } catch (Exception p) {
+/* 288 */           p.printStackTrace();
+/*     */         }
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/inputFlow"})
+/*     */   @ResponseBody
+/*     */   public BaseWrapper inputFlow(Integer flowId, @RequestParam(name="file") MultipartFile file) {
+/* 298 */     return this.flowTypeService.intputFlowFile(flowId, file);
+/*     */   }
+/* 304 */   @RequestMapping({"/deleteFlow"})
+/*     */   @ResponseBody
+/*     */   public BaseWrapper deleteFlow(Integer flowId) { return this.flowTypeService.deleteFlow(flowId); } 
+/*     */   @RequestMapping({"/clearFlow"})
+/*     */   @ResponseBody
+/*     */   public BaseWrapper clearFlow(Integer flowId) {
+/* 310 */     return this.flowTypeService.clearFlow(flowId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/selAllType"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowTypeModel> selAllType()
+/*     */   {
+/* 323 */     return this.flowTypeService.selAllType();
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.workflow.FlowTypeController
+ * JD-Core Version:    0.6.0
+ */

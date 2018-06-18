@@ -1,0 +1,46 @@
+package com.myoa.dao.edu.teacher;
+
+import com.myoa.model.edu.teacher.TeacheringInfo;
+import com.myoa.model.edu.teacher.TeacheringInfoExample;
+
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface TeacheringInfoMapper {
+	public abstract int countByExample(
+			TeacheringInfoExample paramTeacheringInfoExample);
+
+	public abstract int deleteByExample(
+			TeacheringInfoExample paramTeacheringInfoExample);
+
+	public abstract int deleteByPrimaryKey(Integer paramInteger);
+
+	public abstract int insert(TeacheringInfo paramTeacheringInfo);
+
+	public abstract int insertSelective(TeacheringInfo paramTeacheringInfo);
+
+	public abstract List<TeacheringInfo> selectByExample(
+			TeacheringInfoExample paramTeacheringInfoExample);
+
+	public abstract TeacheringInfo selectByPrimaryKey(Integer paramInteger);
+
+	public abstract int updateByExampleSelective(
+			@Param("record") TeacheringInfo paramTeacheringInfo,
+			@Param("example") TeacheringInfoExample paramTeacheringInfoExample);
+
+	public abstract int updateByExample(
+			@Param("record") TeacheringInfo paramTeacheringInfo,
+			@Param("example") TeacheringInfoExample paramTeacheringInfoExample);
+
+	public abstract int updateByPrimaryKeySelective(
+			TeacheringInfo paramTeacheringInfo);
+
+	public abstract int updateByPrimaryKey(TeacheringInfo paramTeacheringInfo);
+
+	public abstract List<TeacheringInfo> selectObject(
+			Map<String, Object> paramMap);
+
+	public abstract List<TeacheringInfo> selectObjectByNo(
+			Map<String, Object> paramMap);
+}

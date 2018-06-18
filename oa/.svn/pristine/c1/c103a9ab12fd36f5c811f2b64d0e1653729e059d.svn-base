@@ -1,0 +1,605 @@
+/*     */ package com.xoa.controller.login;
+/*     */ 
+/*     */ import com.alibaba.fastjson.JSONObject;
+/*     */ import com.ibatis.common.resources.Resources;
+/*     */ import com.xoa.dao.sys.SysInterfaceMapper;
+/*     */ import com.xoa.dao.users.UserFunctionMapper;
+import com.xoa.global.component.Global;
+/*     */ import com.xoa.global.intercptor.CommonSessionContext;
+/*     */ import com.xoa.model.common.SysPara;
+/*     */ import com.xoa.model.sys.InterfaceModel;
+/*     */ import com.xoa.model.users.OrgManage;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.sms.SmsService;
+/*     */ import com.xoa.service.sys.SysLogService;
+/*     */ import com.xoa.service.users.OrgManageService;
+/*     */ import com.xoa.service.users.UsersService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.MobileCheck;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import com.xoa.util.ipUtil.MachineCode;
+/*     */ import java.io.BufferedReader;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.InputStreamReader;
+/*     */ import java.io.PrintStream;
+/*     */ import java.io.PrintWriter;
+/*     */ import java.net.URL;
+/*     */ import java.sql.Connection;
+/*     */ import java.sql.DriverManager;
+/*     */ import java.sql.ResultSet;
+/*     */ import java.sql.Statement;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.Properties;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.Cookie;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.log4j.Logger;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.beans.factory.annotation.Value;
+/*     */ import org.springframework.context.annotation.Scope;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.ui.Model;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+/*     */ 
+/*     */ @Controller
+/*     */ @Scope("prototype")
+/*     */ public class loginController
+/*     */ {
+/*  67 */   private Logger loger = Logger.getLogger(loginController.class);
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersService usersService;
+/*     */ 
+/*     */   @Resource
+/*     */   private OrgManageService orgManageService;
+/*     */ 
+/*     */   @Value("${app_login_path_php}")
+/*     */   private String url;
+/*  74 */   private String charset = "utf-8";
+/*     */ 
+/*     */   @Autowired
+/*     */   UserFunctionMapper userFunctionMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SysInterfaceMapper sysInterfaceMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SysLogService sysLogService;
+/*     */ 
+/*     */   @Resource
+/*     */   private SmsService smsService;
+/*     */ 
+/*  86 */   @RequestMapping(name="index", value={"/", ""})
+/*     */   public String index(HttpServletRequest request, HttpServletResponse response) {
+	System.out.println("---------------------+++=---------");
+	          List interfaceModels = this.sysInterfaceMapper.getInterfaceInfo();
+/*  87 */     String url = "";
+/*  88 */     switch (Integer.parseInt(((InterfaceModel)interfaceModels.get(0)).getTemplate())) {
+/*     */     case 1:
+/*  90 */       url = "defaultIndex2";
+/*  91 */       break;
+/*     */     case 2:
+/*  93 */       url = "defaultIndex";
+/*  94 */       break;
+/*     */     case 3:
+/*  96 */       url = "defaultIndex3";
+/*  97 */       break;
+/*     */     case 4:
+/*  99 */       url = "defaultIndex4";
+/* 100 */       break;
+/*     */     case 5:
+/* 102 */       url = "defaultIndex5";
+/* 103 */       break;
+/*     */     case 6:
+/* 105 */       url = "defaultIndex6";
+/* 106 */       break;
+/*     */     case 7:
+/* 108 */       url = "defaultIndex7";
+/* 109 */       break;
+/*     */     default:
+/* 111 */       url = "defaultIndex2";
+/*     */     }
+/*     */ 
+/* 114 */     return "forward:" + url; 
+           }
+/*     */ 
+/*     */   @RequestMapping(name=Constant.MYOA, value={"/xoa", "/xtd"})
+/*     */   public String xoa(HttpServletRequest request, String url) {
+/* 119 */     return "redirect:" + url;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"login/index"})
+/*     */   public String login()
+/*     */   {
+	          System.out.println("--------------------------------");
+/* 130 */     return "login/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/cont"})
+/*     */   public String cont() {
+/* 136 */     return "app/main/cont";
+/*     */   }
+/*     */   @RequestMapping({"/lunbo"})
+/*     */   public String lunbo() {
+/* 141 */     return "app/main/lunbo";
+/*     */   }
+/*     */   @RequestMapping({"/defaultIndex"})
+/*     */   public String defaultIndex() {
+/* 146 */     return "login/default/index";
+/*     */   }
+/*     */   @RequestMapping({"/defaultIndex2"})
+/*     */   public String defaultIndex2() {
+/* 151 */     return "login/default/index2";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/defaultIndex3"})
+/*     */   public String defaultIndex3() {
+/* 157 */     return "login/default/index3";
+/*     */   }
+/*     */   @RequestMapping({"/defaultIndex4"})
+/*     */   public String defaultIndex4() {
+/* 162 */     return "login/default/index4";
+/*     */   }
+/*     */   @RequestMapping({"/defaultIndex5"})
+/*     */   public String defaultIndex5() {
+/* 167 */     return "login/default/index5";
+/*     */   }
+/*     */   @RequestMapping({"/defaultIndex6"})
+/*     */   public String defaultIndex6() {
+/* 172 */     return "login/default/index6";
+/*     */   }
+/*     */   @RequestMapping({"/defaultIndex7"})
+/*     */   public String defaultIndex7() {
+/* 177 */     return "login/default/index7";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/intranetBlue"})
+/*     */   public String intranetBlue()
+/*     */   {
+/* 184 */     return "app/main/intranetBlue";
+/*     */   }
+/*     */   @RequestMapping({"/intranetRed"})
+/*     */   public String intranetRed() {
+/* 189 */     return "app/main/intranetRed";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/defaultIndexErr"})
+/*     */   public String defaultIndexErr()
+/*     */   {
+/* 196 */     return "login/default/403";
+/*     */   }
+/*     */   @RequestMapping({"/oa2xoa"})
+/*     */   public String oa2xoa(HttpServletRequest request) {
+/*     */     try { String classpath = getClass().getResource("/").getPath();
+/* 202 */       String webappRoot = classpath.replaceAll("WEB-INF/classes/", "ui/file/properties/");
+/* 203 */       File file = new File(webappRoot + "jdbc.txt");
+/* 204 */       String urltd_oa = new String();
+/* 205 */       String unametd_oa = new String();
+/* 206 */       String passwordtd_oa = new String();
+/*     */ 
+/* 208 */       if ((file.isFile()) && (file.exists()))
+/*     */       {
+/* 210 */         InputStreamReader read = new InputStreamReader(new FileInputStream(file));
+/*     */ 
+/* 212 */         BufferedReader bufferedReader = new BufferedReader(read);
+/* 213 */         String lineTxt = null;
+/* 214 */         int i = 1;
+/* 215 */         while ((lineTxt = bufferedReader.readLine()) != null) {
+/* 216 */           if (i == 1) {
+/* 217 */             urltd_oa = lineTxt;
+/*     */           }
+/* 219 */           else if (i == 2)
+/* 220 */             unametd_oa = lineTxt;
+/*     */           else {
+/* 222 */             passwordtd_oa = lineTxt;
+/*     */           }
+/* 224 */           i++;
+/*     */         }
+/* 226 */         read.close();
+/*     */       }
+/* 228 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 229 */       String url = urltd_oa;
+/* 230 */       String driver = props.getProperty("driverClassName");
+/* 231 */       String username = unametd_oa;
+/* 232 */       String password = passwordtd_oa;
+/* 233 */       Class.forName(driver).newInstance();
+/* 234 */       Connection conn = DriverManager.getConnection(url, username, password);
+/* 235 */       String sql = "SELECT VER FROM version ";
+/* 236 */       Statement st = conn.createStatement();
+/* 237 */       ResultSet resultSet = st.executeQuery(sql);
+/* 238 */       Object object = new Object();
+/*     */ 
+/* 240 */       if (resultSet.next()) {
+/* 241 */         object = resultSet.getObject(1);
+/*     */       }
+/* 243 */       String softVersion = "2018.03.16.1";
+/* 244 */       if (!object.toString().equals(softVersion))
+/* 245 */         return "app/common/updateDatebase";
+/*     */     } catch (Exception e)
+/*     */     {
+/* 248 */       e.printStackTrace();
+/*     */     }
+/* 250 */     return "app/common/noupdateDatebase";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/branchOfLanding"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   public String getCompanyAll(@RequestParam("loginId") String loginId, HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/* 262 */     request.getSession().setAttribute("loginDateSouse", loginId);
+/* 263 */     String LOCALE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".LOCALE";
+/*     */ 
+/* 265 */     Object locale = request.getSession().getAttribute(LOCALE_SESSION_ATTRIBUTE_NAME);
+/*     */ 
+/* 267 */     return "login/" + loginId + "/login";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/getCompanyAll"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   @ResponseBody
+/*     */   public ToJson<OrgManage> logins(HttpServletRequest request, String locales)
+/*     */   {
+/* 280 */     ContextHolder.setConsumerType("xoa1001");
+/* 281 */     String LOCALE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".LOCALE";
+/* 282 */     SessionUtils.putSession(request.getSession(), "LOCALE_SESSION_ATTRIBUTE_NAME", request.getSession().getAttribute(LOCALE_SESSION_ATTRIBUTE_NAME));
+/* 283 */     Object locale = SessionUtils.getSessionInfo(request.getSession(), "LOCALE_SESSION_ATTRIBUTE_NAME", Object.class);
+/*     */     String loc;
+/* 285 */     if (locale != null)
+/* 286 */       loc = locale.toString();
+/*     */     else {
+/* 288 */       loc = "zh_CN";
+/*     */     }
+/* 290 */     return this.orgManageService.queryId(loc);
+/*     */   }
+/*     */   @RequestMapping({"/mainmin"})
+/*     */   public String mainmin(HttpServletRequest request, Model model) {
+/* 295 */     return "app/main/indexmin";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/main"})
+/*     */   public String loginSuccess(HttpServletRequest request, Model model)
+/*     */   {
+/* 306 */     String theme = (String)SessionUtils.getSessionInfo(request.getSession(), "InterfaceModel", String.class);
+/* 307 */     model.addAttribute("theme", theme);
+/* 308 */     return "app/main/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/login"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Users> loginEnter(@RequestParam("username") String username, @RequestParam("password") String password, String loginId, String userAgent, String locales, HttpServletRequest request, HttpServletResponse response)
+/*     */     throws Exception
+/*     */   {
+/* 327 */     response.addHeader("Access-Control-Allow-Origin", "*");
+/* 328 */     response.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+/* 329 */     response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
+/* 330 */     response.addHeader("Access-Control-Max-Age", "1800");
+/* 331 */     if (StringUtils.checkNull(loginId).booleanValue()) {
+/* 332 */       loginId = (String)request.getSession().getAttribute("loginDateSouse");
+/*     */     }
+/*     */ 
+/* 335 */     if ("mobile".equals(userAgent)) {
+/* 336 */       SessionUtils.putSession(request.getSession(), "loginDateSouse", loginId);
+/* 337 */       SessionUtils.putSession(request.getSession(), "LOCALE_SESSION_ATTRIBUTE_NAME", locales);
+/*     */     }
+/* 339 */     else if ("pcc".equals(userAgent)) {
+/* 340 */       SessionUtils.putSession(request.getSession(), "loginDateSouse", loginId);
+/* 341 */       SessionUtils.putSession(request.getSession(), "LOCALE_SESSION_ATTRIBUTE_NAME", locales);
+/*     */     }
+/*     */ 
+/* 344 */     ToJson json = new ToJson(0, null);
+/* 345 */     if (StringUtils.checkNull(username).booleanValue()) {
+/* 346 */       json.setFlag(1);
+/* 347 */       json.setCode("100010 ");
+/* 348 */       json.setMsg("用户名或用户不存在");
+/* 349 */       return json;
+/*     */     }
+/* 351 */     ContextHolder.setConsumerType(Constant.MYOA + loginId);
+/* 352 */     Users user = this.usersService.selectUserAllInfoByName(username, request);
+/* 353 */     if (user == null) {
+/* 354 */       request.getSession().setAttribute("message", "errOne");
+/* 355 */       json.setMsg("用户名或用户不存在");
+/* 356 */       json.setCode("100010 ");
+/* 357 */       json.setFlag(1);
+/* 358 */       return json;
+/*     */     }
+/*     */ 
+/* 373 */     Map createMap = new HashMap();
+/* 374 */     createMap.put("userid", username);
+/* 375 */     createMap.put("password", password);
+/* 376 */     String httpOrgCreateTestRtn = null;
+/* 377 */     Boolean isPassWordRight = this.usersService.checkPassWord(username, password);
+/* 378 */     if (isPassWordRight.booleanValue())
+/* 379 */       httpOrgCreateTestRtn = "ok\n\n";
+/*     */     else {
+/* 381 */       httpOrgCreateTestRtn = "err\n\n";
+/*     */     }
+/* 383 */     if (httpOrgCreateTestRtn.trim().equals("ok")) {
+/* 384 */       if (MobileCheck.isMobileDevice(request.getHeader("user-agent"))) {
+/* 385 */         if (user.getNotMobileLogin().intValue() == 1) {
+/* 386 */           request.getSession().setAttribute("message", "禁止登录");
+/* 387 */           json.setMsg("用户禁止登录");
+/* 388 */           json.setCode("100050 ");
+/* 389 */           json.setFlag(1);
+/* 390 */           return json;
+/*     */         }
+/*     */       }
+/* 393 */       else if (user.getNotLogin().byteValue() == 1) {
+/* 394 */         request.getSession().setAttribute("message", "禁止登录");
+/* 395 */         json.setMsg("用户禁止登录");
+/* 396 */         json.setCode("100050 ");
+/* 397 */         json.setFlag(1);
+/* 398 */         return json;
+/*     */       }
+/*     */ 
+/* 402 */       SessionUtils.putSession(request.getSession(), user);
+/* 403 */       Map params = new HashMap();
+/* 404 */       params.put("paraName", user.getPara().getParaName());
+/* 405 */       params.put("paraValue", user.getPara().getParaValue());
+/* 406 */       String functionIdStr = this.userFunctionMapper.getUserFuncIdStr(user.getUserId());
+/* 407 */       SessionUtils.putSession(request.getSession(), params);
+/* 408 */       SessionUtils.putSession(request.getSession(), "functionIdStr", functionIdStr);
+/*     */ 
+/* 419 */       json.setMsg(request.getSession().getId());
+/* 420 */       json.setToken(request.getSession().getId());
+/*     */ 
+/* 422 */       List interfaceModels = this.sysInterfaceMapper.getInterfaceInfo();
+/* 423 */       if (0 == user.getTheme().byteValue()) {
+/* 424 */         user.setTheme(Byte.valueOf((byte)Integer.parseInt(((InterfaceModel)interfaceModels.get(0)).getTheme())));
+/*     */       }
+/* 426 */       String theme = "theme" + user.getTheme();
+/* 427 */       SessionUtils.putSession(request.getSession(), "InterfaceModel", theme);
+/* 428 */       if (StringUtils.checkNull(((InterfaceModel)interfaceModels.get(0)).getIeTitle()).booleanValue())
+/* 429 */         user.setInterfaceTitle("");
+/*     */       else {
+/* 431 */         user.setInterfaceTitle(((InterfaceModel)interfaceModels.get(0)).getIeTitle());
+/*     */       }
+/*     */ 
+/* 434 */       if ((MachineCode.get16CharMacs() != null) && (MachineCode.get16CharMacs().size() > 0)) {
+/* 435 */         user.setAppPropulsionId((String)MachineCode.get16CharMacs().get(0));
+/*     */       }
+/* 437 */       json.setObject(user);
+/* 438 */       json.setFlag(0);
+/* 439 */       user.setLastVisitTime(new Date());
+/* 440 */       this.usersService.updateLoginTime(user);
+/*     */     }
+/* 444 */     else if (httpOrgCreateTestRtn.trim().equals("err")) {
+/* 445 */       this.usersService.insetErrLog(username);
+/* 446 */       request.getSession().setAttribute("message", "errOne");
+/* 447 */       json.setMsg("用户密码错误");
+/* 448 */       json.setCode("100010 ");
+/* 449 */       json.setFlag(1);
+/* 450 */       return json;
+/*     */     }
+/* 452 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/jsonp/login"}, produces={"application/json;charset=UTF-8"})
+/*     */   public void jsnopLoginEnter(@RequestParam("username") String username, @RequestParam("password") String password, String loginId, String userAgent, String locales, HttpServletRequest request, HttpServletResponse response)
+/*     */     throws Exception
+/*     */   {
+/* 462 */     response.addHeader("Access-Control-Allow-Origin", "*");
+/* 463 */     response.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+/* 464 */     response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
+/* 465 */     response.addHeader("Access-Control-Max-Age", "1800");
+/* 466 */     boolean jsonP = false;
+/* 467 */     String cb = request.getParameter("callback");
+/* 468 */     if (cb != null) {
+/* 469 */       jsonP = true;
+/* 470 */       response.setContentType("text/javascript");
+/*     */     } else {
+/* 472 */       response.setContentType("application/x-json");
+/*     */     }
+/* 474 */     PrintWriter out = null;
+/* 475 */     out = response.getWriter();
+/* 476 */     if (jsonP) {
+/* 477 */       out.write(cb + "(");
+/*     */     }
+/*     */ 
+/* 481 */     if (StringUtils.checkNull(loginId).booleanValue()) {
+/* 482 */       loginId = (String)request.getSession().getAttribute("loginDateSouse");
+/*     */     }
+/* 484 */     else if ("mobile".equals(userAgent)) {
+/* 485 */       SessionUtils.putSession(request.getSession(), "loginDateSouse", loginId);
+/* 486 */       SessionUtils.putSession(request.getSession(), "LOCALE_SESSION_ATTRIBUTE_NAME", locales);
+/*     */     }
+/* 488 */     else if ("pcc".equals(userAgent)) {
+/* 489 */       SessionUtils.putSession(request.getSession(), "loginDateSouse", loginId);
+/*     */     }
+/*     */ 
+/* 492 */     ToJson json = new ToJson(0, null);
+/* 493 */     if (StringUtils.checkNull(username).booleanValue()) {
+/* 494 */       json.setFlag(1);
+/* 495 */       json.setCode("100010 ");
+/* 496 */       json.setMsg("用户名或用户不存在");
+/*     */ 
+/* 498 */       out.append(JSONObject.toJSONString(json));
+/* 499 */       if (jsonP) {
+/* 500 */         out.write(");");
+/*     */       }
+/* 502 */       out.flush();
+/* 503 */       out.close();
+/*     */     }
+/* 505 */     ContextHolder.setConsumerType(Constant.MYOA + loginId);
+/* 506 */     Users user = this.usersService.selectUserAllInfoByName(username, request);
+/* 507 */     if (user == null) {
+/* 508 */       request.getSession().setAttribute("message", "errOne");
+/* 509 */       json.setMsg("用户名或用户不存在");
+/* 510 */       json.setCode("100010 ");
+/* 511 */       json.setFlag(1);
+/* 512 */       out.append(JSONObject.toJSONString(json));
+/* 513 */       if (jsonP) {
+/* 514 */         out.write(");");
+/*     */       }
+/* 516 */       out.flush();
+/* 517 */       out.close();
+/*     */     }
+/*     */ 
+/* 532 */     Map createMap = new HashMap();
+/* 533 */     createMap.put("userid", username);
+/* 534 */     createMap.put("password", password);
+/* 535 */     String httpOrgCreateTestRtn = null;
+/* 536 */     Boolean isPassWordRight = this.usersService.checkPassWord(username, password);
+/* 537 */     if (isPassWordRight.booleanValue())
+/* 538 */       httpOrgCreateTestRtn = "ok\n\n";
+/*     */     else {
+/* 540 */       httpOrgCreateTestRtn = "err\n\n";
+/*     */     }
+/* 542 */     if (httpOrgCreateTestRtn.trim().equals("ok"))
+/*     */     {
+/* 544 */       if (MobileCheck.isMobileDevice(request.getHeader("user-agent"))) {
+/* 545 */         if (user.getNotMobileLogin().intValue() == 1) {
+/* 546 */           request.getSession().setAttribute("message", "禁止登录");
+/* 547 */           json.setMsg("用户禁止登录");
+/* 548 */           json.setCode("100050 ");
+/* 549 */           json.setFlag(1);
+/* 550 */           out.append(JSONObject.toJSONString(json));
+/* 551 */           if (jsonP) {
+/* 552 */             out.write(");");
+/*     */           }
+/* 554 */           out.flush();
+/* 555 */           out.close();
+/*     */         }
+/*     */       }
+/* 558 */       else if (user.getNotLogin().byteValue() == 1) {
+/* 559 */         request.getSession().setAttribute("message", "禁止登录");
+/* 560 */         json.setMsg("用户禁止登录");
+/* 561 */         json.setCode("100050 ");
+/* 562 */         json.setFlag(1);
+/* 563 */         out.append(JSONObject.toJSONString(json));
+/* 564 */         if (jsonP) {
+/* 565 */           out.write(");");
+/*     */         }
+/* 567 */         out.flush();
+/* 568 */         out.close();
+/*     */       }
+/*     */ 
+/* 571 */       SessionUtils.putSession(request.getSession(), user);
+/* 572 */       Map params = new HashMap();
+/* 573 */       params.put("paraName", user.getPara().getParaName());
+/* 574 */       params.put("paraValue", user.getPara().getParaValue());
+/* 575 */       String functionIdStr = this.userFunctionMapper.getUserFuncIdStr(user.getUserId());
+/* 576 */       SessionUtils.putSession(request.getSession(), params);
+/* 577 */       SessionUtils.putSession(request.getSession(), "functionIdStr", functionIdStr);
+/*     */ 
+/* 588 */       json.setMsg(request.getSession().getId());
+/* 589 */       json.setToken(request.getSession().getId());
+/*     */ 
+/* 591 */       List interfaceModels = this.sysInterfaceMapper.getInterfaceInfo();
+/* 592 */       if (0 == user.getTheme().byteValue()) {
+/* 593 */         user.setTheme(Byte.valueOf((byte)Integer.parseInt(((InterfaceModel)interfaceModels.get(0)).getTheme())));
+/*     */       }
+/* 595 */       String theme = "theme" + user.getTheme();
+/* 596 */       SessionUtils.putSession(request.getSession(), "InterfaceModel", theme);
+/* 597 */       if (StringUtils.checkNull(((InterfaceModel)interfaceModels.get(0)).getIeTitle()).booleanValue())
+/* 598 */         user.setInterfaceTitle("");
+/*     */       else {
+/* 600 */         user.setInterfaceTitle(((InterfaceModel)interfaceModels.get(0)).getIeTitle());
+/*     */       }
+/*     */ 
+/* 605 */       System.out.println("0=||===============》登录机器码：" + (String)MachineCode.get16CharMacs().get(0));
+/* 606 */       user.setAppPropulsionId((String)MachineCode.get16CharMacs().get(0));
+/* 607 */       json.setObject(user);
+/* 608 */       json.setFlag(0);
+/* 609 */       user.setLastVisitTime(new Date());
+/* 610 */       this.usersService.updateLoginTime(user);
+/*     */     }
+/* 612 */     else if (httpOrgCreateTestRtn.trim().equals("err")) {
+/* 613 */       this.usersService.insetErrLog(username);
+/* 614 */       request.getSession().setAttribute("message", "errOne");
+/* 615 */       json.setMsg("用户密码错误");
+/* 616 */       json.setCode("100010 ");
+/* 617 */       json.setFlag(1);
+/* 618 */       out.append(JSONObject.toJSONString(json));
+/* 619 */       if (jsonP) {
+/* 620 */         out.write(");");
+/*     */       }
+/* 622 */       out.flush();
+/* 623 */       out.close();
+/*     */     }
+/* 625 */     out.append(JSONObject.toJSONString(json));
+/* 626 */     if (jsonP) {
+/* 627 */       out.write(");");
+/*     */     }
+/* 629 */     out.flush();
+/* 630 */     out.close();
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/logOut"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public BaseWrapper logOut(HttpServletRequest request) {
+/* 638 */     BaseWrapper wrapper = new BaseWrapper();
+/* 639 */     request.getSession().invalidate();
+/* 640 */     SessionUtils.cleanUserSession(request.getSession());
+/* 641 */     wrapper.setFlag(true);
+/* 642 */     wrapper.setStatus(true);
+/* 643 */     wrapper.setMsg("注销成功");
+/* 644 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/checkPassword"})
+/*     */   public ToJson<Object> checkPassword(HttpServletRequest request, String userName, String password)
+/*     */   {
+/* 659 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 661 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 663 */       Boolean isPassWordRight = this.usersService.checkPassWord(userName, password);
+/*     */ 
+/* 665 */       if ((isPassWordRight != null) && (isPassWordRight.booleanValue())) {
+/* 666 */         json.setFlag(0);
+/* 667 */         json.setMsg("OK");
+/*     */       } else {
+/* 669 */         json.setFlag(1);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 673 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 675 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/login/multilingual"})
+/*     */   public ToJson<Object> multilingual(String locales, HttpServletRequest request)
+/*     */   {
+/* 688 */     ToJson toJson = new ToJson();
+/* 689 */     CommonSessionContext myContext = CommonSessionContext.getInstance();
+/* 690 */     if (!StringUtils.checkNull(locales).booleanValue()) {
+/* 691 */       HttpSession session = null;
+/* 692 */       Cookie[] cookies = request.getCookies();
+/* 693 */       if (cookies != null) {
+/* 694 */         for (Cookie cookie : cookies) {
+/* 695 */           if (cookie.getName().contains(Global.JSESSIONID)) {
+/* 696 */             String sessionId = cookie.getValue();
+/* 697 */             session = myContext.getSession(sessionId);
+/* 698 */             SessionUtils.putSession(session, "LOCALE_SESSION_ATTRIBUTE_NAME", locales);
+/*     */           }
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 704 */       toJson.setFlag(0);
+/* 705 */       toJson.setMsg("ok");
+/* 706 */       toJson.setObject(locales);
+/*     */     }
+/*     */ 
+/* 710 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.login.loginController
+ * JD-Core Version:    0.6.0
+ */

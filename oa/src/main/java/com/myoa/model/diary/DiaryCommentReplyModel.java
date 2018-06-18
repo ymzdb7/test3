@@ -1,0 +1,76 @@
+package com.myoa.model.diary;
+
+public class DiaryCommentReplyModel {
+	private Integer replyId;
+	private String replyTime;
+	private String replyer;
+	private String replyerName;
+	private Integer commentId;
+	private String toId;
+	private String toName;
+	private String replyComment;
+
+	public String getReplyerName() {
+		return this.replyerName;
+	}
+
+	public void setReplyerName(String replyerName) {
+		this.replyerName = replyerName;
+	}
+
+	public String getToName() {
+		return this.toName;
+	}
+
+	public void setToName(String toName) {
+		this.toName = toName;
+	}
+
+	public Integer getReplyId() {
+		return this.replyId;
+	}
+
+	public void setReplyId(Integer replyId) {
+		this.replyId = replyId;
+	}
+
+	public String getReplyTime() {
+		return this.replyTime;
+	}
+
+	public void setReplyTime(String replyTime) {
+		this.replyTime = replyTime;
+	}
+
+	public String getReplyer() {
+		return this.replyer;
+	}
+
+	public void setReplyer(String replyer) {
+		this.replyer = (replyer == null ? null : replyer.trim());
+	}
+
+	public Integer getCommentId() {
+		return this.commentId;
+	}
+
+	public void setCommentId(Integer commentId) {
+		this.commentId = commentId;
+	}
+
+	public String getToId() {
+		return this.toId;
+	}
+
+	public void setToId(String toId) {
+		this.toId = (toId == null ? null : toId.trim());
+	}
+
+	public String getReplyComment() {
+		return this.replyComment;
+	}
+
+	public void setReplyComment(String replyComment) {
+		this.replyComment = (replyComment == null ? null : replyComment.trim());
+	}
+}

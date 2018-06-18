@@ -1,0 +1,599 @@
+/*     */ package com.xoa.model.workPlan;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class WorkDetailExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public WorkDetailExample()
+/*     */   {
+/*  39 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  49 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  59 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  69 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  79 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  89 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  99 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 109 */     Criteria criteria = createCriteriaInternal();
+/* 110 */     this.oredCriteria.add(criteria);
+/* 111 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 121 */     Criteria criteria = createCriteriaInternal();
+/* 122 */     if (this.oredCriteria.size() == 0) {
+/* 123 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 125 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 135 */     Criteria criteria = new Criteria();
+/* 136 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 146 */     this.oredCriteria.clear();
+/* 147 */     this.orderByClause = null;
+/* 148 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 626 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 630 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 634 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 638 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 642 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 646 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 650 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 654 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 659 */       this.condition = condition;
+/* 660 */       this.typeHandler = null;
+/* 661 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 666 */       this.condition = condition;
+/* 667 */       this.value = value;
+/* 668 */       this.typeHandler = typeHandler;
+/* 669 */       if ((value instanceof List))
+/* 670 */         this.listValue = true;
+/*     */       else
+/* 672 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 677 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 682 */       this.condition = condition;
+/* 683 */       this.value = value;
+/* 684 */       this.secondValue = secondValue;
+/* 685 */       this.typeHandler = typeHandler;
+/* 686 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 690 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends WorkDetailExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<WorkDetailExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 162 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 166 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<WorkDetailExample.Criterion> getAllCriteria() {
+/* 170 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<WorkDetailExample.Criterion> getCriteria() {
+/* 174 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 178 */       if (condition == null) {
+/* 179 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 181 */       this.criteria.add(new WorkDetailExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 185 */       if (value == null) {
+/* 186 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 188 */       this.criteria.add(new WorkDetailExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 192 */       if ((value1 == null) || (value2 == null)) {
+/* 193 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 195 */       this.criteria.add(new WorkDetailExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andDetailIdIsNull() {
+/* 199 */       addCriterion("DETAIL_ID is null");
+/* 200 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andDetailIdIsNotNull() {
+/* 204 */       addCriterion("DETAIL_ID is not null");
+/* 205 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andDetailIdEqualTo(Integer value) {
+/* 209 */       addCriterion("DETAIL_ID =", value, "detailId");
+/* 210 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andDetailIdNotEqualTo(Integer value) {
+/* 214 */       addCriterion("DETAIL_ID <>", value, "detailId");
+/* 215 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andDetailIdGreaterThan(Integer value) {
+/* 219 */       addCriterion("DETAIL_ID >", value, "detailId");
+/* 220 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andDetailIdGreaterThanOrEqualTo(Integer value) {
+/* 224 */       addCriterion("DETAIL_ID >=", value, "detailId");
+/* 225 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andDetailIdLessThan(Integer value) {
+/* 229 */       addCriterion("DETAIL_ID <", value, "detailId");
+/* 230 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andDetailIdLessThanOrEqualTo(Integer value) {
+/* 234 */       addCriterion("DETAIL_ID <=", value, "detailId");
+/* 235 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andDetailIdIn(List<Integer> values) {
+/* 239 */       addCriterion("DETAIL_ID in", values, "detailId");
+/* 240 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andDetailIdNotIn(List<Integer> values) {
+/* 244 */       addCriterion("DETAIL_ID not in", values, "detailId");
+/* 245 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andDetailIdBetween(Integer value1, Integer value2) {
+/* 249 */       addCriterion("DETAIL_ID between", value1, value2, "detailId");
+/* 250 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andDetailIdNotBetween(Integer value1, Integer value2) {
+/* 254 */       addCriterion("DETAIL_ID not between", value1, value2, "detailId");
+/* 255 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPlanIdIsNull() {
+/* 259 */       addCriterion("PLAN_ID is null");
+/* 260 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPlanIdIsNotNull() {
+/* 264 */       addCriterion("PLAN_ID is not null");
+/* 265 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPlanIdEqualTo(String value) {
+/* 269 */       addCriterion("PLAN_ID =", value, "planId");
+/* 270 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPlanIdNotEqualTo(String value) {
+/* 274 */       addCriterion("PLAN_ID <>", value, "planId");
+/* 275 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPlanIdGreaterThan(String value) {
+/* 279 */       addCriterion("PLAN_ID >", value, "planId");
+/* 280 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPlanIdGreaterThanOrEqualTo(String value) {
+/* 284 */       addCriterion("PLAN_ID >=", value, "planId");
+/* 285 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPlanIdLessThan(String value) {
+/* 289 */       addCriterion("PLAN_ID <", value, "planId");
+/* 290 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPlanIdLessThanOrEqualTo(String value) {
+/* 294 */       addCriterion("PLAN_ID <=", value, "planId");
+/* 295 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPlanIdLike(String value) {
+/* 299 */       addCriterion("PLAN_ID like", value, "planId");
+/* 300 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPlanIdNotLike(String value) {
+/* 304 */       addCriterion("PLAN_ID not like", value, "planId");
+/* 305 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPlanIdIn(List<String> values) {
+/* 309 */       addCriterion("PLAN_ID in", values, "planId");
+/* 310 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPlanIdNotIn(List<String> values) {
+/* 314 */       addCriterion("PLAN_ID not in", values, "planId");
+/* 315 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPlanIdBetween(String value1, String value2) {
+/* 319 */       addCriterion("PLAN_ID between", value1, value2, "planId");
+/* 320 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPlanIdNotBetween(String value1, String value2) {
+/* 324 */       addCriterion("PLAN_ID not between", value1, value2, "planId");
+/* 325 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriteTimeIsNull() {
+/* 329 */       addCriterion("WRITE_TIME is null");
+/* 330 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriteTimeIsNotNull() {
+/* 334 */       addCriterion("WRITE_TIME is not null");
+/* 335 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriteTimeEqualTo(Date value) {
+/* 339 */       addCriterion("WRITE_TIME =", value, "writeTime");
+/* 340 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriteTimeNotEqualTo(Date value) {
+/* 344 */       addCriterion("WRITE_TIME <>", value, "writeTime");
+/* 345 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriteTimeGreaterThan(Date value) {
+/* 349 */       addCriterion("WRITE_TIME >", value, "writeTime");
+/* 350 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriteTimeGreaterThanOrEqualTo(Date value) {
+/* 354 */       addCriterion("WRITE_TIME >=", value, "writeTime");
+/* 355 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriteTimeLessThan(Date value) {
+/* 359 */       addCriterion("WRITE_TIME <", value, "writeTime");
+/* 360 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriteTimeLessThanOrEqualTo(Date value) {
+/* 364 */       addCriterion("WRITE_TIME <=", value, "writeTime");
+/* 365 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriteTimeIn(List<Date> values) {
+/* 369 */       addCriterion("WRITE_TIME in", values, "writeTime");
+/* 370 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriteTimeNotIn(List<Date> values) {
+/* 374 */       addCriterion("WRITE_TIME not in", values, "writeTime");
+/* 375 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriteTimeBetween(Date value1, Date value2) {
+/* 379 */       addCriterion("WRITE_TIME between", value1, value2, "writeTime");
+/* 380 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriteTimeNotBetween(Date value1, Date value2) {
+/* 384 */       addCriterion("WRITE_TIME not between", value1, value2, "writeTime");
+/* 385 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPercentIsNull() {
+/* 389 */       addCriterion("PERCENT is null");
+/* 390 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPercentIsNotNull() {
+/* 394 */       addCriterion("PERCENT is not null");
+/* 395 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPercentEqualTo(Integer value) {
+/* 399 */       addCriterion("PERCENT =", value, "percent");
+/* 400 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPercentNotEqualTo(Integer value) {
+/* 404 */       addCriterion("PERCENT <>", value, "percent");
+/* 405 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPercentGreaterThan(Integer value) {
+/* 409 */       addCriterion("PERCENT >", value, "percent");
+/* 410 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPercentGreaterThanOrEqualTo(Integer value) {
+/* 414 */       addCriterion("PERCENT >=", value, "percent");
+/* 415 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPercentLessThan(Integer value) {
+/* 419 */       addCriterion("PERCENT <", value, "percent");
+/* 420 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPercentLessThanOrEqualTo(Integer value) {
+/* 424 */       addCriterion("PERCENT <=", value, "percent");
+/* 425 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPercentIn(List<Integer> values) {
+/* 429 */       addCriterion("PERCENT in", values, "percent");
+/* 430 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPercentNotIn(List<Integer> values) {
+/* 434 */       addCriterion("PERCENT not in", values, "percent");
+/* 435 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPercentBetween(Integer value1, Integer value2) {
+/* 439 */       addCriterion("PERCENT between", value1, value2, "percent");
+/* 440 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andPercentNotBetween(Integer value1, Integer value2) {
+/* 444 */       addCriterion("PERCENT not between", value1, value2, "percent");
+/* 445 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andTypeFlagIsNull() {
+/* 449 */       addCriterion("TYPE_FLAG is null");
+/* 450 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andTypeFlagIsNotNull() {
+/* 454 */       addCriterion("TYPE_FLAG is not null");
+/* 455 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andTypeFlagEqualTo(String value) {
+/* 459 */       addCriterion("TYPE_FLAG =", value, "typeFlag");
+/* 460 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andTypeFlagNotEqualTo(String value) {
+/* 464 */       addCriterion("TYPE_FLAG <>", value, "typeFlag");
+/* 465 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andTypeFlagGreaterThan(String value) {
+/* 469 */       addCriterion("TYPE_FLAG >", value, "typeFlag");
+/* 470 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andTypeFlagGreaterThanOrEqualTo(String value) {
+/* 474 */       addCriterion("TYPE_FLAG >=", value, "typeFlag");
+/* 475 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andTypeFlagLessThan(String value) {
+/* 479 */       addCriterion("TYPE_FLAG <", value, "typeFlag");
+/* 480 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andTypeFlagLessThanOrEqualTo(String value) {
+/* 484 */       addCriterion("TYPE_FLAG <=", value, "typeFlag");
+/* 485 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andTypeFlagLike(String value) {
+/* 489 */       addCriterion("TYPE_FLAG like", value, "typeFlag");
+/* 490 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andTypeFlagNotLike(String value) {
+/* 494 */       addCriterion("TYPE_FLAG not like", value, "typeFlag");
+/* 495 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andTypeFlagIn(List<String> values) {
+/* 499 */       addCriterion("TYPE_FLAG in", values, "typeFlag");
+/* 500 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andTypeFlagNotIn(List<String> values) {
+/* 504 */       addCriterion("TYPE_FLAG not in", values, "typeFlag");
+/* 505 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andTypeFlagBetween(String value1, String value2) {
+/* 509 */       addCriterion("TYPE_FLAG between", value1, value2, "typeFlag");
+/* 510 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andTypeFlagNotBetween(String value1, String value2) {
+/* 514 */       addCriterion("TYPE_FLAG not between", value1, value2, "typeFlag");
+/* 515 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriterIsNull() {
+/* 519 */       addCriterion("WRITER is null");
+/* 520 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriterIsNotNull() {
+/* 524 */       addCriterion("WRITER is not null");
+/* 525 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriterEqualTo(String value) {
+/* 529 */       addCriterion("WRITER =", value, "writer");
+/* 530 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriterNotEqualTo(String value) {
+/* 534 */       addCriterion("WRITER <>", value, "writer");
+/* 535 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriterGreaterThan(String value) {
+/* 539 */       addCriterion("WRITER >", value, "writer");
+/* 540 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriterGreaterThanOrEqualTo(String value) {
+/* 544 */       addCriterion("WRITER >=", value, "writer");
+/* 545 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriterLessThan(String value) {
+/* 549 */       addCriterion("WRITER <", value, "writer");
+/* 550 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriterLessThanOrEqualTo(String value) {
+/* 554 */       addCriterion("WRITER <=", value, "writer");
+/* 555 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriterLike(String value) {
+/* 559 */       addCriterion("WRITER like", value, "writer");
+/* 560 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriterNotLike(String value) {
+/* 564 */       addCriterion("WRITER not like", value, "writer");
+/* 565 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriterIn(List<String> values) {
+/* 569 */       addCriterion("WRITER in", values, "writer");
+/* 570 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriterNotIn(List<String> values) {
+/* 574 */       addCriterion("WRITER not in", values, "writer");
+/* 575 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriterBetween(String value1, String value2) {
+/* 579 */       addCriterion("WRITER between", value1, value2, "writer");
+/* 580 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public WorkDetailExample.Criteria andWriterNotBetween(String value1, String value2) {
+/* 584 */       addCriterion("WRITER not between", value1, value2, "writer");
+/* 585 */       return (WorkDetailExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.workPlan.WorkDetailExample
+ * JD-Core Version:    0.6.0
+ */

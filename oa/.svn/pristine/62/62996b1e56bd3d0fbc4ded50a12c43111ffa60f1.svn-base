@@ -1,0 +1,370 @@
+  package com.xoa.service.book;
+  
+  import com.xoa.dao.book.BookInfoMapper;
+  import com.xoa.dao.book.BookManageMapper;
+  import com.xoa.dao.book.BookManagerMapper;
+  import com.xoa.dao.users.UsersMapper;
+  import com.xoa.model.book.BookInfoWithBLOBs;
+  import com.xoa.model.book.BookManage;
+  import com.xoa.model.book.BookManager;
+  import com.xoa.model.users.Users;
+  import com.xoa.util.ToJson;
+  import com.xoa.util.common.L;
+  import com.xoa.util.common.StringUtils;
+  import com.xoa.util.common.session.SessionUtils;
+  import java.text.SimpleDateFormat;
+  import java.util.ArrayList;
+  import java.util.Calendar;
+  import java.util.Date;
+  import java.util.List;
+  import javax.annotation.Resource;
+  import javax.servlet.http.HttpServletRequest;
+  import org.springframework.stereotype.Service;
+  import org.springframework.transaction.annotation.Transactional;
+  
+  @Service
+  public class BookManageService
+  {
+  
+    @Resource
+    private BookManageMapper bookManageMapper;
+  
+    @Resource
+    private UsersMapper usersMapper;
+  
+    @Resource
+    private BookManagerMapper bookManagerMapper;
+  
+    @Resource
+    private BookInfoMapper bookInfoMapper;
+  
+    @Transactional
+    public ToJson<BookManage> insertManage(BookManage bookManage, HttpServletRequest request)
+    {
+      ToJson json = new ToJson(1, "error");
+      try {
+        Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+        BookInfoWithBLOBs bookInfo = this.bookInfoMapper.selInfoByBookNo(bookManage.getBookNo());
+        if (bookInfo != null) {
+          if (bookInfo.getAmt().intValue() <= 0) {
+            json.setMsg("notEnoughNum");
+            return json;
+          }
+          if (!StringUtils.checkNull(bookInfo.getOpen()).booleanValue()) {
+            String[] openArr = bookInfo.getOpen().split(";");
+            if (openArr.length == 1) {
+              bookInfo.setOpenDept(openArr[0].toString());
+            } else if (openArr.length == 2) {
+              bookInfo.setOpenDept(openArr[0].toString());
+              bookInfo.setOpenUser(openArr[1].toString());
+            } else if (openArr.length == 3) {
+              bookInfo.setOpenDept(openArr[0].toString());
+              bookInfo.setOpenUser(openArr[1].toString());
+              bookInfo.setOpenUserPriv(openArr[2].toString());
+            }
+            bookInfo.setCurrentUser(user.getUserId());
+            if (this.bookInfoMapper.selInfoByUser(bookInfo) == null) {
+              json.setMsg("notEnoughPriv");
+              return json;
+            }
+          }
+        }
+        if ((!StringUtils.checkNull(bookManage.getBuserId()).booleanValue()) && (bookManage.getBuserId().contains(","))) {
+          bookManage.getBuserId().substring(0, bookManage.getBuserId().length() - 1);
+        }
+        if (bookManage.getBorrowDate() != null) {
+          SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+          bookManage.setBorrowDate(sdf.parse(sdf.format(new Date())));
+        }
+        if (bookManage.getReturnDate() != null) {
+          Calendar c = Calendar.getInstance();
+          c.setTime(bookManage.getBorrowDate());
+          c.add(5, 30);
+          bookManage.setReturnDate(c.getTime());
+        }
+        if (bookManage.getRegFlag().equals("1")) {
+          bookManage.setRuserId(user.getUserId());
+          bookManage.setStatus("0");
+          bookManage.setBookStatus("1");
+        } else {
+          bookManage.setStatus("1");
+          bookManage.setBookStatus("0");
+        }
+        bookManage.setDeleteFlag("0");
+        bookManage.setRenewFlag("0");
+        int count = this.bookManageMapper.insertManage(bookManage);
+  
+        BookInfoWithBLOBs book = new BookInfoWithBLOBs();
+        book.setBookId(bookInfo.getBookId());
+        book.setAmt(Integer.valueOf(bookInfo.getAmt().intValue() - 1));
+        this.bookInfoMapper.upBookInfoById(book);
+        if (count > 0) {
+          json.setMsg("ok");
+          json.setFlag(0);
+        }
+      } catch (Exception e) {
+        json.setMsg(e.getMessage());
+        L.e(new Object[] { "BookManageService insertManage:" + e });
+        e.printStackTrace();
+      }
+      return json;
+    }
+  
+    @Transactional
+    public ToJson<BookManage> upManageById(BookManage bookManage, HttpServletRequest request)
+    {
+      ToJson json = new ToJson(1, "error");
+      try {
+        Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+  
+        if ((!StringUtils.checkNull(bookManage.getDeleteFlag()).booleanValue()) && (bookManage.getDeleteFlag().equals("3"))) {
+          bookManage.setDeleteFlag(null);
+        }
+        if ((!StringUtils.checkNull(bookManage.getBookStatus()).booleanValue()) && (bookManage.getBookStatus().equals("3"))) {
+          bookManage.setBookStatus(null);
+        }
+        if ((!StringUtils.checkNull(bookManage.getStatus()).booleanValue()) && (bookManage.getStatus().equals("3"))) {
+          bookManage.setStatus(null);
+        }
+        if ((!StringUtils.checkNull(bookManage.getRenewFlag()).booleanValue()) && (bookManage.getRenewFlag().equals("3"))) {
+          bookManage.setRenewFlag("0");
+        }
+  
+        if ((!StringUtils.checkNull(bookManage.getBookStatus()).booleanValue()) && (bookManage.getBookStatus().equals("1"))) {
+          bookManage.setRuserId(user.getUserId());
+          bookManage.setStatus("0");
+        } else if ((!StringUtils.checkNull(bookManage.getStatus()).booleanValue()) && (bookManage.getStatus().equals("1"))) {
+          bookManage.setBookStatus("1");
+          bookManage.setRealReturnTime(new Date());
+  
+          BookManage manage = this.bookManageMapper.selManageById(bookManage.getBorrowId());
+          if (manage != null) {
+            BookInfoWithBLOBs book = this.bookInfoMapper.selInfoByBookNo(manage.getBookNo());
+  
+            book.setAmt(Integer.valueOf(book.getAmt().intValue() + 1));
+            this.bookInfoMapper.upBookInfoById(book);
+          }
+        } else if ((!StringUtils.checkNull(bookManage.getStatus()).booleanValue()) && (bookManage.getStatus().equals("0"))) {
+          bookManage.setBookStatus("0");
+        } else if ((!StringUtils.checkNull(bookManage.getRenewFlag()).booleanValue()) && (bookManage.getRenewFlag().equals("1"))) {
+          BookManage temp = this.bookManageMapper.selManageById(bookManage.getBorrowId());
+          if ((temp != null) && 
+            (temp.getReturnDate() != null)) {
+            Calendar c = Calendar.getInstance();
+            c.setTime(temp.getReturnDate());
+            c.add(5, 30);
+            bookManage.setReturnDate(c.getTime());
+          }
+        }
+        else if ((!StringUtils.checkNull(bookManage.getBookStatus()).booleanValue()) && (!StringUtils.checkNull(bookManage.getDeleteFlag()).booleanValue())) {
+          if ((bookManage.getBookStatus().equals("0")) && (bookManage.getDeleteFlag().equals("1")))
+          {
+            BookManage manage = this.bookManageMapper.selManageById(bookManage.getBorrowId());
+            if (manage != null) {
+              BookInfoWithBLOBs book = this.bookInfoMapper.selInfoByBookNo(manage.getBookNo());
+  
+              book.setAmt(Integer.valueOf(book.getAmt().intValue() + 1));
+              this.bookInfoMapper.upBookInfoById(book);
+            }
+          }
+        } else if ((!StringUtils.checkNull(bookManage.getBookStatus()).booleanValue()) && (bookManage.getBookStatus().equals("2")))
+        {
+          BookManage manage = this.bookManageMapper.selManageById(bookManage.getBorrowId());
+          if (manage != null) {
+            BookInfoWithBLOBs book = this.bookInfoMapper.selInfoByBookNo(manage.getBookNo());
+  
+            book.setAmt(Integer.valueOf(book.getAmt().intValue() + 1));
+            this.bookInfoMapper.upBookInfoById(book);
+          }
+        }
+        int count = this.bookManageMapper.upManageById(bookManage);
+        if (count > 0) {
+          json.setMsg("ok");
+          json.setFlag(0);
+        }
+      } catch (Exception e) {
+        json.setMsg(e.getMessage());
+        L.e(new Object[] { "BookManageService upManageById:" + e });
+        e.printStackTrace();
+      }
+      return json;
+    }
+  
+    @Transactional
+    public ToJson<BookManage> delManageById(Integer borrowId)
+    {
+      ToJson json = new ToJson(1, "error");
+      try {
+        int count = this.bookManageMapper.delManageById(borrowId);
+        if (count > 0) {
+          json.setMsg("ok");
+          json.setFlag(0);
+        }
+      } catch (Exception e) {
+        json.setMsg(e.getMessage());
+        L.e(new Object[] { "BookManageService delManageById:" + e });
+        e.printStackTrace();
+      }
+      return json;
+    }
+  
+    public ToJson<BookManage> selManageById(Integer borrowId)
+    {
+      ToJson json = new ToJson(1, "error");
+      try {
+        BookManage bookManage = this.bookManageMapper.selManageById(borrowId);
+        json.setObject(bookManage);
+        json.setMsg("ok");
+        json.setFlag(0);
+      } catch (Exception e) {
+        json.setMsg(e.getMessage());
+        L.e(new Object[] { "BookManageService selManageById:" + e });
+        e.printStackTrace();
+      }
+      return json;
+    }
+  
+    public ToJson<BookManage> selManageByBookStatus(BookManage bookManage, HttpServletRequest request)
+    {
+      ToJson json = new ToJson(1, "error");
+      try {
+        Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+        bookManage.setBuserId(user.getUserId());
+        List<BookManage> list = this.bookManageMapper.selManageByBookStatus(bookManage);
+        for (BookManage bookManage1 : list) {
+          if (bookManage1.getRegFlag().equals("0")) {
+            bookManage1.setRuserName(bookManage1.getRuserName());
+          }
+        }
+        json.setObj(list);
+        json.setMsg("ok");
+        json.setFlag(0);
+      } catch (Exception e) {
+        json.setMsg(e.getMessage());
+        L.e(new Object[] { "BookManageService selManageByBookStatus:" + e });
+        e.printStackTrace();
+      }
+      return json;
+    }
+  
+    public ToJson<BookManage> selByRegFlag(HttpServletRequest request)
+    {
+      ToJson json = new ToJson(1, "error");
+      try {
+        List list = this.bookManageMapper.selByRegFlag();
+        List resultList = manageByStatus(list, request);
+        json.setObj(list);
+        json.setMsg("ok");
+        json.setFlag(0);
+      } catch (Exception e) {
+        json.setMsg(e.getMessage());
+        L.e(new Object[] { "BookManageService selByRegFlag:" + e });
+        e.printStackTrace();
+      }
+      return json;
+    }
+  
+    public ToJson<BookManage> selByRegFlagAndBookStatus(HttpServletRequest request)
+    {
+      ToJson json = new ToJson(1, "error");
+      try {
+        List list = this.bookManageMapper.selByRegFlagAndBookStatus();
+        List resultList = manageByStatus(list, request);
+        json.setObj(resultList);
+        json.setMsg("ok");
+        json.setFlag(0);
+      } catch (Exception e) {
+        json.setMsg(e.getMessage());
+        L.e(new Object[] { "BookManageService selByRegFlagAndBookStatus:" + e });
+        e.printStackTrace();
+      }
+      return json;
+    }
+  
+    public ToJson<BookManage> selByStatusQuire(HttpServletRequest request)
+    {
+      ToJson json = new ToJson(1, "error");
+      try {
+        List list = this.bookManageMapper.selByStatusQuire();
+        List resultList = manageByStatus(list, request);
+        json.setObj(resultList);
+        json.setMsg("ok");
+        json.setFlag(0);
+      } catch (Exception e) {
+        json.setMsg(e.getMessage());
+        L.e(new Object[] { "BookManageService selByStatus:" + e });
+        e.printStackTrace();
+      }
+      return json;
+    }
+  
+    public ToJson<BookManage> selByStatusManage(HttpServletRequest request)
+    {
+      ToJson json = new ToJson(1, "error");
+      try {
+        List list = this.bookManageMapper.selByStatusManage();
+        List resultList = manageByStatus(list, request);
+        json.setObj(resultList);
+        json.setMsg("ok");
+        json.setFlag(0);
+      } catch (Exception e) {
+        json.setMsg(e.getMessage());
+        L.e(new Object[] { "BookManageService selByStatusManage:" + e });
+        e.printStackTrace();
+      }
+      return json;
+    }
+  
+    public ToJson<BookManage> selDelFlag(HttpServletRequest request)
+    {
+      ToJson json = new ToJson(1, "error");
+      try {
+        List list = this.bookManageMapper.selDelFlag();
+        List resultList = manageByStatus(list, request);
+        json.setObj(resultList);
+        json.setMsg("ok");
+        json.setFlag(0);
+      } catch (Exception e) {
+        json.setMsg(e.getMessage());
+        L.e(new Object[] { "BookManageService selDelFlag:" + e });
+        e.printStackTrace();
+      }
+      return json;
+    }
+  
+    List<BookManage> manageByStatus(List<BookManage> list, HttpServletRequest request)
+    {
+      Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+      List<BookManage> resultList = new ArrayList<BookManage>();
+      List<BookManager> managerList = this.bookManagerMapper.selManagerByManager(user.getUserId());
+      int flag = 0;
+      if (managerList.size() > 0) {
+        for (BookManage bookManage : list) {
+          List<BookManager> deptList = this.bookManagerMapper.selManagerByDept(bookManage.getDept().intValue());
+          if (deptList.size() > 0) {
+            for (BookManager manager1 : managerList) {
+              for (BookManager manager2 : deptList) {
+                if (manager1.getAutoId() == manager2.getAutoId()) {
+                  flag = 1;
+                  break;
+                }
+              }
+              if (flag == 1) {
+                break;
+              }
+            }
+            if (flag == 1) {
+              resultList.add(bookManage);
+            }
+          }
+        }
+      }
+      for (BookManage bookManage1 : resultList) {
+        if (bookManage1.getRegFlag().equals("0")) {
+          bookManage1.setRuserName(bookManage1.getRuserName());
+        }
+      }
+      return resultList;
+    }
+  }
+

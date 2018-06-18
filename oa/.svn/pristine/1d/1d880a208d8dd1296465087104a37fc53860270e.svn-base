@@ -1,0 +1,191 @@
+/*     */ package com.xoa.service.workflow.flowtigger.impl;
+/*     */ 
+/*     */ import com.xoa.dao.attend.AttendLeaveMapper;
+/*     */ import com.xoa.dao.workflow.FlowProcessMapper;
+/*     */ import com.xoa.dao.workflow.FlowTiggerMapper;
+/*     */ import com.xoa.model.attend.AttendLeave;
+/*     */ import com.xoa.model.workflow.FlowTiggerModel;
+/*     */ import com.xoa.service.workflow.flowtigger.FlowTiggerService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class FlowTiggerServiceImpl
+/*     */   implements FlowTiggerService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowTiggerMapper flowTiggerMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowProcessMapper processMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private AttendLeaveMapper attendLeaveMapper;
+/*     */   private static final String attend_leave_tableName = "attend_leave";
+/*     */   private static final String attend_evection_tableName = "attend_evection";
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<FlowTiggerModel> saveTigger(FlowTiggerModel flowTiggerModel)
+/*     */   {
+/*  47 */     ToJson toJson = new ToJson();
+/*  48 */     List returnList = new ArrayList();
+/*     */     try {
+/*  50 */       if (flowTiggerModel.getIsGlobal().intValue() == 0) {
+/*  51 */         this.flowTiggerMapper.save(flowTiggerModel);
+/*  52 */         toJson.setObject(flowTiggerModel);
+/*     */       }
+/*     */       else {
+/*  55 */         List list = this.processMapper.selectShowPrcsId(flowTiggerModel.getFlowId());
+/*  56 */         int i = 0; for (int len = list.size(); i < len; i++) {
+/*  57 */           flowTiggerModel.setFlowPrcs((Integer)list.get(i));
+/*  58 */           this.flowTiggerMapper.save(flowTiggerModel);
+/*  59 */           returnList.add(flowTiggerModel);
+/*     */         }
+/*  61 */         toJson.setObj(returnList);
+/*     */       }
+/*  63 */       toJson.setFlag(0);
+/*  64 */       toJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/*  66 */       L.e(new Object[] { "FlowTiggerModel_SaveError:" + e });
+/*  67 */       toJson.setFlag(1);
+/*  68 */       toJson.setMsg("error");
+/*     */     }
+/*  70 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<FlowTiggerModel> updateTigger(FlowTiggerModel flowTiggerModel)
+/*     */   {
+/*  83 */     ToJson toJson = new ToJson();
+/*     */     try
+/*     */     {
+/*  86 */       List list = this.flowTiggerMapper.selectTiggerId(flowTiggerModel.getFlowId());
+/*     */ 
+/*  88 */       int listLength = list.size();
+/*     */ 
+/*  90 */       if (flowTiggerModel.getIsGlobal().intValue() == 0)
+/*     */       {
+/*  92 */         if (listLength == 1) {
+/*  93 */           this.flowTiggerMapper.update(flowTiggerModel);
+/*     */         }
+/*     */         else {
+/*  96 */           List listProcess = this.processMapper.selectShowPrcsId(flowTiggerModel.getFlowId());
+/*  97 */           int i = 0; for (int len = listProcess.size(); i < len; i++) {
+/*  98 */             if (listProcess.get(i) != flowTiggerModel.getFlowPrcs())
+/*     */             {
+/* 100 */               this.flowTiggerMapper.deleteTigger(((FlowTiggerModel)list.get(i)).getId());
+/*     */             }
+/*     */             else {
+/* 103 */               this.flowTiggerMapper.update(flowTiggerModel);
+/*     */             }
+/*     */           }
+/*     */ 
+/*     */         }
+/*     */ 
+/*     */       }
+/* 110 */       else if (listLength == 1)
+/*     */       {
+/* 112 */         int flowPrcsId = flowTiggerModel.getId().intValue();
+/*     */ 
+/* 114 */         int flowPrcs = flowTiggerModel.getFlowPrcs().intValue();
+/*     */ 
+/* 116 */         List listProcess = this.processMapper.selectShowPrcsId(flowTiggerModel.getFlowId());
+/*     */ 
+/* 118 */         int i = 0; for (int len = listProcess.size(); i < len; i++) {
+/* 119 */           int flowProcessId = ((Integer)listProcess.get(i)).intValue();
+/* 120 */           if (flowProcessId != flowPrcs) {
+/* 121 */             flowTiggerModel.setFlowPrcs(Integer.valueOf(flowProcessId));
+/* 122 */             this.flowTiggerMapper.save(flowTiggerModel);
+/*     */           } else {
+/* 124 */             flowTiggerModel.setId(Integer.valueOf(flowPrcsId));
+/* 125 */             flowTiggerModel.setFlowPrcs(Integer.valueOf(flowPrcs));
+/* 126 */             this.flowTiggerMapper.update(flowTiggerModel);
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */       else
+/*     */       {
+/* 132 */         for (int i = 0; i < listLength; i++)
+/*     */         {
+/* 134 */           int flowPrcsId = ((FlowTiggerModel)list.get(i)).getId().intValue();
+/*     */ 
+/* 136 */           int flowPrcs = ((FlowTiggerModel)list.get(i)).getFlowPrcs().intValue();
+/*     */ 
+/* 138 */           List listProcess = this.processMapper.selectShowPrcsId(flowTiggerModel.getFlowId());
+/* 139 */           int len = listProcess.size();
+/* 140 */           for (int j = 0; j < len; j++) {
+/* 141 */             int flowProcessId = ((Integer)listProcess.get(j)).intValue();
+/* 142 */             if (flowProcessId == flowPrcs) {
+/* 143 */               flowTiggerModel.setId(Integer.valueOf(flowPrcsId));
+/* 144 */               flowTiggerModel.setFlowPrcs(Integer.valueOf(flowProcessId));
+/* 145 */               this.flowTiggerMapper.update(flowTiggerModel);
+/*     */             }
+/*     */ 
+/*     */           }
+/*     */ 
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 154 */       toJson.setFlag(0);
+/* 155 */       toJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 157 */       L.e(new Object[] { "FlowTiggerModel_UpdateError:" + e });
+/* 158 */       toJson.setFlag(1);
+/* 159 */       toJson.setMsg("error");
+/*     */     }
+/* 161 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<FlowTiggerModel> deleteTigger(Integer id)
+/*     */   {
+/* 174 */     ToJson toJson = new ToJson();
+/*     */     try {
+/* 176 */       this.flowTiggerMapper.deleteTigger(id);
+/* 177 */       toJson.setFlag(0);
+/* 178 */       toJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 180 */       toJson.setFlag(1);
+/* 181 */       toJson.setMsg("error");
+/*     */     }
+/* 183 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowTiggerModel> modifyFieldProperties(String tableName, String id, Integer runId)
+/*     */   {
+/* 194 */     ToJson flowTiggerModelToJson = new ToJson();
+/* 195 */     flowTiggerModelToJson.setMsg("err");
+/* 196 */     flowTiggerModelToJson.setFlag(1);
+/*     */ 
+/* 198 */     if (StringUtils.checkNull(tableName).booleanValue()) {
+/* 199 */       flowTiggerModelToJson.setMsg("缺少必要的请求参数：tableName");
+/* 200 */       flowTiggerModelToJson.setFlag(1);
+/* 201 */       return flowTiggerModelToJson;
+/*     */     }
+/* 203 */     if ("attend_leave".equals(tableName)) {
+/* 204 */       AttendLeave attendLeave = new AttendLeave();
+/* 205 */       attendLeave.setLeaveId(Integer.valueOf(Integer.parseInt(id)));
+/* 206 */       attendLeave.setRunId(runId);
+/* 207 */       if (this.attendLeaveMapper.updateAttendLeave(attendLeave) > 0) {
+/* 208 */         flowTiggerModelToJson.setMsg("ok");
+/* 209 */         flowTiggerModelToJson.setFlag(0);
+/*     */       }
+/*     */     }
+/* 212 */     else if (!"attend_evection".equals(tableName));
+/* 216 */     return flowTiggerModelToJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.workflow.flowtigger.impl.FlowTiggerServiceImpl
+ * JD-Core Version:    0.6.0
+ */

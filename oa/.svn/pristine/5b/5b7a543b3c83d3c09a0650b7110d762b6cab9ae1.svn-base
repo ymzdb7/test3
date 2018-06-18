@@ -1,0 +1,348 @@
+/*     */ package com.xoa.model.dingdingManage;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class UserDDMapExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public UserDDMapExample()
+/*     */   {
+/*  38 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  48 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  58 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  68 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  78 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  88 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  98 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 108 */     Criteria criteria = createCriteriaInternal();
+/* 109 */     this.oredCriteria.add(criteria);
+/* 110 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 120 */     Criteria criteria = createCriteriaInternal();
+/* 121 */     if (this.oredCriteria.size() == 0) {
+/* 122 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 124 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 134 */     Criteria criteria = new Criteria();
+/* 135 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 145 */     this.oredCriteria.clear();
+/* 146 */     this.orderByClause = null;
+/* 147 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 375 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 379 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 383 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 387 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 391 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 395 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 399 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 403 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 408 */       this.condition = condition;
+/* 409 */       this.typeHandler = null;
+/* 410 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 415 */       this.condition = condition;
+/* 416 */       this.value = value;
+/* 417 */       this.typeHandler = typeHandler;
+/* 418 */       if ((value instanceof List))
+/* 419 */         this.listValue = true;
+/*     */       else
+/* 421 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 426 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 431 */       this.condition = condition;
+/* 432 */       this.value = value;
+/* 433 */       this.secondValue = secondValue;
+/* 434 */       this.typeHandler = typeHandler;
+/* 435 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 439 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends UserDDMapExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<UserDDMapExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 161 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 165 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<UserDDMapExample.Criterion> getAllCriteria() {
+/* 169 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<UserDDMapExample.Criterion> getCriteria() {
+/* 173 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 177 */       if (condition == null) {
+/* 178 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 180 */       this.criteria.add(new UserDDMapExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 184 */       if (value == null) {
+/* 185 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 187 */       this.criteria.add(new UserDDMapExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 191 */       if ((value1 == null) || (value2 == null)) {
+/* 192 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 194 */       this.criteria.add(new UserDDMapExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andOaUidIsNull() {
+/* 198 */       addCriterion("OA_UID is null");
+/* 199 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andOaUidIsNotNull() {
+/* 203 */       addCriterion("OA_UID is not null");
+/* 204 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andOaUidEqualTo(String value) {
+/* 208 */       addCriterion("OA_UID =", value, "oaUid");
+/* 209 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andOaUidNotEqualTo(String value) {
+/* 213 */       addCriterion("OA_UID <>", value, "oaUid");
+/* 214 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andOaUidGreaterThan(String value) {
+/* 218 */       addCriterion("OA_UID >", value, "oaUid");
+/* 219 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andOaUidGreaterThanOrEqualTo(String value) {
+/* 223 */       addCriterion("OA_UID >=", value, "oaUid");
+/* 224 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andOaUidLessThan(String value) {
+/* 228 */       addCriterion("OA_UID <", value, "oaUid");
+/* 229 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andOaUidLessThanOrEqualTo(String value) {
+/* 233 */       addCriterion("OA_UID <=", value, "oaUid");
+/* 234 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andOaUidLike(String value) {
+/* 238 */       addCriterion("OA_UID like", value, "oaUid");
+/* 239 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andOaUidNotLike(String value) {
+/* 243 */       addCriterion("OA_UID not like", value, "oaUid");
+/* 244 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andOaUidIn(List<String> values) {
+/* 248 */       addCriterion("OA_UID in", values, "oaUid");
+/* 249 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andOaUidNotIn(List<String> values) {
+/* 253 */       addCriterion("OA_UID not in", values, "oaUid");
+/* 254 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andOaUidBetween(String value1, String value2) {
+/* 258 */       addCriterion("OA_UID between", value1, value2, "oaUid");
+/* 259 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andOaUidNotBetween(String value1, String value2) {
+/* 263 */       addCriterion("OA_UID not between", value1, value2, "oaUid");
+/* 264 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andDdUidIsNull() {
+/* 268 */       addCriterion("DD_UID is null");
+/* 269 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andDdUidIsNotNull() {
+/* 273 */       addCriterion("DD_UID is not null");
+/* 274 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andDdUidEqualTo(String value) {
+/* 278 */       addCriterion("DD_UID =", value, "ddUid");
+/* 279 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andDdUidNotEqualTo(String value) {
+/* 283 */       addCriterion("DD_UID <>", value, "ddUid");
+/* 284 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andDdUidGreaterThan(String value) {
+/* 288 */       addCriterion("DD_UID >", value, "ddUid");
+/* 289 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andDdUidGreaterThanOrEqualTo(String value) {
+/* 293 */       addCriterion("DD_UID >=", value, "ddUid");
+/* 294 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andDdUidLessThan(String value) {
+/* 298 */       addCriterion("DD_UID <", value, "ddUid");
+/* 299 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andDdUidLessThanOrEqualTo(String value) {
+/* 303 */       addCriterion("DD_UID <=", value, "ddUid");
+/* 304 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andDdUidLike(String value) {
+/* 308 */       addCriterion("DD_UID like", value, "ddUid");
+/* 309 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andDdUidNotLike(String value) {
+/* 313 */       addCriterion("DD_UID not like", value, "ddUid");
+/* 314 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andDdUidIn(List<String> values) {
+/* 318 */       addCriterion("DD_UID in", values, "ddUid");
+/* 319 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andDdUidNotIn(List<String> values) {
+/* 323 */       addCriterion("DD_UID not in", values, "ddUid");
+/* 324 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andDdUidBetween(String value1, String value2) {
+/* 328 */       addCriterion("DD_UID between", value1, value2, "ddUid");
+/* 329 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UserDDMapExample.Criteria andDdUidNotBetween(String value1, String value2) {
+/* 333 */       addCriterion("DD_UID not between", value1, value2, "ddUid");
+/* 334 */       return (UserDDMapExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.dingdingManage.UserDDMapExample
+ * JD-Core Version:    0.6.0
+ */

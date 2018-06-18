@@ -1,0 +1,128 @@
+  package com.xoa.service.book;
+  
+  import com.xoa.dao.book.BookManagerMapper;
+  import com.xoa.model.book.BookManager;
+  import com.xoa.service.department.DepartmentService;
+  import com.xoa.service.users.UsersService;
+  import com.xoa.util.ToJson;
+  import com.xoa.util.common.L;
+  import com.xoa.util.common.StringUtils;
+  import java.util.List;
+  import javax.annotation.Resource;
+  import org.springframework.stereotype.Service;
+  import org.springframework.transaction.annotation.Transactional;
+  
+  @Service
+  public class BookManagerService
+  {
+  
+    @Resource
+    private BookManagerMapper bookManagerMapper;
+  
+    @Resource
+    private DepartmentService departmentService;
+  
+    @Resource
+    private UsersService usersService;
+  
+    @Transactional
+    public ToJson<BookManager> insertManager(BookManager bookManager)
+    {
+      ToJson json = new ToJson(1, "error");
+      try {
+        int count = this.bookManagerMapper.insertManager(bookManager);
+        if (count > 0) {
+          json.setMsg("ok");
+          json.setFlag(0);
+        }
+      } catch (Exception e) {
+        json.setMsg(e.getMessage());
+        L.e(new Object[] { "BookManagerService insertManager:" + e });
+        e.printStackTrace();
+      }
+      return json;
+    }
+  
+    @Transactional
+    public ToJson<BookManager> upManagerById(BookManager bookManager)
+    {
+      ToJson json = new ToJson(1, "error");
+      try {
+        int count = this.bookManagerMapper.upManagerById(bookManager);
+        if (count > 0) {
+          json.setMsg("ok");
+          json.setFlag(0);
+        }
+      } catch (Exception e) {
+        json.setMsg(e.getMessage());
+        L.e(new Object[] { "BookManagerService upManagerById:" + e });
+        e.printStackTrace();
+      }
+      return json;
+    }
+  
+    @Transactional
+    public ToJson<BookManager> delManagerById(Integer autoId)
+    {
+      ToJson json = new ToJson(1, "error");
+      try {
+        int count = this.bookManagerMapper.delManagerById(autoId);
+        if (count > 0) {
+          json.setMsg("ok");
+          json.setFlag(0);
+        }
+      } catch (Exception e) {
+        json.setMsg(e.getMessage());
+        L.e(new Object[] { "BookManagerService delManagerById:" + e });
+        e.printStackTrace();
+      }
+      return json;
+    }
+  
+    public ToJson<BookManager> selManagerById(Integer autoId)
+    {
+      ToJson json = new ToJson(1, "error");
+      try {
+        BookManager bookManager = this.bookManagerMapper.selManagerById(autoId);
+        if (!StringUtils.checkNull(bookManager.getManagerId()).booleanValue()) {
+          bookManager.setManagerName(this.usersService.getUserNameById(bookManager.getManagerId(), ","));
+        }
+        if (!StringUtils.checkNull(bookManager.getManageDeptId()).booleanValue()) {
+          bookManager.setManageDeptName(this.departmentService.getDeptNameByDeptId(bookManager.getManageDeptId(), ","));
+        }
+        json.setObject(bookManager);
+        json.setMsg("ok");
+        json.setFlag(0);
+      } catch (Exception e) {
+        json.setMsg(e.getMessage());
+        L.e(new Object[] { "BookManagerService selManagerById:" + e });
+        e.printStackTrace();
+      }
+      return json;
+    }
+  
+    public ToJson<BookManager> selAllManager()
+    {
+      ToJson json = new ToJson(1, "error");
+      try {
+        List<BookManager> list = this.bookManagerMapper.selAllManager();
+        for (BookManager bookManager : list) {
+          if (!StringUtils.checkNull(bookManager.getManagerId()).booleanValue()) {
+            bookManager.setManagerName(this.usersService.getUserNameById(bookManager.getManagerId(), ","));
+          }
+          if (!StringUtils.checkNull(bookManager.getManageDeptId()).booleanValue()) {
+            bookManager.setManageDeptName(this.departmentService.getDeptNameByDeptId(bookManager.getManageDeptId(), ","));
+          }
+        }
+        json.setObj(list);
+        json.setMsg("ok");
+        json.setFlag(0);
+      } catch (Exception e) {
+        json.setMsg(e.getMessage());
+        L.e(new Object[] { "BookManagerService selAllManager:" + e });
+        e.printStackTrace();
+      }
+      return json;
+    }
+  }
+

@@ -1,0 +1,56 @@
+/*    */ package com.xoa.controller.edu.eduElectiveStudent;
+/*    */ 
+/*    */ import com.xoa.model.edu.eduElectiveStudent.EduElectiveStudent;
+/*    */ import com.xoa.service.edu.eduElectiveStudent.IEduElectiveStudentService;
+/*    */ import com.xoa.service.edu.eduElectiveStudentCount.IEduElectiveStudentCountService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.beans.factory.annotation.Autowired;
+/*    */ import org.springframework.stereotype.Controller;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"/eduElectiveStudent"})
+/*    */ public class EduElectiveStudentController
+/*    */ {
+/*    */ 
+/*    */   @Autowired
+/*    */   private IEduElectiveStudentService eduElectiveStudentService;
+/*    */ 
+/*    */   @Autowired
+/*    */   private IEduElectiveStudentCountService eduElectiveStudentCountService;
+/*    */ 
+/*    */   @RequestMapping({"/eduElectiveStudentSelect"})
+/*    */   @ResponseBody
+/*    */   public ToJson eduElectiveStudentSelect(HttpServletRequest request)
+/*    */   {
+/* 42 */     return this.eduElectiveStudentService.eduElectiveStudentSelect(request);
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"eduElectiveStudentClass"})
+/*    */   @ResponseBody
+/*    */   public ToJson eduElectiveStudentClass(HttpServletRequest request)
+/*    */   {
+/* 56 */     return this.eduElectiveStudentService.eduElectiveStudentClass(request);
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/eduElectiveStudentDelete"})
+/*    */   @ResponseBody
+/*    */   public ToJson eduElectiveStudentDelete(HttpServletRequest request)
+/*    */   {
+/* 69 */     return this.eduElectiveStudentService.eduElectiveStudentDelete(request);
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/eduElectiveStudentInsert"})
+/*    */   @ResponseBody
+/*    */   public ToJson eduElectiveStudentInsert(EduElectiveStudent[] eduElectiveStudent)
+/*    */   {
+/* 82 */     return this.eduElectiveStudentService.eduElectiveStudentInsert(eduElectiveStudent);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.edu.eduElectiveStudent.EduElectiveStudentController
+ * JD-Core Version:    0.6.0
+ */

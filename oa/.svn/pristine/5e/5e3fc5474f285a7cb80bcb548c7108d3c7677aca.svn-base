@@ -1,0 +1,43 @@
+package com.myoa.global.intercptor;
+
+import com.myoa.util.common.L;
+
+import java.util.HashMap;
+import javax.servlet.http.HttpSession;
+
+public class CommonSessionContext {
+	private static CommonSessionContext instance;
+	private HashMap mymap;
+
+	private CommonSessionContext() {
+		this.mymap = new HashMap();
+	}
+
+	public static CommonSessionContext getInstance() {
+		if (instance == null) {
+			synchronized (CommonSessionContext.class) {
+				if (instance == null) {
+					instance = new CommonSessionContext();
+				}
+			}
+		}
+		return instance;
+	}
+
+	public synchronized void AddSession(HttpSession session) {
+		if (session != null)
+			this.mymap.put(session.getId(), session);
+	}
+
+	public synchronized void DelSession(HttpSession session) {
+		L.s(new Object[] { "run remove session" });
+		if (session != null)
+			this.mymap.remove(session.getId());
+	}
+
+	public synchronized HttpSession getSession(String session_id) {
+		if (session_id == null)
+			return null;
+		return (HttpSession) this.mymap.get(session_id);
+	}
+}

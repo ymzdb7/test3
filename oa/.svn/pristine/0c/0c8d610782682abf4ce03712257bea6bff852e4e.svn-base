@@ -1,0 +1,575 @@
+ package com.myoa.model.supervision;
+ 
+ import java.util.ArrayList;
+ import java.util.Date;
+ import java.util.List;
+ 
+ public class SupFeedBackReplyExample
+ {
+   protected String orderByClause;
+   protected boolean distinct;
+   protected List<Criteria> oredCriteria;
+ 
+   public SupFeedBackReplyExample()
+   {
+     this.oredCriteria = new ArrayList();
+   }
+ 
+   public void setOrderByClause(String orderByClause)
+   {
+     this.orderByClause = orderByClause;
+   }
+ 
+   public String getOrderByClause()
+   {
+     return this.orderByClause;
+   }
+ 
+   public void setDistinct(boolean distinct)
+   {
+     this.distinct = distinct;
+   }
+ 
+   public boolean isDistinct()
+   {
+     return this.distinct;
+   }
+ 
+   public List<Criteria> getOredCriteria()
+   {
+     return this.oredCriteria;
+   }
+ 
+   public void or(Criteria criteria)
+   {
+     this.oredCriteria.add(criteria);
+   }
+ 
+   public Criteria or()
+   {
+     Criteria criteria = createCriteriaInternal();
+     this.oredCriteria.add(criteria);
+     return criteria;
+   }
+ 
+   public Criteria createCriteria()
+   {
+     Criteria criteria = createCriteriaInternal();
+     if (this.oredCriteria.size() == 0) {
+       this.oredCriteria.add(criteria);
+     }
+     return criteria;
+   }
+ 
+   protected Criteria createCriteriaInternal()
+   {
+     Criteria criteria = new Criteria();
+     return criteria;
+   }
+ 
+   public void clear()
+   {
+     this.oredCriteria.clear();
+     this.orderByClause = null;
+     this.distinct = false;
+   }
+ 
+   public static class Criterion
+   {
+     private String condition;
+     private Object value;
+     private Object secondValue;
+     private boolean noValue;
+     private boolean singleValue;
+     private boolean betweenValue;
+     private boolean listValue;
+     private String typeHandler;
+ 
+     public String getCondition()
+     {
+       return this.condition;
+     }
+ 
+     public Object getValue() {
+       return this.value;
+     }
+ 
+     public Object getSecondValue() {
+       return this.secondValue;
+     }
+ 
+     public boolean isNoValue() {
+       return this.noValue;
+     }
+ 
+     public boolean isSingleValue() {
+       return this.singleValue;
+     }
+ 
+     public boolean isBetweenValue() {
+       return this.betweenValue;
+     }
+ 
+     public boolean isListValue() {
+       return this.listValue;
+     }
+ 
+     public String getTypeHandler() {
+       return this.typeHandler;
+     }
+ 
+     protected Criterion(String condition)
+     {
+       this.condition = condition;
+       this.typeHandler = null;
+       this.noValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value, String typeHandler)
+     {
+       this.condition = condition;
+       this.value = value;
+       this.typeHandler = typeHandler;
+       if ((value instanceof List))
+         this.listValue = true;
+       else
+         this.singleValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value)
+     {
+       this(condition, value, null);
+     }
+ 
+     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+     {
+       this.condition = condition;
+       this.value = value;
+       this.secondValue = secondValue;
+       this.typeHandler = typeHandler;
+       this.betweenValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value, Object secondValue) {
+       this(condition, value, secondValue, null);
+     }
+   }
+ 
+   public static class Criteria extends SupFeedBackReplyExample.GeneratedCriteria
+   {
+   }
+ 
+   protected static abstract class GeneratedCriteria
+   {
+     protected List<SupFeedBackReplyExample.Criterion> criteria;
+ 
+     protected GeneratedCriteria()
+     {
+       this.criteria = new ArrayList();
+     }
+ 
+     public boolean isValid() {
+       return this.criteria.size() > 0;
+     }
+ 
+     public List<SupFeedBackReplyExample.Criterion> getAllCriteria() {
+       return this.criteria;
+     }
+ 
+     public List<SupFeedBackReplyExample.Criterion> getCriteria() {
+       return this.criteria;
+     }
+ 
+     protected void addCriterion(String condition) {
+       if (condition == null) {
+         throw new RuntimeException("Value for condition cannot be null");
+       }
+       this.criteria.add(new SupFeedBackReplyExample.Criterion(condition));
+     }
+ 
+     protected void addCriterion(String condition, Object value, String property) {
+       if (value == null) {
+         throw new RuntimeException("Value for " + property + " cannot be null");
+       }
+       this.criteria.add(new SupFeedBackReplyExample.Criterion(condition, value));
+     }
+ 
+     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+       if ((value1 == null) || (value2 == null)) {
+         throw new RuntimeException("Between values for " + property + " cannot be null");
+       }
+       this.criteria.add(new SupFeedBackReplyExample.Criterion(condition, value1, value2));
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSidIsNull() {
+       addCriterion("sid is null");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSidIsNotNull() {
+       addCriterion("sid is not null");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSidEqualTo(Integer value) {
+       addCriterion("sid =", value, "sid");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSidNotEqualTo(Integer value) {
+       addCriterion("sid <>", value, "sid");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSidGreaterThan(Integer value) {
+       addCriterion("sid >", value, "sid");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSidGreaterThanOrEqualTo(Integer value) {
+       addCriterion("sid >=", value, "sid");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSidLessThan(Integer value) {
+       addCriterion("sid <", value, "sid");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSidLessThanOrEqualTo(Integer value) {
+       addCriterion("sid <=", value, "sid");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSidIn(List<Integer> values) {
+       addCriterion("sid in", values, "sid");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSidNotIn(List<Integer> values) {
+       addCriterion("sid not in", values, "sid");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSidBetween(Integer value1, Integer value2) {
+       addCriterion("sid between", value1, value2, "sid");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSidNotBetween(Integer value1, Integer value2) {
+       addCriterion("sid not between", value1, value2, "sid");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andContentIsNull() {
+       addCriterion("content is null");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andContentIsNotNull() {
+       addCriterion("content is not null");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andContentEqualTo(String value) {
+       addCriterion("content =", value, "content");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andContentNotEqualTo(String value) {
+       addCriterion("content <>", value, "content");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andContentGreaterThan(String value) {
+       addCriterion("content >", value, "content");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andContentGreaterThanOrEqualTo(String value) {
+       addCriterion("content >=", value, "content");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andContentLessThan(String value) {
+       addCriterion("content <", value, "content");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andContentLessThanOrEqualTo(String value) {
+       addCriterion("content <=", value, "content");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andContentLike(String value) {
+       addCriterion("content like", value, "content");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andContentNotLike(String value) {
+       addCriterion("content not like", value, "content");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andContentIn(List<String> values) {
+       addCriterion("content in", values, "content");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andContentNotIn(List<String> values) {
+       addCriterion("content not in", values, "content");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andContentBetween(String value1, String value2) {
+       addCriterion("content between", value1, value2, "content");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andContentNotBetween(String value1, String value2) {
+       addCriterion("content not between", value1, value2, "content");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andFbIdIsNull() {
+       addCriterion("fb_id is null");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andFbIdIsNotNull() {
+       addCriterion("fb_id is not null");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andFbIdEqualTo(Integer value) {
+       addCriterion("fb_id =", value, "fbId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andFbIdNotEqualTo(Integer value) {
+       addCriterion("fb_id <>", value, "fbId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andFbIdGreaterThan(Integer value) {
+       addCriterion("fb_id >", value, "fbId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andFbIdGreaterThanOrEqualTo(Integer value) {
+       addCriterion("fb_id >=", value, "fbId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andFbIdLessThan(Integer value) {
+       addCriterion("fb_id <", value, "fbId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andFbIdLessThanOrEqualTo(Integer value) {
+       addCriterion("fb_id <=", value, "fbId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andFbIdIn(List<Integer> values) {
+       addCriterion("fb_id in", values, "fbId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andFbIdNotIn(List<Integer> values) {
+       addCriterion("fb_id not in", values, "fbId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andFbIdBetween(Integer value1, Integer value2) {
+       addCriterion("fb_id between", value1, value2, "fbId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andFbIdNotBetween(Integer value1, Integer value2) {
+       addCriterion("fb_id not between", value1, value2, "fbId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreateTimeIsNull() {
+       addCriterion("create_time is null");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreateTimeIsNotNull() {
+       addCriterion("create_time is not null");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreateTimeEqualTo(Date value) {
+       addCriterion("create_time =", value, "createTime");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreateTimeNotEqualTo(Date value) {
+       addCriterion("create_time <>", value, "createTime");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreateTimeGreaterThan(Date value) {
+       addCriterion("create_time >", value, "createTime");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreateTimeGreaterThanOrEqualTo(Date value) {
+       addCriterion("create_time >=", value, "createTime");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreateTimeLessThan(Date value) {
+       addCriterion("create_time <", value, "createTime");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreateTimeLessThanOrEqualTo(Date value) {
+       addCriterion("create_time <=", value, "createTime");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreateTimeIn(List<Date> values) {
+       addCriterion("create_time in", values, "createTime");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreateTimeNotIn(List<Date> values) {
+       addCriterion("create_time not in", values, "createTime");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreateTimeBetween(Date value1, Date value2) {
+       addCriterion("create_time between", value1, value2, "createTime");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreateTimeNotBetween(Date value1, Date value2) {
+       addCriterion("create_time not between", value1, value2, "createTime");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreaterIdIsNull() {
+       addCriterion("creater_id is null");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreaterIdIsNotNull() {
+       addCriterion("creater_id is not null");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreaterIdEqualTo(Integer value) {
+       addCriterion("creater_id =", value, "createrId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreaterIdNotEqualTo(Integer value) {
+       addCriterion("creater_id <>", value, "createrId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreaterIdGreaterThan(Integer value) {
+       addCriterion("creater_id >", value, "createrId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreaterIdGreaterThanOrEqualTo(Integer value) {
+       addCriterion("creater_id >=", value, "createrId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreaterIdLessThan(Integer value) {
+       addCriterion("creater_id <", value, "createrId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreaterIdLessThanOrEqualTo(Integer value) {
+       addCriterion("creater_id <=", value, "createrId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreaterIdIn(List<Integer> values) {
+       addCriterion("creater_id in", values, "createrId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreaterIdNotIn(List<Integer> values) {
+       addCriterion("creater_id not in", values, "createrId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreaterIdBetween(Integer value1, Integer value2) {
+       addCriterion("creater_id between", value1, value2, "createrId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andCreaterIdNotBetween(Integer value1, Integer value2) {
+       addCriterion("creater_id not between", value1, value2, "createrId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSupIdIsNull() {
+       addCriterion("sup_id is null");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSupIdIsNotNull() {
+       addCriterion("sup_id is not null");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSupIdEqualTo(Integer value) {
+       addCriterion("sup_id =", value, "supId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSupIdNotEqualTo(Integer value) {
+       addCriterion("sup_id <>", value, "supId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSupIdGreaterThan(Integer value) {
+       addCriterion("sup_id >", value, "supId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSupIdGreaterThanOrEqualTo(Integer value) {
+       addCriterion("sup_id >=", value, "supId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSupIdLessThan(Integer value) {
+       addCriterion("sup_id <", value, "supId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSupIdLessThanOrEqualTo(Integer value) {
+       addCriterion("sup_id <=", value, "supId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSupIdIn(List<Integer> values) {
+       addCriterion("sup_id in", values, "supId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSupIdNotIn(List<Integer> values) {
+       addCriterion("sup_id not in", values, "supId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSupIdBetween(Integer value1, Integer value2) {
+       addCriterion("sup_id between", value1, value2, "supId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+ 
+     public SupFeedBackReplyExample.Criteria andSupIdNotBetween(Integer value1, Integer value2) {
+       addCriterion("sup_id not between", value1, value2, "supId");
+       return (SupFeedBackReplyExample.Criteria)this;
+     }
+   }
+ }
+

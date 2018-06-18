@@ -1,0 +1,833 @@
+package com.myoa.model.edu.eduUser;
+
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.annotations.TableName;
+import com.baomidou.mybatisplus.enums.IdType;
+import java.util.Date;
+
+@TableName("edu_user")
+public class EduUser {
+	private static final long serialVersionUID = 1L;
+
+	@TableId(value = "UID", type = IdType.AUTO)
+	private Integer uid;
+
+	@TableField("USER_ID")
+	private String userId;
+
+	@TableField("USER_NAME")
+	private String userName;
+
+	@TableField("USER_NAME_INDEX")
+	private String userNameIndex;
+
+	@TableField("BYNAME")
+	private String byname;
+
+	@TableField("USEING_KEY")
+	private String useingKey;
+
+	@TableField("USING_FINGER")
+	private String usingFinger;
+
+	@TableField("PASSWORD")
+	private String password;
+
+	@TableField("KEY_SN")
+	private String keySn;
+
+	@TableField("SECURE_KEY_SN")
+	private String secureKeySn;
+
+	@TableField("USER_PRIV")
+	private Integer userPriv;
+
+	@TableField("USER_PRIV_NO")
+	private Integer userPrivNo;
+
+	@TableField("USER_PRIV_NAME")
+	private String userPrivName;
+
+	@TableField("POST_PRIV")
+	private String postPriv;
+
+	@TableField("POST_DEPT")
+	private String postDept;
+
+	@TableField("DEPT_ID")
+	private Integer deptId;
+
+	@TableField("DEPT_ID_OTHER")
+	private String deptIdOther;
+
+	@TableField("SEX")
+	private String sex;
+
+	@TableField("BIRTHDAY")
+	private Date birthday;
+
+	@TableField("IS_LUNAR")
+	private String isLunar;
+
+	@TableField("TEL_NO_DEPT")
+	private String telNoDept;
+
+	@TableField("FAX_NO_DEPT")
+	private String faxNoDept;
+
+	@TableField("ADD_HOME")
+	private String addHome;
+
+	@TableField("POST_NO_HOME")
+	private String postNoHome;
+
+	@TableField("TEL_NO_HOME")
+	private String telNoHome;
+
+	@TableField("MOBIL_NO")
+	private String mobilNo;
+
+	@TableField("BP_NO")
+	private String bpNo;
+
+	@TableField("EMAIL")
+	private String email;
+
+	@TableField("OICQ_NO")
+	private String oicqNo;
+
+	@TableField("ICQ_NO")
+	private String icqNo;
+
+	@TableField("MSN")
+	private String msn;
+
+	@TableField("AVATAR")
+	private String avatar;
+
+	@TableField("CALL_SOUND")
+	private String callSound;
+
+	@TableField("LAST_VISIT_TIME")
+	private Date lastVisitTime;
+
+	@TableField("SMS_ON")
+	private String smsOn;
+
+	@TableField("MENU_TYPE")
+	private String menuType;
+
+	@TableField("LAST_PASS_TIME")
+	private Date lastPassTime;
+
+	@TableField("THEME")
+	private Integer theme;
+
+	@TableField("SHORTCUT")
+	private String shortcut;
+
+	@TableField("PORTAL")
+	private String portal;
+
+	@TableField("PANEL")
+	private String panel;
+
+	@TableField("ONLINE")
+	private Integer online;
+
+	@TableField("ON_STATUS")
+	private String onStatus;
+
+	@TableField("ATTEND_STATUS")
+	private String attendStatus;
+
+	@TableField("MOBIL_NO_HIDDEN")
+	private String mobilNoHidden;
+
+	@TableField("MYTABLE_LEFT")
+	private String mytableLeft;
+
+	@TableField("MYTABLE_RIGHT")
+	private String mytableRight;
+
+	@TableField("USER_PRIV_OTHER")
+	private String userPrivOther;
+
+	@TableField("USER_NO")
+	private Integer userNo;
+
+	@TableField("NOT_LOGIN")
+	private Integer notLogin;
+
+	@TableField("NOT_VIEW_USER")
+	private String notViewUser;
+
+	@TableField("NOT_VIEW_TABLE")
+	private String notViewTable;
+
+	@TableField("NOT_SEARCH")
+	private String notSearch;
+
+	@TableField("BKGROUND")
+	private String bkground;
+
+	@TableField("BIND_IP")
+	private String bindIp;
+
+	@TableField("LAST_VISIT_IP")
+	private String lastVisitIp;
+
+	@TableField("MENU_IMAGE")
+	private String menuImage;
+
+	@TableField("WEATHER_CITY")
+	private String weatherCity;
+
+	@TableField("SHOW_RSS")
+	private String showRss;
+
+	@TableField("MY_RSS")
+	private String myRss;
+
+	@TableField("REMARK")
+	private String remark;
+
+	@TableField("MENU_EXPAND")
+	private String menuExpand;
+
+	@TableField("MY_STATUS")
+	private String myStatus;
+
+	@TableField("LIMIT_LOGIN")
+	private String limitLogin;
+
+	@TableField("PHOTO")
+	private String photo;
+
+	@TableField("IM_RANGE")
+	private Integer imRange;
+
+	@TableField("LEAVE_TIME")
+	private Date leaveTime;
+
+	@TableField("SECRET_LEVEL")
+	private Integer secretLevel;
+
+	@TableField("USER_PARA")
+	private String userPara;
+
+	@TableField("NOT_MOBILE_LOGIN")
+	private Integer notMobileLogin;
+
+	@TableField("MANAGE_MODULE_TYPE")
+	private String manageModuleType;
+
+	@TableField("USER_PRIV_TYPE")
+	private Integer userPrivType;
+
+	@TableField("USER_MANAGE_ORGS")
+	private String userManageOrgs;
+	private String idCardNo;
+	private String deptName;
+
+	public String getIdCardNo() {
+		return this.idCardNo;
+	}
+
+	public void setIdCardNo(String idCardNo) {
+		this.idCardNo = idCardNo;
+	}
+
+	public Integer getUid() {
+		return this.uid;
+	}
+
+	public void setUid(Integer uid) {
+		this.uid = uid;
+	}
+
+	public String getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getUserName() {
+		return this.userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getUserNameIndex() {
+		return this.userNameIndex;
+	}
+
+	public void setUserNameIndex(String userNameIndex) {
+		this.userNameIndex = userNameIndex;
+	}
+
+	public String getByname() {
+		return this.byname;
+	}
+
+	public void setByname(String byname) {
+		this.byname = byname;
+	}
+
+	public String getUseingKey() {
+		return this.useingKey;
+	}
+
+	public void setUseingKey(String useingKey) {
+		this.useingKey = useingKey;
+	}
+
+	public String getUsingFinger() {
+		return this.usingFinger;
+	}
+
+	public void setUsingFinger(String usingFinger) {
+		this.usingFinger = usingFinger;
+	}
+
+	public String getPassword() {
+		return this.password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getKeySn() {
+		return this.keySn;
+	}
+
+	public void setKeySn(String keySn) {
+		this.keySn = keySn;
+	}
+
+	public String getSecureKeySn() {
+		return this.secureKeySn;
+	}
+
+	public void setSecureKeySn(String secureKeySn) {
+		this.secureKeySn = secureKeySn;
+	}
+
+	public Integer getUserPriv() {
+		return this.userPriv;
+	}
+
+	public void setUserPriv(Integer userPriv) {
+		this.userPriv = userPriv;
+	}
+
+	public Integer getUserPrivNo() {
+		return this.userPrivNo;
+	}
+
+	public void setUserPrivNo(Integer userPrivNo) {
+		this.userPrivNo = userPrivNo;
+	}
+
+	public String getUserPrivName() {
+		return this.userPrivName;
+	}
+
+	public void setUserPrivName(String userPrivName) {
+		this.userPrivName = userPrivName;
+	}
+
+	public String getPostPriv() {
+		return this.postPriv;
+	}
+
+	public void setPostPriv(String postPriv) {
+		this.postPriv = postPriv;
+	}
+
+	public String getPostDept() {
+		return this.postDept;
+	}
+
+	public void setPostDept(String postDept) {
+		this.postDept = postDept;
+	}
+
+	public Integer getDeptId() {
+		return this.deptId;
+	}
+
+	public void setDeptId(Integer deptId) {
+		this.deptId = deptId;
+	}
+
+	public String getDeptIdOther() {
+		return this.deptIdOther;
+	}
+
+	public void setDeptIdOther(String deptIdOther) {
+		this.deptIdOther = deptIdOther;
+	}
+
+	public String getSex() {
+		return this.sex;
+	}
+
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+
+	public Date getBirthday() {
+		return this.birthday;
+	}
+
+	public void setBirthday(Date birthday) {
+		this.birthday = birthday;
+	}
+
+	public String getIsLunar() {
+		return this.isLunar;
+	}
+
+	public void setIsLunar(String isLunar) {
+		this.isLunar = isLunar;
+	}
+
+	public String getTelNoDept() {
+		return this.telNoDept;
+	}
+
+	public void setTelNoDept(String telNoDept) {
+		this.telNoDept = telNoDept;
+	}
+
+	public String getFaxNoDept() {
+		return this.faxNoDept;
+	}
+
+	public void setFaxNoDept(String faxNoDept) {
+		this.faxNoDept = faxNoDept;
+	}
+
+	public String getAddHome() {
+		return this.addHome;
+	}
+
+	public void setAddHome(String addHome) {
+		this.addHome = addHome;
+	}
+
+	public String getPostNoHome() {
+		return this.postNoHome;
+	}
+
+	public void setPostNoHome(String postNoHome) {
+		this.postNoHome = postNoHome;
+	}
+
+	public String getTelNoHome() {
+		return this.telNoHome;
+	}
+
+	public void setTelNoHome(String telNoHome) {
+		this.telNoHome = telNoHome;
+	}
+
+	public String getMobilNo() {
+		return this.mobilNo;
+	}
+
+	public void setMobilNo(String mobilNo) {
+		this.mobilNo = mobilNo;
+	}
+
+	public String getBpNo() {
+		return this.bpNo;
+	}
+
+	public void setBpNo(String bpNo) {
+		this.bpNo = bpNo;
+	}
+
+	public String getEmail() {
+		return this.email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getOicqNo() {
+		return this.oicqNo;
+	}
+
+	public void setOicqNo(String oicqNo) {
+		this.oicqNo = oicqNo;
+	}
+
+	public String getIcqNo() {
+		return this.icqNo;
+	}
+
+	public void setIcqNo(String icqNo) {
+		this.icqNo = icqNo;
+	}
+
+	public String getMsn() {
+		return this.msn;
+	}
+
+	public void setMsn(String msn) {
+		this.msn = msn;
+	}
+
+	public String getAvatar() {
+		return this.avatar;
+	}
+
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
+	}
+
+	public String getCallSound() {
+		return this.callSound;
+	}
+
+	public void setCallSound(String callSound) {
+		this.callSound = callSound;
+	}
+
+	public Date getLastVisitTime() {
+		return this.lastVisitTime;
+	}
+
+	public void setLastVisitTime(Date lastVisitTime) {
+		this.lastVisitTime = lastVisitTime;
+	}
+
+	public String getSmsOn() {
+		return this.smsOn;
+	}
+
+	public void setSmsOn(String smsOn) {
+		this.smsOn = smsOn;
+	}
+
+	public String getMenuType() {
+		return this.menuType;
+	}
+
+	public void setMenuType(String menuType) {
+		this.menuType = menuType;
+	}
+
+	public Date getLastPassTime() {
+		return this.lastPassTime;
+	}
+
+	public void setLastPassTime(Date lastPassTime) {
+		this.lastPassTime = lastPassTime;
+	}
+
+	public Integer getTheme() {
+		return this.theme;
+	}
+
+	public void setTheme(Integer theme) {
+		this.theme = theme;
+	}
+
+	public String getShortcut() {
+		return this.shortcut;
+	}
+
+	public void setShortcut(String shortcut) {
+		this.shortcut = shortcut;
+	}
+
+	public String getPortal() {
+		return this.portal;
+	}
+
+	public void setPortal(String portal) {
+		this.portal = portal;
+	}
+
+	public String getPanel() {
+		return this.panel;
+	}
+
+	public void setPanel(String panel) {
+		this.panel = panel;
+	}
+
+	public Integer getOnline() {
+		return this.online;
+	}
+
+	public void setOnline(Integer online) {
+		this.online = online;
+	}
+
+	public String getOnStatus() {
+		return this.onStatus;
+	}
+
+	public void setOnStatus(String onStatus) {
+		this.onStatus = onStatus;
+	}
+
+	public String getAttendStatus() {
+		return this.attendStatus;
+	}
+
+	public void setAttendStatus(String attendStatus) {
+		this.attendStatus = attendStatus;
+	}
+
+	public String getMobilNoHidden() {
+		return this.mobilNoHidden;
+	}
+
+	public void setMobilNoHidden(String mobilNoHidden) {
+		this.mobilNoHidden = mobilNoHidden;
+	}
+
+	public String getMytableLeft() {
+		return this.mytableLeft;
+	}
+
+	public void setMytableLeft(String mytableLeft) {
+		this.mytableLeft = mytableLeft;
+	}
+
+	public String getMytableRight() {
+		return this.mytableRight;
+	}
+
+	public void setMytableRight(String mytableRight) {
+		this.mytableRight = mytableRight;
+	}
+
+	public String getUserPrivOther() {
+		return this.userPrivOther;
+	}
+
+	public void setUserPrivOther(String userPrivOther) {
+		this.userPrivOther = userPrivOther;
+	}
+
+	public Integer getUserNo() {
+		return this.userNo;
+	}
+
+	public void setUserNo(Integer userNo) {
+		this.userNo = userNo;
+	}
+
+	public Integer getNotLogin() {
+		return this.notLogin;
+	}
+
+	public void setNotLogin(Integer notLogin) {
+		this.notLogin = notLogin;
+	}
+
+	public String getNotViewUser() {
+		return this.notViewUser;
+	}
+
+	public void setNotViewUser(String notViewUser) {
+		this.notViewUser = notViewUser;
+	}
+
+	public String getNotViewTable() {
+		return this.notViewTable;
+	}
+
+	public void setNotViewTable(String notViewTable) {
+		this.notViewTable = notViewTable;
+	}
+
+	public String getNotSearch() {
+		return this.notSearch;
+	}
+
+	public void setNotSearch(String notSearch) {
+		this.notSearch = notSearch;
+	}
+
+	public String getBkground() {
+		return this.bkground;
+	}
+
+	public void setBkground(String bkground) {
+		this.bkground = bkground;
+	}
+
+	public String getBindIp() {
+		return this.bindIp;
+	}
+
+	public void setBindIp(String bindIp) {
+		this.bindIp = bindIp;
+	}
+
+	public String getLastVisitIp() {
+		return this.lastVisitIp;
+	}
+
+	public void setLastVisitIp(String lastVisitIp) {
+		this.lastVisitIp = lastVisitIp;
+	}
+
+	public String getMenuImage() {
+		return this.menuImage;
+	}
+
+	public void setMenuImage(String menuImage) {
+		this.menuImage = menuImage;
+	}
+
+	public String getWeatherCity() {
+		return this.weatherCity;
+	}
+
+	public void setWeatherCity(String weatherCity) {
+		this.weatherCity = weatherCity;
+	}
+
+	public String getShowRss() {
+		return this.showRss;
+	}
+
+	public void setShowRss(String showRss) {
+		this.showRss = showRss;
+	}
+
+	public String getMyRss() {
+		return this.myRss;
+	}
+
+	public void setMyRss(String myRss) {
+		this.myRss = myRss;
+	}
+
+	public String getRemark() {
+		return this.remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+	public String getMenuExpand() {
+		return this.menuExpand;
+	}
+
+	public void setMenuExpand(String menuExpand) {
+		this.menuExpand = menuExpand;
+	}
+
+	public String getMyStatus() {
+		return this.myStatus;
+	}
+
+	public void setMyStatus(String myStatus) {
+		this.myStatus = myStatus;
+	}
+
+	public String getLimitLogin() {
+		return this.limitLogin;
+	}
+
+	public void setLimitLogin(String limitLogin) {
+		this.limitLogin = limitLogin;
+	}
+
+	public String getPhoto() {
+		return this.photo;
+	}
+
+	public void setPhoto(String photo) {
+		this.photo = photo;
+	}
+
+	public Integer getImRange() {
+		return this.imRange;
+	}
+
+	public void setImRange(Integer imRange) {
+		this.imRange = imRange;
+	}
+
+	public Date getLeaveTime() {
+		return this.leaveTime;
+	}
+
+	public void setLeaveTime(Date leaveTime) {
+		this.leaveTime = leaveTime;
+	}
+
+	public Integer getSecretLevel() {
+		return this.secretLevel;
+	}
+
+	public void setSecretLevel(Integer secretLevel) {
+		this.secretLevel = secretLevel;
+	}
+
+	public String getUserPara() {
+		return this.userPara;
+	}
+
+	public void setUserPara(String userPara) {
+		this.userPara = userPara;
+	}
+
+	public Integer getNotMobileLogin() {
+		return this.notMobileLogin;
+	}
+
+	public void setNotMobileLogin(Integer notMobileLogin) {
+		this.notMobileLogin = notMobileLogin;
+	}
+
+	public String getManageModuleType() {
+		return this.manageModuleType;
+	}
+
+	public void setManageModuleType(String manageModuleType) {
+		this.manageModuleType = manageModuleType;
+	}
+
+	public Integer getUserPrivType() {
+		return this.userPrivType;
+	}
+
+	public void setUserPrivType(Integer userPrivType) {
+		this.userPrivType = userPrivType;
+	}
+
+	public String getUserManageOrgs() {
+		return this.userManageOrgs;
+	}
+
+	public void setUserManageOrgs(String userManageOrgs) {
+		this.userManageOrgs = userManageOrgs;
+	}
+
+	public String getDeptName() {
+		return this.deptName;
+	}
+
+	public void setDeptName(String deptName) {
+		this.deptName = deptName;
+	}
+}

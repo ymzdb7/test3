@@ -1,0 +1,1027 @@
+/*      */ package com.xoa.service.notify.impl;
+/*      */ 
+/*      */ import com.xoa.dao.common.SysCodeMapper;
+/*      */ import com.xoa.dao.department.DepartmentMapper;
+/*      */ import com.xoa.dao.notify.NotifyMapper;
+/*      */ import com.xoa.dao.users.UserPrivMapper;
+/*      */ import com.xoa.dao.users.UsersMapper;
+/*      */ import com.xoa.model.common.SysCode;
+/*      */ import com.xoa.model.department.Department;
+/*      */ import com.xoa.model.notify.Notify;
+/*      */ import com.xoa.model.users.Users;
+/*      */ import com.xoa.service.ThreadSerivice.ThreadService;
+/*      */ import com.xoa.service.department.DepartmentService;
+/*      */ import com.xoa.service.notify.NotifyService;
+/*      */ import com.xoa.service.sms.SmsService;
+/*      */ import com.xoa.service.users.UsersPrivService;
+/*      */ import com.xoa.service.users.UsersService;
+/*      */ import com.xoa.util.DateFormat;
+/*      */ import com.xoa.util.ExcelUtil;
+/*      */ import com.xoa.util.GetAttachmentListUtil;
+/*      */ import com.xoa.util.ToJson;
+/*      */ import com.xoa.util.common.L;
+/*      */ import com.xoa.util.common.StringUtils;
+/*      */ import com.xoa.util.common.log.FileUtils;
+/*      */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*      */ import com.xoa.util.page.PageParams;
+/*      */ import java.text.SimpleDateFormat;
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.Date;
+/*      */ import java.util.HashMap;
+/*      */ import java.util.List;
+/*      */ import java.util.Map;
+/*      */ import javax.annotation.Resource;
+/*      */ import javax.servlet.ServletOutputStream;
+/*      */ import javax.servlet.http.HttpServletRequest;
+/*      */ import javax.servlet.http.HttpServletResponse;
+/*      */ import javax.servlet.http.HttpSession;
+/*      */ import org.apache.commons.collections.map.HashedMap;
+/*      */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*      */ import org.springframework.beans.factory.annotation.Autowired;
+/*      */ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+/*      */ import org.springframework.stereotype.Service;
+/*      */ import org.springframework.transaction.annotation.Transactional;
+/*      */ 
+/*      */ @Service
+/*      */ public class NotifyServiceImpl
+/*      */   implements NotifyService
+/*      */ {
+/*   72 */   public static String notifyChageId = "1";
+/*   73 */   public static String notifyDatetime = "1970-01-01 08:00:00";
+/*      */ 
+/*      */   @Autowired
+/*      */   ThreadPoolTaskExecutor threadPoolTaskExecutor;
+/*      */ 
+/*      */   @Resource
+/*      */   private NotifyMapper notifyMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private DepartmentMapper departmentMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private DepartmentService departmentService;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersService usersService;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersPrivService usersPrivService;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersMapper usersMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private SysCodeMapper sysCodeMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private UserPrivMapper userPrivMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private SmsService smsService;
+/*      */ 
+/*      */   @Autowired
+/*      */   ThreadService threadService;
+/*      */ 
+/*  120 */   public ToJson<Notify> selectNotify(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String name) throws Exception { String[] strArray = null;
+/*  121 */     String[] strArray1 = null;
+/*  122 */     String[] strArray2 = null;
+/*  123 */     StringBuffer s = new StringBuffer();
+/*  124 */     StringBuffer s1 = new StringBuffer();
+/*  125 */     StringBuffer s2 = new StringBuffer();
+/*  126 */     ToJson json = new ToJson();
+/*  127 */     PageParams pageParams = new PageParams();
+/*  128 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  129 */     pageParams.setPage(page);
+/*  130 */     pageParams.setPageSize(pageSize);
+/*  131 */     maps.put("page", pageParams);
+/*  132 */     String typeIdStr = (String)maps.get("typeId");
+/*  133 */     if (StringUtils.checkNull(typeIdStr).booleanValue()) {
+/*  134 */       maps.put("typeId", null);
+/*      */     }
+/*  136 */     String changeId = (String)maps.get("changeId");
+/*  137 */     if (StringUtils.checkNull(changeId).booleanValue()) {
+/*  138 */       json.setFlag(1);
+/*  139 */       json.setMsg("err");
+/*  140 */       return json;
+/*      */     }
+/*  142 */     List<Notify> list = new ArrayList();
+/*  143 */     if ("admin".equals(name)) {
+/*  144 */       list = this.notifyMapper.selectNotify(maps);
+/*      */     } else {
+/*  146 */       maps.put("fromId", name);
+/*  147 */       list = this.notifyMapper.selectNotify(maps);
+/*      */     }
+/*      */ 
+/*  150 */     if ("1".equals(changeId)) {
+/*  151 */       for (Notify notify1 : list) {
+/*  152 */         notify1.setNotifyDateTime(DateFormat.getStrDate(notify1.getSendTime()));
+/*  153 */         if ((notify1.getBeginDate() != null) && (!"".equals(notify1.getBeginDate()))) {
+/*  154 */           if (!notifyDatetime.equals(DateFormat.getStrTime(notify1.getBeginDate())))
+/*  155 */             notify1.setBegin(DateFormat.getStrTime(notify1.getBeginDate()));
+/*      */           else
+/*  157 */             notify1.setBegin("");
+/*      */         }
+/*      */         else {
+/*  160 */           notify1.setBegin("");
+/*      */         }
+/*  162 */         if ((notify1.getEndDate() != null) && (!"".equals(notify1.getEndDate()))) {
+/*  163 */           if (!notifyDatetime.equals(DateFormat.getStrTime(notify1.getEndDate())))
+/*  164 */             notify1.setEnd(DateFormat.getStrTime(notify1.getEndDate()));
+/*      */           else
+/*  166 */             notify1.setEnd("");
+/*      */         }
+/*      */         else {
+/*  169 */           notify1.setEnd("");
+/*      */         }
+/*      */ 
+/*  174 */         notify1.setName(notify1.getUsers().getUserName());
+/*  175 */         if ((notify1.getTypeId() != null) && (!notify1.getTypeId().equals(""))) {
+/*  176 */           String name11 = this.sysCodeMapper.getNotifyNameByNo(notify1.getTypeId());
+/*  177 */           if (StringUtils.checkNull(name11).booleanValue())
+/*  178 */             notify1.setTypeName("");
+/*      */           else
+/*  180 */             notify1.setTypeName(name11);
+/*      */         }
+/*      */         else
+/*      */         {
+/*  184 */           notify1.setTypeName("");
+/*      */         }
+/*      */ 
+/*  188 */         String depId = notify1.getToId();
+/*  189 */         if (!StringUtils.checkNull(depId).booleanValue()) {
+/*  190 */           String depName = this.departmentService.getDeptNameByDeptId(depId, ",");
+/*  191 */           if (!"ALL_DEPT".trim().equals(notify1.getToId()))
+/*  192 */             notify1.setDeprange(depName + ",");
+/*      */           else {
+/*  194 */             notify1.setDeprange(depName);
+/*      */           }
+/*      */ 
+/*      */         }
+/*      */ 
+/*  200 */         String userId = notify1.getUserId();
+/*  201 */         if (!StringUtils.checkNull(userId).booleanValue()) {
+/*  202 */           String userName = this.usersService.getUserNameById(userId);
+/*  203 */           notify1.setUserrange(userName + ",");
+/*      */         }
+/*      */ 
+/*  206 */         String roleId = notify1.getPrivId();
+/*  207 */         if (!StringUtils.checkNull(roleId).booleanValue()) {
+/*  208 */           String roleName = this.usersPrivService.getPrivNameByPrivId(roleId, ",");
+/*  209 */           notify1.setRolerange(roleName + ",");
+/*      */         }
+/*      */ 
+/*  212 */         if (notify1.getReaders().indexOf(null != name ? name : "") != -1)
+/*  213 */           notify1.setRead(Integer.valueOf(1));
+/*      */         else {
+/*  215 */           notify1.setRead(Integer.valueOf(0));
+/*      */         }
+/*      */       }
+/*  218 */       json.setMsg("ok");
+/*  219 */       json.setFlag(0);
+/*  220 */       json.setObj(list);
+/*  221 */       json.setTotleNum(pageParams.getTotal());
+/*      */     }
+/*  223 */     else if ("2".equals(changeId)) {
+/*  224 */       for (Notify notify1 : list) {
+/*  225 */         this.notifyMapper.deleteById(notify1.getNotifyId());
+/*      */       }
+/*  227 */       json.setMsg("ok");
+/*  228 */       json.setFlag(0);
+/*  229 */       json.setObject(Integer.valueOf(list.size()));
+/*      */     }
+/*      */ 
+/*  235 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Notify> unreadNotify(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String name, String sqlType)
+/*      */     throws Exception
+/*      */   {
+/*  256 */     String[] strArray = null;
+/*  257 */     String[] strArray1 = null;
+/*  258 */     String[] strArray2 = null;
+/*  259 */     StringBuffer s = new StringBuffer();
+/*  260 */     StringBuffer s1 = new StringBuffer();
+/*  261 */     StringBuffer s2 = new StringBuffer();
+/*  262 */     ToJson json = new ToJson();
+/*  263 */     PageParams pageParams = new PageParams();
+/*  264 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  265 */     pageParams.setPage(page);
+/*  266 */     pageParams.setPageSize(pageSize);
+/*  267 */     maps.put("page", pageParams);
+/*  268 */     String typeIdStr = (String)maps.get("typeId");
+/*  269 */     if (StringUtils.checkNull(typeIdStr).booleanValue()) {
+/*  270 */       maps.put("typeId", null);
+/*      */     }
+/*      */ 
+/*  273 */     List<Notify> list = this.notifyMapper.unreadNotify(maps);
+/*  274 */     List list1 = new ArrayList();
+/*  275 */     List list2 = new ArrayList();
+/*  276 */     for (Notify notify : list) {
+/*  277 */       notify.setNotifyDateTime(DateFormat.getStrDate(notify.getSendTime()));
+/*  278 */       notify.setName(notify.getUsers().getUserName());
+/*  279 */       if ((notify.getTypeId() != null) && (!notify.getTypeId().equals(""))) {
+/*  280 */         String name11 = this.sysCodeMapper.getNotifyNameByNo(notify.getTypeId());
+/*  281 */         if (StringUtils.checkNull(name11).booleanValue())
+/*  282 */           notify.setTypeName("");
+/*      */         else
+/*  284 */           notify.setTypeName(name11);
+/*      */       }
+/*      */       else
+/*      */       {
+/*  288 */         notify.setTypeName("");
+/*      */       }
+/*  290 */       if ((notify.getBeginDate() != null) && (!"".equals(notify.getBeginDate()))) {
+/*  291 */         if (!notifyDatetime.equals(DateFormat.getStrTime(notify.getBeginDate())))
+/*  292 */           notify.setBegin(DateFormat.getStrDateTime(notify.getBeginDate()));
+/*      */         else
+/*  294 */           notify.setBegin("");
+/*      */       }
+/*      */       else {
+/*  297 */         notify.setBegin("");
+/*      */       }
+/*  299 */       if ((notify.getAttachmentName() != null) && (notify.getAttachmentId() != null)) {
+/*  300 */         notify.setAttachment(GetAttachmentListUtil.returnAttachment(notify.getAttachmentName(), notify.getAttachmentId(), sqlType, "news"));
+/*      */       }
+/*  302 */       String depId = notify.getToId();
+/*  303 */       if (!StringUtils.checkNull(depId).booleanValue()) {
+/*  304 */         String depName = this.departmentService.getDeptNameByDeptId(depId, ",");
+/*  305 */         if (!"ALL_DEPT".trim().equals(notify.getToId()))
+/*  306 */           notify.setDeprange(depName + ",");
+/*      */         else {
+/*  308 */           notify.setDeprange(depName);
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  314 */       String userId = notify.getUserId();
+/*  315 */       if (!StringUtils.checkNull(userId).booleanValue()) {
+/*  316 */         String userName = this.usersService.getUserNameById(userId);
+/*  317 */         notify.setUserrange(userName + ",");
+/*      */       }
+/*      */ 
+/*  320 */       String roleId = notify.getPrivId();
+/*  321 */       if (!StringUtils.checkNull(roleId).booleanValue()) {
+/*  322 */         String roleName = this.usersPrivService.getPrivNameByPrivId(roleId, ",");
+/*  323 */         notify.setRolerange(roleName + ",");
+/*      */       }
+/*      */ 
+/*  326 */       if (notify.getReaders().indexOf(null != name ? name : "") != -1)
+/*  327 */         notify.setRead(Integer.valueOf(1));
+/*      */       else {
+/*  329 */         notify.setRead(Integer.valueOf(0));
+/*      */       }
+/*      */     }
+/*      */ 
+/*  333 */     json.setObj(list);
+/*  334 */     json.setTotleNum(pageParams.getTotal());
+/*  335 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Notify> readNotify(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String name, String sqlType)
+/*      */     throws Exception
+/*      */   {
+/*  355 */     String[] strArray = null;
+/*  356 */     String[] strArray1 = null;
+/*  357 */     String[] strArray2 = null;
+/*  358 */     StringBuffer s = new StringBuffer();
+/*  359 */     StringBuffer s1 = new StringBuffer();
+/*  360 */     StringBuffer s2 = new StringBuffer();
+/*  361 */     ToJson json = new ToJson();
+/*  362 */     PageParams pageParams = new PageParams();
+/*  363 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  364 */     pageParams.setPage(page);
+/*  365 */     pageParams.setPageSize(pageSize);
+/*  366 */     maps.put("page", pageParams);
+/*  367 */     String typeIdStr = (String)maps.get("typeId");
+/*  368 */     if (StringUtils.checkNull(typeIdStr).booleanValue()) {
+/*  369 */       maps.put("typeId", null);
+/*      */     }
+/*      */ 
+/*  372 */     List<Notify> list = this.notifyMapper.readNotify(maps);
+/*  373 */     List list1 = new ArrayList();
+/*  374 */     List list2 = new ArrayList();
+/*  375 */     List list3 = new ArrayList();
+/*  376 */     for (Notify notify : list) {
+/*  377 */       notify.setNotifyDateTime(DateFormat.getStrDate(notify.getSendTime()));
+/*  378 */       notify.setName(notify.getUsers().getUserName());
+/*  379 */       if ((notify.getTypeId() != null) && (!notify.getTypeId().equals(""))) {
+/*  380 */         String name11 = this.sysCodeMapper.getNotifyNameByNo(notify.getTypeId());
+/*  381 */         if (StringUtils.checkNull(name11).booleanValue())
+/*  382 */           notify.setTypeName("");
+/*      */         else
+/*  384 */           notify.setTypeName(name11);
+/*      */       }
+/*      */       else
+/*      */       {
+/*  388 */         notify.setTypeName("");
+/*      */       }
+/*  390 */       if ((notify.getBeginDate() != null) && (!"".equals(notify.getBeginDate()))) {
+/*  391 */         if (!notifyDatetime.equals(DateFormat.getStrTime(notify.getBeginDate())))
+/*  392 */           notify.setBegin(DateFormat.getStrTime(notify.getBeginDate()));
+/*      */         else
+/*  394 */           notify.setBegin("");
+/*      */       }
+/*      */       else {
+/*  397 */         notify.setBegin("");
+/*      */       }
+/*  399 */       if ((notify.getEndDate() != null) && (!"".equals(notify.getEndDate()))) {
+/*  400 */         if (!notifyDatetime.equals(DateFormat.getStrTime(notify.getEndDate())))
+/*  401 */           notify.setEnd(DateFormat.getStrTime(notify.getEndDate()));
+/*      */         else
+/*  403 */           notify.setEnd("");
+/*      */       }
+/*      */       else {
+/*  406 */         notify.setEnd("");
+/*      */       }
+/*      */ 
+/*  409 */       if ((notify.getAttachmentName() != null) && (notify.getAttachmentId() != null)) {
+/*  410 */         notify.setAttachment(GetAttachmentListUtil.returnAttachment(notify.getAttachmentName(), notify.getAttachmentId(), sqlType, "news"));
+/*      */       }
+/*  412 */       String depId = notify.getToId();
+/*  413 */       if (!StringUtils.checkNull(depId).booleanValue()) {
+/*  414 */         String depName = this.departmentService.getDeptNameByDeptId(depId, ",");
+/*  415 */         if (!"ALL_DEPT".trim().equals(notify.getToId()))
+/*  416 */           notify.setDeprange(depName + ",");
+/*      */         else {
+/*  418 */           notify.setDeprange(depName);
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  424 */       String userId = notify.getUserId();
+/*  425 */       if (!StringUtils.checkNull(userId).booleanValue()) {
+/*  426 */         String userName = this.usersService.getUserNameById(userId);
+/*  427 */         notify.setUserrange(userName + ",");
+/*      */       }
+/*      */ 
+/*  430 */       String roleId = notify.getPrivId();
+/*  431 */       if (!StringUtils.checkNull(roleId).booleanValue()) {
+/*  432 */         String roleName = this.usersPrivService.getPrivNameByPrivId(roleId, ",");
+/*  433 */         notify.setRolerange(roleName + ",");
+/*      */       }
+/*      */ 
+/*  436 */       if (notify.getReaders().indexOf(null != name ? name : "") != -1)
+/*  437 */         notify.setRead(Integer.valueOf(1));
+/*      */       else {
+/*  439 */         notify.setRead(Integer.valueOf(0));
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/*  445 */     json.setObj(list);
+/*  446 */     json.setTotleNum(pageParams.getTotal());
+/*  447 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public void updateNotify(Notify notify, String remind, String tuisong, HttpServletRequest request)
+/*      */   {
+/*  464 */     Map map = new HashedMap();
+/*  465 */     map.put("notifyId", notify.getNotifyId());
+/*  466 */     Notify notify1 = this.notifyMapper.detailedNotify(map);
+/*  467 */     if ((StringUtils.checkNull(notify.getAttachmentId()).booleanValue()) && (StringUtils.checkNull(notify.getAttachmentName()).booleanValue())) {
+/*  468 */       notify.setAttachmentId(notify1.getAttachmentId());
+/*  469 */       notify.setAttachmentName(notify1.getAttachmentName());
+/*      */     }
+/*  471 */     this.notifyMapper.updateNotify(notify);
+/*      */ 
+/*  474 */     if ("1".equals(notify1.getPublish())) {
+/*  475 */       String sqlType = (String)request.getSession().getAttribute("loginDateSouse");
+/*  476 */       this.threadService.addNotify(notify1, remind, tuisong, sqlType);
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public int addNotify(Notify notify, String remind, String tuisong, HttpServletRequest request)
+/*      */   {
+/*  491 */     int count = this.notifyMapper.addNotify(notify);
+/*  492 */     if ((count > 0) && 
+/*  493 */       ("1".equals(notify.getPublish()))) {
+/*  494 */       String sqlType = (String)request.getSession().getAttribute("loginDateSouse");
+/*  495 */       this.threadService.addNotify(notify, tuisong, remind, sqlType);
+/*      */ 
+/*  497 */       this.threadService.addNotifyMessageSendering(notify, request);
+/*      */     }
+/*      */ 
+/*  503 */     return count;
+/*      */   }
+/*      */ 
+/*      */   public Notify queryById(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String name, String sqlType, String changId)
+/*      */     throws Exception
+/*      */   {
+/*  524 */     String[] strArray = null;
+/*  525 */     String[] strArray1 = null;
+/*  526 */     String[] strArray2 = null;
+/*  527 */     maps.put("notifyTime", DateFormat.getCurrentTime2());
+/*  528 */     Notify notify = this.notifyMapper.detailedNotify(maps);
+/*  529 */     if (notify != null) {
+/*  530 */       notify.setNotifyDateTime(DateFormat.getStrDate(notify.getSendTime()));
+/*  531 */       notify.setName(notify.getUsers().getUserName());
+/*  532 */       if ((notify.getTypeId() != null) && (!notify.getTypeId().equals(""))) {
+/*  533 */         String name11 = this.sysCodeMapper.getNotifyNameByNo(notify.getTypeId());
+/*  534 */         if (StringUtils.checkNull(name11).booleanValue())
+/*  535 */           notify.setTypeName("");
+/*      */         else
+/*  537 */           notify.setTypeName(name11);
+/*      */       }
+/*      */       else
+/*      */       {
+/*  541 */         notify.setTypeName("");
+/*      */       }
+/*      */ 
+/*  544 */       if ((notify.getBeginDate() != null) && (!"".equals(notify.getBeginDate()))) {
+/*  545 */         if (!notifyDatetime.equals(DateFormat.getStrTime(notify.getBeginDate())))
+/*  546 */           notify.setBegin(DateFormat.getStrDateTime(notify.getBeginDate()));
+/*      */         else
+/*  548 */           notify.setBegin("");
+/*      */       }
+/*      */       else {
+/*  551 */         notify.setBegin("");
+/*      */       }
+/*  553 */       if ((notify.getEndDate() != null) && (!"".equals(notify.getEndDate()))) {
+/*  554 */         if (!notifyDatetime.equals(DateFormat.getStrTime(notify.getEndDate())))
+/*  555 */           notify.setEnd(DateFormat.getStrDateTime(notify.getEndDate()));
+/*      */         else
+/*  557 */           notify.setEnd("");
+/*      */       }
+/*      */       else {
+/*  560 */         notify.setEnd("");
+/*      */       }
+/*      */ 
+/*  563 */       if ((notify.getAttachmentName() != null) && (notify.getAttachmentId() != null)) {
+/*  564 */         notify.setAttachment(GetAttachmentListUtil.returnAttachment(notify.getAttachmentName(), notify.getAttachmentId(), sqlType, "notify"));
+/*      */       }
+/*      */ 
+/*  567 */       StringBuffer s = new StringBuffer();
+/*  568 */       StringBuffer s1 = new StringBuffer();
+/*  569 */       StringBuffer s2 = new StringBuffer();
+/*      */ 
+/*  572 */       String depId = notify.getToId();
+/*  573 */       if (!StringUtils.checkNull(depId).booleanValue()) {
+/*  574 */         String depName = this.departmentService.getDeptNameByDeptId(depId, ",");
+/*  575 */         if (!"ALL_DEPT".trim().equals(notify.getToId()))
+/*  576 */           notify.setDeprange(depName + ",");
+/*      */         else {
+/*  578 */           notify.setDeprange(depName);
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  584 */       String userId = notify.getUserId();
+/*  585 */       if (!StringUtils.checkNull(userId).booleanValue()) {
+/*  586 */         String userName = this.usersService.getUserNameById(userId);
+/*  587 */         notify.setUserrange(userName + ",");
+/*      */       }
+/*      */ 
+/*  590 */       String roleId = notify.getPrivId();
+/*  591 */       if (!StringUtils.checkNull(roleId).booleanValue()) {
+/*  592 */         String roleName = this.usersPrivService.getPrivNameByPrivId(roleId, ",");
+/*  593 */         notify.setRolerange(roleName + ",");
+/*      */       }
+/*  595 */       if (!StringUtils.checkNull(notify.getAuditer()).booleanValue()) {
+/*  596 */         Users users = this.usersMapper.findUsersByuserId(notify.getAuditer());
+/*  597 */         if (users != null) {
+/*  598 */           notify.setAuditerName(users.getUserName());
+/*      */         }
+/*      */       }
+/*  601 */       Users users = this.usersMapper.findUsersByuserId(notify.getFromId());
+/*  602 */       if (users != null) {
+/*  603 */         Department department = this.departmentMapper.getDeptById(users.getDeptId().intValue());
+/*  604 */         notify.setDepName(department.getDeptName());
+/*      */       }
+/*      */ 
+/*  608 */       if ((!notifyChageId.equals(changId)) && 
+/*  609 */         (notify.getReaders().indexOf(name) == -1)) {
+/*  610 */         this.smsService.updatequerySmsByType("1", name, String.valueOf(notify.getNotifyId()));
+/*  611 */         StringBuffer str2 = new StringBuffer(notify.getReaders());
+/*  612 */         str2.append(",");
+/*  613 */         str2.append(name);
+/*  614 */         String str1 = str2.toString();
+/*  615 */         notify.setNotifyId(notify.getNotifyId());
+/*  616 */         notify.setReaders(str1);
+/*  617 */         this.notifyMapper.updateReaders(notify);
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/*  622 */     return notify;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Notify> deleteByids(String[] newsId)
+/*      */   {
+/*  629 */     ToJson notifyToJson = new ToJson();
+/*  630 */     if (newsId.length > 0)
+/*      */     {
+/*  632 */       this.notifyMapper.deleteByids(newsId);
+/*      */     }
+/*      */ 
+/*  635 */     notifyToJson.setFlag(0);
+/*  636 */     notifyToJson.setMsg("ok");
+/*  637 */     return notifyToJson;
+/*      */   }
+/*      */ 
+/*      */   public void queryDeleteByStaleDated()
+/*      */   {
+/*  646 */     Map maps = new HashMap();
+/*  647 */     List<Notify> notifyList = this.notifyMapper.selectNotify(maps);
+/*  648 */     if ((notifyList.size() > 0) && (notifyList != null))
+/*  649 */       for (Notify notify : notifyList)
+/*  650 */         if ((notify.getEndDate() != null) && (!"".equals(notify.getEndDate())) && 
+/*  651 */           (!notifyDatetime.equals(DateFormat.getStrTime(notify.getEndDate())))) {
+/*  652 */           Date dt = new Date();
+/*  653 */           SimpleDateFormat matter1 = new SimpleDateFormat("yyyy-MM-dd");
+/*  654 */           String data = matter1.format(dt);
+/*  655 */           if (data.equals(DateFormat.getStrTime(notify.getEndDate())))
+/*  656 */             this.notifyMapper.deleteById(notify.getNotifyId());
+/*      */         }
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Notify> updateByids(String[] newsId, String top)
+/*      */   {
+/*  669 */     ToJson notifyToJson = new ToJson();
+/*  670 */     if (StringUtils.checkNull(top).booleanValue()) {
+/*  671 */       notifyToJson.setFlag(1);
+/*  672 */       notifyToJson.setMsg("传值错误");
+/*  673 */       return notifyToJson;
+/*      */     }
+/*      */ 
+/*  676 */     if (newsId.length > 0)
+/*      */     {
+/*  678 */       this.notifyMapper.updateByIds(top, newsId);
+/*  679 */       notifyToJson.setFlag(0);
+/*  680 */       notifyToJson.setMsg("ok");
+/*      */     } else {
+/*  682 */       notifyToJson.setFlag(1);
+/*  683 */       notifyToJson.setMsg("传值错误");
+/*      */     }
+/*      */ 
+/*  686 */     return notifyToJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Notify> ConsultTheSituationNotify(String newsId)
+/*      */   {
+/*  691 */     ToJson NotifyToJson = new ToJson();
+/*  692 */     Map maps = new HashMap();
+/*  693 */     maps.put("notifyId", newsId);
+/*  694 */     Notify notify = this.notifyMapper.detailedNotify(maps);
+/*  695 */     if (notify != null) {
+/*  696 */       notify.setNotifyDateTime(DateFormat.getStrDate(notify.getSendTime()));
+/*  697 */       notify.setName(notify.getUsers().getUserName());
+/*      */     }
+/*  699 */     List<Users> usersList = this.usersMapper.unreadConsultTheSituationNotify(maps);
+/*  700 */     List<Users> usersList1 = this.usersMapper.readConsultTheSituationNotify(maps);
+/*  701 */     List resultList = new ArrayList();
+/*  702 */     List<Department> departmentList = this.departmentMapper.getDatagrid();
+/*      */ 
+/*  704 */     for (Department department : departmentList) {
+/*  705 */       StringBuffer stringBuffer = new StringBuffer();
+/*  706 */       for (Users users : usersList) {
+/*  707 */         Integer depId = users.getDeptId();
+/*  708 */         if (department.getDeptId().equals(depId)) {
+/*  709 */           stringBuffer.append(users.getUserName());
+/*  710 */           stringBuffer.append(",");
+/*      */         }
+/*      */       }
+/*  713 */       department.setUnread(stringBuffer.toString());
+/*  714 */       StringBuffer stringBuffer1 = new StringBuffer();
+/*  715 */       for (Users users : usersList1) {
+/*  716 */         Integer depId = users.getDeptId();
+/*  717 */         if (department.getDeptId().equals(depId)) {
+/*  718 */           stringBuffer1.append(users.getUserName());
+/*  719 */           stringBuffer1.append(",");
+/*      */         }
+/*      */       }
+/*  722 */       department.setRead(stringBuffer1.toString());
+/*      */     }
+/*      */ 
+/*  736 */     notify.setReadSize(Integer.valueOf(usersList1.size()));
+/*  737 */     notify.setUnreadSize(Integer.valueOf(usersList.size()));
+/*  738 */     notify.setDepartmentList(departmentList);
+/*  739 */     NotifyToJson.setObject(notify);
+/*  740 */     NotifyToJson.setFlag(0);
+/*  741 */     NotifyToJson.setMsg("ok");
+/*  742 */     return NotifyToJson;
+/*      */   }
+/*      */ 
+/*      */   public List<Notify> getNotifyById(String id)
+/*      */   {
+/*  756 */     return this.notifyMapper.getNotifyById(id);
+/*      */   }
+/*      */ 
+/*      */   public Notify getNotifyById(Integer id)
+/*      */   {
+/*  770 */     return this.notifyMapper.getNotifyById(id);
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public void delete(Integer notifyId)
+/*      */   {
+/*  785 */     this.notifyMapper.deleteById(notifyId);
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Notify> selectNotifyManage(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String name, String sqlType)
+/*      */     throws Exception
+/*      */   {
+/*  804 */     ToJson json = new ToJson();
+/*  805 */     String[] strArray = null;
+/*  806 */     String[] strArray1 = null;
+/*  807 */     String[] strArray2 = null;
+/*      */ 
+/*  809 */     StringBuffer s = new StringBuffer();
+/*  810 */     StringBuffer s1 = new StringBuffer();
+/*  811 */     StringBuffer s2 = new StringBuffer();
+/*  812 */     PageParams pageParams = new PageParams();
+/*  813 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  814 */     pageParams.setPage(page);
+/*  815 */     pageParams.setPageSize(pageSize);
+/*  816 */     maps.put("page", pageParams);
+/*  817 */     String typeIdStr = (String)maps.get("typeId");
+/*  818 */     if (StringUtils.checkNull(typeIdStr).booleanValue()) {
+/*  819 */       maps.put("typeId", null);
+/*      */     }
+/*      */ 
+/*  822 */     List list1 = new ArrayList();
+/*  823 */     List<Notify> list = this.notifyMapper.selectNotifyManage(maps);
+/*      */ 
+/*  825 */     for (Notify notify : list) {
+/*  826 */       notify.setNotifyDateTime(DateFormat.getStrDate(notify.getSendTime()));
+/*  827 */       notify.setName(notify.getUsers().getUserName());
+/*  828 */       if ((notify.getTypeId() != null) && (!notify.getTypeId().equals(""))) {
+/*  829 */         String name11 = this.sysCodeMapper.getNotifyNameByNo(notify.getTypeId());
+/*  830 */         if (StringUtils.checkNull(name11).booleanValue())
+/*  831 */           notify.setTypeName("");
+/*      */         else
+/*  833 */           notify.setTypeName(name11);
+/*      */       }
+/*      */       else
+/*      */       {
+/*  837 */         notify.setTypeName("");
+/*      */       }
+/*  839 */       if ((!StringUtils.checkNull(notify.getAttachmentName()).booleanValue()) && (!StringUtils.checkNull(notify.getAttachmentId()).booleanValue())) {
+/*  840 */         notify.setAttachment(GetAttachmentListUtil.returnAttachment(notify.getAttachmentName(), notify.getAttachmentId(), sqlType, "notify"));
+/*      */       }
+/*  842 */       if ((notify.getBeginDate() != null) && (!"".equals(notify.getBeginDate()))) {
+/*  843 */         if (!notifyDatetime.equals(DateFormat.getStrTime(notify.getBeginDate())))
+/*  844 */           notify.setBegin(DateFormat.getStrDateTime(notify.getBeginDate()));
+/*      */         else
+/*  846 */           notify.setBegin("");
+/*      */       }
+/*      */       else {
+/*  849 */         notify.setBegin("");
+/*      */       }
+/*  851 */       String depId = notify.getToId();
+/*  852 */       if (!StringUtils.checkNull(depId).booleanValue()) {
+/*  853 */         String depName = this.departmentService.getDeptNameByDeptId(depId, ",");
+/*  854 */         if (!"ALL_DEPT".trim().equals(notify.getToId()))
+/*  855 */           notify.setDeprange(depName + ",");
+/*      */         else {
+/*  857 */           notify.setDeprange(depName);
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  863 */       String userId = notify.getUserId();
+/*  864 */       if (!StringUtils.checkNull(userId).booleanValue()) {
+/*  865 */         String userName = this.usersService.getUserNameById(userId);
+/*  866 */         notify.setUserrange(userName + ",");
+/*      */       }
+/*      */ 
+/*  869 */       String roleId = notify.getPrivId();
+/*  870 */       if (!StringUtils.checkNull(roleId).booleanValue()) {
+/*  871 */         String roleName = this.usersPrivService.getPrivNameByPrivId(roleId, ",");
+/*  872 */         notify.setRolerange(roleName + ",");
+/*      */       }
+/*  874 */       if (notify.getReaders().indexOf(name) != -1)
+/*  875 */         notify.setRead(Integer.valueOf(1));
+/*      */       else {
+/*  877 */         notify.setRead(Integer.valueOf(0));
+/*      */       }
+/*      */     }
+/*      */ 
+/*  881 */     json.setObj(list);
+/*  882 */     json.setTotleNum(pageParams.getTotal());
+/*  883 */     return json;
+/*      */   }
+/*      */ 
+/*      */   private static boolean ifChilds(List<Department> list, int deptId)
+/*      */   {
+/*  891 */     boolean flag = false;
+/*  892 */     for (Department department : list) {
+/*  893 */       if (department.getDeptParent().intValue() == deptId) {
+/*  894 */         flag = true;
+/*  895 */         break;
+/*      */       }
+/*      */     }
+/*  898 */     return flag;
+/*      */   }
+/*      */ 
+/*      */   private static List<Department> getChildList(List<Department> list, int deptId, List<Department> reList)
+/*      */   {
+/*  905 */     for (Department department : list) {
+/*  906 */       if (department.getDeptParent().intValue() == deptId) {
+/*  907 */         List l = department.getChild();
+/*  908 */         reList.add(department);
+/*  909 */         if (ifChilds(list, department.getDeptId().intValue())) {
+/*  910 */           getChildList(list, department.getDeptId().intValue(), reList);
+/*      */         }
+/*      */       }
+/*      */     }
+/*  914 */     return reList;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Department> getNotifyGroupFromDept(Notify notify)
+/*      */   {
+/*  925 */     ToJson json = new ToJson(1, "error");
+/*      */     try {
+/*  927 */       List<Department> departmentList = this.notifyMapper.getNotifyGroupFromDept(notify);
+/*  928 */       for (Department department : departmentList) {
+/*  929 */         notify.setFromDept(department.getDeptId());
+/*  930 */         int count = this.notifyMapper.getCountByFromDept(notify);
+/*  931 */         department.setCount(String.valueOf(count));
+/*      */       }
+/*  933 */       json.setObj(departmentList);
+/*  934 */       json.setMsg("ok");
+/*  935 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  937 */       json.setMsg(e.getMessage());
+/*  938 */       L.e(new Object[] { "NotifyServiceImpl getNotifyGroupFromDept:" + e });
+/*      */     }
+/*  940 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Notify> getNotifyByFromDept(Notify notify)
+/*      */   {
+/*  951 */     ToJson json = new ToJson(1, "error");
+/*      */     try {
+/*  953 */       List<Notify> notifyList = this.notifyMapper.getNotifyByFromDept(notify);
+/*  954 */       for (Notify notify1 : notifyList) {
+/*  955 */         notify1.setFromDeptStr(this.departmentMapper.getDeptNameByDeptId(notify1.getFromDept()));
+/*  956 */         notify1.setFromIdStr(this.usersMapper.getUsernameByUserId(notify1.getFromId()));
+/*  957 */         notify1.setResultCount(this.notifyMapper.getCountByFromIdAndDept(notify1));
+/*      */       }
+/*  959 */       json.setObj(notifyList);
+/*  960 */       json.setMsg("ok");
+/*  961 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  963 */       json.setMsg(e.getMessage());
+/*  964 */       L.e(new Object[] { "NotifyServiceImpl getNotifyByFromDept:" + e });
+/*      */     }
+/*  966 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Notify> getNotifyByFromIdAndDept(Notify notify)
+/*      */   {
+/*  977 */     ToJson json = new ToJson(1, "error");
+/*      */     try {
+/*  979 */       List<Notify> notifyList = this.notifyMapper.getNotifyByFromIdAndDept(notify);
+/*  980 */       for (Notify notify1 : notifyList) {
+/*  981 */         StringBuffer toDeptStr = new StringBuffer();
+/*  982 */         StringBuffer toPrivStr = new StringBuffer();
+/*  983 */         StringBuffer toUserStr = new StringBuffer();
+/*  984 */         if (notify1.getToId().equals("ALL_DEPT")) {
+/*  985 */           notify1.setToId("全体部门");
+/*      */         }
+/*  987 */         if ((!StringUtils.checkNull(notify1.getToId()).booleanValue()) && (!notify1.getToId().equals("ALL_DEPT"))) {
+/*  988 */           String[] deptArry = notify1.getToId().split(",");
+/*  989 */           for (String dept : deptArry) {
+/*  990 */             if (!StringUtils.checkNull(this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(dept))).booleanValue()) {
+/*  991 */               toDeptStr.append(this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(dept)) + ",");
+/*      */             }
+/*      */           }
+/*  994 */           notify1.setToId(toDeptStr.toString());
+/*      */         }
+/*  996 */         if (!StringUtils.checkNull(notify1.getPrivId()).booleanValue()) {
+/*  997 */           String[] privArry = notify1.getPrivId().split(",");
+/*  998 */           for (String priv : privArry) {
+/*  999 */             if (!StringUtils.checkNull(this.userPrivMapper.getPrivNameByPrivId(Integer.valueOf(priv))).booleanValue()) {
+/* 1000 */               toPrivStr.append(this.userPrivMapper.getPrivNameByPrivId(Integer.valueOf(priv)) + ",");
+/*      */             }
+/*      */           }
+/* 1003 */           notify1.setPrivId(toPrivStr.toString());
+/*      */         }
+/* 1005 */         if (!StringUtils.checkNull(notify1.getUserId()).booleanValue()) {
+/* 1006 */           String[] userArry = notify1.getUserId().split(",");
+/* 1007 */           for (String user : userArry) {
+/* 1008 */             if ((this.usersMapper.findUsersByuserId(user) == null) || 
+/* 1009 */               (StringUtils.checkNull(this.usersMapper.findUsersByuserId(user).getUserName()).booleanValue())) continue;
+/* 1010 */             toUserStr.append(this.usersMapper.findUsersByuserId(user).getUserName() + ",");
+/*      */           }
+/*      */ 
+/* 1014 */           notify1.setUserId(toUserStr.toString());
+/*      */         }
+/* 1016 */         if (!StringUtils.checkNull(notify1.getTypeId()).booleanValue())
+/* 1017 */           notify1.setTypeId(this.sysCodeMapper.getNotifyNameByNo(notify1.getTypeId()));
+/*      */         else {
+/* 1019 */           notify1.setTypeId("");
+/*      */         }
+/* 1021 */         notify1.setFromIdStr(this.usersMapper.getUsernameByUserId(notify1.getFromId()));
+/* 1022 */         int notifyStatus = Integer.valueOf(notify1.getPublish()).intValue();
+/* 1023 */         switch (notifyStatus) {
+/*      */         case 0:
+/* 1025 */           notify1.setPublish("未发布");
+/* 1026 */           break;
+/*      */         case 1:
+/* 1028 */           notify1.setPublish("已发布");
+/* 1029 */           break;
+/*      */         case 2:
+/* 1031 */           notify1.setPublish("待审批");
+/* 1032 */           break;
+/*      */         case 3:
+/* 1034 */           notify1.setPublish("未通过");
+/*      */         }
+/*      */       }
+/*      */ 
+/* 1038 */       json.setObj(notifyList);
+/* 1039 */       json.setMsg("ok");
+/* 1040 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/* 1042 */       e.printStackTrace();
+/* 1043 */       json.setMsg(e.getMessage());
+/* 1044 */       L.e(new Object[] { "NotifyServiceImpl getNotifyByFromIdAndDept:" + e });
+/*      */     }
+/* 1046 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Notify> getNotifyByNotifyId(String notifyId)
+/*      */   {
+/* 1057 */     ToJson json = new ToJson(1, "error");
+/*      */     try {
+/* 1059 */       Notify notify = this.notifyMapper.getNotifyByNotifyId(notifyId);
+/* 1060 */       notify.setFromDeptStr(this.departmentMapper.getDeptNameByDeptId(notify.getFromDept()));
+/* 1061 */       notify.setFromIdStr(this.usersMapper.getUsernameByUserId(notify.getFromId()));
+/* 1062 */       notify.setTypeId(this.sysCodeMapper.getNotifyNameByNo(notify.getTypeId()));
+/* 1063 */       json.setObject(notify);
+/* 1064 */       json.setMsg("ok");
+/* 1065 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/* 1067 */       json.setMsg(e.getMessage());
+/* 1068 */       L.e(new Object[] { "NotifyServiceImpl getNotifyByNotifyId:" + e });
+/*      */     }
+/* 1070 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Notify> outputNotify(int step, Notify notify, HttpServletRequest request, HttpServletResponse response)
+/*      */   {
+/* 1079 */     ToJson json = new ToJson(1, "error");
+/* 1080 */     HSSFWorkbook workbook1 = new HSSFWorkbook();
+/* 1081 */     HSSFWorkbook workbook2 = new HSSFWorkbook();
+/* 1082 */     HSSFWorkbook workbook3 = new HSSFWorkbook();
+/*      */     try {
+/* 1084 */       HSSFWorkbook workbook11 = ExcelUtil.makeExcelHead("公告统计信息", 9);
+/* 1085 */       switch (step) {
+/*      */       case 1:
+/* 1087 */         String[] secondTitles = { "部门", "发布数量" };
+/* 1088 */         HSSFWorkbook workbook21 = ExcelUtil.makeSecondHead(workbook11, secondTitles);
+/* 1089 */         List<Department> departmentList = this.notifyMapper.getNotifyGroupFromDept(notify);
+/* 1090 */         for (Department department : departmentList) {
+/* 1091 */           notify.setFromDept(department.getDeptId());
+/* 1092 */           int count = this.notifyMapper.getCountByFromDept(notify);
+/* 1093 */           department.setCount(String.valueOf(count));
+/*      */         }
+/*      */ 
+/* 1096 */         String[] beanProperty1 = { "deptName", "count" };
+/* 1097 */         workbook1 = ExcelUtil.exportExcelData(workbook21, departmentList, beanProperty1);
+/* 1098 */         break;
+/*      */       case 2:
+/* 1100 */         String[] secondTitles1 = { "部门", "姓名", "发布数量" };
+/* 1101 */         HSSFWorkbook workbook22 = ExcelUtil.makeSecondHead(workbook11, secondTitles1);
+/* 1102 */         List<Notify> notifyList = this.notifyMapper.getNotifyByFromDept(notify);
+/* 1103 */         for (Notify notify1 : notifyList) {
+/* 1104 */           notify1.setFromDeptStr(this.departmentMapper.getDeptNameByDeptId(notify1.getFromDept()));
+/* 1105 */           notify1.setFromIdStr(this.usersMapper.getUsernameByUserId(notify1.getFromId()));
+/* 1106 */           notify1.setResultCount(this.notifyMapper.getCountByFromIdAndDept(notify1));
+/*      */         }
+/*      */ 
+/* 1109 */         String[] beanProperty2 = { "fromDeptStr", "fromIdStr", "resultCount" };
+/* 1110 */         workbook2 = ExcelUtil.exportExcelData(workbook22, notifyList, beanProperty2);
+/* 1111 */         break;
+/*      */       case 3:
+/* 1113 */         String[] secondTitles3 = { "发布人", "类型", "发布范围", "标题", "创建时间", "生效日期", "终止日期", "状态" };
+/* 1114 */         HSSFWorkbook workbook23 = ExcelUtil.makeSecondHead(workbook11, secondTitles3);
+/* 1115 */         StringBuffer toDeptStr = new StringBuffer();
+/* 1116 */         StringBuffer toPrivStr = new StringBuffer();
+/* 1117 */         StringBuffer toUserStr = new StringBuffer();
+/* 1118 */         List<Notify> notifyList2 = this.notifyMapper.getNotifyByFromIdAndDept(notify);
+/* 1119 */         for (Notify notify1 : notifyList2) {
+/* 1120 */           if (notify1.getToId().equals("ALL_DEPT")) {
+/* 1121 */             notify1.setToId("全体部门");
+/*      */           }
+/* 1123 */           if (!StringUtils.checkNull(notify1.getToId()).booleanValue()) {
+/* 1124 */             String[] deptArry = notify1.getToId().split(",");
+/* 1125 */             for (String dept : deptArry) {
+/* 1126 */               if (!StringUtils.checkNull(this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(dept))).booleanValue()) {
+/* 1127 */                 toDeptStr.append(this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(dept)) + ",");
+/*      */               }
+/*      */             }
+/* 1130 */             notify1.setToId(toDeptStr.toString());
+/*      */           }
+/* 1132 */           if (!StringUtils.checkNull(notify1.getPrivId()).booleanValue()) {
+/* 1133 */             String[] privArry = notify1.getPrivId().split(",");
+/* 1134 */             for (String priv : privArry) {
+/* 1135 */               if (!StringUtils.checkNull(this.userPrivMapper.getPrivNameByPrivId(Integer.valueOf(priv))).booleanValue()) {
+/* 1136 */                 toPrivStr.append(this.userPrivMapper.getPrivNameByPrivId(Integer.valueOf(priv)) + ",");
+/*      */               }
+/*      */             }
+/* 1139 */             notify1.setPrivId(toPrivStr.toString());
+/*      */           }
+/* 1141 */           if (!StringUtils.checkNull(notify1.getUserId()).booleanValue()) {
+/* 1142 */             String[] userArry = notify1.getUserId().split(",");
+/* 1143 */             for (String user : userArry) {
+/* 1144 */               if (!StringUtils.checkNull(this.usersMapper.findUsersByuserId(user).getUserName()).booleanValue()) {
+/* 1145 */                 toUserStr.append(this.usersMapper.findUsersByuserId(user).getUserName() + ",");
+/*      */               }
+/*      */             }
+/* 1148 */             notify1.setUserId(toUserStr.toString());
+/*      */           }
+/* 1150 */           if (!StringUtils.checkNull(notify1.getTypeId()).booleanValue())
+/* 1151 */             notify1.setTypeId(this.sysCodeMapper.getNotifyNameByNo(notify1.getTypeId()));
+/*      */           else {
+/* 1153 */             notify1.setTypeId("");
+/*      */           }
+/* 1155 */           notify1.setFromIdStr(this.usersMapper.getUsernameByUserId(notify1.getFromId()));
+/* 1156 */           int notifyStatus = Integer.valueOf(notify1.getPublish()).intValue();
+/* 1157 */           switch (notifyStatus) {
+/*      */           case 0:
+/* 1159 */             notify1.setPublish("未发布");
+/* 1160 */             break;
+/*      */           case 1:
+/* 1162 */             notify1.setPublish("已发布");
+/* 1163 */             break;
+/*      */           case 2:
+/* 1165 */             notify1.setPublish("待审批");
+/* 1166 */             break;
+/*      */           case 3:
+/* 1168 */             notify1.setPublish("未通过");
+/*      */           }
+/*      */ 
+/* 1173 */           StringBuffer rangeStr = new StringBuffer();
+/* 1174 */           if (!StringUtils.checkNull(toDeptStr.toString()).booleanValue()) {
+/* 1175 */             rangeStr.append("部门：" + toDeptStr.toString() + "  ");
+/*      */           }
+/* 1177 */           if (!StringUtils.checkNull(toPrivStr.toString()).booleanValue()) {
+/* 1178 */             rangeStr.append("角色：" + toPrivStr.toString() + "  ");
+/*      */           }
+/* 1180 */           if (!StringUtils.checkNull(toUserStr.toString()).booleanValue()) {
+/* 1181 */             rangeStr.append("人员：" + toUserStr.toString() + "  ");
+/*      */           }
+/* 1183 */           notify1.setRange(rangeStr.toString());
+/*      */         }
+/* 1185 */         String[] beanProperty3 = { "fromIdStr", "typeId", "range", "subject", "sendTime", "beginDate", "endDate", "publish" };
+/* 1186 */         workbook3 = ExcelUtil.exportExcelData(workbook23, notifyList2, beanProperty3);
+/*      */       }
+/*      */ 
+/* 1189 */       ServletOutputStream out = response.getOutputStream();
+/*      */ 
+/* 1191 */       String filename = "公告统计信息.xls";
+/* 1192 */       filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/*      */ 
+/* 1194 */       response.setContentType("application/vnd.ms-excel");
+/* 1195 */       response.setHeader("content-disposition", "attachment;filename=" + filename);
+/*      */ 
+/* 1197 */       switch (step) {
+/*      */       case 1:
+/* 1199 */         workbook1.write(out);
+/* 1200 */         break;
+/*      */       case 2:
+/* 1202 */         workbook2.write(out);
+/* 1203 */         break;
+/*      */       case 3:
+/* 1205 */         workbook3.write(out);
+/*      */       }
+/*      */ 
+/* 1208 */       out.close();
+/* 1209 */       json.setMsg("OK");
+/* 1210 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/* 1212 */       json.setMsg(e.getMessage());
+/* 1213 */       L.e(new Object[] { "NotifyServiceImpl outputNotify:" + e });
+/*      */     }
+/* 1215 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public BaseWrapper selectByType()
+/*      */   {
+/* 1224 */     BaseWrapper baseWrapper = new BaseWrapper();
+/* 1225 */     List<Notify> temp = this.notifyMapper.selectByType();
+/* 1226 */     HashMap count = new HashMap();
+/* 1227 */     for (Notify n : temp) {
+/* 1228 */       String key = "其他";
+/* 1229 */       SysCode s = n.getCodes();
+/* 1230 */       if (s != null) {
+/* 1231 */         key = s.getCodeName();
+/*      */       }
+/* 1233 */       if (count.containsKey(key))
+/* 1234 */         count.put(key, Integer.valueOf(((Integer)count.get(key)).intValue() + 1));
+/*      */       else {
+/* 1236 */         count.put(key, Integer.valueOf(1));
+/*      */       }
+/*      */     }
+/* 1239 */     baseWrapper.setData(count);
+/* 1240 */     baseWrapper.setStatus(true);
+/* 1241 */     baseWrapper.setFlag(true);
+/* 1242 */     return baseWrapper;
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.notify.impl.NotifyServiceImpl
+ * JD-Core Version:    0.6.0
+ */

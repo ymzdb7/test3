@@ -1,0 +1,618 @@
+package com.xoa.controller.department;
+
+import com.xoa.dao.unitmanagement.UnitManageMapper;
+import com.xoa.model.department.Department;
+import com.xoa.model.unitmanagement.UnitManage;
+import com.xoa.model.users.Users;
+import com.xoa.service.department.DepartmentService;
+import com.xoa.service.users.UsersService;
+import com.xoa.util.AjaxJson;
+import com.xoa.util.Constant;
+import com.xoa.util.ToJson;
+import com.xoa.util.common.L;
+import com.xoa.util.dataSource.ContextHolder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import org.apache.commons.collections.map.HashedMap;
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+@Controller
+@RequestMapping({ "/department" })
+public class DepartmentController {
+	private Logger loger = Logger.getLogger(DepartmentController.class);
+
+	@Resource
+	private DepartmentService departmentService;
+
+	@Resource
+	private UsersService usersService;
+
+	@Resource
+	private UnitManageMapper unitManageMapper;
+
+	@RequestMapping({ "/deptQuery" })
+	public String deptQuery() {
+		return "app/department/deptQuery";
+	}
+
+	@RequestMapping({ "/deptListShow" })
+	public String deptListShow() {
+		return "app/department/deptListShow";
+	}
+
+	@RequestMapping({ "/newDeptManagement" })
+	public String companyInfo(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/sys/new_deptManagement";
+	}
+
+	@RequestMapping({ "/batchSetDept" })
+	public String batchSetDept() {
+		return "app/department/batchSetDept";
+	}
+
+	@RequestMapping({ "/upDeptRank" })
+	public String upDeptRank() {
+		return "app/department/upDeptRank";
+	}
+
+	@RequestMapping({ "/exportOrImport" })
+	public String toExportOrImport() {
+		return "app/department/exportOrImport";
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/addDept" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	public ToJson<Department> addDept(Department department,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		ToJson json = new ToJson(0, null);
+		try {
+			if (!this.departmentService.checkDep(department, 0)) {
+				json.setMsg("该部门名称或排序号已经存在，请重新填写！");
+				json.setFlag(1);
+				return json;
+			}
+			Department departParent = null;
+			if (department.getDeptParent().intValue() != 0) {
+				departParent = this.departmentService.getDeptById(department
+						.getDeptParent().intValue());
+				department.setDeptNo(departParent.getDeptNo()
+						+ department.getDeptNo());
+			} else {
+				List listByNo = this.departmentService.getDepByNo(department
+						.getDeptNo());
+				if (listByNo.size() > 0) {
+					json.setMsg("该部门名称或排序号已经存在，请重新填写！");
+					json.setFlag(1);
+					return json;
+				}
+				department.setDeptNo(department.getDeptNo());
+			}
+			this.departmentService.insertDept(department);
+			json.setObject(department);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg("err");
+			json.setFlag(1);
+			e.printStackTrace();
+		}
+		return json;
+	}
+
+	@Transactional
+	@ResponseBody
+	@RequestMapping(value = { "/deletedept" }, method = { org.springframework.web.bind.annotation.RequestMethod.GET })
+	public ToJson<Department> deletedept(Department department,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		ToJson json = new ToJson(0, null);
+		try {
+			Department dep = this.departmentService.getDeptById(department
+					.getDeptId().intValue());
+			List<Department> list = this.departmentService.getChDeptByNo(dep
+					.getDeptNo());
+			Users admin = this.usersService.findUserByName("admin", request);
+			for (Department d : list) {
+				List<Users> l = this.usersService.getUsersByDeptId(d
+						.getDeptId());
+				if (l.size() > 0) {
+					json.setFlag(1);
+					json.setMsg("该部门下有人员，请处理后再删除该部门");
+					return json;
+				}
+				for (Users u : l) {
+					if (u.getUserId().equals(admin.getUserId())) {
+						json.setFlag(1);
+						json.setMsg("该部门下有人员，请处理后再删除该部门");
+						return json;
+					}
+				}
+			}
+			for (Department d : list) {
+				this.departmentService.deleteDept(d.getDeptId().intValue());
+			}
+			json.setFlag(0);
+			json.setMsg("true");
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+			json.setFlag(1);
+			json.setMsg("false");
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/getDeptById" }, method = { org.springframework.web.bind.annotation.RequestMethod.GET })
+	public ToJson<Department> getDeptByid(int deptId, HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		ToJson json = new ToJson(0, null);
+		try {
+			Department department = this.departmentService.getDeptById(deptId);
+
+			if (!com.xoa.util.common.StringUtils.checkNull(
+					department.getManager()).booleanValue()) {
+				String managerName = this.usersService
+						.findUsersByuid(department.getManager());
+				if (!com.xoa.util.common.StringUtils.checkNull(managerName)
+						.booleanValue()) {
+					department.setManagerStr(managerName);
+				}
+			}
+			if (!com.xoa.util.common.StringUtils.checkNull(
+					department.getAssistantId()).booleanValue()) {
+				String assistantStr = this.usersService
+						.findUsersByuid(department.getAssistantId());
+				if (!com.xoa.util.common.StringUtils.checkNull(assistantStr)
+						.booleanValue()) {
+					department.setAssistantStr(assistantStr);
+				}
+			}
+			if (!com.xoa.util.common.StringUtils.checkNull(
+					department.getLeader1()).booleanValue()) {
+				String leader1Name = this.usersService
+						.findUsersByuid(department.getLeader1());
+				if (!com.xoa.util.common.StringUtils.checkNull(leader1Name)
+						.booleanValue()) {
+					department.setLeader1Name(leader1Name);
+				}
+			}
+			if (!com.xoa.util.common.StringUtils.checkNull(
+					department.getLeader2()).booleanValue()) {
+				String leader2Name = this.usersService
+						.findUsersByuid(department.getLeader2());
+				if (!com.xoa.util.common.StringUtils.checkNull(leader2Name)
+						.booleanValue()) {
+					department.setLeader2Name(leader2Name);
+				}
+			}
+
+			String assistantId = department.getAssistantId();
+
+			department.setAssistantId(this.usersService
+					.findUsersByuid(assistantId) + "&" + assistantId);
+			String manager = department.getManager();
+			department.setManager(this.usersService.findUsersByuid(manager)
+					+ "&" + manager);
+			String leader1 = department.getLeader1();
+			department.setLeader1(this.usersService.findUsersByuid(leader1)
+					+ "&" + leader1);
+			String leader2 = department.getLeader2();
+			department.setLeader2(this.usersService.findUsersByuid(leader2)
+					+ "&" + leader2);
+			if (!com.xoa.util.common.StringUtils.checkNull(
+					department.getClassifyOrgAdmin()).booleanValue()) {
+				String orgAminName = this.usersService
+						.findUsersByuid(department.getClassifyOrgAdmin());
+				if (!com.xoa.util.common.StringUtils.checkNull(orgAminName)
+						.booleanValue()) {
+					department.setClassifyOrgAdminName(orgAminName);
+				}
+			}
+			json.setObject(department);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+		}
+
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/getAlldept" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<Department> getAlldept(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		ToJson json = new ToJson(1, null);
+		try {
+			List list = this.departmentService.getDatagrid();
+			json.setObj(list);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+		}
+
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/editDept" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	public ToJson<Department> editDept(Department department,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		ToJson json = new ToJson(0, null);
+		this.loger.debug("ID" + department.getDeptId());
+		try {
+			if (!this.departmentService.checkDep(department, 1)) {
+				json.setMsg("该部门名称或排序号已经存在，请重新填写！");
+				json.setFlag(1);
+				return json;
+			}
+			this.departmentService.editDept(department);
+			json.setObject(department);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/getDeptByMany" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	public ToJson<Department> getDeptByMany(Department department,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		ToJson json = new ToJson(0, null);
+		try {
+			List list = this.departmentService.getDeptByMany(department);
+			json.setObj(list);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/getChDeptfq" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<Department> getChDept(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		ToJson json = new ToJson(0, null);
+		try {
+			request.setCharacterEncoding("UTF-8");
+			int deptId = Integer.parseInt(new String(request.getParameter(
+					"deptId").getBytes("ISO-8859-1"), "UTF-8"));
+			List<Department> list = this.departmentService.getChDept(deptId);
+			List list2 = new ArrayList();
+			for (Department dep : list) {
+				if ((dep.getDeptParent() != null)
+						&& (dep.getDeptParent().intValue() > 0)) {
+					Department department = this.departmentService
+							.getDeptById(dep.getDeptParent().intValue());
+					dep.setDeptParentName(department.getDeptName());
+				}
+				List list1 = new ArrayList();
+				list1 = this.departmentService.getChDept(dep.getDeptId()
+						.intValue());
+				if (list1.size() != 0)
+					dep.setIsHaveCh("1");
+				else {
+					dep.setIsHaveCh("0");
+				}
+				list2.add(dep);
+			}
+			List l = this.usersService
+					.getUsersByDeptId(Integer.valueOf(deptId));
+
+			int classifyCount = this.departmentService
+					.selClaNumByParentId(deptId);
+			if (classifyCount > 0)
+				json.setTotleNum(Integer.valueOf(1));
+			else {
+				json.setTotleNum(Integer.valueOf(0));
+			}
+			json.setObject(l);
+			json.setObj(list2);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/getFatherDept" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<Department> getFatherDept(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		ToJson json = new ToJson(0, null);
+		try {
+			request.setCharacterEncoding("UTF-8");
+			int deptParent = Integer.parseInt(new String(request.getParameter(
+					"deptParent").getBytes("ISO-8859-1"), "UTF-8"));
+			List list = new ArrayList();
+			list = this.departmentService.getFatherDept(deptParent, list);
+			StringBuffer sb = new StringBuffer();
+			for (int i = list.size() - 1; i >= 0; i--) {
+				sb.append(((Department) list.get(i)).getDeptName());
+				if (i > 0) {
+					sb.append("/");
+				}
+			}
+			json.setObject(sb);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+		}
+
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/getChDeptByNo" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<Department> getChDeptByNo(HttpServletRequest request,
+			Map<String, Object> maps, Integer page, Integer pageSize,
+			boolean useFlag) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		ToJson json = new ToJson(0, null);
+		try {
+			request.setCharacterEncoding("UTF-8");
+			String deptNo = new String(request.getParameter("deptNo").getBytes(
+					"ISO-8859-1"), "UTF-8");
+			maps.put("deptNo", deptNo);
+			List list = new ArrayList();
+			list = this.departmentService.getChDeptByNo(deptNo);
+			json.setObj(list);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/getChDept" }, produces = { "application/json;charset=UTF-8" })
+	public AjaxJson getChDeptUser(HttpServletRequest request) {
+		AjaxJson ajaxJson = new AjaxJson();
+		try {
+			int count = 0;
+			String deptId = request.getParameter("deptId");
+			if (com.xoa.util.common.StringUtils.checkNull(deptId)
+					.booleanValue()) {
+				List<Department> list = this.departmentService
+						.getDepartmentByParet();
+				for (Department department : list) {
+					int a = this.departmentService
+							.getCountChDeptUser(department.getDeptNo());
+					count += a;
+					List list2 = this.departmentService.getChDept(department
+							.getDeptId().intValue());
+					if (list2.size() != 0)
+						department.setIsHaveCh("1");
+					else {
+						department.setIsHaveCh("0");
+					}
+				}
+				ajaxJson.setObj(list);
+				ajaxJson.setTotleNum(Integer.valueOf(count));
+				ajaxJson.setFlag(true);
+				ajaxJson.setMsg("Initialize query");
+				Map map = new HashedMap();
+				map.put("claNum", Integer.valueOf(0));
+				ajaxJson.setAttributes(map);
+				return ajaxJson;
+			}
+
+			List<Department> list = this.departmentService
+					.getChDeptUser(Integer.parseInt(deptId));
+			Department dep = this.departmentService.getDeptById(Integer
+					.parseInt(deptId));
+			count = this.departmentService.getCountChDeptUser(dep.getDeptNo());
+			for (Department department : list) {
+				List l = this.departmentService.getChDept(dep.getDeptId()
+						.intValue());
+				if (l.size() != 0)
+					department.setIsHaveCh("1");
+				else {
+					department.setIsHaveCh("0");
+				}
+			}
+			Map map = new HashedMap();
+			int classifyCount = this.departmentService
+					.selClaNumByParentId(Integer.valueOf(deptId).intValue());
+			if (classifyCount > 0)
+				map.put("claNum", Integer.valueOf(1));
+			else {
+				map.put("claNum", Integer.valueOf(0));
+			}
+			ajaxJson.setAttributes(map);
+			ajaxJson.setTotleNum(Integer.valueOf(count));
+			ajaxJson.setObj(list);
+			ajaxJson.setMsg("OK");
+			ajaxJson.setFlag(true);
+		} catch (Exception e) {
+			ajaxJson.setFlag(false);
+			ajaxJson.setMsg(e.getMessage());
+		}
+		return ajaxJson;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/listDept" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<Department> listDept(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		ToJson json = new ToJson(0, null);
+		try {
+			List list = this.departmentService.listDept();
+			for (int i = 0; i < list.size(); i++) {
+				Department department = (Department) list.get(i);
+				String deptNo = department.getDeptNo();
+				int count = deptNo.length() / 3;
+				StringBuffer sb = new StringBuffer();
+				sb.append(".")
+						.append(org.apache.commons.lang.StringUtils.repeat(" ",
+								count)).append("|-")
+						.append(department.getDeptName());
+				String depName = sb.toString();
+				department.setDeptName(depName);
+			}
+			json.setObj(list);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getFatherChildDep" })
+	public ToJson<Department> getFatherChildDept(HttpServletRequest request) {
+		ToJson toJson = new ToJson(0, "");
+		try {
+			List depList = this.departmentService.getFatherChildDept();
+			toJson.setMsg("OK");
+			toJson.setFlag(0);
+			toJson.setObject(depList);
+		} catch (Exception e) {
+			toJson.setMsg(e.getMessage());
+		}
+		return toJson;
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/batchUpdateDeptById" })
+	public ToJson<Department> batchUpdateDeptById(String departments) {
+		return this.departmentService.batchUpdateDeptById(departments);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/updateDeptNo" })
+	public ToJson<Department> updateDeptNo() {
+		int deptParent = 0;
+		String deptParentNo = "";
+		ToJson json = new ToJson(1, "error");
+		int count = 0;
+		try {
+			this.departmentService.updateDeptNo(Integer.valueOf(deptParent),
+					deptParentNo);
+			json.setMsg("ok");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+			L.e(new Object[] { "DepartmentController updateDeptNo:" + e });
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/AllDept" }, method = { org.springframework.web.bind.annotation.RequestMethod.GET }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<Department> listDept() {
+		ToJson json = new ToJson();
+		try {
+			UnitManage unitManage = this.unitManageMapper.showUnitManage();
+			Department department = new Department();
+			department.setDeptId(Integer.valueOf(0));
+			department.setDeptName(unitManage.getUnitName());
+			department.setDeptNo("");
+			List depList = this.departmentService.listDept();
+			List returnList = new ArrayList();
+			returnList.add(department);
+			returnList.addAll(depList);
+			json.setObj(returnList);
+			json.setFlag(0);
+			json.setMsg("true");
+		} catch (Exception e) {
+			json.setMsg("false");
+			json.setFlag(1);
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/outputDepartment" })
+	public ToJson<Department> outputDepartment(HttpServletRequest request,
+			HttpServletResponse response) {
+		return this.departmentService.outputDepartment(request, response);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/inputDepartment" })
+	public ToJson<Department> inputDepartment(HttpServletRequest request,
+			HttpServletResponse response, MultipartFile file,
+			HttpSession session) {
+		return this.departmentService.importDepartment(request, response, file);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getAllDepartment" })
+	public ToJson<Department> getAllDepartment() {
+		return this.departmentService.getAllDepartment();
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getAllDeptAndUsers" })
+	public void getAllDeptAndUsers(HttpServletRequest request,
+			HttpServletResponse response) {
+		this.departmentService.getAllDepartAndUsers(request, response);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/importDepartment" })
+	public ToJson<Department> importDepartment(HttpServletRequest request,
+			HttpServletResponse response, MultipartFile file) {
+		return this.departmentService.importDepartment(request, response, file);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selDeptNoByDeptParent" })
+	public ToJson<Department> selDeptNoByDeptParent(String deptParent,
+			String deptNo, int editFlag, String proDeptNo) {
+		return this.departmentService.selDeptNoByDeptParent(deptParent, deptNo,
+				editFlag, proDeptNo);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selByLikeDeptName" })
+	public ToJson<Department> selByLikeDeptName(String deptName) {
+		return this.departmentService.selByLikeDeptName(deptName);
+	}
+}

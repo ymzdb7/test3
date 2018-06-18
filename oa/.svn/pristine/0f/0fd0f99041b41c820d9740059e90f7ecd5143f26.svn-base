@@ -1,0 +1,578 @@
+/*     */ package com.xoa.model.workflow;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class FlowSortExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public FlowSortExample()
+/*     */   {
+/*  14 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause) {
+/*  18 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause() {
+/*  22 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct) {
+/*  26 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct() {
+/*  30 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria() {
+/*  34 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria) {
+/*  38 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or() {
+/*  42 */     Criteria criteria = createCriteriaInternal();
+/*  43 */     this.oredCriteria.add(criteria);
+/*  44 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria() {
+/*  48 */     Criteria criteria = createCriteriaInternal();
+/*  49 */     if (this.oredCriteria.size() == 0) {
+/*  50 */       this.oredCriteria.add(criteria);
+/*     */     }
+/*  52 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal() {
+/*  56 */     Criteria criteria = new Criteria();
+/*  57 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear() {
+/*  61 */     this.oredCriteria.clear();
+/*  62 */     this.orderByClause = null;
+/*  63 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 513 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 517 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 521 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 525 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 529 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 533 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 537 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 541 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 546 */       this.condition = condition;
+/* 547 */       this.typeHandler = null;
+/* 548 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 553 */       this.condition = condition;
+/* 554 */       this.value = value;
+/* 555 */       this.typeHandler = typeHandler;
+/* 556 */       if ((value instanceof List))
+/* 557 */         this.listValue = true;
+/*     */       else
+/* 559 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 564 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 569 */       this.condition = condition;
+/* 570 */       this.value = value;
+/* 571 */       this.secondValue = secondValue;
+/* 572 */       this.typeHandler = typeHandler;
+/* 573 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 577 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends FlowSortExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<FlowSortExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/*  71 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/*  75 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<FlowSortExample.Criterion> getAllCriteria() {
+/*  79 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<FlowSortExample.Criterion> getCriteria() {
+/*  83 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/*  87 */       if (condition == null) {
+/*  88 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/*  90 */       this.criteria.add(new FlowSortExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/*  94 */       if (value == null) {
+/*  95 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/*  97 */       this.criteria.add(new FlowSortExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 101 */       if ((value1 == null) || (value2 == null)) {
+/* 102 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 104 */       this.criteria.add(new FlowSortExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortIdIsNull() {
+/* 108 */       addCriterion("SORT_ID is null");
+/* 109 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortIdIsNotNull() {
+/* 113 */       addCriterion("SORT_ID is not null");
+/* 114 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortIdEqualTo(Integer value) {
+/* 118 */       addCriterion("SORT_ID =", value, "sortId");
+/* 119 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortIdNotEqualTo(Integer value) {
+/* 123 */       addCriterion("SORT_ID <>", value, "sortId");
+/* 124 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortIdGreaterThan(Integer value) {
+/* 128 */       addCriterion("SORT_ID >", value, "sortId");
+/* 129 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortIdGreaterThanOrEqualTo(Integer value) {
+/* 133 */       addCriterion("SORT_ID >=", value, "sortId");
+/* 134 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortIdLessThan(Integer value) {
+/* 138 */       addCriterion("SORT_ID <", value, "sortId");
+/* 139 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortIdLessThanOrEqualTo(Integer value) {
+/* 143 */       addCriterion("SORT_ID <=", value, "sortId");
+/* 144 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortIdIn(List<Integer> values) {
+/* 148 */       addCriterion("SORT_ID in", values, "sortId");
+/* 149 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortIdNotIn(List<Integer> values) {
+/* 153 */       addCriterion("SORT_ID not in", values, "sortId");
+/* 154 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortIdBetween(Integer value1, Integer value2) {
+/* 158 */       addCriterion("SORT_ID between", value1, value2, "sortId");
+/* 159 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortIdNotBetween(Integer value1, Integer value2) {
+/* 163 */       addCriterion("SORT_ID not between", value1, value2, "sortId");
+/* 164 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNoIsNull() {
+/* 168 */       addCriterion("SORT_NO is null");
+/* 169 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNoIsNotNull() {
+/* 173 */       addCriterion("SORT_NO is not null");
+/* 174 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNoEqualTo(Integer value) {
+/* 178 */       addCriterion("SORT_NO =", value, "sortNo");
+/* 179 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNoNotEqualTo(Integer value) {
+/* 183 */       addCriterion("SORT_NO <>", value, "sortNo");
+/* 184 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNoGreaterThan(Integer value) {
+/* 188 */       addCriterion("SORT_NO >", value, "sortNo");
+/* 189 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNoGreaterThanOrEqualTo(Integer value) {
+/* 193 */       addCriterion("SORT_NO >=", value, "sortNo");
+/* 194 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNoLessThan(Integer value) {
+/* 198 */       addCriterion("SORT_NO <", value, "sortNo");
+/* 199 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNoLessThanOrEqualTo(Integer value) {
+/* 203 */       addCriterion("SORT_NO <=", value, "sortNo");
+/* 204 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNoIn(List<Integer> values) {
+/* 208 */       addCriterion("SORT_NO in", values, "sortNo");
+/* 209 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNoNotIn(List<Integer> values) {
+/* 213 */       addCriterion("SORT_NO not in", values, "sortNo");
+/* 214 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNoBetween(Integer value1, Integer value2) {
+/* 218 */       addCriterion("SORT_NO between", value1, value2, "sortNo");
+/* 219 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNoNotBetween(Integer value1, Integer value2) {
+/* 223 */       addCriterion("SORT_NO not between", value1, value2, "sortNo");
+/* 224 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNameIsNull() {
+/* 228 */       addCriterion("SORT_NAME is null");
+/* 229 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNameIsNotNull() {
+/* 233 */       addCriterion("SORT_NAME is not null");
+/* 234 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNameEqualTo(String value) {
+/* 238 */       addCriterion("SORT_NAME =", value, "sortName");
+/* 239 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNameNotEqualTo(String value) {
+/* 243 */       addCriterion("SORT_NAME <>", value, "sortName");
+/* 244 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNameGreaterThan(String value) {
+/* 248 */       addCriterion("SORT_NAME >", value, "sortName");
+/* 249 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNameGreaterThanOrEqualTo(String value) {
+/* 253 */       addCriterion("SORT_NAME >=", value, "sortName");
+/* 254 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNameLessThan(String value) {
+/* 258 */       addCriterion("SORT_NAME <", value, "sortName");
+/* 259 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNameLessThanOrEqualTo(String value) {
+/* 263 */       addCriterion("SORT_NAME <=", value, "sortName");
+/* 264 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNameLike(String value) {
+/* 268 */       addCriterion("SORT_NAME like", value, "sortName");
+/* 269 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNameNotLike(String value) {
+/* 273 */       addCriterion("SORT_NAME not like", value, "sortName");
+/* 274 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNameIn(List<String> values) {
+/* 278 */       addCriterion("SORT_NAME in", values, "sortName");
+/* 279 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNameNotIn(List<String> values) {
+/* 283 */       addCriterion("SORT_NAME not in", values, "sortName");
+/* 284 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNameBetween(String value1, String value2) {
+/* 288 */       addCriterion("SORT_NAME between", value1, value2, "sortName");
+/* 289 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortNameNotBetween(String value1, String value2) {
+/* 293 */       addCriterion("SORT_NAME not between", value1, value2, "sortName");
+/* 294 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andDeptIdIsNull() {
+/* 298 */       addCriterion("DEPT_ID is null");
+/* 299 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andDeptIdIsNotNull() {
+/* 303 */       addCriterion("DEPT_ID is not null");
+/* 304 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andDeptIdEqualTo(Integer value) {
+/* 308 */       addCriterion("DEPT_ID =", value, "deptId");
+/* 309 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andDeptIdNotEqualTo(Integer value) {
+/* 313 */       addCriterion("DEPT_ID <>", value, "deptId");
+/* 314 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andDeptIdGreaterThan(Integer value) {
+/* 318 */       addCriterion("DEPT_ID >", value, "deptId");
+/* 319 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andDeptIdGreaterThanOrEqualTo(Integer value) {
+/* 323 */       addCriterion("DEPT_ID >=", value, "deptId");
+/* 324 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andDeptIdLessThan(Integer value) {
+/* 328 */       addCriterion("DEPT_ID <", value, "deptId");
+/* 329 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andDeptIdLessThanOrEqualTo(Integer value) {
+/* 333 */       addCriterion("DEPT_ID <=", value, "deptId");
+/* 334 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andDeptIdIn(List<Integer> values) {
+/* 338 */       addCriterion("DEPT_ID in", values, "deptId");
+/* 339 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andDeptIdNotIn(List<Integer> values) {
+/* 343 */       addCriterion("DEPT_ID not in", values, "deptId");
+/* 344 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andDeptIdBetween(Integer value1, Integer value2) {
+/* 348 */       addCriterion("DEPT_ID between", value1, value2, "deptId");
+/* 349 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andDeptIdNotBetween(Integer value1, Integer value2) {
+/* 353 */       addCriterion("DEPT_ID not between", value1, value2, "deptId");
+/* 354 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortParentIsNull() {
+/* 358 */       addCriterion("SORT_PARENT is null");
+/* 359 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortParentIsNotNull() {
+/* 363 */       addCriterion("SORT_PARENT is not null");
+/* 364 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortParentEqualTo(Integer value) {
+/* 368 */       addCriterion("SORT_PARENT =", value, "sortParent");
+/* 369 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortParentNotEqualTo(Integer value) {
+/* 373 */       addCriterion("SORT_PARENT <>", value, "sortParent");
+/* 374 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortParentGreaterThan(Integer value) {
+/* 378 */       addCriterion("SORT_PARENT >", value, "sortParent");
+/* 379 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortParentGreaterThanOrEqualTo(Integer value) {
+/* 383 */       addCriterion("SORT_PARENT >=", value, "sortParent");
+/* 384 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortParentLessThan(Integer value) {
+/* 388 */       addCriterion("SORT_PARENT <", value, "sortParent");
+/* 389 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortParentLessThanOrEqualTo(Integer value) {
+/* 393 */       addCriterion("SORT_PARENT <=", value, "sortParent");
+/* 394 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortParentIn(List<Integer> values) {
+/* 398 */       addCriterion("SORT_PARENT in", values, "sortParent");
+/* 399 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortParentNotIn(List<Integer> values) {
+/* 403 */       addCriterion("SORT_PARENT not in", values, "sortParent");
+/* 404 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortParentBetween(Integer value1, Integer value2) {
+/* 408 */       addCriterion("SORT_PARENT between", value1, value2, "sortParent");
+/* 409 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andSortParentNotBetween(Integer value1, Integer value2) {
+/* 413 */       addCriterion("SORT_PARENT not between", value1, value2, "sortParent");
+/* 414 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andHaveChildIsNull() {
+/* 418 */       addCriterion("HAVE_CHILD is null");
+/* 419 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andHaveChildIsNotNull() {
+/* 423 */       addCriterion("HAVE_CHILD is not null");
+/* 424 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andHaveChildEqualTo(String value) {
+/* 428 */       addCriterion("HAVE_CHILD =", value, "haveChild");
+/* 429 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andHaveChildNotEqualTo(String value) {
+/* 433 */       addCriterion("HAVE_CHILD <>", value, "haveChild");
+/* 434 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andHaveChildGreaterThan(String value) {
+/* 438 */       addCriterion("HAVE_CHILD >", value, "haveChild");
+/* 439 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andHaveChildGreaterThanOrEqualTo(String value) {
+/* 443 */       addCriterion("HAVE_CHILD >=", value, "haveChild");
+/* 444 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andHaveChildLessThan(String value) {
+/* 448 */       addCriterion("HAVE_CHILD <", value, "haveChild");
+/* 449 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andHaveChildLessThanOrEqualTo(String value) {
+/* 453 */       addCriterion("HAVE_CHILD <=", value, "haveChild");
+/* 454 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andHaveChildLike(String value) {
+/* 458 */       addCriterion("HAVE_CHILD like", value, "haveChild");
+/* 459 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andHaveChildNotLike(String value) {
+/* 463 */       addCriterion("HAVE_CHILD not like", value, "haveChild");
+/* 464 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andHaveChildIn(List<String> values) {
+/* 468 */       addCriterion("HAVE_CHILD in", values, "haveChild");
+/* 469 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andHaveChildNotIn(List<String> values) {
+/* 473 */       addCriterion("HAVE_CHILD not in", values, "haveChild");
+/* 474 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andHaveChildBetween(String value1, String value2) {
+/* 478 */       addCriterion("HAVE_CHILD between", value1, value2, "haveChild");
+/* 479 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowSortExample.Criteria andHaveChildNotBetween(String value1, String value2) {
+/* 483 */       addCriterion("HAVE_CHILD not between", value1, value2, "haveChild");
+/* 484 */       return (FlowSortExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.workflow.FlowSortExample
+ * JD-Core Version:    0.6.0
+ */

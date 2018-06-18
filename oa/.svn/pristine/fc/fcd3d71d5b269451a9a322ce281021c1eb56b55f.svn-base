@@ -1,0 +1,157 @@
+/*     */ package com.xoa.service.position;
+/*     */ 
+/*     */ import com.xoa.dao.common.SysCodeMapper;
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.position.PositionManagementMapper;
+/*     */ import com.xoa.model.common.SysCode;
+/*     */ import com.xoa.model.department.Department;
+/*     */ import com.xoa.model.position.UserJob;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.GetAttachmentListUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.List;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class PositionManagementService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   PositionManagementMapper positionManagementMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   SysCodeMapper sysCodeMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   public ToJson<UserJob> selectUserJobList(UserJob userJob)
+/*     */   {
+/*  31 */     ToJson toJson = new ToJson(1, "error");
+/*     */ 
+/*  37 */     List<UserJob> list = this.positionManagementMapper.selectUserJobList(userJob);
+/*     */ 
+/*  39 */     int getcount = 0;
+/*  40 */     getcount = this.positionManagementMapper.getcount();
+/*     */ 
+/*  44 */     for (UserJob userJob1 : list) {
+/*  45 */       SysCode sysCode = this.sysCodeMapper.getSingleCode("function", String.valueOf(userJob1.getType()));
+/*  46 */       if (sysCode != null)
+/*  47 */         userJob1.setTypeName(sysCode.getCodeName());
+/*     */       else {
+/*  49 */         userJob1.setTypeName("");
+/*     */       }
+/*  51 */       Department mapperDeptById = this.departmentMapper.getDeptById(userJob1.getDeptId().intValue());
+/*  52 */       if (mapperDeptById != null)
+/*  53 */         userJob1.setDeptName(mapperDeptById.getDeptName());
+/*     */       else {
+/*  55 */         userJob1.setDeptName("");
+/*     */       }
+/*     */     }
+/*  58 */     if (list != null) {
+/*  59 */       toJson.setFlag(0);
+/*  60 */       toJson.setMsg("查询成功");
+/*  61 */       toJson.setObj(list);
+/*     */     } else {
+/*  63 */       toJson.setFlag(1);
+/*  64 */       toJson.setMsg("列表为空");
+/*     */     }
+/*     */ 
+/*  67 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<UserJob> updateUserJob(UserJob userJob)
+/*     */   {
+/*  74 */     ToJson toJson = new ToJson(1, "error");
+/*  75 */     int a = this.positionManagementMapper.updateUserJob(userJob);
+/*  76 */     if (a > 0)
+/*     */     {
+/*  78 */       toJson.setFlag(0);
+/*  79 */       toJson.setMsg("修改成功");
+/*     */     } else {
+/*  81 */       toJson.setFlag(1);
+/*  82 */       toJson.setMsg("修改失败");
+/*     */     }
+/*  84 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<UserJob> deleteUserJob(Integer jobId)
+/*     */   {
+/*  89 */     ToJson toJson = new ToJson(1, "error");
+/*  90 */     int a = this.positionManagementMapper.deleteUserJob(jobId);
+/*  91 */     if (a > 0) {
+/*  92 */       toJson.setFlag(0);
+/*  93 */       toJson.setMsg("删除成功");
+/*     */     }
+/*     */     else {
+/*  96 */       toJson.setFlag(1);
+/*  97 */       toJson.setMsg("删除失败");
+/*     */     }
+/*     */ 
+/* 100 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<UserJob> addUserJob(UserJob userJob)
+/*     */   {
+/* 109 */     ToJson toJson = new ToJson(1, "error");
+/* 110 */     int a = this.positionManagementMapper.addUserJob(userJob);
+/* 111 */     if (a > 0) {
+/* 112 */       toJson.setFlag(0);
+/* 113 */       toJson.setMsg("插入成功");
+/*     */     } else {
+/* 115 */       toJson.setFlag(1);
+/* 116 */       toJson.setMsg("插入失败");
+/*     */     }
+/* 118 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<UserJob> getUserjobId(HttpServletRequest request, Integer jobId) {
+/* 122 */     ToJson toJson = new ToJson(1, "error");
+/* 123 */     UserJob list = this.positionManagementMapper.getUserjobId(jobId);
+/*     */ 
+/* 125 */     if (list != null) {
+/* 126 */       SysCode sysCode = this.sysCodeMapper.getSingleCode("function", String.valueOf(list.getType()));
+/* 127 */       if (sysCode != null)
+/* 128 */         list.setTypeName(sysCode.getCodeName());
+/*     */       else {
+/* 130 */         list.setTypeName("");
+/*     */       }
+/*     */ 
+/* 134 */       String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 136 */       ContextHolder.setConsumerType(sqlType);
+/*     */ 
+/* 138 */       if ((!StringUtils.checkNull(list.getAttachmentName()).booleanValue()) && (!StringUtils.checkNull(list.getAttachmentId()).booleanValue())) {
+/* 139 */         list.setAttachment(GetAttachmentListUtil.returnAttachment(list.getAttachmentName(), list.getAttachmentId(), sqlType, "userjob"));
+/*     */       }
+/* 141 */       Department mapperDeptById = this.departmentMapper.getDeptById(list.getDeptId().intValue());
+/* 142 */       if (mapperDeptById != null)
+/* 143 */         list.setDeptName(mapperDeptById.getDeptName());
+/*     */       else {
+/* 145 */         list.setDeptName("");
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 150 */     if (list != null) {
+/* 151 */       toJson.setFlag(0);
+/* 152 */       toJson.setMsg("查询成功");
+/* 153 */       toJson.setObject(list);
+/*     */     } else {
+/* 155 */       toJson.setFlag(1);
+/* 156 */       toJson.setMsg("查询数据为空");
+/*     */     }
+/*     */ 
+/* 159 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.position.PositionManagementService
+ * JD-Core Version:    0.6.0
+ */

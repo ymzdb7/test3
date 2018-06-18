@@ -1,0 +1,63 @@
+/*    */ package com.xoa.controller.duties;
+/*    */ 
+/*    */ import com.xoa.model.duties.UserPost;
+/*    */ import com.xoa.service.duties.DutiesManagementService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.beans.factory.annotation.Autowired;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.RestController;
+/*    */ 
+/*    */ @RestController
+/*    */ @RequestMapping({"/duties"})
+/*    */ public class DutiesManagementController
+/*    */ {
+/*    */ 
+/*    */   @Autowired
+/*    */   DutiesManagementService dutiesManagementService;
+/*    */ 
+/*    */   @RequestMapping({"/getUserPostId"})
+/*    */   public ToJson<UserPost> getUserPostId(HttpServletRequest request, Integer postId)
+/*    */   {
+/* 22 */     ToJson toJson = this.dutiesManagementService.getUserPostId(request, postId);
+/*    */ 
+/* 24 */     return toJson;
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/selectUserPostList"})
+/*    */   public ToJson<UserPost> selectUserPostList(UserPost userPost, HttpServletRequest request)
+/*    */   {
+/* 32 */     ToJson toJson = this.dutiesManagementService.selectUserPostList(userPost, request);
+/*    */ 
+/* 34 */     return toJson;
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/updateUserPost"})
+/*    */   public ToJson<UserPost> updateUserPost(UserPost userPost)
+/*    */   {
+/* 41 */     ToJson toJson = this.dutiesManagementService.updateUserPost(userPost);
+/*    */ 
+/* 43 */     return toJson;
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/deleteUserPost"})
+/*    */   public ToJson<UserPost> deleteUserPost(Integer postId)
+/*    */   {
+/* 51 */     ToJson toJson = this.dutiesManagementService.deleteUserPost(postId);
+/*    */ 
+/* 53 */     return toJson;
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/addUserPost"})
+/*    */   public ToJson<UserPost> addUserPost(UserPost userPost)
+/*    */   {
+/* 61 */     ToJson toJson = this.dutiesManagementService.addUserPost(userPost);
+/*    */ 
+/* 63 */     return toJson;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.duties.DutiesManagementController
+ * JD-Core Version:    0.6.0
+ */

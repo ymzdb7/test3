@@ -1,0 +1,174 @@
+/*     */ package com.xoa.util;
+/*     */ 
+/*     */ import com.xoa.model.weather.OneDayWeatherInf;
+/*     */ import com.xoa.model.weather.WeatherInf;
+/*     */ import java.io.BufferedReader;
+/*     */ import java.io.IOException;
+/*     */ import java.io.InputStreamReader;
+/*     */ import java.io.UnsupportedEncodingException;
+/*     */ import java.net.MalformedURLException;
+/*     */ import java.net.URL;
+/*     */ import java.net.URLConnection;
+/*     */ import java.net.URLEncoder;
+/*     */ import java.util.Date;
+/*     */ import net.sf.json.JSONArray;
+/*     */ import net.sf.json.JSONObject;
+/*     */ 
+/*     */ public class WeatherUtil
+/*     */ {
+/*     */   private static final String SUN = "晴";
+/*     */   private static final String CLOUDY = "多云";
+/*     */   private static final String OVERCAST = "阴";
+/*     */   private static final String THUNDER_SHOWER = "雷阵雨";
+/*     */   private static final String LIGHT_RAIN = "小雨";
+/*     */   private static final String MODERATE_RAIN = "中雨";
+/*     */   private static final String HEAVY_RAIN = "大雨";
+/*     */   private static final String RAINSTORM = "暴雨";
+/*     */ 
+/*     */   static String getWeatherInform(String cityName)
+/*     */   {
+/*  28 */     String baiduUrl = "http://api.map.baidu.com/telematics/v3/weather?location=北京&output=json&ak=W69oaDTCfuGwzNwmtVvgWfGH";
+/*     */     try
+/*     */     {
+/*  34 */       baiduUrl = "http://api.map.baidu.com/telematics/v3/weather?location=" + URLEncoder.encode(cityName, "utf-8") + "&output=json&ak=eQX5bMc9sGz8SPWquI3XV7x5eTAIgCQj";
+/*     */     } catch (UnsupportedEncodingException e1) {
+/*  36 */       e1.printStackTrace();
+/*     */     }
+/*     */ 
+/*  39 */     StringBuffer strBuf = new StringBuffer();
+/*     */     try
+/*     */     {
+/*  42 */       URL url = new URL(baiduUrl);
+/*  43 */       URLConnection conn = url.openConnection();
+/*  44 */       BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
+/*  45 */       String line = null;
+/*  46 */       while ((line = reader.readLine()) != null)
+/*  47 */         strBuf.append(line + " ");
+/*  48 */       reader.close();
+/*     */     } catch (MalformedURLException e) {
+/*  50 */       e.printStackTrace();
+/*     */     } catch (IOException e) {
+/*  52 */       e.printStackTrace();
+/*     */     }
+/*     */ 
+/*  55 */     return strBuf.toString();
+/*     */   }
+/*     */ 
+/*     */   public static WeatherInf resolveWeatherInf(String cityName)
+/*     */   {
+/*  61 */     WeatherInf weatherInf = new WeatherInf();
+/*     */     try
+/*     */     {
+/*  64 */       String weatherInform = getWeatherInform(cityName);
+/*     */ 
+/*  66 */       JSONObject dataOfJson = JSONObject.fromObject(weatherInform);
+/*     */ 
+/*  68 */       if (dataOfJson.getInt("error") != 0) {
+/*  69 */         return null;
+/*     */       }
+/*     */ 
+/*  73 */       String date = dataOfJson.getString("date");
+/*  74 */       int year = Integer.parseInt(date.substring(0, 4));
+/*  75 */       int month = Integer.parseInt(date.substring(5, 7));
+/*  76 */       int day = Integer.parseInt(date.substring(8, 10));
+/*  77 */       Date today = new Date(year - 1900, month - 1, day);
+/*     */ 
+/*  79 */       JSONArray results = dataOfJson.getJSONArray("results");
+/*  80 */       JSONObject results0 = results.getJSONObject(0);
+/*     */ 
+/*  82 */       String location = results0.getString("currentCity");
+/*     */       int pmTwoPointFive;
+/*  85 */       if (results0.getString("pm25").isEmpty())
+/*  86 */         pmTwoPointFive = 0;
+/*     */       else {
+/*  88 */         pmTwoPointFive = results0.getInt("pm25");
+/*     */       }
+/*     */ 
+/* 124 */       JSONArray weather_data = results0.getJSONArray("weather_data");
+/*     */ 
+/* 126 */       OneDayWeatherInf[] oneDayWeatherInfS = new OneDayWeatherInf[4];
+/* 127 */       for (int i = 0; i < 4; i++) {
+/* 128 */         oneDayWeatherInfS[i] = new OneDayWeatherInf();
+/*     */       }
+/*     */ 
+/* 132 */       for (int i = 0; i < 1; i++)
+/*     */       {
+/* 134 */         JSONObject OneDayWeatherinfo = weather_data.getJSONObject(i);
+/* 135 */         String dayData = OneDayWeatherinfo.getString("date");
+/* 136 */         OneDayWeatherInf oneDayWeatherInf = new OneDayWeatherInf();
+/*     */ 
+/* 138 */         oneDayWeatherInf.setDate(today.getYear() + 1900 + "." + (today.getMonth() + 1) + "." + today.getDate());
+/* 139 */         today.setDate(today.getDate() + 1);
+/*     */ 
+/* 141 */         oneDayWeatherInf.setLocation(location);
+/* 142 */         oneDayWeatherInf.setPmTwoPointFive(pmTwoPointFive);
+/*     */ 
+/* 144 */         if (i == 0) {
+/* 145 */           int beginIndex = dayData.indexOf("：");
+/* 146 */           int endIndex = dayData.indexOf(")");
+/* 147 */           if (beginIndex > -1) {
+/* 148 */             oneDayWeatherInf.setTempertureNow(dayData.substring(beginIndex + 1, endIndex).replace("℃", ""));
+/* 149 */             oneDayWeatherInf.setWeek(OneDayWeatherinfo.getString("date").substring(0, 2));
+/*     */           } else {
+/* 151 */             oneDayWeatherInf.setTempertureNow(" ");
+/* 152 */             oneDayWeatherInf.setWeek(OneDayWeatherinfo.getString("date").substring(0, 2));
+/*     */           }
+/*     */         }
+/*     */         else {
+/* 156 */           oneDayWeatherInf.setWeek(OneDayWeatherinfo.getString("date"));
+/*     */         }
+/*     */ 
+/* 159 */         oneDayWeatherInf.setTempertureOfDay(OneDayWeatherinfo.getString("temperature"));
+/* 160 */         oneDayWeatherInf.setWeather(OneDayWeatherinfo.getString("weather"));
+/* 161 */         oneDayWeatherInf.setWind(OneDayWeatherinfo.getString("wind"));
+/*     */ 
+/* 163 */         oneDayWeatherInf = setWeatherPicture(oneDayWeatherInf);
+/* 164 */         oneDayWeatherInfS[i] = oneDayWeatherInf;
+/*     */       }
+/*     */ 
+/* 167 */       weatherInf.setWeatherInfs(oneDayWeatherInfS);
+/*     */     }
+/*     */     catch (Exception e) {
+/* 170 */       e.printStackTrace();
+/* 171 */       return null;
+/*     */     }
+/*     */ 
+/* 174 */     return weatherInf;
+/*     */   }
+/*     */ 
+/*     */   public static OneDayWeatherInf setWeatherPicture(OneDayWeatherInf oneDayWeatherInf)
+/*     */   {
+/* 180 */     switch (oneDayWeatherInf.getWeather()) {
+/*     */     case "晴":
+/* 182 */       oneDayWeatherInf.setPicture("");
+/* 183 */       break;
+/*     */     case "多云":
+/* 185 */       oneDayWeatherInf.setPicture("");
+/* 186 */       break;
+/*     */     case "阴":
+/* 188 */       oneDayWeatherInf.setPicture("");
+/* 189 */       break;
+/*     */     case "雷阵雨":
+/* 191 */       oneDayWeatherInf.setPicture("");
+/* 192 */       break;
+/*     */     case "小雨":
+/* 194 */       oneDayWeatherInf.setPicture("");
+/* 195 */       break;
+/*     */     case "中雨":
+/* 197 */       oneDayWeatherInf.setPicture("");
+/* 198 */       break;
+/*     */     case "大雨":
+/* 200 */       oneDayWeatherInf.setPicture("");
+/* 201 */       break;
+/*     */     case "暴雨":
+/* 203 */       oneDayWeatherInf.setPicture("");
+/*     */     }
+/*     */ 
+/* 206 */     return oneDayWeatherInf;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.WeatherUtil
+ * JD-Core Version:    0.6.0
+ */

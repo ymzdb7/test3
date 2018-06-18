@@ -1,0 +1,65 @@
+/*    */ package com.xoa.service.flowplugin.impl;
+/*    */ 
+/*    */ import com.xoa.dao.flowplugin.FlowPluginMapper;
+/*    */ import com.xoa.model.flowplugin.FlowPluginModel;
+/*    */ import com.xoa.service.flowplugin.FlowPluginService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import com.xoa.util.common.L;
+/*    */ import javax.annotation.Resource;
+/*    */ import org.springframework.stereotype.Service;
+/*    */ import org.springframework.transaction.annotation.Transactional;
+/*    */ 
+/*    */ @Service
+/*    */ public class FlowPluginServiceImpl
+/*    */   implements FlowPluginService
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   private FlowPluginMapper flowPluginMapper;
+/*    */ 
+/*    */   @Transactional
+/*    */   public ToJson<FlowPluginModel> save(FlowPluginModel flowPluginModel)
+/*    */   {
+/* 37 */     ToJson toJson = new ToJson(1, "error");
+/*    */     try {
+/* 39 */       this.flowPluginMapper.save(flowPluginModel);
+/* 40 */       toJson.setFlag(0);
+/* 41 */       toJson.setMsg("ok");
+/* 42 */       toJson.setObject(flowPluginModel);
+/*    */     } catch (Exception e) {
+/* 44 */       L.e(new Object[] { "FlowPluginServiceImpl save:" + e });
+/*    */     }
+/* 46 */     return toJson;
+/*    */   }
+/*    */ 
+/*    */   public ToJson selectList(Integer flowPluginId)
+/*    */   {
+/* 59 */     ToJson toJson = new ToJson(1, "error");
+/* 60 */     FlowPluginModel flowPluginModel = this.flowPluginMapper.selectList(flowPluginId);
+/* 61 */     if (flowPluginModel != null) {
+/* 62 */       toJson.setFlag(0);
+/* 63 */       toJson.setMsg("ok");
+/* 64 */       toJson.setObject(flowPluginModel);
+/*    */     }
+/* 66 */     return toJson;
+/*    */   }
+/*    */ 
+/*    */   @Transactional(readOnly=true)
+/*    */   public ToJson showPlugin()
+/*    */   {
+/* 79 */     ToJson toJson = new ToJson(1, "error");
+/*    */     try {
+/* 81 */       toJson.setObj(this.flowPluginMapper.showFlowPlugin());
+/* 82 */       toJson.setFlag(0);
+/* 83 */       toJson.setMsg("ok");
+/*    */     } catch (Exception e) {
+/* 85 */       L.e(new Object[] { "FlowPluginServiceImpl showPlugin:" + e });
+/*    */     }
+/* 87 */     return toJson;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.flowplugin.impl.FlowPluginServiceImpl
+ * JD-Core Version:    0.6.0
+ */

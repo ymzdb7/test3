@@ -1,0 +1,86 @@
+/*     */ package com.xoa.controller.officeSupplies;
+/*     */ 
+/*     */ import com.xoa.model.officesupplies.OfficeDepositoryWithBLOBs;
+/*     */ import com.xoa.service.officesupplies.OfficeDepositoryService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/officeDepository"})
+/*     */ public class OfficeDepositoryController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private OfficeDepositoryService depositoryService;
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/insertDepository"})
+/*     */   ToJson<OfficeDepositoryWithBLOBs> insertDepository(OfficeDepositoryWithBLOBs depositoryWithBLOBs)
+/*     */   {
+/*  37 */     return this.depositoryService.insertDepository(depositoryWithBLOBs);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/updateDepositoryById"})
+/*     */   ToJson<OfficeDepositoryWithBLOBs> updateDepositoryById(OfficeDepositoryWithBLOBs depositoryWithBLOBs)
+/*     */   {
+/*  50 */     return this.depositoryService.updateDepositoryById(depositoryWithBLOBs);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/delDepositoryById"})
+/*     */   ToJson<OfficeDepositoryWithBLOBs> delDepositoryById(Integer id)
+/*     */   {
+/*  63 */     return this.depositoryService.delDepositoryById(id);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selDepositoryById"})
+/*     */   ToJson<OfficeDepositoryWithBLOBs> selDepositoryById(Integer id)
+/*     */   {
+/*  76 */     return this.depositoryService.selDepositoryById(id);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selAllDepository"})
+/*     */   ToJson<OfficeDepositoryWithBLOBs> selAllDepository()
+/*     */   {
+/*  89 */     return this.depositoryService.selAllDepository();
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/goDepositoryindex"})
+/*     */   public String goDepositoryList()
+/*     */   {
+/*  99 */     return "app/officeSupplies/depository/index";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getDepositoryNameById"})
+/*     */   public ToJson<OfficeDepositoryWithBLOBs> getDepositoryNameById(Integer id)
+/*     */   {
+/* 110 */     return this.depositoryService.selDepositoryById(id);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getDeposttoryByDept"})
+/*     */   public ToJson<OfficeDepositoryWithBLOBs> selDepositoryByDept(HttpServletRequest request)
+/*     */   {
+/* 122 */     return this.depositoryService.selDepositoryByDept(request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getAllDeposttoryTree"})
+/*     */   public ToJson<OfficeDepositoryWithBLOBs> getAllDeposttoryTree(HttpServletRequest request)
+/*     */   {
+/* 133 */     return this.depositoryService.getAllDeposttoryTree(request);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.officeSupplies.OfficeDepositoryController
+ * JD-Core Version:    0.6.0
+ */

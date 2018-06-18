@@ -1,0 +1,114 @@
+/*     */ package com.xoa.model.document;
+/*     */ 
+/*     */ import com.xoa.model.sys.SealWithBLOBs;
+/*     */ import com.xoa.model.workflow.FlowFast;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class DocumentModelWithBLOBs extends DocumentModel
+/*     */ {
+/*     */   private String remark;
+/*     */   private String content;
+/*     */   private String userName;
+/*     */   private String tableName;
+/*     */   private FlowFast flowFastToJson;
+/*     */   private String prcsName;
+/*     */   private String prcsId;
+/*     */   private String startTime;
+/*     */   private String endTime;
+/*     */   private String draftType;
+/*     */   private List<SealWithBLOBs> sealWithBLOBs;
+/*     */ 
+/*     */   public List<SealWithBLOBs> getSealWithBLOBs()
+/*     */   {
+/*  50 */     return this.sealWithBLOBs;
+/*     */   }
+/*     */ 
+/*     */   public void setSealWithBLOBs(List<SealWithBLOBs> sealWithBLOBs) {
+/*  54 */     this.sealWithBLOBs = sealWithBLOBs;
+/*     */   }
+/*     */ 
+/*     */   public String getDraftType() {
+/*  58 */     return this.draftType;
+/*     */   }
+/*     */ 
+/*     */   public void setDraftType(String draftType) {
+/*  62 */     this.draftType = draftType;
+/*     */   }
+/*     */ 
+/*     */   public String getPrcsId() {
+/*  66 */     return this.prcsId;
+/*     */   }
+/*     */ 
+/*     */   public void setPrcsId(String prcsId) {
+/*  70 */     this.prcsId = prcsId;
+/*     */   }
+/*     */ 
+/*     */   public String getPrcsName() {
+/*  74 */     return this.prcsName;
+/*     */   }
+/*     */ 
+/*     */   public void setPrcsName(String prcsName) {
+/*  78 */     this.prcsName = (prcsName == null ? "" : prcsName.trim());
+/*     */   }
+/*     */ 
+/*     */   public String getTableName() {
+/*  82 */     if (StringUtils.checkNull(this.tableName).booleanValue()) {
+/*  83 */       return "document";
+/*     */     }
+/*  85 */     return this.tableName;
+/*     */   }
+/*     */ 
+/*     */   public void setTableName(String tableName) {
+/*  89 */     this.tableName = (tableName == null ? "" : tableName.trim());
+/*     */   }
+/*     */ 
+/*     */   public FlowFast getFlowFastToJson() {
+/*  93 */     return this.flowFastToJson;
+/*     */   }
+/*     */ 
+/*     */   public void setFlowFastToJson(FlowFast flowFastToJson) {
+/*  97 */     this.flowFastToJson = flowFastToJson;
+/*     */   }
+/*     */ 
+/*     */   public String getUserName() {
+/* 101 */     return this.userName;
+/*     */   }
+/*     */ 
+/*     */   public void setUserName(String userName) {
+/* 105 */     this.userName = (userName == null ? "" : userName.trim());
+/*     */   }
+/*     */ 
+/*     */   public String getRemark()
+/*     */   {
+/* 117 */     return this.remark;
+/*     */   }
+/*     */ 
+/*     */   public void setRemark(String remark)
+/*     */   {
+/* 129 */     this.remark = (remark == null ? "" : remark.trim());
+/*     */   }
+/*     */ 
+/*     */   public String getContent()
+/*     */   {
+/* 141 */     return this.content;
+/*     */   }
+/*     */ 
+/*     */   public void setContent(String content)
+/*     */   {
+/* 153 */     this.content = (content == null ? "" : content.trim());
+/*     */   }
+/*     */ 
+/*     */   public DocumentModelWithBLOBs() {
+/*     */   }
+/*     */ 
+/*     */   public DocumentModelWithBLOBs(Integer id, Integer flowId, Integer runId, String flowRunName, String flowStatus, String flowPrcs, String curUserId, String allUserId, String content) {
+/* 160 */     super(id, flowId, runId, flowRunName, flowStatus, flowPrcs, curUserId, allUserId);
+/* 161 */     this.content = content;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.document.DocumentModelWithBLOBs
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,58 @@
+/*    */ package com.xoa.controller.meeting;
+/*    */ 
+/*    */ import com.xoa.model.meet.MeetingEquuipment;
+/*    */ import com.xoa.service.meeting.MeetEquuipmentService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import javax.annotation.Resource;
+/*    */ import org.springframework.stereotype.Controller;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"/Meetequipment"})
+/*    */ public class MeetequipmentController
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   private MeetEquuipmentService meetEquuipmentService;
+/*    */ 
+/*    */   @RequestMapping({"/getAllEquiet"})
+/*    */   @ResponseBody
+/*    */   public ToJson<MeetingEquuipment> getAllEquiet(Integer page, Integer pageSize, boolean useFlag)
+/*    */   {
+/* 35 */     return this.meetEquuipmentService.getAllEquip(page, pageSize, useFlag);
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/getdetailEquiet"})
+/*    */   @ResponseBody
+/*    */   public ToJson<MeetingEquuipment> getdetailEquiet(String Sid)
+/*    */   {
+/* 47 */     return this.meetEquuipmentService.getdetailEquiet(Sid);
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/updateEquiet"})
+/*    */   @ResponseBody
+/*    */   public ToJson<Object> updateEquiet(MeetingEquuipment meetingEquuipment)
+/*    */   {
+/* 59 */     return this.meetEquuipmentService.updateEquiet(meetingEquuipment);
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/deleteEquiets"})
+/*    */   @ResponseBody
+/*    */   public ToJson<Object> deleteEquiets(String Sids)
+/*    */   {
+/* 71 */     return this.meetEquuipmentService.deleteEquiets(Sids);
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/addEquiets"})
+/*    */   @ResponseBody
+/*    */   public ToJson<Object> addEquiet(MeetingEquuipment meetingEquuipment)
+/*    */   {
+/* 83 */     return this.meetEquuipmentService.addEquiet(meetingEquuipment);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.meeting.MeetequipmentController
+ * JD-Core Version:    0.6.0
+ */

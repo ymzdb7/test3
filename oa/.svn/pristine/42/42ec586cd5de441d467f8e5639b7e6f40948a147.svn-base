@@ -1,0 +1,29 @@
+package com.xoa.controller.file;
+
+import com.xoa.model.enclosure.Attachment;
+import com.xoa.util.common.wrapper.BaseWrapper;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@RequestMapping({ "/file" })
+@Controller
+public class Test {
+	@RequestMapping({ "/test" })
+	@ResponseBody
+	public BaseWrapper test1(Integer type) {
+		BaseWrapper wrapper = new BaseWrapper();
+		Attachment att = new Attachment();
+		att.setYm("2015-03-09");
+
+		wrapper.setFlag(true);
+		wrapper.setStatus(true);
+		if (type.intValue() == 1) {
+			wrapper.setData(Integer.valueOf(type.intValue() + 1));
+		} else {
+			wrapper.setFlag(false);
+			wrapper.setStatus(false);
+		}
+		return wrapper;
+	}
+}

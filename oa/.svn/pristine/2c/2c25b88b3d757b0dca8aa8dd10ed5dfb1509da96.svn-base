@@ -1,0 +1,150 @@
+/*     */ package com.xoa.service.seal;
+/*     */ 
+/*     */ import com.xoa.dao.seal.SealJingeKeyMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.seal.SealJingeKey;
+/*     */ import com.xoa.model.seal.SealJingeKeyExample;
+/*     */ import com.xoa.model.seal.SealJingeKeyExample.Criteria;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class SealJingeKeyService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private SealJingeKeyMapper sealJingeKeyMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   public ToJson<SealJingeKey> addSealJingeKeyList(HttpServletRequest request, SealJingeKey sealJingeKey)
+/*     */   {
+/*  33 */     ToJson toJson = new ToJson();
+/*     */ 
+/*  35 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  36 */     sealJingeKey.setCreateUser(user.getUserId());
+/*  37 */     sealJingeKey.setCreateTime(new Date());
+/*     */     try
+/*     */     {
+/*  40 */       int result = this.sealJingeKeyMapper.insertSelective(sealJingeKey);
+/*  41 */       if (result > 0) {
+/*  42 */         toJson.setFlag(0);
+/*  43 */         toJson.setMsg("删除成功!");
+/*     */       } else {
+/*  45 */         toJson.setFlag(1);
+/*  46 */         toJson.setMsg("删除失败!");
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  49 */       e.printStackTrace();
+/*     */     }
+/*  51 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SealJingeKey> getSealJingeKeyList(Integer sealId)
+/*     */   {
+/*  56 */     ToJson toJson = new ToJson();
+/*     */ 
+/*  58 */     SealJingeKeyExample example = new SealJingeKeyExample();
+/*  59 */     example.or().andSealIdEqualTo(sealId);
+/*  60 */     List<SealJingeKey> sealJingeKeyList = this.sealJingeKeyMapper.selectByExample(example);
+/*     */ 
+/*  62 */     for (SealJingeKey sealJingeKey : sealJingeKeyList) {
+/*  63 */       String userNames = "";
+/*  64 */       String[] userIds = sealJingeKey.getUserIdStr().split(",");
+/*  65 */       for (String userId : userIds) {
+/*  66 */         String userName = this.usersMapper.getUsernameById(userId);
+/*  67 */         if (userName != null) {
+/*  68 */           userNames = userNames + "," + userName;
+/*     */         }
+/*     */       }
+/*  71 */       userNames = userNames.replaceFirst(",", "");
+/*  72 */       sealJingeKey.setUserNames(userNames);
+/*     */     }
+/*  74 */     if (sealJingeKeyList != null) {
+/*  75 */       toJson.setFlag(0);
+/*  76 */       toJson.setMsg("查询成功!");
+/*  77 */       toJson.setObj(sealJingeKeyList);
+/*     */     } else {
+/*  79 */       toJson.setFlag(1);
+/*  80 */       toJson.setMsg("查询失败!");
+/*     */     }
+/*  82 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SealJingeKey> getSealJingeKey(Integer keyId)
+/*     */   {
+/*  87 */     ToJson toJson = new ToJson();
+/*  88 */     SealJingeKey sealJingeKey = this.sealJingeKeyMapper.getSealJinge(keyId);
+/*  89 */     String userNames = "";
+/*  90 */     String[] userIds = sealJingeKey.getUserIdStr().split(",");
+/*  91 */     for (String userId : userIds) {
+/*  92 */       String userName = this.usersMapper.getUsernameById(userId);
+/*  93 */       if (userName != null) {
+/*  94 */         userNames = userNames + "," + userName;
+/*     */       }
+/*     */     }
+/*  97 */     userNames = userNames.replaceFirst(",", "");
+/*  98 */     sealJingeKey.setUserNames(userNames);
+/*  99 */     if (sealJingeKey != null) {
+/* 100 */       toJson.setFlag(0);
+/* 101 */       toJson.setMsg("查询成功!");
+/* 102 */       toJson.setObject(sealJingeKey);
+/*     */     } else {
+/* 104 */       toJson.setFlag(1);
+/* 105 */       toJson.setMsg("查询失败!");
+/*     */     }
+/* 107 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional(rollbackFor={RuntimeException.class})
+/*     */   public ToJson<SealJingeKey> updateSealJingeKey(SealJingeKey sealJingeKey) {
+/* 113 */     ToJson toJson = new ToJson();
+/*     */     try
+/*     */     {
+/* 116 */       int result = this.sealJingeKeyMapper.updateByPrimaryKeySelective(sealJingeKey);
+/* 117 */       if (result > 0) {
+/* 118 */         toJson.setFlag(0);
+/* 119 */         toJson.setMsg("更新成功!");
+/*     */       } else {
+/* 121 */         toJson.setFlag(1);
+/* 122 */         toJson.setMsg("更新失败!");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 125 */       e.printStackTrace();
+/* 126 */       throw new RuntimeException("更新失败！");
+/*     */     }
+/* 128 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SealJingeKey> deleteSealJingeKey(Integer keyId)
+/*     */   {
+/* 133 */     ToJson toJson = new ToJson();
+/*     */     try
+/*     */     {
+/* 136 */       int result = this.sealJingeKeyMapper.deleteByPrimaryKey(keyId);
+/* 137 */       if (result > 0) {
+/* 138 */         toJson.setFlag(0);
+/* 139 */         toJson.setMsg("删除成功!");
+/*     */       } else {
+/* 141 */         toJson.setFlag(1);
+/* 142 */         toJson.setMsg("删除失败!");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 145 */       e.printStackTrace();
+/*     */     }
+/* 147 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.seal.SealJingeKeyService
+ * JD-Core Version:    0.6.0
+ */

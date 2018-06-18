@@ -1,0 +1,68 @@
+/*    */ package com.xoa.service.file;
+/*    */ 
+/*    */ import com.xoa.util.common.StringUtils;
+/*    */ import java.util.Map;
+/*    */ import org.apache.commons.collections.map.HashedMap;
+/*    */ 
+/*    */ public class FileSortResetAuth
+/*    */ {
+/*    */   public Map<String, String> param;
+/*    */ 
+/*    */   public Map<String, String> getParam()
+/*    */   {
+/* 18 */     return this.param;
+/*    */   }
+/*    */ 
+/*    */   public void setParam(Map<String, String> param) {
+/* 22 */     this.param = param;
+/*    */   }
+/*    */ 
+/*    */   public FileSortResetAuth() {
+/* 26 */     this.param = new HashedMap();
+/*    */   }
+/*    */ 
+/*    */   public FileSortResetAuth reset(String key, Map<String, String> mmp) {
+/* 30 */     if (mmp == null) {
+/* 31 */       return this;
+/*    */     }
+/* 33 */     StringBuffer stringBuffer = new StringBuffer();
+/*    */ 
+/* 36 */     if (mmp.containsKey("dept")) {
+/* 37 */       String deptstr = (String)mmp.get("dept");
+/* 38 */       stringBuffer.append(deptstr);
+/* 39 */       stringBuffer.append("|");
+/*    */     } else {
+/* 41 */       stringBuffer.append("|");
+/*    */     }
+/* 43 */     if (mmp.containsKey("role")) {
+/* 44 */       String rolestr = (String)mmp.get("role");
+/* 45 */       stringBuffer.append(rolestr);
+/* 46 */       stringBuffer.append("|");
+/*    */     } else {
+/* 48 */       stringBuffer.append("|");
+/*    */     }
+/* 50 */     if (mmp.containsKey("user")) {
+/* 51 */       String userStr = (String)mmp.get("user");
+/* 52 */       stringBuffer.append(userStr);
+/*    */     }
+/*    */ 
+/* 55 */     if (mmp.containsKey("isExtends")) {
+/* 56 */       String isExtends = (String)mmp.get("isExtends");
+/* 57 */       this.param.put("isExtends", isExtends);
+/*    */     }
+/*    */ 
+/* 60 */     this.param.put(key, stringBuffer.toString());
+/* 61 */     return this;
+/*    */   }
+/*    */   public static String[] getAuthBase(String resource) {
+/* 64 */     if (StringUtils.checkNull(resource).booleanValue()) {
+/* 65 */       return null;
+/*    */     }
+/* 67 */     return resource.split("\\|");
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.file.FileSortResetAuth
+ * JD-Core Version:    0.6.0
+ */

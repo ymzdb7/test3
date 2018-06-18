@@ -1,0 +1,133 @@
+/*     */ package com.xoa.service.schedule.impl;
+/*     */ 
+/*     */ import com.xoa.dao.schedule.ScheduleMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.schedule.ResultLeaderActivity;
+/*     */ import com.xoa.model.schedule.Schedule;
+/*     */ import com.xoa.service.schedule.ScheduleService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class ScheduleServiceImpl
+/*     */   implements ScheduleService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private ScheduleMapper scheduleDao;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper userdao;
+/*     */ 
+/*     */   public ToJson<Schedule> saveSchedule(Schedule schedule)
+/*     */   {
+/*  35 */     ToJson json = new ToJson();
+/*     */     try
+/*     */     {
+/*  38 */       schedule.setStatus("0");
+/*     */ 
+/*  40 */       int count = this.scheduleDao.saveSchedule(schedule);
+/*  41 */       if (count > 0) {
+/*  42 */         json.setMsg("创建成功");
+/*  43 */         json.setFlag(0);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/*  47 */       json.setMsg(e.getMessage());
+/*  48 */       L.e(new Object[] { "ScheduleServiceImpl saveSchedule:" + e });
+/*     */     }
+/*  50 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Schedule> commitSchedule(int id)
+/*     */   {
+/*  55 */     ToJson json = new ToJson();
+/*  56 */     Map map = new HashMap();
+/*  57 */     map.put("id", Integer.valueOf(id));
+/*  58 */     map.put("status", Integer.valueOf(1));
+/*  59 */     int count = this.scheduleDao.commitSchedule(map);
+/*  60 */     if (count > 0) {
+/*  61 */       json.setMsg("已提交");
+/*  62 */       json.setFlag(0);
+/*     */     }
+/*     */ 
+/*  65 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<ResultLeaderActivity> queryLeaderActiveAll(Schedule schedules)
+/*     */   {
+/*  70 */     ToJson json = new ToJson();
+/*  71 */     List result = new ArrayList();
+/*  72 */     Map map = new HashMap();
+/*  73 */     ResultLeaderActivity res = null;
+/*  74 */     SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd HH:mm");
+/*  75 */     SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm");
+/*  76 */     map.put("schedule", schedules);
+/*  77 */     List<Schedule> list = this.scheduleDao.queryLeaderActiveAll(map);
+/*  78 */     if (list != null) {
+/*  79 */       for (Schedule schedule : list) {
+/*  80 */         res = new ResultLeaderActivity();
+/*  81 */         Date d = new Date(schedule.getBegin_time().longValue());
+/*  82 */         String date = sdf.format(d);
+/*  83 */         String datex = date.substring(5, 10);
+/*     */ 
+/*  85 */         String date2 = date.substring(11, 16);
+/*     */ 
+/*  87 */         String schedule_type = schedule.getSchedule_type();
+/*  88 */         if ("538fe83ee8ee9".equalsIgnoreCase(schedule_type)) {
+/*  89 */           schedule_type = "局内会议";
+/*     */         }
+/*     */ 
+/*  92 */         String userName = this.userdao.getUsernameById(schedule.getCreate_user().intValue());
+/*  93 */         String status = schedule.getStatus();
+/*  94 */         int num = Integer.parseInt(status);
+/*  95 */         if (0 == num) {
+/*  96 */           status = "未审批";
+/*     */         }
+/*  98 */         if (1 == num) {
+/*  99 */           status = "已审批";
+/*     */         }
+/*     */ 
+/* 102 */         int hours = d.getHours();
+/* 103 */         String str = null;
+/* 104 */         if (hours > 12)
+/* 105 */           str = "下午";
+/*     */         else {
+/* 107 */           str = "上午";
+/*     */         }
+/* 109 */         res.setId(schedule.getId());
+/* 110 */         res.setDate(datex);
+/* 111 */         res.setDateAmong(str);
+/* 112 */         res.setTime(date2);
+/* 113 */         res.setScheduleType(schedule_type);
+/* 114 */         res.setSubject(schedule.getSubject());
+/* 115 */         res.setAppUser(userName);
+/* 116 */         res.setStatus(status);
+/* 117 */         res.setUndertake(schedule.getUndertake());
+/* 118 */         res.setLocation(schedule.getLocation());
+/* 119 */         res.setAttentee(schedule.getAttendee());
+/* 120 */         res.setRemark(schedule.getRemark());
+/* 121 */         result.add(res);
+/*     */       }
+/*     */     }
+/* 124 */     if (result != null) {
+/* 125 */       json.setObj(result);
+/* 126 */       json.setMsg("ok");
+/* 127 */       json.setFlag(0);
+/*     */     }
+/* 129 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.schedule.impl.ScheduleServiceImpl
+ * JD-Core Version:    0.6.0
+ */

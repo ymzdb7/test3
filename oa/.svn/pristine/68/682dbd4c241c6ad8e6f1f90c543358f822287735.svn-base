@@ -1,0 +1,58 @@
+/*    */ package com.xoa.util.http;
+/*    */ 
+/*    */ import com.xoa.util.common.L;
+/*    */ import java.util.ArrayList;
+/*    */ import java.util.Iterator;
+/*    */ import java.util.List;
+/*    */ import java.util.Map;
+/*    */ import java.util.Map.Entry;
+/*    */ import java.util.Set;
+/*    */ import org.apache.http.HttpEntity;
+/*    */ import org.apache.http.HttpResponse;
+/*    */ import org.apache.http.client.HttpClient;
+/*    */ import org.apache.http.client.entity.UrlEncodedFormEntity;
+/*    */ import org.apache.http.client.methods.HttpPost;
+/*    */ import org.apache.http.message.BasicNameValuePair;
+/*    */ import org.apache.http.util.EntityUtils;
+/*    */ 
+/*    */ public class HttpClientUtil
+/*    */ {
+/*    */   public static String doPost(String url, Map<String, String> map, String charset)
+/*    */   {
+/* 23 */     HttpClient httpClient = null;
+/* 24 */     HttpPost httpPost = null;
+/* 25 */     String result = null;
+/*    */     try {
+/* 27 */       httpClient = new SSLClient();
+/* 28 */       httpPost = new HttpPost(url);
+/* 29 */       L.w(new Object[] { "url is", url, "and param is ", map });
+/*    */ 
+/* 31 */       List list = new ArrayList();
+/* 32 */       Iterator iterator = map.entrySet().iterator();
+/* 33 */       while (iterator.hasNext()) {
+/* 34 */         Map.Entry elem = (Map.Entry)iterator.next();
+/* 35 */         list.add(new BasicNameValuePair((String)elem.getKey(), (String)elem.getValue()));
+/*    */       }
+/* 37 */       if (list.size() > 0) {
+/* 38 */         UrlEncodedFormEntity entity = new UrlEncodedFormEntity(list, charset);
+/* 39 */         httpPost.setEntity(entity);
+/*    */       }
+/* 41 */       HttpResponse response = httpClient.execute(httpPost);
+/* 42 */       if (response != null) {
+/* 43 */         HttpEntity resEntity = response.getEntity();
+/* 44 */         if (resEntity != null)
+/* 45 */           result = EntityUtils.toString(resEntity, charset);
+/*    */       }
+/*    */     }
+/*    */     catch (Exception ex) {
+/* 49 */       ex.printStackTrace();
+/* 50 */       L.w(new Object[] { "response exception", ex });
+/*    */     }
+/* 52 */     return result;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.http.HttpClientUtil
+ * JD-Core Version:    0.6.0
+ */

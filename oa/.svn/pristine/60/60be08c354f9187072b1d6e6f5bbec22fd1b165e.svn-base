@@ -1,0 +1,84 @@
+/*    */ package com.xoa.util.common.wrapper;
+/*    */ 
+/*    */ import com.alibaba.fastjson.annotation.JSONField;
+/*    */ import java.util.Date;
+/*    */ 
+/*    */ public class BaseWrapper
+/*    */ {
+/*    */   boolean status;
+/*    */   boolean flag;
+/*    */   String msg;
+/*    */   Date time;
+/*    */   Object data;
+/*    */   String code;
+/*    */ 
+/*    */   public BaseWrapper()
+/*    */   {
+/* 27 */     this.time = new Date();
+/* 28 */     this.status = true;
+/*    */   }
+/*    */ 
+/*    */   public BaseWrapper(boolean status, boolean flag, String msg, Object data)
+/*    */   {
+/* 33 */     this.status = status;
+/* 34 */     this.flag = flag;
+/* 35 */     this.msg = msg;
+/* 36 */     this.time = new Date();
+/* 37 */     this.data = data;
+/*    */   }
+/*    */ 
+/*    */   public String getCode() {
+/* 41 */     return this.code == null ? "0" : this.code;
+/*    */   }
+/*    */ 
+/*    */   public void setCode(String code) {
+/* 45 */     this.code = code;
+/*    */   }
+/*    */ 
+/*    */   public Object getData() {
+/* 49 */     return this.data;
+/*    */   }
+/*    */ 
+/*    */   public void setData(Object data) {
+/* 53 */     this.data = data;
+/*    */   }
+/*    */   public boolean getStatus() {
+/* 56 */     return this.status;
+/*    */   }
+/*    */ 
+/*    */   public void setStatus(boolean status) {
+/* 60 */     this.status = status;
+/*    */   }
+/*    */ 
+/*    */   public boolean isFlag() {
+/* 64 */     return this.flag;
+/*    */   }
+/*    */ 
+/*    */   public void setFlag(boolean flag) {
+/* 68 */     this.flag = flag;
+/*    */   }
+/*    */ 
+/*    */   public String getMsg() {
+/* 72 */     return this.msg;
+/*    */   }
+/*    */ 
+/*    */   public void setMsg(String msg) {
+/* 76 */     this.msg = msg;
+/*    */   }
+/*    */   @JSONField(format="yyyy-MM-dd HH:mm:ss")
+/*    */   public Date getTime() {
+/* 81 */     if (this.time == null) {
+/* 82 */       this.time = new Date();
+/*    */     }
+/* 84 */     return this.time;
+/*    */   }
+/*    */ 
+/*    */   public void setTime(Date time) {
+/* 88 */     this.time = time;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.common.wrapper.BaseWrapper
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,39 @@
+/*    */ package com.xoa.global.proxy.TriggerUtils;
+/*    */ 
+/*    */ import com.xoa.global.proxy.ProxyHandle;
+/*    */ import com.xoa.global.proxy.SpringContextUtil;
+/*    */ import com.xoa.global.proxy.TriggerSubject;
+/*    */ import java.lang.reflect.Constructor;
+/*    */ import java.lang.reflect.Proxy;
+/*    */ import java.util.concurrent.ExecutorService;
+/*    */ import java.util.concurrent.Executors;
+/*    */ import org.springframework.context.ApplicationContext;
+/*    */ 
+/*    */ public class Trigger
+/*    */ {
+/* 18 */   public static ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+/*    */ 
+/* 20 */   public static void run(final String clazzName,final String company,final Object[] agrs) { 
+	       cachedThreadPool.execute(new Runnable()
+/*    */     {
+/*    */       public void run() {
+/*    */         try {
+/* 24 */           Class clazz = Class.forName( clazzName);
+/* 25 */           Constructor cons = clazz.getDeclaredConstructor(new Class[0]);
+/*    */ 
+/* 27 */           ApplicationContext ac = SpringContextUtil.getApplicationContext();
+/* 28 */           TriggerSubject a = (TriggerSubject)Proxy.newProxyInstance(TriggerSubject.class.getClassLoader(), new Class[] { TriggerSubject.class }, new ProxyHandle(ac.getBean(clazz)));
+/*    */ 
+/* 31 */           a.doRun( company,  agrs);
+/*    */         } catch (Exception e) {
+/* 33 */           e.printStackTrace();
+/*    */         }
+/*    */       }
+/*    */     });
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.global.proxy.TriggerUtils.Trigger
+ * JD-Core Version:    0.6.0
+ */

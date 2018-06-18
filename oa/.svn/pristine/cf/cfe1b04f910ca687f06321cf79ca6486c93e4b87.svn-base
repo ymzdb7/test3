@@ -1,0 +1,898 @@
+/*      */ package com.xoa.service.edu.eduSchoolBusiness;
+/*      */ 
+/*      */ import com.xoa.dao.common.SysCodeMapper;
+/*      */ import com.xoa.dao.department.DepartmentMapper;
+/*      */ import com.xoa.dao.edu.eduSchoolBusiness.EduSchoolBusinessMapper;
+/*      */ import com.xoa.dao.edu.eduUser.EduUserMapper;
+/*      */ import com.xoa.dao.users.UsersMapper;
+/*      */ import com.xoa.model.department.Department;
+/*      */ import com.xoa.model.edu.eduSchoolBusiness.EduSchoolBusiness;
+/*      */ import com.xoa.model.edu.eduUser.EduUser;
+/*      */ import com.xoa.model.users.Users;
+/*      */ import com.xoa.service.department.DepartmentService;
+/*      */ import com.xoa.service.users.UsersPrivService;
+/*      */ import com.xoa.service.users.UsersService;
+/*      */ import com.xoa.util.DateFormat;
+/*      */ import com.xoa.util.ExcelUtil;
+/*      */ import com.xoa.util.GetAttachmentListUtil;
+/*      */ import com.xoa.util.ToJson;
+/*      */ import com.xoa.util.common.StringUtils;
+/*      */ import com.xoa.util.common.log.FileUtils;
+/*      */ import com.xoa.util.common.session.SessionUtils;
+/*      */ import com.xoa.util.page.PageParams;
+/*      */ import java.io.OutputStream;
+/*      */ import java.io.PrintStream;
+/*      */ import java.lang.reflect.InvocationTargetException;
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.HashMap;
+/*      */ import java.util.List;
+/*      */ import java.util.Map;
+/*      */ import javax.annotation.Resource;
+/*      */ import javax.servlet.http.HttpServletRequest;
+/*      */ import javax.servlet.http.HttpServletResponse;
+/*      */ import org.apache.poi.hssf.usermodel.HSSFCell;
+/*      */ import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+/*      */ import org.apache.poi.hssf.usermodel.HSSFRow;
+/*      */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*      */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*      */ import org.springframework.stereotype.Service;
+/*      */ 
+/*      */ @Service
+/*      */ public class EduSchoolBusinessService
+/*      */ {
+/*   43 */   public static String eduSchoolChageId = "1";
+/*   44 */   public static String eduSchoolDatetime = "1970-01-01 08:00:00";
+/*      */ 
+/*      */   @Resource
+/*      */   EduSchoolBusinessMapper eduSchoolBusinessMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   DepartmentMapper departmentMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   EduUserMapper eduUserMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   SysCodeMapper sysCodeMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   DepartmentService departmentService;
+/*      */ 
+/*      */   @Resource
+/*      */   UsersService usersService;
+/*      */ 
+/*      */   @Resource
+/*      */   UsersPrivService usersPrivService;
+/*      */ 
+/*      */   @Resource
+/*      */   UsersMapper usersMapper;
+/*      */ 
+/*   70 */   public ToJson<EduSchoolBusiness> addEduSchoolBus(HttpServletRequest request, EduSchoolBusiness eduSchoolBusiness) { ToJson toJson = new ToJson(1, "error");
+/*      */     try
+/*      */     {
+/*   73 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*   74 */       String fromId = users.getUserId();
+/*   75 */       eduSchoolBusiness.setFromId(fromId);
+/*   76 */       int a = this.eduSchoolBusinessMapper.addEduSchoolBus(eduSchoolBusiness);
+/*   77 */       if (a > 0) {
+/*   78 */         toJson.setMsg("ok");
+/*   79 */         toJson.setFlag(0);
+/*      */       } else {
+/*   81 */         toJson.setMsg("error");
+/*   82 */         toJson.setFlag(1);
+/*      */       }
+/*      */     } catch (Exception e) {
+/*   85 */       e.printStackTrace();
+/*   86 */       toJson.setMsg(e.getMessage());
+/*      */     }
+/*   88 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EduSchoolBusiness> updateEduSchoolBus(HttpServletRequest request, EduSchoolBusiness eduSchoolBusiness)
+/*      */   {
+/*   99 */     ToJson toJson = new ToJson(1, "error");
+/*      */     try {
+/*  101 */       int a = this.eduSchoolBusinessMapper.updateEduSchoolBus(eduSchoolBusiness);
+/*  102 */       if (a > 0) {
+/*  103 */         toJson.setMsg("ok");
+/*  104 */         toJson.setFlag(0);
+/*      */       } else {
+/*  106 */         toJson.setMsg("error");
+/*  107 */         toJson.setFlag(1);
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  110 */       e.printStackTrace();
+/*  111 */       toJson.setMsg(e.getMessage());
+/*      */     }
+/*  113 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EduSchoolBusiness> eduSchoolBusList(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*      */   {
+/*  125 */     ToJson toJson = new ToJson(1, "error");
+/*      */ 
+/*  127 */     PageParams pageParams = new PageParams();
+/*  128 */     pageParams.setPage(page);
+/*  129 */     pageParams.setPageSize(pageSize);
+/*  130 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  131 */     maps.put("page", pageParams);
+/*      */     try
+/*      */     {
+/*  134 */       List list = this.eduSchoolBusinessMapper.eduSchoolBusList(maps);
+/*  135 */       if (list != null) {
+/*  136 */         toJson.setObj(list);
+/*  137 */         toJson.setTotleNum(pageParams.getTotal());
+/*  138 */         toJson.setMsg("ok");
+/*  139 */         toJson.setFlag(0);
+/*      */       } else {
+/*  141 */         toJson.setMsg("error");
+/*  142 */         toJson.setFlag(1);
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  145 */       e.printStackTrace();
+/*  146 */       toJson.setMsg(e.getMessage());
+/*      */     }
+/*  148 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson eduSchoolConunt(Map<String, Object> map)
+/*      */   {
+/*  158 */     ToJson json = new ToJson();
+/*      */     try {
+/*  160 */       List<Map<String, Object>> list = this.eduSchoolBusinessMapper.eduSchoolConunt(map);
+/*  161 */       for (Map map1 : list) {
+/*  162 */         int deptId = ((Integer)map1.get("fromDept")).intValue();
+/*  163 */         map1.put("deptName", this.departmentMapper.departmentOneSelect(Integer.valueOf(deptId)));
+/*  164 */         map1.put("deptId", Integer.valueOf(deptId));
+/*      */       }
+/*  166 */       if (list.size() > 0) {
+/*  167 */         json.setMsg("ok");
+/*  168 */         json.setFlag(0);
+/*  169 */         json.setObj(list);
+/*  170 */         return json;
+/*      */       }
+/*  172 */       json.setMsg("err");
+/*  173 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  175 */       e.printStackTrace();
+/*      */     }
+/*  177 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson eduSchoolDelete(String[] notifyId)
+/*      */   {
+/*  188 */     ToJson json = new ToJson();
+/*  189 */     int a = 0; int count = 0; int b = 0;
+/*      */     try {
+/*  191 */       for (int i = 0; i < notifyId.length; i++) {
+/*  192 */         count = this.eduSchoolBusinessMapper.eduSchoolDelete(Integer.valueOf(notifyId[i]));
+/*  193 */         if (count > 0)
+/*  194 */           a += 1;
+/*      */         else {
+/*  196 */           b += 1;
+/*      */         }
+/*      */       }
+/*  199 */       if (a > 0) {
+/*  200 */         json.setMsg("ok删除成功" + a + "条");
+/*  201 */         json.setFlag(0);
+/*  202 */         return json;
+/*      */       }
+/*  204 */       json.setMsg("err删除失败" + b + "条");
+/*  205 */       json.setFlag(0);
+/*      */     }
+/*      */     catch (Exception e) {
+/*  208 */       e.printStackTrace();
+/*      */     }
+/*  210 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson eduSchoolOnerSelect(Integer notifyId)
+/*      */   {
+/*  220 */     ToJson json = new ToJson();
+/*      */     try {
+/*  222 */       EduSchoolBusiness map = this.eduSchoolBusinessMapper.eduSchoolOnerSelect(notifyId);
+/*  223 */       if ((map.getFromDept() != null) && (map.getFromDept().intValue() != 0)) {
+/*  224 */         String deptName = this.departmentMapper.departmentOneSelect(map.getFromDept());
+/*  225 */         map.setDeptName(deptName);
+/*      */       }
+/*  227 */       if (map.getFromId() != null) { EduUser eduUser = this.eduUserMapper.getByuserId(map.getFromId());
+/*  228 */         map.setUserName(eduUser.getUserName()); }
+/*  229 */       if (map != null) {
+/*  230 */         json.setMsg("ok");
+/*  231 */         json.setFlag(0);
+/*  232 */         json.setObject(map);
+/*  233 */         return json;
+/*      */       }
+/*  235 */       json.setMsg("err");
+/*  236 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  238 */       e.printStackTrace();
+/*      */     }
+/*  240 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson statisticalDerivation(HttpServletRequest request, HttpServletResponse response)
+/*      */   {
+/*  252 */     ToJson json = new ToJson();
+/*  253 */     Map map = new HashMap();
+/*  254 */     String fromDept = null;
+/*      */     try {
+/*  256 */       Integer export = Integer.valueOf(request.getParameter("step"));
+/*  257 */       switch (export.intValue()) {
+/*      */       case 1:
+/*  259 */         fromDept = request.getParameter("fromDept");
+/*  260 */         if ((fromDept != null) && (!fromDept.equals(""))) {
+/*  261 */           map.put("fromDept", Integer.valueOf(fromDept));
+/*      */         }
+/*  263 */         map.put("beginTime", request.getParameter("beginTime"));
+/*  264 */         map.put("endTime", request.getParameter("endTime"));
+/*  265 */         List<Map<String, Object>> list = this.eduSchoolBusinessMapper.eduSchoolConunt(map);
+/*  266 */         for (Map map1 : list) {
+/*  267 */           int deptId = ((Integer)map1.get("fromDept")).intValue();
+/*  268 */           map1.put("deptName", this.departmentMapper.departmentOneSelect(Integer.valueOf(deptId)));
+/*  269 */           map1.put("deptId", Integer.valueOf(deptId));
+/*      */         }
+/*  271 */         List eduSchoolBusinessList = new ArrayList();
+/*  272 */         for (int i = 0; i < list.size(); i++) {
+/*  273 */           EduSchoolBusiness eduSchoolBusiness = new EduSchoolBusiness();
+/*  274 */           String deptName = ((Map)list.get(i)).get("deptName") + "";
+/*  275 */           int count = Integer.parseInt(((Map)list.get(i)).get("count") + "");
+/*  276 */           eduSchoolBusiness.setDeptName(deptName);
+/*  277 */           eduSchoolBusiness.setCount(Integer.valueOf(count));
+/*  278 */           eduSchoolBusinessList.add(eduSchoolBusiness);
+/*      */         }
+/*      */ 
+/*  281 */         HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("校务公开统计导出", 8);
+/*  282 */         String[] secondTitles = { "部门", "发布数量" };
+/*  283 */         HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/*  284 */         String[] beanProperty = { "deptName", "count" };
+/*  285 */         HSSFWorkbook workbook = null;
+/*  286 */         workbook = ExcelUtil.exportExcelData(workbook2, eduSchoolBusinessList, beanProperty);
+/*  287 */         OutputStream out = response.getOutputStream();
+/*  288 */         String filename = "校务公开统计记录表.xls";
+/*  289 */         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/*  290 */         response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+/*  291 */         response.setHeader("content-disposition", "attachment;filename=" + filename);
+/*  292 */         workbook.write(out);
+/*  293 */         out.close();
+/*  294 */         json.setMsg("ok");
+/*  295 */         json.setFlag(0);
+/*      */ 
+/*  297 */         break;
+/*      */       case 2:
+/*  299 */         fromDept = request.getParameter("deptId");
+/*  300 */         if ((fromDept != null) && (!fromDept.equals(""))) {
+/*  301 */           map.put("deptId", Integer.valueOf(fromDept));
+/*      */         }
+/*  303 */         map.put("beginTime", request.getParameter("beginTime"));
+/*  304 */         map.put("endTime", request.getParameter("endTime"));
+/*  305 */         Map map1 = this.eduSchoolBusinessMapper.eduSchoolYuangong(map);
+/*  306 */         if ((map1.get("userId") != null) && (!map1.get("userId").equals(""))) {
+/*  307 */           EduUser eduUser = this.eduUserMapper.getByuserId(map1.get("userId").toString());
+/*  308 */           map1.put("userName", eduUser.getUserName());
+/*  309 */         }map1.put("deptName", this.departmentMapper.departmentOneSelect((Integer)map.get("deptId")));
+/*  310 */         list = new ArrayList();
+/*  311 */         list.add(map1);
+/*      */ 
+/*  313 */         workbook1 = ExcelUtil.makeExcelHead("校务公开统计导出", 8);
+/*  314 */         String[] secondTitles2 = { "部门", "姓名", "发布数量" };
+/*  315 */         workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles2);
+/*  316 */         String[] beanProperty2 = { "deptNam", "userName", "yuanGongCount" };
+/*  318 */         workbook = exportExcelDatas(workbook2, list, beanProperty2);
+/*  319 */         out = response.getOutputStream();
+/*  320 */         filename = "校务公开统计记(姓名)录表.xls";
+/*  321 */         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/*  322 */         response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+/*  323 */         response.setHeader("content-disposition", "attachment;filename=" + filename);
+/*  324 */         workbook.write(out);
+/*  325 */         out.close();
+/*  326 */         json.setMsg("ok");
+/*  327 */         json.setFlag(0);
+/*      */ 
+/*  329 */         break;
+/*      */       case 3:
+/*  332 */         fromDept = request.getParameter("fromDept");
+/*  333 */         if ((fromDept != null) && (!fromDept.equals(""))) {
+/*  334 */           map.put("fromDept", Integer.valueOf(fromDept));
+/*      */         }
+/*  336 */         map.put("userId", request.getParameter("fromId"));
+/*  337 */         map.put("beginTime", request.getParameter("beginTime"));
+/*  338 */         map.put("endTime", request.getParameter("endTime"));
+/*  339 */         List<EduSchoolBusiness> eduList = this.eduSchoolBusinessMapper.eduSchoolYuanggongXiangqing(map);
+/*  340 */         for (EduSchoolBusiness eduSchoolBusiness : eduList) {
+/*  341 */           if (eduSchoolBusiness.getFromId() != null) {
+/*  342 */             EduUser eduUser = this.eduUserMapper.getByuserId(map.get("userId").toString());
+/*  343 */             eduSchoolBusiness.setUserName(eduUser.getUserName());
+/*  344 */             String[] toId = eduSchoolBusiness.getToId().split(",");
+/*  345 */             String deptNameSp = null;
+/*  346 */             for (int i = 0; i < toId.length; i++) {
+/*  347 */               Integer deptId = Integer.valueOf(toId[i]);
+/*  348 */               String deptNamezi = this.departmentMapper.departmentOneSelect(deptId);
+/*  349 */               deptNameSp = deptNameSp + "," + deptNamezi;
+/*      */             }
+/*  351 */             eduSchoolBusiness.setDeptNameSp(deptNameSp);
+/*      */           }
+/*      */         }
+/*      */ 
+/*  355 */         workbook1 = ExcelUtil.makeExcelHead("校务公开统计导出", 8);
+/*  356 */         String[] secondTitles3 = { "发布人", "类型", "发布范围", "标题", "创建时间", "生效日期", "终止日期", "状态" };
+/*  357 */         workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles3);
+/*  358 */         String[] beanProperty3 = { "userName", "typeId", "deptNameSp", "subject", "sendTime", "beginDate", "endDate", "publish" };
+/*  360 */         workbook = ExcelUtil.exportExcelData(workbook2, eduList, beanProperty3);
+/*  361 */         out = response.getOutputStream();
+/*  362 */         filename = "校务公开统计记(本人详情)录表.xls";
+/*  363 */         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/*  364 */         response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+/*  365 */         response.setHeader("content-disposition", "attachment;filename=" + filename);
+/*  366 */         workbook.write(out);
+/*  367 */         out.close();
+/*  368 */         json.setMsg("ok");
+/*  369 */         json.setFlag(0);
+/*      */ 
+/*  371 */         break;
+/*      */       default:
+/*  373 */         json.setMsg("err");
+/*  374 */         json.setFlag(1);
+/*      */       }
+/*      */     }
+/*      */     catch (Exception e) {
+/*  378 */       e.printStackTrace();
+/*      */     }
+/*  380 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EduSchoolBusiness> eduSchoolBusExport(HttpServletRequest request, HttpServletResponse response, String exportId)
+/*      */   {
+/*  391 */     ToJson toJson = new ToJson(1, "error");
+/*      */     try {
+/*  393 */       if (exportId == null) {
+/*  394 */         exportId = "0";
+/*      */       }
+/*  396 */       Map maps = new HashMap();
+/*  397 */       maps.put("fromId", request.getParameter("fromId"));
+/*  398 */       maps.put("format", request.getParameter("format"));
+/*  399 */       maps.put("typeId", request.getParameter("typeId"));
+/*  400 */       maps.put("publish", request.getParameter("publish"));
+/*  401 */       maps.put("top", request.getParameter("top"));
+/*  402 */       maps.put("subject", request.getParameter("subject"));
+/*  403 */       maps.put("beginDate", request.getParameter("beginDate"));
+/*  404 */       maps.put("endDate", request.getParameter("endDate"));
+/*  405 */       maps.put("summary", request.getParameter("summary"));
+/*  406 */       List eduSchoolBusinesses = this.eduSchoolBusinessMapper.eduSchoolBusList(maps);
+/*  407 */       if (eduSchoolBusinesses != null) {
+/*  408 */         toJson.setObj(eduSchoolBusinesses);
+/*  409 */         toJson.setMsg("ok");
+/*  410 */         toJson.setFlag(0);
+/*      */       }
+/*      */ 
+/*  413 */       if (exportId.equals("2")) {
+/*  414 */         HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("校务公开信息导出", 8);
+/*  415 */         String[] secondTitles = { "发布人", "格式", "类型", "发布状态", "发布置顶", "标题", "发布日期", "内容" };
+/*  416 */         HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/*  417 */         String[] beanProperty = { "fromId", "format", "typeId", "publish", "top", "subject", "content", "beginDate", "endDate" };
+/*  418 */         HSSFWorkbook workbook = null;
+/*  419 */         workbook = ExcelUtil.exportExcelData(workbook2, eduSchoolBusinesses, beanProperty);
+/*  420 */         OutputStream out = response.getOutputStream();
+/*  421 */         String filename = "校务公开信息记录表.xls";
+/*  422 */         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/*  423 */         response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+/*  424 */         response.setHeader("content-disposition", "attachment;filename=" + filename);
+/*  425 */         workbook.write(out);
+/*  426 */         out.close();
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  429 */       e.printStackTrace();
+/*  430 */       toJson.setMsg(e.getMessage());
+/*      */     }
+/*  432 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EduSchoolBusiness> unreadEduSchool(Map<String, Object> maps, Integer page, Integer pageSize, Boolean useFlag, String name, String sqlType)
+/*      */   {
+/*  445 */     String[] strArray = null;
+/*  446 */     String[] strArray1 = null;
+/*  447 */     String[] strArray2 = null;
+/*  448 */     StringBuffer s = new StringBuffer();
+/*  449 */     StringBuffer s1 = new StringBuffer();
+/*  450 */     StringBuffer s2 = new StringBuffer();
+/*  451 */     ToJson json = new ToJson();
+/*  452 */     PageParams pageParams = new PageParams();
+/*  453 */     pageParams.setUseFlag(useFlag);
+/*  454 */     pageParams.setPage(page);
+/*  455 */     pageParams.setPageSize(pageSize);
+/*  456 */     maps.put("page", pageParams);
+/*  457 */     String typeIdStr = (String)maps.get("typeId");
+/*  458 */     if (StringUtils.checkNull(typeIdStr).booleanValue()) {
+/*  459 */       maps.put("typeId", null);
+/*      */     }
+/*      */ 
+/*  462 */     List<EduSchoolBusiness> list = this.eduSchoolBusinessMapper.unreadEduSchool(maps);
+/*  463 */     List list1 = new ArrayList();
+/*  464 */     List list2 = new ArrayList();
+/*  465 */     for (EduSchoolBusiness eduSchoolBusiness : list) {
+/*  466 */       eduSchoolBusiness.setNotifyDateTime(DateFormat.getStrDate(eduSchoolBusiness.getSendTime()));
+/*  467 */       eduSchoolBusiness.setName(eduSchoolBusiness.getUsers().getUserName());
+/*  468 */       if ((eduSchoolBusiness.getTypeId() != null) && (!eduSchoolBusiness.getTypeId().equals(""))) {
+/*  469 */         String name11 = this.sysCodeMapper.getNotifyNameByNo(eduSchoolBusiness.getTypeId());
+/*  470 */         if (StringUtils.checkNull(name11).booleanValue())
+/*  471 */           eduSchoolBusiness.setTypeName("");
+/*      */         else
+/*  473 */           eduSchoolBusiness.setTypeName(name11);
+/*      */       }
+/*      */       else
+/*      */       {
+/*  477 */         eduSchoolBusiness.setTypeName("");
+/*      */       }
+/*  479 */       if ((eduSchoolBusiness.getAttachmentName() != null) && (eduSchoolBusiness.getAttachmentId() != null)) {
+/*  480 */         eduSchoolBusiness.setAttachment(GetAttachmentListUtil.returnAttachment(eduSchoolBusiness.getAttachmentName(), eduSchoolBusiness.getAttachmentId(), sqlType, "news"));
+/*      */       }
+/*  482 */       String depId = eduSchoolBusiness.getToId();
+/*  483 */       if (!StringUtils.checkNull(depId).booleanValue()) {
+/*  484 */         String depName = this.departmentService.getDeptNameByDeptId(depId, ",");
+/*  485 */         if (!"ALL_DEPT".trim().equals(eduSchoolBusiness.getToId()))
+/*  486 */           eduSchoolBusiness.setDeprange(depName + ",");
+/*      */         else {
+/*  488 */           eduSchoolBusiness.setDeprange(depName);
+/*      */         }
+/*      */       }
+/*      */ 
+/*  492 */       String userId = eduSchoolBusiness.getUserId();
+/*  493 */       if (!StringUtils.checkNull(userId).booleanValue()) {
+/*  494 */         String userName = this.usersService.getUserNameById(userId);
+/*  495 */         eduSchoolBusiness.setUserrange(userName + ",");
+/*      */       }
+/*      */ 
+/*  498 */       String roleId = eduSchoolBusiness.getPrivId();
+/*  499 */       if (!StringUtils.checkNull(roleId).booleanValue()) {
+/*  500 */         String roleName = this.usersPrivService.getPrivNameByPrivId(roleId, ",");
+/*  501 */         eduSchoolBusiness.setRolerange(roleName + ",");
+/*      */       }
+/*      */ 
+/*  504 */       if (eduSchoolBusiness.getReaders().indexOf(null != name ? name : "") != -1)
+/*  505 */         eduSchoolBusiness.setRead(Integer.valueOf(1));
+/*      */       else {
+/*  507 */         eduSchoolBusiness.setRead(Integer.valueOf(0));
+/*      */       }
+/*      */     }
+/*      */ 
+/*  511 */     json.setObj(list);
+/*  512 */     json.setTotleNum(pageParams.getTotal());
+/*  513 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EduSchoolBusiness> readEduSchool(Map<String, Object> maps, Integer page, Integer pageSize, Boolean useFlag, String name, String sqlType)
+/*      */   {
+/*  526 */     String[] strArray = null;
+/*  527 */     String[] strArray1 = null;
+/*  528 */     String[] strArray2 = null;
+/*  529 */     StringBuffer s = new StringBuffer();
+/*  530 */     StringBuffer s1 = new StringBuffer();
+/*  531 */     StringBuffer s2 = new StringBuffer();
+/*  532 */     ToJson json = new ToJson();
+/*  533 */     PageParams pageParams = new PageParams();
+/*  534 */     pageParams.setUseFlag(useFlag);
+/*  535 */     pageParams.setPage(page);
+/*  536 */     pageParams.setPageSize(pageSize);
+/*  537 */     maps.put("page", pageParams);
+/*  538 */     String typeIdStr = (String)maps.get("typeId");
+/*  539 */     if (StringUtils.checkNull(typeIdStr).booleanValue()) {
+/*  540 */       maps.put("typeId", null);
+/*      */     }
+/*      */ 
+/*  543 */     List<EduSchoolBusiness> list = this.eduSchoolBusinessMapper.readEduSchool(maps);
+/*  544 */     List list1 = new ArrayList();
+/*  545 */     List list2 = new ArrayList();
+/*  546 */     List list3 = new ArrayList();
+/*  547 */     for (EduSchoolBusiness eduSchoolBusiness : list) {
+/*  548 */       eduSchoolBusiness.setNotifyDateTime(DateFormat.getStrDate(eduSchoolBusiness.getSendTime()));
+/*  549 */       eduSchoolBusiness.setName(eduSchoolBusiness.getUsers().getUserName());
+/*  550 */       if ((eduSchoolBusiness.getTypeId() != null) && (!eduSchoolBusiness.getTypeId().equals(""))) {
+/*  551 */         String name11 = this.sysCodeMapper.getNotifyNameByNo(eduSchoolBusiness.getTypeId());
+/*  552 */         if (StringUtils.checkNull(name11).booleanValue())
+/*  553 */           eduSchoolBusiness.setTypeName("");
+/*      */         else
+/*  555 */           eduSchoolBusiness.setTypeName(name11);
+/*      */       }
+/*      */       else
+/*      */       {
+/*  559 */         eduSchoolBusiness.setTypeName("");
+/*      */       }
+/*  561 */       if ((eduSchoolBusiness.getBeginDate() != null) && (!"".equals(eduSchoolBusiness.getBeginDate()))) {
+/*  562 */         if (!eduSchoolDatetime.equals(DateFormat.getStrTime(eduSchoolBusiness.getBeginDate())))
+/*  563 */           eduSchoolBusiness.setBegin(DateFormat.getStrTime(eduSchoolBusiness.getBeginDate()));
+/*      */         else
+/*  565 */           eduSchoolBusiness.setBegin("");
+/*      */       }
+/*      */       else {
+/*  568 */         eduSchoolBusiness.setBegin("");
+/*      */       }
+/*  570 */       if ((eduSchoolBusiness.getEndDate() != null) && (!"".equals(eduSchoolBusiness.getEndDate()))) {
+/*  571 */         if (!eduSchoolDatetime.equals(DateFormat.getStrTime(eduSchoolBusiness.getEndDate())))
+/*  572 */           eduSchoolBusiness.setEnd(DateFormat.getStrTime(eduSchoolBusiness.getEndDate()));
+/*      */         else
+/*  574 */           eduSchoolBusiness.setEnd("");
+/*      */       }
+/*      */       else {
+/*  577 */         eduSchoolBusiness.setEnd("");
+/*      */       }
+/*      */ 
+/*  580 */       if ((eduSchoolBusiness.getAttachmentName() != null) && (eduSchoolBusiness.getAttachmentId() != null)) {
+/*  581 */         eduSchoolBusiness.setAttachment(GetAttachmentListUtil.returnAttachment(eduSchoolBusiness.getAttachmentName(), eduSchoolBusiness.getAttachmentId(), sqlType, "news"));
+/*      */       }
+/*  583 */       String depId = eduSchoolBusiness.getToId();
+/*  584 */       if (!StringUtils.checkNull(depId).booleanValue()) {
+/*  585 */         String depName = this.departmentService.getDeptNameByDeptId(depId, ",");
+/*  586 */         if (!"ALL_DEPT".trim().equals(eduSchoolBusiness.getToId()))
+/*  587 */           eduSchoolBusiness.setDeprange(depName + ",");
+/*      */         else {
+/*  589 */           eduSchoolBusiness.setDeprange(depName);
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  595 */       String userId = eduSchoolBusiness.getUserId();
+/*  596 */       if (!StringUtils.checkNull(userId).booleanValue()) {
+/*  597 */         String userName = this.usersService.getUserNameById(userId);
+/*  598 */         eduSchoolBusiness.setUserrange(userName + ",");
+/*      */       }
+/*      */ 
+/*  601 */       String roleId = eduSchoolBusiness.getPrivId();
+/*  602 */       if (!StringUtils.checkNull(roleId).booleanValue()) {
+/*  603 */         String roleName = this.usersPrivService.getPrivNameByPrivId(roleId, ",");
+/*  604 */         eduSchoolBusiness.setRolerange(roleName + ",");
+/*      */       }
+/*      */ 
+/*  607 */       if (eduSchoolBusiness.getReaders().indexOf(null != name ? name : "") != -1)
+/*  608 */         eduSchoolBusiness.setRead(Integer.valueOf(1));
+/*      */       else {
+/*  610 */         eduSchoolBusiness.setRead(Integer.valueOf(0));
+/*      */       }
+/*      */     }
+/*  613 */     json.setObj(list);
+/*  614 */     json.setTotleNum(pageParams.getTotal());
+/*  615 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EduSchoolBusiness> eduSchoolShow(Map<String, Object> maps, Integer page, Integer pageSize, Boolean useFlag, String name, String sqlType)
+/*      */   {
+/*  627 */     ToJson json = new ToJson();
+/*  628 */     String[] strArray = null;
+/*  629 */     String[] strArray1 = null;
+/*  630 */     String[] strArray2 = null;
+/*      */ 
+/*  632 */     StringBuffer s = new StringBuffer();
+/*  633 */     StringBuffer s1 = new StringBuffer();
+/*  634 */     StringBuffer s2 = new StringBuffer();
+/*  635 */     PageParams pageParams = new PageParams();
+/*  636 */     pageParams.setUseFlag(useFlag);
+/*  637 */     pageParams.setPage(page);
+/*  638 */     pageParams.setPageSize(pageSize);
+/*  639 */     maps.put("page", pageParams);
+/*  640 */     String typeIdStr = (String)maps.get("typeId");
+/*  641 */     if (StringUtils.checkNull(typeIdStr).booleanValue()) {
+/*  642 */       maps.put("typeId", null);
+/*      */     }
+/*      */ 
+/*  645 */     List list1 = new ArrayList();
+/*  646 */     List<EduSchoolBusiness> list = this.eduSchoolBusinessMapper.eduSchoolBusList(maps);
+/*      */ 
+/*  648 */     for (EduSchoolBusiness eduSchoolBusiness : list) {
+/*  649 */       eduSchoolBusiness.setNotifyDateTime(DateFormat.getStrDate(eduSchoolBusiness.getSendTime()));
+/*  650 */       eduSchoolBusiness.setName(eduSchoolBusiness.getUsers().getUserName());
+/*  651 */       if ((eduSchoolBusiness.getTypeId() != null) && (!eduSchoolBusiness.getTypeId().equals(""))) {
+/*  652 */         String name11 = this.sysCodeMapper.getNotifyNameByNo(eduSchoolBusiness.getTypeId());
+/*  653 */         if (StringUtils.checkNull(name11).booleanValue())
+/*  654 */           eduSchoolBusiness.setTypeName("");
+/*      */         else
+/*  656 */           eduSchoolBusiness.setTypeName(name11);
+/*      */       }
+/*      */       else
+/*      */       {
+/*  660 */         eduSchoolBusiness.setTypeName(" ");
+/*      */       }
+/*  662 */       if ((eduSchoolBusiness.getAttachmentName() != null) && (eduSchoolBusiness.getAttachmentId() != null)) {
+/*  663 */         eduSchoolBusiness.setAttachment(GetAttachmentListUtil.returnAttachment(eduSchoolBusiness.getAttachmentName(), eduSchoolBusiness.getAttachmentId(), sqlType, "notify"));
+/*      */       }
+/*  665 */       String depId = eduSchoolBusiness.getToId();
+/*  666 */       if (!StringUtils.checkNull(depId).booleanValue()) {
+/*  667 */         String depName = this.departmentService.getDeptNameByDeptId(depId, ",");
+/*  668 */         if (!"ALL_DEPT".trim().equals(eduSchoolBusiness.getToId()))
+/*  669 */           eduSchoolBusiness.setDeprange(depName + ",");
+/*      */         else {
+/*  671 */           eduSchoolBusiness.setDeprange(depName);
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  677 */       String userId = eduSchoolBusiness.getUserId();
+/*  678 */       if (!StringUtils.checkNull(userId).booleanValue()) {
+/*  679 */         String userName = this.usersService.getUserNameById(userId);
+/*  680 */         eduSchoolBusiness.setUserrange(userName + ",");
+/*      */       }
+/*      */ 
+/*  683 */       String roleId = eduSchoolBusiness.getPrivId();
+/*  684 */       if (!StringUtils.checkNull(roleId).booleanValue()) {
+/*  685 */         String roleName = this.usersPrivService.getPrivNameByPrivId(roleId, ",");
+/*  686 */         eduSchoolBusiness.setRolerange(roleName + ",");
+/*      */       }
+/*  688 */       if (eduSchoolBusiness.getReaders().indexOf(name) != -1)
+/*  689 */         eduSchoolBusiness.setRead(Integer.valueOf(1));
+/*      */       else {
+/*  691 */         eduSchoolBusiness.setRead(Integer.valueOf(0));
+/*      */       }
+/*      */     }
+/*      */ 
+/*  695 */     json.setObj(list);
+/*  696 */     json.setTotleNum(pageParams.getTotal());
+/*  697 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson eduSchoolYuangong(Map<String, Object> map)
+/*      */   {
+/*  708 */     ToJson json = new ToJson();
+/*      */     try {
+/*  710 */       Map map1 = this.eduSchoolBusinessMapper.eduSchoolYuangong(map);
+/*  711 */       if ((map1.get("userId") != null) && (!map1.get("userId").equals(""))) {
+/*  712 */         EduUser eduUser = this.eduUserMapper.getByuserId(map1.get("userId").toString());
+/*  713 */         map1.put("userName", eduUser.getUserName());
+/*  714 */       }map1.put("deptName", this.departmentMapper.departmentOneSelect((Integer)map.get("deptId")));
+/*  715 */       if (map1 != null) {
+/*  716 */         json.setMsg("ok");
+/*  717 */         json.setObject(map1);
+/*  718 */         json.setFlag(0);
+/*  719 */         return json;
+/*      */       }
+/*  721 */       json.setMsg("err");
+/*  722 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  724 */       e.printStackTrace();
+/*      */     }
+/*  726 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson eduSchoolYuanggongXiangqing(Map<String, Object> map)
+/*      */   {
+/*  736 */     ToJson json = new ToJson();
+/*      */     try {
+/*  738 */       List<EduSchoolBusiness> list = this.eduSchoolBusinessMapper.eduSchoolYuanggongXiangqing(map);
+/*  739 */       for (EduSchoolBusiness eduSchoolBusiness : list) {
+/*  740 */         if (eduSchoolBusiness.getFromId() != null) {
+/*  741 */           EduUser eduUser = this.eduUserMapper.getByuserId(map.get("userId").toString());
+/*  742 */           eduSchoolBusiness.setUserName(eduUser.getUserName());
+/*      */         }
+/*  744 */         if (eduSchoolBusiness.getToId() != null) {
+/*  745 */           String[] deptsId = eduSchoolBusiness.getToId().split(",");
+/*  746 */           String deptName = "";
+/*  747 */           for (int i = 0; i < deptsId.length; i++) {
+/*  748 */             String deptNameto = this.departmentMapper.departmentOneSelect(Integer.valueOf(deptsId[i]));
+/*  749 */             deptName = deptName + "," + deptNameto;
+/*      */           }
+/*  751 */           eduSchoolBusiness.setDeptNameSp(deptName);
+/*      */         }
+/*      */       }
+/*  754 */       if (list.size() > 0) {
+/*  755 */         json.setObj(list);
+/*  756 */         json.setFlag(0);
+/*  757 */         json.setMsg("eer");
+/*  758 */         return json;
+/*      */       }
+/*  760 */       json.setMsg("err");
+/*  761 */       json.setFlag(1);
+/*      */     } catch (Exception e) {
+/*  763 */       e.printStackTrace();
+/*      */     }
+/*  765 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public static <T> HSSFWorkbook exportExcelDatas(HSSFWorkbook workbook, List<Map<String, Object>> dataList, String[] beanPropertys)
+/*      */     throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
+/*      */   {
+/*  780 */     HSSFSheet sheet = workbook.getSheetAt(0);
+/*      */ 
+/*  782 */     HSSFCellStyle styleData = workbook.createCellStyle();
+/*  783 */     styleData.setAlignment((short) 2);
+/*  784 */     styleData.setVerticalAlignment((short) 1);
+/*      */ 
+/*  786 */     for (int j = 0; j < dataList.size(); j++) {
+/*  787 */       HSSFRow rowData = sheet.createRow(j + 2);
+/*  788 */       Map<String,Object> map = (Map)dataList.get(j);
+/*  789 */       for (int k = 0; k < beanPropertys.length; k++) {
+/*  790 */         System.out.println(map);
+/*  791 */         System.out.println(beanPropertys[k]);
+/*      */ 
+/*  794 */         HSSFCell cellData = rowData.createCell(k);
+/*      */         try {
+/*  796 */           for (String key : map.keySet()) {
+/*  797 */             if ((!map.get(key).equals("")) && (map.get(key) != null)) {
+/*  798 */               int sum = 0;
+/*  799 */               System.out.print(beanPropertys.length);
+/*  800 */               for (int ks = 0; ks < beanPropertys.length; ks++) {
+/*  801 */                 if (key.equals(beanPropertys[ks])) {
+/*  802 */                   cellData.setCellValue(map.get(key).toString());
+/*      */                 }
+/*      */               }
+/*      */             }
+/*  806 */             cellData.setCellStyle(styleData);
+/*      */           }
+/*      */         }
+/*      */         catch (Exception e) {
+/*  810 */           e.printStackTrace();
+/*      */         }
+/*      */       }
+/*      */     }
+/*      */ 
+/*  815 */     return workbook;
+/*      */   }
+/*      */ 
+/*      */   public ToJson eudSchollTop(Map<String, Object> map)
+/*      */   {
+/*  826 */     ToJson json = new ToJson();
+/*      */     try {
+/*  828 */       int count = this.eduSchoolBusinessMapper.eudSchollTop(map);
+/*  829 */       if (count > 0) {
+/*  830 */         json.setMsg("ok");
+/*  831 */         json.setFlag(0);
+/*  832 */         return json;
+/*      */       }
+/*  834 */       json.setMsg("err");
+/*  835 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  837 */       e.printStackTrace();
+/*      */     }
+/*  839 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson eduSchollPublish(Map<String, Object> map)
+/*      */   {
+/*  850 */     ToJson json = new ToJson();
+/*      */     try {
+/*  852 */       int count = this.eduSchoolBusinessMapper.eduSchollPublish(map);
+/*  853 */       if (count > 0) {
+/*  854 */         json.setMsg("ok");
+/*  855 */         json.setFlag(0);
+/*  856 */         return json;
+/*      */       }
+/*  858 */       json.setMsg("err");
+/*  859 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  861 */       e.printStackTrace();
+/*      */     }
+/*  863 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EduSchoolBusiness> EduConsultTheSituationNotify(String newsId)
+/*      */   {
+/*  876 */     ToJson NotifyToJson = new ToJson();
+/*  877 */     Map maps = new HashMap();
+/*  878 */     maps.put("notifyId", newsId);
+/*  879 */     EduSchoolBusiness notify = this.eduSchoolBusinessMapper.eduDetailedNotify(maps);
+/*  880 */     if (notify != null) {
+/*  881 */       notify.setNotifyDateTime(DateFormat.getStrDate(notify.getSendTime()));
+/*  882 */       notify.setName(notify.getUsers().getUserName());
+/*      */     }
+/*  884 */     List<Users> usersList = this.usersMapper.unreadConsultTheSituationNotify(maps);
+/*  885 */     List<Users> usersList1 = this.usersMapper.readConsultTheSituationNotify(maps);
+/*  886 */     List resultList = new ArrayList();
+/*  887 */     List<Department> departmentList = this.departmentMapper.getDatagrid();
+/*      */ 
+/*  889 */     for (Department department : departmentList) {
+/*  890 */       StringBuffer stringBuffer = new StringBuffer();
+/*  891 */       for (Users users : usersList) {
+/*  892 */         Integer depId = users.getDeptId();
+/*  893 */         if (department.getDeptId().equals(depId)) {
+/*  894 */           stringBuffer.append(users.getUserName());
+/*  895 */           stringBuffer.append(",");
+/*      */         }
+/*      */       }
+/*  898 */       department.setUnread(stringBuffer.toString());
+/*  899 */       StringBuffer stringBuffer1 = new StringBuffer();
+/*  900 */       for (Users users : usersList1) {
+/*  901 */         Integer depId = users.getDeptId();
+/*  902 */         if (department.getDeptId().equals(depId)) {
+/*  903 */           stringBuffer1.append(users.getUserName());
+/*  904 */           stringBuffer1.append(",");
+/*      */         }
+/*      */       }
+/*  907 */       department.setRead(stringBuffer1.toString());
+/*      */     }
+/*  909 */     notify.setReadSize(Integer.valueOf(usersList1.size()));
+/*  910 */     notify.setUnreadSize(Integer.valueOf(usersList.size()));
+/*  911 */     notify.setDepartmentList(departmentList);
+/*  912 */     NotifyToJson.setObject(notify);
+/*  913 */     NotifyToJson.setFlag(0);
+/*  914 */     NotifyToJson.setMsg("ok");
+/*  915 */     return NotifyToJson;
+/*      */   }
+/*      */ 
+/*      */   public EduSchoolBusiness queryById(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String name, String sqlType, String changId)
+/*      */     throws Exception
+/*      */   {
+/*  934 */     String[] strArray = null;
+/*  935 */     String[] strArray1 = null;
+/*  936 */     String[] strArray2 = null;
+/*  937 */     EduSchoolBusiness notify = this.eduSchoolBusinessMapper.eduDetailedNotify(maps);
+/*  938 */     if (notify != null) {
+/*  939 */       notify.setNotifyDateTime(DateFormat.getStrDate(notify.getSendTime()));
+/*  940 */       notify.setName(notify.getUsers().getUserName());
+/*  941 */       if ((notify.getTypeId() != null) && (!notify.getTypeId().equals(""))) {
+/*  942 */         String name11 = this.sysCodeMapper.getNotifyNameByNo(notify.getTypeId());
+/*  943 */         if (StringUtils.checkNull(name11).booleanValue())
+/*  944 */           notify.setTypeName("");
+/*      */         else
+/*  946 */           notify.setTypeName(name11);
+/*      */       }
+/*      */       else
+/*      */       {
+/*  950 */         notify.setTypeName("");
+/*      */       }
+/*      */ 
+/*  953 */       if ((notify.getBeginDate() != null) && (!"".equals(notify.getBeginDate()))) {
+/*  954 */         if (!eduSchoolDatetime.equals(DateFormat.getStrTime(notify.getBeginDate())))
+/*  955 */           notify.setBegin(DateFormat.getStrTime(notify.getBeginDate()));
+/*      */         else
+/*  957 */           notify.setBegin("");
+/*      */       }
+/*      */       else {
+/*  960 */         notify.setBegin("");
+/*      */       }
+/*  962 */       if ((notify.getEndDate() != null) && (!"".equals(notify.getEndDate()))) {
+/*  963 */         if (!eduSchoolDatetime.equals(DateFormat.getStrTime(notify.getEndDate())))
+/*  964 */           notify.setEnd(DateFormat.getStrTime(notify.getEndDate()));
+/*      */         else
+/*  966 */           notify.setEnd("");
+/*      */       }
+/*      */       else {
+/*  969 */         notify.setEnd("");
+/*      */       }
+/*      */ 
+/*  972 */       if ((notify.getAttachmentName() != null) && (notify.getAttachmentId() != null)) {
+/*  973 */         notify.setAttachment(GetAttachmentListUtil.returnAttachment(notify.getAttachmentName(), notify.getAttachmentId(), sqlType, "notify"));
+/*      */       }
+/*      */ 
+/*  976 */       StringBuffer s = new StringBuffer();
+/*  977 */       StringBuffer s1 = new StringBuffer();
+/*  978 */       StringBuffer s2 = new StringBuffer();
+/*      */ 
+/*  981 */       String depId = notify.getToId();
+/*  982 */       if (!StringUtils.checkNull(depId).booleanValue()) {
+/*  983 */         String depName = this.departmentService.getDeptNameByDeptId(depId, ",");
+/*  984 */         if (!"ALL_DEPT".trim().equals(notify.getToId()))
+/*  985 */           notify.setDeprange(depName + ",");
+/*      */         else {
+/*  987 */           notify.setDeprange(depName);
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  993 */       String userId = notify.getUserId();
+/*  994 */       if (!StringUtils.checkNull(userId).booleanValue()) {
+/*  995 */         String userName = this.usersService.getUserNameById(userId);
+/*  996 */         notify.setUserrange(userName + ",");
+/*      */       }
+/*      */ 
+/*  999 */       String roleId = notify.getPrivId();
+/* 1000 */       if (!StringUtils.checkNull(roleId).booleanValue()) {
+/* 1001 */         String roleName = this.usersPrivService.getPrivNameByPrivId(roleId, ",");
+/* 1002 */         notify.setRolerange(roleName + ",");
+/*      */       }
+/*      */ 
+/* 1005 */       if ((!eduSchoolChageId.equals(changId)) && 
+/* 1006 */         (notify.getReaders().indexOf(name) == -1)) {
+/* 1007 */         StringBuffer str2 = new StringBuffer(notify.getReaders());
+/* 1008 */         str2.append(",");
+/* 1009 */         str2.append(name);
+/* 1010 */         String str1 = str2.toString();
+/* 1011 */         notify.setNotifyId(notify.getNotifyId());
+/* 1012 */         notify.setReaders(str1);
+/* 1013 */         this.eduSchoolBusinessMapper.updateReaders(notify);
+/*      */       }
+/*      */     }
+/*      */ 
+/* 1017 */     return notify;
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduSchoolBusiness.EduSchoolBusinessService
+ * JD-Core Version:    0.6.0
+ */

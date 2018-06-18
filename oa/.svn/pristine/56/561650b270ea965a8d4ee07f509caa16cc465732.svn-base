@@ -1,0 +1,105 @@
+/*     */ package com.xoa.util;
+/*     */ 
+/*     */ import java.util.Map;
+/*     */ 
+/*     */ public class NewsCheck
+/*     */ {
+/*     */   public static boolean checkDeptPriv(String DeptId, String deptIdOfuser_Id)
+/*     */   {
+/*  13 */     if (("ALL_DEPT".equals(DeptId)) || ("ALL_DEPT" == DeptId)) {
+/*  14 */       return true;
+/*     */     }
+/*     */ 
+/*  17 */     if ((DeptId != null) && (!"".equals(DeptId))) {
+/*  18 */       String[] deptIds = DeptId.split(",");
+/*  19 */       for (int i = 0; i < deptIds.length; i++) {
+/*  20 */         if (deptIdOfuser_Id.equals(deptIds)) {
+/*  21 */           return true;
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/*  26 */     return false;
+/*     */   }
+/*     */ 
+/*     */   public static boolean checkUserPriv(String userPriv, String userPrivOfuser_Id)
+/*     */   {
+/*  41 */     if ((userPriv != null) && (!"".equals(userPriv))) {
+/*  42 */       String[] deptIds = userPriv.split(",");
+/*  43 */       for (int i = 0; i < deptIds.length; i++) {
+/*  44 */         if (deptIds.equals(userPrivOfuser_Id)) {
+/*  45 */           return true;
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/*  50 */     return false;
+/*     */   }
+/*     */ 
+/*     */   public static boolean checkUserId(String userId, String userIdOfuser_Id)
+/*     */   {
+/*  64 */     if ((userId != null) && (!"".equals(userId))) {
+/*  65 */       String[] deptIds = userId.split(",");
+/*  66 */       for (int i = 0; i < deptIds.length; i++) {
+/*  67 */         if (deptIds[i].equals(userIdOfuser_Id)) {
+/*  68 */           return true;
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/*  73 */     return false;
+/*     */   }
+/*     */ 
+/*     */   public static boolean checkAll(String depIds, String userIds, String roleIds, Map<String, Object> map) {
+/*  77 */     if (depIds != null) {
+/*  78 */       String[] checkDept = depIds.split(",");
+/*  79 */       for (int j = 0; j < checkDept.length; j++) {
+/*  80 */         if (map.get("deptId") != null) {
+/*  81 */           String depId = map.get("deptId").toString();
+/*  82 */           if (checkDeptPriv(checkDept[j], depId))
+/*  83 */             return true;
+/*     */         }
+/*     */         else {
+/*  86 */           return false;
+/*     */         }
+/*     */       }
+/*     */     }
+/*  90 */     if (userIds != null) {
+/*  91 */       String[] checkUser = userIds.split(",");
+/*  92 */       for (int i = 0; i < checkUser.length; i++) {
+/*  93 */         if (map.get("userId") != null) {
+/*  94 */           String userId = map.get("userId").toString();
+/*  95 */           if (checkUserId(checkUser[i], userId))
+/*  96 */             return true;
+/*     */         }
+/*     */         else
+/*     */         {
+/* 100 */           return false;
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 105 */     if (roleIds != null) {
+/* 106 */       String[] checkRole = roleIds.split(",");
+/* 107 */       for (int i = 0; i < checkRole.length; i++) {
+/* 108 */         if (map.get("userPriv") != null) {
+/* 109 */           String userPrivId = map.get("userPriv").toString();
+/* 110 */           if (checkUserPriv(checkRole[i], userPrivId))
+/* 111 */             return true;
+/*     */         }
+/*     */         else {
+/* 114 */           return false;
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 122 */     return false;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.NewsCheck
+ * JD-Core Version:    0.6.0
+ */

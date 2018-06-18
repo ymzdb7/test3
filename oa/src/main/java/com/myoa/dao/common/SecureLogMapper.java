@@ -1,0 +1,36 @@
+package com.myoa.dao.common;
+
+import com.myoa.model.common.SecureLog;
+import com.myoa.model.common.SecureLogExample;
+
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface SecureLogMapper {
+	public abstract int countByExample(SecureLogExample paramSecureLogExample);
+
+	public abstract int deleteByExample(SecureLogExample paramSecureLogExample);
+
+	public abstract int deleteByPrimaryKey(Integer paramInteger);
+
+	public abstract int insert(SecureLog paramSecureLog);
+
+	public abstract int insertSelective(SecureLog paramSecureLog);
+
+	public abstract List<SecureLog> selectByExample(
+			SecureLogExample paramSecureLogExample);
+
+	public abstract SecureLog selectByPrimaryKey(Integer paramInteger);
+
+	public abstract int updateByExampleSelective(
+			@Param("record") SecureLog paramSecureLog,
+			@Param("example") SecureLogExample paramSecureLogExample);
+
+	public abstract int updateByExample(
+			@Param("record") SecureLog paramSecureLog,
+			@Param("example") SecureLogExample paramSecureLogExample);
+
+	public abstract int updateByPrimaryKeySelective(SecureLog paramSecureLog);
+
+	public abstract int updateByPrimaryKey(SecureLog paramSecureLog);
+}

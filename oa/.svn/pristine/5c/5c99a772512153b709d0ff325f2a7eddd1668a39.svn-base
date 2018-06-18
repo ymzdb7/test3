@@ -1,0 +1,234 @@
+/*     */ package com.xoa.util.netdisk;
+/*     */ 
+/*     */ import com.xoa.model.netdisk.Catalog;
+/*     */ import com.xoa.model.netdisk.EasyUiDiskModel;
+/*     */ import com.xoa.model.netdisk.MyNetdisk;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.FileNotFoundException;
+/*     */ import java.io.PrintStream;
+/*     */ import java.text.DecimalFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.ResourceBundle;
+/*     */ 
+/*     */ public class ReadFile
+/*     */ {
+/*     */   public static boolean mkDirectory(String path)
+/*     */   {
+	          boolean bool = false;
+/*  17 */     File file = null;
+/*     */     try {
+/*  19 */       file = new File(path);
+/*  20 */       if (!file.exists()) {
+/*  21 */         bool = file.mkdirs();
+/*     */         return bool;
+/*     */       } 
+/*     */       return bool; } catch (Exception e) { } finally { file = null;
+/*     */     }
+/*  30 */     return false;
+/*     */   }
+/*     */ 
+/*     */   public static Catalog getFiles(String dirPath) throws Exception {
+/*  34 */     File file = new File(dirPath);
+/*  35 */     Catalog catalog = null;
+/*  36 */     if (file.exists()) {
+/*  37 */       catalog = new Catalog();
+/*  38 */       String dirSize = "";
+/*  39 */       int catalogcount = 0;
+/*  40 */       List myNetdiskList = new ArrayList();
+/*  41 */       if (file.isDirectory()) {
+/*  42 */         File[] files = file.listFiles();
+/*  43 */         for (File fi : files) {
+/*  44 */           MyNetdisk myNetdisk = new MyNetdisk();
+/*  45 */           String path = fi.getAbsolutePath();
+/*  46 */           myNetdisk.setPath(path);
+/*  47 */           myNetdisk.setNeName(getFileName(path));
+/*  48 */           myNetdisk.setTime(getFileTime(fi));
+/*  49 */           if (fi.isDirectory()) {
+/*  50 */             myNetdisk.setType("DIR");
+/*  51 */             myNetdisk.setSize("");
+/*     */           } else {
+/*  53 */             myNetdisk.setType(getFileType(path));
+/*  54 */             myNetdisk.setSize(FormetFileSize(getFileSizes(fi)));
+/*     */           }
+/*  56 */           myNetdiskList.add(myNetdisk);
+/*     */         }
+/*     */       }
+/*     */       else {
+/*  60 */         dirSize = FormetFileSize(getFileSizes(file));
+/*     */       }
+/*     */ 
+/*  63 */       catalog.setCatalogcount(catalogcount);
+/*  64 */       catalog.setCatalogSize(dirSize);
+/*  65 */       catalog.setCatalogPath(dirPath);
+/*  66 */       catalog.setMyNetdiskList(myNetdiskList);
+/*     */     }
+/*     */ 
+/*  70 */     return catalog;
+/*     */   }
+/*     */ 
+/*     */   public static String getFileType(String fileName)
+/*     */   {
+/*  78 */     return fileName.substring(fileName.lastIndexOf(".") + 1).toUpperCase();
+/*     */   }
+/*     */ 
+/*     */   public static String getFileName(String filePath) {
+/*  82 */     String fileName = "";
+/*     */ 
+/*  84 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/*  85 */     String osName = System.getProperty("os.name");
+/*  86 */     StringBuffer sb = new StringBuffer();
+/*  87 */     if (osName.toLowerCase().startsWith("win")) {
+/*  88 */       String[] fileItems = filePath.split("\\\\");
+/*  89 */       fileName = fileItems[(fileItems.length - 1)];
+/*     */     } else {
+/*  91 */       String[] fileItems = filePath.split("/");
+/*  92 */       fileName = fileItems[(fileItems.length - 1)];
+/*     */     }
+/*     */ 
+/*  95 */     return fileName;
+/*     */   }
+/*     */ 
+/*     */   public static Date getFileTime(File file) {
+/*  99 */     if ((file == null) || (!file.exists())) {
+/* 100 */       return new Date();
+/*     */     }
+/* 102 */     return new Date(file.lastModified());
+/*     */   }
+/*     */ 
+/*     */   public static Date getFileTime(String filePath) {
+/* 106 */     File file = new File(filePath);
+/* 107 */     if (!file.exists()) {
+/* 108 */       return new Date();
+/*     */     }
+/* 110 */     return new Date(file.lastModified());
+/*     */   }
+/*     */ 
+/*     */   public static long getFileSizes(File f) throws Exception {
+/* 114 */     long s = 0L;
+/* 115 */     if (f.exists()) {
+/* 116 */       FileInputStream fis = null;
+/* 117 */       fis = new FileInputStream(f);
+/* 118 */       s = fis.available();
+/*     */     } else {
+/* 120 */       System.out.println("文件不存在");
+/*     */     }
+/* 122 */     return s;
+/*     */   }
+/*     */ 
+/*     */   public static long getFileSize(File f) throws Exception
+/*     */   {
+/* 127 */     long size = 0L;
+/* 128 */     File[] flist = f.listFiles();
+/* 129 */     for (int i = 0; i < flist.length; i++)
+/*     */     {
+/* 131 */       if (flist[i].isDirectory())
+/*     */       {
+/* 133 */         size += getFileSize(flist[i]);
+/*     */       }
+/*     */       else {
+/* 136 */         size += flist[i].length();
+/*     */       }
+/*     */     }
+/* 139 */     return size;
+/*     */   }
+/*     */   public static String FormetFileSize(long fileS) {
+/* 142 */     DecimalFormat df = new DecimalFormat("#.00");
+/* 143 */     String fileSizeString = "";
+/* 144 */     if (fileS == 0L) {
+/* 145 */       return "0.00B";
+/*     */     }
+/* 147 */     if (fileS < 1024L)
+/* 148 */       fileSizeString = df.format(fileS) + "B";
+/* 149 */     else if (fileS < 1048576L)
+/* 150 */       fileSizeString = df.format(fileS / 1024.0D) + "KB";
+/* 151 */     else if (fileS < 1073741824L)
+/* 152 */       fileSizeString = df.format(fileS / 1048576.0D) + "M";
+/*     */     else {
+/* 154 */       fileSizeString = df.format(fileS / 1073741824.0D) + "G";
+/*     */     }
+/* 156 */     return fileSizeString;
+/*     */   }
+/*     */ 
+/*     */   public static long getlist(File f)
+/*     */   {
+/* 161 */     long size = 0L;
+/* 162 */     File[] flist = f.listFiles();
+/* 163 */     size = flist.length;
+/* 164 */     for (int i = 0; i < flist.length; i++) {
+/* 165 */       if (flist[i].isDirectory()) {
+/* 166 */         size += getlist(flist[i]);
+/* 167 */         size -= 1L;
+/*     */       }
+/*     */     }
+/* 170 */     return size;
+/*     */   }
+/*     */ 
+/*     */   public static List<EasyUiDiskModel> getDirs(String dirPath) throws Exception {
+/* 174 */     List res = null;
+/* 175 */     File file = new File(dirPath);
+/* 176 */     if ((file.exists()) && 
+/* 177 */       (file.isDirectory())) {
+/* 178 */       res = new ArrayList();
+/* 179 */       File[] files = file.listFiles();
+/* 180 */       int i = 0;
+/* 181 */       for (File fi : files) {
+/* 182 */         if (fi.isDirectory()) {
+/* 183 */           EasyUiDiskModel myNetdisk = new EasyUiDiskModel();
+/* 184 */           String path = fi.getAbsolutePath();
+/* 185 */           Map attr = new HashMap();
+/* 186 */           attr.put("url", path);
+/* 187 */           myNetdisk.setAttributes(attr);
+/* 188 */           myNetdisk.setText(getFileName(path));
+/* 189 */           myNetdisk.setId(Integer.valueOf(i++));
+/* 190 */           res.add(myNetdisk);
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 195 */     return res;
+/*     */   }
+/*     */ 
+/*     */   public static List<MyNetdisk> getFilesInPath(String path) throws Exception {
+/* 199 */     List res = null;
+/* 200 */     File file = new File(path);
+/* 201 */     if ((file.exists()) && 
+/* 202 */       (file.isDirectory())) {
+/* 203 */       res = new ArrayList();
+/* 204 */       File[] files = file.listFiles();
+/* 205 */       int i = 0;
+/* 206 */       for (File fi : files) {
+/* 207 */         if (fi.isFile()) {
+/* 208 */           MyNetdisk myNetdisk = new MyNetdisk();
+/* 209 */           String filepath = fi.getAbsolutePath();
+/* 210 */           myNetdisk.setPath(filepath);
+/* 211 */           myNetdisk.setSize(FormetFileSize(getFileSizes(fi)));
+/* 212 */           myNetdisk.setNeName(getFileName(filepath));
+/* 213 */           myNetdisk.setTime(getFileLastModifed(fi));
+/* 214 */           myNetdisk.setType(getFileType(filepath));
+/* 215 */           res.add(myNetdisk);
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 220 */     return res;
+/*     */   }
+/*     */ 
+/*     */   public static Date getFileLastModifed(File file) throws FileNotFoundException {
+/* 224 */     if (!file.exists()) {
+/* 225 */       throw new FileNotFoundException();
+/*     */     }
+/* 227 */     long time = file.lastModified();
+/* 228 */     Date date = new Date(time);
+/* 229 */     return date;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.netdisk.ReadFile
+ * JD-Core Version:    0.6.0
+ */

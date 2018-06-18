@@ -1,0 +1,127 @@
+/*     */ package com.xoa.util.common.session;
+/*     */ 
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import java.lang.reflect.Field;
+/*     */ import java.lang.reflect.Method;
+/*     */ import java.util.Enumeration;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.Map;
+/*     */ import java.util.Map.Entry;
+/*     */ import java.util.Set;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ 
+/*     */ public class SessionUtils
+/*     */ {
+/*     */   public static void putSession(HttpSession session, Map<String, Object> params)
+/*     */   {
+/*  36 */     if (session == null)
+/*  37 */       throw new SessionException("session is null");
+/*  38 */     if ((params == null) || (params.size() == 0))
+/*  39 */       return;
+/*  40 */     for (Map.Entry entry : params.entrySet())
+/*  41 */       session.setAttribute((String)entry.getKey(), entry.getValue());
+/*     */   }
+/*     */ 
+/*     */   public static void putSession(HttpSession session, Object obj)
+/*     */   {
+/*  55 */     if (session == null)
+/*  56 */       throw new SessionException("session is null");
+/*  57 */     if (obj == null)
+/*  58 */       return;
+/*     */     try {
+/*  60 */       Field[] fields = Class.forName(obj.getClass().getName()).getDeclaredFields();
+/*     */ 
+/*  62 */       for (int i = 0; i < fields.length; i++) {
+/*  63 */         fields[i].setAccessible(true);
+/*  64 */         session.setAttribute(fields[i].getName(), fields[i].get(obj));
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/*  68 */       e.printStackTrace();
+/*  69 */       throw new SessionException("session is null");
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static void putSession(HttpSession session, String key, Object value)
+/*     */   {
+/*  85 */     if (session == null)
+/*  86 */       throw new SessionException("session is null");
+/*  87 */     if (StringUtils.checkNull(key).booleanValue())
+/*  88 */       throw new SessionException("key is null");
+/*  89 */     session.setAttribute(key, value);
+/*     */   }
+/*     */ 
+/*     */   public static <T> T getSessionInfo(HttpSession session, String key, Class<T> clazz)
+/*     */   {
+/* 105 */     Object ret = null;
+/* 106 */     Object value = session.getAttribute(key);
+/* 107 */     if (value != null) ret = clazz.cast(value);
+/* 108 */     return (T)ret;
+/*     */   }
+/*     */ 
+/*     */   public static Map<String, Object> getSessionInfo(HttpSession session, Set<String> keys)
+/*     */   {
+/* 125 */     Map map = new HashMap();
+/*     */ 
+/* 127 */     Iterator iterator = keys.iterator();
+/* 128 */     while (iterator.hasNext()) {
+/* 129 */       String key = (String)iterator.next();
+/* 130 */       Object value = session.getAttribute(key);
+/* 131 */       if (value != null) map.put(key, value);
+/*     */     }
+/* 133 */     return map;
+/*     */   }
+/*     */ 
+/*     */   public static <T> T getSessionInfo(HttpSession session, Class<T> clazz, T deffault)
+/*     */   {
+/* 150 */     Object ret = null;
+/* 151 */     if (deffault == null)
+/* 152 */       return null;
+/*     */     try {
+/* 154 */       Field[] fields = Class.forName(clazz.getName()).getDeclaredFields();
+/* 155 */       ret = clazz.cast(deffault);
+/* 156 */       for (int i = 0; i < fields.length; i++) {
+/* 157 */         fields[i].setAccessible(true);
+/* 158 */         Method set_Method = clazz.getMethod("set" + getMethodName(fields[i].getName()), new Class[] { fields[i].getType() });
+/*     */ 
+/* 161 */         set_Method.setAccessible(true);
+/* 162 */         Object value = session.getAttribute(fields[i].getName());
+/* 163 */         if (value != null) {
+/* 164 */           set_Method.invoke(ret, new Object[] { value });
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 170 */       e.printStackTrace();
+/* 171 */       throw new SessionException("session is null");
+/*     */     }
+/* 173 */     return (T)ret;
+/*     */   }
+/*     */ 
+/*     */   public static void cleanUserSession(HttpSession session) {
+/* 177 */     if (session == null) {
+/* 178 */       throw new SessionException("session is null");
+/*     */     }
+/*     */ 
+/* 181 */     Enumeration enumeration = session.getAttributeNames();
+/*     */ 
+/* 183 */     while (enumeration.hasMoreElements())
+/*     */     {
+/* 185 */       session.removeAttribute(((String)enumeration.nextElement()).toString());
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static String getMethodName(String fildeName)
+/*     */   {
+/* 193 */     byte[] items = fildeName.getBytes();
+/* 194 */     items[0] = (byte)((char)items[0] - 'a' + 65);
+/* 195 */     return new String(items);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.common.session.SessionUtils
+ * JD-Core Version:    0.6.0
+ */

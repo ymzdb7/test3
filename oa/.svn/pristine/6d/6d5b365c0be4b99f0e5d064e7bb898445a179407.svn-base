@@ -1,0 +1,549 @@
+/*     */ package com.xoa.service.event.impl;
+/*     */ 
+/*     */ import com.xoa.dao.event.TimeLineMapper;
+/*     */ import com.xoa.dao.event.TimeLinePostDeptMapper;
+/*     */ import com.xoa.dao.event.TimeLinePostRoleMapper;
+/*     */ import com.xoa.dao.event.TimeLinePostUserMapper;
+/*     */ import com.xoa.dao.event.TimeLineViewDeptMapper;
+/*     */ import com.xoa.dao.event.TimeLineViewRoleMapper;
+/*     */ import com.xoa.dao.event.TimeLineViewUserMapper;
+/*     */ import com.xoa.model.event.TimeLine;
+/*     */ import com.xoa.model.event.TimeLinePostDept;
+/*     */ import com.xoa.model.event.TimeLinePostRole;
+/*     */ import com.xoa.model.event.TimeLinePostUser;
+/*     */ import com.xoa.model.event.TimeLineViewDept;
+/*     */ import com.xoa.model.event.TimeLineViewRole;
+/*     */ import com.xoa.model.event.TimeLineViewUser;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.event.TimeLineService;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.UnsupportedEncodingException;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.UUID;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.apache.commons.collections.map.HashedMap;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class TimeLineServiceImpl
+/*     */   implements TimeLineService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   TimeLineMapper timeLineMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   TimeLineViewUserMapper timeLineViewUserMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   TimeLineViewRoleMapper timeLineViewRoleMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   TimeLineViewDeptMapper timeLineViewDeptMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   TimeLinePostUserMapper timeLinePostUserMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   TimeLinePostRoleMapper timeLinePostRoleMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   TimeLinePostDeptMapper timeLinePostDeptMapper;
+/*     */ 
+/*     */   public ToJson<TimeLine> getDetailByUuid(HttpServletRequest request, String uuid)
+/*     */   {
+/*  45 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  47 */       TimeLine timeLine = this.timeLineMapper.selectByPrimaryKey(uuid);
+/*     */ 
+/*  49 */       List list = this.timeLineMapper.getDetailByUuid(uuid);
+/*  50 */       if (list != null) {
+/*  51 */         for (int i = 0; i < list.size(); i++) {
+/*  52 */           String postDeptName = timeLine.getPostDeptName();
+/*  53 */           String postRoleName = timeLine.getPostRoleName();
+/*  54 */           String viewDeptName = timeLine.getViewDeptName();
+/*  55 */           StringBuffer sb = new StringBuffer();
+/*     */ 
+/*  57 */           if (i != postDeptName.length() - 1)
+/*  58 */             sb.append(String.valueOf(postDeptName)).append(",");
+/*     */           else {
+/*  60 */             sb.append(String.valueOf(postDeptName));
+/*     */           }
+/*  62 */           if (i != postRoleName.length() - 1)
+/*  63 */             sb.append(String.valueOf(postRoleName)).append(",");
+/*     */           else {
+/*  65 */             sb.append(String.valueOf(postRoleName));
+/*     */           }
+/*  67 */           if (i != viewDeptName.length() - 1)
+/*  68 */             sb.append(String.valueOf(viewDeptName)).append(",");
+/*     */           else {
+/*  70 */             sb.append(String.valueOf(viewDeptName));
+/*     */           }
+/*     */         }
+/*  73 */         toJson.setObject(list);
+/*  74 */         toJson.setMsg("ok");
+/*     */       } else {
+/*  76 */         toJson.setMsg("数据为空");
+/*     */       }
+/*  78 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  80 */       e.printStackTrace();
+/*  81 */       toJson.setMsg(e.getMessage());
+/*  82 */       L.e(new Object[] { "TimeLineServiceImpl getDetailByUuid:" + e });
+/*     */     }
+/*  84 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TimeLine> getTimeLineByUuid(HttpServletRequest request, String uuid)
+/*     */   {
+/*  97 */     ToJson toJson = new ToJson(1, "error");
+/*     */ 
+/*  99 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/* 101 */     TimeLine timeLine = this.timeLineMapper.selectTimeLineByUuid(uuid);
+/*     */ 
+/* 104 */     List<TimeLineViewUser> timeLineViewUser = this.timeLineViewUserMapper.selectByUUID(uuid);
+/* 105 */     StringBuffer name = new StringBuffer();
+/* 106 */     StringBuffer id = new StringBuffer();
+/* 107 */     for (TimeLineViewUser tlvu : timeLineViewUser) {
+/* 108 */       if ((tlvu.getUserId() != null) && (tlvu.getUserName() != null)) {
+/* 109 */         name.append(tlvu.getUserName() + ",");
+/* 110 */         id.append(tlvu.getUserId() + ",");
+/*     */       }
+/*     */     }
+/* 113 */     timeLine.setViewUserId(id.toString());
+/* 114 */     timeLine.setViewUserName(name.toString());
+/*     */ 
+/* 117 */     List<TimeLineViewRole> timeLineViewRoles = this.timeLineViewRoleMapper.selectByUUID(uuid);
+/* 118 */     name.setLength(0);
+/* 119 */     id.setLength(0);
+/* 120 */     for (TimeLineViewRole tlvr : timeLineViewRoles) {
+/* 121 */       if ((tlvr.getRoleId() != null) && (tlvr.getRoleName() != null)) {
+/* 122 */         name.append(tlvr.getRoleName() + ",");
+/* 123 */         id.append(tlvr.getRoleId() + ",");
+/*     */       }
+/*     */     }
+/* 126 */     timeLine.setViewRoleId(id.toString());
+/* 127 */     timeLine.setViewRoleName(name.toString());
+/*     */ 
+/* 130 */     List<TimeLineViewDept> timeLineViewDepts = this.timeLineViewDeptMapper.selectByUUID(uuid);
+/* 131 */     name.setLength(0);
+/* 132 */     id.setLength(0);
+/* 133 */     for (TimeLineViewDept tlvd : timeLineViewDepts) {
+/* 134 */       if ((tlvd.getDeptId() != null) && (tlvd.getDeptName() != null)) {
+/* 135 */         name.append(tlvd.getDeptName() + ",");
+/* 136 */         id.append(tlvd.getDeptId() + ",");
+/*     */       }
+/*     */     }
+/* 139 */     timeLine.setViewDeptId(id.toString());
+/* 140 */     timeLine.setViewDeptName(name.toString());
+/*     */ 
+/* 143 */     List<TimeLinePostUser> timeLinePostUsers = this.timeLinePostUserMapper.selectByUUID(uuid);
+/* 144 */     name.setLength(0);
+/* 145 */     id.setLength(0);
+/* 146 */     for (TimeLinePostUser tlvu : timeLinePostUsers) {
+/* 147 */       if ((tlvu.getUserId() != null) && (tlvu.getUserName() != null)) {
+/* 148 */         name.append(tlvu.getUserName() + ",");
+/* 149 */         id.append(tlvu.getUserId() + ",");
+/* 150 */         if (tlvu.getUserId().toString().equals(users.getUserId())) {
+/* 151 */           timeLine.setRight(true);
+/*     */         }
+/*     */       }
+/*     */     }
+/* 155 */     timeLine.setPostUserId(id.toString());
+/* 156 */     timeLine.setPostUserName(name.toString());
+/*     */ 
+/* 159 */     List<TimeLinePostRole> timeLinePostPostRoles = this.timeLinePostRoleMapper.selectByUUID(uuid);
+/* 160 */     name.setLength(0);
+/* 161 */     id.setLength(0);
+/* 162 */     for (TimeLinePostRole tlvr : timeLinePostPostRoles) {
+/* 163 */       if ((tlvr.getRoleId() != null) && (tlvr.getRoleName() != null)) {
+/* 164 */         name.append(tlvr.getRoleName() + ",");
+/* 165 */         id.append(tlvr.getRoleId() + ",");
+/* 166 */         if (tlvr.getRoleId() == users.getUserPriv()) {
+/* 167 */           timeLine.setRight(true);
+/*     */         }
+/*     */       }
+/*     */     }
+/* 171 */     timeLine.setPostRoleId(id.toString());
+/* 172 */     timeLine.setPostRoleName(name.toString());
+/*     */ 
+/* 175 */     List<TimeLinePostDept> imeLinePostDept = this.timeLinePostDeptMapper.selectByUUID(uuid);
+/* 176 */     name.setLength(0);
+/* 177 */     id.setLength(0);
+/* 178 */     for (TimeLinePostDept tlvd : imeLinePostDept) {
+/* 179 */       if ((tlvd.getDeptId() != null) && (tlvd.getDeptName() != null)) {
+/* 180 */         name.append(tlvd.getDeptName() + ",");
+/* 181 */         id.append(tlvd.getDeptId() + ",");
+/* 182 */         if (tlvd.getDeptId() == users.getDeptId()) {
+/* 183 */           timeLine.setRight(true);
+/*     */         }
+/*     */       }
+/*     */     }
+/* 187 */     timeLine.setPostDeptId(id.toString());
+/* 188 */     timeLine.setPostDeptName(name.toString());
+/*     */ 
+/* 191 */     if (timeLine.getCrUserId() == users.getUid()) {
+/* 192 */       timeLine.setRight(true);
+/*     */     }
+/* 194 */     toJson.setObject(timeLine);
+/* 195 */     toJson.setMsg("ok");
+/* 196 */     toJson.setFlag(0);
+/* 197 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> getTimelineCode(HttpServletRequest request, String uuid)
+/*     */   {
+/* 210 */     return null;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TimeLine> getInforList(HttpServletRequest request, TimeLine timeLine)
+/*     */   {
+/* 216 */     ToJson toJson = new ToJson(1, "error");
+/* 217 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 218 */     Map map = new HashedMap();
+/* 219 */     map.put("userId", users.getUid());
+/* 220 */     map.put("deptId", users.getDeptId());
+/* 221 */     map.put("roleId", users.getUserPriv());
+/*     */     try
+/*     */     {
+/* 226 */       if (timeLine.getCrTime() == null) {
+/* 227 */         timeLine.setCrTime(DateFormat.getCurrentTime());
+/*     */       }
+/*     */ 
+/* 230 */       if (users.getByname().equals("admin")) {
+/* 231 */         List list1 = this.timeLineMapper.getInforList1(timeLine);
+/* 232 */         if (list1 != null) {
+/* 233 */           toJson.setObj(list1);
+/* 234 */           toJson.setMsg("ok");
+/*     */         } else {
+/* 236 */           toJson.setMsg("列表数据为空");
+/*     */         }
+/* 238 */         toJson.setFlag(0);
+/*     */       } else {
+/* 240 */         List list = this.timeLineMapper.getInforList(timeLine);
+/* 241 */         if (list != null) {
+/* 242 */           toJson.setObj(list);
+/* 243 */           toJson.setMsg("ok");
+/*     */         } else {
+/* 245 */           toJson.setMsg("列表数据为空");
+/*     */         }
+/* 247 */         toJson.setFlag(0);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 251 */       e.printStackTrace();
+/* 252 */       toJson.setMsg(e.getMessage());
+/* 253 */       L.e(new Object[] { "TimeLineServiceImpl getInforList:" + e });
+/*     */     }
+/* 255 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TimeLine> getInforList1(HttpServletRequest request, TimeLine timeLine)
+/*     */   {
+/* 261 */     ToJson toJson = new ToJson(1, "error");
+/* 262 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 263 */     Map map = new HashedMap();
+/* 264 */     map.put("userId", users.getUid());
+/* 265 */     map.put("deptId", users.getDeptId());
+/* 266 */     map.put("roleId", users.getUserPriv());
+/*     */     try
+/*     */     {
+/* 271 */       if (timeLine.getCrTime() == null) {
+/* 272 */         timeLine.setCrTime(DateFormat.getCurrentTime());
+/*     */       }
+/* 274 */       List list = this.timeLineMapper.getInforList1(timeLine);
+/* 275 */       if (list != null) {
+/* 276 */         toJson.setObj(list);
+/* 277 */         toJson.setMsg("ok");
+/*     */       } else {
+/* 279 */         toJson.setMsg("列表数据为空");
+/*     */       }
+/* 281 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 283 */       e.printStackTrace();
+/* 284 */       toJson.setMsg(e.getMessage());
+/* 285 */       L.e(new Object[] { "TimeLineServiceImpl getInforList1:" + e });
+/*     */     }
+/* 287 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TimeLine> updateData(HttpServletRequest request, TimeLine timeLine, TimeLinePostDept timeLinePostDept, TimeLinePostRole timeLinePostRole, TimeLinePostUser timeLinePostUser, TimeLineViewDept timeLineViewDept, TimeLineViewRole timeLineViewRole, TimeLineViewUser timeLineViewUser, String post1, String post2, String post3, String view1, String view2, String view3)
+/*     */   {
+/* 296 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 298 */       timeLinePostDept.setTimelineId(timeLine.getUuid());
+/* 299 */       this.timeLinePostDeptMapper.deleteByPrimaryKey(timeLinePostDept.getTimelineId());
+/*     */ 
+/* 302 */       if ((post3 != null) && (!"".equals(post3))) {
+/* 303 */         String[] strArrary1 = post3.split(",");
+/* 304 */         for (int i = 0; i < strArrary1.length; i++) {
+/* 305 */           timeLinePostDept.setDeptId(Integer.valueOf(strArrary1[i]));
+/* 306 */           timeLinePostDept.setTimelineId(timeLine.getUuid());
+/* 307 */           this.timeLinePostDeptMapper.addTimeLinePostDept(timeLinePostDept);
+/*     */         }
+/*     */       }
+/*     */ 
+/* 311 */       timeLinePostRole.setTimelineId(timeLine.getUuid());
+/* 312 */       this.timeLinePostRoleMapper.deleteByPrimaryKey(timeLinePostRole.getTimelineId());
+/* 313 */       if ((post2 != null) && (!"".equals(post2))) {
+/* 314 */         String[] strArrary2 = post2.split(",");
+/* 315 */         for (int i = 0; i < strArrary2.length; i++) {
+/* 316 */           timeLinePostRole.setRoleId(Integer.valueOf(strArrary2[i]));
+/* 317 */           timeLinePostRole.setTimelineId(timeLine.getUuid());
+/* 318 */           this.timeLinePostRoleMapper.addTimeLinePostRole(timeLinePostRole);
+/*     */         }
+/*     */       }
+/*     */ 
+/* 322 */       timeLinePostUser.setTimelineId(timeLine.getUuid());
+/* 323 */       this.timeLinePostUserMapper.deleteByPrimaryKey(timeLinePostUser.getTimelineId());
+/* 324 */       if ((post1 != null) && (!"".equals(post1))) {
+/* 325 */         String[] strArrary3 = post1.split(",");
+/* 326 */         for (int i = 0; i < strArrary3.length; i++) {
+/* 327 */           timeLinePostUser.setUserId(strArrary3[i]);
+/* 328 */           timeLinePostUser.setTimelineId(timeLine.getUuid());
+/* 329 */           this.timeLinePostUserMapper.addTimeLinePostUser(timeLinePostUser);
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 334 */       timeLineViewDept.setTimelineId(timeLine.getUuid());
+/* 335 */       this.timeLineViewDeptMapper.deleteByPrimaryKey(timeLineViewDept.getTimelineId());
+/* 336 */       if ((view3 != null) && (!"".equals(view3))) {
+/* 337 */         String[] strArrary4 = view3.split(",");
+/* 338 */         for (int i = 0; i < strArrary4.length; i++) {
+/* 339 */           timeLineViewDept.setDeptId(Integer.valueOf(strArrary4[i]));
+/* 340 */           timeLineViewDept.setTimelineId(timeLine.getUuid());
+/* 341 */           this.timeLineViewDeptMapper.addTimeLineViewDept(timeLineViewDept);
+/*     */         }
+/*     */       }
+/* 344 */       timeLineViewRole.setTimelineId(timeLine.getUuid());
+/* 345 */       this.timeLineViewRoleMapper.deleteByPrimaryKey(timeLineViewRole.getTimelineId());
+/* 346 */       if ((view2 != null) && (!"".equals(view2))) {
+/* 347 */         String[] strArrary5 = view2.split(",");
+/* 348 */         for (int i = 0; i < strArrary5.length; i++) {
+/* 349 */           timeLineViewRole.setRoleId(Integer.valueOf(strArrary5[i]));
+/* 350 */           timeLineViewRole.setTimelineId(timeLine.getUuid());
+/* 351 */           this.timeLineViewRoleMapper.addTimeLineViewRole(timeLineViewRole);
+/*     */         }
+/*     */       }
+/*     */ 
+/* 355 */       timeLineViewUser.setTimelineId(timeLine.getUuid());
+/* 356 */       this.timeLineViewUserMapper.deleteByPrimaryKey(timeLineViewUser.getTimelineId());
+/* 357 */       if ((view1 != null) && (!"".equals(view1))) {
+/* 358 */         String[] strArrary6 = view1.split(",");
+/* 359 */         for (int i = 0; i < strArrary6.length; i++) {
+/* 360 */           timeLineViewUser.setUserId(strArrary6[i]);
+/* 361 */           timeLineViewUser.setTimelineId(timeLine.getUuid());
+/* 362 */           this.timeLineViewUserMapper.addTimeLineViewUser(timeLineViewUser);
+/*     */         }
+/*     */       }
+/* 365 */       if (timeLine.getCrTime() == null) {
+/* 366 */         timeLine.setCrTime(DateFormat.getCurrentTime());
+/*     */       }
+/* 368 */       if (timeLine.getTag() == null) {
+/* 369 */         timeLine.setTag("");
+/*     */       }
+/* 371 */       int a = this.timeLineMapper.updateData(timeLine);
+/* 372 */       if (a > 0) {
+/* 373 */         toJson.setMsg("ok");
+/* 374 */         toJson.setFlag(0);
+/*     */       } else {
+/* 376 */         toJson.setMsg("更新失败");
+/* 377 */         toJson.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 380 */       e.printStackTrace();
+/* 381 */       toJson.setMsg(e.getMessage());
+/* 382 */       L.e(new Object[] { "TimeLineServiceImpl updateData:" + e });
+/*     */     }
+/* 384 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TimeLine> addData(HttpServletRequest request, TimeLine timeLine, String post1, String post2, String post3, String view1, String view2, String view3)
+/*     */   {
+/* 390 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 393 */       String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+/* 394 */       timeLine.setUuid(uuid);
+/*     */ 
+/* 397 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 398 */       timeLine.setCrUserId(users.getUid());
+/*     */ 
+/* 403 */       TimeLinePostDept timeLinePostDept = new TimeLinePostDept();
+/* 404 */       if ((post3 != null) && (!"".equals(post3))) {
+/* 405 */         String[] strArrary1 = post3.split(",");
+/* 406 */         for (int i = 0; i < strArrary1.length; i++) {
+/* 407 */           timeLinePostDept.setTimelineId(uuid);
+/* 408 */           timeLinePostDept.setDeptId(Integer.valueOf(strArrary1[i]));
+/* 409 */           this.timeLinePostDeptMapper.addTimeLinePostDept(timeLinePostDept);
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 414 */       if ((post2 != null) && (!"".equals(post2))) {
+/* 415 */         TimeLinePostRole timeLinePostRole = new TimeLinePostRole();
+/* 416 */         String[] strArrary2 = post2.split(",");
+/* 417 */         for (int i = 0; i < strArrary2.length; i++) {
+/* 418 */           timeLinePostRole.setTimelineId(uuid);
+/* 419 */           timeLinePostRole.setRoleId(Integer.valueOf(strArrary2[i]));
+/* 420 */           this.timeLinePostRoleMapper.addTimeLinePostRole(timeLinePostRole);
+/*     */         }
+/*     */       }
+/*     */ 
+/* 424 */       if ((post1 != null) && (!"".equals(post1))) {
+/* 425 */         TimeLinePostUser timeLinePostUser = new TimeLinePostUser();
+/* 426 */         String[] strArrary3 = post1.split(",");
+/* 427 */         for (int i = 0; i < strArrary3.length; i++) {
+/* 428 */           timeLinePostUser.setTimelineId(uuid);
+/* 429 */           timeLinePostUser.setUserId(strArrary3[i]);
+/* 430 */           this.timeLinePostUserMapper.addTimeLinePostUser(timeLinePostUser);
+/*     */         }
+/*     */       }
+/*     */ 
+/* 434 */       if ((view3 != null) && (!"".equals(view3))) {
+/* 435 */         TimeLineViewDept timeLineViewDept = new TimeLineViewDept();
+/* 436 */         String[] strArrary4 = view3.split(",");
+/* 437 */         for (int i = 0; i < strArrary4.length; i++) {
+/* 438 */           timeLineViewDept.setTimelineId(uuid);
+/* 439 */           timeLineViewDept.setDeptId(Integer.valueOf(strArrary4[i]));
+/* 440 */           this.timeLineViewDeptMapper.addTimeLineViewDept(timeLineViewDept);
+/*     */         }
+/*     */       }
+/*     */ 
+/* 444 */       if ((view2 != null) && (!"".equals(view2))) {
+/* 445 */         TimeLineViewRole timeLineViewRole = new TimeLineViewRole();
+/* 446 */         String[] strArrary5 = view2.split(",");
+/* 447 */         for (int i = 0; i < strArrary5.length; i++) {
+/* 448 */           timeLineViewRole.setTimelineId(uuid);
+/* 449 */           timeLineViewRole.setRoleId(Integer.valueOf(strArrary5[i]));
+/* 450 */           this.timeLineViewRoleMapper.addTimeLineViewRole(timeLineViewRole);
+/*     */         }
+/*     */       }
+/*     */ 
+/* 454 */       if ((view1 != null) && (!"".equals(view1))) {
+/* 455 */         TimeLineViewUser timeLineViewUser = new TimeLineViewUser();
+/* 456 */         String[] strArrary6 = view1.split(",");
+/* 457 */         for (int i = 0; i < strArrary6.length; i++) {
+/* 458 */           timeLineViewUser.setTimelineId(uuid);
+/* 459 */           timeLineViewUser.setUserId(strArrary6[i]);
+/* 460 */           this.timeLineViewUserMapper.addTimeLineViewUser(timeLineViewUser);
+/*     */         }
+/*     */       }
+/*     */ 
+/* 464 */       if (timeLine.getCrTime() == null) {
+/* 465 */         timeLine.setCrTime(DateFormat.getCurrentTime());
+/*     */       }
+/* 467 */       if (timeLine.getTag() == null) {
+/* 468 */         timeLine.setTag("");
+/*     */       }
+/* 470 */       int a = this.timeLineMapper.addData(timeLine);
+/*     */ 
+/* 472 */       if (a > 0) {
+/* 473 */         toJson.setMsg("ok");
+/* 474 */         toJson.setFlag(0);
+/*     */       } else {
+/* 476 */         toJson.setMsg("更新失败");
+/* 477 */         toJson.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 480 */       e.printStackTrace();
+/* 481 */       toJson.setMsg(e.getMessage());
+/* 482 */       L.e(new Object[] { "TimeLineServiceImpl addDate:" + e });
+/*     */     }
+/* 484 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TimeLine> deleteByUuid(HttpServletRequest request, String uuid)
+/*     */   {
+/* 490 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 492 */       int a = this.timeLineMapper.deleteByUuid(uuid);
+/* 493 */       if (a > 0) {
+/* 494 */         toJson.setMsg("ok");
+/* 495 */         toJson.setFlag(0);
+/*     */       } else {
+/* 497 */         toJson.setMsg("删除失败");
+/* 498 */         toJson.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 501 */       e.printStackTrace();
+/* 502 */       toJson.setMsg(e.getMessage());
+/* 503 */       L.e(new Object[] { "TimeLineServiceImpl deleteByUuid:" + e });
+/*     */     }
+/* 505 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public List<TimeLine> getTimelines(HttpServletRequest request)
+/*     */     throws UnsupportedEncodingException
+/*     */   {
+/* 515 */     return getPageTimelines(request, null, null);
+/*     */   }
+/*     */ 
+/*     */   public List<TimeLine> getPageTimelines(HttpServletRequest request, PageParams page, Map map) throws UnsupportedEncodingException
+/*     */   {
+/* 520 */     request.setCharacterEncoding("UTF-8");
+/* 521 */     if (map == null) {
+/* 522 */       map = new HashedMap();
+/*     */     }
+/* 524 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 525 */     map.put("id", users.getUid());
+/* 526 */     map.put("userID", users.getUserId());
+/* 527 */     map.put("deptId", users.getDeptId());
+/* 528 */     map.put("roleId", users.getUserPriv());
+/* 529 */     if ((page != null) && (page.getPageSize() != null) && (page.getPage() != null)) {
+/* 530 */       int start = page.getPageSize().intValue() * (page.getPage().intValue() - 1);
+/* 531 */       int end = page.getPageSize().intValue();
+/* 532 */       map.put("start", Integer.valueOf(start));
+/* 533 */       map.put("size", Integer.valueOf(end));
+/*     */     }
+/* 535 */     List<TimeLine> lists = this.timeLineMapper.getTimelines(map);
+/* 536 */     for (TimeLine t : lists) {
+/* 537 */       if (postTimelines(request, null, t.getUuid()).size() > 0) {
+/* 538 */         t.setRight(true);
+/*     */       }
+/*     */     }
+/* 541 */     return lists;
+/*     */   }
+/*     */ 
+/*     */   public List<TimeLine> postTimelines(HttpServletRequest request, PageParams page, String uuid)
+/*     */   {
+/* 550 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 551 */     Map map = new HashedMap();
+/* 552 */     map.put("id", users.getUid());
+/* 553 */     map.put("userID", users.getUserId());
+/* 554 */     map.put("deptId", users.getDeptId());
+/* 555 */     map.put("roleId", users.getUserPriv());
+/* 556 */     map.put("title", request.getParameter("title"));
+/* 557 */     map.put("tag", request.getParameter("tag"));
+/* 558 */     if (uuid != null) {
+/* 559 */       map.put("uuid", uuid);
+/*     */     }
+/* 561 */     if ((page != null) && (page.getPageSize() != null) && (page.getPage() != null)) {
+/* 562 */       int start = page.getPageSize().intValue() * (page.getPage().intValue() - 1);
+/* 563 */       int end = page.getPageSize().intValue();
+/* 564 */       map.put("start", Integer.valueOf(start));
+/* 565 */       map.put("size", Integer.valueOf(end));
+/*     */     } else {
+/* 567 */       map.put("start", Integer.valueOf(0));
+/* 568 */       map.put("size", Integer.valueOf(10));
+/*     */     }
+/* 570 */     List<TimeLine> lists = this.timeLineMapper.postTimelines(map);
+/* 571 */     for (TimeLine t : lists) {
+/* 572 */       t.setRight(true);
+/*     */     }
+/* 574 */     return lists;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.event.impl.TimeLineServiceImpl
+ * JD-Core Version:    0.6.0
+ */

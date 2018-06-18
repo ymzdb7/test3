@@ -1,0 +1,23 @@
+package com.myoa.dao.notes;
+
+import com.myoa.model.notes.Notes;
+
+import java.util.List;
+import java.util.Map;
+
+public abstract interface NotesMapper {
+	public abstract int insertNotes(Notes paramNotes);
+
+	public abstract List<Notes> selectNotes(Integer paramInteger);
+
+	public abstract List<Notes> selectNotesPagination(
+			Map<String, Object> paramMap);
+
+	public abstract Notes selectNewNote(Integer paramInteger);
+
+	public abstract Notes selectNotesByPrimaryKey(Integer paramInteger);
+
+	public abstract int deleteByPrimaryKey(Integer paramInteger);
+
+	public abstract int updateByPrimaryKey(Notes paramNotes);
+}

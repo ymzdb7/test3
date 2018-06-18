@@ -1,0 +1,42 @@
+ package com.xoa.util;
+ 
+ import com.xoa.model.department.Department;
+ import com.xoa.model.users.Users;
+ import com.xoa.model.workflow.FlowProcess;
+ import java.util.Calendar;
+ import java.util.HashMap;
+ import java.util.Map;
+ 
+ public class Lexical
+ {
+   public static String lexicalParse(String str, FlowProcess flowProcess, Users users, Department department)
+   {
+     Calendar now = Calendar.getInstance();
+     str = str.replace("{Y}", now.get(1) + "");
+     str = str.replace("{M}", now.get(2) + 1 + "");
+     str = str.replace("{D}", now.get(5) + "");
+     str = str.replace("{H}", now.get(11) + "");
+     str = str.replace("{I}", now.get(12) + "");
+     str = str.replace("{S}", now.get(13) + "");
+     str = str.replace("{F}", flowProcess.getFlowName());
+     str = str.replace("{U}", users.getUserName());
+     str = str.replace("{R}", users.getUserPrivName());
+     str = str.replace("{FS}", users.getUserName());
+     str = str.replace("{SD}", department.getDeptName());
+     return str;
+   }
+ 
+   public Map<String, Object> allLexical(FlowProcess flowProcess) {
+     Map map = new HashMap();
+     Calendar now = Calendar.getInstance();
+     map.put("{Y}", Integer.valueOf(now.get(1)));
+     map.put("{M}", Integer.valueOf(now.get(2) + 1));
+     map.put("{D}", Integer.valueOf(now.get(5)));
+     map.put("{H}", Integer.valueOf(now.get(11)));
+     map.put("{I}", Integer.valueOf(now.get(12)));
+     map.put("{S}", Integer.valueOf(now.get(13)));
+     map.put("{F}", flowProcess.getFlowName());
+     return map;
+   }
+ }
+

@@ -1,0 +1,206 @@
+/*     */ package com.xoa.util.systeminfo;
+/*     */ 
+/*     */ import org.apache.commons.codec.BinaryDecoder;
+/*     */ import org.apache.commons.codec.BinaryEncoder;
+/*     */ import org.apache.commons.codec.DecoderException;
+/*     */ import org.apache.commons.codec.EncoderException;
+/*     */ import org.apache.commons.codec.binary.StringUtils;
+/*     */ 
+/*     */ public abstract class BaseNCodec
+/*     */   implements BinaryEncoder, BinaryDecoder
+/*     */ {
+/*     */   static final int EOF = -1;
+/*     */   public static final int MIME_CHUNK_SIZE = 76;
+/*     */   public static final int PEM_CHUNK_SIZE = 64;
+/*     */   private static final int DEFAULT_BUFFER_RESIZE_FACTOR = 2;
+/*     */   private static final int DEFAULT_BUFFER_SIZE = 8192;
+/*     */   protected static final int MASK_8BITS = 255;
+/*     */   protected static final byte PAD_DEFAULT = 61;
+/*  22 */   protected final byte PAD = 61;
+/*     */   private final int unencodedBlockSize;
+/*     */   private final int encodedBlockSize;
+/*     */   protected final int lineLength;
+/*     */   private final int chunkSeparatorLength;
+/*     */ 
+/*     */   protected BaseNCodec(int unencodedBlockSize, int encodedBlockSize, int lineLength, int chunkSeparatorLength)
+/*     */   {
+/*  29 */     this.unencodedBlockSize = unencodedBlockSize;
+/*  30 */     this.encodedBlockSize = encodedBlockSize;
+/*  31 */     boolean useChunking = (lineLength > 0) && (chunkSeparatorLength > 0);
+/*  32 */     this.lineLength = (useChunking ? lineLength / encodedBlockSize * encodedBlockSize : 0);
+/*  33 */     this.chunkSeparatorLength = chunkSeparatorLength;
+/*     */   }
+/*     */ 
+/*     */   boolean hasData(Context context) {
+/*  37 */     return context.buffer != null;
+/*     */   }
+/*     */ 
+/*     */   int available(Context context) {
+/*  41 */     return context.buffer != null ? context.pos - context.readPos : 0;
+/*     */   }
+/*     */ 
+/*     */   protected int getDefaultBufferSize() {
+/*  45 */     return 8192;
+/*     */   }
+/*     */ 
+/*     */   private byte[] resizeBuffer(Context context) {
+/*  49 */     if (context.buffer == null) {
+/*  50 */       context.buffer = new byte[getDefaultBufferSize()];
+/*  51 */       context.pos = 0;
+/*  52 */       context.readPos = 0;
+/*     */     } else {
+/*  54 */       byte[] b = new byte[context.buffer.length * 2];
+/*  55 */       System.arraycopy(context.buffer, 0, b, 0, context.buffer.length);
+/*  56 */       context.buffer = b;
+/*     */     }
+/*     */ 
+/*  59 */     return context.buffer;
+/*     */   }
+/*     */ 
+/*     */   protected byte[] ensureBufferSize(int size, Context context) {
+/*  63 */     return (context.buffer != null) && (context.buffer.length >= context.pos + size) ? context.buffer : resizeBuffer(context);
+/*     */   }
+/*     */ 
+/*     */   int readResults(byte[] b, int bPos, int bAvail, Context context) {
+/*  67 */     if (context.buffer != null) {
+/*  68 */       int len = Math.min(available(context), bAvail);
+/*  69 */       System.arraycopy(context.buffer, context.readPos, b, bPos, len);
+/*  70 */       context.readPos += len;
+/*  71 */       if (context.readPos >= context.pos) {
+/*  72 */         context.buffer = null;
+/*     */       }
+/*     */ 
+/*  75 */       return len;
+/*     */     }
+/*  77 */     return context.eof ? -1 : 0;
+/*     */   }
+/*     */ 
+/*     */   protected static boolean isWhiteSpace(byte byteToCheck)
+/*     */   {
+/*  82 */     switch (byteToCheck) {
+/*     */     case 9:
+/*     */     case 10:
+/*     */     case 13:
+/*     */     case 32:
+/*  87 */       return true;
+/*     */     }
+/*  89 */     return false;
+/*     */   }
+/*     */ 
+/*     */   public Object encode(Object obj) throws EncoderException
+/*     */   {
+/*  94 */     if (!(obj instanceof byte[])) {
+/*  95 */       throw new EncoderException("Parameter supplied to Base-N encode is not a byte[]");
+/*     */     }
+/*  97 */     return encode((byte[])(byte[])(byte[])obj);
+/*     */   }
+/*     */ 
+/*     */   public String encodeToString(byte[] pArray)
+/*     */   {
+/* 102 */     return StringUtils.newStringUtf8(encode(pArray));
+/*     */   }
+/*     */ 
+/*     */   public String encodeAsString(byte[] pArray) {
+/* 106 */     return StringUtils.newStringUtf8(encode(pArray));
+/*     */   }
+/*     */ 
+/*     */   public Object decode(Object obj) throws DecoderException {
+/* 110 */     if ((obj instanceof byte[]))
+/* 111 */       return decode((byte[])(byte[])(byte[])obj);
+/* 112 */     if ((obj instanceof String)) {
+/* 113 */       return decode((String)obj);
+/*     */     }
+/* 115 */     throw new DecoderException("Parameter supplied to Base-N decode is not a byte[] or a String");
+/*     */   }
+/*     */ 
+/*     */   public byte[] decode(String pArray)
+/*     */   {
+/* 120 */     return decode(StringUtils.getBytesUtf8(pArray));
+/*     */   }
+/*     */ 
+/*     */   public byte[] decode(byte[] pArray) {
+/* 124 */     if ((pArray != null) && (pArray.length != 0)) {
+/* 125 */       Context context = new Context();
+/* 126 */       decode(pArray, 0, pArray.length, context);
+/* 127 */       decode(pArray, 0, -1, context);
+/* 128 */       byte[] result = new byte[context.pos];
+/* 129 */       readResults(result, 0, result.length, context);
+/* 130 */       return result;
+/*     */     }
+/* 132 */     return pArray;
+/*     */   }
+/*     */ 
+/*     */   public byte[] encode(byte[] pArray)
+/*     */   {
+/* 137 */     if ((pArray != null) && (pArray.length != 0)) {
+/* 138 */       Context context = new Context();
+/* 139 */       encode(pArray, 0, pArray.length, context);
+/* 140 */       encode(pArray, 0, -1, context);
+/* 141 */       byte[] buf = new byte[context.pos - context.readPos];
+/* 142 */       readResults(buf, 0, buf.length, context);
+/* 143 */       return buf;
+/*     */     }
+/* 145 */     return pArray;
+/*     */   }
+/*     */   abstract void encode(byte[] paramArrayOfByte, int paramInt1, int paramInt2, Context paramContext);
+/*     */ 
+/*     */   abstract void decode(byte[] paramArrayOfByte, int paramInt1, int paramInt2, Context paramContext);
+/*     */ 
+/*     */   protected abstract boolean isInAlphabet(byte paramByte);
+/*     */ 
+/* 156 */   public boolean isInAlphabet(byte[] arrayOctet, boolean allowWSPad) { for (int i = 0; i < arrayOctet.length; i++) {
+/* 157 */       if ((!isInAlphabet(arrayOctet[i])) && ((!allowWSPad) || ((arrayOctet[i] != 61) && (!isWhiteSpace(arrayOctet[i]))))) {
+/* 158 */         return false;
+/*     */       }
+/*     */     }
+/*     */ 
+/* 162 */     return true; }
+/*     */ 
+/*     */   public boolean isInAlphabet(String basen)
+/*     */   {
+/* 166 */     return isInAlphabet(StringUtils.getBytesUtf8(basen), true);
+/*     */   }
+/*     */ 
+/*     */   protected boolean containsAlphabetOrPad(byte[] arrayOctet) {
+/* 170 */     if (arrayOctet == null) {
+/* 171 */       return false;
+/*     */     }
+/* 173 */     byte[] arr$ = arrayOctet;
+/* 174 */     int len$ = arrayOctet.length;
+/*     */ 
+/* 176 */     for (int i$ = 0; i$ < len$; i$++) {
+/* 177 */       byte element = arr$[i$];
+/* 178 */       if ((61 == element) || (isInAlphabet(element))) {
+/* 179 */         return true;
+/*     */       }
+/*     */     }
+/*     */ 
+/* 183 */     return false;
+/*     */   }
+/*     */ 
+/*     */   public long getEncodedLength(byte[] pArray)
+/*     */   {
+/* 188 */     long len = (pArray.length + this.unencodedBlockSize - 1) / this.unencodedBlockSize * this.encodedBlockSize;
+/* 189 */     if (this.lineLength > 0) {
+/* 190 */       len += (len + this.lineLength - 1L) / this.lineLength * this.chunkSeparatorLength;
+/*     */     }
+/*     */ 
+/* 193 */     return len; } 
+/*     */   static class Context { int ibitWorkArea;
+/*     */     long lbitWorkArea;
+/*     */     byte[] buffer;
+/*     */     int pos;
+/*     */     int readPos;
+/*     */     boolean eof;
+/*     */     int currentLinePos;
+/*     */     int modulus;
+/*     */ 
+/* 210 */     public String toString() { return String.format("%s[buffer=%s, currentLinePos=%s, eof=%s, ibitWorkArea=%s, lbitWorkArea=%s, modulus=%s, pos=%s, readPos=%s]", new Object[] { getClass().getSimpleName(), this.buffer, Integer.valueOf(this.currentLinePos), Boolean.valueOf(this.eof), Integer.valueOf(this.ibitWorkArea), Long.valueOf(this.lbitWorkArea), Integer.valueOf(this.modulus), Integer.valueOf(this.pos), Integer.valueOf(this.readPos) });
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.systeminfo.BaseNCodec
+ * JD-Core Version:    0.6.0
+ */

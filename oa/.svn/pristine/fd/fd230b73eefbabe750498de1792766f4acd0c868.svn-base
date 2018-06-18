@@ -1,0 +1,165 @@
+/*     */ package com.xoa.controller.meeting;
+/*     */ 
+/*     */ import com.xoa.model.meet.Meeting;
+/*     */ import com.xoa.model.meet.MeetingAttendConfirm;
+/*     */ import com.xoa.model.meet.MeetingWithBLOBs;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.meeting.MeetingService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.commons.collections.map.HashedMap;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/meeting"})
+/*     */ public class MeetingController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private MeetingService meetingService;
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/queryMeeting"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<MeetingWithBLOBs> queryMeeting(MeetingWithBLOBs meetingWithBLOBs, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  56 */     return this.meetingService.queryMeeting(meetingWithBLOBs, page, pageSize, useFlag);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getMyMeeting"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<MeetingWithBLOBs> getMyMeeting(HttpServletRequest request, MeetingWithBLOBs meetingWithBLOBs, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  69 */     return this.meetingService.getMyMeeting(request, meetingWithBLOBs, page, pageSize, useFlag);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/queryMeetingById"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<MeetingWithBLOBs> queryMeetingById(HttpServletRequest request, HttpServletResponse response, String sid)
+/*     */   {
+/*  82 */     return this.meetingService.queryMeetingById(request, response, sid, 0);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/updateMeetingById"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<MeetingWithBLOBs> updateMeetingById(MeetingWithBLOBs meetingWithBLOBs)
+/*     */   {
+/*  95 */     return this.meetingService.updateMeetingById(meetingWithBLOBs);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/updMeetStatusById"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<MeetingWithBLOBs> updMeetStatusById(HttpServletRequest request, Meeting meeting)
+/*     */   {
+/* 108 */     return this.meetingService.updMeetStatusById(request, meeting);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/insertMeeting"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<MeetingWithBLOBs> insertMeeting(MeetingWithBLOBs meetingWithBLOB, HttpServletRequest request)
+/*     */   {
+/* 121 */     return this.meetingService.insertMeeting(meetingWithBLOB, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/delMeetingById"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<MeetingWithBLOBs> delMeetingById(String sid)
+/*     */   {
+/* 134 */     return this.meetingService.delMeetingById(sid);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/queryAttendConfirm"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<MeetingAttendConfirm> queryAttendConfirm(String meetingId)
+/*     */   {
+/* 147 */     return this.meetingService.queryAttendConfirm(meetingId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/queryCountByStatus"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Meeting> queryCountByStatus(HttpServletRequest request)
+/*     */   {
+/* 160 */     return this.meetingService.queryCountByStatus(request);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/outMeetingMsg"}, produces={"application/json;charset=UTF-8"})
+/*     */   public void outMeetingMsg(HttpServletRequest request, HttpServletResponse response, String sid)
+/*     */   {
+/* 172 */     this.meetingService.queryMeetingById(request, response, sid, 1);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/readMeeting"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<MeetingWithBLOBs> readMeeting(MeetingAttendConfirm meetingAttendConfirm, HttpServletRequest request)
+/*     */   {
+/* 186 */     return this.meetingService.updateConfirmReadStatusBySId(meetingAttendConfirm, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/attendMeeting"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Users> attendMeeting(MeetingAttendConfirm meetingAttendConfirm, HttpServletRequest request)
+/*     */   {
+/* 199 */     return this.meetingService.updateConfirmAttendStatusBySId(meetingAttendConfirm, request);
+/*     */   }
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/MeetingAttend"})
+/*     */   public Map meetingApply(HttpServletRequest request, HttpServletResponse response, String meetingId, Map<String, Object> map) {
+/* 206 */     ToJson toJson = this.meetingService.queryMeetingById(request, response, meetingId, 0);
+/* 207 */     Map tempMap = new HashedMap();
+/* 208 */     tempMap.put("mark", "SID_MEETING");
+/* 209 */     tempMap.put("toJson", toJson);
+/* 210 */     return tempMap;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/checkAttend"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Users> checkAttend(HttpServletRequest request) {
+/* 218 */     ToJson toJson = new ToJson(0, "ok");
+/* 219 */     String attendFlag = (String)SessionUtils.getSessionInfo(request.getSession(), "attendFlag", String.class);
+/* 220 */     String avatar = (String)SessionUtils.getSessionInfo(request.getSession(), "avatar", String.class);
+/* 221 */     String photoName = (String)SessionUtils.getSessionInfo(request.getSession(), "photoName", String.class);
+/* 222 */     String userName = (String)SessionUtils.getSessionInfo(request.getSession(), "userName", String.class);
+/* 223 */     String deptName = (String)SessionUtils.getSessionInfo(request.getSession(), "deptName", String.class);
+/* 224 */     String userPrivName = (String)SessionUtils.getSessionInfo(request.getSession(), "userPrivName", String.class);
+/* 225 */     Users users = new Users();
+/* 226 */     users.setMyStatus(attendFlag);
+/* 227 */     users.setAvatar(avatar);
+/* 228 */     users.setPhotoName(photoName);
+/* 229 */     users.setUserName(userName);
+/* 230 */     users.setDeptName(deptName);
+/* 231 */     users.setUserPrivName(userPrivName);
+/* 232 */     toJson.setObject(users);
+/* 233 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getMeetingNotify"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<MeetingWithBLOBs> getMeetingNotify(HttpServletRequest request, MeetingWithBLOBs meetingWithBLOBs, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 249 */     return this.meetingService.getMeetingNotify(request, meetingWithBLOBs, page, pageSize, useFlag);
+/*     */   }
+/* 253 */   @RequestMapping({"/meetingList"})
+/*     */   public String meetingList(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 255 */     return "app/meeting/meetingList"; }
+/*     */ 
+/*     */   @RequestMapping({"/detail"})
+/*     */   public String detail(HttpServletRequest request) {
+/* 260 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 262 */     return "app/meeting/detail";
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.meeting.MeetingController
+ * JD-Core Version:    0.6.0
+ */

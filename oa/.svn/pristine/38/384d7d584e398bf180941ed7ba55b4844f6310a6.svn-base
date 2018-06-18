@@ -1,0 +1,36 @@
+/*    */ package com.xoa.controller.workflow;
+/*    */ 
+/*    */ import com.xoa.model.users.Users;
+/*    */ import com.xoa.service.workflow.flowtype.FlowRunService;
+/*    */ import com.xoa.util.common.session.SessionUtils;
+/*    */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*    */ import javax.annotation.Resource;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import javax.servlet.http.HttpServletResponse;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.RequestParam;
+/*    */ import org.springframework.web.bind.annotation.RestController;
+/*    */ 
+/*    */ @RestController
+/*    */ @RequestMapping({"/flowRun"})
+/*    */ public class FlowRunController
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   private FlowRunService flowRunService;
+/*    */ 
+/*    */   @RequestMapping({"/queryFlowRun"})
+/*    */   public BaseWrappers queryFlowRunList(Integer state, Integer runId, Integer flowId, String runName, String beginDate, String endDate, String workLevel, String status, String userId, HttpServletRequest request, @RequestParam(name="page", required=false, defaultValue="1") Integer page, @RequestParam(name="pageSize", required=false, defaultValue="10") Integer pageSize, @RequestParam(name="useFlag", required=false, defaultValue="true") Boolean useFlag, @RequestParam(name="output", required=false, defaultValue="0") String output, HttpServletResponse response)
+/*    */   {
+/* 31 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 32 */     return this.flowRunService.queryFlowRun(state, runId, flowId, runName, beginDate, endDate, workLevel, status, userId, page, pageSize, useFlag.booleanValue(), users, output, response, request);
+/*    */   }
+/* 36 */   @RequestMapping({"/queryFlowRunCount"})
+/*    */   public BaseWrappers queryFlowRunCount(HttpServletRequest request) { return this.flowRunService.queryFlowRunCount(request);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.workflow.FlowRunController
+ * JD-Core Version:    0.6.0
+ */

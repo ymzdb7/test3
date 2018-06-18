@@ -1,0 +1,750 @@
+/*     */ package com.xoa.service.workflow;
+/*     */ 
+/*     */ import com.xoa.dao.workflow.FlowSortMapper;
+/*     */ import com.xoa.dao.workflow.FormSortMapper;
+/*     */ import com.xoa.model.department.Department;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.workflow.FlowSort;
+/*     */ import com.xoa.model.workflow.FlowSortWorkMobile;
+import com.xoa.model.workflow.FlowTypeModel;
+/*     */ import com.xoa.model.workflow.FormSort;
+/*     */ import com.xoa.service.department.DepartmentService;
+/*     */ import com.xoa.service.workflow.flowtype.FlowTypeService;
+/*     */ import com.xoa.service.workflow.wrapper.JobSelectorWrapper;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.CheckCallBack;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class JobClassifyService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   FormSortMapper sortMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   FlowSortMapper flowSortMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowTypeService flowTypeService;
+/*     */   private static final int CHECK_TYPE_FLOW = 17;
+/*     */   private static final int CHECK_TYPE_FORM = 18;
+/*     */ 
+/*     */   @Autowired
+/*     */   private DepartmentService departmentService;
+/*     */ 
+/*     */   public JobSelectorWrapper getJobSelector(HttpSession session)
+/*     */   {
+/*  67 */     JobSelectorWrapper wrapper = new JobSelectorWrapper();
+/*  68 */     Users users = (Users)SessionUtils.getSessionInfo(session, Users.class, new Users());
+/*  69 */     Integer deptId = null;
+/*  70 */     if (users.getUserId() != null) {
+/*  71 */       deptId = users.getDeptId();
+/*     */     }
+/*  73 */     List nosortDatas = this.sortMapper.selectAllFormSort(deptId);
+/*  74 */     Integer noform = Integer.valueOf(this.sortMapper.selectNoformSort(deptId));
+/*  75 */     List resultdatas = new ArrayList();
+/*  76 */     FormSort formSort = new FormSort();
+/*  77 */     formSort.setSortName("未定义");
+/*  78 */     formSort.setFormcounts(noform);
+/*  79 */     formSort.setHaveChild("0");
+/*  80 */     formSort.setSortNo(Integer.valueOf(0));
+/*  81 */     resultdatas.add(formSort);
+/*  82 */     List datasMap = sortDatas(nosortDatas, Integer.valueOf(0));
+/*  83 */     resultdatas.addAll(datasMap);
+/*  84 */     wrapper.setDatas(resultdatas);
+/*  85 */     wrapper.setFlag(true);
+/*  86 */     wrapper.setStatus(true);
+/*  87 */     wrapper.setMsg("获取数据成功");
+/*  88 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public JobSelectorWrapper getFlowsort(HttpSession session)
+/*     */   {
+/* 100 */     JobSelectorWrapper wrapper = new JobSelectorWrapper();
+/* 101 */     Users users = (Users)SessionUtils.getSessionInfo(session, Users.class, new Users());
+/* 102 */     Integer deptId = null;
+/* 103 */     if (users.getUserId() != null) {
+/* 104 */       deptId = users.getDeptId();
+/*     */     }
+/* 106 */     List nosortDatas = this.flowSortMapper.selectAllFlowSort(deptId);
+/* 107 */     Integer noform = this.flowSortMapper.selectNoflowSort(deptId);
+/* 108 */     List resultdatas = new ArrayList();
+/* 109 */     FlowSort flowSort = new FlowSort();
+/* 110 */     flowSort.setSortName("未定义");
+/* 111 */     flowSort.setFlowcounts(noform);
+/* 112 */     flowSort.setHaveChild("0");
+/* 113 */     flowSort.setSortNo(Integer.valueOf(0));
+/* 114 */     resultdatas.add(flowSort);
+/* 115 */     List datasMap = sortDatasFlow(nosortDatas, Integer.valueOf(0));
+/* 116 */     resultdatas.addAll(datasMap);
+/* 117 */     wrapper.setDatas(resultdatas);
+/* 118 */     wrapper.setFlag(true);
+/* 119 */     wrapper.setStatus(true);
+/* 120 */     wrapper.setMsg("获取数据成功");
+/* 121 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   private List<FlowSort> sortDatasFlow(List<FlowSort> nosortDatas, Integer sortIda)
+/*     */   {
+/* 135 */     if (nosortDatas == null) return null;
+/* 136 */     List datas = new ArrayList();
+/* 137 */     for (FlowSort sort : nosortDatas) {
+/* 138 */       if ((sort != null) && 
+/* 139 */         (sort.getSortParent() == sortIda)) {
+/* 140 */         sort.setChilds(sortDatasFlow(nosortDatas, sort.getSortId()));
+/* 141 */         datas.add(sort);
+/*     */       }
+/*     */     }
+/*     */ 
+/* 145 */     return datas;
+/*     */   }
+/*     */ 
+/*     */   private List<FormSort> sortDatas(List<FormSort> nosortDatas, Integer sortIda)
+/*     */   {
+/* 160 */     if (nosortDatas == null) return null;
+/* 161 */     List datas = new ArrayList();
+/* 162 */     for (FormSort sort : nosortDatas) {
+/* 163 */       if ((sort != null) && 
+/* 164 */         (sort.getSortParent() == sortIda)) {
+/* 165 */         sort.setChilds(sortDatas(nosortDatas, sort.getSortId()));
+/* 166 */         datas.add(sort);
+/*     */       }
+/*     */     }
+/*     */ 
+/* 170 */     return datas;
+/*     */   }
+/*     */ 
+/*     */   @Transactional(rollbackFor={JobClassifyException.class})
+/*     */   public BaseWrapper insertForm(Integer parentId, Integer sortNo, String formName, Integer departmentId)
+/*     */   {
+/* 187 */     BaseWrapper wrapper = new BaseWrapper();
+/* 188 */     wrapper.setFlag(false);
+/* 189 */     wrapper.setStatus(true);
+/* 190 */     String res = StringUtils.checkNullUtils(new CheckCallBack()
+/*     */     {
+/*     */       public boolean isNull(Object obj) {
+/* 193 */         if ((obj instanceof String)) {
+/* 194 */           String a = (String)obj;
+/* 195 */           if ((a == null) || ("".equals(a)) || (a.length() == 0))
+/*     */           {
+/* 197 */             return true;
+/*     */           }
+/*     */         }
+/* 199 */         if ((obj instanceof Integer)) {
+/* 200 */           Integer a = (Integer)obj;
+/* 201 */           if (a == null)
+/* 202 */             return true;
+/*     */         }
+/* 204 */         return false;
+/*     */       }
+/*     */     }
+/*     */     , new Object[] { sortNo, "表单分类序号不能为空", formName, "表单分类名称不能为空" });
+/*     */ 
+/* 207 */     if (res != null) {
+/* 208 */       wrapper.setMsg(res);
+/* 209 */       return wrapper;
+/*     */     }
+/* 211 */     String resc = checkParentOrDepartment(parentId, departmentId, Integer.valueOf(18));
+/* 212 */     if (resc != null) {
+/* 213 */       wrapper.setMsg(resc);
+/* 214 */       return wrapper;
+/*     */     }
+/*     */     try
+/*     */     {
+/* 218 */       FormSort sortParent = new FormSort();
+/* 219 */       sortParent.setSortId(parentId);
+/* 220 */       sortParent.setHaveChild("1");
+/* 221 */       this.sortMapper.updateByPrimaryKeySelective(sortParent);
+/* 222 */       FormSort sort = new FormSort();
+/* 223 */       sort.setSortNo(sortNo);
+/* 224 */       sort.setSortName(formName);
+/* 225 */       sort.setSortParent(parentId);
+/* 226 */       sort.setDeptId(departmentId);
+/* 227 */       sort.setHaveChild("0");
+/* 228 */       Integer insertRes = Integer.valueOf(this.sortMapper.insertSelective(sort));
+/* 229 */       if (insertRes.intValue() < 0) throw new JobClassifyException("数据插入异常，进入回滚");
+/* 230 */       wrapper.setStatus(true);
+/* 231 */       wrapper.setFlag(true);
+/* 232 */       wrapper.setMsg("操作执行成功");
+/*     */     }
+/*     */     catch (Exception e) {
+/* 235 */       e.printStackTrace();
+/* 236 */       L.w(new Object[] { "数据回滚" });
+/* 237 */       throw new JobClassifyException("数据插入异常，执行回滚");
+/*     */     }
+/* 239 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   @Transactional(rollbackFor={JobClassifyException.class})
+/*     */   public BaseWrapper insertFlow(Integer parentId, Integer sortNo, String flowName, Integer departmentId, String sortMainType, String sortDetialType)
+/*     */   {
+/* 258 */     BaseWrapper wrapper = new BaseWrapper();
+/* 259 */     wrapper.setFlag(false);
+/* 260 */     wrapper.setStatus(true);
+/* 261 */     String res = StringUtils.checkNullUtils(new CheckCallBack()
+/*     */     {
+/*     */       public boolean isNull(Object obj) {
+/* 264 */         if ((obj instanceof String)) {
+/* 265 */           String a = (String)obj;
+/* 266 */           if ((a == null) || ("".equals(a)) || (a.length() == 0))
+/*     */           {
+/* 268 */             return true;
+/*     */           }
+/*     */         }
+/* 270 */         if ((obj instanceof Integer)) {
+/* 271 */           Integer a = (Integer)obj;
+/* 272 */           if (a == null)
+/* 273 */             return true;
+/*     */         }
+/* 275 */         return false;
+/*     */       }
+/*     */     }
+/*     */     , new Object[] { sortNo, "流程分类序号不能为空", flowName, "流程分类名称不能为空" });
+/*     */ 
+/* 278 */     if (res != null) {
+/* 279 */       wrapper.setMsg(res);
+/* 280 */       return wrapper;
+/*     */     }
+/* 282 */     String resc = checkParentOrDepartment(parentId, departmentId, Integer.valueOf(17));
+/* 283 */     if (resc != null) {
+/* 284 */       wrapper.setMsg(resc);
+/* 285 */       return wrapper;
+/*     */     }
+/*     */     try {
+/* 288 */       FlowSort flowParent = new FlowSort();
+/* 289 */       flowParent.setSortId(parentId);
+/* 290 */       flowParent.setHaveChild("1");
+/* 291 */       this.flowSortMapper.updateByPrimaryKeySelective(flowParent);
+/* 292 */       FlowSort flow = new FlowSort();
+/* 293 */       flow.setSortNo(sortNo);
+/* 294 */       flow.setSortName(flowName);
+/* 295 */       flow.setSortParent(parentId);
+/* 296 */       flow.setDeptId(departmentId);
+/* 297 */       flow.setHaveChild("0");
+/* 298 */       flow.setSortMainType(sortMainType);
+/* 299 */       flow.setSortDetailType(sortDetialType);
+/* 300 */       Integer insertRes = Integer.valueOf(this.flowSortMapper.insertSelective(flow));
+/* 301 */       if (insertRes.intValue() < 0) throw new JobClassifyException("数据插入异常，进入回滚");
+/* 302 */       wrapper.setStatus(true);
+/* 303 */       wrapper.setFlag(true);
+/* 304 */       wrapper.setMsg("操作执行成功");
+/*     */     }
+/*     */     catch (Exception e) {
+/* 307 */       e.printStackTrace();
+/* 308 */       L.w(new Object[] { "数据回滚" });
+/* 309 */       throw new JobClassifyException("数据插入异常，执行回滚");
+/*     */     }
+/* 311 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   @Transactional(rollbackFor={JobClassifyException.class})
+/*     */   public BaseWrapper formUpdate(Integer formId, Integer parentId, Integer sortNo, String formName, Integer departmentId)
+/*     */   {
+/* 330 */     BaseWrapper wrapper = new BaseWrapper();
+/* 331 */     wrapper.setFlag(false);
+/* 332 */     wrapper.setStatus(true);
+/* 333 */     if (formId == null) {
+/* 334 */       wrapper.setMsg("表单id不能为空");
+/* 335 */       return wrapper;
+/*     */     }
+/* 337 */     FormSort exeSort = this.sortMapper.selectByPrimaryKey(formId);
+/* 338 */     if (exeSort == null) {
+/* 339 */       wrapper.setMsg("无效的请求id");
+/* 340 */       return wrapper;
+/*     */     }
+/*     */ 
+/* 343 */     FormSort sortCur = new FormSort();
+/* 344 */     sortCur.setDeptId(departmentId);
+/* 345 */     sortCur.setSortId(formId);
+/* 346 */     sortCur.setSortName(formName);
+/* 347 */     sortCur.setSortNo(sortNo);
+/* 348 */     sortCur.setSortParent(parentId);
+/* 349 */     Integer curRes = Integer.valueOf(this.sortMapper.updateByPrimaryKeySelective(sortCur));
+/* 350 */     if (curRes.intValue() < 0) throw new JobClassifyException("表单更新失败");
+/* 351 */     if (exeSort.getSortParent().intValue() != 0)
+/*     */     {
+/* 353 */       Integer childSize = Integer.valueOf(this.sortMapper.getChildNumber(exeSort.getSortParent()));
+/* 354 */       L.w(new Object[] { "o==||===========================>" + childSize });
+/*     */ 
+/* 356 */       if (childSize.intValue() <= 2)
+/*     */       {
+/* 359 */         FormSort sortParent = new FormSort();
+/* 360 */         sortParent.setHaveChild("0");
+/* 361 */         sortParent.setSortId(exeSort.getSortParent());
+/* 362 */         Integer parRes = Integer.valueOf(this.sortMapper.updateByPrimaryKeySelective(sortParent));
+/* 363 */         if (parRes.intValue() < 1) throw new JobClassifyException("表单更新失败");
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 368 */     if (parentId.intValue() != 0) {
+/* 369 */       Integer childSize = Integer.valueOf(this.sortMapper.getChildNumber(parentId));
+/* 370 */       if (childSize.intValue() == 0) {
+/* 371 */         FormSort sortParent = new FormSort();
+/* 372 */         sortParent.setHaveChild("1");
+/* 373 */         sortParent.setSortId(parentId);
+/* 374 */         Integer parRes = Integer.valueOf(this.sortMapper.updateByPrimaryKeySelective(sortParent));
+/* 375 */         if (parRes.intValue() < 1) throw new JobClassifyException("表单更新失败");
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 380 */     wrapper.setFlag(true);
+/* 381 */     wrapper.setStatus(true);
+/* 382 */     wrapper.setMsg("更新成功");
+/* 383 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   @Transactional(rollbackFor={JobClassifyException.class})
+/*     */   public BaseWrapper flowUpdate(Integer flowId, Integer parentId, Integer sortNo, String flowName, Integer departmentId, String sortMainType, String sortDetialType)
+/*     */   {
+/* 402 */     BaseWrapper wrapper = new BaseWrapper();
+/* 403 */     wrapper.setFlag(false);
+/* 404 */     wrapper.setStatus(true);
+/* 405 */     if (flowId == null) {
+/* 406 */       wrapper.setMsg("表单id不能为空");
+/* 407 */       return wrapper;
+/*     */     }
+/* 409 */     FlowSort exeSort = this.flowSortMapper.selectByPrimaryKey(flowId);
+/* 410 */     if (exeSort == null) {
+/* 411 */       wrapper.setMsg("无效的请求id");
+/* 412 */       return wrapper;
+/*     */     }
+/*     */ 
+/* 415 */     FlowSort sortCur = new FlowSort();
+/* 416 */     sortCur.setDeptId(departmentId);
+/* 417 */     sortCur.setSortId(flowId);
+/* 418 */     sortCur.setSortName(flowName);
+/* 419 */     sortCur.setSortNo(sortNo);
+/* 420 */     sortCur.setSortParent(parentId);
+/* 421 */     sortCur.setSortMainType(sortMainType);
+/* 422 */     sortCur.setSortDetailType(sortDetialType);
+/* 423 */     Integer curRes = Integer.valueOf(this.flowSortMapper.updateByPrimaryKeySelective(sortCur));
+/* 424 */     if (curRes.intValue() < 0) throw new JobClassifyException("表单更新失败");
+/* 425 */     if (exeSort.getSortParent().intValue() != 0)
+/*     */     {
+/* 427 */       Integer childSize = Integer.valueOf(this.flowSortMapper.getChildNumber(exeSort.getSortParent()));
+/* 428 */       L.w(new Object[] { "o==||===========================>" + childSize });
+/* 429 */       if (childSize.intValue() <= 2)
+/*     */       {
+/* 432 */         FlowSort sortParent = new FlowSort();
+/* 433 */         sortParent.setHaveChild("0");
+/* 434 */         sortParent.setSortId(exeSort.getSortParent());
+/* 435 */         Integer parRes = Integer.valueOf(this.flowSortMapper.updateByPrimaryKeySelective(sortParent));
+/* 436 */         if (parRes.intValue() < 1) throw new JobClassifyException("表单更新失败");
+/*     */       }
+/*     */     }
+/*     */ 
+/* 440 */     if (parentId.intValue() != 0) {
+/* 441 */       Integer childSize = Integer.valueOf(this.flowSortMapper.getChildNumber(parentId));
+/* 442 */       if (childSize.intValue() == 0) {
+/* 443 */         FlowSort sortParent = new FlowSort();
+/* 444 */         sortParent.setHaveChild("1");
+/* 445 */         sortParent.setSortId(parentId);
+/* 446 */         Integer parRes = Integer.valueOf(this.flowSortMapper.updateByPrimaryKeySelective(sortParent));
+/* 447 */         if (parRes.intValue() < 1) throw new JobClassifyException("表单更新失败");
+/*     */       }
+/*     */     }
+/* 450 */     wrapper.setFlag(true);
+/* 451 */     wrapper.setStatus(true);
+/* 452 */     wrapper.setMsg("更新成功");
+/* 453 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   @Transactional(rollbackFor={JobClassifyException.class})
+/*     */   public BaseWrapper deleteFlow(Integer flowId)
+/*     */   {
+/* 467 */     BaseWrapper wrapper = new BaseWrapper();
+/* 468 */     wrapper.setFlag(false);
+/* 469 */     wrapper.setStatus(true);
+/*     */     try {
+/* 471 */       if (flowId == null) {
+/* 472 */         wrapper.setMsg("流程id不能为空");
+/* 473 */         return wrapper;
+/*     */       }
+/* 475 */       FlowSort exeSort = this.flowSortMapper.selectByPrimaryKey(flowId);
+/* 476 */       if (exeSort == null) {
+/* 477 */         wrapper.setMsg("无效的请求id");
+/* 478 */         return wrapper;
+/*     */       }
+/*     */ 
+/* 481 */       Integer childSize = Integer.valueOf(this.flowSortMapper.getChildNumber(flowId));
+/* 482 */       if (childSize.intValue() > 0) {
+/* 483 */         wrapper.setMsg("该分类下下存在子分类，请先删除子分类在删除此分类。");
+/* 484 */         return wrapper;
+/*     */       }
+/*     */ 
+/* 487 */       Integer flowSize = Integer.valueOf(this.flowSortMapper.selectflowSortNum(flowId));
+/* 488 */       if (flowSize.intValue() > 0) {
+/* 489 */         wrapper.setMsg("该分类下下存在流程，请先删除流程在删除此分类。");
+/* 490 */         return wrapper;
+/*     */       }
+/*     */ 
+/* 493 */       int deleteRes = this.flowSortMapper.deleteByPrimaryKey(flowId);
+/* 494 */       if (deleteRes > 0) {
+/* 495 */         wrapper.setFlag(true);
+/* 496 */         wrapper.setStatus(true);
+/* 497 */         wrapper.setMsg("操作成功");
+/*     */       } else {
+/* 499 */         throw new JobClassifyException("流程删除失败");
+/*     */       }
+/*     */ 
+/* 502 */       if (exeSort.getSortParent().intValue() != 0)
+/*     */       {
+/* 504 */         Integer pchildSize = Integer.valueOf(this.flowSortMapper.getChildNumber(exeSort.getSortParent()));
+/* 505 */         L.w(new Object[] { "o==||===========================>" + pchildSize });
+/* 506 */         if (pchildSize.intValue() <= 2)
+/*     */         {
+/* 509 */           FlowSort sortParent = new FlowSort();
+/* 510 */           sortParent.setHaveChild("0");
+/* 511 */           sortParent.setSortId(exeSort.getSortParent());
+/* 512 */           Integer parRes = Integer.valueOf(this.flowSortMapper.updateByPrimaryKeySelective(sortParent));
+/* 513 */           if (parRes.intValue() < 1) throw new JobClassifyException("流程删除失败"); 
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 517 */       e.printStackTrace();
+/* 518 */       throw new JobClassifyException("流程删除失败");
+/*     */     }
+/*     */ 
+/* 521 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   @Transactional(rollbackFor={JobClassifyException.class})
+/*     */   public BaseWrapper deleteForm(Integer formId)
+/*     */   {
+/* 536 */     BaseWrapper wrapper = new BaseWrapper();
+/* 537 */     wrapper.setFlag(false);
+/* 538 */     wrapper.setStatus(true);
+/*     */     try {
+/* 540 */       if (formId == null) {
+/* 541 */         wrapper.setMsg("表单id不能为空");
+/* 542 */         return wrapper;
+/*     */       }
+/* 544 */       FormSort exeSort = this.sortMapper.selectByPrimaryKey(formId);
+/* 545 */       if (exeSort == null) {
+/* 546 */         wrapper.setMsg("无效的请求id");
+/* 547 */         return wrapper;
+/*     */       }
+/*     */ 
+/* 550 */       Integer childSize = Integer.valueOf(this.sortMapper.getChildNumber(formId));
+/* 551 */       if (childSize.intValue() > 0) {
+/* 552 */         wrapper.setMsg("该分类下下存在子分类，请先删除子分类在删除此分类。");
+/* 553 */         return wrapper;
+/*     */       }
+/*     */ 
+/* 556 */       Integer flowSize = Integer.valueOf(this.sortMapper.selectflowSortNum(formId));
+/* 557 */       if (flowSize.intValue() > 0) {
+/* 558 */         wrapper.setMsg(" 该分类下下存在表单，请先删除表单在删除此分类。");
+/* 559 */         return wrapper;
+/*     */       }
+/*     */ 
+/* 562 */       int deleteRes = this.sortMapper.deleteByPrimaryKey(formId);
+/* 563 */       if (deleteRes > 0) {
+/* 564 */         wrapper.setFlag(true);
+/* 565 */         wrapper.setStatus(true);
+/* 566 */         wrapper.setMsg("操作成功");
+/*     */       } else {
+/* 568 */         throw new JobClassifyException("流程删除失败");
+/*     */       }
+/*     */ 
+/* 571 */       if (exeSort.getSortParent().intValue() != 0)
+/*     */       {
+/* 573 */         Integer pchildSize = Integer.valueOf(this.sortMapper.getChildNumber(exeSort.getSortParent()));
+/* 574 */         L.w(new Object[] { "o==||===========================>" + pchildSize });
+/* 575 */         if (pchildSize.intValue() <= 2)
+/*     */         {
+/* 578 */           FormSort sortParent = new FormSort();
+/* 579 */           sortParent.setHaveChild("0");
+/* 580 */           sortParent.setSortId(exeSort.getSortParent());
+/* 581 */           Integer parRes = Integer.valueOf(this.sortMapper.updateByPrimaryKeySelective(sortParent));
+/* 582 */           if (parRes.intValue() < 1) throw new JobClassifyException("流程删除失败"); 
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 586 */       e.printStackTrace();
+/* 587 */       throw new JobClassifyException("流程删除失败");
+/*     */     }
+/*     */ 
+/* 590 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   private String checkParentOrDepartment(Integer parentId, Integer departmentId, Integer type)
+/*     */   {
+/* 609 */     if (departmentId.intValue() != 0)
+/*     */     {
+/* 611 */       Department department = this.departmentService.getDeptById(departmentId.intValue());
+/* 612 */       if ((department == null) || (department.getDeptId() == null)) {
+/* 613 */         return "所属部门不存在";
+/*     */       }
+/*     */     }
+/* 616 */     if (parentId.intValue() == 0)
+/*     */     {
+/* 618 */       return null;
+/*     */     }
+/* 620 */     switch (type.intValue())
+/*     */     {
+/*     */     case 18:
+/* 623 */       FormSort formSort = this.sortMapper.selectByPrimaryKey(parentId);
+/* 624 */       if ((formSort != null) && (formSort.getSortId() != null)) break;
+/* 625 */       return "所属分类不存在";
+/*     */     case 17:
+/* 629 */       FlowSort flowSort = this.flowSortMapper.selectByPrimaryKey(parentId);
+/* 630 */       if ((flowSort != null) && (flowSort.getSortId() != null)) break;
+/* 631 */       return "所属分类不存在";
+/*     */     default:
+/* 635 */       return "发生未知程序错误！";
+/*     */     }
+/*     */ 
+/* 638 */     return null;
+/*     */   }
+/*     */ 
+/*     */   public JobSelectorWrapper easyFormTree(HttpSession session)
+/*     */   {
+/* 651 */     JobSelectorWrapper wrapper = new JobSelectorWrapper();
+/* 652 */     Users users = (Users)SessionUtils.getSessionInfo(session, Users.class, new Users());
+/* 653 */     Integer deptId = null;
+/* 654 */     if (users.getUserId() != null) {
+/* 655 */       deptId = users.getDeptId();
+/*     */     }
+/* 657 */     List resultdatas = new ArrayList();
+/* 658 */     List nosortDatas = this.sortMapper.selectAllFormSortByTree(deptId);
+/* 659 */     Integer noform = Integer.valueOf(this.sortMapper.selectNoformSort(deptId));
+/* 660 */     FormSort formSort = new FormSort();
+/* 661 */     formSort.setSortName("未定义");
+/* 662 */     formSort.setFormcounts(noform);
+/* 663 */     formSort.setHaveChild("0");
+/* 664 */     formSort.setSortNo(Integer.valueOf(0));
+/* 665 */     formSort.setSortId(Integer.valueOf(-1));
+/* 666 */     formSort.setSortParent(Integer.valueOf(0));
+/* 667 */     FormSort formSortP = new FormSort();
+/* 668 */     formSortP.setSortName("表单分类");
+/* 669 */     formSortP.setFormcounts(noform);
+/* 670 */     formSortP.setHaveChild("0");
+/* 671 */     formSortP.setSortNo(Integer.valueOf(0));
+/* 672 */     formSortP.setSortId(Integer.valueOf(0));
+/* 673 */     resultdatas.add(formSortP);
+/* 674 */     resultdatas.add(formSort);
+/* 675 */     resultdatas.addAll(nosortDatas);
+/* 676 */     wrapper.setDatas(resultdatas);
+/* 677 */     wrapper.setFlag(true);
+/* 678 */     wrapper.setStatus(true);
+/* 679 */     wrapper.setMsg("获取数据成功");
+/* 680 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public JobSelectorWrapper easyFlowTree(HttpSession session)
+/*     */   {
+/* 691 */     JobSelectorWrapper wrapper = new JobSelectorWrapper();
+/* 692 */     Users users = (Users)SessionUtils.getSessionInfo(session, Users.class, new Users());
+/* 693 */     Integer deptId = null;
+/* 694 */     if (users.getUserId() != null) {
+/* 695 */       deptId = users.getDeptId();
+/*     */     }
+/* 697 */     List nosortDatas = this.flowSortMapper.selectAllFlowSort(deptId);
+/* 698 */     Integer noform = this.flowSortMapper.selectNoflowSort(deptId);
+/* 699 */     List resultdatas = new ArrayList();
+/* 700 */     FlowSort flowSort = new FlowSort();
+/* 701 */     flowSort.setSortName("未定义");
+/* 702 */     flowSort.setFlowcounts(noform);
+/* 703 */     flowSort.setHaveChild("0");
+/* 704 */     flowSort.setSortNo(Integer.valueOf(0));
+/* 705 */     flowSort.setSortParent(Integer.valueOf(0));
+/* 706 */     flowSort.setSortId(Integer.valueOf(-1));
+/* 707 */     FlowSort flowSortP = new FlowSort();
+/* 708 */     flowSortP.setSortName("流程分类");
+/* 709 */     flowSortP.setFlowcounts(noform);
+/* 710 */     flowSortP.setHaveChild("0");
+/* 711 */     flowSortP.setSortNo(Integer.valueOf(0));
+/* 712 */     flowSortP.setSortId(Integer.valueOf(0));
+/* 713 */     resultdatas.add(flowSortP);
+/* 714 */     resultdatas.add(flowSort);
+/* 715 */     resultdatas.addAll(nosortDatas);
+/* 716 */     wrapper.setDatas(resultdatas);
+/* 717 */     wrapper.setFlag(true);
+/* 718 */     wrapper.setStatus(true);
+/* 719 */     wrapper.setMsg("获取数据成功");
+/* 720 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public JobSelectorWrapper getFlowsortByAuth(HttpServletRequest request)
+/*     */   {
+/* 733 */     JobSelectorWrapper wrapper = new JobSelectorWrapper();
+/* 734 */     wrapper.setStatus(true);
+/* 735 */     wrapper.setFlag(false);
+/* 736 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 737 */     if (user.getUid() == null) {
+/* 738 */       wrapper.setMsg("无法获取用户信息");
+/* 739 */       return wrapper;
+/*     */     }
+/* 741 */     Map param = new HashMap();
+/* 742 */     String privOther = user.getUserPrivOther() == null ? "" : user.getUserPrivOther();
+/* 743 */     String[] privIds = privOther.split(",");
+/* 744 */     String deptOther = user.getDeptIdOther() == null ? "" : user.getDeptIdOther();
+/* 745 */     String[] deptIds = deptOther.split(",");
+/* 746 */     param.put("user", user.getUserId() == null ? "" : user.getUserId());
+/* 747 */     param.put("deptId", user.getDeptId() == null ? "" : user.getDeptId());
+/* 748 */     param.put("privId", user.getUserPriv() == null ? "" : user.getUserPriv());
+/* 749 */     if ((privIds != null) && (privIds.length > 0)) {
+/* 750 */       param.put("privIds", privIds);
+/*     */     }
+/* 752 */     if ((deptIds != null) && (deptIds.length > 0)) {
+/* 753 */       param.put("deptIds", deptIds);
+/*     */     }
+/*     */ 
+/* 757 */     List<FlowSort> nosortDatas = this.flowSortMapper.selectAllFs(user.getDeptId());
+/*     */ 
+/* 759 */     for (FlowSort flowSort : nosortDatas) {
+/* 760 */       Integer flowCounts = Integer.valueOf(this.flowSortMapper.countAllFs(flowSort.getSortId()));
+/* 761 */       flowSort.setFlowcounts(flowCounts);
+/*     */     }
+/*     */ 
+/* 764 */     List authdatas = this.flowSortMapper.selectFlowSortByAuth(param);
+/*     */ 
+/* 766 */     List authdatasSort = sortDatasAuthFlow(authdatas, Integer.valueOf(0), nosortDatas);
+/* 767 */     if ((authdatasSort != null) && (authdatasSort.size() > 0)) {
+/* 768 */       wrapper.setFlag(true);
+/* 769 */       wrapper.setMsg("获取成功");
+/* 770 */       wrapper.setDatas(authdatasSort);
+/*     */     } else {
+/* 772 */       wrapper.setFlag(false);
+/* 773 */       wrapper.setMsg("没有数据");
+/*     */     }
+/*     */ 
+/* 776 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public List<Integer> getSortChildId(Integer sortId, List<Integer> ret)
+/*     */   {
+/* 781 */     List<FlowSort> childs = this.flowSortMapper.getChildDatas(sortId);
+/* 782 */     ret.add(sortId);
+/* 783 */     if (childs == null) return ret;
+/* 784 */     for (FlowSort child : childs) {
+/* 785 */       if ("1".equals(child.getHaveChild().trim())) {
+/* 786 */         ret = getSortChildId(child.getSortId(), ret);
+/*     */       }
+/* 788 */       ret.add(child.getSortId());
+/*     */     }
+/* 790 */     return ret;
+/*     */   }
+/*     */ 
+/*     */   private List<FlowSort> sortDatasAuthFlow(List<FlowSort> authdatas, Integer sortIda, List<FlowSort> alldata)
+/*     */   {
+/* 797 */     if (authdatas == null) return null;
+/* 798 */     List datas = new ArrayList();
+/* 799 */     for (FlowSort sort : authdatas) {
+/* 800 */       if (sort != null) {
+/* 801 */         List authdatass = new ArrayList();
+/* 802 */         if (sort.getSortParent().intValue() != 0) {
+/* 803 */           int checkRes = 0;
+/* 804 */           for (FlowSort need : authdatas) {
+/* 805 */             if (need.getSortId() != sort.getSortParent()) {
+/* 806 */               checkRes++;
+/*     */             }
+/*     */           }
+/*     */ 
+/* 810 */           if (checkRes == authdatas.size()) {
+/* 811 */             authdatass.addAll(authdatas);
+/* 812 */             for (FlowSort all : alldata) {
+/* 813 */               if (all.getSortId() == sort.getSortParent()) {
+/* 814 */                 authdatass.add(all);
+/*     */               }
+/*     */             }
+/*     */           }
+/*     */         }
+/* 819 */         if (authdatass.size() > 0) {
+/* 820 */           if (sort.getSortParent() == sortIda) {
+/* 821 */             sort.setChilds(sortDatasAuthFlow(authdatass, sort.getSortId(), alldata));
+/* 822 */             datas.add(sort);
+/*     */           }
+/*     */         }
+/* 825 */         else if (sort.getSortParent() == sortIda) {
+/* 826 */           sort.setChilds(sortDatasAuthFlow(authdatas, sort.getSortId(), alldata));
+/* 827 */           datas.add(sort);
+/*     */         }
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 833 */     return datas;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrappers getFlowSortByAuthWithMobile(HttpServletRequest request) {
+/* 837 */     BaseWrappers wrapper = new BaseWrappers();
+/* 838 */     wrapper.setStatus(true);
+/* 839 */     wrapper.setFlag(false);
+/* 840 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 841 */     if (user.getUid() == null) {
+/* 842 */       wrapper.setMsg("无法获取用户信息");
+/* 843 */       return wrapper;
+/*     */     }
+/* 845 */     Map param = new HashMap();
+/* 846 */     String privOther = user.getUserPrivOther() == null ? "" : user.getUserPrivOther();
+/* 847 */     String[] privIds = privOther.split(",");
+/* 848 */     String deptOther = user.getDeptIdOther() == null ? "" : user.getDeptIdOther();
+/* 849 */     String[] deptIds = deptOther.split(",");
+/* 850 */     param.put("user", user.getUserId() == null ? "" : user.getUserId());
+/* 851 */     param.put("deptId", user.getDeptId() == null ? "" : user.getDeptId());
+/* 852 */     param.put("privId", user.getUserPriv() == null ? "" : user.getUserPriv());
+/* 853 */     if ((privIds != null) && (privIds.length > 0)) {
+/* 854 */       param.put("privIds", privIds);
+/*     */     }
+/* 856 */     if ((deptIds != null) && (deptIds.length > 0)) {
+/* 857 */       param.put("deptIds", deptIds);
+/*     */     }
+/* 859 */     List<FlowSort> nosortDatas = this.flowSortMapper.selectAllFlowSort(user.getDeptId());
+/* 860 */     List<FlowSort> authdatas = this.flowSortMapper.selectFlowSortByAuth(param);
+/* 861 */     List<FlowSort> authdatasSort = sortDatasAuthFlow(authdatas, Integer.valueOf(0), nosortDatas);
+/* 862 */     List<FlowSortWorkMobile> relDatas = new ArrayList<FlowSortWorkMobile>();
+/* 863 */     FlowSortWorkMobile usll = new FlowSortWorkMobile();
+/* 864 */     usll.setSortName("常用流程");
+/* 865 */     ToJson<FlowTypeModel> uslljson = this.flowTypeService.selectFlowAuthOrSearch(request, "", null);
+/* 866 */     if (uslljson.isFlag()) {
+/* 867 */       usll.setFlowTypes(uslljson.getObj());
+/*     */     }
+/* 869 */     relDatas.add(usll);
+/* 870 */     for (FlowSort sort : authdatasSort) {
+/* 871 */       FlowSortWorkMobile mobile = new FlowSortWorkMobile();
+/* 872 */       mobile.setSortName(sort.getSortName());
+/* 873 */       ToJson<FlowTypeModel> json = this.flowTypeService.selectFlowAuthOrSearch(request, "", sort.getSortId());
+/* 874 */       if (json.isFlag())
+/* 875 */         mobile.setFlowTypes(json.getObj());
+/*     */       else {
+/* 877 */         mobile.setFlowTypes(new ArrayList());
+/*     */       }
+/* 879 */       relDatas.add(mobile);
+/*     */     }
+/*     */ 
+/* 882 */     if ((relDatas != null) && (relDatas.size() > 0)) {
+/* 883 */       wrapper.setFlag(true);
+/* 884 */       wrapper.setMsg("获取成功");
+/* 885 */       wrapper.setDatas(relDatas);
+/*     */     } else {
+/* 887 */       wrapper.setFlag(true);
+/* 888 */       wrapper.setMsg("没有数据");
+/*     */     }
+/* 890 */     return wrapper;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.workflow.JobClassifyService
+ * JD-Core Version:    0.6.0
+ */

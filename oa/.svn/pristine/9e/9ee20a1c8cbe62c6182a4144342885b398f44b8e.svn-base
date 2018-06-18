@@ -1,0 +1,143 @@
+/*     */ package com.xoa.controller.sys;
+/*     */ 
+/*     */ import com.xoa.model.users.OrgManage;
+/*     */ import com.xoa.service.sys.SystemInfoService;
+/*     */ import com.xoa.service.users.OrgManageService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.io.IOException;
+/*     */ import java.io.UnsupportedEncodingException;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.context.annotation.Scope;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @Scope("prototype")
+/*     */ @RequestMapping({"/sys"})
+/*     */ public class OrgManageController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private SystemInfoService systemInfoService;
+/*     */ 
+/*     */   @Resource
+/*     */   private OrgManageService orgManageService;
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getOrgManage"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<OrgManage> getOrgManage(HttpServletRequest request)
+/*     */   {
+/*  50 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/*  52 */     ContextHolder.setConsumerType(sqlType);
+/*  53 */     ToJson toJson = new ToJson(0, "");
+/*     */     try {
+/*  55 */       List orgManageList = this.orgManageService.getOrgManage();
+/*  56 */       if ((orgManageList != null) && (orgManageList.size() > 0)) {
+/*  57 */         Map stringStringMap = this.systemInfoService.getAuthorization(request);
+/*  58 */         if ("xoa1001".equals(sqlType)) {
+/*  59 */           if ("true".equals(stringStringMap.get("isAuthStr"))) {
+/*  60 */             if (!((OrgManage)orgManageList.get(0)).getName().equals(stringStringMap.get("company"))) {
+/*  61 */               ((OrgManage)orgManageList.get(0)).setName((String)stringStringMap.get("company"));
+/*  62 */               this.orgManageService.editOrgManage((OrgManage)orgManageList.get(0), request);
+/*     */             }
+/*  64 */             toJson.setCode("130130");
+/*  65 */             toJson.setMsg("ok");
+/*     */           } else {
+/*  67 */             toJson.setCode("130140");
+/*  68 */             toJson.setMsg("未授权（错误代码：130140）");
+/*     */           }
+/*     */         }
+/*     */       }
+/*  72 */       toJson.setFlag(0);
+/*  73 */       toJson.setObject(orgManageList);
+/*     */     } catch (Exception e) {
+/*  75 */       toJson.setFlag(1);
+/*  76 */       toJson.setMsg("err");
+/*     */     }
+/*  78 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/editOrgManage"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<OrgManage> editOrgManage(OrgManage orgManage, HttpServletRequest request)
+/*     */     throws UnsupportedEncodingException
+/*     */   {
+/*  95 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  97 */     if ((orgManage != null) && (orgManage.getOid() != null)) {
+/*  98 */       this.orgManageService.editOrgManage(orgManage, request);
+/*     */     }
+/*     */ 
+/* 101 */     ToJson toJson = new ToJson(0, "");
+/*     */     try {
+/* 103 */       List orgManageList = this.orgManageService.getOrgManage();
+/* 104 */       toJson.setFlag(0);
+/* 105 */       toJson.setObject(orgManageList);
+/* 106 */       toJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 108 */       toJson.setFlag(1);
+/* 109 */       toJson.setMsg("err");
+/*     */     }
+/*     */ 
+/* 112 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getOrgManageById"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<OrgManage> getOrgManageById(Integer oid, HttpServletRequest request)
+/*     */     throws IOException
+/*     */   {
+/* 127 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 130 */     ToJson toJson = new ToJson(0, "");
+/* 131 */     OrgManage orgManage = null;
+/*     */     try {
+/* 133 */       orgManage = this.orgManageService.getOrgManageById(oid);
+/* 134 */       toJson.setMsg("ok");
+/* 135 */       toJson.setObject(orgManage);
+/* 136 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 138 */       toJson.setFlag(1);
+/* 139 */       toJson.setMsg("err");
+/*     */     }
+/*     */ 
+/* 142 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/addOrgManage"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<OrgManage> addOrgManage(OrgManage orgManage, HttpServletRequest request, HttpServletResponse response)
+/*     */     throws IOException
+/*     */   {
+/* 155 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 159 */     return this.orgManageService.addOrgManage(orgManage, request);
+/*     */   }
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/checkOrgManage"})
+/*     */   public BaseWrapper checkOrgManage(HttpServletRequest request) {
+/* 166 */     return this.orgManageService.checkOrgManage(request);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getPostmanagement"})
+/*     */   public String get(HttpServletRequest request) {
+/* 172 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 174 */     return "app/sys/post";
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.sys.OrgManageController
+ * JD-Core Version:    0.6.0
+ */

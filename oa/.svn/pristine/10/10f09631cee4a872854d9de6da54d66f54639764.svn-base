@@ -1,0 +1,51 @@
+/*    */ package com.xoa.global.exception;
+/*    */ 
+/*    */ import com.alibaba.fastjson.support.spring.FastJsonJsonView;
+/*    */ import com.xoa.service.im.ImDataException;
+/*    */ import com.xoa.service.workflow.JobClassifyException;
+/*    */ import java.util.HashMap;
+/*    */ import java.util.Map;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import javax.servlet.http.HttpServletResponse;
+/*    */ import org.springframework.web.servlet.HandlerExceptionResolver;
+/*    */ import org.springframework.web.servlet.ModelAndView;
+/*    */ 
+/*    */ public class GlobalException
+/*    */   implements HandlerExceptionResolver
+/*    */ {
+/*    */   public ModelAndView resolveException(HttpServletRequest arg0, HttpServletResponse arg1, Object arg2, Exception arg3)
+/*    */   {
+/* 30 */     FastJsonJsonView view = new FastJsonJsonView();
+/* 31 */     ModelAndView modelAndView = new ModelAndView();
+/*    */ 
+/* 34 */     Map all = new HashMap();
+/* 35 */     all.put("status", Boolean.valueOf(false));
+/* 36 */     all.put("flag", Boolean.valueOf(false));
+/* 37 */     all.put("message", arg3.getMessage());
+/* 38 */     view.setAttributesMap(all);
+/*    */ 
+/* 41 */     if ((arg3 instanceof ImDataException)) {
+/* 42 */       Map ex = new HashMap();
+/* 43 */       ex.put("status", Boolean.valueOf(false));
+/* 44 */       ex.put("flag", Boolean.valueOf(false));
+/* 45 */       ex.put("message", "Im操作失败");
+/* 46 */       view.setAttributesMap(ex);
+/*    */     }
+/*    */ 
+/* 49 */     if ((arg3 instanceof JobClassifyException)) {
+/* 50 */       Map ex = new HashMap();
+/* 51 */       ex.put("status", Boolean.valueOf(false));
+/* 52 */       ex.put("flag", Boolean.valueOf(false));
+/* 53 */       ex.put("message", "分类操作失败");
+/* 54 */       view.setAttributesMap(ex);
+/*    */     }
+/* 56 */     arg3.printStackTrace();
+/* 57 */     modelAndView.setView(view);
+/* 58 */     return modelAndView;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.global.exception.GlobalException
+ * JD-Core Version:    0.6.0
+ */

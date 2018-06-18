@@ -1,0 +1,2938 @@
+/*      */ package com.xoa.service.users.impl;
+/*      */ 
+/*      */ import com.xoa.dao.attend.AttendSetMapper;
+/*      */ import com.xoa.dao.common.SysParaMapper;
+/*      */ import com.xoa.dao.common.SyslogMapper;
+/*      */ import com.xoa.dao.department.DepartmentMapper;
+/*      */ import com.xoa.dao.duties.DutiesManagementMapper;
+/*      */ import com.xoa.dao.hr.HrStaffInfoMapper;
+/*      */ import com.xoa.dao.modulePriv.ModulePrivMapper;
+/*      */ import com.xoa.dao.sys.SysInterfaceMapper;
+/*      */ import com.xoa.dao.users.OrgManageMapper;
+/*      */ import com.xoa.dao.users.UserExtMapper;
+/*      */ import com.xoa.dao.users.UserFunctionMapper;
+/*      */ import com.xoa.dao.users.UserPrivMapper;
+/*      */ import com.xoa.dao.users.UsersMapper;
+/*      */ import com.xoa.model.attend.AttendSet;
+/*      */ import com.xoa.model.common.SysPara;
+/*      */ import com.xoa.model.common.Syslog;
+/*      */ import com.xoa.model.department.Department;
+/*      */ import com.xoa.model.duties.UserPost;
+/*      */ import com.xoa.model.modulePriv.ModulePriv;
+/*      */ import com.xoa.model.sys.InterfaceModel;
+/*      */ import com.xoa.model.users.OrgManage;
+/*      */ import com.xoa.model.users.UserExt;
+/*      */ import com.xoa.model.users.UserFunction;
+/*      */ import com.xoa.model.users.UserPriv;
+/*      */ import com.xoa.model.users.Users;
+/*      */ import com.xoa.service.sys.SystemInfoService;
+/*      */ import com.xoa.service.users.UsersPrivService;
+/*      */ import com.xoa.service.users.UsersService;
+/*      */ import com.xoa.util.AjaxJson;
+/*      */ import com.xoa.util.DateFormat;
+/*      */ import com.xoa.util.ExcelRead;
+/*      */ import com.xoa.util.ExcelUtil;
+/*      */ import com.xoa.util.FileUploadUtil;
+/*      */ import com.xoa.util.PinYinUtil;
+/*      */ import com.xoa.util.ToJson;
+/*      */ import com.xoa.util.common.L;
+/*      */ import com.xoa.util.common.log.FileUtils;
+/*      */ import com.xoa.util.common.session.SessionUtils;
+/*      */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*      */ import com.xoa.util.encrypt.EncryptSalt;
+/*      */ import com.xoa.util.ipUtil.IpAddr;
+/*      */ import com.xoa.util.page.PageParams;
+/*      */ import java.io.File;
+/*      */ import java.io.FileInputStream;
+/*      */ import java.io.IOException;
+/*      */ import java.io.InputStream;
+/*      */ import java.net.InetAddress;
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.Arrays;
+/*      */ import java.util.Collection;
+/*      */ import java.util.Collections;
+/*      */ import java.util.Comparator;
+/*      */ import java.util.Date;
+/*      */ import java.util.HashMap;
+/*      */ import java.util.Iterator;
+/*      */ import java.util.List;
+/*      */ import java.util.Map;
+/*      */ import java.util.ResourceBundle;
+/*      */ import java.util.TreeSet;
+/*      */ import java.util.UUID;
+/*      */ import javax.annotation.Resource;
+/*      */ import javax.servlet.ServletContext;
+/*      */ import javax.servlet.ServletOutputStream;
+/*      */ import javax.servlet.http.HttpServletRequest;
+/*      */ import javax.servlet.http.HttpServletResponse;
+/*      */ import javax.servlet.http.HttpSession;
+/*      */ import org.apache.commons.codec.digest.Md5Crypt;
+/*      */ import org.apache.ibatis.exceptions.TooManyResultsException;
+/*      */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*      */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*      */ import org.apache.poi.ss.usermodel.Cell;
+/*      */ import org.apache.poi.ss.usermodel.Row;
+/*      */ import org.springframework.stereotype.Service;
+/*      */ import org.springframework.transaction.annotation.Transactional;
+/*      */ import org.springframework.web.multipart.MultipartFile;
+/*      */ 
+/*      */ @Service
+/*      */ public class UsersServiceImpl
+/*      */   implements UsersService
+/*      */ {
+/*   64 */   private final String one = "1";
+/*      */ 
+/*      */   @Resource
+/*      */   SystemInfoService systemInfoService;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersMapper usersMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private SyslogMapper syslogMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersPrivService usersPrivService;
+/*      */ 
+/*      */   @Resource
+/*      */   private OrgManageMapper orgManageMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private UserExtMapper userExtMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private DepartmentMapper departmentMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private UserPrivMapper userPrivMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private ModulePrivMapper modulePrivMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private UserFunctionMapper userFunctionMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private SysParaMapper sysParaMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private AttendSetMapper attendSetMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private SysInterfaceMapper sysInterfaceMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private HrStaffInfoMapper hrStaffInfoMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private DutiesManagementMapper managementMapper;
+/*      */ 
+/*  111 */   @Transactional
+/*      */   public ToJson<Users> addUser(Users user, UserExt userExt, ModulePriv modulePriv, HttpServletRequest request) { ToJson tojson = new ToJson();
+/*  112 */     UserFunction userFunction = new UserFunction();
+/*      */ 
+/*  116 */     Users usersByuserId = this.usersMapper.getUsersBybyname(user.getByname());
+/*  117 */     if ((usersByuserId != null) && (usersByuserId.getByname().equals(user.getByname()))) {
+/*  118 */       tojson.setObject(usersByuserId);
+/*  119 */       tojson.setMsg("此用户名已存在，请修改");
+/*  120 */       tojson.setFlag(1);
+/*  121 */       return tojson;
+/*      */     }
+/*      */     boolean userToMany;
+/*  126 */     if (request.getSession() == null)
+/*  127 */       userToMany = false;
+/*      */     else {
+/*  129 */       userToMany = isUserToMany(request);
+/*      */     }
+/*      */ 
+/*  133 */     if (!userToMany) {
+/*  134 */       if (user != null)
+/*      */       {
+/*  137 */         if (user.getPassword() != null) {
+/*  138 */           String password = user.getPassword();
+/*  139 */           password = getEncryptString(password.trim());
+/*  140 */           user.setPassword(password);
+/*      */         }
+/*      */ 
+/*  144 */         if (!com.xoa.util.common.StringUtils.checkNull(user.getUserName()).booleanValue()) {
+/*  145 */           String fistSpell = PinYinUtil.getFirstSpell(user.getUserName());
+/*  146 */           StringBuffer sb = new StringBuffer();
+/*  147 */           for (int i = 0; i < fistSpell.length(); i++) {
+/*  148 */             sb.append(new StringBuilder().append(fistSpell.charAt(i)).append("*").toString());
+/*      */           }
+/*  150 */           user.setUserNameIndex(sb.toString());
+/*      */         }
+/*      */ 
+/*  154 */         if (user.getUserPriv() != null) {
+/*  155 */           UserPriv userPriv = this.userPrivMapper.selectByPrimaryKey(user.getUserPriv().intValue());
+/*  156 */           if (userPriv != null) {
+/*  157 */             user.setUserPrivNo(userPriv.getPrivNo());
+/*  158 */             user.setUserPrivName(userPriv.getPrivName());
+/*  159 */             if (userPriv.getFuncIdStr() != null)
+/*  160 */               userFunction.setUserFunCidStr(userPriv.getFuncIdStr());
+/*      */             else {
+/*  162 */               userFunction.setUserFunCidStr("1,");
+/*      */             }
+/*      */           }
+/*      */         }
+/*  166 */         if (!com.xoa.util.common.StringUtils.checkNull(user.getUserPrivOther()).booleanValue()) {
+/*  167 */           String[] strings = user.getUserPrivOther().split(",");
+/*  168 */           StringBuffer privaNoBuffer = new StringBuffer();
+/*  169 */           StringBuffer privaNameBuffer = new StringBuffer();
+/*  170 */           StringBuffer funcIdStrBuffer = new StringBuffer();
+/*  171 */           for (int i = 0; i < strings.length; i++) {
+/*  172 */             UserPriv userPriv = this.userPrivMapper.selectByPrimaryKey(Integer.parseInt(strings[i]));
+/*  173 */             if (userPriv != null) {
+/*  174 */               privaNoBuffer.append(new StringBuilder().append(userPriv.getUserPriv()).append(",").toString());
+/*  175 */               privaNameBuffer.append(new StringBuilder().append(userPriv.getPrivName()).append(",").toString());
+/*  176 */               if (userPriv.getFuncIdStr() != null) {
+/*  177 */                 funcIdStrBuffer.append(userPriv.getFuncIdStr());
+/*      */               }
+/*      */             }
+/*      */           }
+/*  181 */           user.setUserPrivOther(String.valueOf(privaNoBuffer));
+/*  182 */           user.setUserPrivOtherName(String.valueOf(privaNameBuffer));
+/*  183 */           userFunction.setUserFunCidStr(new StringBuilder().append(userFunction.getUserFunCidStr()).append(String.valueOf(funcIdStrBuffer)).toString());
+/*      */         }
+/*      */ 
+/*  189 */         user.setAvatar(user.getSex());
+/*      */       }
+/*      */       try
+/*      */       {
+/*  193 */         if ((!com.xoa.util.common.StringUtils.checkNull(user.getUserName()).booleanValue()) && (user.getDeptId() != null) && (user.getUserPriv() != null)) {
+/*  194 */           this.usersMapper.insert(user);
+/*  195 */           user.setUserId(user.getUid().toString());
+/*  196 */           this.usersMapper.editUser(user);
+/*  197 */           userExt.setUid(user.getUid());
+/*  198 */           userExt.setUserId(user.getUserId());
+/*  199 */           this.userExtMapper.addUserExt(userExt);
+/*      */ 
+/*  201 */           userFunction.setUid(user.getUid().intValue());
+/*  202 */           userFunction.setUserId(user.getUserId());
+/*  203 */           if (!com.xoa.util.common.StringUtils.checkNull(userFunction.getUserFunCidStr()).booleanValue()) {
+/*  204 */             TreeSet ts = new TreeSet();
+/*  205 */             int len1 = userFunction.getUserFunCidStr().split(",").length;
+/*  206 */             String[] ss = userFunction.getUserFunCidStr().split(",");
+/*  207 */             for (int i1 = 0; i1 < len1; i1++) {
+/*  208 */               ts.add(new StringBuilder().append(ss[i1]).append("").toString());
+/*      */             }
+/*      */ 
+/*  212 */             Iterator i1 = ts.iterator();
+/*  213 */             StringBuilder sb1 = new StringBuilder();
+/*  214 */             while (i1.hasNext()) {
+/*  215 */               sb1.append(new StringBuilder().append((String)i1.next()).append(",").toString());
+/*      */             }
+/*  217 */             userFunction.setUserFunCidStr(String.valueOf(sb1));
+/*      */           }
+/*      */ 
+/*  220 */           this.userFunctionMapper.insertUserFun(userFunction);
+/*  221 */           if (modulePriv != null) {
+/*  222 */             modulePriv.setUid(user.getUid());
+/*  223 */             if ((!com.xoa.util.common.StringUtils.checkNull(modulePriv.getDeptId()).booleanValue()) || (!com.xoa.util.common.StringUtils.checkNull(modulePriv.getPrivId()).booleanValue()) || (!com.xoa.util.common.StringUtils.checkNull(modulePriv.getUserId()).booleanValue())) {
+/*  224 */               modulePriv.setUid(user.getUid());
+/*  225 */               modulePriv.setModuleId(Integer.valueOf(0));
+/*  226 */               modulePriv.setDeptPriv("1");
+/*  227 */               modulePriv.setRolePriv("2");
+/*  228 */               this.modulePrivMapper.addModulePriv(modulePriv);
+/*      */             }
+/*      */           }
+/*      */ 
+/*  232 */           tojson.setObject(user);
+/*  233 */           tojson.setFlag(0);
+/*  234 */           tojson.setMsg("OK");
+/*      */         } else {
+/*  236 */           tojson.setFlag(1);
+/*  237 */           tojson.setMsg("新建失败");
+/*      */         }
+/*      */       } catch (Exception e) {
+/*  240 */         e.printStackTrace();
+/*  241 */         tojson.setFlag(1);
+/*  242 */         tojson.setMsg("新建失败");
+/*      */       }
+/*  244 */       return tojson;
+/*      */     }
+/*      */ 
+/*  247 */     tojson.setFlag(1);
+/*  248 */     tojson.setMsg("用户超过授权限制");
+/*      */ 
+/*  252 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<Users> editUser(Users user, UserExt userExt, ModulePriv modulePriv)
+/*      */   {
+/*  268 */     ToJson tojson = new ToJson();
+/*  269 */     UserFunction userFunction = new UserFunction();
+/*  270 */     if (user != null)
+/*      */     {
+/*  273 */       if ((user.getByname() != null) && (user.getByname() != "")) {
+/*  274 */         Users usersByuserId = this.usersMapper.getUsersBybyname(user.getByname());
+/*  275 */         if ((usersByuserId != null) && (!usersByuserId.getUid().equals(user.getUid())) && (usersByuserId.getByname().equals(user.getByname()))) {
+/*  276 */           tojson.setObject(usersByuserId);
+/*  277 */           tojson.setMsg("此用户名已存在，请重新修改");
+/*  278 */           tojson.setFlag(1);
+/*  279 */           return tojson;
+/*      */         }
+/*      */       }
+/*      */ 
+/*  283 */       if ((user.getPassword() != null) && (!"tVHbkPWW57Hw.".equals(user.getPassword()))) {
+/*  284 */         Users byUid = this.usersMapper.getByUid(user.getUid().intValue());
+/*  285 */         if ((byUid.getPassword() == null) || (!byUid.getPassword().equals(user.getPassword()))) {
+/*  286 */           String password = user.getPassword();
+/*  287 */           password = getEncryptString(password.trim());
+/*  288 */           user.setPassword(password);
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  297 */       if (user.getUserName() != null) {
+/*  298 */         String fistSpell = PinYinUtil.getFirstSpell(user.getUserName());
+/*  299 */         StringBuffer sb = new StringBuffer();
+/*  300 */         for (int i = 0; i < fistSpell.length(); i++) {
+/*  301 */           sb.append(new StringBuilder().append(fistSpell.charAt(i)).append("*").toString());
+/*      */         }
+/*  303 */         user.setUserNameIndex(sb.toString());
+/*      */       }
+/*      */ 
+/*  307 */       if (user.getUserPriv() != null) {
+/*  308 */         UserPriv userPriv = this.userPrivMapper.selectByPrimaryKey(user.getUserPriv().intValue());
+/*  309 */         if (userPriv != null) {
+/*  310 */           user.setUserPrivNo(userPriv.getPrivNo());
+/*  311 */           user.setUserPrivName(userPriv.getPrivName());
+/*      */ 
+/*  313 */           if (!com.xoa.util.common.StringUtils.checkNull(userPriv.getFuncIdStr()).booleanValue()) {
+/*  314 */             userFunction.setUserFunCidStr(userPriv.getFuncIdStr());
+/*      */           }
+/*      */         }
+/*      */       }
+/*  318 */       if (!com.xoa.util.common.StringUtils.checkNull(user.getUserPrivOther()).booleanValue()) {
+/*  319 */         String[] strings = user.getUserPrivOther().split(",");
+/*  320 */         StringBuffer privaNoBuffer = new StringBuffer();
+/*  321 */         StringBuffer privaNameBuffer = new StringBuffer();
+/*  322 */         StringBuffer funcIdStrBuffer = new StringBuffer();
+/*  323 */         for (int i = 0; i < strings.length; i++) {
+/*  324 */           UserPriv userPriv = this.userPrivMapper.selectByPrimaryKey(Integer.parseInt(strings[i]));
+/*  325 */           if (userPriv != null) {
+/*  326 */             privaNoBuffer.append(new StringBuilder().append(userPriv.getUserPriv()).append(",").toString());
+/*  327 */             privaNameBuffer.append(new StringBuilder().append(userPriv.getPrivName()).append(",").toString());
+/*  328 */             if (userPriv.getFuncIdStr() != null) {
+/*  329 */               funcIdStrBuffer.append(userPriv.getFuncIdStr());
+/*      */             }
+/*      */           }
+/*      */         }
+/*  333 */         user.setUserPrivOther(String.valueOf(privaNoBuffer));
+/*  334 */         user.setUserPrivOtherName(String.valueOf(privaNameBuffer));
+/*  335 */         userFunction.setUserFunCidStr(new StringBuilder().append(userFunction.getUserFunCidStr()).append(String.valueOf(funcIdStrBuffer)).toString());
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/*      */     try
+/*      */     {
+/*  342 */       if ((user.getDeptId() != null) && (user.getDeptId().equals(Integer.valueOf(0)))) {
+/*  343 */         user.setNotLogin(Byte.valueOf("1"));
+/*  344 */         user.setNotMobileLogin(Integer.valueOf(1));
+/*      */       }
+/*  346 */       this.usersMapper.editUser(user);
+/*  347 */       user = this.usersMapper.selectUserByUId(user.getUid());
+/*      */ 
+/*  349 */       if (modulePriv != null) {
+/*  350 */         modulePriv.setUid(user.getUid());
+/*  351 */         modulePriv.setModuleId(Integer.valueOf(0));
+/*  352 */         modulePriv.setDeptPriv("1");
+/*  353 */         modulePriv.setRolePriv("2");
+/*      */ 
+/*  355 */         ModulePriv modulePrivByUid = this.modulePrivMapper.getModulePrivSingle(modulePriv);
+/*  356 */         if (modulePrivByUid != null) {
+/*  357 */           if ((!com.xoa.util.common.StringUtils.checkNull(modulePriv.getDeptId()).booleanValue()) || (!com.xoa.util.common.StringUtils.checkNull(modulePriv.getPrivId()).booleanValue()) || (!com.xoa.util.common.StringUtils.checkNull(modulePriv.getUserId()).booleanValue()))
+/*  358 */             this.modulePrivMapper.updateModulePriv(modulePriv);
+/*      */         }
+/*      */         else {
+/*  361 */           this.modulePrivMapper.addModulePriv(modulePriv);
+/*      */         }
+/*      */       }
+/*  364 */       if (userExt != null) {
+/*  365 */         userExt.setUserId(user.getUserId());
+/*  366 */         this.userExtMapper.updateUserExtByUid(userExt);
+/*      */       }
+/*  368 */       userFunction.setUid(user.getUid().intValue());
+/*  369 */       userFunction.setUserId(user.getUserId());
+/*  370 */       if (!com.xoa.util.common.StringUtils.checkNull(userFunction.getUserFunCidStr()).booleanValue()) {
+/*  371 */         TreeSet ts = new TreeSet();
+/*  372 */         int len1 = userFunction.getUserFunCidStr().split(",").length;
+/*  373 */         String[] ss = userFunction.getUserFunCidStr().split(",");
+/*  374 */         for (int i1 = 0; i1 < len1; i1++) {
+/*  375 */           ts.add(new StringBuilder().append(ss[i1]).append("").toString());
+/*      */         }
+/*      */ 
+/*  379 */         Iterator i1 = ts.iterator();
+/*  380 */         StringBuilder sb1 = new StringBuilder();
+/*  381 */         while (i1.hasNext()) {
+/*  382 */           sb1.append(new StringBuilder().append((String)i1.next()).append(",").toString());
+/*      */         }
+/*  384 */         userFunction.setUserFunCidStr(String.valueOf(sb1));
+/*  385 */         this.userFunctionMapper.updateUserFun(userFunction);
+/*      */       }
+/*      */ 
+/*  388 */       user = this.usersMapper.findUserByuid(user.getUid().intValue());
+/*  389 */       tojson.setObject(user);
+/*  390 */       tojson.setFlag(0);
+/*  391 */       tojson.setMsg("OK");
+/*      */     } catch (Exception e) {
+/*  393 */       e.printStackTrace();
+/*  394 */       tojson.setFlag(1);
+/*  395 */       tojson.setMsg("error");
+/*      */     }
+/*  397 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   public void deleteUser(String uids)
+/*      */   {
+/*  412 */     Integer index = null;
+/*  413 */     String[] split = uids.split(",");
+/*  414 */     for (int i = 0; i < split.length; i++) {
+/*  415 */       if (split[i].equals("1")) {
+/*  416 */         index = Integer.valueOf(i);
+/*      */       }
+/*      */     }
+/*  419 */     if (index != null) {
+/*  420 */       split[index.intValue()] = "a";
+/*      */     }
+/*  422 */     this.usersMapper.deleteUser(split);
+/*  423 */     this.userExtMapper.deleteUserExtByUids(split);
+/*  424 */     this.modulePrivMapper.deleteModulePrivByUids(split);
+/*  425 */     this.userFunctionMapper.deleteUserFun(split);
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getAlluser(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*      */   {
+/*  443 */     PageParams pageParams = new PageParams();
+/*  444 */     pageParams.setPage(page);
+/*  445 */     pageParams.setPageSize(pageSize);
+/*  446 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  447 */     maps.put("page", pageParams);
+/*  448 */     return this.usersMapper.getAlluser(maps);
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getUserByMany(Users user)
+/*      */   {
+/*  462 */     List list = this.usersMapper.getUserByMany(user);
+/*  463 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getUserAndDept(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*      */   {
+/*  481 */     PageParams pageParams = new PageParams();
+/*  482 */     pageParams.setPage(page);
+/*  483 */     pageParams.setPageSize(pageSize);
+/*  484 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  485 */     maps.put("page", pageParams);
+/*  486 */     return this.usersMapper.getUserAndDept(maps);
+/*      */   }
+/*      */ 
+/*      */   public Users findUserByuid(int uid)
+/*      */   {
+/*  500 */     Users user = this.usersMapper.findUserByuid(uid);
+/*  501 */     if (user != null) {
+/*  502 */       StringBuffer sb = new StringBuffer();
+/*      */ 
+/*  504 */       if (!com.xoa.util.common.StringUtils.checkNull(user.getUserPrivOther()).booleanValue()) {
+/*  505 */         List<UserPriv> privNameByIds = this.modulePrivMapper.getPrivNameByIds(user.getUserPrivOther().split(","));
+/*  506 */         if (privNameByIds != null) {
+/*  507 */           for (UserPriv entity : privNameByIds) {
+/*  508 */             sb.append(new StringBuilder().append(entity.getPrivName()).append(",").toString());
+/*      */           }
+/*  510 */           user.setUserPrivOtherName(sb.toString());
+/*      */         }
+/*  512 */         sb.setLength(0);
+/*      */       }
+/*      */ 
+/*  515 */       if (!com.xoa.util.common.StringUtils.checkNull(user.getDeptIdOther()).booleanValue()) {
+/*  516 */         List<Department> deptNameByIds = this.modulePrivMapper.getDeptNameByIds(user.getDeptIdOther().split(","));
+/*  517 */         if (deptNameByIds != null) {
+/*  518 */           for (Department entity : deptNameByIds) {
+/*  519 */             sb.append(new StringBuilder().append(entity.getDeptName()).append(",").toString());
+/*      */           }
+/*  521 */           user.setDeptOtherName(sb.toString());
+/*      */         }
+/*  523 */         sb.setLength(0);
+/*      */       }
+/*  525 */       if (user.getDutyType() != null) {
+/*  526 */         AttendSet attendSet = this.attendSetMapper.queryAttendSetId(Integer.valueOf(user.getUserExt().getDutyType().shortValue()));
+/*  527 */         if (attendSet != null) {
+/*  528 */           String dutyTypeName = attendSet.getTitle();
+/*  529 */           user.setDutyTypeName(dutyTypeName);
+/*  530 */           sb.setLength(0);
+/*      */         }
+/*  532 */         user.setDutyTypeName("");
+/*  533 */         sb.setLength(0);
+/*      */       }
+/*      */ 
+/*  538 */       if ((user.getPostId() != null) && (user.getPostId().intValue() != 0)) {
+/*  539 */         if (this.managementMapper.getUserPostId(user.getPostId()) != null) {
+/*  540 */           String postName = this.managementMapper.getUserPostId(user.getPostId()).getPostName();
+/*  541 */           user.setPostName(postName);
+/*      */         } else {
+/*  543 */           user.setPostName("");
+/*      */         }
+/*      */       }
+/*      */ 
+/*  547 */       ModulePriv modulePriv = new ModulePriv();
+/*  548 */       modulePriv.setModuleId(Integer.valueOf(0));
+/*  549 */       modulePriv.setUid(Integer.valueOf(uid));
+/*  550 */       modulePriv = this.modulePrivMapper.getModulePrivSingle(modulePriv);
+/*      */ 
+/*  552 */       if (modulePriv != null) {
+/*  553 */         user.setModulePriv(modulePriv);
+/*  554 */         if (!com.xoa.util.common.StringUtils.checkNull(modulePriv.getUserId()).booleanValue()) {
+/*  555 */           List<Users> usersByUids = this.usersMapper.getUsersByUids(modulePriv.getUserId().split(","));
+/*  556 */           if (usersByUids != null) {
+/*  557 */             for (Users entity : usersByUids) {
+/*  558 */               sb.append(new StringBuilder().append(entity.getUserName()).append(",").toString());
+/*      */             }
+/*  560 */             modulePriv.setUserName(sb.toString());
+/*      */           }
+/*  562 */           sb.setLength(0);
+/*      */         }
+/*  564 */         if (!com.xoa.util.common.StringUtils.checkNull(modulePriv.getPrivId()).booleanValue()) {
+/*  565 */           List<UserPriv> privNameByIds = this.modulePrivMapper.getPrivNameByIds(modulePriv.getPrivId().split(","));
+/*  566 */           if (privNameByIds != null) {
+/*  567 */             for (UserPriv entity : privNameByIds) {
+/*  568 */               sb.append(new StringBuilder().append(entity.getPrivName()).append(",").toString());
+/*      */             }
+/*  570 */             modulePriv.setPrivName(sb.toString());
+/*      */           }
+/*  572 */           sb.setLength(0);
+/*      */         }
+/*  574 */         if (!com.xoa.util.common.StringUtils.checkNull(modulePriv.getDeptId()).booleanValue()) {
+/*  575 */           List<Department> deptNameByIds = this.modulePrivMapper.getDeptNameByIds(modulePriv.getDeptId().split(","));
+/*  576 */           if (deptNameByIds != null) {
+/*  577 */             for (Department entity : deptNameByIds) {
+/*  578 */               sb.append(new StringBuilder().append(entity.getDeptName()).append(",").toString());
+/*      */             }
+/*  580 */             modulePriv.setDeptName(sb.toString());
+/*      */           }
+/*  582 */           sb.setLength(0);
+/*      */         }
+/*      */       }
+/*      */ 
+/*  586 */       if (com.xoa.util.common.StringUtils.checkNull(user.getAvatar()).booleanValue()) {
+/*  587 */         user.setAvatar(user.getSex());
+/*      */       }
+/*      */     }
+/*  590 */     return user;
+/*      */   }
+/*      */ 
+/*      */   public Users findUserByName(String byname, HttpServletRequest req)
+/*      */   {
+/*  604 */     Users user = this.usersMapper.findUserByName(byname);
+/*  605 */     if (user != null) {
+/*  606 */       String a = "";
+/*      */       try {
+/*  608 */         a = req.getSession().getAttribute("loginDateSouse").toString();
+/*      */       } catch (NullPointerException e) {
+/*  610 */         a = "1001";
+/*      */       }
+/*      */       try {
+/*  613 */         OrgManage name = this.orgManageMapper.getOrgManageById(Integer.valueOf(Integer.parseInt(a)));
+/*  614 */         if (name != null)
+/*  615 */           user.setCompanyName(name.getName());
+/*      */       }
+/*      */       catch (Exception e) {
+/*  618 */         L.a(new Object[] { e.getMessage() });
+/*      */       }
+/*      */ 
+/*  621 */       if (user.getDeptId() != null) {
+/*  622 */         Department dep = this.departmentMapper.getDeptById(user.getDeptId().intValue());
+/*  623 */         if (dep != null) {
+/*  624 */           user.setDeptName(dep.getDeptName());
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  629 */       Syslog sysLog = new Syslog();
+/*  630 */       sysLog.setLogId(Integer.valueOf(0));
+/*  631 */       sysLog.setUserId(user.getUserId());
+/*  632 */       String ip = "";
+/*  633 */       SysPara sysParaHost = this.sysParaMapper.querySysPara("IM_HOST");
+/*      */ 
+/*  635 */       SysPara sysParaStutes = this.sysParaMapper.querySysPara("IM_STUTES");
+/*  636 */       SysPara sysParaPort = this.sysParaMapper.querySysPara("IM_PORT");
+/*      */ 
+/*  638 */       if ((sysParaStutes != null) && (!com.xoa.util.common.StringUtils.checkNull(sysParaStutes.getParaValue()).booleanValue())) {
+/*  639 */         if ("1".equals(sysParaStutes.getParaValue())) {
+/*  640 */           user.setGimPort(sysParaPort.getParaValue());
+/*  641 */           user.setGimHost(sysParaHost.getParaValue());
+/*  642 */           user.setImRegisterIp(sysParaHost.getParaValue());
+/*      */         } else {
+/*  644 */           user.setGimPort("");
+/*  645 */           user.setGimHost("");
+/*  646 */           user.setImRegisterIp("");
+/*      */         }
+/*      */       }
+/*      */ 
+/*  650 */       sysLog.setTime(new Date());
+/*      */ 
+/*  653 */       sysLog.setIp(ip);
+/*  654 */       sysLog.setType(Integer.valueOf(1));
+/*  655 */       sysLog.setRemark("");
+/*  656 */       user.setImRegisterIp(ip);
+/*  657 */       this.syslogMapper.save(sysLog);
+/*      */     }
+/*      */ 
+/*  661 */     return user;
+/*      */   }
+/*      */ 
+/*      */   public Users selectUserAllInfoByName(String byname, HttpServletRequest req)
+/*      */   {
+/*  673 */     Users user = this.usersMapper.selectUserAllInfoByName(byname);
+/*  674 */     if (user != null) {
+/*  675 */       String a = "";
+/*      */       try {
+/*  677 */         a = req.getSession().getAttribute("loginDateSouse").toString();
+/*      */       } catch (NullPointerException e) {
+/*  679 */         a = "1001";
+/*      */       }
+/*      */       try {
+/*  682 */         OrgManage name = this.orgManageMapper.getOrgManageById(Integer.valueOf(Integer.parseInt(a)));
+/*  683 */         if (name != null)
+/*  684 */           user.setCompanyName(name.getName());
+/*      */       }
+/*      */       catch (Exception e) {
+/*  687 */         L.a(new Object[] { e.getMessage() });
+/*      */       }
+/*      */ 
+/*  690 */       if (user.getDeptId() != null) {
+/*  691 */         Department dep = this.departmentMapper.getDeptById(user.getDeptId().intValue());
+/*  692 */         if (dep != null) {
+/*  693 */           user.setDeptName(dep.getDeptName());
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  698 */       Syslog sysLog = new Syslog();
+/*  699 */       sysLog.setLogId(Integer.valueOf(0));
+/*  700 */       sysLog.setUserId(user.getUserId());
+/*  701 */       String ip = "";
+/*  702 */       SysPara sysParaHost = this.sysParaMapper.querySysPara("IM_HOST");
+/*      */ 
+/*  704 */       SysPara sysParaStutes = this.sysParaMapper.querySysPara("IM_STUTES");
+/*  705 */       SysPara sysParaPort = this.sysParaMapper.querySysPara("IM_PORT");
+/*      */ 
+/*  707 */       if ((sysParaStutes != null) && (!com.xoa.util.common.StringUtils.checkNull(sysParaStutes.getParaValue()).booleanValue())) {
+/*  708 */         if ("1".equals(sysParaStutes.getParaValue())) {
+/*  709 */           user.setGimPort(sysParaPort.getParaValue());
+/*  710 */           user.setGimHost(sysParaHost.getParaValue());
+/*  711 */           user.setImRegisterIp(sysParaHost.getParaValue());
+/*      */         } else {
+/*  713 */           user.setGimPort("");
+/*  714 */           user.setGimHost("");
+/*  715 */           user.setImRegisterIp("");
+/*      */         }
+/*      */       }
+/*      */ 
+/*  719 */       sysLog.setTime(new Date());
+/*      */ 
+/*  722 */       sysLog.setIp(IpAddr.getIpAddress(req));
+/*  723 */       sysLog.setType(Integer.valueOf(1));
+/*  724 */       String userAgent = req.getParameter("userAgent");
+/*  725 */       if ("mobile".equals(userAgent))
+/*  726 */         sysLog.setRemark("mobile");
+/*      */       else {
+/*  728 */         sysLog.setRemark("web");
+/*      */       }
+/*      */ 
+/*  732 */       StringBuffer url = req.getRequestURL();
+/*      */ 
+/*  736 */       this.syslogMapper.save(sysLog);
+/*      */     }
+/*      */ 
+/*  740 */     return user;
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getBySearch(Map<String, Object> maps)
+/*      */   {
+/*  757 */     return this.usersMapper.getBySearch(maps);
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getByDeptId(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*      */   {
+/*  774 */     PageParams pageParams = new PageParams();
+/*  775 */     pageParams.setPage(page);
+/*  776 */     pageParams.setPageSize(pageSize);
+/*  777 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  778 */     maps.put("page", pageParams);
+/*  779 */     List<Users> users = this.usersMapper.getByDeptId(maps);
+/*  780 */     for (Users entity : users) {
+/*  781 */       if ("tVHbkPWW57Hw.".equals(entity.getPassword())) {
+/*  782 */         entity.setPassword("");
+/*      */       }
+/*      */ 
+/*  785 */       if (entity.getLastVisitTime() != null)
+/*      */       {
+/*  787 */         long times = System.currentTimeMillis() - entity.getLastVisitTime().getTime();
+/*  788 */         long day = times / 86400000L;
+/*  789 */         long hour = times / 3600000L - day * 24L;
+/*  790 */         long min = times / 60000L - day * 24L * 60L - hour * 60L;
+/*      */ 
+/*  792 */         StringBuffer sb = new StringBuffer();
+/*  793 */         if (day > 0L) {
+/*  794 */           sb.append(new StringBuilder().append(day).append("天").toString());
+/*      */         }
+/*  796 */         if (hour > 0L) {
+/*  797 */           sb.append(new StringBuilder().append(hour).append("小时").toString());
+/*      */         }
+/*  799 */         if (min > 0L) {
+/*  800 */           sb.append(new StringBuilder().append(min).append("分").toString());
+/*      */         }
+/*  802 */         entity.setIdleTime(sb.toString());
+/*      */       } else {
+/*  804 */         entity.setIdleTime("未曾登陆");
+/*      */       }
+/*  806 */       if (entity.getDeptId().intValue() == 0) {
+/*  807 */         entity.setDeptName("离职或外部人员");
+/*      */       }
+/*      */     }
+/*  810 */     return users;
+/*      */   }
+/*      */ 
+/*      */   public Users getByUid(int uid)
+/*      */   {
+/*  825 */     Users users = this.usersMapper.getByUid(uid);
+/*  826 */     return users;
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getAllByUid(String uids)
+/*      */   {
+/*  831 */     if (com.xoa.util.common.StringUtils.checkNull(uids).booleanValue()) {
+/*  832 */       return new ArrayList();
+/*      */     }
+/*  834 */     String[] s = uids.split(",");
+/*  835 */     List list = new ArrayList();
+/*  836 */     for (int i = 0; i < s.length; i++) {
+/*  837 */       Users users = this.usersMapper.getByUid(Integer.parseInt(s[i]));
+/*  838 */       list.add(users);
+/*      */     }
+/*  840 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public String getUserNameById(String userIds)
+/*      */   {
+/*  854 */     if (com.xoa.util.common.StringUtils.checkNull(userIds).booleanValue()) {
+/*  855 */       return null;
+/*      */     }
+/*      */ 
+/*  858 */     StringBuffer sb = new StringBuffer();
+/*  859 */     String[] temp = userIds.split(",");
+/*  860 */     for (int i = 0; i < temp.length; i++) {
+/*  861 */       if (!com.xoa.util.common.StringUtils.checkNull(temp[i]).booleanValue()) {
+/*  862 */         String userName = this.usersMapper.getUsernameByUserId(temp[i]);
+/*  863 */         if (!com.xoa.util.common.StringUtils.checkNull(userName).booleanValue()) {
+/*  864 */           if (i < temp.length - 1)
+/*  865 */             sb.append(userName).append(",");
+/*      */           else {
+/*  867 */             sb.append(userName);
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */     }
+/*  872 */     return sb.toString();
+/*      */   }
+/*      */ 
+/*      */   public String getUserNameById(String userIds, String flag)
+/*      */   {
+/*  878 */     if (com.xoa.util.common.StringUtils.checkNull(userIds).booleanValue()) {
+/*  879 */       return null;
+/*      */     }
+/*      */ 
+/*  882 */     StringBuffer sb = new StringBuffer();
+/*  883 */     String[] temp = userIds.split(flag);
+/*  884 */     for (int i = 0; i < temp.length; i++) {
+/*  885 */       if (!com.xoa.util.common.StringUtils.checkNull(temp[i]).booleanValue()) {
+/*  886 */         String userName = this.usersMapper.getUsernameByUserId(temp[i]);
+/*  887 */         if (!com.xoa.util.common.StringUtils.checkNull(userName).booleanValue()) {
+/*  888 */           if (i < temp.length - 1)
+/*  889 */             sb.append(userName).append(",");
+/*      */           else {
+/*  891 */             sb.append(userName);
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */     }
+/*  896 */     return sb.toString();
+/*      */   }
+/*      */ 
+/*      */   public String findUsersByuid(int[] uid)
+/*      */   {
+/*  910 */     if (uid == null) {
+/*  911 */       return null;
+/*      */     }
+/*      */ 
+/*  914 */     StringBuffer sb = new StringBuffer();
+/*  915 */     for (int i = 0; i < uid.length; i++) {
+/*  916 */       if (uid.length == 1) {
+/*  917 */         String userName = this.usersMapper.getUsernameById(uid[i]);
+/*  918 */         return userName;
+/*      */       }
+/*  920 */       String userName = this.usersMapper.getUsernameById(uid[i]);
+/*  921 */       if (i < uid.length - 1)
+/*  922 */         sb.append(userName).append(",");
+/*      */       else {
+/*  924 */         sb.append(userName);
+/*      */       }
+/*      */     }
+/*      */ 
+/*  928 */     return sb.toString();
+/*      */   }
+/*      */ 
+/*      */   public String findUsersByuid(String userIds)
+/*      */   {
+/*  933 */     if (com.xoa.util.common.StringUtils.checkNull(userIds).booleanValue()) {
+/*  934 */       return null;
+/*      */     }
+/*      */ 
+/*  937 */     StringBuffer sb = new StringBuffer();
+/*  938 */     String[] temp = userIds.split(",");
+/*  939 */     for (int i = 0; i < temp.length; i++) {
+/*  940 */       if (!com.xoa.util.common.StringUtils.checkNull(temp[i]).booleanValue()) {
+/*  941 */         String userName = this.usersMapper.getUsernameById(temp[i]);
+/*  942 */         if ((userName != "") && (userName != null)) {
+/*  943 */           if (i < temp.length - 1)
+/*  944 */             sb.append(userName).append(",");
+/*      */           else {
+/*  946 */             sb.append(userName);
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */     }
+/*  951 */     return sb.toString();
+/*      */   }
+/*      */ 
+/*      */   public String findUsersByuidReturn(String userIds)
+/*      */   {
+/*  956 */     if (com.xoa.util.common.StringUtils.checkNull(userIds).booleanValue()) {
+/*  957 */       return "";
+/*      */     }
+/*      */ 
+/*  960 */     StringBuffer sb = new StringBuffer();
+/*  961 */     String[] temp = userIds.split(",");
+/*  962 */     for (int i = 0; i < temp.length; i++) {
+/*  963 */       if (!com.xoa.util.common.StringUtils.checkNull(temp[i]).booleanValue()) {
+/*  964 */         String userName = this.usersMapper.getUsernameById(temp[i]);
+/*  965 */         if ((userName != "") && (userName != null)) {
+/*  966 */           if (i < temp.length - 1)
+/*  967 */             sb.append(userName).append(",");
+/*      */           else {
+/*  969 */             sb.append(userName);
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */     }
+/*  974 */     return sb.toString();
+/*      */   }
+/*      */ 
+/*      */   public Users findUsersByuserId(String userId)
+/*      */   {
+/*  979 */     Users users = this.usersMapper.findUsersByuserId(userId);
+/*  980 */     if ((users.getPostId() != null) && (users.getPostId().intValue() != 0)) {
+/*  981 */       String postName = this.managementMapper.getUserPostId(users.getPostId()) == null ? "" : this.managementMapper.getUserPostId(users.getPostId()).getPostName();
+/*  982 */       users.setPostName(postName);
+/*      */     }
+/*  984 */     return users;
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getUsersByCondition(Users users)
+/*      */   {
+/*  996 */     List usersList = new ArrayList();
+/*      */ 
+/*  999 */     if ((users != null) && (users.getDeptId() != null))
+/* 1000 */       usersList = this.usersMapper.getUserByDeptId(users);
+/* 1001 */     else if ((users != null) && (users.getUserPriv() != null)) {
+/* 1002 */       usersList = this.usersMapper.getUserByRoleId(users);
+/*      */     }
+/*      */ 
+/* 1005 */     return usersList;
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getUsersOnline()
+/*      */   {
+/* 1018 */     return this.usersMapper.getUserOnline();
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getUserbyCondition(Map<String, Object> maps)
+/*      */   {
+/* 1023 */     List <Users>usersList = this.usersMapper.getUserbyCondition(maps);
+/* 1024 */     StringBuffer s2 = new StringBuffer();
+/* 1025 */     for (Users users : usersList) {
+/* 1026 */       users.setDepartmentPhone(users.getDep().getTelNo());
+/* 1027 */       if ((users.getUserPrivOther() != null) && (!users.getUserPrivOther().equals(""))) {
+/* 1028 */         String userOther = users.getUserPrivOther();
+/* 1029 */         String[] strArray2 = userOther.split(",");
+/* 1030 */         for (int i = 0; i < strArray2.length; i++) {
+/* 1031 */           String name3 = this.usersPrivService.getPrivNameById(new int[] { Integer.parseInt(strArray2[i]) });
+/* 1032 */           if (name3 != null) {
+/* 1033 */             s2.append(name3);
+/* 1034 */             s2.append(",");
+/* 1035 */             users.setRoleAuxiliaryName(s2.toString());
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/* 1042 */     return usersList;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<Users> edit(Integer uid, String userName, String sex, Date birthday, String email, String oicqNo, String mobilNo, String telNoDept, String avatar)
+/*      */   {
+/* 1049 */     ToJson tojson = new ToJson();
+/* 1050 */     Users u = new Users();
+/* 1051 */     u.setUid(uid);
+/* 1052 */     u.setUserName(userName);
+/* 1053 */     u.setSex(sex);
+/* 1054 */     u.setBirthday(birthday);
+/* 1055 */     u.setEmail(email);
+/* 1056 */     u.setOicqNo(oicqNo);
+/* 1057 */     u.setMobilNo(mobilNo);
+/* 1058 */     u.setTelNoDept(telNoDept);
+/* 1059 */     u.setAvatar(avatar);
+/*      */     try {
+/* 1061 */       this.usersMapper.editUser(u);
+/* 1062 */       tojson.setFlag(0);
+/* 1063 */       tojson.setMsg("ok");
+/*      */     } catch (Exception e) {
+/* 1065 */       e.printStackTrace();
+/* 1066 */       tojson.setFlag(1);
+/* 1067 */       tojson.setMsg("false");
+/*      */     }
+/* 1069 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   public Boolean checkPassWord(String userName, String password)
+/*      */   {
+/* 1086 */     if ("".equals(password.trim())) {
+/* 1087 */       List usersList = this.usersMapper.checkPassWord(userName);
+/*      */ 
+/* 1089 */       if ((usersList != null) && (usersList.size() > 0))
+/*      */       {
+/* 1092 */         if ("tVHbkPWW57Hw.".equals(((Users)usersList.get(0)).getPassword())) {
+/* 1093 */           return Boolean.valueOf(true);
+/*      */         }
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/* 1099 */     if ((userName != null) && (password != null))
+/*      */     {
+/* 1101 */       List<Users> usersList = this.usersMapper.checkPassWord(userName);
+/*      */ 
+/* 1103 */       if ((usersList != null) && (usersList.size() > 0))
+/*      */       {
+/* 1105 */         for (Users users : usersList) {
+/* 1106 */           String truePassword1 = users.getPassword();
+/*      */           try {
+/* 1108 */             String md5Password = Md5Crypt.md5Crypt(password.getBytes(), truePassword1);
+/* 1109 */             if ((md5Password != null) && (md5Password.equals(truePassword1)))
+/* 1110 */               return Boolean.valueOf(true);
+/*      */           }
+/*      */           catch (Exception e) {
+/* 1113 */             return Boolean.valueOf(false);
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/* 1120 */     return Boolean.valueOf(false);
+/*      */   }
+/*      */ 
+/*      */   public String getEncryptString(String password)
+/*      */   {
+/* 1134 */     String md5WithSalt = null;
+/*      */ 
+/* 1136 */     if ((password != null) && (!"".equals(password.trim()))) {
+/* 1137 */       md5WithSalt = Md5Crypt.md5Crypt(password.trim().getBytes(), "$1$".concat(EncryptSalt.getRandomSalt(12)));
+/*      */     }
+/*      */ 
+/* 1140 */     if ((password != null) && ("".equals(password.trim()))) {
+/* 1141 */       md5WithSalt = "tVHbkPWW57Hw.";
+/*      */     }
+/* 1143 */     return md5WithSalt;
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getUsersByDeptId(Integer deptId)
+/*      */   {
+/* 1155 */     if (deptId != null) {
+/* 1156 */       return this.usersMapper.getUsersByDeptId(deptId);
+/*      */     }
+/* 1158 */     return null;
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getUserByDeptIds(String conditions, Integer flag)
+/*      */   {
+/* 1174 */     if (com.xoa.util.common.StringUtils.checkNull(conditions).booleanValue()) {
+/* 1175 */       return null;
+/*      */     }
+/*      */ 
+/* 1178 */     Map map = new HashMap();
+/* 1179 */     List l = new ArrayList();
+/* 1180 */     String[] temp = conditions.split(",");
+/* 1181 */     for (int i = 0; i < temp.length; i++) {
+/* 1182 */       if (!com.xoa.util.common.StringUtils.checkNull(temp[i]).booleanValue()) {
+/* 1183 */         List list = new ArrayList();
+/* 1184 */         List list1 = new ArrayList();
+/* 1185 */         switch (flag.intValue()) {
+/*      */         case 1:
+/* 1187 */           map.put("deptId", temp[i]);
+/* 1188 */           list = this.usersMapper.getdepId(map);
+/* 1189 */           if (list.size() <= 0) continue;
+/* 1190 */           l.addAll(list); break;
+/*      */         case 2:
+/* 1194 */           map.put("userPriv", temp[i]);
+/* 1195 */           list = this.usersMapper.getdepId(map);
+/*      */ 
+/* 1197 */           if (list.size() > 0) {
+/* 1198 */             l.addAll(list);
+/*      */           }
+/* 1200 */           if (list1.size() <= 0) continue;
+/* 1201 */           l.addAll(list1); break;
+/*      */         case 3:
+/* 1205 */           map.put("deptIdOther", temp[i]);
+/* 1206 */           list = this.usersMapper.getdepId(map);
+/* 1207 */           if (list.size() <= 0) break;
+/* 1208 */           l.addAll(list);
+/*      */         case 4:
+/* 1211 */           map.put("userPrivOther", temp[i]);
+/* 1212 */           list = this.usersMapper.getdepId(map);
+/* 1213 */           if (list.size() > 0) {
+/* 1214 */             l.addAll(list);
+/*      */           }
+/*      */ 
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/* 1231 */     return l;
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getUserByuserId(String userIds)
+/*      */   {
+/* 1245 */     if (com.xoa.util.common.StringUtils.checkNull(userIds).booleanValue()) {
+/* 1246 */       return null;
+/*      */     }
+/* 1248 */     List l = new ArrayList();
+/* 1249 */     String[] temp = userIds.split(",");
+/* 1250 */     for (int i = 0; i < temp.length; i++) {
+/* 1251 */       if (!com.xoa.util.common.StringUtils.checkNull(temp[i]).booleanValue()) {
+/* 1252 */         Users users = this.usersMapper.findUsersByuserId(temp[i]);
+/* 1253 */         if (users != null) {
+/* 1254 */           l.add(users);
+/*      */         }
+/*      */       }
+/*      */     }
+/* 1258 */     return l;
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getUserByuId(String uIds)
+/*      */   {
+/* 1273 */     if (com.xoa.util.common.StringUtils.checkNull(uIds).booleanValue()) {
+/* 1274 */       return null;
+/*      */     }
+/* 1276 */     List l = new ArrayList();
+/* 1277 */     String[] temp = uIds.split(",");
+/* 1278 */     for (int i = 0; i < temp.length; i++) {
+/* 1279 */       if (!com.xoa.util.common.StringUtils.checkNull(temp[i]).booleanValue()) {
+/* 1280 */         Users users = this.usersMapper.getByUid(Integer.parseInt(temp[i]));
+/* 1281 */         if (users != null) {
+/* 1282 */           l.add(users);
+/*      */         }
+/*      */       }
+/*      */     }
+/* 1286 */     return l;
+/*      */   }
+/*      */ 
+/*      */   public String getUserPrivByuId(Integer uId)
+/*      */   {
+/* 1299 */     return this.usersMapper.getUserPrivByuId(uId);
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getNullPwUsers(Integer deptId)
+/*      */   {
+/* 1306 */     return this.usersMapper.getNullPwUsers(deptId);
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getPUsersByDeptId(Integer deptId)
+/*      */   {
+/* 1318 */     if (deptId != null) {
+/* 1319 */       return this.usersMapper.getPUsersByDeptId(deptId);
+/*      */     }
+/* 1321 */     return null;
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getCUsersByDeptId(Integer deptId)
+/*      */   {
+/* 1336 */     if (deptId != null) {
+/* 1337 */       return this.usersMapper.getPUsersByDeptId(deptId);
+/*      */     }
+/* 1339 */     return null;
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getTUsersByDeptId(Integer deptId)
+/*      */   {
+/* 1353 */     if (deptId != null) {
+/* 1354 */       return this.usersMapper.getTUsersByDeptId(deptId);
+/*      */     }
+/* 1356 */     return null;
+/*      */   }
+/*      */ 
+/*      */   public void clearPassword(String uids)
+/*      */   {
+/* 1370 */     if (!com.xoa.util.common.StringUtils.checkNull(uids).booleanValue()) {
+/* 1371 */       String[] split = uids.split(",");
+/* 1372 */       if ((split != null) && (split.length > 0))
+/* 1373 */         this.usersMapper.clearPassword(split);
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public void clearOnLine(String uids)
+/*      */   {
+/* 1386 */     if (!com.xoa.util.common.StringUtils.checkNull(uids).booleanValue()) {
+/* 1387 */       String[] split = uids.split(",");
+/* 1388 */       if ((split != null) && (split.length > 0))
+/* 1389 */         this.usersMapper.clearOnLine(split);
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public void setNotLogin(String uids)
+/*      */   {
+/* 1402 */     if (!com.xoa.util.common.StringUtils.checkNull(uids).booleanValue()) {
+/* 1403 */       String[] split = uids.split(",");
+/* 1404 */       if ((split != null) && (split.length > 0))
+/* 1405 */         this.usersMapper.setNotLogin(split);
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public void editUsersDetId(Integer deptId, String uids)
+/*      */   {
+/* 1418 */     if ((!com.xoa.util.common.StringUtils.checkNull(uids).booleanValue()) && (deptId != null)) {
+/* 1419 */       String[] split = uids.split(",");
+/* 1420 */       if ((split != null) && (split.length > 0))
+/* 1421 */         this.usersMapper.editUsersDetId(deptId, split);
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getUsersByUids(String uids)
+/*      */   {
+/* 1435 */     if (!com.xoa.util.common.StringUtils.checkNull(uids).booleanValue()) {
+/* 1436 */       String[] split = uids.split(",");
+/* 1437 */       if ((split != null) && (split.length > 0)) {
+/* 1438 */         return this.usersMapper.getUsersByUids(split);
+/*      */       }
+/* 1440 */       return null;
+/*      */     }
+/*      */ 
+/* 1443 */     return null;
+/*      */   }
+/*      */ 
+/*      */   public List<Users> deptHaveUser(String deptNO)
+/*      */   {
+/* 1449 */     return this.usersMapper.deptHaveUser(deptNO);
+/*      */   }
+/*      */ 
+/*      */   public void addU(Users users)
+/*      */   {
+/* 1464 */     this.usersMapper.addU(users);
+/*      */   }
+/*      */ 
+/*      */   public List<Users> selectList(Users users)
+/*      */   {
+/* 1478 */     List list = this.usersMapper.selectList(users);
+/* 1479 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Users> queryUserByUserId(String userName)
+/*      */   {
+/* 1494 */     ToJson json = new ToJson(1, "error");
+/* 1495 */     if (com.xoa.util.common.StringUtils.checkNull(userName).booleanValue()) {
+/* 1496 */       json.setMsg("查询不能为空");
+/* 1497 */       return json;
+/*      */     }
+/*      */     try {
+/* 1500 */       List<Users> userList = new ArrayList();
+/* 1501 */       if (!com.xoa.util.common.StringUtils.checkNull(userName).booleanValue()) {
+/* 1502 */         userList = this.usersMapper.queryUserByUserId(userName);
+/*      */ 
+/* 1504 */         for (Users u : userList) {
+/* 1505 */           if (com.xoa.util.common.StringUtils.checkNull(u.getAvatar()).booleanValue()) {
+/* 1506 */             u.setAvatar(u.getSex());
+/*      */           }
+/*      */         }
+/*      */       }
+/* 1510 */       json.setObj(userList);
+/* 1511 */       json.setMsg("OK");
+/* 1512 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/* 1514 */       json.setMsg(e.getMessage());
+/* 1515 */       L.e(new Object[] { new StringBuilder().append("UsersServiceImpl queryUserByUserId:").append(e).toString() });
+/*      */     }
+/* 1517 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public int queryCountByUserId(String userName)
+/*      */   {
+/* 1531 */     int count = 0;
+/* 1532 */     if (!com.xoa.util.common.StringUtils.checkNull(userName).booleanValue()) {
+/* 1533 */       count = this.usersMapper.queryCountByUserId(userName);
+/*      */     }
+/* 1535 */     return count;
+/*      */   }
+/*      */ 
+/*      */   public int getUserCount()
+/*      */   {
+/* 1547 */     return this.usersMapper.getUserCount();
+/*      */   }
+/*      */ 
+/*      */   public String editPwd(HttpServletRequest request, Users user, String newPwd)
+/*      */   {
+/* 1562 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*      */ 
+/* 1565 */     int uid = users.getUid().intValue();
+/* 1566 */     Users selectUser = this.usersMapper.getUserByUid(uid);
+/* 1567 */     String encryPwd = getEncryptString(newPwd);
+/* 1568 */     String uPass = user.getPassword();
+/* 1569 */     String sPass = selectUser.getPassword();
+/* 1570 */     if (uPass.equals("")) {
+/* 1571 */       if (sPass.equals("tVHbkPWW57Hw.")) {
+/* 1572 */         String lastPassTime = DateFormat.getCurrentTime();
+/* 1573 */         user.setPassword(encryPwd);
+/* 1574 */         Map map = new HashMap();
+/* 1575 */         map.put("pwd", encryPwd);
+/* 1576 */         map.put("uid", users.getUserId());
+/* 1577 */         map.put("lastPassTime", lastPassTime);
+/* 1578 */         int total = this.usersMapper.updatePwd(map);
+/* 1579 */         if (total > 0)
+/*      */         {
+/* 1581 */           Syslog syslog = new Syslog();
+/* 1582 */           syslog.setUserId(new StringBuilder().append(users.getUserId()).append("").toString());
+/* 1583 */           syslog.setType(Integer.valueOf(14));
+/* 1584 */           syslog.setTypeName("修改登录密码");
+/* 1585 */           syslog.setRemark("");
+/* 1586 */           InetAddress currentIp = IpAddr.getCurrentIp();
+/* 1587 */           syslog.setIp(currentIp.toString().substring(1, currentIp.toString().length()));
+/* 1588 */           syslog.setTime(new Date(System.currentTimeMillis()));
+/* 1589 */           this.syslogMapper.save(syslog);
+/*      */         }
+/*      */       }
+/*      */       else {
+/* 1593 */         return "原密码错误";
+/*      */       }
+/*      */     }
+/*      */     else {
+/* 1597 */       if (sPass.equals("tVHbkPWW57Hw.")) {
+/* 1598 */         return "原密码错误";
+/*      */       }
+/* 1600 */       String md5Password = Md5Crypt.md5Crypt(uPass.getBytes(), sPass);
+/* 1601 */       if (sPass.equals(md5Password))
+/*      */       {
+/* 1603 */         String lastPassTime = DateFormat.getCurrentTime();
+/* 1604 */         user.setPassword(encryPwd);
+/* 1605 */         Map map = new HashMap();
+/* 1606 */         map.put("pwd", encryPwd);
+/* 1607 */         map.put("uid", users.getUserId());
+/* 1608 */         map.put("lastPassTime", lastPassTime);
+/* 1609 */         int total = this.usersMapper.updatePwd(map);
+/* 1610 */         if (total > 0)
+/*      */         {
+/* 1612 */           Syslog syslog = new Syslog();
+/* 1613 */           syslog.setUserId(new StringBuilder().append(users.getUserId()).append("").toString());
+/* 1614 */           syslog.setType(Integer.valueOf(14));
+/* 1615 */           syslog.setTypeName("修改登录密码");
+/* 1616 */           syslog.setRemark("");
+/* 1617 */           InetAddress currentIp = IpAddr.getCurrentIp();
+/* 1618 */           syslog.setIp(currentIp.toString().substring(1, currentIp.toString().length()));
+/* 1619 */           syslog.setTime(new Date(System.currentTimeMillis()));
+/* 1620 */           this.syslogMapper.save(syslog);
+/*      */         }
+/*      */       } else {
+/* 1623 */         return "原密码错误";
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/* 1668 */     return "ok";
+/*      */   }
+/*      */ 
+/*      */   public Users getLoginUser(HttpServletRequest request)
+/*      */   {
+/* 1674 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 1675 */     users.getUid();
+/* 1676 */     users.getUserId();
+/* 1677 */     users.getByname();
+/* 1678 */     StringBuffer sb = new StringBuffer();
+/* 1679 */     Users temp = this.usersMapper.findUsersByuserId(users.getUserId());
+/*      */ 
+/* 1681 */     if ((temp != null) && (!com.xoa.util.common.StringUtils.checkNull(temp.getUserPrivOther()).booleanValue())) {
+/* 1682 */       List <UserPriv>privNameByIds = this.modulePrivMapper.getPrivNameByIds(temp.getUserPrivOther().split(","));
+/* 1683 */       if (privNameByIds != null) {
+/* 1684 */         for (UserPriv entity : privNameByIds) {
+/* 1685 */           sb.append(new StringBuilder().append(entity.getPrivName()).append(",").toString());
+/*      */         }
+/* 1687 */         users.setUserPrivOtherName(sb.toString());
+/*      */       }
+/* 1689 */       sb.setLength(0);
+/*      */     }
+/*      */ 
+/* 1692 */     return users;
+/*      */   }
+/*      */ 
+/*      */   public boolean isUserToMany(HttpServletRequest request)
+/*      */   {
+/* 1705 */     int authUser = this.systemInfoService.getAuthUser(request);
+/*      */ 
+/* 1707 */     int userCount = getUserCount();
+/*      */ 
+/* 1709 */     return userCount >= authUser;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Users> getNewUsers()
+/*      */   {
+/* 1724 */     ToJson json = new ToJson();
+/*      */     try
+/*      */     {
+/* 1727 */       List <Users>newUsers = this.usersMapper.getNewUsers();
+/* 1728 */       for (Users entity : newUsers) {
+/* 1729 */         if ("tVHbkPWW57Hw.".equals(entity.getPassword())) {
+/* 1730 */           entity.setPassword("");
+/*      */         }
+/*      */ 
+/* 1733 */         if (entity.getLastVisitTime() != null)
+/*      */         {
+/* 1735 */           long times = System.currentTimeMillis() - entity.getLastVisitTime().getTime();
+/* 1736 */           long day = times / 86400000L;
+/* 1737 */           long hour = times / 3600000L - day * 24L;
+/* 1738 */           long min = times / 60000L - day * 24L * 60L - hour * 60L;
+/*      */ 
+/* 1740 */           StringBuffer sb = new StringBuffer();
+/* 1741 */           if (day > 0L) {
+/* 1742 */             sb.append(new StringBuilder().append(day).append("天").toString());
+/*      */           }
+/* 1744 */           if (hour > 0L) {
+/* 1745 */             sb.append(new StringBuilder().append(hour).append("小时").toString());
+/*      */           }
+/* 1747 */           if (min > 0L) {
+/* 1748 */             sb.append(new StringBuilder().append(min).append("分").toString());
+/*      */           }
+/* 1750 */           entity.setIdleTime(sb.toString());
+/*      */         } else {
+/* 1752 */           entity.setIdleTime("未曾登陆");
+/*      */         }
+/* 1754 */         if (entity.getDeptId().intValue() == 0) {
+/* 1755 */           entity.setDeptName("离职或外部人员");
+/*      */         }
+/*      */       }
+/* 1758 */       json.setObj(newUsers);
+/* 1759 */       json.setFlag(0);
+/* 1760 */       json.setMsg("ok");
+/*      */     } catch (Exception e) {
+/* 1762 */       e.printStackTrace();
+/* 1763 */       json.setMsg("err");
+/* 1764 */       json.setFlag(1);
+/*      */     }
+/* 1766 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public int getCanLoginUser()
+/*      */   {
+/* 1778 */     return this.usersMapper.getLoginUserCount().intValue();
+/*      */   }
+/*      */ 
+/*      */   public Users getUserByUid(int uid)
+/*      */   {
+/* 1793 */     Users user = this.usersMapper.getUserByUid(uid);
+/* 1794 */     StringBuffer sb = new StringBuffer();
+/*      */ 
+/* 1796 */     if ((user != null) && (!com.xoa.util.common.StringUtils.checkNull(user.getUserPrivOther()).booleanValue())) {
+/* 1797 */       List <UserPriv>privNameByIds = this.modulePrivMapper.getPrivNameByIds(user.getUserPrivOther().split(","));
+/* 1798 */       if (privNameByIds != null) {
+/* 1799 */         for (UserPriv entity : privNameByIds) {
+/* 1800 */           sb.append(new StringBuilder().append(entity.getPrivName()).append(",").toString());
+/*      */         }
+/* 1802 */         user.setUserPrivOtherName(sb.toString());
+/*      */       }
+/* 1804 */       sb.setLength(0);
+/*      */     }
+/*      */ 
+/* 1807 */     if (!com.xoa.util.common.StringUtils.checkNull(user.getDeptIdOther()).booleanValue()) {
+/* 1808 */       List <Department>deptNameByIds = this.modulePrivMapper.getDeptNameByIds(user.getDeptIdOther().split(","));
+/* 1809 */       if (deptNameByIds != null) {
+/* 1810 */         for (Department entity : deptNameByIds) {
+/* 1811 */           sb.append(new StringBuilder().append(entity.getDeptName()).append(",").toString());
+/*      */         }
+/* 1813 */         user.setDeptOtherName(sb.toString());
+/*      */       }
+/* 1815 */       sb.setLength(0);
+/*      */     }
+/* 1817 */     ModulePriv modulePriv = new ModulePriv();
+/* 1818 */     modulePriv.setUid(Integer.valueOf(uid));
+/* 1819 */     modulePriv.setModuleId(Integer.valueOf(0));
+/* 1820 */     modulePriv = this.modulePrivMapper.getModulePrivSingle(modulePriv);
+/*      */ 
+/* 1822 */     if (modulePriv != null) {
+/* 1823 */       user.setModulePriv(modulePriv);
+/* 1824 */       if (!com.xoa.util.common.StringUtils.checkNull(modulePriv.getUserId()).booleanValue()) {
+/* 1825 */         List <Users>usersByUids = this.usersMapper.getUsersByUids(modulePriv.getUserId().split(","));
+/* 1826 */         if (usersByUids != null) {
+/* 1827 */           for (Users entity : usersByUids) {
+/* 1828 */             sb.append(new StringBuilder().append(entity.getUserName()).append(",").toString());
+/*      */           }
+/* 1830 */           modulePriv.setUserName(sb.toString());
+/*      */         }
+/* 1832 */         sb.setLength(0);
+/*      */       }
+/* 1834 */       if (!com.xoa.util.common.StringUtils.checkNull(modulePriv.getPrivId()).booleanValue()) {
+/* 1835 */         List<UserPriv> privNameByIds = this.modulePrivMapper.getPrivNameByIds(modulePriv.getPrivId().split(","));
+/* 1836 */         if (privNameByIds != null) {
+/* 1837 */           for (UserPriv entity : privNameByIds) {
+/* 1838 */             sb.append(new StringBuilder().append(entity.getPrivName()).append(",").toString());
+/*      */           }
+/* 1840 */           modulePriv.setPrivName(sb.toString());
+/*      */         }
+/* 1842 */         sb.setLength(0);
+/*      */       }
+/* 1844 */       if (!com.xoa.util.common.StringUtils.checkNull(modulePriv.getDeptId()).booleanValue()) {
+/* 1845 */         List<Department> deptNameByIds = this.modulePrivMapper.getDeptNameByIds(modulePriv.getDeptId().split(","));
+/* 1846 */         if (deptNameByIds != null) {
+/* 1847 */           for (Department entity : deptNameByIds) {
+/* 1848 */             sb.append(new StringBuilder().append(entity.getDeptName()).append(",").toString());
+/*      */           }
+/* 1850 */           modulePriv.setDeptName(sb.toString());
+/*      */         }
+/* 1852 */         sb.setLength(0);
+/*      */       }
+/*      */     }
+/*      */ 
+/* 1856 */     return user;
+/*      */   }
+/*      */ 
+/*      */   public void updateUserTheme(Users users, HttpServletRequest request)
+/*      */   {
+/* 1871 */     Users loginUser = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 1872 */     loginUser.setMenuType(users.getMenuType());
+/* 1873 */     loginUser.setTheme(users.getTheme());
+/* 1874 */     loginUser.setBkground(users.getBkground());
+/* 1875 */     loginUser.setMenuExpand(users.getMenuExpand());
+/* 1876 */     loginUser.setPanel(users.getPanel());
+/* 1877 */     loginUser.setCallSound(users.getCallSound());
+/*      */ 
+/* 1880 */     this.usersMapper.updateUserTheme(loginUser);
+/* 1881 */     String theme = new StringBuilder().append("theme").append(users.getTheme()).toString();
+/* 1882 */     SessionUtils.putSession(request.getSession(), "InterfaceModel", theme);
+/*      */   }
+/*      */ 
+/*      */   public Users getLoginUserTheme(HttpServletRequest request)
+/*      */   {
+/* 1896 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 1897 */     Integer uid = users.getUid();
+/* 1898 */     Users users1 = this.usersMapper.getUserByUid(uid.intValue());
+/* 1899 */     if ((users1 != null) && (0 == users1.getTheme().byteValue())) {
+/* 1900 */       List interfaceModels = this.sysInterfaceMapper.getInterfaceInfo();
+/* 1901 */       users1.setTheme(Byte.valueOf((byte)Integer.parseInt(((InterfaceModel)interfaceModels.get(0)).getTheme())));
+/*      */     }
+/* 1903 */     String theme = (String)SessionUtils.getSessionInfo(request.getSession(), "InterfaceModel", String.class);
+/* 1904 */     SessionUtils.putSession(request.getSession(), "InterfaceModel", theme);
+/*      */ 
+/* 1906 */     return users1;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Users> queryExportUsers(HttpServletRequest request, HttpServletResponse response, Users user, String sortType, String isExport, String notLogin)
+/*      */   {
+/* 1920 */     ToJson json = new ToJson();
+/*      */     try
+/*      */     {
+/* 1923 */       Users sessionInfouser = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 1924 */       String userFunctionStr = this.userFunctionMapper.getUserFuncIdStr(sessionInfouser.getUserId());
+/* 1925 */       String[] f = userFunctionStr.split(",");
+/* 1926 */       if (!Arrays.asList(f).contains("33")) {
+/* 1927 */         json.setFlag(1);
+/* 1928 */         json.setMsg("越权");
+/* 1929 */         return json;
+/*      */       }
+/*      */ 
+/* 1932 */       Map map = new HashMap();
+/*      */ 
+/* 1934 */       map.put("byname", user.getByname());
+/* 1935 */       map.put("userName", user.getUserName());
+/* 1936 */       map.put("mobileNo", user.getMobilNo());
+/* 1937 */       map.put("sex", user.getSex());
+/* 1938 */       map.put("postPriv", user.getPostPriv());
+/* 1939 */       map.put("notViewUser", user.getNotViewUser());
+/* 1940 */       map.put("notViewTable", user.getNotViewTable());
+/* 1941 */       map.put("dutyType", user.getDutyType());
+/* 1942 */       map.put("sortType", sortType);
+/*      */ 
+/* 1944 */       if (!com.xoa.util.common.StringUtils.checkNull(notLogin).booleanValue()) {
+/* 1945 */         map.put("notLogin", notLogin);
+/*      */       }
+/*      */ 
+/* 1948 */       if (!com.xoa.util.common.StringUtils.checkNull(user.getUserPrivs()).booleanValue()) {
+/* 1949 */         String[] userPrivsArr = user.getUserPrivs().split(",");
+/* 1950 */         map.put("userPrivs", userPrivsArr);
+/*      */       }
+/*      */ 
+/* 1953 */       if (!com.xoa.util.common.StringUtils.checkNull(user.getDeptIds()).booleanValue()) {
+/* 1954 */         if ((user.getDeptId() != null) && (user.getDeptId().intValue() != 0)) {
+/* 1955 */           user.setDeptIds(new StringBuilder().append(user.getDeptIds()).append(user.getDeptId()).toString());
+/*      */         }
+/* 1957 */         String[] deptIdsArr = user.getDeptIds().split(",");
+/* 1958 */         map.put("deptIds", deptIdsArr);
+/* 1959 */         if (deptIdsArr.length > 1)
+/* 1960 */           map.put("deptIda", Integer.valueOf(-1));
+/* 1961 */         else if (deptIdsArr.length == 1)
+/* 1962 */           map.put("deptIda", deptIdsArr[0]);
+/*      */       }
+/* 1964 */       else if ((user.getDeptId() != null) && (user.getDeptId().intValue() > 0)) {
+/* 1965 */         user.setDeptIds(new StringBuilder().append(user.getDeptId()).append(",").toString());
+/* 1966 */         String[] deptIdsArr = user.getDeptIds().split(",");
+/* 1967 */         map.put("deptIds", deptIdsArr);
+/* 1968 */         map.put("deptIda", user.getDeptId());
+/* 1969 */       } else if ((user.getDeptId() != null) && (user.getDeptId().equals(Integer.valueOf(0)))) {
+/* 1970 */         map.put("deptIda", Integer.valueOf(0));
+/*      */       }
+/*      */ 
+/* 1973 */       List<Users> users = this.usersMapper.queryExportUsers(map);
+/* 1974 */       for (Users entity : users) {
+/* 1975 */         if ("tVHbkPWW57Hw.".equals(entity.getPassword())) {
+/* 1976 */           entity.setPassword("");
+/*      */         }
+/*      */ 
+/* 1979 */         if (entity.getLastVisitTime() != null)
+/*      */         {
+/* 1981 */           long times = System.currentTimeMillis() - entity.getLastVisitTime().getTime();
+/* 1982 */           long day = times / 86400000L;
+/* 1983 */           long hour = times / 3600000L - day * 24L;
+/* 1984 */           long min = times / 60000L - day * 24L * 60L - hour * 60L;
+/*      */ 
+/* 1986 */           StringBuffer sb = new StringBuffer();
+/* 1987 */           if (day > 0L) {
+/* 1988 */             sb.append(new StringBuilder().append(day).append("天").toString());
+/*      */           }
+/* 1990 */           if (hour > 0L) {
+/* 1991 */             sb.append(new StringBuilder().append(hour).append("小时").toString());
+/*      */           }
+/* 1993 */           if (min > 0L) {
+/* 1994 */             sb.append(new StringBuilder().append(min).append("分").toString());
+/*      */           }
+/* 1996 */           entity.setIdleTime(sb.toString());
+/*      */         } else {
+/* 1998 */           entity.setIdleTime("未曾登陆");
+/*      */         }
+/* 2000 */         if (entity.getDeptId().intValue() == 0) {
+/* 2001 */           entity.setDeptName("离职或外部人员");
+/*      */         }
+/*      */       }
+/* 2004 */       if (users != null) {
+/* 2005 */         json.setObj(users);
+/* 2006 */         json.setFlag(0);
+/* 2007 */         json.setMsg("ok");
+/*      */       } else {
+/* 2009 */         json.setFlag(1);
+/* 2010 */         json.setMsg("err");
+/*      */       }
+/*      */ 
+/* 2013 */       if ("yes".equals(isExport)) {
+/* 2014 */         HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("OA用户信息", 9);
+/* 2015 */         String[] secondTitles = { "id", "用户名", "部门", "姓名", "性别", "生日", "角色", "用户排序号", "管理范围", "手机", "ip", "工作电话", "工作传真", "家庭地址", "邮编", "家庭电话", "E-mail", "QQ", "MSN" };
+/* 2016 */         HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/* 2017 */         String[] beanProperty = { "uid", "byname", "deptName", "userName", "sexName", "birthdayStr", "userPrivName", "userNo", "postPriv", "mobilNo", "bindIp", "telNoDept", "faxNoDept", "addHome", "postNoHome", "telNoHome", "email", "oicqNo", "msn" };
+/*      */ 
+/* 2019 */         HSSFWorkbook workbook = ExcelUtil.exportExcelData(workbook2, users, beanProperty);
+/* 2020 */         ServletOutputStream out = response.getOutputStream();
+/*      */ 
+/* 2022 */         String filename = "OA用户信息表.xls";
+/* 2023 */         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/* 2024 */         response.setContentType("application/vnd.ms-excel");
+/* 2025 */         response.setHeader("content-disposition", new StringBuilder().append("attachment;filename=").append(filename).toString());
+/* 2026 */         workbook.write(out);
+/* 2027 */         out.close();
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 2030 */       e.printStackTrace();
+/* 2031 */       json.setMsg("err");
+/* 2032 */       json.setFlag(1);
+/*      */     }
+/* 2034 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Users> insertImportUsers(HttpServletRequest request, HttpServletResponse response, HttpSession session, MultipartFile file, String ifUpdate, String psWord, String userPrivName)
+/*      */   {
+/* 2048 */     ToJson json = new ToJson();
+/*      */     try
+/*      */     {
+/* 2052 */       ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 2053 */       String osName = System.getProperty("os.name");
+/* 2054 */       StringBuffer path = new StringBuffer();
+/* 2055 */       if (osName.toLowerCase().startsWith("win"))
+/* 2056 */         path = path.append(rb.getString("upload.win"));
+/*      */       else {
+/* 2058 */         path = path.append(rb.getString("upload.linux"));
+/*      */       }
+/*      */ 
+/* 2061 */       if (file.isEmpty()) {
+/* 2062 */         json.setMsg("请上传文件！");
+/* 2063 */         json.setFlag(1);
+/* 2064 */         return json;
+/*      */       }
+/* 2066 */       String fileName = file.getOriginalFilename();
+/* 2067 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 2068 */         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+/* 2069 */         int pos = fileName.indexOf(".");
+/* 2070 */         String extName = fileName.substring(pos);
+/* 2071 */         String newFileName = new StringBuilder().append(uuid).append(extName).toString();
+/* 2072 */         File dest = new File(path.toString(), newFileName);
+/* 2073 */         file.transferTo(dest);
+/*      */ 
+/* 2076 */         String readPath = path.append(System.getProperty("file.separator")).append(newFileName).toString();
+/* 2077 */         InputStream in = new FileInputStream(readPath);
+/* 2078 */         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+/* 2079 */         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+/* 2080 */         Row row = sheetObj.getRow(0);
+/* 2081 */         int colNum = row.getPhysicalNumberOfCells();
+/* 2082 */         int lastRowNum = sheetObj.getLastRowNum();
+/* 2083 */         List saveList = new ArrayList();
+/* 2084 */         int updateCount = 0;
+/* 2085 */         int insertCount = 0;
+/* 2086 */         Users entity = null;
+/* 2087 */         UserFunction userFunction = new UserFunction();
+/* 2088 */         for (int i = 1; i <= lastRowNum; i++) {
+/* 2089 */           entity = new Users();
+/* 2090 */           row = sheetObj.getRow(i);
+/* 2091 */           if (row != null) {
+/* 2092 */             for (int j = 0; j < colNum; j++) {
+/* 2093 */               Cell cell = row.getCell(j);
+/* 2094 */               if (cell != null) {
+/* 2095 */                 if (j != 5) {
+/* 2096 */                   cell.setCellType(1);
+/*      */                 }
+/* 2098 */                 switch (j) {
+/*      */                 case 0:
+/* 2100 */                   entity.setByname(cell.getStringCellValue());
+/* 2101 */                   break;
+/*      */                 case 1:
+/* 2103 */                   if (cell.getStringCellValue().trim().equals("")) {
+/* 2104 */                     if (psWord.equals("")) continue;
+/* 2105 */                     entity.setPassword(psWord);
+/*      */                   }
+/*      */                   else {
+/* 2108 */                     entity.setPassword(cell.getStringCellValue().trim());
+/*      */                   }
+/* 2110 */                   break;
+/*      */                 case 2:
+/* 2112 */                   entity.setDeptName(cell.getStringCellValue());
+/* 2113 */                   break;
+/*      */                 case 3:
+/* 2115 */                   entity.setUserName(cell.getStringCellValue());
+/* 2116 */                   break;
+/*      */                 case 4:
+/* 2118 */                   String sex = cell.getStringCellValue();
+/* 2119 */                   if ("男".equals(sex)) {
+/* 2120 */                     entity.setAvatar("0");
+/* 2121 */                     entity.setSex("0");
+/* 2122 */                   } else if ("女".equals(sex)) {
+/* 2123 */                     entity.setAvatar("1");
+/* 2124 */                     entity.setSex("1");
+/*      */                   }
+/* 2126 */                   if (!com.xoa.util.common.StringUtils.checkNull(sex).booleanValue()) continue;
+/* 2127 */                   entity.setAvatar("0");
+/* 2128 */                   entity.setSex("0"); break;
+/*      */                 case 5:
+/* 2132 */                   entity.setBirthday(cell.getDateCellValue());
+/* 2133 */                   break;
+/*      */                 case 6:
+/* 2135 */                   if (com.xoa.util.common.StringUtils.checkNull(cell.getStringCellValue().trim()).booleanValue())
+/* 2136 */                     entity.setUserPrivName(userPrivName);
+/*      */                   else {
+/* 2138 */                     entity.setUserPrivName(cell.getStringCellValue().trim());
+/*      */                   }
+/* 2140 */                   break;
+/*      */                 case 7:
+/* 2142 */                   entity.setUserNo(Short.valueOf(com.xoa.util.common.StringUtils.checkNull(cell.getStringCellValue()).booleanValue() ? "10" : cell.getStringCellValue().trim()));
+/* 2143 */                   break;
+/*      */                 case 8:
+/* 2145 */                   String postPrivName = cell.getStringCellValue();
+/* 2146 */                   if (postPrivName != null) {
+/* 2147 */                     if ("全体".equals(postPrivName))
+/* 2148 */                       entity.setPostPriv("1");
+/*      */                     else
+/* 2150 */                       entity.setPostPriv("0");
+/*      */                   }
+/*      */                   else {
+/* 2153 */                     entity.setPostPriv("0");
+/*      */                   }
+/* 2155 */                   break;
+/*      */                 case 9:
+/* 2157 */                   entity.setMobilNo(cell.getStringCellValue());
+/* 2158 */                   break;
+/*      */                 case 10:
+/* 2160 */                   entity.setBindIp(cell.getStringCellValue());
+/* 2161 */                   break;
+/*      */                 case 11:
+/* 2163 */                   entity.setTelNoDept(cell.getStringCellValue());
+/* 2164 */                   break;
+/*      */                 case 12:
+/* 2166 */                   entity.setFaxNoDept(cell.getStringCellValue());
+/* 2167 */                   break;
+/*      */                 case 13:
+/* 2169 */                   entity.setAddHome(cell.getStringCellValue());
+/* 2170 */                   break;
+/*      */                 case 14:
+/* 2172 */                   entity.setPostNoHome(cell.getStringCellValue());
+/* 2173 */                   break;
+/*      */                 case 15:
+/* 2175 */                   entity.setTelNoHome(cell.getStringCellValue());
+/* 2176 */                   break;
+/*      */                 case 16:
+/* 2178 */                   entity.setEmail(cell.getStringCellValue());
+/* 2179 */                   break;
+/*      */                 case 17:
+/* 2181 */                   entity.setOicqNo(cell.getStringCellValue());
+/* 2182 */                   break;
+/*      */                 case 18:
+/* 2184 */                   entity.setMsn(cell.getStringCellValue());
+/* 2185 */                   break;
+/*      */                 case 19:
+/* 2187 */                   entity.setIdNumber(cell.getStringCellValue());
+/* 2188 */                   break;
+/*      */                 case 20:
+/* 2190 */                   entity.setTraNumber(cell.getStringCellValue());
+/* 2191 */                   break;
+/*      */                 case 21:
+/* 2193 */                   entity.setSubject(cell.getStringCellValue());
+/*      */                 }
+/*      */               }
+/*      */ 
+/*      */             }
+/*      */ 
+/*      */           }
+/*      */ 
+/* 2201 */           Users usersByuserId = this.usersMapper.getUsersBybyname(entity.getByname());
+/* 2202 */           if ((usersByuserId != null) && (usersByuserId.getByname().equals(entity.getByname()))) {
+/* 2203 */             entity.setSaveMsg("此用户名已存在，请修改");
+/* 2204 */             saveList.add(entity);
+/*      */           }
+/*      */           else
+/*      */           {
+/* 2209 */             if (entity.getPassword() != null)
+/* 2210 */               entity.setPassword(getEncryptString(entity.getPassword().trim()));
+/*      */             else {
+/* 2212 */               entity.setPassword("tVHbkPWW57Hw.");
+/*      */             }
+/*      */ 
+/* 2215 */             if (entity.getUserName() != null) {
+/* 2216 */               String fistSpell = PinYinUtil.getFirstSpell(entity.getUserName());
+/* 2217 */               StringBuffer sb = new StringBuffer();
+/* 2218 */               for (int j = 0; j < fistSpell.length(); j++) {
+/* 2219 */                 sb.append(new StringBuilder().append(fistSpell.charAt(j)).append("*").toString());
+/*      */               }
+/* 2221 */               entity.setUserNameIndex(sb.toString());
+/*      */             }
+/*      */ 
+/* 2224 */             if (entity.getDeptName() != null) {
+/* 2225 */               Department d = new Department();
+/* 2226 */               d.setDeptName(entity.getDeptName());
+/* 2227 */               List parentList = this.departmentMapper.getDeptIdByDeptName(entity.getDeptName());
+/* 2228 */               String deptId = "";
+/* 2229 */               if (parentList.size() > 0) {
+/* 2230 */                 deptId = (String)parentList.get(0);
+/*      */               }
+/* 2232 */               if ((deptId != null) && (deptId != "")) {
+/* 2233 */                 entity.setDeptId(Integer.valueOf(deptId));
+/*      */               } else {
+/* 2235 */                 entity.setSaveMsg("失败，部门不存在");
+/* 2236 */                 saveList.add(entity);
+/* 2237 */                 continue;
+/*      */               }
+/*      */             }
+/*      */ 
+/* 2241 */             if (entity.getUserPrivName() != null) {
+/* 2242 */               UserPriv userPriv = null;
+/*      */               try {
+/* 2244 */                 userPriv = this.userPrivMapper.getUserPrivByName(entity.getUserPrivName());
+/*      */               } catch (TooManyResultsException exception) {
+/* 2246 */                 List userPrivsByName = this.userPrivMapper.getUserPrivsByName(entity.getUserPrivName());
+/* 2247 */                 if ((userPrivsByName != null) && (userPrivsByName.size() > 0)) {
+/* 2248 */                   userPriv = (UserPriv)userPrivsByName.get(0);
+/*      */                 }
+/*      */               }
+/* 2251 */               if (userPriv != null) {
+/* 2252 */                 entity.setUserPriv(userPriv.getUserPriv());
+/* 2253 */                 entity.setUserPrivNo(userPriv.getPrivNo());
+/* 2254 */                 if (userPriv.getFuncIdStr() != null)
+/* 2255 */                   userFunction.setUserFunCidStr(userPriv.getFuncIdStr());
+/*      */                 else
+/* 2257 */                   userFunction.setUserFunCidStr("1,");
+/*      */               }
+/*      */               else {
+/* 2260 */                 List alluserPriv = this.userPrivMapper.getAlluserPriv(null);
+/* 2261 */                 Collections.sort(alluserPriv, new Comparator<UserPriv>()
+/*      */                 {
+/*      */                   public int compare(UserPriv o1, UserPriv o2) {
+/* 2264 */                     if (o1.getPrivNo().shortValue() > o2.getPrivNo().shortValue())
+/* 2265 */                       return 1;
+/* 2266 */                     if (o1.getPrivNo().shortValue() < o2.getPrivNo().shortValue()) {
+/* 2267 */                       return -1;
+/*      */                     }
+/* 2269 */                     return 0;
+/*      */                   }
+/*      */                 });
+/* 2273 */                 UserPriv userPriv1 = (UserPriv)alluserPriv.get(alluserPriv.size() - 1);
+/* 2274 */                 entity.setUserPriv(userPriv1.getUserPriv());
+/* 2275 */                 entity.setUserPrivNo(userPriv1.getPrivNo());
+/* 2276 */                 entity.setUserPrivName(userPriv1.getPrivName());
+/* 2277 */                 if (userPriv1.getFuncIdStr() != null)
+/* 2278 */                   userFunction.setUserFunCidStr(userPriv1.getFuncIdStr());
+/*      */                 else {
+/* 2280 */                   userFunction.setUserFunCidStr("1,");
+/*      */                 }
+/*      */               }
+/*      */             }
+/* 2284 */             entity.setNotLogin(Byte.valueOf("0"));
+/* 2285 */             entity.setImRange(Byte.valueOf("1"));
+/* 2286 */             Users userByName = this.usersMapper.findUserByName(entity.getByname());
+/* 2287 */             if ((userByName != null) && (!com.xoa.util.common.StringUtils.checkNull(ifUpdate).booleanValue()) && (ifUpdate.equals("yes")))
+/*      */             {
+/* 2289 */               entity.setUid(userByName.getUid());
+/* 2290 */               entity.setUserId(userByName.getUserId());
+/* 2291 */               this.usersMapper.editUser(entity);
+/*      */ 
+/* 2293 */               userFunction.setUid(entity.getUid().intValue());
+/* 2294 */               userFunction.setUserId(entity.getUserId());
+/* 2295 */               this.userFunctionMapper.updateUserFun(userFunction);
+/*      */ 
+/* 2297 */               entity.setSaveMsg("更新成功");
+/* 2298 */               saveList.add(entity);
+/* 2299 */               updateCount++; } else {
+/* 2300 */               if (userByName != null)
+/*      */                 continue;
+/* 2302 */               this.usersMapper.insert(entity);
+/*      */ 
+/* 2304 */               entity.setUserId(entity.getUid().toString());
+/* 2305 */               this.usersMapper.editUser(entity);
+/*      */ 
+/* 2307 */               UserExt userExt = new UserExt();
+/* 2308 */               userExt.setDutyType(entity.getDutyType());
+/* 2309 */               userExt.setUid(entity.getUid());
+/* 2310 */               userExt.setUserId(entity.getUserId());
+/* 2311 */               this.userExtMapper.addUserExt(userExt);
+/*      */ 
+/* 2313 */               userFunction.setUid(entity.getUid().intValue());
+/* 2314 */               userFunction.setUserId(entity.getUserId());
+/* 2315 */               this.userFunctionMapper.insertUserFun(userFunction);
+/*      */ 
+/* 2317 */               entity.setSaveMsg("保存成功");
+/* 2318 */               saveList.add(entity);
+/* 2319 */               insertCount++;
+/*      */             }
+/*      */           }
+/*      */         }
+/* 2322 */         if ((saveList != null) && (saveList.size() > 0) && (saveList.get(0) != null)) {
+/* 2323 */           ((Users)saveList.get(0)).setInsertCount(insertCount);
+/* 2324 */           ((Users)saveList.get(0)).setUpdateCount(updateCount);
+/*      */         }
+/*      */ 
+/* 2328 */         json.setObj(saveList);
+/* 2329 */         json.setFlag(0);
+/* 2330 */         json.setMsg("ok");
+/* 2331 */         dest.delete();
+/*      */       } else {
+/* 2333 */         json.setMsg("文件类型不正确！");
+/* 2334 */         json.setFlag(1);
+/* 2335 */         return json;
+/*      */       }
+/*      */     }
+/*      */     catch (Exception e) {
+/* 2339 */       e.printStackTrace();
+/* 2340 */       json.setMsg("数据保存异常");
+/* 2341 */       json.setFlag(1);
+/*      */     }
+/* 2343 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Users> editUserBatch(Users user, UserExt userExt, String modulePrivIds, String privIds, String deptIds, String uids, HttpServletRequest request)
+/*      */   {
+/* 2357 */     ToJson json = new ToJson();
+/* 2358 */     List<String> uidsList = new ArrayList();
+/* 2359 */     StringBuffer sb = new StringBuffer();
+/* 2360 */     if (!com.xoa.util.common.StringUtils.checkNull(uids).booleanValue()) {
+/* 2361 */       uidsList.addAll(Arrays.asList(uids.split(",")));
+/* 2362 */       List<Users> usersByUids = this.usersMapper.getUsersByUids(uids.split(","));
+/* 2363 */       sb.append("人员：");
+/* 2364 */       for (Users entity : usersByUids) {
+/* 2365 */         sb.append(new StringBuilder().append(entity.getUserName()).append(",").toString());
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/* 2370 */     if (!com.xoa.util.common.StringUtils.checkNull(deptIds).booleanValue()) {
+/* 2371 */       String[] deptIdsArr = deptIds.split(",");
+/* 2372 */       sb.append(" 部门：");
+/* 2373 */       for (String did : deptIdsArr) {
+/* 2374 */         Department deptById = this.departmentMapper.getDeptById(Integer.parseInt(did));
+/* 2375 */         sb.append(new StringBuilder().append(deptById.getDeptName()).append(",").toString());
+/*      */       }
+/* 2377 */       List<Users> usersByDeptIds = this.usersMapper.getUsersByDeptIds(deptIdsArr);
+/* 2378 */       if ((usersByDeptIds != null) && (usersByDeptIds.size() > 0)) {
+/* 2379 */         for (Users entity : usersByDeptIds) {
+/* 2380 */           uidsList.add(entity.getUid().toString());
+/*      */         }
+/*      */       }
+/*      */     }
+/*      */ 
+/* 2385 */     if (!com.xoa.util.common.StringUtils.checkNull(privIds).booleanValue()) {
+/* 2386 */       String[] privIdsArr = privIds.split(",");
+/* 2387 */       sb.append(" 角色：");
+/* 2388 */       for (String pid : privIdsArr) {
+/* 2389 */         String privNameById = this.userPrivMapper.getPrivNameById(Integer.valueOf(pid));
+/* 2390 */         sb.append(privNameById);
+/*      */       }
+/* 2392 */       List <Users>usersByPrivIds = this.usersMapper.getUsersByPrivIds(privIdsArr);
+/* 2393 */       if ((usersByPrivIds != null) && (usersByPrivIds.size() > 0)) {
+/* 2394 */         for (Users entity : usersByPrivIds) {
+/* 2395 */           uidsList.add(entity.getUid().toString());
+/*      */         }
+/*      */       }
+/*      */     }
+/*      */ 
+/* 2400 */     UserFunction userFunction = new UserFunction();
+/* 2401 */     ModulePriv modulePriv = null;
+/* 2402 */     if (!com.xoa.util.common.StringUtils.checkNull(modulePrivIds).booleanValue()) {
+/* 2403 */       modulePriv = new ModulePriv();
+/* 2404 */       modulePriv.setPrivId(modulePrivIds);
+/*      */     }
+/*      */ 
+/* 2407 */     if (user != null)
+/*      */     {
+/* 2410 */       if ((user.getPassword() != null) && (!"tVHbkPWW57Hw.".equals(user.getPassword()))) {
+/* 2411 */         String password = user.getPassword();
+/* 2412 */         password = getEncryptString(password.trim());
+/* 2413 */         user.setPassword(password);
+/*      */       }
+/*      */ 
+/* 2417 */       if (user.getUserPriv() != null) {
+/* 2418 */         UserPriv userPriv = this.userPrivMapper.selectByPrimaryKey(user.getUserPriv().intValue());
+/* 2419 */         if (userPriv != null) {
+/* 2420 */           user.setUserPrivNo(userPriv.getPrivNo());
+/* 2421 */           user.setUserPrivName(userPriv.getPrivName());
+/*      */ 
+/* 2423 */           if (!com.xoa.util.common.StringUtils.checkNull(userPriv.getFuncIdStr()).booleanValue()) {
+/* 2424 */             userFunction.setUserFunCidStr(userPriv.getFuncIdStr());
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */ 
+/* 2429 */       if ((user.getDeptId() != null) && (user.getDeptId().intValue() == -1)) {
+/* 2430 */         user.setDeptId(null);
+/*      */       }
+/* 2432 */       if ((user.getPostPriv() != null) && (user.getPostPriv().equals(""))) {
+/* 2433 */         user.setPostPriv(null);
+/*      */       }
+/* 2435 */       if ((user.getIsLunar() != null) && (user.getIsLunar().equals(""))) {
+/* 2436 */         user.setIsLunar(null);
+/*      */       }
+/* 2438 */       if ((user.getMobilNoHidden() != null) && (user.getMobilNoHidden().equals(""))) {
+/* 2439 */         user.setMobilNoHidden(null);
+/*      */       }
+/* 2441 */       if ((user.getNotViewTable() != null) && (user.getNotViewTable().equals("")))
+/* 2442 */         user.setNotViewTable(null);
+/*      */     }
+/*      */     try
+/*      */     {
+/* 2446 */       if ((uidsList != null) && (uidsList.size() > 0)) {
+/* 2447 */         if ((user.getDeptId() != null) && (user.getDeptId().equals(Integer.valueOf(0)))) {
+/* 2448 */           user.setNotLogin(Byte.valueOf("1"));
+/* 2449 */           user.setNotMobileLogin(Integer.valueOf(1));
+/*      */         }
+/* 2451 */         this.usersMapper.editUserBatch(uidsList, user);
+/*      */ 
+/* 2453 */         if (userExt != null) {
+/* 2454 */           this.userExtMapper.updateUserExtByUids(uidsList, userExt);
+/*      */         }
+/*      */ 
+/* 2457 */         if ((userFunction != null) && (userFunction.getUserFunCidStr() != null)) {
+/* 2458 */           this.userFunctionMapper.updateUserFunByUids(uidsList, userFunction);
+/*      */         }
+/*      */ 
+/* 2461 */         if (modulePriv != null) {
+/* 2462 */           for (String uid : uidsList) {
+/* 2463 */             modulePriv.setUid(Integer.valueOf(uid));
+/* 2464 */             modulePriv.setModuleId(Integer.valueOf(0));
+/* 2465 */             modulePriv.setDeptPriv("1");
+/* 2466 */             modulePriv.setRolePriv("2");
+/*      */ 
+/* 2468 */             ModulePriv modulePrivByUid = this.modulePrivMapper.getModulePrivSingle(modulePriv);
+/* 2469 */             if (modulePrivByUid != null) {
+/* 2470 */               if ((!com.xoa.util.common.StringUtils.checkNull(modulePriv.getDeptId()).booleanValue()) || (!com.xoa.util.common.StringUtils.checkNull(modulePriv.getPrivId()).booleanValue()) || (!com.xoa.util.common.StringUtils.checkNull(modulePriv.getUserId()).booleanValue()))
+/* 2471 */                 this.modulePrivMapper.updateModulePriv(modulePriv);
+/*      */             }
+/*      */             else {
+/* 2474 */               this.modulePrivMapper.addModulePriv(modulePriv);
+/*      */             }
+/*      */           }
+/*      */         }
+/* 2478 */         Users nowuUser = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 2479 */         Syslog syslog = new Syslog();
+/* 2480 */         syslog.setUserId(nowuUser.getUserId());
+/* 2481 */         syslog.setType(Integer.valueOf(19));
+/* 2482 */         syslog.setTypeName("用户批量设置");
+/* 2483 */         syslog.setRemark(sb.toString());
+/* 2484 */         InetAddress currentIp = IpAddr.getCurrentIp();
+/* 2485 */         syslog.setIp(currentIp.toString().substring(1, currentIp.toString().length()));
+/* 2486 */         syslog.setTime(new Date(System.currentTimeMillis()));
+/* 2487 */         this.syslogMapper.save(syslog);
+/* 2488 */         json.setFlag(0);
+/* 2489 */         json.setMsg("OK");
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 2492 */       e.printStackTrace();
+/* 2493 */       json.setFlag(1);
+/* 2494 */       json.setMsg("err");
+/*      */     }
+/* 2496 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public Users getUsersByuserId(String userId)
+/*      */   {
+/* 2510 */     return this.usersMapper.getUsersByuserId(userId);
+/*      */   }
+/*      */ 
+/*      */   public List<Users> selectFileUserSignerAll()
+/*      */   {
+/* 2519 */     return this.usersMapper.selectFileUserSignerAll();
+/*      */   }
+/*      */ 
+/*      */   public List<Users> selectFileUserSigner(Map<String, Object> mapUser)
+/*      */   {
+/* 2528 */     return this.usersMapper.selectFileUserSigner(mapUser);
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Users> singleSearch(String searchData)
+/*      */   {
+/* 2533 */     ToJson json = new ToJson();
+/*      */     try {
+/* 2535 */       if (!com.xoa.util.common.StringUtils.checkNull(searchData).booleanValue()) {
+/* 2536 */         List users = this.usersMapper.singleSearch(searchData);
+/* 2537 */         json.setObj(users);
+/* 2538 */         json.setFlag(0);
+/* 2539 */         json.setMsg("ok");
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 2542 */       e.printStackTrace();
+/* 2543 */       json.setFlag(1);
+/* 2544 */       json.setMsg("ok");
+/*      */     }
+/* 2546 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Object> userAnalysis(String type)
+/*      */   {
+/* 2551 */     List<Users> users = this.usersMapper.getAllInfo();
+/* 2552 */     ToJson data = new ToJson();
+/* 2553 */     HashMap analysis = new HashMap();
+/* 2554 */     if ("age".equals(type))
+/*      */     {
+/* 2556 */       Date temp = new Date();
+/* 2557 */       for (Users u : users) {
+/* 2558 */         Date birthday = u.getBirthday();
+/* 2559 */         if (birthday != null)
+/*      */         {
+/* 2561 */           long years = (temp.getTime() - birthday.getTime()) / 86400000L / 365L;
+/* 2562 */           int i = (int)years / 5;
+/* 2563 */           if ((i >= 0) && (analysis.containsKey(new StringBuilder().append("age").append(i * 5).toString())))
+/* 2564 */             analysis.put(new StringBuilder().append("age").append(i * 5).toString(), Integer.valueOf(((Integer)analysis.get(new StringBuilder().append("age").append(i * 5).toString())).intValue() + 1));
+/*      */           else {
+/* 2566 */             analysis.put(new StringBuilder().append("age").append(i * 5).toString(), Integer.valueOf(1));
+/*      */           }
+/*      */         }
+/*      */       }
+/* 2570 */       data.setObject(analysis);
+/* 2571 */       data.setFlag(0);
+/* 2572 */       return data;
+/* 2573 */     }if ("sex".equals(type)) {
+/* 2574 */       for (Users u : users) {
+/* 2575 */         String sex = "0".equals(u.getSex()) ? "男" : "女";
+/* 2576 */         if (sex != "") {
+/* 2577 */           if (analysis.containsKey(sex))
+/* 2578 */             analysis.put(sex, Integer.valueOf(((Integer)analysis.get(sex)).intValue() + 1));
+/*      */           else {
+/* 2580 */             analysis.put(sex, Integer.valueOf(1));
+/*      */           }
+/*      */         }
+/*      */       }
+/* 2584 */       data.setObject(analysis);
+/* 2585 */       data.setFlag(0);
+/* 2586 */       return data;
+/*      */     }
+/* 2588 */     data.setMsg("参数错误");
+/*      */ 
+/* 2590 */     data.setFlag(1);
+/* 2591 */     return data;
+/*      */   }
+/*      */ 
+/*      */   public Users getUserByUserName(String userName)
+/*      */   {
+/* 2596 */     return this.usersMapper.getUserByUserName(userName);
+/*      */   }
+/*      */ 
+/*      */   public void deleteUserByDeptId(String deptId)
+/*      */   {
+/* 2601 */     this.usersMapper.deleteUserByDeptId(deptId);
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Users> editUserExt(HttpServletRequest request, MultipartFile imageFile, Users users, UserExt userExt)
+/*      */     throws IllegalStateException, IOException
+/*      */   {
+/* 2615 */     ToJson toJson = new ToJson(1, "error");
+/*      */     try {
+/* 2617 */       if (imageFile != null) {
+/* 2618 */         String imageType = imageFile.getContentType();
+/* 2619 */         boolean b = FileUploadUtil.allowUpload(imageType);
+/* 2620 */         if (!b) {
+/* 2621 */           toJson.setMsg("图片格式不正确");
+/* 2622 */           return toJson;
+/*      */         }
+/*      */       }
+/* 2625 */       String realPath = request.getSession().getServletContext().getRealPath("/");
+/* 2626 */       String resourcePath = "ui/img/user";
+/* 2627 */       Users usersTemp = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 2628 */       users.setUid(usersTemp.getUid());
+/*      */ 
+/* 2630 */       Users temp = this.usersMapper.findUsersByuserId(usersTemp.getUserId());
+/* 2631 */       if ((temp != null) && 
+/* 2632 */         (!com.xoa.util.common.StringUtils.checkNull(temp.getPhoto()).booleanValue())) {
+/* 2633 */         File temp1 = new File(new StringBuilder().append(realPath).append(resourcePath).append(temp.getPhoto()).toString());
+/* 2634 */         if (temp1.exists()) {
+/* 2635 */           temp1.delete();
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/* 2640 */       if (imageFile != null) {
+/* 2641 */         if (FileUploadUtil.allowUpload(imageFile.getContentType())) {
+/* 2642 */           String fileName = FileUploadUtil.rename(imageFile.getOriginalFilename());
+/* 2643 */           File dir = new File(new StringBuilder().append(realPath).append(resourcePath).toString());
+/* 2644 */           if (!dir.exists()) {
+/* 2645 */             dir.mkdirs();
+/*      */           }
+/* 2647 */           File file = new File(dir, fileName);
+/* 2648 */           imageFile.transferTo(file);
+/* 2649 */           users.setAvatar(fileName);
+/*      */         }
+/*      */       }
+/* 2652 */       else users.setAvatar(usersTemp.getSex());
+/*      */ 
+/* 2654 */       users.setAvatar128("");
+/* 2655 */       int count = this.usersMapper.editUser(users);
+/* 2656 */       userExt.setUid(usersTemp.getUid());
+/* 2657 */       userExt.setUserId(usersTemp.getUserId());
+/* 2658 */       count += this.userExtMapper.updateUserExtByUid(userExt);
+/* 2659 */       if (count > 1) {
+/* 2660 */         toJson.setFlag(0);
+/* 2661 */         toJson.setMsg("ok");
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 2664 */       e.printStackTrace();
+/* 2665 */       toJson.setMsg(e.getMessage());
+/*      */     }
+/* 2667 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson editUserSign(HttpServletRequest request, String sign)
+/*      */   {
+/* 2672 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 2673 */     if (!com.xoa.util.common.StringUtils.checkNull(users.getUserId()).booleanValue()) {
+/* 2674 */       Users u = new Users();
+/* 2675 */       u.setUid(users.getUid());
+/* 2676 */       u.setMyStatus(sign);
+/* 2677 */       this.usersMapper.editUser(u);
+/*      */     }
+/* 2679 */     ToJson toJson = new ToJson();
+/* 2680 */     toJson.setFlag(0);
+/* 2681 */     toJson.setMsg("Ok");
+/* 2682 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Users> insertImportUsersByEdu1(HttpServletRequest request, HttpServletResponse response, HttpSession session, MultipartFile file, String ifUpdate, String pw, String uPrivName)
+/*      */   {
+/* 2696 */     ToJson json = new ToJson();
+/*      */     try
+/*      */     {
+/* 2699 */       StringBuffer path = getPath();
+/*      */ 
+/* 2706 */       String fileName = file.getOriginalFilename();
+/* 2707 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 2708 */         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+/* 2709 */         String extName = fileName.substring(fileName.lastIndexOf(".") + 1);
+/*      */ 
+/* 2711 */         String newFileName = new StringBuilder().append(uuid).append(extName).toString();
+/* 2712 */         File dest = new File(path.toString(), newFileName);
+/* 2713 */         file.transferTo(dest);
+/*      */ 
+/* 2716 */         String readPath = path.append(System.getProperty("file.separator")).append(newFileName).toString();
+/* 2717 */         InputStream in = new FileInputStream(readPath);
+/* 2718 */         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+/* 2719 */         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+/* 2720 */         Row row = sheetObj.getRow(0);
+/* 2721 */         int colNum = row.getPhysicalNumberOfCells();
+/* 2722 */         int lastRowNum = sheetObj.getLastRowNum();
+/* 2723 */         List saveList = new ArrayList();
+/* 2724 */         int updateCount = 0;
+/* 2725 */         int insertCount = 0;
+/* 2726 */         Users entity = null;
+/* 2727 */         UserFunction userFunction = new UserFunction();
+/* 2728 */         for (int i = 1; i <= lastRowNum; i++) {
+/* 2729 */           entity = new Users();
+/* 2730 */           row = sheetObj.getRow(i);
+/* 2731 */           if (row != null) {
+/* 2732 */             for (int j = 0; j < colNum; j++) {
+/* 2733 */               Cell cell = row.getCell(j);
+/* 2734 */               if (cell != null) {
+/* 2735 */                 if (j != 5) {
+/* 2736 */                   cell.setCellType(1);
+/*      */                 }
+/* 2738 */                 switch (j) {
+/*      */                 case 0:
+/* 2740 */                   if (cell.getCellType() == 1) {
+/* 2741 */                     entity.setByname(cell.getStringCellValue().trim()); } else {
+/* 2742 */                     if (cell.getCellType() != 0) continue;
+/* 2743 */                     entity.setByname(String.valueOf(cell.getNumericCellValue()).trim()); } break;
+/*      */                 case 1:
+/* 2747 */                   if (cell.getStringCellValue().trim().equals("")) {
+/* 2748 */                     if (pw.equals("")) continue;
+/* 2749 */                     entity.setPassword(pw);
+/*      */                   }
+/*      */                   else {
+/* 2752 */                     entity.setPassword(cell.getStringCellValue().trim());
+/*      */                   }
+/* 2754 */                   break;
+/*      */                 case 2:
+/* 2756 */                   entity.setDeptName(cell.getStringCellValue().trim());
+/* 2757 */                   break;
+/*      */                 case 3:
+/* 2759 */                   entity.setUserName(cell.getStringCellValue().trim());
+/* 2760 */                   break;
+/*      */                 case 4:
+/* 2762 */                   String sex = cell.getStringCellValue().trim();
+/* 2763 */                   if ("男".equals(sex)) {
+/* 2764 */                     entity.setSex("0");
+/* 2765 */                     entity.setAvatar("0"); } else {
+/* 2766 */                     if (!"女".equals(sex)) continue;
+/* 2767 */                     entity.setSex("1");
+/* 2768 */                     entity.setAvatar("1"); } break;
+/*      */                 case 5:
+/* 2772 */                   entity.setBirthday(cell.getDateCellValue());
+/* 2773 */                   break;
+/*      */                 case 6:
+/* 2775 */                   if (com.xoa.util.common.StringUtils.checkNull(cell.getStringCellValue().trim()).booleanValue())
+/* 2776 */                     entity.setUserPrivName(uPrivName);
+/*      */                   else {
+/* 2778 */                     entity.setUserPrivName(cell.getStringCellValue().trim());
+/*      */                   }
+/* 2780 */                   break;
+/*      */                 case 7:
+/* 2782 */                   entity.setUserNo(Short.valueOf(cell.getStringCellValue() == "" ? "10" : cell.getStringCellValue().trim()));
+/* 2783 */                   break;
+/*      */                 case 8:
+/* 2785 */                   String postPrivName = cell.getStringCellValue().trim();
+/* 2786 */                   if (postPrivName != null) {
+/* 2787 */                     if ("全体".equals(postPrivName))
+/* 2788 */                       entity.setPostPriv("1");
+/*      */                     else
+/* 2790 */                       entity.setPostPriv("0");
+/*      */                   }
+/*      */                   else {
+/* 2793 */                     entity.setPostPriv("0");
+/*      */                   }
+/* 2795 */                   break;
+/*      */                 case 9:
+/* 2797 */                   entity.setMobilNo(cell.getStringCellValue().trim());
+/* 2798 */                   break;
+/*      */                 case 10:
+/* 2800 */                   entity.setBindIp(cell.getStringCellValue().trim());
+/* 2801 */                   break;
+/*      */                 case 11:
+/* 2803 */                   entity.setTelNoDept(cell.getStringCellValue().trim());
+/* 2804 */                   break;
+/*      */                 case 12:
+/* 2806 */                   entity.setFaxNoDept(cell.getStringCellValue().trim());
+/* 2807 */                   break;
+/*      */                 case 13:
+/* 2809 */                   entity.setAddHome(cell.getStringCellValue().trim());
+/* 2810 */                   break;
+/*      */                 case 14:
+/* 2812 */                   entity.setPostNoHome(cell.getStringCellValue().trim());
+/* 2813 */                   break;
+/*      */                 case 15:
+/* 2815 */                   entity.setTelNoHome(cell.getStringCellValue().trim());
+/* 2816 */                   break;
+/*      */                 case 16:
+/* 2818 */                   entity.setEmail(cell.getStringCellValue().trim());
+/* 2819 */                   break;
+/*      */                 case 17:
+/* 2821 */                   entity.setOicqNo(cell.getStringCellValue().trim());
+/* 2822 */                   break;
+/*      */                 case 18:
+/* 2824 */                   entity.setMsn(cell.getStringCellValue().trim());
+/* 2825 */                   break;
+/*      */                 case 19:
+/* 2827 */                   entity.setIdNumber(cell.getStringCellValue().trim());
+/* 2828 */                   break;
+/*      */                 case 20:
+/* 2830 */                   entity.setTraNumber(cell.getStringCellValue().trim());
+/* 2831 */                   break;
+/*      */                 case 21:
+/* 2833 */                   entity.setSubject(cell.getStringCellValue().trim());
+/*      */                 }
+/*      */               }
+/*      */ 
+/*      */             }
+/*      */ 
+/*      */           }
+/*      */ 
+/* 2841 */           Users usersByuserId = this.usersMapper.getUsersBybyname(entity.getByname());
+/* 2842 */           if ((usersByuserId != null) && (usersByuserId.getByname().equals(entity.getByname()))) {
+/* 2843 */             this.usersMapper.updateUserByName(entity);
+/* 2844 */             entity.setSaveMsg("更新成功");
+/* 2845 */             saveList.add(entity);
+/* 2846 */             updateCount++;
+/*      */           }
+/*      */ 
+/* 2850 */           if (entity.getPassword() != null)
+/* 2851 */             entity.setPassword(getEncryptString(entity.getPassword().trim()));
+/*      */           else {
+/* 2853 */             entity.setPassword("tVHbkPWW57Hw.");
+/*      */           }
+/*      */ 
+/* 2856 */           if (entity.getUserName() != null) {
+/* 2857 */             String fistSpell = PinYinUtil.getFirstSpell(entity.getUserName());
+/* 2858 */             StringBuffer sb = new StringBuffer();
+/* 2859 */             for (int j = 0; j < fistSpell.length(); j++) {
+/* 2860 */               sb.append(new StringBuilder().append(fistSpell.charAt(j)).append("*").toString());
+/*      */             }
+/* 2862 */             entity.setUserNameIndex(sb.toString());
+/*      */           }
+/*      */ 
+/* 2865 */           if (entity.getDeptName() != null) {
+/* 2866 */             Department d = new Department();
+/* 2867 */             d.setDeptName(entity.getDeptName());
+/* 2868 */             List nameList = this.departmentMapper.getDeptIdByDeptName(entity.getDeptName());
+/* 2869 */             String deptId = "";
+/* 2870 */             if (nameList.size() > 0) {
+/* 2871 */               deptId = (String)nameList.get(0);
+/*      */             }
+/* 2873 */             if ((deptId != null) && (deptId != "")) {
+/* 2874 */               entity.setDeptId(Integer.valueOf(deptId));
+/*      */             } else {
+/* 2876 */               entity.setSaveMsg("失败，部门不存在");
+/* 2877 */               saveList.add(entity);
+/* 2878 */               continue;
+/*      */             }
+/*      */           }
+/*      */ 
+/* 2882 */           if (entity.getUserPrivName() != null) {
+/* 2883 */             UserPriv userPriv = this.userPrivMapper.getUserPrivByName(entity.getUserPrivName());
+/* 2884 */             if (userPriv != null) {
+/* 2885 */               entity.setUserPriv(userPriv.getUserPriv());
+/* 2886 */               entity.setUserPrivNo(userPriv.getPrivNo());
+/* 2887 */               if (userPriv.getFuncIdStr() != null)
+/* 2888 */                 userFunction.setUserFunCidStr(userPriv.getFuncIdStr());
+/*      */               else
+/* 2890 */                 userFunction.setUserFunCidStr("1,");
+/*      */             }
+/*      */             else {
+/* 2893 */               List alluserPriv = this.userPrivMapper.getAlluserPriv(null);
+/* 2894 */               Collections.sort(alluserPriv, new Comparator<UserPriv>()
+/*      */               {
+/*      */                 public int compare(UserPriv o1, UserPriv o2) {
+/* 2897 */                   if (o1.getPrivNo().shortValue() > o2.getPrivNo().shortValue())
+/* 2898 */                     return 1;
+/* 2899 */                   if (o1.getPrivNo().shortValue() < o2.getPrivNo().shortValue()) {
+/* 2900 */                     return -1;
+/*      */                   }
+/* 2902 */                   return 0;
+/*      */                 }
+/*      */               });
+/* 2906 */               UserPriv userPriv1 = (UserPriv)alluserPriv.get(alluserPriv.size() - 1);
+/* 2907 */               entity.setUserPriv(userPriv1.getUserPriv());
+/* 2908 */               entity.setUserPrivNo(userPriv1.getPrivNo());
+/* 2909 */               entity.setUserPrivName(userPriv1.getPrivName());
+/* 2910 */               if (userPriv1.getFuncIdStr() != null)
+/* 2911 */                 userFunction.setUserFunCidStr(userPriv1.getFuncIdStr());
+/*      */               else {
+/* 2913 */                 userFunction.setUserFunCidStr("1,");
+/*      */               }
+/*      */             }
+/*      */           }
+/* 2917 */           entity.setNotLogin(Byte.valueOf("0"));
+/* 2918 */           entity.setImRange(Byte.valueOf("1"));
+/* 2919 */           Users userByName = this.usersMapper.findUserByName(entity.getByname());
+/* 2920 */           if ((userByName != null) && (!com.xoa.util.common.StringUtils.checkNull(ifUpdate).booleanValue()) && (ifUpdate.equals("yes")))
+/*      */           {
+/* 2922 */             entity.setUid(userByName.getUid());
+/* 2923 */             entity.setUserId(userByName.getUserId());
+/* 2924 */             this.usersMapper.editUser(entity);
+/*      */ 
+/* 2926 */             userFunction.setUid(entity.getUid().intValue());
+/* 2927 */             userFunction.setUserId(entity.getUserId());
+/* 2928 */             this.userFunctionMapper.updateUserFun(userFunction);
+/*      */ 
+/* 2930 */             entity.setSaveMsg("更新成功");
+/* 2931 */             saveList.add(entity);
+/* 2932 */             updateCount++;
+/* 2933 */           } else if (userByName == null) {
+/* 2934 */             if (com.xoa.util.common.StringUtils.checkNull(entity.getByname()).booleanValue())
+/*      */             {
+/* 2936 */               String maxUserId = this.usersMapper.getMaxUserId();
+/*      */ 
+/* 2938 */               String serial = maxUserId.substring(maxUserId.length() - 3);
+/*      */ 
+/* 2940 */               String rule = maxUserId.substring(0, maxUserId.length() - 3);
+/* 2941 */               int newSerial = Integer.parseInt(serial) + 1;
+/* 2942 */               serial = new StringBuilder().append(org.apache.commons.lang.StringUtils.repeat("0", 3 - String.valueOf(newSerial).length())).append(newSerial).toString();
+/* 2943 */               String userId = new StringBuilder().append(rule).append(serial).toString();
+/* 2944 */               entity.setByname(userId);
+/*      */             } else {
+/* 2946 */               entity.setUserId(entity.getByname());
+/*      */             }
+/*      */ 
+/* 2950 */             this.usersMapper.insert(entity);
+/* 2951 */             entity.setUserId(entity.getUid().toString());
+/* 2952 */             this.usersMapper.editUser(entity);
+/*      */ 
+/* 2957 */             UserExt userExt = new UserExt();
+/* 2958 */             userExt.setDutyType(entity.getDutyType());
+/* 2959 */             userExt.setUid(entity.getUid());
+/* 2960 */             userExt.setUserId(entity.getUserId());
+/* 2961 */             this.userExtMapper.addUserExt(userExt);
+/*      */ 
+/* 2963 */             userFunction.setUid(entity.getUid().intValue());
+/* 2964 */             userFunction.setUserId(entity.getUserId());
+/* 2965 */             this.userFunctionMapper.insertUserFun(userFunction);
+/*      */ 
+/* 2967 */             entity.setSaveMsg("保存成功");
+/* 2968 */             saveList.add(entity);
+/* 2969 */             insertCount++;
+/*      */           }
+/*      */         }
+/* 2972 */         if ((saveList != null) && (saveList.size() > 0) && (saveList.get(0) != null)) {
+/* 2973 */           ((Users)saveList.get(0)).setInsertCount(insertCount);
+/* 2974 */           ((Users)saveList.get(0)).setUpdateCount(updateCount);
+/*      */         }
+/*      */ 
+/* 2978 */         json.setObj(saveList);
+/* 2979 */         json.setFlag(0);
+/* 2980 */         json.setMsg("ok");
+/* 2981 */         dest.delete();
+/*      */       } else {
+/* 2983 */         json.setMsg("文件类型不正确！");
+/* 2984 */         json.setFlag(1);
+/* 2985 */         return json;
+/*      */       }
+/*      */     }
+/*      */     catch (Exception e)
+/*      */     {
+/* 2990 */       StringBuffer path = getPath();
+/* 2991 */       String fileName = file.getOriginalFilename();
+/* 2992 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 2993 */         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+/* 2994 */         String extName = fileName.substring(fileName.lastIndexOf(".") + 1);
+/*      */ 
+/* 2996 */         String newFileName = new StringBuilder().append(uuid).append(extName).toString();
+/* 2997 */         File dest = new File(path.toString(), newFileName);
+/* 2998 */         dest.delete();
+/*      */       }
+/* 3000 */       e.printStackTrace();
+/* 3001 */       json.setMsg("数据保存异常");
+/* 3002 */       json.setFlag(1);
+/*      */     }
+/* 3004 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public StringBuffer getPath()
+/*      */   {
+/* 3009 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 3010 */     String osName = System.getProperty("os.name");
+/* 3011 */     StringBuffer path = new StringBuffer();
+/* 3012 */     if (osName.toLowerCase().startsWith("win"))
+/* 3013 */       path = path.append(rb.getString("upload.win"));
+/*      */     else {
+/* 3015 */       path = path.append(rb.getString("upload.linux"));
+/*      */     }
+/* 3017 */     return path;
+/*      */   }
+/*      */ 
+/*      */   public void insetErrLog(String userName)
+/*      */   {
+/* 3022 */     Syslog sysLog = new Syslog();
+/* 3023 */     sysLog.setLogId(Integer.valueOf(0));
+/* 3024 */     sysLog.setUserId(userName);
+/* 3025 */     String ip = IpAddr.getInternetIp();
+/* 3026 */     sysLog.setTime(new Date());
+/* 3027 */     sysLog.setIp(ip);
+/* 3028 */     sysLog.setType(Integer.valueOf(2));
+/* 3029 */     sysLog.setRemark("");
+/* 3030 */     this.syslogMapper.save(sysLog);
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getUserPrivOther(String userPriv)
+/*      */   {
+/* 3037 */     return this.usersMapper.getUserPrivOther(userPriv);
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public AjaxJson insertImportUsersByEdu(HttpServletRequest request, HttpServletResponse response, HttpSession session, MultipartFile file, String ifUpdate, String pw, String uPrivName, String rule)
+/*      */   {
+/* 3045 */     AjaxJson ajaxJson = new AjaxJson();
+/*      */     try
+/*      */     {
+/* 3048 */       StringBuffer path = getPath();
+/*      */ 
+/* 3050 */       if (file.isEmpty()) {
+/* 3051 */         ajaxJson.setMsg("请上传文件！");
+/* 3052 */         ajaxJson.setFlag(false);
+/* 3053 */         return ajaxJson;
+/*      */       }
+/* 3055 */       String fileName = file.getOriginalFilename();
+/* 3056 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx")))
+/*      */       {
+/* 3058 */         List list = new ExcelRead().readExcel(file);
+/* 3059 */         Users user = null;
+/*      */ 
+/* 3061 */         String maxUserId = this.usersMapper.getMaxUserId();
+/*      */ 
+/* 3063 */         List saveList = new ArrayList();
+/* 3064 */         UserFunction userFunction = new UserFunction();
+/* 3065 */         int updateCount = 0;
+/* 3066 */         int insertCount = 0;
+/*      */ 
+/* 3068 */         for (int j = 0; j < list.size(); j++) {
+/* 3069 */           user = new Users();
+/* 3070 */           Map map = (Map)list.get(j);
+/*      */ 
+/* 3072 */           String IdNumber = map.get("身份证号").toString();
+/*      */ 
+/* 3074 */           if (com.xoa.util.common.StringUtils.checkNull(map.get("用户名") == null ? null : map.get("用户名").toString()).booleanValue())
+/*      */           {
+/* 3076 */             String serial = maxUserId.substring(maxUserId.length() - 3);
+/*      */ 
+/* 3078 */             String rule1 = maxUserId.substring(0, maxUserId.length() - 3);
+/* 3079 */             int newSerial = Integer.parseInt(serial) + 1;
+/* 3080 */             serial = new StringBuilder().append(org.apache.commons.lang.StringUtils.repeat("0", 3 - String.valueOf(newSerial).length())).append(newSerial).toString();
+/* 3081 */             String byName = new StringBuilder().append(rule1).append(serial).toString();
+/* 3082 */             maxUserId = byName;
+/* 3083 */             user.setByname(byName);
+/* 3084 */             Users usersByIdNumber = this.usersMapper.getUserByIdNumber(IdNumber);
+/* 3085 */             if (usersByIdNumber != null)
+/*      */             {
+/* 3087 */               user.setByname(usersByIdNumber.getByname());
+/*      */             }
+/*      */           } else {
+/* 3090 */             user.setByname(map.get("用户名").toString());
+/*      */           }
+/*      */ 
+/* 3094 */           user.setDeptName(map.get("部门").toString());
+/* 3095 */           user.setUserName(map.get("姓名").toString());
+/*      */ 
+/* 3097 */           String sex = map.get("性别").toString().trim();
+/* 3098 */           if ("男".equals(sex)) {
+/* 3099 */             user.setSex("0");
+/* 3100 */             user.setAvatar("0");
+/* 3101 */           } else if ("女".equals(sex)) {
+/* 3102 */             user.setSex("1");
+/* 3103 */             user.setAvatar("1");
+/*      */           } else {
+/* 3105 */             user.setSaveMsg("失败，性别输入错误！");
+/* 3106 */             saveList.add(user);
+/* 3107 */             continue;
+/*      */           }
+/* 3109 */           if (com.xoa.util.common.StringUtils.checkNull(map.get("角色").toString().trim()).booleanValue()) {
+/* 3110 */             user.setUserPrivName(uPrivName);
+/*      */           }
+/* 3112 */           user.setUserPrivName(map.get("角色").toString().trim());
+/* 3113 */           user.setMobilNo(map.get("手机").toString().trim());
+/* 3114 */           user.setTelNoDept(map.get("工作电话").toString().trim());
+/* 3115 */           user.setEmail(map.get("E-mail").toString().trim());
+/* 3116 */           user.setOicqNo(map.get("QQ").toString().trim());
+/* 3117 */           user.setIdNumber(map.get("身份证号").toString().trim());
+/* 3118 */           user.setTraNumber(map.get("培训编号").toString().trim());
+/* 3119 */           user.setSubject(map.get("学科").toString().trim());
+/* 3120 */           user.setPassword(pw);
+/*      */ 
+/* 3123 */           if (user.getPassword() != null) {
+/* 3124 */             user.setPassword(getEncryptString(user.getPassword().trim()));
+/*      */           }
+/*      */ 
+/* 3127 */           if (user.getUserName() != null) {
+/* 3128 */             String fistSpell = PinYinUtil.getFirstSpell(user.getUserName());
+/* 3129 */             StringBuffer sb = new StringBuffer();
+/* 3130 */             for (int k = 0; k < fistSpell.length(); k++) {
+/* 3131 */               sb.append(new StringBuilder().append(fistSpell.charAt(k)).append("*").toString());
+/*      */             }
+/* 3133 */             user.setUserNameIndex(sb.toString());
+/*      */           }
+/*      */ 
+/* 3138 */           if (user.getDeptName() != null) {
+/* 3139 */             Department d = new Department();
+/* 3140 */             d.setDeptName(user.getDeptName());
+/* 3141 */             List nameList = this.departmentMapper.getDeptIdByDeptName(user.getDeptName());
+/* 3142 */             String deptId = "";
+/* 3143 */             if (nameList.size() > 0) {
+/* 3144 */               deptId = (String)nameList.get(0);
+/*      */             }
+/* 3146 */             if (!com.xoa.util.common.StringUtils.checkNull(deptId).booleanValue()) {
+/* 3147 */               user.setDeptId(Integer.valueOf(deptId));
+/*      */             } else {
+/* 3149 */               user.setSaveMsg("失败，部门不存在");
+/* 3150 */               saveList.add(user);
+/* 3151 */               continue;
+/*      */             }
+/*      */           }
+/*      */ 
+/* 3155 */           if (user.getUserPrivName() != null) {
+/* 3156 */             UserPriv userPriv = this.userPrivMapper.getUserPrivByName(user.getUserPrivName());
+/* 3157 */             if (userPriv != null) {
+/* 3158 */               user.setUserPriv(userPriv.getUserPriv());
+/* 3159 */               user.setUserPrivNo(userPriv.getPrivNo());
+/*      */ 
+/* 3161 */               if (userPriv.getFuncIdStr() != null)
+/* 3162 */                 userFunction.setUserFunCidStr(userPriv.getFuncIdStr());
+/*      */               else
+/* 3164 */                 userFunction.setUserFunCidStr("1,");
+/*      */             }
+/*      */             else {
+/* 3167 */               user.setSaveMsg("失败，角色不存在");
+/* 3168 */               saveList.add(user);
+/* 3169 */               continue;
+/*      */             }
+/*      */           } else {
+/* 3172 */             user.setSaveMsg("失败，角色未填写");
+/* 3173 */             saveList.add(user);
+/* 3174 */             continue;
+/*      */           }
+/* 3176 */           user.setNotLogin(Byte.valueOf("0"));
+/* 3177 */           user.setImRange(Byte.valueOf("1"));
+/*      */ 
+/* 3181 */           Users userByName = this.usersMapper.importUserByName(user.getByname());
+/* 3182 */           if ((userByName != null) && (!com.xoa.util.common.StringUtils.checkNull(ifUpdate).booleanValue()) && (ifUpdate.equals("yes")))
+/*      */           {
+/* 3184 */             user.setUid(userByName.getUid());
+/* 3185 */             user.setUserId(userByName.getUserId());
+/* 3186 */             this.usersMapper.editUser(user);
+/*      */ 
+/* 3188 */             userFunction.setUid(user.getUid().intValue());
+/* 3189 */             userFunction.setUserId(user.getUserId());
+/* 3190 */             this.userFunctionMapper.updateUserFun(userFunction);
+/*      */ 
+/* 3192 */             user.setSaveMsg("更新成功");
+/* 3193 */             saveList.add(user);
+/* 3194 */             updateCount++; } else {
+/* 3195 */             if (userByName != null)
+/*      */               continue;
+/* 3197 */             this.usersMapper.insert(user);
+/*      */ 
+/* 3199 */             user.setUserId(user.getUid().toString());
+/* 3200 */             this.usersMapper.editUser(user);
+/*      */ 
+/* 3202 */             UserExt userExt = new UserExt();
+/* 3203 */             userExt.setDutyType(user.getDutyType());
+/* 3204 */             userExt.setUid(user.getUid());
+/* 3205 */             userExt.setUserId(user.getUserId());
+/* 3206 */             this.userExtMapper.addUserExt(userExt);
+/*      */ 
+/* 3208 */             userFunction.setUid(user.getUid().intValue());
+/* 3209 */             userFunction.setUserId(user.getUserId());
+/* 3210 */             this.userFunctionMapper.insertUserFun(userFunction);
+/*      */ 
+/* 3212 */             user.setSaveMsg("保存成功");
+/* 3213 */             saveList.add(user);
+/* 3214 */             insertCount++;
+/*      */           }
+/*      */         }
+/*      */ 
+/* 3218 */         if ((saveList != null) && (saveList.size() > 0) && (saveList.get(0) != null)) {
+/* 3219 */           ((Users)saveList.get(0)).setInsertCount(insertCount);
+/* 3220 */           ((Users)saveList.get(0)).setUpdateCount(updateCount);
+/*      */         }
+/*      */ 
+/* 3224 */         ajaxJson.setObj(saveList);
+/* 3225 */         ajaxJson.setFlag(true);
+/* 3226 */         ajaxJson.setMsg("ok");
+/*      */       } else {
+/* 3228 */         ajaxJson.setMsg("文件类型不正确！");
+/* 3229 */         ajaxJson.setFlag(false);
+/* 3230 */         return ajaxJson;
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 3233 */       ajaxJson.setMsg(e.getMessage());
+/* 3234 */       ajaxJson.setFlag(false);
+/*      */     }
+/* 3236 */     return ajaxJson;
+/*      */   }
+/*      */ 
+/*      */   public Department createDep(String deptName)
+/*      */   {
+/* 3241 */     List nameList = this.departmentMapper.getDeptIdByDeptName(deptName.trim());
+/* 3242 */     String deptId = "";
+/* 3243 */     if (nameList.size() > 0) {
+/* 3244 */       deptId = (String)nameList.get(0);
+/*      */     }
+/* 3246 */     Department department = new Department();
+/* 3247 */     if (com.xoa.util.common.StringUtils.checkNull(deptId).booleanValue())
+/*      */     {
+/* 3249 */       department.setDeptName(deptName);
+/* 3250 */       this.departmentMapper.insertDept(department);
+/*      */     }
+/*      */ 
+/* 3253 */     return department;
+/*      */   }
+/*      */ 
+/*      */   public String getByName()
+/*      */   {
+/* 3259 */     String maxUserId = this.usersMapper.getMaxUserId();
+/*      */ 
+/* 3261 */     String serial = maxUserId.substring(maxUserId.length() - 3);
+/*      */ 
+/* 3263 */     String rule = maxUserId.substring(0, maxUserId.length() - 3);
+/* 3264 */     int newSerial = Integer.parseInt(serial) + 1;
+/* 3265 */     serial = new StringBuilder().append(org.apache.commons.lang.StringUtils.repeat("0", 3 - String.valueOf(newSerial).length())).append(newSerial).toString();
+/* 3266 */     String byName = new StringBuilder().append(rule).append(serial).toString();
+/* 3267 */     return byName;
+/*      */   }
+/*      */ 
+/*      */   public List<Users> getUsersBydepIds(String deptIds)
+/*      */   {
+/* 3272 */     if (com.xoa.util.common.StringUtils.checkNull(deptIds).booleanValue()) {
+/* 3273 */       return null;
+/*      */     }
+/* 3275 */     List l = new ArrayList();
+/* 3276 */     String[] temp = deptIds.split(",");
+/* 3277 */     for (int i = 0; i < temp.length; i++) {
+/* 3278 */       if (!com.xoa.util.common.StringUtils.checkNull(temp[i]).booleanValue()) {
+/* 3279 */         Users users = this.usersMapper.findUsersByuserId(temp[i]);
+/* 3280 */         if (users != null) {
+/* 3281 */           l.add(users);
+/*      */         }
+/*      */       }
+/*      */     }
+/* 3285 */     return l;
+/*      */   }
+/*      */ 
+/*      */   public List<Users> reAllPrivUser(String privUser, String privDept, String privRole)
+/*      */   {
+/* 3293 */     String[] user = privUser.split(",");
+/* 3294 */     String[] dept = privDept.split(",");
+/* 3295 */     String[] role = privRole.split(",");
+/* 3296 */     List<Users> listUser = getUserByuserId(privUser);
+/* 3297 */     List listDept = getUserByDeptIds(privDept, Integer.valueOf(1));
+/* 3298 */     List listRole = getUserByDeptIds(privRole, Integer.valueOf(2));
+/* 3299 */     listUser.addAll(listDept);
+/* 3300 */     listUser.addAll(listRole);
+/* 3301 */     Map map = new HashMap();
+/* 3302 */     for (Users users : listUser) {
+/* 3303 */       map.put(users.getUserId(), users);
+/*      */     }
+/* 3305 */     Collection valueCollection = map.values();
+/* 3306 */     List valueList = new ArrayList(valueCollection);
+/* 3307 */     return valueList;
+/*      */   }
+/*      */ 
+/*      */   public String reAllName(List<Users> list)
+/*      */   {
+/* 3312 */     StringBuffer stringBuffer = new StringBuffer();
+/* 3313 */     for (Users users : list) {
+/* 3314 */       stringBuffer.append(users.getUserId()).append(",");
+/*      */     }
+/* 3316 */     return stringBuffer.toString();
+/*      */   }
+/*      */ 
+/*      */   public void updateLoginTime(Users users)
+/*      */   {
+/* 3321 */     this.usersMapper.updateLoginTime(users);
+/*      */   }
+/*      */ 
+/*      */   public List<Users> LoginUserList()
+/*      */   {
+/* 3327 */     return this.usersMapper.LoginUserList();
+/*      */   }
+/*      */ 
+/*      */   public BaseWrapper uploadImg(HttpServletRequest request, MultipartFile file)
+/*      */   {
+/* 3332 */     BaseWrapper wrapper = new BaseWrapper();
+/*      */     try {
+/* 3334 */       Users usersTemp = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 3335 */       if ((usersTemp == null) || (usersTemp.getUid() == null)) {
+/* 3336 */         wrapper.setFlag(false);
+/* 3337 */         wrapper.setMsg("用户信息不正确");
+/* 3338 */         return wrapper;
+/*      */       }
+/* 3340 */       if (file != null) {
+/* 3341 */         String imageType = file.getContentType();
+/* 3342 */         boolean b = FileUploadUtil.allowUpload(imageType);
+/* 3343 */         if (!b) {
+/* 3344 */           wrapper.setFlag(false);
+/* 3345 */           wrapper.setMsg("图片格式不正确");
+/* 3346 */           return wrapper;
+/*      */         }
+/*      */       } else {
+/* 3349 */         wrapper.setFlag(false);
+/* 3350 */         wrapper.setMsg("图片不存在");
+/* 3351 */         return wrapper;
+/*      */       }
+/* 3353 */       String realPath = request.getSession().getServletContext().getRealPath("/");
+/* 3354 */       String resourcePath = "ui/img/user";
+/* 3355 */       Users users = new Users();
+/*      */ 
+/* 3357 */       String fileName = FileUploadUtil.rename(file.getOriginalFilename());
+/* 3358 */       File dir = new File(new StringBuilder().append(realPath).append(resourcePath).toString());
+/* 3359 */       if (!dir.exists()) {
+/* 3360 */         dir.mkdirs();
+/*      */       }
+/* 3362 */       File realfile = new File(dir, fileName);
+/* 3363 */       file.transferTo(realfile);
+/* 3364 */       String fileName128 = FileUploadUtil.rename(fileName, "s");
+/* 3365 */       String newImg = FileUploadUtil.zipImageFile(realfile.getAbsolutePath(), 128, 128, 1.0F, fileName128, dir.getAbsolutePath());
+/* 3366 */       wrapper.setFlag(true);
+/* 3367 */       wrapper.setData(fileName128);
+/* 3368 */       wrapper.setMsg(fileName);
+/*      */     }
+/*      */     catch (Exception e)
+/*      */     {
+/* 3374 */       e.printStackTrace();
+/*      */     }
+/* 3376 */     return wrapper;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Users> editUserExtNew(HttpServletRequest request, Users users, UserExt userExt)
+/*      */   {
+/* 3381 */     ToJson toJson = new ToJson(1, "error");
+/*      */     try {
+/* 3383 */       String realPath = request.getSession().getServletContext().getRealPath("/");
+/* 3384 */       String resourcePath = "ui/img/user";
+/* 3385 */       Users usersTemp = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 3386 */       users.setUid(usersTemp.getUid());
+/*      */ 
+/* 3388 */       Users temp = this.usersMapper.findUsersByuserId(usersTemp.getUserId());
+/* 3389 */       if ((temp != null) && 
+/* 3390 */         (!com.xoa.util.common.StringUtils.checkNull(temp.getPhoto()).booleanValue())) {
+/* 3391 */         File temp1 = new File(new StringBuilder().append(realPath).append(resourcePath).append(temp.getPhoto()).toString());
+/* 3392 */         if (temp1.exists()) {
+/* 3393 */           temp1.delete();
+/*      */         }
+/*      */       }
+/*      */ 
+/* 3397 */       int count = this.usersMapper.editUser(users);
+/* 3398 */       userExt.setUid(usersTemp.getUid());
+/* 3399 */       userExt.setUserId(usersTemp.getUserId());
+/* 3400 */       count += this.userExtMapper.updateUserExtByUid(userExt);
+/* 3401 */       if (count > 1) {
+/* 3402 */         toJson.setFlag(0);
+/* 3403 */         toJson.setMsg("ok");
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 3406 */       e.printStackTrace();
+/*      */     }
+/* 3408 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Users> getByName(String name)
+/*      */   {
+/* 3419 */     ToJson json = new ToJson(1, "error");
+/*      */     try {
+/* 3421 */       List list = this.usersMapper.getByName(name);
+/* 3422 */       json.setObj(list);
+/* 3423 */       json.setMsg("ok");
+/* 3424 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/* 3426 */       e.printStackTrace();
+/*      */     }
+/* 3428 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Users> getuserNameByDeptId(Integer deptId)
+/*      */   {
+/* 3440 */     ToJson toJson = new ToJson(1, "error");
+/* 3441 */     List list = this.usersMapper.getuserNameByDeptId(deptId);
+/* 3442 */     if (list != null)
+/*      */     {
+/* 3444 */       toJson.setMsg("查询成功");
+/* 3445 */       toJson.setFlag(0);
+/* 3446 */       toJson.setObj(list);
+/*      */     } else {
+/* 3448 */       toJson.setMsg("数据为空");
+/* 3449 */       toJson.setFlag(1);
+/*      */     }
+/*      */ 
+/* 3455 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Integer> selectuidByName(String userName)
+/*      */   {
+/* 3460 */     List list = this.usersMapper.selectuidByName(userName);
+/*      */ 
+/* 3462 */     ToJson toJson = new ToJson();
+/*      */ 
+/* 3464 */     if (list != null) {
+/* 3465 */       toJson.setMsg("查询成功");
+/* 3466 */       toJson.setObj(list);
+/*      */     }
+/*      */ 
+/* 3469 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Users> getUserDepartmentUserexe(String deptId, String dutyType, String uids)
+/*      */   {
+/* 3475 */     ToJson toJson = new ToJson(1, "ERROR");
+/* 3476 */     Map map = new HashMap();
+/*      */ 
+/* 3478 */     map.put("deptId", deptId);
+/*      */ 
+/* 3480 */     map.put("dutyType", dutyType);
+/*      */ 
+/* 3482 */     map.put("uid", uids);
+/* 3483 */     List list = this.usersMapper.getUserDepartmentUserexe(map);
+/*      */ 
+/* 3485 */     if (list != null) {
+/* 3486 */       toJson.setFlag(0);
+/* 3487 */       toJson.setMsg("查询成功");
+/* 3488 */       toJson.setObj(list);
+/*      */     }
+/*      */     else {
+/* 3491 */       toJson.setFlag(1);
+/* 3492 */       toJson.setMsg("数据为空");
+/*      */     }
+/*      */ 
+/* 3496 */     return null;
+/*      */   }
+/*      */ 
+/*      */   public BaseWrapper checkUserCount(HttpServletRequest request)
+/*      */   {
+/* 3501 */     BaseWrapper baseWrapper = new BaseWrapper();
+/* 3502 */     int authUser = this.systemInfoService.getAuthUser(request);
+/* 3503 */     int userCount = getUserCount();
+/* 3504 */     if (userCount < authUser) {
+/* 3505 */       baseWrapper.setMsg("用户成功");
+/* 3506 */       baseWrapper.setFlag(true);
+/*      */     } else {
+/* 3508 */       baseWrapper.setMsg("用户新建数量超过限制");
+/* 3509 */       baseWrapper.setFlag(false);
+/*      */     }
+/*      */ 
+/* 3512 */     return baseWrapper;
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.users.impl.UsersServiceImpl
+ * JD-Core Version:    0.6.0
+ */

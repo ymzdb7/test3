@@ -1,0 +1,182 @@
+/*     */ package com.xoa.model.rms;
+/*     */ 
+/*     */ import com.alibaba.fastjson.annotation.JSONField;
+/*     */ import com.xoa.model.enclosure.Attachment;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ import org.springframework.format.annotation.DateTimeFormat;
+/*     */ 
+/*     */ public class RmsFileWithBLOBs extends RmsFile
+/*     */ {
+/*     */   private String attachmentId;
+/*     */   private String attachmentName;
+/*     */ 
+/*     */   @DateTimeFormat(pattern="yyyy-MM-dd")
+/*     */   @JSONField(format="yyyy-MM-dd")
+/*     */   private Date sendDate2;
+/*     */   private Integer roomId;
+/*     */   private String filePage2;
+/*     */   private String printPage2;
+/*     */   private Integer delStatus;
+/*     */   private String rollName;
+/*     */   private List<Attachment> attachmentList;
+/*     */   private String importStatus;
+/*     */   private String secretName;
+/*     */   private String urgencyName;
+/*     */   private String fileTypeName;
+/*     */   private String fileKindName;
+/*     */ 
+/*     */   public String getSecretName()
+/*     */   {
+/*  66 */     if ("1".equals(getSecret()))
+/*  67 */       return "普密";
+/*  68 */     if ("4".equals(getSecret()))
+/*  69 */       return "秘密";
+/*  70 */     if ("3".equals(getSecret()))
+/*  71 */       return "机密";
+/*  72 */     if ("2".equals(getSecret())) {
+/*  73 */       return "绝密";
+/*     */     }
+/*  75 */     return "";
+/*     */   }
+/*     */ 
+/*     */   public void setSecretName(String secretName)
+/*     */   {
+/*  80 */     this.secretName = secretName;
+/*     */   }
+/*     */ 
+/*     */   public String getUrgencyName() {
+/*  84 */     if ("1".equals(getUrgency()))
+/*  85 */       return "员工类型";
+/*  86 */     if ("2".equals(getUrgency())) {
+/*  87 */       return "普级";
+/*     */     }
+/*  89 */     return "";
+/*     */   }
+/*     */ 
+/*     */   public void setUrgencyName(String urgencyName)
+/*     */   {
+/*  94 */     this.urgencyName = urgencyName;
+/*     */   }
+/*     */ 
+/*     */   public String getFileTypeName() {
+/*  98 */     if ("1".equals(getFileType()))
+/*  99 */       return "公文";
+/* 100 */     if ("2".equals(getFileType())) {
+/* 101 */       return "资料";
+/*     */     }
+/* 103 */     return "";
+/*     */   }
+/*     */ 
+/*     */   public void setFileTypeName(String fileTypeName)
+/*     */   {
+/* 108 */     this.fileTypeName = fileTypeName;
+/*     */   }
+/*     */ 
+/*     */   public String getFileKindName() {
+/* 112 */     if ("1".equals(getFileKind()))
+/* 113 */       return "A";
+/* 114 */     if ("2".equals(getFileKind()))
+/* 115 */       return "B";
+/* 116 */     if ("3".equals(getFileKind()))
+/* 117 */       return "C";
+/* 118 */     if ("4".equals(getFileKind())) {
+/* 119 */       return "D";
+/*     */     }
+/* 121 */     return "";
+/*     */   }
+/*     */ 
+/*     */   public void setFileKindName(String fileKindName)
+/*     */   {
+/* 126 */     this.fileKindName = fileKindName;
+/*     */   }
+/*     */ 
+/*     */   public String getImportStatus() {
+/* 130 */     return this.importStatus;
+/*     */   }
+/*     */ 
+/*     */   public void setImportStatus(String importStatus) {
+/* 134 */     this.importStatus = importStatus;
+/*     */   }
+/*     */ 
+/*     */   public List<Attachment> getAttachmentList() {
+/* 138 */     return this.attachmentList;
+/*     */   }
+/*     */ 
+/*     */   public void setAttachmentList(List<Attachment> attachmentList) {
+/* 142 */     this.attachmentList = attachmentList;
+/*     */   }
+/*     */ 
+/*     */   public String getRollName() {
+/* 146 */     return this.rollName;
+/*     */   }
+/*     */ 
+/*     */   public void setRollName(String rollName) {
+/* 150 */     this.rollName = rollName;
+/*     */   }
+/*     */ 
+/*     */   public Integer getDelStatus() {
+/* 154 */     return this.delStatus;
+/*     */   }
+/*     */ 
+/*     */   public void setDelStatus(Integer delStatus) {
+/* 158 */     this.delStatus = delStatus;
+/*     */   }
+/*     */ 
+/*     */   public String getPrintPage2() {
+/* 162 */     return this.printPage2;
+/*     */   }
+/*     */ 
+/*     */   public void setPrintPage2(String printPage2) {
+/* 166 */     this.printPage2 = printPage2;
+/*     */   }
+/*     */ 
+/*     */   public String getFilePage2() {
+/* 170 */     return this.filePage2;
+/*     */   }
+/*     */ 
+/*     */   public void setFilePage2(String filePage2) {
+/* 174 */     this.filePage2 = filePage2;
+/*     */   }
+/*     */ 
+/*     */   public Integer getRoomId() {
+/* 178 */     return this.roomId;
+/*     */   }
+/*     */ 
+/*     */   public void setRoomId(Integer roomId) {
+/* 182 */     this.roomId = roomId;
+/*     */   }
+/*     */ 
+/*     */   public Date getSendDate2() {
+/* 186 */     return this.sendDate2;
+/*     */   }
+/*     */ 
+/*     */   public void setSendDate2(Date sendDate2) {
+/* 190 */     this.sendDate2 = sendDate2;
+/*     */   }
+/*     */ 
+/*     */   public String getAttachmentId()
+/*     */   {
+/* 201 */     return this.attachmentId;
+/*     */   }
+/*     */ 
+/*     */   public void setAttachmentId(String attachmentId)
+/*     */   {
+/* 212 */     this.attachmentId = (attachmentId == null ? null : attachmentId.trim());
+/*     */   }
+/*     */ 
+/*     */   public String getAttachmentName()
+/*     */   {
+/* 223 */     return this.attachmentName;
+/*     */   }
+/*     */ 
+/*     */   public void setAttachmentName(String attachmentName)
+/*     */   {
+/* 234 */     this.attachmentName = (attachmentName == null ? null : attachmentName.trim());
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.rms.RmsFileWithBLOBs
+ * JD-Core Version:    0.6.0
+ */

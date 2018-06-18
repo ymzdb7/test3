@@ -1,0 +1,210 @@
+/*     */ package com.xoa.service.workflow.flowtype.impl;
+/*     */ 
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.workflow.FlowFormTypeMapper;
+/*     */ import com.xoa.dao.workflow.FlowRunMapper;
+/*     */ import com.xoa.dao.workflow.FlowTypeModelMapper;
+/*     */ import com.xoa.model.department.Department;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.workflow.FlowFormType;
+/*     */ import com.xoa.model.workflow.FlowTypeModel;
+/*     */ import com.xoa.model.workflow.TMacroCtrl;
+/*     */ import com.xoa.service.department.DepartmentService;
+/*     */ import com.xoa.service.users.UsersPrivService;
+/*     */ import com.xoa.service.users.UsersService;
+/*     */ import com.xoa.service.work.WorkService;
+/*     */ import com.xoa.service.workflow.flowtype.FlowFormTypeService;
+/*     */ import com.xoa.util.AjaxJson;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.ipUtil.IpAddr;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class FlowFormTypeServiceImpl
+/*     */   implements FlowFormTypeService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowFormTypeMapper flowFormTypeMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersService usersService;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentService departmentService;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersPrivService usersPrivService;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowTypeModelMapper flowTypeModelMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowRunMapper flowRunMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private WorkService workService;
+/*     */ 
+/*     */   public ToJson<FlowFormType> qureyItemMax(Integer formId)
+/*     */   {
+/*  66 */     ToJson toJson = new ToJson(0, "");
+/*  67 */     if (formId != null) {
+/*  68 */       FlowFormType folw = this.flowFormTypeMapper.qureyItemMax(formId);
+/*  69 */       if (folw != null) {
+/*  70 */         toJson.setMsg("ok");
+/*  71 */         toJson.setObject(folw);
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */     else
+/*     */     {
+/*  86 */       toJson.setMsg("err");
+/*     */     }
+/*     */ 
+/*  90 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TMacroCtrl> qureyCtrl(String controlId, String option, HttpServletRequest request, Integer fromId, Integer folwId, String runId, String prcsId, String flowPrcs, String company, String signlock)
+/*     */   {
+/*  96 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  97 */     String userId = users.getUserId();
+/*  98 */     Integer userPriv = users.getUserPriv();
+/*  99 */     Integer deptId = users.getDeptId();
+/* 100 */     String[] strArray = null;
+/* 101 */     ToJson json = new ToJson();
+/* 102 */     TMacroCtrl tM = new TMacroCtrl();
+/* 103 */     Date curDate = new Date();
+/* 104 */     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/* 105 */     SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+/* 106 */     String date = sdf.format(curDate);
+/* 107 */     String date1 = sdf1.format(curDate);
+/* 108 */     StringBuffer bb1 = new StringBuffer();
+/* 109 */     StringBuffer bb2 = new StringBuffer();
+/* 110 */     StringBuffer bb3 = new StringBuffer();
+/* 111 */     Map maps = new HashMap();
+/* 112 */     if (tM.getControlId().equals(controlId)) {
+/* 113 */       tM.setSYS_USERID(users.getUserId());
+/* 114 */       tM.setSYS_USERNAME(users.getUserName());
+/* 115 */       tM.setSYS_DEPTNAME(users.getDeptName());
+/* 116 */       tM.setSYS_DEPTNAME_SHORT(users.getDeptName());
+/* 117 */       tM.setSYS_USERPRIV(users.getUserPrivName());
+/* 118 */       tM.setSYS_USERPRIVOTHER(users.getUserPrivName());
+/* 119 */       tM.setSYS_USERNAME_DATE(users.getUserName() + " " + date1);
+/* 120 */       tM.setSYS_RUNDATETIME(users.getUserName() + " " + date);
+/* 121 */       tM.setSYS_IP(IpAddr.getIpAddr(request));
+/* 122 */       FlowFormType folw = null;
+/* 123 */       if (fromId != null) {
+/* 124 */         folw = this.flowFormTypeMapper.qureyItemMax(fromId);
+/*     */       }
+/* 126 */       if (folw != null) {
+/* 127 */         tM.setSYS_FORMNAME(folw.getFormName());
+/*     */       }
+/* 129 */       FlowTypeModel folw1 = null;
+/* 130 */       if ((folwId != null) && (fromId != null)) {
+/* 131 */         folw1 = this.flowTypeModelMapper.selectOnlyType(folwId, fromId);
+/*     */       }
+/* 133 */       if (folw1 != null) {
+/* 134 */         tM.setSYS_RUNNAME(folw1.getAutoName());
+/* 135 */         tM.setSYS_AUTONUM(folw1.getAutoNum() + "");
+/* 136 */         tM.setSYS_AUTONUM_YEAR(folw1.getAutoNumYear() + "");
+/* 137 */         tM.setSYS_AUTONUM_MONTH(folw1.getAutoNumMonth() + "");
+/*     */       }
+/* 139 */       if ((!StringUtils.checkNull(runId).booleanValue()) && (!StringUtils.checkNull(flowPrcs).booleanValue())) {
+/* 140 */         AjaxJson ajaxJson = this.workService.findworkfeedback(runId, prcsId, flowPrcs, userId, company, signlock);
+/* 141 */         tM.setSignText(ajaxJson.getObj());
+/*     */       }
+/*     */ 
+/* 144 */       Department department = this.departmentMapper.getFatherDept(deptId.intValue());
+/* 145 */       String manag = department.getManager();
+/*     */ 
+/* 147 */       String leader1 = department.getLeader1();
+/* 148 */       if ((manag != null) && (!manag.equals(""))) {
+/* 149 */         String[] mm = manag.split(",");
+/* 150 */         for (int j = 0; j < mm.length; j++) {
+/* 151 */           String name2 = this.usersService.findUsersByuid(new int[] { Integer.parseInt(mm[j]) });
+/* 152 */           if (name2 != null) {
+/* 153 */             bb1.append(name2);
+/* 154 */             bb1.append(",");
+/*     */           }
+/*     */ 
+/* 157 */           if (!StringUtils.checkNull(String.valueOf(bb1)).booleanValue()) {
+/* 158 */             tM.setSYS_MANAGER1(bb1.toString().substring(0, bb1.toString().length() - 1));
+/*     */           }
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 164 */       if ((leader1 != null) && (!leader1.equals(""))) {
+/* 165 */         String[] dd = leader1.split(",");
+/* 166 */         for (int j = 0; j < dd.length; j++) {
+/* 167 */           String name4 = this.usersService.findUsersByuid(new int[] { Integer.parseInt(dd[j]) });
+/* 168 */           if (name4 != null) {
+/* 169 */             bb3.append(name4);
+/* 170 */             bb3.append(",");
+/*     */           }
+/*     */ 
+/* 173 */           if (!StringUtils.checkNull(String.valueOf(bb3)).booleanValue()) {
+/* 174 */             tM.setSYS_MANAGER2(bb3.toString().substring(0, bb3.toString().length() - 1));
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 179 */       List<Department> departments = this.departmentMapper.getDepartmentByParet();
+/* 180 */       if (departments != null) {
+/* 181 */         for (Department department1 : departments)
+/*     */         {
+/* 183 */           bb2.append(department1.getDeptName());
+/* 184 */           bb2.append(",");
+/*     */         }
+/* 186 */         if (!StringUtils.checkNull(String.valueOf(bb2)).booleanValue()) {
+/* 187 */           tM.setSYS_MANAGER3(bb2.toString().substring(0, bb2.toString().length() - 1));
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 194 */       if (!StringUtils.checkNull(option).booleanValue()) {
+/* 195 */         strArray = option.split(",");
+/* 196 */         for (int j = 0; j < strArray.length; j++) {
+/* 197 */           if ("SYS_LIST_DEPT".equals(strArray[j])) {
+/* 198 */             List deptList = this.departmentService.getDatagrid();
+/* 199 */             tM.setSYS_LIST_DEPT(deptList);
+/*     */           }
+/* 201 */           if ("SYS_LIST_USER".equals(strArray[j])) {
+/* 202 */             List list = this.usersService.getAlluser(maps, Integer.valueOf(1), Integer.valueOf(5), false);
+/* 203 */             tM.setSYS_LIST_USER(list);
+/*     */           }
+/* 205 */           if ("SYS_LIST_PRIV".equals(strArray[j])) {
+/* 206 */             List list = this.usersPrivService.getAllPriv(maps, Integer.valueOf(1), Integer.valueOf(5), false);
+/* 207 */             tM.setSYS_LIST_PRIV(list);
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 212 */       json.setFlag(0);
+/* 213 */       json.setMsg("ok");
+/* 214 */       json.setObject(tM);
+/*     */     } else {
+/* 216 */       json.setFlag(1);
+/* 217 */       json.setMsg("err");
+/*     */     }
+/*     */ 
+/* 224 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.workflow.flowtype.impl.FlowFormTypeServiceImpl
+ * JD-Core Version:    0.6.0
+ */

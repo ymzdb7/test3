@@ -1,0 +1,538 @@
+/*     */ package com.xoa.model.portal;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class SiteTemplateExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public SiteTemplateExample()
+/*     */   {
+/*  38 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  48 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  58 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  68 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  78 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  88 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  98 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 108 */     Criteria criteria = createCriteriaInternal();
+/* 109 */     this.oredCriteria.add(criteria);
+/* 110 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 120 */     Criteria criteria = createCriteriaInternal();
+/* 121 */     if (this.oredCriteria.size() == 0) {
+/* 122 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 124 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 134 */     Criteria criteria = new Criteria();
+/* 135 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 145 */     this.oredCriteria.clear();
+/* 146 */     this.orderByClause = null;
+/* 147 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 565 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 569 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 573 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 577 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 581 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 585 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 589 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 593 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 598 */       this.condition = condition;
+/* 599 */       this.typeHandler = null;
+/* 600 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 605 */       this.condition = condition;
+/* 606 */       this.value = value;
+/* 607 */       this.typeHandler = typeHandler;
+/* 608 */       if ((value instanceof List))
+/* 609 */         this.listValue = true;
+/*     */       else
+/* 611 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 616 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 621 */       this.condition = condition;
+/* 622 */       this.value = value;
+/* 623 */       this.secondValue = secondValue;
+/* 624 */       this.typeHandler = typeHandler;
+/* 625 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 629 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends SiteTemplateExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<SiteTemplateExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 161 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 165 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<SiteTemplateExample.Criterion> getAllCriteria() {
+/* 169 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<SiteTemplateExample.Criterion> getCriteria() {
+/* 173 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 177 */       if (condition == null) {
+/* 178 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 180 */       this.criteria.add(new SiteTemplateExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 184 */       if (value == null) {
+/* 185 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 187 */       this.criteria.add(new SiteTemplateExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 191 */       if ((value1 == null) || (value2 == null)) {
+/* 192 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 194 */       this.criteria.add(new SiteTemplateExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSidIsNull() {
+/* 198 */       addCriterion("SID is null");
+/* 199 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSidIsNotNull() {
+/* 203 */       addCriterion("SID is not null");
+/* 204 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSidEqualTo(Integer value) {
+/* 208 */       addCriterion("SID =", value, "sid");
+/* 209 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSidNotEqualTo(Integer value) {
+/* 213 */       addCriterion("SID <>", value, "sid");
+/* 214 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSidGreaterThan(Integer value) {
+/* 218 */       addCriterion("SID >", value, "sid");
+/* 219 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSidGreaterThanOrEqualTo(Integer value) {
+/* 223 */       addCriterion("SID >=", value, "sid");
+/* 224 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSidLessThan(Integer value) {
+/* 228 */       addCriterion("SID <", value, "sid");
+/* 229 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSidLessThanOrEqualTo(Integer value) {
+/* 233 */       addCriterion("SID <=", value, "sid");
+/* 234 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSidIn(List<Integer> values) {
+/* 238 */       addCriterion("SID in", values, "sid");
+/* 239 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSidNotIn(List<Integer> values) {
+/* 243 */       addCriterion("SID not in", values, "sid");
+/* 244 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSidBetween(Integer value1, Integer value2) {
+/* 248 */       addCriterion("SID between", value1, value2, "sid");
+/* 249 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSidNotBetween(Integer value1, Integer value2) {
+/* 253 */       addCriterion("SID not between", value1, value2, "sid");
+/* 254 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSiteIdIsNull() {
+/* 258 */       addCriterion("SITE_ID is null");
+/* 259 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSiteIdIsNotNull() {
+/* 263 */       addCriterion("SITE_ID is not null");
+/* 264 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSiteIdEqualTo(Integer value) {
+/* 268 */       addCriterion("SITE_ID =", value, "siteId");
+/* 269 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSiteIdNotEqualTo(Integer value) {
+/* 273 */       addCriterion("SITE_ID <>", value, "siteId");
+/* 274 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSiteIdGreaterThan(Integer value) {
+/* 278 */       addCriterion("SITE_ID >", value, "siteId");
+/* 279 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSiteIdGreaterThanOrEqualTo(Integer value) {
+/* 283 */       addCriterion("SITE_ID >=", value, "siteId");
+/* 284 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSiteIdLessThan(Integer value) {
+/* 288 */       addCriterion("SITE_ID <", value, "siteId");
+/* 289 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSiteIdLessThanOrEqualTo(Integer value) {
+/* 293 */       addCriterion("SITE_ID <=", value, "siteId");
+/* 294 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSiteIdIn(List<Integer> values) {
+/* 298 */       addCriterion("SITE_ID in", values, "siteId");
+/* 299 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSiteIdNotIn(List<Integer> values) {
+/* 303 */       addCriterion("SITE_ID not in", values, "siteId");
+/* 304 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSiteIdBetween(Integer value1, Integer value2) {
+/* 308 */       addCriterion("SITE_ID between", value1, value2, "siteId");
+/* 309 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andSiteIdNotBetween(Integer value1, Integer value2) {
+/* 313 */       addCriterion("SITE_ID not between", value1, value2, "siteId");
+/* 314 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplDescIsNull() {
+/* 318 */       addCriterion("TPL_DESC is null");
+/* 319 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplDescIsNotNull() {
+/* 323 */       addCriterion("TPL_DESC is not null");
+/* 324 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplDescEqualTo(String value) {
+/* 328 */       addCriterion("TPL_DESC =", value, "tplDesc");
+/* 329 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplDescNotEqualTo(String value) {
+/* 333 */       addCriterion("TPL_DESC <>", value, "tplDesc");
+/* 334 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplDescGreaterThan(String value) {
+/* 338 */       addCriterion("TPL_DESC >", value, "tplDesc");
+/* 339 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplDescGreaterThanOrEqualTo(String value) {
+/* 343 */       addCriterion("TPL_DESC >=", value, "tplDesc");
+/* 344 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplDescLessThan(String value) {
+/* 348 */       addCriterion("TPL_DESC <", value, "tplDesc");
+/* 349 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplDescLessThanOrEqualTo(String value) {
+/* 353 */       addCriterion("TPL_DESC <=", value, "tplDesc");
+/* 354 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplDescLike(String value) {
+/* 358 */       addCriterion("TPL_DESC like", value, "tplDesc");
+/* 359 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplDescNotLike(String value) {
+/* 363 */       addCriterion("TPL_DESC not like", value, "tplDesc");
+/* 364 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplDescIn(List<String> values) {
+/* 368 */       addCriterion("TPL_DESC in", values, "tplDesc");
+/* 369 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplDescNotIn(List<String> values) {
+/* 373 */       addCriterion("TPL_DESC not in", values, "tplDesc");
+/* 374 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplDescBetween(String value1, String value2) {
+/* 378 */       addCriterion("TPL_DESC between", value1, value2, "tplDesc");
+/* 379 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplDescNotBetween(String value1, String value2) {
+/* 383 */       addCriterion("TPL_DESC not between", value1, value2, "tplDesc");
+/* 384 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplFileNameIsNull() {
+/* 388 */       addCriterion("TPL_FILE_NAME is null");
+/* 389 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplFileNameIsNotNull() {
+/* 393 */       addCriterion("TPL_FILE_NAME is not null");
+/* 394 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplFileNameEqualTo(String value) {
+/* 398 */       addCriterion("TPL_FILE_NAME =", value, "tplFileName");
+/* 399 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplFileNameNotEqualTo(String value) {
+/* 403 */       addCriterion("TPL_FILE_NAME <>", value, "tplFileName");
+/* 404 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplFileNameGreaterThan(String value) {
+/* 408 */       addCriterion("TPL_FILE_NAME >", value, "tplFileName");
+/* 409 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplFileNameGreaterThanOrEqualTo(String value) {
+/* 413 */       addCriterion("TPL_FILE_NAME >=", value, "tplFileName");
+/* 414 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplFileNameLessThan(String value) {
+/* 418 */       addCriterion("TPL_FILE_NAME <", value, "tplFileName");
+/* 419 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplFileNameLessThanOrEqualTo(String value) {
+/* 423 */       addCriterion("TPL_FILE_NAME <=", value, "tplFileName");
+/* 424 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplFileNameLike(String value) {
+/* 428 */       addCriterion("TPL_FILE_NAME like", value, "tplFileName");
+/* 429 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplFileNameNotLike(String value) {
+/* 433 */       addCriterion("TPL_FILE_NAME not like", value, "tplFileName");
+/* 434 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplFileNameIn(List<String> values) {
+/* 438 */       addCriterion("TPL_FILE_NAME in", values, "tplFileName");
+/* 439 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplFileNameNotIn(List<String> values) {
+/* 443 */       addCriterion("TPL_FILE_NAME not in", values, "tplFileName");
+/* 444 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplFileNameBetween(String value1, String value2) {
+/* 448 */       addCriterion("TPL_FILE_NAME between", value1, value2, "tplFileName");
+/* 449 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplFileNameNotBetween(String value1, String value2) {
+/* 453 */       addCriterion("TPL_FILE_NAME not between", value1, value2, "tplFileName");
+/* 454 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplNameIsNull() {
+/* 458 */       addCriterion("TPL_NAME is null");
+/* 459 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplNameIsNotNull() {
+/* 463 */       addCriterion("TPL_NAME is not null");
+/* 464 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplNameEqualTo(String value) {
+/* 468 */       addCriterion("TPL_NAME =", value, "tplName");
+/* 469 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplNameNotEqualTo(String value) {
+/* 473 */       addCriterion("TPL_NAME <>", value, "tplName");
+/* 474 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplNameGreaterThan(String value) {
+/* 478 */       addCriterion("TPL_NAME >", value, "tplName");
+/* 479 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplNameGreaterThanOrEqualTo(String value) {
+/* 483 */       addCriterion("TPL_NAME >=", value, "tplName");
+/* 484 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplNameLessThan(String value) {
+/* 488 */       addCriterion("TPL_NAME <", value, "tplName");
+/* 489 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplNameLessThanOrEqualTo(String value) {
+/* 493 */       addCriterion("TPL_NAME <=", value, "tplName");
+/* 494 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplNameLike(String value) {
+/* 498 */       addCriterion("TPL_NAME like", value, "tplName");
+/* 499 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplNameNotLike(String value) {
+/* 503 */       addCriterion("TPL_NAME not like", value, "tplName");
+/* 504 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplNameIn(List<String> values) {
+/* 508 */       addCriterion("TPL_NAME in", values, "tplName");
+/* 509 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplNameNotIn(List<String> values) {
+/* 513 */       addCriterion("TPL_NAME not in", values, "tplName");
+/* 514 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplNameBetween(String value1, String value2) {
+/* 518 */       addCriterion("TPL_NAME between", value1, value2, "tplName");
+/* 519 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SiteTemplateExample.Criteria andTplNameNotBetween(String value1, String value2) {
+/* 523 */       addCriterion("TPL_NAME not between", value1, value2, "tplName");
+/* 524 */       return (SiteTemplateExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.portal.SiteTemplateExample
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,144 @@
+/*     */ package com.xoa.service.workPlan;
+/*     */ 
+/*     */ import com.xoa.dao.edu.eduUser.EduUserMapper;
+/*     */ import com.xoa.dao.workPlan.WorkDetailMapper;
+/*     */ import com.xoa.model.edu.eduUser.EduUser;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.workPlan.WorkDetail;
+/*     */ import com.xoa.model.workPlan.WorkDetailWithBLOBs;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class WorkDetailService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private WorkDetailMapper workDetailMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private EduUserMapper eduUserMapper;
+/*     */ 
+/*     */   public ToJson<WorkDetailWithBLOBs> selWorkDetailByPlanId(WorkDetailWithBLOBs workDetailWithBLOBs)
+/*     */   {
+/*  45 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  47 */       List<WorkDetailWithBLOBs> workDetailList = this.workDetailMapper.selWorkDetailByPlanId(workDetailWithBLOBs);
+/*  48 */       for (WorkDetail workDetail : workDetailList) {
+/*  49 */         if (this.eduUserMapper.getByuserId(workDetail.getWriter()) != null) {
+/*  50 */           workDetail.setWriterName(this.eduUserMapper.getByuserId(workDetail.getWriter()).getUserName());
+/*     */         }
+/*     */       }
+/*  53 */       json.setObj(workDetailList);
+/*  54 */       json.setMsg("ok");
+/*  55 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  57 */       json.setMsg(e.getMessage());
+/*  58 */       L.e(new Object[] { "WorkDetailService selWorkDetailByPlanId:" + e });
+/*  59 */       e.printStackTrace();
+/*     */     }
+/*  61 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<WorkDetailWithBLOBs> selWorkDetailById(int detailId)
+/*     */   {
+/*  72 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  74 */       WorkDetail workDetail = this.workDetailMapper.selWorkDetailById(detailId);
+/*  75 */       workDetail.setCurrent(new Date());
+/*  76 */       json.setObject(workDetail);
+/*  77 */       json.setMsg("ok");
+/*  78 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  80 */       json.setMsg(e.getMessage());
+/*  81 */       L.e(new Object[] { "WorkDetailService selWorkDetailById:" + e });
+/*  82 */       e.printStackTrace();
+/*     */     }
+/*  84 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<WorkDetailWithBLOBs> updateWorkDetailById(WorkDetailWithBLOBs record)
+/*     */   {
+/*  96 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  98 */       int count = this.workDetailMapper.updateWorkDetailById(record);
+/*  99 */       if (count > 0) {
+/* 100 */         json.setMsg("ok");
+/* 101 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 104 */       json.setMsg(e.getMessage());
+/* 105 */       L.e(new Object[] { "WorkDetailService updateWorkDetailById:" + e });
+/* 106 */       e.printStackTrace();
+/*     */     }
+/* 108 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<WorkDetailWithBLOBs> insertWorkDetail(WorkDetailWithBLOBs record, HttpServletRequest request)
+/*     */   {
+/* 121 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 123 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 124 */       record.setWriter(user.getUserId());
+/* 125 */       if (!StringUtils.checkNull(record.getWriteTimeStr()).booleanValue()) {
+/* 126 */         record.setWriteTime(DateFormat.getDate(record.getWriteTimeStr()));
+/*     */       }
+/* 128 */       if (StringUtils.checkNull(record.getProgress()).booleanValue()) {
+/* 129 */         record.setProgress("");
+/*     */       }
+/* 131 */       if (StringUtils.checkNull(record.getWriter()).booleanValue()) {
+/* 132 */         record.setWriter("");
+/*     */       }
+/* 134 */       if (StringUtils.checkNull(record.getAttachmentId()).booleanValue()) {
+/* 135 */         record.setAttachmentId("");
+/*     */       }
+/* 137 */       if (StringUtils.checkNull(record.getAttachmentName()).booleanValue()) {
+/* 138 */         record.setAttachmentName("");
+/*     */       }
+/* 140 */       int count = this.workDetailMapper.insertWorkDetail(record);
+/* 141 */       if (count > 0) {
+/* 142 */         json.setMsg("ok");
+/* 143 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 146 */       json.setMsg(e.getMessage());
+/* 147 */       L.e(new Object[] { "WorkDetailService insertWorkDetail:" + e });
+/* 148 */       e.printStackTrace();
+/*     */     }
+/* 150 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<WorkDetailWithBLOBs> delWorkDetailById(int detailId)
+/*     */   {
+/* 162 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 164 */       int count = this.workDetailMapper.delWorkDetailById(detailId);
+/* 165 */       if (count > 0) {
+/* 166 */         json.setMsg("ok");
+/* 167 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 170 */       json.setMsg(e.getMessage());
+/* 171 */       L.e(new Object[] { "WorkDetailService delWorkDetailById:" + e });
+/* 172 */       e.printStackTrace();
+/*     */     }
+/* 174 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.workPlan.WorkDetailService
+ * JD-Core Version:    0.6.0
+ */

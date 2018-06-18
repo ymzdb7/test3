@@ -1,0 +1,451 @@
+/*     */ package com.xoa.service.syspara.impl;
+/*     */ 
+/*     */ import com.xoa.dao.common.SysCodeMapper;
+/*     */ import com.xoa.dao.common.SysParaMapper;
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.notify.NotifyMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.common.SysCode;
+/*     */ import com.xoa.model.common.SysPara;
+/*     */ import com.xoa.model.notify.Notify;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.department.DepartmentService;
+/*     */ import com.xoa.service.syspara.SysParaNotifyService;
+/*     */ import com.xoa.service.users.UsersPrivService;
+/*     */ import com.xoa.service.users.UsersService;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.LinkedHashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class SysParaNotifyServiceImpl
+/*     */   implements SysParaNotifyService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   SysParaMapper sysParaMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   UsersMapper usersMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   NotifyMapper notifyMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   UsersService usersService;
+/*     */ 
+/*     */   @Resource
+/*     */   DepartmentService departmentService;
+/*     */ 
+/*     */   @Resource
+/*     */   UsersPrivService usersPrivService;
+/*     */ 
+/*     */   @Resource
+/*     */   SysCodeMapper sysCodeMapper;
+/* 207 */   public static String notifyDatetime = "1970-01-01 08:00:00";
+/*     */ 
+/*     */   public ToJson<Object> editNotify(String singls, String manager, String edit, String userIds)
+/*     */   {
+/*  65 */     ToJson json = new ToJson();
+/*     */     try {
+/*  67 */       SysPara sysPara = new SysPara();
+/*  68 */       sysPara.setParaName("NOTIFY_AUDITING_SINGLE_NEW");
+/*  69 */       sysPara.setParaValue(singls);
+/*  70 */       this.sysParaMapper.updateSysPara(sysPara);
+/*  71 */       sysPara.setParaName("NOTIFY_AUDITING_MANAGER");
+/*  72 */       sysPara.setParaValue(manager);
+/*  73 */       this.sysParaMapper.updateSysPara(sysPara);
+/*  74 */       sysPara.setParaName("NOTIFY_AUDITING_EDIT");
+/*  75 */       sysPara.setParaValue(edit);
+/*  76 */       this.sysParaMapper.updateSysPara(sysPara);
+/*  77 */       sysPara.setParaName("NOTIFY_AUDITING_ALL");
+/*  78 */       sysPara.setParaValue(userIds);
+/*  79 */       this.sysParaMapper.updateSysPara(sysPara);
+/*  80 */       json.setFlag(0);
+/*  81 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/*  83 */       json.setFlag(1);
+/*  84 */       json.setMsg("err");
+/*  85 */       e.printStackTrace();
+/*     */     }
+/*  87 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> selectNotify()
+/*     */   {
+/*  97 */     ToJson json = new ToJson();
+/*     */     try {
+/*  99 */       List codeList = this.sysCodeMapper.getNotifyType();
+/* 100 */       List<SysPara> sysParaList = this.sysParaMapper.selectNotify();
+/* 101 */       List allList = new ArrayList();
+/* 102 */       String userIds = null;
+/* 103 */       for (SysPara sysPara : sysParaList) {
+/* 104 */         Map map = new LinkedHashMap();
+/* 105 */         if (sysPara.getParaName().equals("NOTIFY_AUDITING_SINGLE_NEW")) {
+/* 106 */           String[] singls = sysPara.getParaValue().split(",");
+/* 107 */           Integer[] singlArr = new Integer[singls.length];
+/* 108 */           singlArr[0] = Integer.valueOf(singls[0].split("-")[1]);
+/* 109 */           for (int i = 0; i < codeList.size(); i++) {
+/* 110 */             Integer res = Integer.valueOf(0);
+/* 111 */             for (String s : singls) {
+/* 112 */               String[] singleArr = s.split("-");
+/* 113 */               if (((SysCode)codeList.get(i)).getCodeNo().equals(singleArr[0])) {
+/* 114 */                 res = Integer.valueOf(singleArr[1]);
+/*     */               }
+/*     */             }
+/* 117 */             singlArr[(i + 1)] = res;
+/*     */           }
+/* 119 */           map.put("singls", singlArr);
+/* 120 */           allList.add(map);
+/*     */         }
+/* 122 */         if (sysPara.getParaName().equals("NOTIFY_AUDITING_MANAGER")) {
+/* 123 */           map.put("manager", sysPara.getParaValue());
+/* 124 */           allList.add(map);
+/*     */         }
+/* 126 */         if (sysPara.getParaName().equals("NOTIFY_AUDITING_EDIT")) {
+/* 127 */           map.put("edit", sysPara.getParaValue());
+/* 128 */           allList.add(map);
+/*     */         }
+/* 130 */         if (sysPara.getParaName().equals("NOTIFY_AUDITING_ALL")) {
+/* 131 */           userIds = sysPara.getParaValue();
+/*     */         }
+/*     */       }
+/* 134 */       if (!StringUtils.checkNull(userIds).booleanValue()) {
+/* 135 */         String[] uerIdArr = userIds.split(",");
+/* 136 */         List<Users> usersList = this.usersMapper.getUserByUserIds(uerIdArr);
+/* 137 */         for (Users user : usersList) {
+/* 138 */           Map userMap = new LinkedHashMap();
+/* 139 */           userMap.put("uId", user.getUid());
+/* 140 */           userMap.put("userId", user.getUserId());
+/* 141 */           userMap.put("userName", user.getUserName());
+/* 142 */           userMap.put("deptId", user.getDeptId());
+/* 143 */           allList.add(userMap);
+/*     */         }
+/*     */       }
+/* 146 */       json.setObj(allList);
+/* 147 */       json.setFlag(0);
+/* 148 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 150 */       json.setFlag(1);
+/* 151 */       json.setMsg("err");
+/* 152 */       e.printStackTrace();
+/*     */     }
+/* 154 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> getDeptManagers(HttpServletRequest request)
+/*     */   {
+/* 164 */     ToJson json = new ToJson();
+/*     */     try {
+/* 166 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 167 */       List deptManagerList = new ArrayList();
+/* 168 */       String managerIds = this.departmentMapper.getDeptManagerIdByDeptId(user.getDeptId());
+/* 169 */       String[] managerIdArr = managerIds.split(",");
+/* 170 */       if (StringUtils.checkNull(managerIds).booleanValue()) {
+/* 171 */         managerIdArr = null;
+/*     */       }
+/* 173 */       String autidingUserIds = this.sysParaMapper.getAutidingUsers();
+/* 174 */       String[] autidingUserIdArr = autidingUserIds.split(",");
+/* 175 */       if (StringUtils.checkNull(autidingUserIds).booleanValue()) {
+/* 176 */         autidingUserIdArr = null;
+/*     */       }
+/* 178 */       List<Users> usersList = this.usersMapper.getUserByUids(managerIdArr, autidingUserIdArr);
+/* 179 */       for (Users users : usersList) {
+/* 180 */         Map userMap = new LinkedHashMap();
+/* 181 */         userMap.put("uid", users.getUid());
+/* 182 */         userMap.put("userName", users.getUserName());
+/* 183 */         userMap.put("userId", users.getUserId());
+/* 184 */         userMap.put("deptId", users.getDeptId());
+/* 185 */         deptManagerList.add(userMap);
+/*     */       }
+/* 187 */       json.setObj(deptManagerList);
+/* 188 */       json.setFlag(0);
+/* 189 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 191 */       json.setFlag(1);
+/* 192 */       json.setMsg("err");
+/* 193 */       e.printStackTrace();
+/*     */     }
+/* 195 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Notify> getApprovedNotifyList(String typeId, Integer start, Integer size, Integer page, Integer pageSize, Boolean useFlag)
+/*     */   {
+/* 210 */     ToJson json = new ToJson();
+/*     */     try {
+/* 212 */       Map maps = new HashMap();
+/* 213 */       PageParams pageParams = new PageParams();
+/* 214 */       pageParams.setUseFlag(useFlag);
+/* 215 */       pageParams.setPage(page);
+/* 216 */       pageParams.setPageSize(pageSize);
+/* 217 */       maps.put("page", pageParams);
+/* 218 */       maps.put("typeId", typeId);
+/* 219 */       maps.put("start", start);
+/* 220 */       maps.put("size", size);
+/* 221 */       List<Notify> notifyList = this.notifyMapper.selectApprovedNotifyByTypeId(maps);
+/* 222 */       for (Notify notify : notifyList) {
+/* 223 */         if ((notify.getBeginDate() != null) && (!"".equals(notify.getBeginDate()))) {
+/* 224 */           if (!notifyDatetime.equals(DateFormat.getStrTime(notify.getBeginDate())))
+/* 225 */             notify.setBegin(DateFormat.getStrDateTime(notify.getBeginDate()));
+/*     */           else
+/* 227 */             notify.setBegin("");
+/*     */         }
+/*     */         else {
+/* 230 */           notify.setBegin("");
+/*     */         }
+/* 232 */         if ((notify.getEndDate() != null) && (!"".equals(notify.getEndDate()))) {
+/* 233 */           if (!notifyDatetime.equals(DateFormat.getStrTime(notify.getEndDate())))
+/* 234 */             notify.setEnd(DateFormat.getStrDateTime(notify.getEndDate()));
+/*     */           else
+/* 236 */             notify.setEnd("");
+/*     */         }
+/*     */         else {
+/* 239 */           notify.setEnd("");
+/*     */         }
+/*     */ 
+/* 242 */         String usename = this.usersMapper.getUsernameByUserId(notify.getFromId());
+/* 243 */         notify.setName(usename);
+/* 244 */         if ((notify.getTypeId() != null) && (!notify.getTypeId().equals(""))) {
+/* 245 */           String name11 = this.sysCodeMapper.getNotifyNameByNo(notify.getTypeId());
+/* 246 */           if (StringUtils.checkNull(name11).booleanValue())
+/* 247 */             notify.setTypeName("");
+/*     */           else
+/* 249 */             notify.setTypeName(name11);
+/*     */         }
+/*     */         else
+/*     */         {
+/* 253 */           notify.setTypeName("");
+/*     */         }
+/* 255 */         StringBuffer s = new StringBuffer();
+/* 256 */         StringBuffer s1 = new StringBuffer();
+/* 257 */         StringBuffer s2 = new StringBuffer();
+/*     */ 
+/* 260 */         String depId = notify.getToId();
+/*     */ 
+/* 262 */         if (!StringUtils.checkNull(depId).booleanValue())
+/*     */         {
+/* 264 */           String depName = this.departmentService.getDeptNameByDeptId(depId, ",");
+/* 265 */           if (!"ALL_DEPT".trim().equals(notify.getToId()))
+/* 266 */             notify.setDeprange(depName + ",");
+/*     */           else {
+/* 268 */             notify.setDeprange(depName);
+/*     */           }
+/*     */ 
+/*     */         }
+/*     */ 
+/* 274 */         String userId = notify.getUserId();
+/* 275 */         if (!StringUtils.checkNull(userId).booleanValue()) {
+/* 276 */           String userName = this.usersService.getUserNameById(userId);
+/* 277 */           notify.setUserrange(userName + ",");
+/*     */         }
+/*     */ 
+/* 280 */         String roleId = notify.getPrivId();
+/* 281 */         if (!StringUtils.checkNull(roleId).booleanValue()) {
+/* 282 */           String roleName = this.usersPrivService.getPrivNameByPrivId(roleId, ",");
+/* 283 */           notify.setRolerange(roleName + ",");
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 289 */       json.setObj(notifyList);
+/* 290 */       json.setTotleNum(pageParams.getTotal());
+/* 291 */       json.setFlag(0);
+/* 292 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 294 */       json.setFlag(1);
+/* 295 */       json.setMsg("err");
+/* 296 */       e.printStackTrace();
+/*     */     }
+/* 298 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Notify> getPendingNotifyList(String typeId, Integer start, Integer size, Integer page, Integer pageSize, Boolean useFlag)
+/*     */   {
+/* 312 */     ToJson json = new ToJson();
+/*     */     try {
+/* 314 */       Map maps = new HashMap();
+/* 315 */       PageParams pageParams = new PageParams();
+/* 316 */       pageParams.setUseFlag(useFlag);
+/* 317 */       pageParams.setPage(page);
+/* 318 */       pageParams.setPageSize(pageSize);
+/* 319 */       maps.put("page", pageParams);
+/* 320 */       maps.put("typeId", typeId);
+/* 321 */       maps.put("start", start);
+/* 322 */       maps.put("size", size);
+/* 323 */       List list = new ArrayList();
+/* 324 */       List<Notify> notifyList = this.notifyMapper.selectPendingNotifyByTypeId(maps);
+/* 325 */       for (Notify notify : notifyList)
+/*     */       {
+/* 327 */         if ((notify.getBeginDate() != null) && (!"".equals(notify.getBeginDate()))) {
+/* 328 */           if (!notifyDatetime.equals(DateFormat.getStrTime(notify.getBeginDate())))
+/* 329 */             notify.setBegin(DateFormat.getStrDateTime(notify.getBeginDate()));
+/*     */           else
+/* 331 */             notify.setBegin("");
+/*     */         }
+/*     */         else {
+/* 334 */           notify.setBegin("");
+/*     */         }
+/* 336 */         if ((notify.getEndDate() != null) && (!"".equals(notify.getEndDate()))) {
+/* 337 */           if (!notifyDatetime.equals(DateFormat.getStrTime(notify.getEndDate())))
+/* 338 */             notify.setEnd(DateFormat.getStrDateTime(notify.getEndDate()));
+/*     */           else
+/* 340 */             notify.setEnd("");
+/*     */         }
+/*     */         else {
+/* 343 */           notify.setEnd("");
+/*     */         }
+/* 345 */         String usename = this.usersMapper.getUsernameByUserId(notify.getFromId());
+/* 346 */         notify.setName(usename);
+/* 347 */         if ((notify.getTypeId() != null) && (!notify.getTypeId().equals(""))) {
+/* 348 */           String name11 = this.sysCodeMapper.getNotifyNameByNo(notify.getTypeId());
+/* 349 */           if (StringUtils.checkNull(name11).booleanValue())
+/* 350 */             notify.setTypeName("");
+/*     */           else
+/* 352 */             notify.setTypeName(name11);
+/*     */         }
+/*     */         else
+/*     */         {
+/* 356 */           notify.setTypeName("");
+/*     */         }
+/* 358 */         StringBuffer s = new StringBuffer();
+/* 359 */         StringBuffer s1 = new StringBuffer();
+/* 360 */         StringBuffer s2 = new StringBuffer();
+/*     */ 
+/* 363 */         String depId = notify.getToId();
+/* 364 */         if (!StringUtils.checkNull(depId).booleanValue())
+/*     */         {
+/* 366 */           String depName = this.departmentService.getDeptNameByDeptId(depId, ",");
+/* 367 */           if (!"ALL_DEPT".trim().equals(notify.getToId()))
+/* 368 */             notify.setDeprange(depName + ",");
+/*     */           else {
+/* 370 */             notify.setDeprange(depName);
+/*     */           }
+/*     */ 
+/*     */         }
+/*     */ 
+/* 376 */         String userId = notify.getUserId();
+/* 377 */         if (!StringUtils.checkNull(userId).booleanValue()) {
+/* 378 */           String userName = this.usersService.getUserNameById(userId);
+/* 379 */           notify.setUserrange(userName + ",");
+/*     */         }
+/*     */ 
+/* 382 */         String roleId = notify.getPrivId();
+/* 383 */         if (!StringUtils.checkNull(roleId).booleanValue()) {
+/* 384 */           String roleName = this.usersPrivService.getPrivNameByPrivId(roleId, ",");
+/* 385 */           notify.setRolerange(roleName + ",");
+/*     */         }
+/*     */       }
+/*     */ 
+/* 389 */       String isEdit = this.sysParaMapper.getEditFlag();
+/* 390 */       Map map = new LinkedHashMap();
+/* 391 */       map.put("isEdit", isEdit);
+/* 392 */       list.add(map);
+/* 393 */       list.add(notifyList);
+/* 394 */       json.setObj(notifyList);
+/* 395 */       json.setTotleNum(pageParams.getTotal());
+/* 396 */       json.setFlag(0);
+/* 397 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 399 */       json.setFlag(1);
+/* 400 */       json.setMsg("err");
+/* 401 */       e.printStackTrace();
+/*     */     }
+/* 403 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> getNotifyTypeList()
+/*     */   {
+/* 414 */     ToJson json = new ToJson();
+/*     */     try
+/*     */     {
+/* 417 */       List<SysCode> codeList = this.sysCodeMapper.getNotifyType();
+/* 418 */       String[] singleNewsArr = this.sysParaMapper.selectNotifySingleNew().split(",");
+/* 419 */       List allCodeList = new ArrayList();
+/* 420 */       Map AllTypeMap = new LinkedHashMap();
+/* 421 */       String isEdit = "0";
+/* 422 */       String AllType = "0";
+/* 423 */       for (SysCode code : codeList) {
+/* 424 */         Map map = new LinkedHashMap();
+/* 425 */         for (int i = 0; i < singleNewsArr.length; i++) {
+/* 426 */           String[] singleArr = singleNewsArr[i].split("-");
+/* 427 */           if ("TYPE".equals(singleArr[0])) {
+/* 428 */             AllTypeMap.put("AllType", "AllType");
+/* 429 */             AllTypeMap.put("isEdit", singleArr[1]);
+/*     */           }
+/* 431 */           if (code.getCodeNo().equals(singleArr[0])) {
+/* 432 */             map.put("codeId", code.getCodeId());
+/* 433 */             map.put("codeNo", code.getCodeNo());
+/* 434 */             map.put("codeName", code.getCodeName());
+/* 435 */             map.put("isEdit", singleArr[1]);
+/* 436 */             allCodeList.add(map);
+/*     */           }
+/*     */           else {
+/* 439 */             isEdit = "1";
+/*     */           }
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 445 */       json.setObj(allCodeList);
+/* 446 */       json.setObject(AllTypeMap);
+/* 447 */       json.setFlag(0);
+/* 448 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 450 */       json.setFlag(1);
+/* 451 */       json.setMsg("err");
+/* 452 */       e.printStackTrace();
+/*     */     }
+/* 454 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> getNotifyCode()
+/*     */   {
+/* 459 */     ToJson json = new ToJson();
+/*     */     try {
+/* 461 */       List<SysCode> codeList = this.sysCodeMapper.getNotifyType();
+/* 462 */       List allCodeList = new ArrayList();
+/* 463 */       Map AllTypeMap = new LinkedHashMap();
+/* 464 */       String isEdit = "0";
+/* 465 */       StringBuffer sb = new StringBuffer("TYPE-0,");
+/* 466 */       for (SysCode code : codeList) {
+/* 467 */         sb.append(code.getCodeNo() + "-" + 0);
+/* 468 */         sb.append(",");
+/* 469 */         Map map = new LinkedHashMap();
+/* 470 */         map.put("codeId", code.getCodeId());
+/* 471 */         map.put("codeNo", code.getCodeNo());
+/* 472 */         map.put("codeName", code.getCodeName());
+/* 473 */         map.put("isEdit", Integer.valueOf(0));
+/* 474 */         allCodeList.add(map);
+/*     */       }
+/* 476 */       AllTypeMap.put("AllType", "AllType");
+/* 477 */       AllTypeMap.put("isEdit", isEdit);
+/* 478 */       json.setObj(allCodeList);
+/* 479 */       json.setObject(AllTypeMap);
+/* 480 */       json.setFlag(0);
+/* 481 */       json.setMsg(sb.toString());
+/*     */     } catch (Exception e) {
+/* 483 */       json.setFlag(1);
+/* 484 */       json.setMsg("err");
+/* 485 */       e.printStackTrace();
+/*     */     }
+/* 487 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.syspara.impl.SysParaNotifyServiceImpl
+ * JD-Core Version:    0.6.0
+ */

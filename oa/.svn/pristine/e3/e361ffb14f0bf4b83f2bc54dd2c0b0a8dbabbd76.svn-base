@@ -1,0 +1,132 @@
+/*     */ package com.xoa.service.book;
+/*     */ 
+/*     */ import com.xoa.dao.book.BookManagerMapper;
+/*     */ import com.xoa.model.book.BookManager;
+/*     */ import com.xoa.service.department.DepartmentService;
+/*     */ import com.xoa.service.users.UsersService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class BookManagerService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private BookManagerMapper bookManagerMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentService departmentService;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersService usersService;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<BookManager> insertManager(BookManager bookManager)
+/*     */   {
+/*  45 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  47 */       int count = this.bookManagerMapper.insertManager(bookManager);
+/*  48 */       if (count > 0) {
+/*  49 */         json.setMsg("ok");
+/*  50 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  53 */       json.setMsg(e.getMessage());
+/*  54 */       L.e(new Object[] { "BookManagerService insertManager:" + e });
+/*  55 */       e.printStackTrace();
+/*     */     }
+/*  57 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<BookManager> upManagerById(BookManager bookManager)
+/*     */   {
+/*  69 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  71 */       int count = this.bookManagerMapper.upManagerById(bookManager);
+/*  72 */       if (count > 0) {
+/*  73 */         json.setMsg("ok");
+/*  74 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  77 */       json.setMsg(e.getMessage());
+/*  78 */       L.e(new Object[] { "BookManagerService upManagerById:" + e });
+/*  79 */       e.printStackTrace();
+/*     */     }
+/*  81 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<BookManager> delManagerById(Integer autoId)
+/*     */   {
+/*  93 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  95 */       int count = this.bookManagerMapper.delManagerById(autoId);
+/*  96 */       if (count > 0) {
+/*  97 */         json.setMsg("ok");
+/*  98 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 101 */       json.setMsg(e.getMessage());
+/* 102 */       L.e(new Object[] { "BookManagerService delManagerById:" + e });
+/* 103 */       e.printStackTrace();
+/*     */     }
+/* 105 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookManager> selManagerById(Integer autoId)
+/*     */   {
+/* 116 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 118 */       BookManager bookManager = this.bookManagerMapper.selManagerById(autoId);
+/* 119 */       if (!StringUtils.checkNull(bookManager.getManagerId()).booleanValue()) {
+/* 120 */         bookManager.setManagerName(this.usersService.getUserNameById(bookManager.getManagerId(), ","));
+/*     */       }
+/* 122 */       if (!StringUtils.checkNull(bookManager.getManageDeptId()).booleanValue()) {
+/* 123 */         bookManager.setManageDeptName(this.departmentService.getDeptNameByDeptId(bookManager.getManageDeptId(), ","));
+/*     */       }
+/* 125 */       json.setObject(bookManager);
+/* 126 */       json.setMsg("ok");
+/* 127 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 129 */       json.setMsg(e.getMessage());
+/* 130 */       L.e(new Object[] { "BookManagerService selManagerById:" + e });
+/* 131 */       e.printStackTrace();
+/*     */     }
+/* 133 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookManager> selAllManager()
+/*     */   {
+/* 143 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 145 */       List<BookManager> list = this.bookManagerMapper.selAllManager();
+/* 146 */       for (BookManager bookManager : list) {
+/* 147 */         if (!StringUtils.checkNull(bookManager.getManagerId()).booleanValue()) {
+/* 148 */           bookManager.setManagerName(this.usersService.getUserNameById(bookManager.getManagerId(), ","));
+/*     */         }
+/* 150 */         if (!StringUtils.checkNull(bookManager.getManageDeptId()).booleanValue()) {
+/* 151 */           bookManager.setManageDeptName(this.departmentService.getDeptNameByDeptId(bookManager.getManageDeptId(), ","));
+/*     */         }
+/*     */       }
+/* 154 */       json.setObj(list);
+/* 155 */       json.setMsg("ok");
+/* 156 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 158 */       json.setMsg(e.getMessage());
+/* 159 */       L.e(new Object[] { "BookManagerService selAllManager:" + e });
+/* 160 */       e.printStackTrace();
+/*     */     }
+/* 162 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.book.BookManagerService
+ * JD-Core Version:    0.6.0
+ */

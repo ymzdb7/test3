@@ -1,0 +1,106 @@
+/*     */ package com.xoa.util.common;
+/*     */ 
+/*     */ import java.util.regex.Matcher;
+/*     */ import java.util.regex.Pattern;
+/*     */ 
+/*     */ public class StringUtils
+/*     */ {
+/*     */   public static String checkNullUtils(CheckCallBack callBack, Object[] args)
+/*     */   {
+/*  28 */     if ((args == null) || (args.length == 0)) {
+/*  29 */       L.e(new Object[] { "be sure you param is not null" });
+/*  30 */       throw new RuntimeException("be sure you param is not null");
+/*     */     }
+/*     */ 
+/*  33 */     if (args.length % 2 != 0) {
+/*  34 */       L.e(new Object[] { "params must be pair" });
+/*  35 */       throw new RuntimeException("params must be pair");
+/*     */     }
+/*     */ 
+/*  38 */     for (int i = 0; i < args.length - 1; i += 2) {
+/*  39 */       if (callBack.isNull(args)) {
+/*  40 */         return args[(i + 1)].toString();
+/*     */       }
+/*     */ 
+/*  43 */       if (args[i] == null) {
+/*  44 */         return args[(i + 1)].toString();
+/*     */       }
+/*     */     }
+/*  47 */     return null;
+/*     */   }
+/*     */ 
+/*     */   public static Boolean checkNull(String str) {
+/*  51 */     if (str == null) return Boolean.valueOf(true);
+/*  52 */     if (("".equals(str.trim())) || (str.trim().length() == 0)) return Boolean.valueOf(true);
+/*  53 */     return Boolean.valueOf(false);
+/*     */   }
+/*     */ 
+/*     */   public static String underline2Camel(String line, boolean smallCamel)
+/*     */   {
+/*  62 */     if ((line == null) || ("".equals(line))) {
+/*  63 */       return "";
+/*     */     }
+/*  65 */     StringBuffer sb = new StringBuffer();
+/*  66 */     Pattern pattern = Pattern.compile("([A-Za-z\\d]+)(_)?");
+/*  67 */     Matcher matcher = pattern.matcher(line);
+/*  68 */     while (matcher.find()) {
+/*  69 */       String word = matcher.group();
+/*  70 */       sb.append((smallCamel) && (matcher.start() == 0) ? Character.toLowerCase(word.charAt(0)) : Character.toUpperCase(word.charAt(0)));
+/*  71 */       int index = word.lastIndexOf('_');
+/*  72 */       if (index > 0)
+/*  73 */         sb.append(word.substring(1, index).toLowerCase());
+/*     */       else {
+/*  75 */         sb.append(word.substring(1).toLowerCase());
+/*     */       }
+/*     */     }
+/*  78 */     return sb.toString();
+/*     */   }
+/*     */ 
+/*     */   public static String camel2Underline(String line)
+/*     */   {
+/*  86 */     if ((line == null) || ("".equals(line))) {
+/*  87 */       return "";
+/*     */     }
+/*  89 */     line = String.valueOf(line.charAt(0)).toUpperCase().concat(line.substring(1));
+/*  90 */     StringBuffer sb = new StringBuffer();
+/*  91 */     Pattern pattern = Pattern.compile("[A-Z]([a-z\\d]+)?");
+/*  92 */     Matcher matcher = pattern.matcher(line);
+/*  93 */     while (matcher.find()) {
+/*  94 */       String word = matcher.group();
+/*  95 */       sb.append(word.toUpperCase());
+/*  96 */       sb.append(matcher.end() == line.length() ? "" : "_");
+/*     */     }
+/*  98 */     return sb.toString();
+/*     */   }
+/*     */ 
+/*     */   public static int getInteger(Object o, int def)
+/*     */   {
+/* 108 */     String s = getString(o);
+/*     */ 
+/* 110 */     int print = s.indexOf(".");
+/* 111 */     if (print != -1) {
+/* 112 */       s = s.substring(0, print);
+/*     */     }
+/* 114 */     if (!"".equals(s)) {
+/*     */       try {
+/* 116 */         return Integer.valueOf(s).intValue();
+/*     */       } catch (Exception e) {
+/* 118 */         return def;
+/*     */       }
+/*     */     }
+/* 121 */     return def;
+/*     */   }
+/*     */ 
+/*     */   public static String getString(Object o)
+/*     */   {
+/* 126 */     if (o == null) {
+/* 127 */       return "";
+/*     */     }
+/* 129 */     return String.valueOf(o);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.common.StringUtils
+ * JD-Core Version:    0.6.0
+ */

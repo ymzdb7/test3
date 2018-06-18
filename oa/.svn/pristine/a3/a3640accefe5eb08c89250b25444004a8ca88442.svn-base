@@ -1,0 +1,591 @@
+/*     */ package com.xoa.service.WFE.WFEFactory;
+/*     */ 
+/*     */ import com.alibaba.fastjson.JSONArray;
+/*     */ import com.alibaba.fastjson.JSONObject;
+/*     */ import com.xoa.dao.WFE.WFEFlowProcessMapper;
+/*     */ import com.xoa.dao.WFE.WFEFlowRunPrcsMapper;
+/*     */ import com.xoa.dao.flowRunFeedback.FlowRunFeedbackMapper;
+/*     */ import com.xoa.dao.flowplugin.FlowPluginMapper;
+/*     */ import com.xoa.dao.workflow.FlowTiggerMapper;
+/*     */ import com.xoa.model.flowplugin.FlowPluginModel;
+/*     */ import com.xoa.model.workflow.FlowProcess;
+/*     */ import com.xoa.model.workflow.FlowProcessList;
+/*     */ import com.xoa.model.workflow.FlowRunPrcs;
+/*     */ import com.xoa.model.workflow.FlowTiggerModel;
+/*     */ import com.xoa.service.WFE.WFE;
+/*     */ import com.xoa.service.department.DepartmentService;
+/*     */ import com.xoa.service.users.UsersPrivService;
+/*     */ import com.xoa.service.users.UsersService;
+/*     */ import com.xoa.service.work.WorkService;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.Set;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class WFEFlowProcess extends WFE
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   protected WFEFlowProcessMapper wfeFlowProcessMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   protected WFEFlowRunPrcsMapper wfeFlowRunPrcsMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   protected FlowTiggerMapper flowTiggerMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   protected FlowPluginMapper flowPluginMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   protected WorkService workService;
+/*     */ 
+/*     */   @Autowired
+/*     */   protected FlowRunFeedbackMapper flowRunFeedbackMapper;
+/*     */ 
+/*     */   public FlowProcess find(int id)
+/*     */   {
+/*  53 */     Map maps = new HashMap();
+/*  54 */     maps.put("id", Integer.valueOf(id));
+/*  55 */     FlowProcess flowProcess = this.wfeFlowProcessMapper.find(maps);
+/*  56 */     return flowProcess;
+/*     */   }
+/*     */ 
+/*     */   public List<FlowProcess> findProcseePrcsTo(Map<String, Object> map) {
+/*  60 */     return this.wfeFlowProcessMapper.findProcseePrcsTo(map);
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<FlowProcess> updateByPrimaryKeySelective(FlowProcess record)
+/*     */   {
+/*  73 */     ToJson tojson = new ToJson();
+/*     */     try {
+/*  75 */       L.a(new Object[] { "itemId：" + record.getITEM_ID() });
+/*  76 */       L.a(new Object[] { "autoPrcsUser：" + record.getAUTO_PRCS_USER() });
+/*     */ 
+/*  79 */       String tlement = record.getSettlementOfCondition();
+/*  80 */       if (!StringUtils.checkNull(tlement).booleanValue()) {
+/*  81 */         String intoTheCondition = JSONArray.parseObject(tlement).getString("intoTheCondition");
+/*  82 */         String transferConditions = JSONArray.parseObject(tlement).getString("transferConditions");
+/*  83 */         if (!StringUtils.checkNull(JSONArray.parseObject(intoTheCondition).getString("list")).booleanValue()) {
+/*  84 */           record.setPrcsIn(JSONArray.parseObject(intoTheCondition).getString("list"));
+/*     */         }
+/*  86 */         if (!StringUtils.checkNull(JSONArray.parseObject(transferConditions).getString("list")).booleanValue()) {
+/*  87 */           record.setPrcsOut(JSONArray.parseObject(transferConditions).getString("list"));
+/*     */         }
+/*     */ 
+/*  90 */         if (!StringUtils.checkNull(JSONArray.parseObject(intoTheCondition).getString("prcsInSet")).booleanValue()) {
+/*  91 */           record.setPrcsInSet(JSONArray.parseObject(intoTheCondition).getString("prcsInSet"));
+/*     */         }
+/*     */ 
+/*  94 */         if ((!StringUtils.checkNull(JSONArray.parseObject(intoTheCondition).getString("conditionDesc")).booleanValue()) && (!StringUtils.checkNull(JSONArray.parseObject(transferConditions).getString("conditionDesc")).booleanValue())) {
+/*  95 */           String conditions = "";
+/*  96 */           if (StringUtils.checkNull(JSONArray.parseObject(intoTheCondition).getString("conditionDesc")).booleanValue())
+/*  97 */             conditions = conditions + "";
+/*     */           else {
+/*  99 */             conditions = conditions + JSONArray.parseObject(intoTheCondition).getString("conditionDesc");
+/*     */           }
+/* 101 */           conditions = conditions + "\n";
+/* 102 */           if (StringUtils.checkNull(JSONArray.parseObject(transferConditions).getString("conditionDesc")).booleanValue())
+/* 103 */             conditions = conditions + "";
+/*     */           else {
+/* 105 */             conditions = conditions + JSONArray.parseObject(transferConditions).getString("conditionDesc");
+/*     */           }
+/* 107 */           record.setConditionDesc(conditions);
+/*     */         }
+/* 110 */         else if (!StringUtils.checkNull(JSONArray.parseObject(intoTheCondition).getString("conditionDesc")).booleanValue()) {
+/* 111 */           record.setConditionDesc(JSONArray.parseObject(intoTheCondition).getString("conditionDesc"));
+/* 112 */         } else if (!StringUtils.checkNull(JSONArray.parseObject(transferConditions).getString("conditionDesc")).booleanValue()) {
+/* 113 */           record.setConditionDesc("\n" + JSONArray.parseObject(transferConditions).getString("conditionDesc"));
+/*     */         }
+/* 115 */         if (!StringUtils.checkNull(JSONArray.parseObject(transferConditions).getString("prcsOutSet")).booleanValue()) {
+/* 116 */           record.setPrcsOutSet(JSONArray.parseObject(transferConditions).getString("prcsOutSet"));
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 122 */       String prcsItem = record.getPrcsItemTwo();
+/* 123 */       if (!StringUtils.checkNull(prcsItem).booleanValue()) {
+/* 124 */         JSONObject jsonObject = JSONArray.parseObject(prcsItem);
+/* 125 */         if (jsonObject != null) {
+/* 126 */           if (!StringUtils.checkNull(jsonObject.getString("prcsItem")).booleanValue()) {
+/* 127 */             record.setPrcsItem(jsonObject.getString("prcsItem"));
+/*     */           }
+/* 129 */           if (!StringUtils.checkNull(jsonObject.getString("attachPriv")).booleanValue()) {
+/* 130 */             record.setAttachPriv(jsonObject.getString("attachPriv"));
+/*     */           }
+/* 132 */           if (!StringUtils.checkNull(jsonObject.getString("attachEditPriv")).booleanValue()) {
+/* 133 */             record.setAttachEditPriv(jsonObject.getString("attachEditPriv"));
+/*     */           }
+/* 135 */           if (!StringUtils.checkNull(jsonObject.getString("attachEditPrivOnline")).booleanValue()) {
+/* 136 */             record.setAttachEditPrivOnline(jsonObject.getString("attachEditPrivOnline"));
+/*     */           }
+/* 138 */           if (!StringUtils.checkNull(jsonObject.getString("attachMacroMark")).booleanValue()) {
+/* 139 */             record.setAttachMacroMark(jsonObject.getString("attachMacroMark"));
+/*     */           }
+/* 141 */           if (!StringUtils.checkNull(jsonObject.getString("documentEditPriv")).booleanValue()) {
+/* 142 */             record.setDocumentEditPriv(jsonObject.getInteger("documentEditPriv"));
+/*     */           }
+/* 144 */           if (!StringUtils.checkNull(jsonObject.getString("documentEditPrivDetail")).booleanValue()) {
+/* 145 */             record.setDocumentEditPrivDetail(jsonObject.getString("documentEditPrivDetail"));
+/*     */           }
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 151 */       if (!StringUtils.checkNull(record.getITEM_ID()).booleanValue()) {
+/* 152 */         record.setAutoUser(record.getITEM_ID());
+/*     */       }
+/* 154 */       record.setPrcsTo(record.getPrcsTo());
+/* 155 */       this.wfeFlowProcessMapper.updateByPrimaryKeySelective(record);
+/* 156 */       tojson.setFlag(0);
+/* 157 */       tojson.setMsg("OK");
+/*     */     } catch (Exception e) {
+/* 159 */       e.printStackTrace();
+/* 160 */       tojson.setFlag(1);
+/* 161 */       tojson.setMsg("error");
+/*     */     }
+/* 163 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   public List<FlowProcess> findFlowId(int flowId)
+/*     */   {
+/* 168 */     List list = this.wfeFlowProcessMapper.findFlowId(flowId);
+/* 169 */     return list;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<FlowProcess> delete(int id)
+/*     */   {
+/* 183 */     ToJson toJson = new ToJson();
+/*     */     try {
+/* 185 */       this.wfeFlowProcessMapper.deleteByPrimaryKey(Integer.valueOf(id));
+/* 186 */       toJson.setFlag(0);
+/* 187 */       toJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 189 */       toJson.setFlag(1);
+/* 190 */       toJson.setMsg("error");
+/*     */     }
+/* 192 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional(readOnly=true)
+/*     */   public ToJson<FlowProcessList> flowView(Integer flowId, Integer runId, String userId)
+/*     */   {
+/* 199 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 201 */       Map map = null;
+/*     */ 
+/* 203 */       List lm = new ArrayList();
+/*     */ 
+/* 205 */       List list = this.wfeFlowProcessMapper.findF(flowId.intValue());
+/* 206 */       List runPrcsList = new ArrayList();
+/* 207 */       if (runId != null) {
+/* 208 */         runPrcsList = this.wfeFlowRunPrcsMapper.selectAllByRunId(runId);
+/*     */       }
+/* 210 */       int len = list.size();
+/*     */ 
+/* 212 */       ((FlowProcess)list.get(len - 1)).setSetType("end round");
+/* 213 */       ((FlowProcess)list.get(0)).setSetType("start");
+/* 214 */       for (int i = 0; i < len; i++) {
+/* 215 */         Integer prId = ((FlowProcess)list.get(i)).getPrcsId();
+/* 216 */         String prceTo = ((FlowProcess)list.get(i)).getPrcsTo();
+/* 217 */         if (StringUtils.checkNull(prceTo).booleanValue()) {
+/* 218 */           map = new HashMap();
+/* 219 */           map.put("from", Integer.toString(prId.intValue()));
+/* 220 */           if (i < len - 1) {
+/* 221 */             if (((FlowProcess)list.get(i + 1)).getPrcsId().intValue() == prId.intValue() + 1)
+/* 222 */               map.put("to", Integer.toString(((FlowProcess)list.get(i + 1)).getPrcsId().intValue()));
+/*     */           }
+/*     */           else {
+/* 225 */             map.put("to", "end");
+/*     */           }
+/* 227 */           lm.add(map);
+/*     */         } else {
+/* 229 */           String[] p = prceTo.split(",");
+/* 230 */           for (String a : p) {
+/* 231 */             if (!"0".equals(a)) {
+/* 232 */               map = new HashMap();
+/* 233 */               map.put("from", Integer.toString(prId.intValue()));
+/* 234 */               map.put("to", a.toString());
+/* 235 */               lm.add(map);
+/*     */             } else {
+/* 237 */               map = new HashMap();
+/* 238 */               map.put("from", Integer.toString(prId.intValue()));
+/* 239 */               map.put("to", "end");
+/* 240 */               ((FlowProcess)list.get(i)).setSetType("end round");
+/* 241 */               lm.add(map);
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 247 */       List listp = returnChinese(list);
+/*     */ 
+/* 249 */       FlowProcessList flowProcessList = new FlowProcessList();
+/* 250 */       flowProcessList.setConnections(lm);
+/* 251 */       flowProcessList.setDesigndata(listp);
+/* 252 */       flowProcessList.setMax(Integer.valueOf(listp.size()));
+/* 253 */       flowProcessList.setFlowRunPrcsList(runPrcsList);
+/* 254 */       toJson.setObject(flowProcessList);
+/* 255 */       toJson.setFlag(0);
+/* 256 */       toJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 258 */       L.e(new Object[] { "FlowProcessServiceImpl flowView:" + e });
+/*     */     }
+/* 260 */     return toJson;
+/*     */   }
+/*     */   @Transactional
+/*     */   public ToJson<FlowProcess> insertSelective(FlowProcess record) {
+/* 265 */     ToJson toJson = new ToJson();
+/*     */     try {
+/* 267 */       this.wfeFlowProcessMapper.insert(record);
+/* 268 */       toJson.setFlag(0);
+/* 269 */       toJson.setMsg("ok");
+/* 270 */       toJson.setObject(record);
+/*     */     } catch (Exception e) {
+/* 272 */       toJson.setFlag(1);
+/* 273 */       toJson.setMsg("error");
+/*     */     }
+/* 275 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public FlowProcess findbyprcsId(int flowId, int prcsId) {
+/* 279 */     Map maps = new HashMap();
+/* 280 */     maps.put("folwId", Integer.valueOf(flowId));
+/* 281 */     maps.put("prcsId", Integer.valueOf(prcsId));
+/* 282 */     FlowProcess flowProcess = this.wfeFlowProcessMapper.findbyprcsId(maps);
+/* 283 */     return flowProcess;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<FlowProcess> updateTopAndLeft(FlowProcess flowProcess)
+/*     */   {
+/* 297 */     ToJson toJson = new ToJson();
+/* 298 */     FlowProcess prcsTo = this.wfeFlowProcessMapper.findLine(flowProcess.getId());
+/*     */     try {
+/* 300 */       if ((prcsTo.getPrcsTo().equals("0")) || (prcsTo.getPrcsTo().equals("0,")))
+/* 301 */         this.wfeFlowProcessMapper.updateTopAndLeft(flowProcess);
+/* 302 */       else if (StringUtils.checkNull(prcsTo.getPrcsTo()).booleanValue()) {
+/* 303 */         if (flowProcess.getPrcsTo().equals("")) {
+/* 304 */           flowProcess.setPrcsTo(prcsTo.getPrcsId().intValue() + 1 + ",");
+/* 305 */           this.wfeFlowProcessMapper.updateTopAndLeft(flowProcess);
+/*     */         } else {
+/* 307 */           this.wfeFlowProcessMapper.updateTopAndLeft(flowProcess);
+/*     */         }
+/*     */       }
+/* 310 */       if (prcsTo.getPrcsTo() != "") {
+/* 311 */         String prcsToI = prcsTo.getPrcsTo();
+/* 312 */         StringBuffer prcsTo1 = new StringBuffer(prcsToI);
+/* 313 */         String[] prcsToId = flowProcess.getPrcsTo().split(",");
+/* 314 */         int len = prcsToId.length;
+/* 315 */         for (int i = 0; i < len; i++) {
+/* 316 */           if (!prcsToI.contains(prcsToId[i])) {
+/* 317 */             prcsTo1.append(prcsToId[i] + ",");
+/*     */           }
+/*     */         }
+/* 320 */         flowProcess.setPrcsTo(prcsTo1.toString());
+/* 321 */         this.wfeFlowProcessMapper.updateTopAndLeft(flowProcess);
+/*     */       }
+/* 323 */       toJson.setFlag(0);
+/* 324 */       toJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 326 */       toJson.setTotleNum(Integer.valueOf(1));
+/* 327 */       toJson.setMsg("error");
+/*     */     }
+/* 329 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public String deptName(String name)
+/*     */   {
+/* 339 */     String deptName = null;
+/*     */ 
+/* 341 */     return deptName;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<FlowProcess> findPrcessLine(FlowProcess flowProcesse, String toPrcsLine)
+/*     */   {
+/* 354 */     ToJson toJson = new ToJson();
+/* 355 */     FlowProcess flowProcess = this.wfeFlowProcessMapper.findPrcessLine(flowProcesse.getFlowId(), flowProcesse.getPrcsId());
+/* 356 */     FlowProcess fpr = new FlowProcess();
+/*     */     try {
+/* 358 */       if (StringUtils.checkNull(flowProcess.getPrcsTo()).booleanValue()) {
+/* 359 */         fpr.setId(flowProcess.getId());
+/* 360 */         fpr.setPrcsTo("0");
+/* 361 */         this.wfeFlowProcessMapper.updateTopAndLeft(fpr);
+/*     */       } else {
+/* 363 */         String[] prcsTo = flowProcess.getPrcsTo().split(",");
+/* 364 */         int leng = prcsTo.length;
+/* 365 */         if (leng == 1) {
+/* 366 */           fpr.setId(flowProcess.getId());
+/* 367 */           fpr.setPrcsTo("");
+/* 368 */           this.wfeFlowProcessMapper.updateTopAndLeft(fpr);
+/*     */         } else {
+/* 370 */           String names = "";
+/* 371 */           for (int i = 0; i < leng; i++) {
+/* 372 */             String prcsToI = prcsTo[i];
+/* 373 */             if (!prcsToI.equals(toPrcsLine)) {
+/* 374 */               names = names + prcsToI + ",";
+/*     */             }
+/*     */           }
+/* 377 */           fpr.setId(flowProcess.getId());
+/* 378 */           fpr.setPrcsTo(names);
+/* 379 */           this.wfeFlowProcessMapper.updateTopAndLeft(fpr);
+/*     */         }
+/*     */       }
+/* 382 */       toJson.setFlag(0);
+/* 383 */       toJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 385 */       toJson.setFlag(1);
+/* 386 */       toJson.setMsg("error");
+/* 387 */       L.e(new Object[] { "Process findPrcessLine:" + e });
+/*     */     }
+/* 389 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public Map<Object, String> returnTiggerValue()
+/*     */   {
+/* 400 */     Map maps = new HashMap();
+/*     */ 
+/* 402 */     maps.put("BEFORE_FRONTEND", "前台,执行操作前");
+/* 403 */     maps.put("AFTER_FRONTEND", "前台,执行操作后");
+/* 404 */     maps.put("BEFORE_BACKEND", "后台,执行操作前");
+/* 405 */     maps.put("AFTER_BACKEND", "后台,执行操作后");
+/*     */ 
+/* 408 */     maps.put("CREATE", "新建操作");
+/* 409 */     maps.put("RECEIVE", "接收操作");
+/* 410 */     maps.put("SAVE", "保存操作");
+/* 411 */     maps.put("TURN", "转交操作");
+/* 412 */     maps.put("INTRUST", "委托操作");
+/* 413 */     maps.put("BACK", "退回操作");
+/*     */ 
+/* 416 */     List<FlowPluginModel> list = this.flowPluginMapper.showFlowPlugin();
+/* 417 */     if (list.size() > 0) {
+/* 418 */       for (FlowPluginModel flp : list) {
+/* 419 */         maps.put(flp.getFlowPluginId(), flp.getFlowPluginName());
+/*     */       }
+/*     */     }
+/* 422 */     return maps;
+/*     */   }
+/*     */ 
+/*     */   public ToJson myFlowView(Integer flowId, Integer runId, String userId)
+/*     */   {
+/* 434 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 436 */       Map map = null;
+/*     */ 
+/* 438 */       List lm = new ArrayList();
+/*     */ 
+/* 440 */       List list = this.wfeFlowProcessMapper.findF(flowId.intValue());
+/* 441 */       List runPrcsList = this.wfeFlowRunPrcsMapper.selectMyAll(userId, runId);
+/* 442 */       int listLength = list.size();
+/* 443 */       int runPrcsListLenth = runPrcsList.size();
+/*     */ 
+/* 445 */       if (listLength > runPrcsListLenth) {
+/* 446 */         for (int i = listLength - 1; i >= runPrcsListLenth; i--) {
+/* 447 */           list.remove(i);
+/*     */         }
+/*     */       }
+/* 450 */       Date newDate = new Date();
+/* 451 */       for (int i = 0; i < runPrcsListLenth; i++) {
+/* 452 */         Integer prId = ((FlowProcess)list.get(i)).getPrcsId();
+/* 453 */         String prceTo = ((FlowProcess)list.get(i)).getPrcsTo();
+/* 454 */         if (StringUtils.checkNull(prceTo).booleanValue()) {
+/* 455 */           map = new HashMap();
+/* 456 */           map.put("from", Integer.toString(prId.intValue()));
+/* 457 */           if (i < runPrcsListLenth - 1) {
+/* 458 */             if (((FlowProcess)list.get(i + 1)).getPrcsId().intValue() == prId.intValue() + 1)
+/* 459 */               map.put("to", Integer.toString(((FlowProcess)list.get(i + 1)).getPrcsId().intValue()));
+/*     */           }
+/*     */           else {
+/* 462 */             map.put("to", "end");
+/*     */           }
+/* 464 */           lm.add(map);
+/*     */         } else {
+/* 466 */           String[] p = prceTo.split(",");
+/* 467 */           for (String a : p) {
+/* 468 */             if (!"0".equals(a)) {
+/* 469 */               map = new HashMap();
+/* 470 */               map.put("from", Integer.toString(prId.intValue()));
+/* 471 */               map.put("to", a.toString());
+/* 472 */               lm.add(map);
+/*     */             } else {
+/* 474 */               map = new HashMap();
+/* 475 */               map.put("from", Integer.toString(prId.intValue()));
+/* 476 */               map.put("to", "end");
+/* 477 */               ((FlowProcess)list.get(i)).setSetType("end round");
+/* 478 */               lm.add(map);
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */ 
+/* 483 */         ((FlowRunPrcs)runPrcsList.get(i)).setUserName(this.usersService.getUserNameById(((FlowRunPrcs)runPrcsList.get(i)).getUserId()));
+/*     */ 
+/* 485 */         if (DateFormat.getTime(((FlowRunPrcs)runPrcsList.get(i)).getPrcsTime()).intValue() != -621701856)
+/*     */         {
+/* 487 */           ((FlowRunPrcs)runPrcsList.get(i)).setReceive(DateFormat.getStrTime(DateFormat.getTime(((FlowRunPrcs)runPrcsList.get(i)).getPrcsTime())));
+/*     */ 
+/* 489 */           ((FlowRunPrcs)runPrcsList.get(i)).setHandleTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(DateFormat.getStrDate(newDate)).intValue() - DateFormat.getTime(((FlowRunPrcs)runPrcsList.get(i)).getPrcsTime()).intValue())));
+/*     */         }
+/*     */ 
+/* 492 */         if (((DateFormat.getTime(((FlowRunPrcs)runPrcsList.get(i)).getPrcsTime()).intValue() != -621701856) && (((FlowRunPrcs)runPrcsList.get(i)).getPrcsId().intValue() > 1)) || ((DateFormat.getTime(((FlowRunPrcs)runPrcsList.get(i)).getPrcsTime()).intValue() == -621701856) && (((FlowRunPrcs)runPrcsList.get(i)).getPrcsId().intValue() > 1)))
+/*     */         {
+/* 494 */           Integer runIds = ((FlowRunPrcs)runPrcsList.get(i)).getRunId();
+/* 495 */           String prcsUser = ((FlowRunPrcs)runPrcsList.get(i)).getUserId();
+/* 496 */           Integer prcsId = Integer.valueOf(((FlowRunPrcs)runPrcsList.get(i)).getPrcsId().intValue() - 1);
+/* 497 */           Map params = new HashMap();
+/* 498 */           params.put("userId", prcsUser);
+/* 499 */           params.put("prcsId", prcsId);
+/* 500 */           params.put("runId", runId);
+/* 501 */           String upTime = this.wfeFlowRunPrcsMapper.findTimeBy(params);
+/* 502 */           if (!StringUtils.checkNull(upTime).booleanValue())
+/*     */           {
+/* 504 */             ((FlowRunPrcs)runPrcsList.get(i)).setReceiptTime(DateFormat.getStrTime(DateFormat.getTime(upTime)));
+/*     */ 
+/* 506 */             ((FlowRunPrcs)runPrcsList.get(i)).setArriveTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(DateFormat.getStrDate(newDate)).intValue() - DateFormat.getTime(((FlowRunPrcs)runPrcsList.get(i)).getReceiptTime()).intValue())));
+/*     */           }
+/*     */         } else {
+/* 509 */           ((FlowRunPrcs)runPrcsList.get(i)).setReceiptTime(DateFormat.getStrTime(DateFormat.getTime(((FlowRunPrcs)runPrcsList.get(i)).getPrcsTime())));
+/* 510 */           ((FlowRunPrcs)runPrcsList.get(i)).setArriveTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(DateFormat.getStrDate(newDate)).intValue() - DateFormat.getTime(((FlowRunPrcs)runPrcsList.get(i)).getPrcsTime()).intValue())));
+/* 511 */           ((FlowRunPrcs)runPrcsList.get(i)).setReceive("");
+/* 512 */           ((FlowRunPrcs)runPrcsList.get(i)).setHandleTime("");
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 517 */       List listp = returnChinese(list);
+/*     */ 
+/* 519 */       FlowProcessList flowProcessList = new FlowProcessList();
+/* 520 */       flowProcessList.setConnections(lm);
+/* 521 */       flowProcessList.setDesigndata(listp);
+/* 522 */       flowProcessList.setMax(Integer.valueOf(listp.size()));
+/* 523 */       flowProcessList.setFlowRunPrcsList(runPrcsList);
+/* 524 */       toJson.setFlag(0);
+/* 525 */       toJson.setMsg("ok");
+/* 526 */       toJson.setObject(flowProcessList);
+/*     */     } catch (Exception e) {
+/* 528 */       L.e(new Object[] { "FlowProcessServiceImpl myFlowView:" + e });
+/*     */     }
+/* 530 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson getFlowAttachment(String runId, String conpany)
+/*     */   {
+/* 535 */     return this.workService.findworkUpload(runId, conpany);
+/*     */   }
+/*     */ 
+/*     */   public ToJson selectFlowFeedBackByRunId(String runId) {
+/* 539 */     List datas = this.flowRunFeedbackMapper.selectFlowFeedBackByRunId(runId);
+/* 540 */     ToJson json = new ToJson();
+/* 541 */     json.setObj(datas);
+/* 542 */     json.setFlag(0);
+/* 543 */     json.setMsg("ok");
+/* 544 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrappers getFlowRunPrecsAll(String runId) {
+/* 548 */     BaseWrappers wrappers = new BaseWrappers();
+/* 549 */     wrappers.setStatus(true);
+/* 550 */     if (StringUtils.checkNull(runId).booleanValue()) {
+/* 551 */       wrappers.setFlag(false);
+/* 552 */       wrappers.setMsg("失败");
+/* 553 */       return wrappers;
+/*     */     }
+/* 555 */     List<FlowRunPrcs> datas = this.wfeFlowRunPrcsMapper.getFlowRunReacsAllByRunId(runId);
+/* 556 */     Date newDate = new Date();
+/* 557 */     for (FlowRunPrcs runPrcs : datas) {
+/* 558 */       if (Integer.parseInt(runPrcs.getPrcsFlag()) <= 2)
+/*     */       {
+/* 560 */         runPrcs.setArriveTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(DateFormat.getStrDate(newDate)).intValue() - DateFormat.getTime(runPrcs.getCreateTime()).intValue())));
+/*     */ 
+/* 562 */         if (DateFormat.getTime(runPrcs.getPrcsTime()).intValue() == -621701856) {
+/* 563 */           runPrcs.setHandleTime("未接收");
+/* 564 */           runPrcs.setPrcsTime("");
+/*     */         } else {
+/* 566 */           runPrcs.setHandleTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(DateFormat.getStrDate(newDate)).intValue() - DateFormat.getTime(runPrcs.getPrcsTime()).intValue())));
+/*     */         }
+/*     */       }
+/*     */       else
+/*     */       {
+/* 571 */         runPrcs.setArriveTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(runPrcs.getDeliverTime()).intValue() - DateFormat.getTime(runPrcs.getCreateTime()).intValue())));
+/*     */ 
+/* 573 */         runPrcs.setHandleTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(runPrcs.getDeliverTime()).intValue() - DateFormat.getTime(runPrcs.getPrcsTime()).intValue())));
+/*     */       }
+/* 575 */       runPrcs.setCreateTime(runPrcs.getCreateTime().substring(0, runPrcs.getCreateTime().length() - 2));
+/* 576 */       if (!StringUtils.checkNull(runPrcs.getPrcsTime()).booleanValue()) {
+/* 577 */         runPrcs.setPrcsTime(runPrcs.getPrcsTime().substring(0, runPrcs.getPrcsTime().length() - 2));
+/*     */       }
+/* 579 */       if (!StringUtils.checkNull(runPrcs.getDeliverTime()).booleanValue()) {
+/* 580 */         runPrcs.setDeliverTime(runPrcs.getDeliverTime().substring(0, runPrcs.getDeliverTime().length() - 2));
+/*     */       }
+/*     */     }
+/*     */ 
+/* 584 */     Map map = new HashMap();
+/* 585 */     List flowRunPrcsList = null;
+/* 586 */     for (FlowRunPrcs flowRunPrcs : datas) {
+/* 587 */       if (map.keySet().contains(flowRunPrcs.getPrcsId())) {
+/* 588 */         flowRunPrcsList = (List)map.get(flowRunPrcs.getPrcsId());
+/* 589 */         flowRunPrcsList.add(flowRunPrcs);
+/*     */       } else {
+/* 591 */         flowRunPrcsList = new ArrayList();
+/* 592 */         flowRunPrcsList.add(flowRunPrcs);
+/* 593 */         map.put(flowRunPrcs.getPrcsId(), flowRunPrcsList);
+/*     */       }
+/*     */     }
+/*     */ 
+/* 597 */     List<FlowRunPrcs> list = (List)map.get(Integer.valueOf(map.size()));
+/* 598 */     for (FlowRunPrcs flowRunPrcs : list) {
+/* 599 */       if (Integer.parseInt(flowRunPrcs.getPrcsFlag()) < 4) {
+/* 600 */         wrappers.setStatus(false);
+/*     */       }
+/*     */     }
+/* 603 */     wrappers.setDatas(datas);
+/* 604 */     wrappers.setFlag(true);
+/* 605 */     wrappers.setMsg("0k");
+/* 606 */     return wrappers;
+/*     */   }
+/*     */ 
+/*     */   public List<FlowProcess> returnChinese(List<FlowProcess> list)
+/*     */   {
+/* 617 */     List listp = new ArrayList();
+/*     */ 
+/* 619 */     for (FlowProcess flowProcess : list) {
+/* 620 */       if (!StringUtils.checkNull(flowProcess.getPrcsDept()).booleanValue()) {
+/* 621 */         flowProcess.setPrcsDeptName(this.departmentService.getDeptNameByDeptId(flowProcess.getPrcsDept(), ","));
+/*     */       }
+/* 623 */       if (!StringUtils.checkNull(flowProcess.getPrcsPriv()).booleanValue()) {
+/* 624 */         flowProcess.setPrcsPrivName(this.usersPrivService.getPrivNameByPrivId(flowProcess.getPrcsPriv(), ","));
+/*     */       }
+/* 626 */       if (!StringUtils.checkNull(flowProcess.getPrcsUser()).booleanValue()) {
+/* 627 */         flowProcess.setPrcsUserName(this.usersService.getUserNameById(flowProcess.getPrcsUser()));
+/*     */       }
+/* 629 */       List<FlowTiggerModel> flowTiggerModel = this.flowTiggerMapper.selectFlowTigger(flowProcess.getFlowId(), flowProcess.getPrcsId());
+/* 630 */       if ((flowTiggerModel != null) && (flowTiggerModel.size() > 0)) {
+/* 631 */         List fltm = new ArrayList();
+/* 632 */         for (FlowTiggerModel ftm : flowTiggerModel) {
+/* 633 */           ftm.setPluginTypeName((String)returnTiggerValue().get(ftm.getPluginType()));
+/* 634 */           ftm.setPluginWayName((String)returnTiggerValue().get(ftm.getPluginWay()));
+/* 635 */           ftm.setPluginName((String)returnTiggerValue().get(ftm.getPlugin()));
+/* 636 */           fltm.add(ftm);
+/*     */         }
+/* 638 */         flowProcess.setFlowTiggerModel(fltm);
+/*     */       } else {
+/* 640 */         flowProcess.setFlowTiggerModel(new ArrayList());
+/*     */       }
+/* 642 */       listp.add(flowProcess);
+/*     */     }
+/* 644 */     return listp;
+/*     */   }
+/*     */ }

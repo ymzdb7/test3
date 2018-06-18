@@ -1,0 +1,53 @@
+/*    */ package com.xoa.service.wechat.WeChatTopic.impl;
+/*    */ 
+/*    */ import com.xoa.dao.wechat.WeChatTopicMapper;
+/*    */ import com.xoa.model.wechat.WeChatTopic;
+/*    */ import com.xoa.service.wechat.WeChatTopic.WeChatTopicService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import java.util.List;
+/*    */ import javax.annotation.Resource;
+/*    */ import org.springframework.stereotype.Service;
+/*    */ 
+/*    */ @Service
+/*    */ public class WeChatTopicServiceImpl
+/*    */   implements WeChatTopicService
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   private WeChatTopicMapper weChatTopicMapper;
+/*    */ 
+/*    */   public ToJson<WeChatTopic> selectAllWeChatTopic()
+/*    */   {
+/* 21 */     ToJson json = new ToJson();
+/*    */     try {
+/* 23 */       List weChatTopicList = this.weChatTopicMapper.selectAllWeChatTopic();
+/* 24 */       json.setObj(weChatTopicList);
+/* 25 */       json.setFlag(0);
+/* 26 */       json.setMsg("ok");
+/*    */     } catch (Exception e) {
+/* 28 */       e.printStackTrace();
+/* 29 */       json.setFlag(1);
+/* 30 */       json.setMsg("err");
+/*    */     }
+/*    */ 
+/* 33 */     return json;
+/*    */   }
+/*    */   public ToJson<WeChatTopic> updateWeChatTopic(WeChatTopic weChatTopic) {
+/* 36 */     ToJson json = new ToJson();
+/*    */     try {
+/* 38 */       this.weChatTopicMapper.updateWeChatTopic(weChatTopic);
+/* 39 */       json.setFlag(0);
+/* 40 */       json.setMsg("ok");
+/*    */     } catch (Exception e) {
+/* 42 */       e.printStackTrace();
+/* 43 */       json.setFlag(1);
+/* 44 */       json.setMsg("err");
+/*    */     }
+/* 46 */     return json;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.wechat.WeChatTopic.impl.WeChatTopicServiceImpl
+ * JD-Core Version:    0.6.0
+ */

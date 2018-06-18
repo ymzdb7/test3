@@ -1,0 +1,794 @@
+ package com.myoa.service.hr.impl;
+ 
+ import com.myoa.dao.common.SysCodeMapper;
+import com.myoa.dao.department.DepartmentMapper;
+import com.myoa.dao.hr.HrStaffContractMapper;
+import com.myoa.dao.hr.HrStaffInfoMapper;
+import com.myoa.dao.users.UserPrivMapper;
+import com.myoa.dao.users.UsersMapper;
+import com.myoa.model.common.SysCode;
+import com.myoa.model.hr.HrStaffContract;
+import com.myoa.model.hr.HrStaffInfo;
+import com.myoa.model.users.Users;
+import com.myoa.service.enclosure.EnclosureService;
+import com.myoa.service.hr.HrStaffContractService;
+import com.myoa.service.users.UsersService;
+import com.myoa.util.Constant;
+import com.myoa.util.DateFormat;
+import com.myoa.util.GetAttachmentListUtil;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.common.session.SessionUtils;
+import com.myoa.util.common.wrapper.BaseWrapper;
+import com.myoa.util.page.PageParams;
+
+ import java.util.ArrayList;
+ import java.util.Date;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import javax.annotation.Resource;
+ import javax.servlet.http.HttpServletRequest;
+ import javax.servlet.http.HttpSession;
+import org.springframework.stereotype.Service;
+ 
+ @Service
+ public class HrStaffContractServiceImpl
+   implements HrStaffContractService
+ {
+ 
+   @Resource
+   private HrStaffContractMapper hrStaffContractMapper;
+ 
+   @Resource
+   private UsersMapper usersMapper;
+ 
+   @Resource
+   private DepartmentMapper departmentMapper;
+ 
+   @Resource
+   private UserPrivMapper userPrivMapper;
+ 
+   @Resource
+   private HrStaffInfoMapper hrStaffInfoMapper;
+ 
+   @Resource
+   private EnclosureService enclosureService;
+ 
+   @Resource
+   private UsersService usersService;
+ 
+   @Resource
+   private SysCodeMapper sysCodeMapper;
+ 
+   public ToJson<HrStaffContract> getcontractinfo(HttpServletRequest request, String contractId)
+   {
+     ToJson json = new ToJson();
+     if (contractId != null) {
+       try {
+         HrStaffContract getcontractinfo = this.hrStaffContractMapper.getcontractinfo(Integer.valueOf(contractId));
+ 
+         List attachmentList = new ArrayList();
+         if ((getcontractinfo.getAttachmentName() != null) && (!"".equals(getcontractinfo.getAttachmentName()))) {
+           attachmentList = GetAttachmentListUtil.returnAttachment(getcontractinfo.getAttachmentName(), getcontractinfo.getAttachmentId(), Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "hr_staffcontract");
+         }
+         getcontractinfo.setAttachmentList(attachmentList);
+ 
+         if (getcontractinfo != null)
+         {
+           if (getcontractinfo.getContractType() != null) {
+             SysCode hr_staff_contract1 = this.sysCodeMapper.getSingleCode("HR_STAFF_CONTRACT1", getcontractinfo.getContractType());
+             if (hr_staff_contract1 != null)
+               getcontractinfo.setContractTypeName(hr_staff_contract1.getCodeName());
+             else {
+               getcontractinfo.setContractTypeName("该合同类型不存在");
+             }
+ 
+           }
+ 
+           if (getcontractinfo.getContractEnterpries() != null) {
+             SysCode hr_enterprise = this.sysCodeMapper.getSingleCode("HR_ENTERPRISE", getcontractinfo.getContractEnterpries());
+             if (hr_enterprise != null)
+               getcontractinfo.setContractEnterpriesName(hr_enterprise.getCodeName());
+             else {
+               getcontractinfo.setContractEnterpriesName("该公司不存在");
+             }
+           }
+ 
+           Users usersBybyname = this.usersMapper.getUsersByuserId(getcontractinfo.getUserName());
+           if (usersBybyname != null) {
+             getcontractinfo.setUserName(usersBybyname.getUserName());
+             getcontractinfo.setStaffName(usersBybyname.getByname());
+             getcontractinfo.setUserPriv(String.valueOf(usersBybyname.getUserPriv()));
+             getcontractinfo.setUserPrivName(usersBybyname.getUserPrivName());
+             String deptNameByDeptId = this.departmentMapper.getDeptNameByDeptId(usersBybyname.getDeptId());
+             getcontractinfo.setDeptName(deptNameByDeptId);
+           } else {
+             getcontractinfo.setUserName("");
+             getcontractinfo.setStaffName("");
+             getcontractinfo.setUserPrivName("");
+           }
+ 
+           if (!StringUtils.checkNull(getcontractinfo.getRemindUser()).booleanValue()) {
+             String[] split = getcontractinfo.getRemindUser().split(",");
+             List<Users> usersByBynames = this.usersMapper.getUsersByUserIds(split);
+             StringBuffer sb = new StringBuffer();
+             for (Users u : usersByBynames) {
+               sb.append(u.getUserName() + ",");
+             }
+             getcontractinfo.setRemindUserName(sb.toString());
+           }
+         }
+         json.setFlag(0);
+         json.setObject(getcontractinfo);
+         json.setMsg("ok");
+       } catch (Exception e) {
+         json.setFlag(1);
+         json.setMsg("err");
+         e.printStackTrace();
+       }
+     }
+     return json;
+   }
+ 
+   public ToJson<HrStaffContract> getContractInfoByStaffName(Users user)
+   {
+     ToJson json = new ToJson();
+     try {
+       Users users = this.usersMapper.selectUserByUId(user.getUid());
+       List<HrStaffContract> contract = this.hrStaffContractMapper.getContractInfoByStaffName(users.getByname());
+       Integer allCount = this.hrStaffContractMapper.getAllCount();
+       for (HrStaffContract hrSt : contract) {
+         if (hrSt.getProbationEffectiveDate() == null) {
+           hrSt.setProbationEffectiveDate(DateFormat.getDate("0000-00-00"));
+         }
+         if ((hrSt.getUserName() != null) && (hrSt.getUserName() != ""))
+         {
+           if (hrSt.getContractType() != null) {
+             SysCode hr_staff_contract1 = this.sysCodeMapper.getSingleCode("HR_STAFF_CONTRACT1", hrSt.getContractType());
+             if (hr_staff_contract1 != null)
+               hrSt.setContractTypeName(hr_staff_contract1.getCodeName());
+             else
+               hrSt.setContractTypeName("该合同类型不存在");
+           }
+           else {
+             hrSt.setContractTypeName("该合同类型不存在");
+           }
+ 
+           if (hrSt.getContractEnterpries() != null)
+           {
+             SysCode hr_enterprise = this.sysCodeMapper.getSingleCode("HR_ENTERPRISE", hrSt.getContractEnterpries());
+             if (hr_enterprise != null)
+               hrSt.setContractEnterpriesName(hr_enterprise.getCodeName());
+             else
+               hrSt.setContractEnterpriesName("该公司不存在");
+           }
+           else {
+             hrSt.setContractEnterpriesName("该公司不存在");
+           }
+ 
+           Users usersBybyname = this.usersMapper.getUsersByuserId(hrSt.getUserName());
+           if (usersBybyname != null) {
+             hrSt.setUserName(usersBybyname.getUserName());
+             HrStaffInfo wordJobByUserId = this.hrStaffInfoMapper.getStaffByUserId(usersBybyname.getUserId());
+             String deptNameByDeptId = this.departmentMapper.getDeptNameByDeptId(usersBybyname.getDeptId());
+             if (deptNameByDeptId != null) {
+               hrSt.setDeptName(deptNameByDeptId);
+             }
+             if (wordJobByUserId != null) {
+               if ((wordJobByUserId.getWorkJob() != null) && (wordJobByUserId.getWorkJob() != "")) {
+                 SysCode hr_staff_contract1 = this.sysCodeMapper.getSingleCode("WORK_JOB", wordJobByUserId.getWorkJob());
+                 if (hr_staff_contract1 != null)
+                   hrSt.setPostName(hr_staff_contract1.getCodeName());
+                 else
+                   hrSt.setPostName("");
+               }
+               else {
+                 hrSt.setPostName("");
+               }
+             }
+             else hrSt.setPostName(""); 
+           }
+           else
+           {
+             hrSt.setUserName("该用户已被删除");
+             hrSt.setDeptName("");
+             hrSt.setPostName("");
+           }
+         } else {
+           hrSt.setUserName("");
+           hrSt.setDeptName("");
+           hrSt.setPostName("");
+         }
+       }
+       json.setTotleNum(allCount);
+       json.setMsg("ok");
+       json.setFlag(0);
+       json.setObj(contract);
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setFlag(1);
+       json.setMsg("err");
+       json.setObj(null);
+     }
+     return json;
+   }
+ 
+   public BaseWrapper getHrCountByType()
+   {
+     BaseWrapper baseWrapper = new BaseWrapper();
+     List<HrStaffContract> news = this.hrStaffContractMapper.getHrCountByType();
+     Map temp = new HashMap();
+     List<SysCode> sysCodes = this.sysCodeMapper.getChildCode("HR_STAFF_CONTRACT1");
+     for (SysCode sysCode : sysCodes) {
+       temp.put(sysCode.getCodeName(), Integer.valueOf(0));
+     }
+ 
+     for (HrStaffContract item : news) {
+       String key = "合同类型";
+       SysCode code = item.getCodes();
+       if (code != null) {
+         key = code.getCodeName();
+       }
+       if (temp.containsKey(key))
+         temp.put(key, Integer.valueOf(((Integer)temp.get(key)).intValue() + 1));
+       else {
+         temp.put(key, Integer.valueOf(1));
+       }
+     }
+     baseWrapper.setData(temp);
+     baseWrapper.setFlag(true);
+     baseWrapper.setStatus(true);
+     return baseWrapper;
+   }
+ 
+   public ToJson<Object> updateContractInfo(HrStaffContract hrStaffContract, String userPriv)
+   {
+     ToJson json = new ToJson();
+     try {
+       Date date = new Date();
+       hrStaffContract.setLastUpdateTime(date);
+       hrStaffContract.setUserName(hrStaffContract.getStaffName());
+       this.hrStaffContractMapper.updateContractInfo(hrStaffContract);
+       if (!StringUtils.checkNull(hrStaffContract.getStaffName()).booleanValue()) {
+         Users userByName = this.usersMapper.findUserByName(hrStaffContract.getStaffName());
+         if ((userByName != null) && 
+           (!StringUtils.checkNull(userPriv).booleanValue())) {
+           userByName.setUserPriv(Integer.valueOf(userPriv));
+           this.usersService.editUser(userByName, null, null);
+         }
+       }
+ 
+       json.setFlag(0);
+       json.setMsg("ok");
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg("err");
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<Object> deleteContractInfo(String contractId)
+   {
+     ToJson json = new ToJson();
+     if (contractId != null) {
+       try {
+         this.hrStaffContractMapper.deleteContractInfo(Integer.valueOf(contractId));
+         json.setFlag(0);
+         json.setMsg("ok");
+       } catch (Exception e) {
+         json.setFlag(1);
+         json.setMsg("err");
+         e.printStackTrace();
+       }
+     }
+     return json;
+   }
+ 
+   public ToJson<HrStaffContract> getAllContract(Integer page, Integer pageSize, boolean useFlag)
+   {
+     ToJson json = new ToJson();
+     PageParams pageParams = new PageParams();
+     pageParams.setPage(page);
+     pageParams.setPageSize(pageSize);
+     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+     Map map = new HashMap();
+     map.put("page", pageParams);
+     try {
+       List<HrStaffContract> allContract = this.hrStaffContractMapper.getAllContract(map);
+       Integer allCount = this.hrStaffContractMapper.getAllCount();
+       for (HrStaffContract hrSt : allContract) {
+         if (hrSt.getProbationEffectiveDate() == null) {
+           hrSt.setProbationEffectiveDate(DateFormat.getDate("0000-00-00"));
+         }
+         if ((hrSt.getUserName() != null) && (hrSt.getUserName() != ""))
+         {
+           if (hrSt.getContractType() != null) {
+             SysCode hr_staff_contract1 = this.sysCodeMapper.getSingleCode("HR_STAFF_CONTRACT1", hrSt.getContractType());
+             if (hr_staff_contract1 != null)
+               hrSt.setContractTypeName(hr_staff_contract1.getCodeName());
+             else
+               hrSt.setContractTypeName("该合同类型不存在");
+           }
+           else {
+             hrSt.setContractTypeName("该合同类型不存在");
+           }
+ 
+           if (hrSt.getContractEnterpries() != null)
+           {
+             SysCode hr_enterprise = this.sysCodeMapper.getSingleCode("HR_ENTERPRISE", hrSt.getContractEnterpries());
+             if (hr_enterprise != null)
+               hrSt.setContractEnterpriesName(hr_enterprise.getCodeName());
+             else
+               hrSt.setContractEnterpriesName("该公司不存在");
+           }
+           else {
+             hrSt.setContractEnterpriesName("该公司不存在");
+           }
+ 
+           Users usersBybyname = this.usersMapper.getUsersByuserId(hrSt.getUserName());
+           if (usersBybyname != null) {
+             hrSt.setUserName(usersBybyname.getUserName());
+             HrStaffInfo wordJobByUserId = this.hrStaffInfoMapper.getStaffByUserId(usersBybyname.getUserId());
+             String deptNameByDeptId = this.departmentMapper.getDeptNameByDeptId(usersBybyname.getDeptId());
+             if (deptNameByDeptId != null) {
+               hrSt.setDeptName(deptNameByDeptId);
+             }
+             if (wordJobByUserId != null) {
+               if ((wordJobByUserId.getWorkJob() != null) && (wordJobByUserId.getWorkJob() != "")) {
+                 SysCode hr_staff_contract1 = this.sysCodeMapper.getSingleCode("WORK_JOB", wordJobByUserId.getWorkJob());
+                 if (hr_staff_contract1 != null)
+                   hrSt.setPostName(hr_staff_contract1.getCodeName());
+                 else
+                   hrSt.setPostName("");
+               }
+               else {
+                 hrSt.setPostName("");
+               }
+             }
+             else hrSt.setPostName(""); 
+           }
+           else
+           {
+             hrSt.setUserName("该用户已被删除");
+             hrSt.setDeptName("");
+             hrSt.setPostName("");
+           }
+         } else {
+           hrSt.setUserName("");
+           hrSt.setDeptName("");
+           hrSt.setPostName("");
+         }
+       }
+       json.setTotleNum(allCount);
+       json.setMsg("ok");
+       json.setFlag(0);
+       json.setObj(allContract);
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setFlag(1);
+       json.setMsg("err");
+       json.setObj(null);
+     }
+     return json;
+   }
+ 
+   public ToJson<Object> addContract(HttpServletRequest request, HrStaffContract hrStaffContract, String userPriv)
+   {
+     if (hrStaffContract.getStaffName() == null) {
+       hrStaffContract.setStaffName("");
+     }
+     if (hrStaffContract.getStaffContractNo() == null) {
+       hrStaffContract.setStaffContractNo("");
+     }
+     if (hrStaffContract.getContractType() == null) {
+       hrStaffContract.setContractType("");
+     }
+     if (hrStaffContract.getContractSpecialization() == null) {
+       hrStaffContract.setContractSpecialization("");
+     }
+     if (hrStaffContract.getProbationaryPeriod() == null) {
+       hrStaffContract.setProbationaryPeriod("");
+     }
+     if (hrStaffContract.getPassOrNot() == null) {
+       hrStaffContract.setPassOrNot("");
+     }
+     if (hrStaffContract.getActivePeriod() == null) {
+       hrStaffContract.setActivePeriod("");
+     }
+     if (hrStaffContract.getRemark() == null) {
+       hrStaffContract.setRemark("");
+     }
+     if (hrStaffContract.getRemoveOrNot() == null) {
+       hrStaffContract.setRemoveOrNot("");
+     }
+     if (hrStaffContract.getStatus() == null) {
+       hrStaffContract.setStatus("");
+     }
+     if (hrStaffContract.getSingTimes() == null) {
+       hrStaffContract.setSingTimes("");
+     }
+     if (hrStaffContract.getStaffUserName() == null) {
+       hrStaffContract.setStaffUserName("");
+     }
+     if (hrStaffContract.getRemindUser() == null) {
+       hrStaffContract.setRemindUser("");
+     }
+     if (hrStaffContract.getRemindType() == null) {
+       hrStaffContract.setRemindType(Integer.valueOf(0));
+     }
+     if (hrStaffContract.getHasReminded() == null) {
+       hrStaffContract.setHasReminded(Integer.valueOf(0));
+     }
+     if (hrStaffContract.getRenewTime() == null) {
+       hrStaffContract.setRenewTime("");
+     }
+     if (hrStaffContract.getContractEnterpries() == null) {
+       hrStaffContract.setContractEnterpries("");
+     }
+     if (hrStaffContract.getIsTrial() == null) {
+       hrStaffContract.setIsTrial("");
+     }
+     if (hrStaffContract.getIsRenew() == null) {
+       hrStaffContract.setIsRenew("");
+     }
+     if (hrStaffContract.getUserName() == null) {
+       hrStaffContract.setUserName("");
+     }
+     ToJson json = new ToJson();
+     try {
+       if (!StringUtils.checkNull(hrStaffContract.getStaffName()).booleanValue()) {
+         Users userByName = this.usersMapper.findUserByName(hrStaffContract.getStaffName());
+         if ((userByName != null) && 
+           (!StringUtils.checkNull(userPriv).booleanValue())) {
+           userByName.setUserPriv(Integer.valueOf(userPriv));
+           this.usersService.editUser(userByName, null, null);
+         }
+ 
+       }
+ 
+       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+ 
+       hrStaffContract.setCreateUserId(users.getUserId());
+       hrStaffContract.setCreateDeptId(users.getDeptId());
+       hrStaffContract.setUserName(hrStaffContract.getStaffName());
+       Date date = new Date();
+ 
+       hrStaffContract.setAddTime(date);
+       this.hrStaffContractMapper.addContract(hrStaffContract);
+       String company = (String)request.getSession().getAttribute("loginDateSouse");
+ 
+       if (company != null)
+         company = Constant.MYOA + company;
+       else {
+         company = "xoa1001";
+       }
+ 
+       json.setFlag(0);
+       json.setMsg("ok");
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg("err");
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<HrStaffContract> getTrialContract(String startTime, String endTime)
+   {
+     ToJson json = new ToJson();
+     if (startTime == "") {
+       startTime = null;
+     }
+     if (endTime == "")
+       endTime = null;
+     try
+     {
+       Map map = new HashMap();
+       map.put("startTime", startTime);
+       map.put("endTime", endTime);
+       List<HrStaffContract> maturityContract = this.hrStaffContractMapper.getTrialContract(map);
+       for (HrStaffContract hrStaffContract : maturityContract) {
+         if (hrStaffContract.getUserName() != null) {
+           Users usersBybyname = this.usersMapper.getUsersByuserId(hrStaffContract.getUserName());
+           if (usersBybyname != null) {
+             hrStaffContract.setUserName(usersBybyname.getUserName());
+             HrStaffInfo wordJobByUserId = this.hrStaffInfoMapper.getStaffByUserId(usersBybyname.getUserId());
+             String deptNameByDeptId = this.departmentMapper.getDeptNameByDeptId(usersBybyname.getDeptId());
+             hrStaffContract.setDeptName(deptNameByDeptId);
+             if (wordJobByUserId != null) {
+               if ((wordJobByUserId.getWorkJob() != null) && (wordJobByUserId.getWorkJob() != "")) {
+                 SysCode hr_staff_contract1 = this.sysCodeMapper.getSingleCode("WORK_JOB", wordJobByUserId.getWorkJob());
+                 if (hr_staff_contract1 != null)
+                   hrStaffContract.setPostName(hr_staff_contract1.getCodeName());
+                 else
+                   hrStaffContract.setPostName("");
+               }
+               else {
+                 hrStaffContract.setPostName("");
+               }
+             }
+             else hrStaffContract.setPostName(""); 
+           }
+           else
+           {
+             hrStaffContract.setUserName("");
+             hrStaffContract.setPostName("");
+             hrStaffContract.setDeptName("");
+           }
+         } else {
+           hrStaffContract.setUserName("");
+         }
+       }
+       json.setFlag(0);
+       json.setMsg("ok");
+       json.setObj(maturityContract);
+     } catch (Exception e) {
+       json.setMsg("err");
+       json.setFlag(1);
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<HrStaffContract> getMaturityContract(HrStaffContract hrStaffContract, String startTime, String endTime)
+   {
+     if (startTime == "") {
+       startTime = null;
+     }
+     if (endTime == "") {
+       endTime = null;
+     }
+     ToJson json = new ToJson();
+     Map map = new HashMap();
+     if ((hrStaffContract.getContractType() != null) && (hrStaffContract.getContractType() != "")) {
+       map.put("contractType", hrStaffContract.getContractType());
+     }
+     if ((hrStaffContract.getIsRenew() != null) && (hrStaffContract.getIsRenew() != "")) {
+       map.put("IsRenew", hrStaffContract.getIsRenew());
+     }
+     map.put("startTime", startTime);
+     map.put("endTime", endTime);
+     try {
+       List<HrStaffContract> maturityContract = this.hrStaffContractMapper.getMaturityContract(map);
+       for (HrStaffContract hrSt : maturityContract) {
+         if (hrSt.getUserName() != null) {
+           Users usersBybyname = this.usersMapper.getUsersByuserId(hrSt.getUserName());
+           HrStaffInfo wordJobByUserId = this.hrStaffInfoMapper.getStaffByUserId(usersBybyname.getUserId());
+           String deptNameByDeptId = this.departmentMapper.getDeptNameByDeptId(usersBybyname.getDeptId());
+           String userPrivNameByDeptId = this.userPrivMapper.getPrivNameById(usersBybyname.getUserPriv());
+           if (hrSt.getContractType() != null) {
+             SysCode hr_staff_contract1 = this.sysCodeMapper.getSingleCode("HR_STAFF_CONTRACT1", hrSt.getContractType());
+             if (hr_staff_contract1 != null)
+               hrSt.setContractTypeName(hr_staff_contract1.getCodeName());
+             else
+               hrSt.setContractTypeName("该合同类型不存在");
+           }
+           else {
+             hrSt.setContractTypeName("该合同类型不存在");
+           }
+           if (hrSt.getContractEnterpries() != null)
+           {
+             SysCode hr_enterprise = this.sysCodeMapper.getSingleCode("HR_ENTERPRISE", hrSt.getContractEnterpries());
+             if (hr_enterprise != null)
+               hrSt.setContractEnterpriesName(hr_enterprise.getCodeName());
+             else
+               hrSt.setContractEnterpriesName("该公司不存在");
+           }
+           else {
+             hrSt.setContractEnterpriesName("该公司不存在");
+           }
+           if (usersBybyname != null) {
+             hrSt.setUserName(usersBybyname.getUserName());
+             hrSt.setDeptName(deptNameByDeptId);
+             hrSt.setUserPriv(userPrivNameByDeptId);
+             if (wordJobByUserId != null) {
+               if ((wordJobByUserId.getWorkJob() != null) && (wordJobByUserId.getWorkJob() != "")) {
+                 SysCode hr_staff_contract1 = this.sysCodeMapper.getSingleCode("WORK_JOB", wordJobByUserId.getWorkJob());
+                 if (hr_staff_contract1 != null)
+                   hrSt.setPostName(hr_staff_contract1.getCodeName());
+                 else
+                   hrSt.setPostName("");
+               }
+               else {
+                 hrSt.setPostName("");
+               }
+             }
+             else hrSt.setPostName(""); 
+           }
+           else
+           {
+             hrSt.setUserName("");
+             hrSt.setDeptName("");
+             hrSt.setPostName("");
+             hrSt.setUserPriv("");
+           }
+         } else {
+           hrSt.setUserName("");
+           hrSt.setDeptName("");
+           hrSt.setPostName("");
+           hrSt.setUserPriv("");
+         }
+       }
+       json.setFlag(0);
+       json.setMsg("ok");
+       json.setObj(maturityContract);
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg("err");
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<HrStaffContract> getContract(HrStaffContract hrStaffContract, String SignstartTime, String SignendTime, String TrialstartTime, String TrialendTime, String MaturitystartTime, String MaturityendTime, String RelievestartTime, String RelieveendTime, Integer page, Integer pageSize, boolean useFlag)
+   {
+     if ((SignstartTime == null) || (SignstartTime.equals(""))) {
+       SignstartTime = null;
+     }
+     if ((SignendTime == null) || (SignendTime.equals(""))) {
+       SignendTime = null;
+     }
+     if ((TrialstartTime == null) || (TrialstartTime.equals(""))) {
+       TrialstartTime = null;
+     }
+     if ((TrialendTime == null) || (TrialendTime.equals(""))) {
+       TrialendTime = null;
+     }
+     if ((MaturitystartTime == null) || (MaturitystartTime.equals(""))) {
+       MaturitystartTime = null;
+     }
+     if ((MaturityendTime == null) || (MaturityendTime.equals(""))) {
+       MaturityendTime = null;
+     }
+     if ((RelievestartTime == null) || (RelievestartTime.equals(""))) {
+       RelievestartTime = null;
+     }
+     if ((RelieveendTime == null) || (RelieveendTime.equals(""))) {
+       RelieveendTime = null;
+     }
+     if ((hrStaffContract.getContractType() == null) || (hrStaffContract.getContractType().equals(""))) {
+       hrStaffContract.setContractType(null);
+     }
+ 
+     PageParams pageParams = new PageParams();
+     pageParams.setPage(page);
+     pageParams.setPageSize(pageSize);
+     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+ 
+     ToJson json = new ToJson();
+     Map map = new HashMap();
+     if (!StringUtils.checkNull(hrStaffContract.getUserName()).booleanValue()) {
+       Users usersByname = this.usersMapper.getUsersByname(hrStaffContract.getUserName());
+       if (usersByname != null) {
+         hrStaffContract.setUserName(usersByname.getByname());
+       }
+     }
+     map.put("page", pageParams);
+     map.put("staffName", hrStaffContract.getStaffName());
+     map.put("StaffContractNo", hrStaffContract.getStaffContractNo());
+     map.put("ContractType", hrStaffContract.getContractType());
+     map.put("ContractEnterpries", hrStaffContract.getContractEnterpries());
+     map.put("contractSpecialization", hrStaffContract.getContractSpecialization());
+     map.put("SignstartTime", SignstartTime);
+     map.put("SignendTime", SignendTime);
+     map.put("TrialstartTime", TrialstartTime);
+     map.put("TrialendTime", TrialendTime);
+     map.put("MaturitystartTime", MaturitystartTime);
+     map.put("MaturityendTime", MaturityendTime);
+     map.put("RelievestartTime", RelievestartTime);
+     map.put("RelieveendTime", RelieveendTime);
+     try {
+       List<HrStaffContract> contract = this.hrStaffContractMapper.getContract(map);
+       Integer allCount = this.hrStaffContractMapper.getAllCountMap(map);
+       for (HrStaffContract hrSt : contract)
+       {
+         if (hrSt.getContractType() != null) {
+           SysCode hr_staff_contract1 = this.sysCodeMapper.getSingleCode("HR_STAFF_CONTRACT1", hrSt.getContractType());
+           if (hr_staff_contract1 != null)
+             hrSt.setContractTypeName(hr_staff_contract1.getCodeName());
+           else
+             hrSt.setContractTypeName("该合同类型不存在");
+         }
+         else {
+           hrSt.setContractTypeName("该合同类型不存在");
+         }
+ 
+         if (hrSt.getContractEnterpries() != null)
+         {
+           SysCode hr_enterprise = this.sysCodeMapper.getSingleCode("HR_ENTERPRISE", hrSt.getContractEnterpries());
+           if (hr_enterprise != null)
+             hrSt.setContractEnterpriesName(hr_enterprise.getCodeName());
+           else
+             hrSt.setContractEnterpriesName("该公司不存在");
+         }
+         else {
+           hrSt.setContractEnterpriesName("该公司不存在");
+         }
+ 
+         if (!StringUtils.checkNull(hrSt.getUserName()).booleanValue()) {
+           Users usersBybyname = this.usersMapper.getUsersByuserId(hrSt.getUserName());
+           if (usersBybyname != null) {
+             HrStaffInfo wordJobByUserId = this.hrStaffInfoMapper.getStaffByUserId(usersBybyname.getUserId());
+             String deptNameByDeptId = this.departmentMapper.getDeptNameByDeptId(usersBybyname.getDeptId());
+             hrSt.setUserName(usersBybyname.getUserName());
+             hrSt.setDeptName(deptNameByDeptId);
+             if (wordJobByUserId != null) {
+               if ((wordJobByUserId.getWorkJob() != null) && (wordJobByUserId.getWorkJob() != "")) {
+                 SysCode hr_staff_contract1 = this.sysCodeMapper.getSingleCode("WORK_JOB", wordJobByUserId.getWorkJob());
+                 if (hr_staff_contract1 != null)
+                   hrSt.setPostName(hr_staff_contract1.getCodeName());
+                 else
+                   hrSt.setPostName("");
+               }
+               else {
+                 hrSt.setPostName("");
+               }
+             }
+             else hrSt.setPostName(""); 
+           }
+           else
+           {
+             hrSt.setUserName("");
+             hrSt.setDeptName("");
+             hrSt.setPostName("");
+           }
+         } else {
+           hrSt.setUserName("");
+           hrSt.setDeptName("");
+           hrSt.setPostName("");
+         }
+       }
+       json.setTotleNum(allCount);
+       json.setFlag(0);
+       json.setMsg("ok");
+       json.setObj(contract);
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg("err");
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<HrStaffContract> deleteByIds(String ids)
+   {
+     ToJson json = new ToJson();
+     try {
+       if (!StringUtils.checkNull(ids).booleanValue()) {
+         String[] split = ids.split(",");
+         if ((split != null) && (split.length > 0)) {
+           this.hrStaffContractMapper.deleteByIds(split);
+         }
+       }
+       json.setFlag(0);
+       json.setMsg("ok");
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setFlag(1);
+       json.setMsg("err");
+     }
+     return json;
+   }
+ 
+   public BaseWrapper getContractAnalysis()
+   {
+     BaseWrapper bw = new BaseWrapper();
+     List<HrStaffContract> allContract = this.hrStaffContractMapper.getAllContract(null);
+     Map temp = new HashMap();
+ 
+     for (HrStaffContract hs : allContract) {
+       if (temp.containsKey(hs.getContractType()))
+         temp.put(hs.getContractType(), Integer.valueOf(((Integer)temp.get(hs.getContractType())).intValue() + 1));
+       else {
+         temp.put(hs.getContractType(), Integer.valueOf(1));
+       }
+     }
+     bw.setData(temp);
+     bw.setFlag(true);
+     bw.setStatus(true);
+     return bw;
+   }
+ }
+

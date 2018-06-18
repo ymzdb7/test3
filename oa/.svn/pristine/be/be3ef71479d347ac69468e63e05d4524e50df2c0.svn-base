@@ -1,0 +1,136 @@
+/*     */ package com.xoa.controller.smsDelivery;
+/*     */ 
+/*     */ import com.xoa.model.sms2.Sms2Priv;
+/*     */ import com.xoa.service.smsDelivery.Sms2PrivService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/sms2Priv"})
+/*     */ public class Sms2PrivController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private Sms2PrivService sms2PrivService;
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectSms2Priv"})
+/*     */   public ToJson<Sms2Priv> selectSms2Priv()
+/*     */   {
+/*  38 */     return this.sms2PrivService.selectSms2Priv();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/upSms2Priv"})
+/*     */   public ToJson upSms2Priv(Sms2Priv sms2Priv)
+/*     */   {
+/*  50 */     return this.sms2PrivService.upSms2Priv(sms2Priv);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectRemindPriv"})
+/*     */   public ToJson<Sms2Priv> selectRemindPriv()
+/*     */   {
+/*  61 */     return this.sms2PrivService.selectRemindPriv();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/upRemindPriv"})
+/*     */   public ToJson upRemindPriv(Sms2Priv sms2Priv)
+/*     */   {
+/*  73 */     return this.sms2PrivService.upRemindPriv(sms2Priv);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectSms2RemindPriv"})
+/*     */   public ToJson<Sms2Priv> selectSms2RemindPriv()
+/*     */   {
+/*  85 */     return this.sms2PrivService.selectSms2RemindPriv();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/upselectSms2RemindPriv"})
+/*     */   public ToJson upselectSms2RemindPriv(Sms2Priv sms2Priv)
+/*     */   {
+/*  97 */     return this.sms2PrivService.upselectSms2RemindPriv(sms2Priv);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectModule"})
+/*     */   public ToJson selectModule()
+/*     */   {
+/* 109 */     return this.sms2PrivService.selectModule();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectModuleOrder"})
+/*     */   public ToJson selectModuleOrder()
+/*     */   {
+/* 121 */     return this.sms2PrivService.selectModuleOrder();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectSmsRemind"})
+/*     */   public ToJson selectSmsRemind()
+/*     */   {
+/* 134 */     return this.sms2PrivService.selectSmsRemind();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/upSmsRemindSet"})
+/*     */   public ToJson upSmsRemindSet(Sms2Priv sms2Priv)
+/*     */   {
+/* 146 */     return this.sms2PrivService.upSmsRemindSet(sms2Priv);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectSender"})
+/*     */   public ToJson selectSender(String name)
+/*     */   {
+/* 159 */     return this.sms2PrivService.selectSender(name);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/smsSender"})
+/*     */   public ToJson smsSender(StringBuffer mobileString, StringBuffer contextString, Sms2Priv sms2Priv)
+/*     */   {
+/* 172 */     return this.sms2PrivService.smsSender(mobileString, contextString, sms2Priv);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selSenderMobile"})
+/*     */   public ToJson selSenderMobile(String smsDefault, Sms2Priv sms2Priv, StringBuffer contextString, HttpServletRequest request)
+/*     */   {
+/* 184 */     return this.sms2PrivService.selSenderMobile(smsDefault, sms2Priv, contextString, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selOutPriv"})
+/*     */   public ToJson selOutPriv()
+/*     */   {
+/* 195 */     return this.sms2PrivService.selOutPriv();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/upOutPriv"})
+/*     */   public ToJson upOutPriv(Sms2Priv sms2Priv)
+/*     */   {
+/* 206 */     return this.sms2PrivService.upOutPriv(sms2Priv);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/outToSelf"})
+/*     */   public ToJson outToSelf(Sms2Priv sms2Priv)
+/*     */   {
+/* 217 */     return this.sms2PrivService.outToSelf(sms2Priv);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.smsDelivery.Sms2PrivController
+ * JD-Core Version:    0.6.0
+ */

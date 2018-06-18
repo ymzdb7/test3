@@ -1,0 +1,995 @@
+/*      */ package com.xoa.service.menu.impl;
+/*      */ 
+/*      */ import com.xoa.dao.menu.SysFunctionMapper;
+/*      */ import com.xoa.dao.menu.SysMenuMapper;
+/*      */ import com.xoa.model.common.SysPara;
+/*      */ import com.xoa.model.common.SysParaExtend;
+/*      */ import com.xoa.model.menu.SysFunction;
+/*      */ import com.xoa.model.menu.SysMenu;
+/*      */ import com.xoa.model.users.Users;
+/*      */ import com.xoa.service.menu.MenuService;
+/*      */ import com.xoa.service.syspara.SysParaService;
+/*      */ import com.xoa.service.users.UserFunctionService;
+/*      */ import com.xoa.service.users.UsersPrivService;
+/*      */ import com.xoa.service.users.UsersService;
+import com.xoa.util.Constant;
+/*      */ import com.xoa.util.DBPropertiesUtils;
+/*      */ import com.xoa.util.ToJson;
+/*      */ import com.xoa.util.common.StringUtils;
+/*      */ import com.xoa.util.common.session.SessionUtils;
+/*      */ import java.io.BufferedInputStream;
+/*      */ import java.io.File;
+/*      */ import java.io.FileInputStream;
+/*      */ import java.io.IOException;
+/*      */ import java.io.OutputStream;
+/*      */ import java.io.OutputStreamWriter;
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.HashMap;
+/*      */ import java.util.HashSet;
+/*      */ import java.util.Iterator;
+/*      */ import java.util.List;
+/*      */ import java.util.Map;
+/*      */ import java.util.Set;
+/*      */ import javax.annotation.Resource;
+/*      */ import javax.servlet.ServletContext;
+/*      */ import javax.servlet.http.HttpServletRequest;
+/*      */ import javax.servlet.http.HttpServletResponse;
+/*      */ import javax.servlet.http.HttpSession;
+/*      */ import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+/*      */ 
+/*      */ @Transactional
+/*      */ @Service
+/*      */ public class MenuServiceImpl
+/*      */   implements MenuService
+/*      */ {
+/*      */ 
+/*      */   @Resource
+/*      */   private SysMenuMapper sysMenuMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private SysFunctionMapper sysFunctionMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersService usersService;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersPrivService usersPrivService;
+/*      */ 
+/*      */   @Resource
+/*      */   private SysParaService sysParaService;
+/*      */ 
+/*      */   @Resource
+/*      */   private UserFunctionService userFunctionService;
+/*      */ 
+/*      */   public List<SysMenu> getAll(HttpServletRequest request, String locale)
+/*      */   {
+/*   67 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*   68 */     Integer uid = users.getUid();
+/*      */ 
+/*   75 */     String userFunctionStr = this.userFunctionService.getUserFunctionStrById(uid);
+/*   76 */     String[] funcIds = userFunctionStr.split(",");
+/*      */ 
+/*   87 */     Set<String> userMenuSet = new HashSet<String>();
+/*      */ 
+/*   89 */     for (String funcId : funcIds) {
+/*   90 */       userMenuSet.add(funcId);
+/*      */     }
+/*      */ 
+/*   97 */     StringBuffer sb = new StringBuffer();
+/*      */ 
+/*  100 */     List<SysMenu> list = this.sysMenuMapper.getDatagrid();
+/*  101 */     for (SysMenu sysMenu : list) {
+/*  102 */       if (locale.equals("zh_CN"))
+/*  103 */         sysMenu.setName(sysMenu.getName());
+/*  104 */       else if (locale.equals("en_US"))
+/*  105 */         sysMenu.setName(sysMenu.getName1());
+/*  106 */       else if (locale.equals("zh_tw")) {
+/*  107 */         sysMenu.setName(sysMenu.getName2());
+/*      */       }
+/*  109 */       List<SysFunction> list1 = null;
+/*  110 */       if (sysMenu.getId() != null)
+/*      */       {
+/*  112 */         list1 = this.sysFunctionMapper.getDatagrid(sysMenu.getId().concat("__"));
+/*      */       }
+/*      */ 
+/*  115 */       for (SysFunction sysFunction : list1) {
+/*  116 */         if (locale.equals("zh_CN"))
+/*  117 */           sysFunction.setName(sysFunction.getName());
+/*  118 */         else if (locale.equals("en_US"))
+/*  119 */           sysFunction.setName(sysFunction.getName1());
+/*  120 */         else if (locale.equals("zh_TW")) {
+/*  121 */           sysFunction.setName(sysFunction.getName2());
+/*      */         }
+/*  123 */         List<SysFunction> list2 = null;
+/*  124 */         if (sysFunction.getId() != null)
+/*      */         {
+/*  126 */           list2 = this.sysFunctionMapper.childMenu(sysFunction.getId().concat("__"));
+/*      */         }
+/*      */ 
+/*  129 */         for (SysFunction sysFunction2 : list2) {
+/*  130 */           if (locale.equals("zh_CN"))
+/*  131 */             sysFunction2.setName(sysFunction2.getName());
+/*  132 */           else if (locale.equals("en_US"))
+/*  133 */             sysFunction2.setName(sysFunction2.getName1());
+/*  134 */           else if (locale.equals("zh_TW")) {
+/*  135 */             sysFunction2.setName(sysFunction2.getName2());
+/*      */           }
+/*      */ 
+/*      */         }
+/*      */ 
+/*  141 */         if (list2.size() > 0) {
+/*  142 */           sb.append(",").append(sysFunction.getfId()).append(",");
+/*      */         }
+/*  144 */         sysFunction.setChild(list2);
+/*      */       }
+/*      */ 
+/*  147 */       sysMenu.setChild(list1);
+/*      */     }
+/*      */ 
+/*  151 */     List<SysMenu> userMenulistResult = new ArrayList();
+/*  152 */     for (SysMenu sysMenu : list) {
+/*  153 */       List<SysFunction> secondList = new ArrayList<SysFunction>();
+/*  154 */       List tempSecondList = sysMenu.getChild();
+				 SysFunction sysFunction;
+/*  155 */       for (Iterator i$ = tempSecondList.iterator(); i$.hasNext(); ) { sysFunction = (SysFunction)i$.next();
+/*  156 */         for (String funcId : userMenuSet) {
+/*  157 */           Integer fId = sysFunction.getfId();
+/*  158 */           if ((funcId != null) && (funcId.equals(String.valueOf(fId))))
+/*  159 */             secondList.add(sysFunction);
+/*      */         }
+/*      */       }
+/*      */      
+/*  163 */       for (SysFunction temp : secondList)
+/*      */       {
+/*  165 */         if (temp != null) {
+/*  166 */           List thirdList = new ArrayList();
+/*  167 */           List<SysFunction> tempThirdList = temp.getChild();
+/*      */ 
+/*  170 */           for (Iterator<SysFunction> i$ = tempThirdList.iterator(); i$.hasNext(); ) {SysFunction function = i$.next();
+/*  171 */             for (String funcId : userMenuSet) {
+/*  172 */               Integer fId = function.getfId();
+/*      */ 
+/*  174 */               if ((funcId != null) && (funcId.equals(String.valueOf(fId))))
+/*  175 */                 thirdList.add(function);
+/*      */             }
+/*      */           }
+/*      */           SysFunction function;
+/*  180 */           temp.setChild(thirdList);
+/*      */         }
+/*      */       }
+/*  183 */       sysMenu.setChild(secondList);
+/*  184 */       userMenulistResult.add(sysMenu);
+/*      */     }
+/*      */ 
+/*  190 */     List sysMenuListWithoutEmpty = new ArrayList();
+/*  191 */     for (SysMenu sysMenu : userMenulistResult) {
+/*  192 */       List<SysFunction> twoSysFunctionList = sysMenu.getChild();
+/*  193 */       List twoMenuList = new ArrayList();
+/*      */ 
+/*  195 */       if ((twoSysFunctionList != null) && (twoSysFunctionList.size() > 0)) {
+/*  196 */         for (SysFunction sysFunction : twoSysFunctionList) {
+/*  197 */           List threeSysFunctionList = sysFunction.getChild();
+/*      */ 
+/*  199 */           if (threeSysFunctionList != null) {
+/*  200 */             if (threeSysFunctionList.size() > 0)
+/*  201 */               twoMenuList.add(sysFunction);
+/*  202 */             else if (threeSysFunctionList.size() == 0)
+/*      */             {
+/*  204 */               if (!sb.toString().contains(",".concat(String.valueOf(sysFunction.getfId())).concat(","))) {
+/*  205 */                 twoMenuList.add(sysFunction);
+/*      */               }
+/*      */             }
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */ 
+/*  212 */       if (twoMenuList.size() > 0) {
+/*  213 */         sysMenu.setChild(twoMenuList);
+/*  214 */         sysMenuListWithoutEmpty.add(sysMenu);
+/*      */       }
+/*      */     }
+/*  217 */     return sysMenuListWithoutEmpty;
+/*      */   }
+/*      */ 
+/*      */   public List<SysMenu> getAllWithEmpty(HttpServletRequest request, String locale)
+/*      */   {
+/*  236 */     List<SysMenu> list = this.sysMenuMapper.getDatagrid();
+/*  237 */     for (SysMenu sysMenu : list) {
+/*  238 */       if (locale.equals("zh_CN"))
+/*  239 */         sysMenu.setName(sysMenu.getName());
+/*  240 */       else if (locale.equals("en_US"))
+/*  241 */         sysMenu.setName(sysMenu.getName1());
+/*  242 */       else if (locale.equals("zh_TW")) {
+/*  243 */         sysMenu.setName(sysMenu.getName2());
+/*      */       }
+/*  245 */       List<SysFunction> list1 = null;
+/*  246 */       if (sysMenu.getId() != null)
+/*      */       {
+/*  248 */         list1 = this.sysFunctionMapper.getDatagrid(sysMenu.getId().concat("__"));
+/*      */       }
+/*      */ 
+/*  251 */       for (SysFunction sysFunction : list1) {
+/*  252 */         if (locale.equals("zh_CN"))
+/*  253 */           sysFunction.setName(sysFunction.getName());
+/*  254 */         else if (locale.equals("en_US"))
+/*  255 */           sysFunction.setName(sysFunction.getName1());
+/*  256 */         else if (locale.equals("zh_TW")) {
+/*  257 */           sysFunction.setName(sysFunction.getName2());
+/*      */         }
+/*  259 */         List<SysFunction> list2 = null;
+/*  260 */         if (sysFunction.getId() != null)
+/*      */         {
+/*  262 */           list2 = this.sysFunctionMapper.childMenu(sysFunction.getId().concat("__"));
+/*      */         }
+/*      */ 
+/*  265 */         for (SysFunction sysFunction2 : list2) {
+/*  266 */           if (locale.equals("zh_CN"))
+/*  267 */             sysFunction2.setName(sysFunction2.getName());
+/*  268 */           else if (locale.equals("en_US"))
+/*  269 */             sysFunction2.setName(sysFunction2.getName1());
+/*  270 */           else if (locale.equals("zh_TW")) {
+/*  271 */             sysFunction2.setName(sysFunction2.getName2());
+/*      */           }
+/*      */ 
+/*      */         }
+/*      */ 
+/*  277 */         sysFunction.setChild(list2);
+/*      */       }
+/*      */ 
+/*  280 */       sysMenu.setChild(list1);
+/*      */     }
+/*      */ 
+/*  284 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public List<SysFunction> getDadMenu(String menuId, String locale)
+/*      */   {
+/*  295 */     List<SysFunction> list = null;
+/*  296 */     if (menuId != null)
+/*      */     {
+/*  298 */       list = this.sysFunctionMapper.getDatagrid(menuId.concat("__"));
+/*      */     }
+/*  300 */     for (SysFunction sysFunction : list)
+/*      */     {
+/*  302 */       if (locale.equals("zh_CN"))
+/*  303 */         sysFunction.setName(sysFunction.getName());
+/*  304 */       else if (locale.equals("en_US"))
+/*  305 */         sysFunction.setName(sysFunction.getName1());
+/*  306 */       else if (locale.equals("zh_TW")) {
+/*  307 */         sysFunction.setName(sysFunction.getName2());
+/*      */       }
+/*  309 */       List<SysFunction> list1 = null;
+/*  310 */       if (sysFunction.getId() != null)
+/*      */       {
+/*  312 */         list1 = this.sysFunctionMapper.childMenu(sysFunction.getId().concat("__"));
+/*      */       }
+/*      */ 
+/*  316 */       for (SysFunction function : list1) {
+/*  317 */         if (locale.equals("zh_CN"))
+/*  318 */           sysFunction.setName(sysFunction.getName());
+/*  319 */         else if (locale.equals("en_US"))
+/*  320 */           sysFunction.setName(sysFunction.getName1());
+/*  321 */         else if (locale.equals("zh_TW")) {
+/*  322 */           sysFunction.setName(sysFunction.getName2());
+/*      */         }
+/*      */       }
+/*      */ 
+/*  326 */       sysFunction.setChild(list1);
+/*      */     }
+/*  328 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public void updateSysMenu(SysMenu sysMenu)
+/*      */   {
+/*  340 */     this.sysMenuMapper.updateSysMenu(sysMenu);
+/*      */   }
+/*      */ 
+/*      */   public void addSysMenu(SysMenu sysMenu)
+/*      */   {
+/*  353 */     this.sysMenuMapper.addSysMenu(sysMenu);
+/*      */   }
+/*      */ 
+/*      */   public void deleteSysMenu(String id)
+/*      */   {
+/*  367 */     if ((id != null) && (id.trim().length() == 2)) {
+/*  368 */       this.sysMenuMapper.deleteSysMenu(id);
+/*  369 */       this.sysFunctionMapper.deleteFunction(id.concat("%"));
+/*      */     } else {
+/*  371 */       this.sysFunctionMapper.deleteFunction(id.concat("%"));
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public ToJson<SysFunction> addFunctionMenu(SysFunction sysFunction, String pfId)
+/*      */   {
+/*  383 */     ToJson json = new ToJson();
+/*      */     try
+/*      */     {
+/*  386 */       json.setFlag(1);
+/*  387 */       if (StringUtils.checkNull(pfId).booleanValue()) {
+/*  388 */         json.setMsg("父ID为空");
+/*  389 */         return json;
+/*      */       }
+/*      */ 
+/*  399 */       if (sysFunction != null)
+/*      */       {
+/*  403 */         String menuId = sysFunction.getId();
+/*  404 */         Integer fid = sysFunction.getfId();
+/*  405 */         if (fid == null) {
+/*  406 */           json.setMsg("id不存在");
+/*  407 */           return json;
+/*      */         }
+/*  409 */         SysFunction check = this.sysFunctionMapper.checkFunctionExits(fid);
+/*  410 */         if (check != null) {
+/*  411 */           json.setMsg("菜单已经存在");
+/*  412 */           return json;
+/*      */         }
+/*  414 */         String newId = pfId + menuId;
+/*  415 */         int exis = this.sysFunctionMapper.checkIdExists(newId);
+/*  416 */         if (exis > 0) {
+/*  417 */           json.setMsg("Id不合法");
+/*  418 */           return json;
+/*      */         }
+/*      */ 
+/*  421 */         sysFunction.setId(newId);
+/*  422 */         int res = this.sysFunctionMapper.addFunctionMenu(sysFunction);
+/*      */ 
+/*  424 */         if (res > 0)
+/*      */         {
+/*  426 */           json.setFlag(0);
+/*  427 */           json.setMsg("操作成功");
+/*  428 */           return json;
+/*      */         }
+/*      */ 
+/*  431 */         json.setMsg("操作失败");
+/*      */       }
+/*      */       else
+/*      */       {
+/*  435 */         json.setMsg("参数不足");
+/*  436 */         return json;
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  439 */       json.setFlag(1);
+/*  440 */       json.setMsg("err");
+/*      */     }
+/*  442 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public void editSysFunction(SysFunction sysFunction)
+/*      */   {
+/*  461 */     this.sysFunctionMapper.editSysFunction(sysFunction);
+/*      */   }
+/*      */ 
+/*      */   public List<SysFunction> findChildMenu(String id, String locale)
+/*      */   {
+/*  473 */     List list = null;
+/*      */ 
+/*  476 */     if (id != null) {
+/*  477 */       Map hashMap = new HashMap();
+/*  478 */       hashMap.put("secondId", id.concat("__"));
+/*  479 */       hashMap.put("thirdId", id.concat("____"));
+/*  480 */       hashMap.put("id", id);
+/*  481 */       list = this.sysFunctionMapper.findChildMenu(hashMap);
+/*      */     }
+/*      */ 
+/*  486 */     boolean isFindSecond = false;
+/*      */ 
+/*  489 */     List secondMenuList = new ArrayList();
+/*  490 */     List<SysFunction> thirdList = new ArrayList();
+/*      */ 
+/*  493 */     if ((list != null) && (list.size() > 0)) {
+/*  494 */       for (int i = 0; i < list.size(); i++)
+/*      */       {
+/*  496 */         if ("zh_CN".equals(locale))
+/*  497 */           ((SysFunction)list.get(i)).setName(((SysFunction)list.get(i)).getName());
+/*  498 */         else if ("en_US".equals(locale))
+/*  499 */           ((SysFunction)list.get(i)).setName(((SysFunction)list.get(i)).getName1());
+/*  500 */         else if ("zh_TW".equals(locale)) {
+/*  501 */           ((SysFunction)list.get(i)).setName(((SysFunction)list.get(i)).getName2());
+/*      */         }
+/*      */ 
+/*  504 */         SysFunction sysFunction = (SysFunction)list.get(i);
+/*  505 */         if (sysFunction.getId().length() == 4)
+/*      */         {
+/*  507 */           isFindSecond = true;
+/*  508 */           secondMenuList.add(sysFunction);
+/*  509 */         } else if (sysFunction.getId().length() == 6) {
+/*  510 */           thirdList.add(sysFunction);
+/*      */         }
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/*  516 */     if (secondMenuList.size() > 0) {
+/*  517 */       for (int i = 0; i < secondMenuList.size(); i++) {
+/*  518 */         ((SysFunction)secondMenuList.get(i)).setChild(new ArrayList());
+/*  519 */         for (int j = 0; j < thirdList.size(); j++) {
+/*  520 */           String thirdMenuId = ((SysFunction)thirdList.get(j)).getId().substring(0, 4);
+/*  521 */           String theSecondMenuId = ((SysFunction)secondMenuList.get(i)).getId();
+/*  522 */           if ((theSecondMenuId != null) && (theSecondMenuId.equals(thirdMenuId))) {
+/*  523 */             ((SysFunction)secondMenuList.get(i)).getChild().add(thirdList.get(j));
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/*  530 */     if (isFindSecond) {
+/*  531 */       return secondMenuList;
+/*      */     }
+/*  533 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public List<SysMenu> getTheFirstMenu(String id, String locale)
+/*      */   {
+/*  548 */     if (id != null) {
+/*  549 */       List list = this.sysMenuMapper.getTheFirstMenu(id);
+/*  550 */       if (list != null) {
+/*  551 */         for (int i = 0; i < list.size(); i++)
+/*      */         {
+/*  553 */           if ("zh_CN".equals(locale))
+/*  554 */             ((SysMenu)list.get(i)).setName(((SysMenu)list.get(i)).getName());
+/*  555 */           else if ("en_US".equals(locale))
+/*  556 */             ((SysMenu)list.get(i)).setName(((SysMenu)list.get(i)).getName1());
+/*  557 */           else if ("zh_TW".equals(locale)) {
+/*  558 */             ((SysMenu)list.get(i)).setName(((SysMenu)list.get(i)).getName2());
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */ 
+/*  563 */       return list;
+/*      */     }
+/*  565 */     return null;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Integer> findMaxId()
+/*      */   {
+/*  573 */     ToJson json = new ToJson();
+/*      */     try {
+/*  575 */       json.setFlag(1);
+/*      */ 
+/*  577 */       int maxId = this.sysFunctionMapper.getMaxId();
+/*      */ 
+/*  579 */       if (maxId < 1000) {
+/*  580 */         json.setObject(Integer.valueOf(1001));
+/*  581 */         json.setMsg("子菜单项ID必须大于1000");
+/*      */       } else {
+/*  583 */         json.setObject(Integer.valueOf(maxId + 1));
+/*      */       }
+/*  585 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  587 */       json.setFlag(1);
+/*  588 */       json.setMsg("err");
+/*      */     }
+/*  590 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public List<SysFunction> getMenus(HttpServletRequest request, String id, String locale)
+/*      */   {
+/*  603 */     List<SysFunction> list1 = null;
+/*      */ 
+/*  606 */     if (id != null) {
+/*  607 */       Map hashMap = new HashMap();
+/*  608 */       hashMap.put("secondId", id.concat("__"));
+/*  609 */       hashMap.put("thirdId", id.concat("____"));
+/*  610 */       hashMap.put("id", id);
+/*  611 */       list1 = this.sysFunctionMapper.findChildMenu(hashMap);
+/*      */     }
+/*      */ 
+/*  615 */     List list = new ArrayList();
+/*      */ 
+/*  620 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*      */ 
+/*  622 */     String user_id = users.getUserId();
+/*      */ 
+/*  625 */     String userFunctionStr = this.userFunctionService.getUserFunctionStr(user_id);
+/*      */ 
+/*  627 */     String[] funcId = userFunctionStr.split(",");
+/*  632 */     for (String fid : funcId)
+/*      */     {
+/*  634 */       for (SysFunction sysFunction : list1)
+/*      */       {
+/*  636 */         Integer dbFid = sysFunction.getfId();
+/*      */ 
+/*  639 */         if (String.valueOf(dbFid).equals(fid)) {
+/*  640 */           list.add(sysFunction);
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/*  648 */     boolean isFindSecond = false;
+/*      */ 
+/*  651 */     List secondMenuList = new ArrayList();
+/*  652 */     List<SysFunction> thirdList = new ArrayList();
+/*      */ 
+/*  655 */     if ((list != null) && (list.size() > 0)) {
+/*  656 */       for (int i = 0; i < list.size(); i++)
+/*      */       {
+/*  658 */         if ("zh_CN".equals(locale))
+/*  659 */           ((SysFunction)list.get(i)).setName(((SysFunction)list.get(i)).getName());
+/*  660 */         else if ("en_US".equals(locale))
+/*  661 */           ((SysFunction)list.get(i)).setName(((SysFunction)list.get(i)).getName1());
+/*  662 */         else if ("zh_TW".equals(locale)) {
+/*  663 */           ((SysFunction)list.get(i)).setName(((SysFunction)list.get(i)).getName2());
+/*      */         }
+/*      */ 
+/*  666 */         SysFunction sysFunction = (SysFunction)list.get(i);
+/*  667 */         if (sysFunction.getId().length() == 4)
+/*      */         {
+/*  669 */           isFindSecond = true;
+/*  670 */           secondMenuList.add(sysFunction);
+/*  671 */         } else if (sysFunction.getId().length() == 6) {
+/*  672 */           thirdList.add(sysFunction);
+/*      */         }
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/*  678 */     if (secondMenuList.size() > 0) {
+/*  679 */       for (int i = 0; i < secondMenuList.size(); i++) {
+/*  680 */         ((SysFunction)secondMenuList.get(i)).setChild(new ArrayList());
+/*  681 */         for (int j = 0; j < thirdList.size(); j++) {
+/*  682 */           String thirdMenuId = ((SysFunction)thirdList.get(j)).getId().substring(0, 4);
+/*  683 */           String theSecondMenuId = ((SysFunction)secondMenuList.get(i)).getId();
+/*  684 */           if ((theSecondMenuId != null) && (theSecondMenuId.equals(thirdMenuId))) {
+/*  685 */             ((SysFunction)secondMenuList.get(i)).getChild().add(thirdList.get(j));
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/*  692 */     if (isFindSecond) {
+/*  693 */       return secondMenuList;
+/*      */     }
+/*  695 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public List<SysMenu> getAllMenu(HttpServletRequest request, String locale)
+/*      */   {
+/*  712 */     List<SysMenu> list = this.sysMenuMapper.getDatagrid();
+/*  713 */     for (SysMenu sysMenu : list) {
+/*  714 */       if (locale.equals("zh_CN"))
+/*  715 */         sysMenu.setName(sysMenu.getName());
+/*  716 */       else if (locale.equals("en_US"))
+/*  717 */         sysMenu.setName(sysMenu.getName1());
+/*  718 */       else if (locale.equals("zh_TW")) {
+/*  719 */         sysMenu.setName(sysMenu.getName2());
+/*      */       }
+/*  721 */       List<SysFunction> list1 = null;
+/*  722 */       if (sysMenu.getId() != null)
+/*      */       {
+/*  724 */         list1 = this.sysFunctionMapper.getDatagrid(sysMenu.getId().concat("__"));
+/*      */       }
+/*      */ 
+/*  727 */       for (SysFunction sysFunction : list1) {
+/*  728 */         if (locale.equals("zh_CN"))
+/*  729 */           sysFunction.setName(sysFunction.getName());
+/*  730 */         else if (locale.equals("en_US"))
+/*  731 */           sysFunction.setName(sysFunction.getName1());
+/*  732 */         else if (locale.equals("zh_TW")) {
+/*  733 */           sysFunction.setName(sysFunction.getName2());
+/*      */         }
+/*  735 */         List<SysFunction> list2 = null;
+/*  736 */         if (sysFunction.getId() != null)
+/*      */         {
+/*  738 */           list2 = this.sysFunctionMapper.childMenu(sysFunction.getId().concat("__"));
+/*      */         }
+/*      */ 
+/*  741 */         for (SysFunction sysFunction2 : list2) {
+/*  742 */           if (locale.equals("zh_CN"))
+/*  743 */             sysFunction2.setName(sysFunction2.getName());
+/*  744 */           else if (locale.equals("en_US"))
+/*  745 */             sysFunction2.setName(sysFunction2.getName1());
+/*  746 */           else if (locale.equals("zh_TW")) {
+/*  747 */             sysFunction2.setName(sysFunction2.getName2());
+/*      */           }
+/*      */         }
+/*      */ 
+/*  751 */         sysFunction.setChild(list2);
+/*      */       }
+/*      */ 
+/*  754 */       sysMenu.setChild(list1);
+/*      */     }
+/*      */ 
+/*  758 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public List<SysFunction> getSysFunctionByName(String funName)
+/*      */   {
+/*  772 */     return this.sysFunctionMapper.getSysFunctionByName(funName);
+/*      */   }
+/*      */ 
+/*      */   public int getCountSysFunctionByName(String funName)
+/*      */   {
+/*  785 */     return this.sysFunctionMapper.getCountSysFunctionByName(funName);
+/*      */   }
+/*      */ 
+/*      */   public List<SysFunction> getPriMenu(HttpServletRequest request, String locale)
+/*      */   {
+/*  800 */     List sysFunctionList = new ArrayList();
+/*  801 */     List<SysFunction> child = new ArrayList();
+/*      */ 
+/*  803 */     List<SysMenu> sysMenus = getAll(request, locale);
+/*      */ 
+/*  805 */     for (SysMenu sysMenu : sysMenus)
+/*      */     {
+/*  807 */       child = sysMenu.getChild();
+/*      */ 
+/*  809 */       for (SysFunction sysFunction : child)
+/*      */       {
+/*  811 */         if (locale.equals("zh_CN")) {
+/*  812 */           sysFunction.setName(sysFunction.getName());
+/*  813 */           sysFunction.setName1(null);
+/*  814 */           sysFunction.setName2(null);
+/*  815 */           sysFunction.setName3(null);
+/*  816 */           sysFunction.setName4(null);
+/*  817 */           sysFunction.setName5(null);
+/*  818 */         } else if (locale.equals("en_US")) {
+/*  819 */           sysFunction.setName(sysFunction.getName1());
+/*  820 */           sysFunction.setName1(null);
+/*  821 */           sysFunction.setName2(null);
+/*  822 */           sysFunction.setName3(null);
+/*  823 */           sysFunction.setName4(null);
+/*  824 */           sysFunction.setName5(null);
+/*  825 */         } else if (locale.equals("zh_TW")) {
+/*  826 */           sysFunction.setName(sysFunction.getName2());
+/*  827 */           sysFunction.setName1(null);
+/*  828 */           sysFunction.setName2(null);
+/*  829 */           sysFunction.setName3(null);
+/*  830 */           sysFunction.setName4(null);
+/*  831 */           sysFunction.setName5(null);
+/*      */         }
+/*      */ 
+/*  834 */         if (sysFunction.getChild().size() == 0)
+/*      */         {
+/*  836 */           if (sysFunctionList.size() < 15)
+/*      */           {
+/*  838 */             sysFunctionList.add(sysFunction);
+/*      */           }
+/*      */         }
+/*      */         else
+/*      */         {
+/*  843 */           List<SysFunction> threeChildList = sysFunction.getChild();
+/*  844 */           for (SysFunction function : threeChildList)
+/*      */           {
+/*  846 */             if (locale.equals("zh_CN")) {
+/*  847 */               function.setName(function.getName());
+/*  848 */               function.setName1(null);
+/*  849 */               function.setName2(null);
+/*  850 */               function.setName3(null);
+/*  851 */               function.setName4(null);
+/*  852 */               function.setName5(null);
+/*  853 */             } else if (locale.equals("en_US")) {
+/*  854 */               function.setName(function.getName1());
+/*  855 */               function.setName1(null);
+/*  856 */               function.setName2(null);
+/*  857 */               function.setName3(null);
+/*  858 */               function.setName4(null);
+/*  859 */               function.setName5(null);
+/*  860 */             } else if (locale.equals("zh_TW")) {
+/*  861 */               function.setName(function.getName2());
+/*  862 */               function.setName1(null);
+/*  863 */               function.setName2(null);
+/*  864 */               function.setName3(null);
+/*  865 */               function.setName4(null);
+/*  866 */               function.setName5(null);
+/*      */             }
+/*      */ 
+/*  869 */             if (sysFunctionList.size() < 15) {
+/*  870 */               sysFunctionList.add(function);
+/*      */             }
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */     }
+/*      */ 
+/*  877 */     return sysFunctionList;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<List<SysFunction>> getErrMenu()
+/*      */   {
+/*  892 */     List list = new ArrayList();
+/*      */ 
+/*  894 */     List errlist = new ArrayList();
+/*  895 */     ToJson json = new ToJson();
+/*      */     try
+/*      */     {
+/*  901 */       List<SysMenu> sysMenus = this.sysMenuMapper.getDatagrid();
+/*      */ 
+/*  903 */       for (SysMenu sysMenu : sysMenus) {
+/*  904 */         List<SysFunction> someChildMenu = this.sysFunctionMapper.getSomeChildMenu(sysMenu.getId());
+/*      */ 
+/*  906 */         for (SysFunction sysFunction : someChildMenu) {
+/*  907 */           list.add(sysFunction);
+/*      */         }
+/*      */       }
+/*      */ 
+/*  911 */       StringBuffer sb = new StringBuffer();
+/*  912 */       for (int i = 0; i < list.size(); i++) {
+/*  913 */         String id = ((SysFunction)list.get(i)).getId();
+/*  914 */         sb.append(",").append(id).append(",");
+/*      */       }
+/*      */ 
+/*  919 */       List allMenu = this.sysFunctionMapper.getAll();
+/*  920 */       for (int i = 0; i < allMenu.size(); i++) {
+/*  921 */         String id = ((SysFunction)allMenu.get(i)).getId();
+/*  922 */         if (!sb.toString().contains("," + id + ",")) {
+/*  923 */           errlist.add(allMenu.get(i));
+/*      */         }
+/*      */       }
+/*  926 */       if (errlist != null) {
+/*  927 */         json.setMsg("Ok");
+/*  928 */         json.setObject(errlist);
+/*  929 */         json.setFlag(0);
+/*      */       } else {
+/*  931 */         errlist = new ArrayList();
+/*  932 */         json.setObject(errlist);
+/*      */       }
+/*      */     }
+/*      */     catch (Exception e) {
+/*  936 */       json.setFlag(1);
+/*  937 */       json.setMsg("err");
+/*      */     }
+/*  939 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Object> recoverMenu(HttpServletRequest request, String path)
+/*      */   {
+/*  953 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  955 */     ToJson json = new ToJson();
+/*      */     try
+/*      */     {
+/*  958 */       String username = (String)DBPropertiesUtils.getDbMsg(request).get("username");
+/*  959 */       String password = (String)DBPropertiesUtils.getDbMsg(request).get("password");
+/*  960 */       String host = (String)DBPropertiesUtils.getDbMsg(request).get("ip");
+/*      */ 
+/*  962 */       String realPath = request.getSession().getServletContext().getRealPath("/");
+/*  963 */       String Topath = realPath + "\\ui\\lib";
+/*  964 */       String loginCommand = new StringBuffer().append("/usr/local/mysql/bin/mysql -u").append(username).append(" -p").append(password).append(" -h").append(host).toString();
+/*      */ 
+/*  966 */       String switchCommand = new StringBuffer("use ").append(sqlType).toString();
+/*      */ 
+/*  968 */       String charsetCommand = new StringBuffer("set names utf8;").toString();
+/*      */ 
+/*  970 */       String importCommand = new StringBuffer("source ").append(path).toString();
+/*      */ 
+/*  972 */       String[] commands = { loginCommand, switchCommand, charsetCommand, importCommand };
+/*      */ 
+/*  974 */       Runtime runtime = Runtime.getRuntime();
+/*      */ 
+/*  976 */       Process process = runtime.exec(commands[0]);
+/*      */ 
+/*  980 */       OutputStream os = process.getOutputStream();
+/*  981 */       OutputStreamWriter writer = new OutputStreamWriter(os);
+/*      */ 
+/*  983 */       writer.write(commands[1] + "\r\n");
+/*  984 */       writer.flush();
+/*  985 */       Thread.sleep(300L);
+/*  986 */       writer.write(commands[2] + "\r\n");
+/*  987 */       Thread.sleep(300L);
+/*  988 */       writer.flush();
+/*  989 */       writer.write(commands[3]);
+/*  990 */       Thread.sleep(300L);
+/*      */ 
+/*  992 */       json.setFlag(0);
+/*  993 */       json.setMsg("ok");
+/*  994 */       writer.flush();
+/*  995 */       writer.close();
+/*  996 */       os.close();
+/*      */     }
+/*      */     catch (Exception e)
+/*      */     {
+/*      */       File file;
+/* 1000 */       json.setFlag(1);
+/* 1001 */       json.setMsg("err");
+/* 1002 */       e.printStackTrace();
+/*      */     }
+/*      */     finally
+/*      */     {
+/*      */       try
+/*      */       {
+/* 1006 */         File file = new File(path);
+/* 1007 */         file.delete();
+/*      */       }
+/*      */       catch (Exception e)
+/*      */       {
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/* 1015 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public void exportMenu(HttpServletRequest request, HttpServletResponse response)
+/*      */   {
+/* 1028 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/* 1030 */     ToJson json = new ToJson(0, "ok");
+/* 1031 */     String exportPath = null;
+/* 1032 */     String fileName = null;
+/*      */ 
+/* 1035 */     String realPath = request.getSession().getServletContext().getRealPath("/");
+/* 1036 */     String username = (String)DBPropertiesUtils.getDbMsg(request).get("username");
+/* 1037 */     String password = (String)DBPropertiesUtils.getDbMsg(request).get("password");
+/* 1038 */     String host = (String)DBPropertiesUtils.getDbMsg(request).get("ip");
+/*      */ 
+/* 1040 */     String tablename = "sys_menu sys_function";
+/*      */ 
+/* 1042 */     exportPath = realPath;
+/* 1043 */     fileName = "menu.sql";
+/*      */ 
+/* 1045 */     String path = exportPath + "\\ui\\lib";
+/* 1046 */     String[] command = { "/bin/sh ", "-c ", "/usr/bin/mysqldump -h" + host + " -u" + username + " -p" + password, sqlType + " " + tablename + " -r" + exportPath };
+/*      */     try {
+/* 1048 */       Process runtimeProcess = Runtime.getRuntime().exec(command);
+/* 1049 */       int processComplete = runtimeProcess.waitFor();
+/* 1050 */       File file = new File(exportPath + fileName);
+/* 1051 */       Thread.sleep(300L);
+/* 1052 */       if (file.exists()) {
+/* 1053 */         response.setContentType("application/force-download");
+/* 1054 */         response.addHeader("Content-Disposition", "attachment;fileName=" + fileName);
+/*      */ 
+/* 1056 */         byte[] buffer = new byte[1024];
+/* 1057 */         FileInputStream fis = null;
+/* 1058 */         BufferedInputStream bis = null;
+/*      */         try {
+/* 1060 */           fis = new FileInputStream(file);
+/* 1061 */           bis = new BufferedInputStream(fis);
+/* 1062 */           OutputStream os = response.getOutputStream();
+/* 1063 */           int i = bis.read(buffer);
+/* 1064 */           while (i != -1) {
+/* 1065 */             os.write(buffer, 0, i);
+/* 1066 */             i = bis.read(buffer);
+/*      */           }
+/*      */         }
+/*      */         catch (Exception e) {
+/* 1070 */           e.printStackTrace();
+/*      */         }
+/* 1072 */         if (bis != null) {
+/*      */           try {
+/* 1074 */             bis.close();
+/*      */           }
+/*      */           catch (IOException e) {
+/* 1077 */             e.printStackTrace();
+/*      */           }
+/*      */         }
+/* 1080 */         if (fis != null)
+/*      */           try {
+/* 1082 */             fis.close();
+/*      */           }
+/*      */           catch (IOException e) {
+/* 1085 */             e.printStackTrace();
+/*      */           }
+/*      */       }
+/*      */     }
+/*      */     catch (Exception e)
+/*      */     {
+/*      */       File file1;
+/* 1091 */       e.printStackTrace();
+/*      */     }
+/*      */     finally
+/*      */     {
+/*      */       try
+/*      */       {
+/*      */         File file1;
+/* 1095 */         Thread.sleep(300L);
+/* 1096 */         file1 = new File(exportPath + fileName);
+/* 1097 */         Thread.sleep(300L);
+/* 1098 */         if (file1.exists())
+/* 1099 */           file1.delete();
+/*      */       }
+/*      */       catch (Exception e) {
+/* 1102 */         e.printStackTrace();
+/*      */       }
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Object> editMenuPara(SysParaExtend sysParaExtend)
+/*      */   {
+/* 1122 */     ToJson json = new ToJson();
+/*      */     try
+/*      */     {
+/* 1127 */       if (sysParaExtend != null)
+/*      */       {
+/* 1130 */         String menuQuickGroup = sysParaExtend.getMenuQuickGroup();
+/* 1131 */         String menuWinexe = sysParaExtend.getMenuWinexe();
+/* 1132 */         String menuUrl = sysParaExtend.getMenuUrl();
+/* 1133 */         String menuExpandSingle = sysParaExtend.getMenuExpandSingle();
+/* 1134 */         String topMenuNum = sysParaExtend.getTopMenuNum();
+/*      */ 
+/* 1136 */         String menu_Display = "";
+/* 1137 */         if ((menuQuickGroup != null) && (menuQuickGroup != "")) {
+/* 1138 */           menu_Display = menu_Display + "," + menuQuickGroup;
+/*      */         }
+/* 1140 */         if ((menuWinexe != null) && (menuWinexe != "")) {
+/* 1141 */           menu_Display = menu_Display + "," + menuWinexe;
+/*      */         }
+/* 1143 */         if ((menuUrl != null) && (menuUrl != "")) {
+/* 1144 */           menu_Display = menu_Display + "," + menuUrl;
+/*      */         }
+/* 1146 */         SysPara sysPara1 = new SysPara();
+/* 1147 */         SysPara sysPara2 = new SysPara();
+/* 1148 */         SysPara sysPara3 = new SysPara();
+/* 1149 */         sysPara1.setParaName("TOP_MENU_NUM");
+/* 1150 */         sysPara1.setParaValue(topMenuNum);
+/* 1151 */         sysPara2.setParaName("MENU_DISPLAY");
+/* 1152 */         sysPara2.setParaValue(menu_Display);
+/* 1153 */         sysPara3.setParaName("MENU_EXPAND_SINGLE");
+/* 1154 */         sysPara3.setParaValue(menuExpandSingle);
+/*      */ 
+/* 1156 */         this.sysParaService.updateSysPara(sysPara1);
+/* 1157 */         this.sysParaService.updateSysPara(sysPara2);
+/* 1158 */         this.sysParaService.updateSysPara(sysPara3);
+/* 1159 */         json.setMsg("修改成功");
+/* 1160 */         json.setFlag(0);
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 1163 */       json.setFlag(1);
+/* 1164 */       json.setMsg("修改失败");
+/* 1165 */       e.printStackTrace();
+/*      */     }
+/* 1167 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<SysParaExtend> getParaInfo()
+/*      */   {
+/* 1180 */     SysParaExtend sysParaExtend = new SysParaExtend();
+/* 1181 */     ToJson json = new ToJson();
+/*      */     try {
+/* 1183 */       SysPara sysPara1 = new SysPara();
+/* 1184 */       SysPara sysPara2 = new SysPara();
+/* 1185 */       SysPara sysPara3 = new SysPara();
+/* 1186 */       sysPara1.setParaName("TOP_MENU_NUM");
+/* 1187 */       sysPara2.setParaName("MENU_DISPLAY");
+/* 1188 */       sysPara3.setParaName("MENU_EXPAND_SINGLE");
+/*      */ 
+/* 1190 */       List top_menu_num = this.sysParaService.getTheSysParam("TOP_MENU_NUM");
+/* 1191 */       List menu_display = this.sysParaService.getTheSysParam("MENU_DISPLAY");
+/* 1192 */       List menu_expand_single = this.sysParaService.getTheSysParam("MENU_EXPAND_SINGLE");
+/* 1193 */       sysParaExtend.setTopMenuNum(((SysPara)top_menu_num.get(0)).getParaValue());
+/* 1194 */       String paraValue = ((SysPara)menu_display.get(0)).getParaValue();
+/* 1195 */       String[] split = paraValue.split(",");
+/* 1196 */       String MENU_QUICKGROUP = null;
+/* 1197 */       String MENU_WINEXE = null;
+/* 1198 */       String MENU_URL = null;
+/* 1199 */       for (String s : split) {
+/* 1200 */         if (s.equals("menuQuickGroup")) {
+/* 1201 */           MENU_QUICKGROUP = s;
+/*      */         }
+/* 1203 */         if (s.equals("menuWinexe")) {
+/* 1204 */           MENU_WINEXE = s;
+/*      */         }
+/* 1206 */         if (s.equals("menuUrl")) {
+/* 1207 */           MENU_URL = s;
+/*      */         }
+/*      */       }
+/* 1210 */       sysParaExtend.setMenuQuickGroup(MENU_QUICKGROUP);
+/* 1211 */       sysParaExtend.setMenuWinexe(MENU_WINEXE);
+/* 1212 */       sysParaExtend.setMenuUrl(MENU_URL);
+/* 1213 */       sysParaExtend.setMenuExpandSingle(((SysPara)menu_expand_single.get(0)).getParaValue());
+/* 1214 */       json.setObject(sysParaExtend);
+/* 1215 */       json.setMsg("ok");
+/* 1216 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/* 1218 */       e.printStackTrace();
+/* 1219 */       json.setObject(sysParaExtend);
+/* 1220 */       json.setMsg("err");
+/* 1221 */       json.setFlag(1);
+/*      */     }
+/* 1223 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public SysFunction getSysFunctionByFid(Integer fid)
+/*      */   {
+/* 1236 */     return this.sysFunctionMapper.getSysFunctionByFid(fid);
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.menu.impl.MenuServiceImpl
+ * JD-Core Version:    0.6.0
+ */

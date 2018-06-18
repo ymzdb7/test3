@@ -1,0 +1,53 @@
+package com.xoa.dao.edu;
+
+import com.xoa.model.edu.eduExam.EduExam;
+import com.xoa.model.edu.eduExam.EduExamExample;
+import com.xoa.model.edu.eduExam.EduExamWithBLOBs;
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface EduExamMapper {
+	public abstract int countByExample(EduExamExample paramEduExamExample);
+
+	public abstract int deleteByExample(EduExamExample paramEduExamExample);
+
+	public abstract int deleteByPrimaryKey(Integer paramInteger);
+
+	public abstract int insert(EduExamWithBLOBs paramEduExamWithBLOBs);
+
+	public abstract List<EduExamWithBLOBs> selectByExampleWithBLOBs(
+			EduExamExample paramEduExamExample);
+
+	public abstract List<EduExam> selectByExample(Map<String, Object> paramMap);
+
+	public abstract EduExam selectByPrimaryKey(Integer paramInteger);
+
+	public abstract int updateByExampleSelective(
+			@Param("record") EduExamWithBLOBs paramEduExamWithBLOBs,
+			@Param("example") EduExamExample paramEduExamExample);
+
+	public abstract int updateByExampleWithBLOBs(
+			@Param("record") EduExamWithBLOBs paramEduExamWithBLOBs,
+			@Param("example") EduExamExample paramEduExamExample);
+
+	public abstract int updateByExample(@Param("record") EduExam paramEduExam,
+			@Param("example") EduExamExample paramEduExamExample);
+
+	public abstract int insertSelective(EduExamWithBLOBs paramEduExamWithBLOBs);
+
+	public abstract int updateByPrimaryKeySelective(
+			EduExamWithBLOBs paramEduExamWithBLOBs);
+
+	public abstract int updateByPrimaryKeyWithBLOBs(
+			EduExamWithBLOBs paramEduExamWithBLOBs);
+
+	public abstract int updateByPrimaryKey(EduExam paramEduExam);
+
+	public abstract List<EduExamWithBLOBs> selectEduExam(
+			Map<String, Object> paramMap);
+
+	public abstract int insertEduExam(EduExamWithBLOBs paramEduExamWithBLOBs);
+
+	public abstract EduExam queryExamByExamName(String paramString);
+}

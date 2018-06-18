@@ -1,0 +1,566 @@
+/*     */ package com.xoa.service.book;
+/*     */ 
+/*     */ import com.xoa.dao.book.BookInfoMapper;
+/*     */ import com.xoa.dao.book.BookManageMapper;
+/*     */ import com.xoa.dao.book.BookTypeMapper;
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.users.UserPrivMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.book.BookInfoWithBLOBs;
+/*     */ import com.xoa.model.users.UserPriv;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ExcelUtil;
+/*     */ import com.xoa.util.FileUploadUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.InputStream;
+/*     */ import java.io.OutputStream;
+/*     */ import java.math.BigDecimal;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.ResourceBundle;
+/*     */ import java.util.UUID;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.ServletContext;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.apache.poi.ss.usermodel.Cell;
+/*     */ import org.apache.poi.ss.usermodel.Row;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Service
+/*     */ public class BookInfoService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private BookInfoMapper bookInfoMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private BookTypeMapper bookTypeMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UserPrivMapper userPrivMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private BookManageMapper bookManageMapper;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<BookInfoWithBLOBs> insertBookInfo(BookInfoWithBLOBs bookInfoWithBLOBs, MultipartFile imageFile, HttpServletRequest request)
+/*     */   {
+/*  77 */     ToJson json = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/*  80 */       int imgResult = uploadImg(request, bookInfoWithBLOBs, imageFile);
+/*  81 */       if (imgResult != 0) {
+/*  82 */         json.setMsg("图片格式不正确！");
+/*  83 */         return json;
+/*     */       }
+/*  85 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  86 */       bookInfoWithBLOBs.setBorrPerson(user.getUserId());
+/*  87 */       int count = this.bookInfoMapper.insertBookInfo(bookInfoWithBLOBs);
+/*  88 */       if (count > 0) {
+/*  89 */         json.setMsg("ok");
+/*  90 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  93 */       json.setMsg(e.getMessage());
+/*  94 */       L.e(new Object[] { "BookInfoService insertBookInfo:" + e });
+/*  95 */       e.printStackTrace();
+/*     */     }
+/*  97 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<BookInfoWithBLOBs> upBookInfoById(BookInfoWithBLOBs bookInfoWithBLOBs, MultipartFile imageFile, HttpServletRequest request)
+/*     */   {
+/* 109 */     ToJson json = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 112 */       int imgResult = uploadImg(request, bookInfoWithBLOBs, imageFile);
+/* 113 */       if (imgResult != 0) {
+/* 114 */         json.setMsg("img");
+/* 115 */         return json;
+/*     */       }
+/* 117 */       int count = this.bookInfoMapper.upBookInfoById(bookInfoWithBLOBs);
+/* 118 */       if (count > 0) {
+/* 119 */         json.setMsg("ok");
+/* 120 */         json.setFlag(0);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 124 */       L.e(new Object[] { "BookInfoService upBookInfoById:" + e });
+/* 125 */       e.printStackTrace();
+/*     */     }
+/* 127 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<BookInfoWithBLOBs> delBookInfoById(Integer bookId)
+/*     */   {
+/* 139 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 141 */       int count = this.bookInfoMapper.delBookInfoById(bookId);
+/* 142 */       if (count > 0) {
+/* 143 */         json.setMsg("ok");
+/* 144 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 147 */       json.setMsg(e.getMessage());
+/* 148 */       L.e(new Object[] { "BookInfoService delBookInfoById:" + e });
+/* 149 */       e.printStackTrace();
+/*     */     }
+/* 151 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookInfoWithBLOBs> selBookInfoById(Integer bookId)
+/*     */   {
+/* 162 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 164 */       BookInfoWithBLOBs bookInfoWithBLOBs = this.bookInfoMapper.selBookInfoById(bookId);
+/* 165 */       bookInfoWithBLOBs.setBorrowNum(Integer.valueOf(this.bookManageMapper.selCountManageByBookNo(bookInfoWithBLOBs.getBookNo())));
+/* 166 */       if (!StringUtils.checkNull(bookInfoWithBLOBs.getOpen()).booleanValue()) {
+/* 167 */         String deptStr = "";
+/* 168 */         String userStr = "";
+/* 169 */         String userPrivStr = "";
+/* 170 */         String[] openArr = bookInfoWithBLOBs.getOpen().split(";");
+/* 171 */         for (int i = 0; i < openArr.length; i++) {
+/* 172 */           switch (i) {
+/*     */           case 0:
+/* 174 */             if (StringUtils.checkNull(openArr[i]).booleanValue()) continue;
+/* 175 */             String[] deptOpenArr = openArr[i].split(",");
+/* 176 */             for (int j = 0; j < deptOpenArr.length; j++) {
+/* 177 */               if (!StringUtils.checkNull(this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(deptOpenArr[j]))).booleanValue()) {
+/* 178 */                 deptStr = deptStr + this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(deptOpenArr[j])) + ",";
+/*     */               }
+/*     */             }
+/* 181 */             break;
+/*     */           case 1:
+/* 184 */             if (StringUtils.checkNull(openArr[i]).booleanValue()) continue;
+/* 185 */             String[] userOpenArr = openArr[i].split(",");
+/* 186 */             for (int j = 0; j < userOpenArr.length; j++) {
+/* 187 */               if (!StringUtils.checkNull(this.usersMapper.getUsernameByUserId(userOpenArr[j])).booleanValue()) {
+/* 188 */                 userStr = userStr + this.usersMapper.getUsernameByUserId(userOpenArr[j]) + ",";
+/*     */               }
+/*     */             }
+/* 191 */             break;
+/*     */           case 2:
+/* 194 */             if (StringUtils.checkNull(openArr[i]).booleanValue()) continue;
+/* 195 */             String[] userPrivOpenArr = openArr[i].split(",");
+/* 196 */             for (int j = 0; j < userPrivOpenArr.length; j++) {
+/* 197 */               if (!StringUtils.checkNull(this.userPrivMapper.getPrivNameById(Integer.valueOf(userPrivOpenArr[j]))).booleanValue()) {
+/* 198 */                 userPrivStr = userPrivStr + this.userPrivMapper.getPrivNameById(Integer.valueOf(userPrivOpenArr[j])) + ",";
+/*     */               }
+/*     */             }
+/*     */           }
+/*     */ 
+/*     */         }
+/*     */ 
+/* 205 */         bookInfoWithBLOBs.setOpenName(deptStr + ";" + userStr + ";" + userPrivStr);
+/*     */       }
+/* 207 */       json.setObject(bookInfoWithBLOBs);
+/* 208 */       json.setMsg("ok");
+/* 209 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 211 */       json.setMsg(e.getMessage());
+/* 212 */       L.e(new Object[] { "BookInfoService selBookInfoById:" + e });
+/* 213 */       e.printStackTrace();
+/*     */     }
+/* 215 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookInfoWithBLOBs> selBookInfoByCond(BookInfoWithBLOBs bookInfoWithBLOBs, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 226 */     ToJson json = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 229 */       PageParams pageParams = new PageParams();
+/* 230 */       pageParams.setPage(page);
+/* 231 */       pageParams.setPageSize(pageSize);
+/* 232 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 233 */       Map map = new HashMap();
+/* 234 */       map.put("page", pageParams);
+/* 235 */       map.put("bookInfoWithBLOBs", bookInfoWithBLOBs);
+/* 236 */       List<BookInfoWithBLOBs> list = this.bookInfoMapper.selBookInfoByCond(map);
+/* 237 */       for (BookInfoWithBLOBs bookInfo : list) {
+/* 238 */         bookInfo.setBorrowNum(Integer.valueOf(this.bookManageMapper.selCountManageByBookNo(bookInfo.getBookNo())));
+/* 239 */         if (!StringUtils.checkNull(bookInfo.getOpen()).booleanValue()) {
+/* 240 */           String deptStr = "";
+/* 241 */           String userStr = "";
+/* 242 */           String userPrivStr = "";
+/* 243 */           String[] openArr = bookInfo.getOpen().split(";");
+/* 244 */           for (int i = 0; i < openArr.length; i++) {
+/* 245 */             switch (i) {
+/*     */             case 0:
+/* 247 */               if (StringUtils.checkNull(openArr[i]).booleanValue()) continue;
+/* 248 */               String[] deptOpenArr = openArr[i].split(",");
+/* 249 */               for (int j = 0; j < deptOpenArr.length; j++) {
+/* 250 */                 if (!StringUtils.checkNull(this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(deptOpenArr[j]))).booleanValue()) {
+/* 251 */                   deptStr = deptStr + this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(deptOpenArr[j])) + ",";
+/*     */                 }
+/*     */               }
+/* 254 */               break;
+/*     */             case 1:
+/* 257 */               if (StringUtils.checkNull(openArr[i]).booleanValue()) continue;
+/* 258 */               String[] userOpenArr = openArr[i].split(",");
+/* 259 */               for (int j = 0; j < userOpenArr.length; j++) {
+/* 260 */                 if (!StringUtils.checkNull(this.usersMapper.getUsernameByUserId(userOpenArr[j])).booleanValue()) {
+/* 261 */                   userStr = userStr + this.usersMapper.getUsernameByUserId(userOpenArr[j]) + ",";
+/*     */                 }
+/*     */               }
+/* 264 */               break;
+/*     */             case 2:
+/* 267 */               if (StringUtils.checkNull(openArr[i]).booleanValue()) continue;
+/* 268 */               String[] userPrivOpenArr = openArr[i].split(",");
+/* 269 */               for (int j = 0; j < userPrivOpenArr.length; j++) {
+/* 270 */                 if (!StringUtils.checkNull(this.userPrivMapper.getPrivNameById(Integer.valueOf(userPrivOpenArr[j]))).booleanValue()) {
+/* 271 */                   userPrivStr = userPrivStr + this.userPrivMapper.getPrivNameById(Integer.valueOf(userPrivOpenArr[j])) + ",";
+/*     */                 }
+/*     */               }
+/*     */             }
+/*     */ 
+/*     */           }
+/*     */ 
+/* 278 */           bookInfo.setOpenName(deptStr + ";" + userStr + ";" + userPrivStr);
+/*     */         }
+/*     */       }
+/* 281 */       json.setTotleNum(Integer.valueOf(this.bookInfoMapper.selBookInfoCountByCond(bookInfoWithBLOBs)));
+/* 282 */       json.setObj(list);
+/* 283 */       json.setMsg("ok");
+/* 284 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 286 */       json.setMsg(e.getMessage());
+/* 287 */       L.e(new Object[] { "BookInfoService selBookInfoByCond:" + e });
+/* 288 */       e.printStackTrace();
+/*     */     }
+/* 290 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<BookInfoWithBLOBs> importBookInfo(HttpServletRequest request, HttpServletResponse response, MultipartFile file, HttpSession session)
+/*     */   {
+/* 302 */     ToJson<BookInfoWithBLOBs> json = new ToJson<BookInfoWithBLOBs>(1, "error");
+/*     */     try
+/*     */     {
+/* 306 */       ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 307 */       String osName = System.getProperty("os.name");
+/* 308 */       StringBuffer path = new StringBuffer();
+/* 309 */       if (osName.toLowerCase().startsWith("win"))
+/* 310 */         path = path.append(rb.getString("upload.win"));
+/*     */       else {
+/* 312 */         path = path.append(rb.getString("upload.linux"));
+/*     */       }
+/* 314 */       if (file.isEmpty()) {
+/* 315 */         json.setMsg("请上传文件！");
+/* 316 */         return json;
+/*     */       }
+/* 318 */       String fileName = file.getOriginalFilename();
+/* 319 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 320 */         String uuid = UUID.randomUUID().toString();
+/* 321 */         uuid = uuid.replaceAll("-", "");
+/* 322 */         int pos = fileName.indexOf(".");
+/* 323 */         String extName = fileName.substring(pos);
+/* 324 */         String newFileName = uuid + extName;
+/* 325 */         File dest = new File(path.toString(), newFileName);
+/* 326 */         file.transferTo(dest);
+/*     */ 
+/* 329 */         String readPath = path.append(newFileName).toString();
+/* 330 */         InputStream in = new FileInputStream(readPath);
+/* 331 */         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+/* 332 */         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+/* 333 */         Row rowObj = null;
+/* 334 */         int lastRowNum = sheetObj.getLastRowNum();
+/* 335 */         int inputFail = 0;
+/* 336 */         int inputSuccess = 0;
+/* 337 */         String faillReason = "";
+/* 338 */         for (int temp = 2; temp <= lastRowNum; temp++) {
+/* 339 */           rowObj = sheetObj.getRow(temp);
+/* 340 */           if (rowObj != null) {
+/* 341 */             Cell c0 = rowObj.getCell(0);
+/* 342 */             Cell c1 = rowObj.getCell(1);
+/* 343 */             Cell c2 = rowObj.getCell(2);
+/* 344 */             Cell c3 = rowObj.getCell(3);
+/* 345 */             Cell c4 = rowObj.getCell(4);
+/* 346 */             Cell c5 = rowObj.getCell(5);
+/* 347 */             Cell c6 = rowObj.getCell(6);
+/* 348 */             Cell c7 = rowObj.getCell(7);
+/* 349 */             Cell c8 = rowObj.getCell(8);
+/* 350 */             Cell c9 = rowObj.getCell(9);
+/* 351 */             Cell c10 = rowObj.getCell(10);
+/* 352 */             Cell c11 = rowObj.getCell(11);
+/* 353 */             Cell c12 = rowObj.getCell(12);
+/* 354 */             Cell c13 = rowObj.getCell(13);
+/* 355 */             Cell c14 = rowObj.getCell(14);
+/* 356 */             if ((c0.getStringCellValue() != "") && (c1.getStringCellValue() != "") && (c3.getStringCellValue() != "") && (c12.getStringCellValue() != "") && (c9.getNumericCellValue() != -1.0D)) {
+/* 357 */               BookInfoWithBLOBs bookInfoWithBLOBs = new BookInfoWithBLOBs();
+/* 358 */               bookInfoWithBLOBs.setDept(Integer.valueOf(this.departmentMapper.getDeptIdByDeptName(c0.getStringCellValue()).size() > 0 ? (String)this.departmentMapper.getDeptIdByDeptName(c0.getStringCellValue()).get(0) : ""));
+/* 359 */               bookInfoWithBLOBs.setBookName(c1.getStringCellValue());
+/* 360 */               bookInfoWithBLOBs.setAuthor(c2.getStringCellValue());
+/* 361 */               bookInfoWithBLOBs.setBookNo(c3.getStringCellValue());
+/* 362 */               if (this.bookInfoMapper.selInfoByBookNo(c3.getStringCellValue()) == null) {
+/* 363 */                 json.setMsg("图书编号不能重复");
+/* 364 */                 return json;
+/*     */               }
+/* 366 */               bookInfoWithBLOBs.setTypeId(Integer.valueOf(this.bookTypeMapper.selIdByName(c4.getStringCellValue())));
+/* 367 */               bookInfoWithBLOBs.setIsbn(c5.getStringCellValue());
+/* 368 */               bookInfoWithBLOBs.setPubHouse(c6.getStringCellValue());
+/* 369 */               bookInfoWithBLOBs.setPubDate(DateFormat.getStrDate(c7.getDateCellValue()));
+/* 370 */               bookInfoWithBLOBs.setArea(c8.getStringCellValue());
+/* 371 */               bookInfoWithBLOBs.setAmt(Integer.valueOf((int)c9.getNumericCellValue()));
+/* 372 */               bookInfoWithBLOBs.setPrice(BigDecimal.valueOf(c10.getNumericCellValue()));
+/* 373 */               bookInfoWithBLOBs.setBrief(c11.getStringCellValue());
+/* 374 */               String arrange = c12.getStringCellValue();
+/* 375 */               String[] arrangArr = arrange.split(";");
+/* 376 */               StringBuffer str = new StringBuffer();
+/* 377 */               for (int i = 0; i < arrangArr.length; i++) {
+/* 378 */                 switch (i) {
+/*     */                 case 0:
+/* 380 */                   if (!StringUtils.checkNull(arrangArr[i]).booleanValue()) {
+/* 381 */                     String[] deptOpenArr = arrangArr[i].split(",");
+/* 382 */                     for (int j = 0; j < deptOpenArr.length; j++) {
+/* 383 */                       if (this.departmentMapper.getDeptIdByDeptName(deptOpenArr[j]).size() > 0) {
+/* 384 */                         List nameList = this.departmentMapper.getDeptIdByDeptName(deptOpenArr[j]);
+/* 385 */                         String name = "";
+/* 386 */                         if (nameList.size() > 0) {
+/* 387 */                           name = (String)nameList.get(0);
+/*     */                         }
+/* 389 */                         str.append(name + ",");
+/*     */                       }
+/*     */                     }
+/*     */                   }
+/* 393 */                   str.append(";");
+/* 394 */                   break;
+/*     */                 case 1:
+/* 396 */                   if (!StringUtils.checkNull(arrangArr[i]).booleanValue()) {
+/* 397 */                     String[] userOpenArr = arrangArr[i].split(",");
+/* 398 */                     for (int j = 0; j < userOpenArr.length; j++) {
+/* 399 */                       Users users = this.usersMapper.getUserByUserName(userOpenArr[j]);
+/* 400 */                       if ((users == null) || 
+/* 401 */                         (StringUtils.checkNull(users.getUserName()).booleanValue())) continue;
+/* 402 */                       str.append(users.getUserName() + ",");
+/*     */                     }
+/*     */ 
+/*     */                   }
+/*     */ 
+/* 407 */                   str.append(";");
+/* 408 */                   break;
+/*     */                 case 2:
+/* 410 */                   if (StringUtils.checkNull(arrangArr[i]).booleanValue()) continue;
+/* 411 */                   String[] userPrivOpenArr = arrangArr[i].split(",");
+/* 412 */                   for (int j = 0; j < userPrivOpenArr.length; j++) {
+/* 413 */                     UserPriv userPriv = this.userPrivMapper.getUserPrivByName(userPrivOpenArr[j]);
+/* 414 */                     if ((userPriv == null) || 
+/* 415 */                       (StringUtils.checkNull(userPriv.getPrivName()).booleanValue())) continue;
+/* 416 */                     str.append(userPriv.getUserPriv() + ",");
+/*     */                   }
+/*     */ 
+/*     */                 }
+/*     */ 
+/*     */               }
+/*     */ 
+/* 424 */               bookInfoWithBLOBs.setOpen(str.toString());
+/* 425 */               if (this.usersMapper.getUserByUserName(c13.getStringCellValue()) != null) {
+/* 426 */                 bookInfoWithBLOBs.setBorrPerson(this.usersMapper.getUserByUserName(c13.getStringCellValue()).getUserId());
+/*     */               }
+/* 428 */               bookInfoWithBLOBs.setMemo(c14.getStringCellValue());
+/*     */             }
+/*     */           }
+/*     */         }
+/* 432 */         json.setFlag(0);
+/* 433 */         json.setMsg("ok");
+/* 434 */         dest.delete();
+/*     */       } else {
+/* 436 */         json.setMsg("0");
+/* 437 */         return json;
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 441 */       json.setMsg(e.getMessage());
+/* 442 */       L.e(new Object[] { "BookInfoService importBookInfo:" + e });
+/* 443 */       e.printStackTrace();
+/*     */     }
+/* 445 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookInfoWithBLOBs> outputSelBookInfoByCond(BookInfoWithBLOBs bookInfoWithBLOBs, HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/* 457 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 459 */       Map map = new HashMap();
+/* 460 */       map.put("bookInfoWithBLOBs", bookInfoWithBLOBs);
+/* 461 */       List<BookInfoWithBLOBs> list = this.bookInfoMapper.selBookInfoByCond(map);
+/* 462 */       for (BookInfoWithBLOBs bookInfo : list) {
+/* 463 */         bookInfo.setBorrowNum(Integer.valueOf(this.bookManageMapper.selCountManageByBookNo(bookInfo.getBookNo())));
+/* 464 */         bookInfo.setBorrowCond("已借出" + bookInfo.getBorrowNum() + "册，剩余" + bookInfo.getAmt() + "册");
+/* 465 */         if (!StringUtils.checkNull(bookInfo.getOpen()).booleanValue()) {
+/* 466 */           String deptStr = "";
+/* 467 */           String userStr = "";
+/* 468 */           String userPrivStr = "";
+/* 469 */           String[] openArr = bookInfo.getOpen().split(";");
+/* 470 */           for (int i = 0; i < openArr.length; i++) {
+/* 471 */             switch (i) {
+/*     */             case 0:
+/* 473 */               if (StringUtils.checkNull(openArr[i]).booleanValue()) continue;
+/* 474 */               String[] deptOpenArr = openArr[i].split(",");
+/* 475 */               for (int j = 0; j < deptOpenArr.length; j++) {
+/* 476 */                 if (!StringUtils.checkNull(this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(deptOpenArr[j]))).booleanValue()) {
+/* 477 */                   deptStr = deptStr + this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(deptOpenArr[j])) + ",";
+/*     */                 }
+/*     */               }
+/* 480 */               break;
+/*     */             case 1:
+/* 483 */               if (StringUtils.checkNull(openArr[i]).booleanValue()) continue;
+/* 484 */               String[] userOpenArr = openArr[i].split(",");
+/* 485 */               for (int j = 0; j < userOpenArr.length; j++) {
+/* 486 */                 if (!StringUtils.checkNull(this.usersMapper.getUsernameByUserId(userOpenArr[j])).booleanValue()) {
+/* 487 */                   userStr = userStr + this.usersMapper.getUsernameByUserId(userOpenArr[j]) + ",";
+/*     */                 }
+/*     */               }
+/* 490 */               break;
+/*     */             case 2:
+/* 493 */               if (StringUtils.checkNull(openArr[i]).booleanValue()) continue;
+/* 494 */               String[] userPrivOpenArr = openArr[i].split(",");
+/* 495 */               for (int j = 0; j < userPrivOpenArr.length; j++) {
+/* 496 */                 if (!StringUtils.checkNull(this.userPrivMapper.getPrivNameById(Integer.valueOf(userPrivOpenArr[j]))).booleanValue()) {
+/* 497 */                   userPrivStr = userPrivStr + this.userPrivMapper.getPrivNameById(Integer.valueOf(userPrivOpenArr[j])) + ",";
+/*     */                 }
+/*     */               }
+/*     */             }
+/*     */ 
+/*     */           }
+/*     */ 
+/* 504 */           bookInfo.setOpenName(deptStr + ";" + userStr + ";" + userPrivStr);
+/*     */         }
+/*     */       }
+/* 507 */       HSSFWorkbook tableWork = ExcelUtil.makeExcelHead("图书信息导出", 16);
+/* 508 */       String[] secondTitles = { "部门", "书名", "作者", "图书编号", "图书类别", "ISBN号", "出版社", "出版日期", "存放地点", "数量", "价格", "内容简介", "借阅情况", "借阅范围", "录入人", "备注" };
+/* 509 */       HSSFWorkbook excelWork = ExcelUtil.makeSecondHead(tableWork, secondTitles);
+/* 510 */       String[] beanProperty = { "deptName", "bookName", "author", "bookNo", "typeName", "isbn", "pubHouse", "pubDate", "area", "amt", "price", "brief", "borrowCond", "openName", "borrPersonName", "memo" };
+/* 511 */       HSSFWorkbook workbook = ExcelUtil.exportExcelData(excelWork, list, beanProperty);
+/* 512 */       response.setContentType("text/html;charset=UTF-8");
+/* 513 */       OutputStream out = response.getOutputStream();
+/*     */ 
+/* 515 */       String filename = "图书信息导出.xls";
+/* 516 */       filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/*     */ 
+/* 518 */       response.setContentType("application/vnd.ms-excel");
+/* 519 */       response.setHeader("content-disposition", "attachment;filename=" + filename);
+/*     */ 
+/* 521 */       workbook.write(out);
+/* 522 */       out.flush();
+/* 523 */       out.close();
+/* 524 */       json.setObj(list);
+/* 525 */       json.setMsg("ok");
+/* 526 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 528 */       json.setMsg(e.getMessage());
+/* 529 */       L.e(new Object[] { "BookInfoService outputSelBookInfoByCond:" + e });
+/* 530 */       e.printStackTrace();
+/*     */     }
+/* 532 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookInfoWithBLOBs> delBookInfoByIds(String[] bookIds)
+/*     */   {
+/* 542 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 544 */       int count = this.bookInfoMapper.delBookInfoByIds(bookIds);
+/* 545 */       if (count > 0) {
+/* 546 */         json.setFlag(0);
+/* 547 */         json.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 550 */       e.printStackTrace();
+/*     */     }
+/* 552 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookInfoWithBLOBs> selInfoCountByBookNo(String bookNo)
+/*     */   {
+/* 563 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 565 */       BookInfoWithBLOBs bookInfoWithBLOBs = this.bookInfoMapper.selInfoByBookNo(bookNo);
+/* 566 */       if (bookInfoWithBLOBs != null)
+/* 567 */         json.setTotleNum(Integer.valueOf(1));
+/*     */       else {
+/* 569 */         json.setTotleNum(Integer.valueOf(0));
+/*     */       }
+/* 571 */       json.setFlag(0);
+/* 572 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 574 */       e.printStackTrace();
+/*     */     }
+/* 576 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public int uploadImg(HttpServletRequest request, BookInfoWithBLOBs bookInfoWithBLOBs, MultipartFile imageFile)
+/*     */   {
+/* 585 */     int resultFlag = 0;
+/*     */     try
+/*     */     {
+/* 588 */       if (imageFile != null) {
+/* 589 */         String imageType = imageFile.getContentType();
+/* 590 */         boolean b = FileUploadUtil.allowUpload(imageType);
+/* 591 */         if (!b) {
+/* 592 */           resultFlag = 1;
+/*     */         }
+/*     */       }
+/* 595 */       String realPath = request.getSession().getServletContext().getRealPath("/");
+/* 596 */       String resourcePath = "ui/img/book/info";
+/*     */ 
+/* 598 */       BookInfoWithBLOBs temp = this.bookInfoMapper.selBookInfoById(bookInfoWithBLOBs.getBookId());
+/* 599 */       if ((temp != null) && 
+/* 600 */         (!StringUtils.checkNull(temp.getAttachmentId()).booleanValue())) {
+/* 601 */         File temp1 = new File(realPath + resourcePath + temp.getAttachmentId());
+/* 602 */         if (temp1.exists()) {
+/* 603 */           temp1.delete();
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 608 */       if (imageFile != null) {
+/* 609 */         if (FileUploadUtil.allowUpload(imageFile.getContentType())) {
+/* 610 */           String fileName = FileUploadUtil.rename(imageFile.getOriginalFilename());
+/* 611 */           File dir = new File(realPath + resourcePath);
+/* 612 */           if (!dir.exists()) {
+/* 613 */             dir.mkdirs();
+/*     */           }
+/* 615 */           File file = new File(dir, fileName);
+/* 616 */           imageFile.transferTo(file);
+/* 617 */           bookInfoWithBLOBs.setAttachmentId(fileName);
+/* 618 */           bookInfoWithBLOBs.setAttachmentName("");
+/*     */         }
+/*     */       } else {
+/* 621 */         bookInfoWithBLOBs.setAttachmentId("");
+/* 622 */         bookInfoWithBLOBs.setAttachmentName("");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 625 */       L.e(new Object[] { "BookInfoService uploadImg:" + e });
+/* 626 */       e.printStackTrace();
+/*     */     }
+/* 628 */     return resultFlag;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.book.BookInfoService
+ * JD-Core Version:    0.6.0
+ */

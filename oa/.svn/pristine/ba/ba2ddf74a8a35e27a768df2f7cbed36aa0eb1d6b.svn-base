@@ -1,0 +1,65 @@
+/*    */ package com.xoa.service.supervision;
+/*    */ 
+/*    */ import com.xoa.dao.supervision.SupFeedBackReplyMapper;
+/*    */ import com.xoa.model.supervision.SupFeedBackReply;
+/*    */ import com.xoa.model.users.Users;
+/*    */ import com.xoa.util.DateFormat;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import com.xoa.util.common.StringUtils;
+/*    */ import com.xoa.util.common.session.SessionUtils;
+/*    */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.beans.factory.annotation.Autowired;
+/*    */ import org.springframework.stereotype.Service;
+/*    */ 
+/*    */ @Service
+/*    */ public class SupFeedBackReplyService
+/*    */ {
+/*    */ 
+/*    */   @Autowired
+/*    */   private SupFeedBackReplyMapper supFeedBackReplyMapper;
+/*    */ 
+/*    */   public BaseWrapper insetrtSupFeedBackReply(SupFeedBackReply SupFeedBackReply, HttpServletRequest request)
+/*    */   {
+/* 27 */     BaseWrapper baseWrapper = new BaseWrapper();
+/* 28 */     if (StringUtils.checkNull(SupFeedBackReply.getContent()).booleanValue()) {
+/* 29 */       baseWrapper.setFlag(false);
+/* 30 */       baseWrapper.setStatus(true);
+/* 31 */       baseWrapper.setMsg("更新失败");
+/*    */     }
+/*    */ 
+/* 34 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 35 */     SupFeedBackReply.setCreaterId(users.getUserId());
+/* 36 */     SupFeedBackReply.setSid(Integer.valueOf(0));
+/* 37 */     SupFeedBackReply.setCreateTime(DateFormat.getCurrentTime());
+/* 38 */     SupFeedBackReply.setFbId(Integer.valueOf(1));
+/* 39 */     int num = this.supFeedBackReplyMapper.insert(SupFeedBackReply);
+/* 40 */     if (num > 0) {
+/* 41 */       baseWrapper.setFlag(true);
+/* 42 */       baseWrapper.setStatus(true);
+/* 43 */       baseWrapper.setMsg("更新成功");
+/*    */     }
+/*    */ 
+/* 46 */     return baseWrapper;
+/*    */   }
+/*    */ 
+/*    */   public ToJson<SupFeedBackReply> deleteByPrimaryKeySupFeedBackReply(HttpServletRequest request, Integer sid)
+/*    */   {
+/* 52 */     ToJson toJson = new ToJson();
+/* 53 */     if (StringUtils.checkNull(String.valueOf(sid)).booleanValue()) {
+/* 54 */       toJson.setFlag(1);
+/* 55 */       toJson.setMsg("删除失败");
+/*    */     }
+/* 57 */     int num = this.supFeedBackReplyMapper.deleteByPrimaryKey(sid);
+/* 58 */     if (num > 0) {
+/* 59 */       toJson.setFlag(0);
+/* 60 */       toJson.setMsg("更新成功");
+/*    */     }
+/* 62 */     return toJson;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.supervision.SupFeedBackReplyService
+ * JD-Core Version:    0.6.0
+ */

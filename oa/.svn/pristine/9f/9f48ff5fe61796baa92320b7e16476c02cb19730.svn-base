@@ -1,0 +1,526 @@
+/*     */ package com.xoa.controller.news;
+/*     */ 
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.worldnews.News;
+/*     */ import com.xoa.model.worldnews.NewsComment;
+/*     */ import com.xoa.service.sms.SmsService;
+/*     */ import com.xoa.service.worldnews.NewService;
+/*     */ import com.xoa.service.worldnews.NewsCommentService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ExcelUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.io.IOException;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.ServletOutputStream;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.log4j.Logger;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.springframework.context.annotation.Scope;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @Scope("prototype")
+/*     */ @RequestMapping({"/news"})
+/*     */ public class NewsController
+/*     */ {
+/*  48 */   private Logger loger = Logger.getLogger(NewsController.class);
+/*     */ 
+/*     */   @Resource
+/*     */   private NewService newService;
+/*     */ 
+/*     */   @Resource
+/*     */   private NewsCommentService newsCommentService;
+/*     */ 
+/*     */   @Resource
+/*     */   private SmsService smsService;
+/*  57 */   private String err = "err";
+/*  58 */   private String ok = "ok";
+/*     */ 
+/*     */   @RequestMapping({"/index"})
+/*     */   public String clickNews(HttpServletRequest request)
+/*     */   {
+/*  67 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  69 */     return "/app/news/center";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/findDetail"})
+/*     */   public String findDetail(HttpServletRequest request)
+/*     */   {
+/*  79 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  81 */     return "/app/news/find_detail";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/detail"})
+/*     */   public String News(HttpServletRequest request, String newsId)
+/*     */   {
+/*  91 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  93 */     String visitUrl = request.getRequestURI();
+/*  94 */     visitUrl = visitUrl + "?newsId=" + newsId;
+/*  95 */     this.smsService.setRead(request, visitUrl);
+/*  96 */     return "/app/news/newsDetail";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/manage"})
+/*     */   public String sendNews(HttpServletRequest request)
+/*     */   {
+/* 106 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 108 */     return "/app/news/newsManage";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/newsManage"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<News> showManage(@RequestParam(value="fromId", required=false) String fromId, @RequestParam(value="typeId", required=false) String typeId, @RequestParam(value="subject", required=false) String subject, @RequestParam(value="newsTime", required=false) String newsTime, @RequestParam(value="nTime", required=false) String nTime, @RequestParam(value="lastEditTime", required=false) String lastEditTime, @RequestParam(value="content", required=false) String content, @RequestParam(value="read", required=false) String read, @RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam("useFlag") Boolean useFlag, HttpServletRequest request, HttpServletResponse response, String queryField)
+/*     */   {
+/* 126 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 128 */     ContextHolder.setConsumerType(sqlType);
+/* 129 */     if ("0".equals(typeId)) {
+/* 130 */       typeId = null;
+/*     */     }
+/* 132 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 133 */     String userId = null;
+/* 134 */     String userPriv = null;
+/* 135 */     String deptId = null;
+/* 136 */     if ((users != null) && (users.getUserId() != null)) {
+/* 137 */       userId = users.getUserId();
+/* 138 */       userPriv = users.getUserPriv() + "";
+/* 139 */       deptId = users.getDeptId() + "";
+/*     */     }
+/* 141 */     String provider = "";
+/* 142 */     String name = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/* 143 */     if ((!"".equals(fromId)) && (fromId != null)) {
+/* 144 */       provider = fromId.substring(0, fromId.length() - 1);
+/*     */     }
+/* 146 */     Map maps = new HashMap();
+/*     */ 
+/* 148 */     maps.put("typeId", typeId);
+/* 149 */     maps.put("subject", subject);
+/* 150 */     maps.put("newsTime", newsTime);
+/* 151 */     maps.put("nTime", nTime);
+/* 152 */     maps.put("lastEditTime", lastEditTime);
+/* 153 */     maps.put("content", content);
+/* 154 */     maps.put("userId", userId);
+/* 155 */     maps.put("userPriv", userPriv);
+/* 156 */     maps.put("deptId", deptId);
+/* 157 */     maps.put("name", name);
+/* 158 */     maps.put("provider", provider);
+/* 159 */     maps.put("user", users);
+/* 160 */     maps.put("queryField", queryField);
+/* 161 */     ToJson returnReslt = new ToJson(0, "");
+/*     */     try {
+/* 163 */       if ("0".equals(read)) {
+/* 164 */         ToJson tojson = this.newService.unreadNews(maps, page, pageSize, useFlag.booleanValue(), name, sqlType);
+/*     */ 
+/* 166 */         if (tojson.getObj().size() > 0) {
+/* 167 */           tojson.setFlag(0);
+/* 168 */           tojson.setMsg(this.ok);
+/* 169 */           returnReslt = tojson;
+/*     */         } else {
+/* 171 */           returnReslt = tojson;
+/*     */         }
+/* 173 */       } else if ("1".equals(read)) {
+/* 174 */         ToJson tojson1 = this.newService.readNews(maps, page, pageSize, useFlag.booleanValue(), name, sqlType);
+/*     */ 
+/* 176 */         if (tojson1.getObj().size() > 0) {
+/* 177 */           tojson1.setFlag(0);
+/* 178 */           tojson1.setMsg(this.ok);
+/* 179 */           returnReslt = tojson1;
+/*     */         } else {
+/* 181 */           returnReslt = tojson1;
+/*     */         }
+/*     */       } else {
+/* 184 */         ToJson tojson2 = this.newService.selectNewsManage(maps, page, pageSize, useFlag.booleanValue(), name, sqlType);
+/*     */ 
+/* 186 */         if (tojson2.getObj().size() > 0) {
+/* 187 */           tojson2.setFlag(0);
+/* 188 */           tojson2.setMsg(this.ok);
+/* 189 */           returnReslt = tojson2;
+/*     */         } else {
+/* 191 */           returnReslt = tojson2;
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 197 */       e.printStackTrace();
+/*     */     }
+/*     */ 
+/* 200 */     return returnReslt;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/newsShow"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson showNews(@RequestParam(value="format", required=false) String format, @RequestParam(value="typeId", required=false) String typeId, @RequestParam(value="top", required=false) String top, @RequestParam(value="publish", required=false) String publish, @RequestParam(value="clickCount", required=false) String clickCount, @RequestParam(value="click", required=false) String click, @RequestParam(value="subject", required=false) String subject, @RequestParam(value="newsTime", required=false) String newsTime, @RequestParam(value="nTime", required=false) String nTime, @RequestParam(value="lastEditTime", required=false) String lastEditTime, @RequestParam(value="content", required=false) String content, @RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam("useFlag") Boolean useFlag, HttpServletRequest request, HttpServletResponse response, String exportId, String changeId)
+/*     */   {
+/* 229 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 231 */     if ("0".equals(typeId)) {
+/* 232 */       typeId = null;
+/*     */     }
+/* 234 */     Users name = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/* 236 */     String userId = null;
+/* 237 */     String userPriv = null;
+/* 238 */     String deptId = null;
+/* 239 */     if ((name != null) && (name.getUserId() != null)) {
+/* 240 */       userId = name.getUid() + "";
+/* 241 */       userPriv = name.getUserPriv() + "";
+/* 242 */       deptId = name.getDeptId() + "";
+/*     */     }
+/*     */ 
+/* 245 */     Map maps = new HashMap();
+/* 246 */     maps.put("format", format);
+/* 247 */     maps.put("typeId", typeId);
+/* 248 */     maps.put("subject", subject);
+/* 249 */     maps.put("newsTime", newsTime);
+/* 250 */     maps.put("nTime", nTime);
+/* 251 */     maps.put("lastEditTime", lastEditTime);
+/* 252 */     maps.put("content", content);
+/* 253 */     maps.put("top", top);
+/* 254 */     maps.put("publish", publish);
+/* 255 */     maps.put("clickCount", clickCount);
+/* 256 */     maps.put("click", click);
+/* 257 */     maps.put("changeId", changeId);
+/*     */ 
+/* 262 */     ToJson returnReslt = new ToJson(0, "");
+/*     */     try {
+/* 264 */       ToJson tojson = this.newService.selectNews(maps, page, pageSize, useFlag.booleanValue(), name.getUserId());
+/*     */ 
+/* 266 */       if ("1".equals(exportId))
+/* 267 */         returnReslt = tojson;
+/* 268 */       else if ("2".equals(exportId)) {
+/*     */         try {
+/* 270 */           List notifyList = tojson.getObj();
+/* 271 */           HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("新闻信息导出", 9);
+/* 272 */           String[] secondTitles = { "发布日期", "新闻类型", "新闻标题", "新闻内容", "评论" };
+/* 273 */           HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/*     */ 
+/* 276 */           String[] beanProperty = { "newsDateTime", "typeName", "subject", "content", "anonymityYn" };
+/*     */ 
+/* 278 */           HSSFWorkbook workbook = ExcelUtil.exportExcelData(workbook2, notifyList, beanProperty);
+/* 279 */           ServletOutputStream out = response.getOutputStream();
+/*     */ 
+/* 281 */           String filename = "新闻信息导出.xls";
+/* 282 */           filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/*     */ 
+/* 284 */           response.setContentType("application/vnd.ms-excel");
+/* 285 */           response.setHeader("content-disposition", "attachment;filename=" + filename);
+/*     */ 
+/* 287 */           workbook.write(out);
+/*     */         } catch (IOException e) {
+/* 289 */           e.printStackTrace();
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 295 */       e.printStackTrace();
+/* 296 */       this.loger.debug("NewsMessage:" + e);
+/*     */     }
+/*     */ 
+/* 299 */     return returnReslt;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/sendNews"})
+/*     */   @ResponseBody
+/*     */   public ToJson<News> insertNews(News news, @RequestParam("newTime") String newTime, @RequestParam(value="remind", required=false, defaultValue="0") String remind, HttpServletRequest request)
+/*     */   {
+/* 312 */     String tuisong = request.getParameter("tuisong");
+/* 313 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 315 */     Users name = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/* 317 */     news.setNewsId(Integer.valueOf(0));
+/* 318 */     news.setProvider(name.getUserId());
+/* 319 */     news.setNewsTime(DateFormat.getDate(newTime));
+/* 320 */     Date curDate = new Date(System.currentTimeMillis());
+/* 321 */     news.setLastEditTime(curDate);
+/* 322 */     byte[] srtbyte = news.getContent().getBytes();
+/* 323 */     news.setCompressContent(srtbyte);
+/* 324 */     ToJson newsToJson = new ToJson();
+/* 325 */     if (StringUtils.checkNull(news.getFormat()).booleanValue()) {
+/* 326 */       newsToJson.setFlag(1);
+/* 327 */       newsToJson.setMsg("err");
+/* 328 */       return newsToJson;
+/*     */     }
+/*     */ 
+/* 331 */     if (StringUtils.checkNull(news.getContent()).booleanValue()) {
+/* 332 */       newsToJson.setFlag(1);
+/* 333 */       newsToJson.setMsg("err");
+/* 334 */       return newsToJson;
+/*     */     }
+/*     */     try
+/*     */     {
+/* 338 */       this.newService.sendNews(news, remind, tuisong, request);
+/* 339 */       newsToJson.setFlag(0);
+/* 340 */       newsToJson.setMsg("ok");
+/*     */     }
+/*     */     catch (Exception e) {
+/* 343 */       this.loger.debug("sendNews:" + e);
+/*     */     }
+/*     */ 
+/* 346 */     return newsToJson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/updateNews"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<News> updateNews(News news, HttpServletRequest request, @RequestParam("newsId") Integer newsId, @RequestParam(value="remind", required=false, defaultValue="0") String remind, String newTime, @RequestParam(name="lastTime", required=false) String lastTime, @RequestParam(name="editPublish", required=false, defaultValue="0") String editPublish)
+/*     */   {
+/* 363 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 365 */     ToJson newsToJson = new ToJson();
+/* 366 */     news.setNewsId(newsId);
+/* 367 */     String tuisong = request.getParameter("tuisong");
+/*     */ 
+/* 369 */     if (!StringUtils.checkNull(newTime).booleanValue()) {
+/* 370 */       news.setNewsTime(DateFormat.getDate(newTime));
+/*     */     }
+/*     */ 
+/* 373 */     news.setClickCount(Integer.valueOf(0));
+/*     */     try
+/*     */     {
+/* 376 */       if (editPublish.equals("0"))
+/* 377 */         this.newService.updateNews(news, remind, tuisong, request);
+/* 378 */       else if (editPublish.equals("3"))
+/* 379 */         this.newService.updateNewsReades(news, remind, tuisong, request);
+/*     */       else {
+/* 381 */         this.newService.updatePublish(news, remind, tuisong, request);
+/*     */       }
+/* 383 */       newsToJson.setFlag(0);
+/* 384 */       newsToJson.setMsg("ok");
+/*     */     }
+/*     */     catch (Exception e) {
+/* 387 */       this.loger.debug("sendNews:" + e);
+/*     */     }
+/*     */ 
+/* 390 */     return newsToJson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/deleteNews"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<News> deleteNews(@RequestParam("newsId") Integer newsId, HttpServletRequest request)
+/*     */   {
+/* 403 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 406 */     ToJson toJson = new ToJson(0, "");
+/*     */     try {
+/* 408 */       toJson.setMsg(this.ok);
+/* 409 */       this.newService.deleteByPrimaryKey(newsId);
+/* 410 */       toJson.setFlag(0);
+/* 411 */       toJson.setMsg("ok");
+/*     */     }
+/*     */     catch (Exception e) {
+/* 414 */       toJson.setFlag(1);
+/* 415 */       toJson.setMsg("err");
+/*     */     }
+/*     */ 
+/* 418 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/getOneById"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<News> queryNews(@RequestParam("newsId") Integer newsId, @RequestParam(name="changId", required=false) String changId, HttpServletRequest request)
+/*     */   {
+/* 431 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 433 */     ContextHolder.setConsumerType(sqlType);
+/* 434 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 435 */     String userId = null;
+/* 436 */     String userPriv = null;
+/* 437 */     String deptId = null;
+/* 438 */     if ((users != null) && (users.getUserId() != null)) {
+/* 439 */       userId = users.getUserId();
+/* 440 */       userPriv = users.getUserPriv() + "";
+/* 441 */       deptId = users.getDeptId() + "";
+/*     */     }
+/* 443 */     Map maps = new HashMap();
+/* 444 */     maps.put("newsId", newsId);
+/* 445 */     maps.put("userId", userId);
+/* 446 */     maps.put("userPriv", userPriv);
+/* 447 */     maps.put("deptId", deptId);
+/* 448 */     ToJson toJson = new ToJson(0, "");
+/* 449 */     Users name = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */     try
+/*     */     {
+/* 452 */       News news = this.newService.queryById(maps, Integer.valueOf(1), Integer.valueOf(5), false, name.getUserId(), sqlType, changId);
+/*     */ 
+/* 454 */       toJson.setMsg(this.ok);
+/* 455 */       toJson.setObject(news);
+/* 456 */       return toJson;
+/*     */     } catch (Exception e) {
+/* 458 */       toJson.setMsg(this.err);
+/* 459 */       this.loger.debug("ERROR:" + e);
+/* 460 */     }return toJson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/deleteByIds"})
+/*     */   @ResponseBody
+/*     */   public ToJson<News> deleteByIds(@RequestParam("newsIds[]") String[] newsIds) {
+/* 468 */     return this.newService.deleteByids(newsIds);
+/*     */   }
+/*     */   @RequestMapping({"/updateByIds"})
+/*     */   @ResponseBody
+/*     */   public ToJson<News> updateByIds(@RequestParam("newsIds[]") String[] newsIds, String top, String publish) {
+/* 475 */     return this.newService.updayeByids(newsIds, top, publish);
+/*     */   }
+/*     */   @RequestMapping({"/querySituation"})
+/*     */   @ResponseBody
+/*     */   public ToJson<News> querySituation(String newsId) {
+/* 482 */     return this.newService.ConsultTheSituationNew(newsId);
+/*     */   }
+/*     */ 
+/*     */   public static String returnValue(String value)
+/*     */   {
+/* 492 */     if (!StringUtils.checkNull(value).booleanValue()) {
+/* 493 */       return value;
+/*     */     }
+/* 495 */     return "";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/AddNewsComment"})
+/*     */   @ResponseBody
+/*     */   public ToJson<NewsComment> AddNewsComment(HttpServletRequest request, NewsComment newsComment)
+/*     */   {
+/* 509 */     ToJson json = new ToJson();
+/*     */     try {
+/* 511 */       Date date = new Date();
+/* 512 */       newsComment.setRe_time(date);
+/* 513 */       this.newsCommentService.addNewsComment(request, newsComment);
+/* 514 */       json.setFlag(0);
+/* 515 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 517 */       json.setFlag(1);
+/* 518 */       json.setMsg("err");
+/* 519 */       e.printStackTrace();
+/*     */     }
+/* 521 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getNewsCommentInfo"})
+/*     */   @ResponseBody
+/*     */   public ToJson<NewsComment> getNewsCommentInfo(HttpServletRequest request, String news_id)
+/*     */   {
+/* 534 */     ToJson json = new ToJson();
+/*     */     try {
+/* 536 */       List newsCommentInfo = this.newsCommentService.getNewsCommentInfo(request, news_id);
+/* 537 */       json.setFlag(0);
+/* 538 */       json.setMsg("ok");
+/* 539 */       json.setObj(newsCommentInfo);
+/*     */     } catch (Exception e) {
+/* 541 */       e.printStackTrace();
+/* 542 */       json.setFlag(1);
+/* 543 */       json.setMsg("err");
+/* 544 */       json.setObj(null);
+/*     */     }
+/* 546 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/comment"})
+/*     */   public String NewsComment(HttpServletRequest request)
+/*     */   {
+/* 558 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 560 */     return "/app/news/comment";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/replyComment"})
+/*     */   public String replyComment(HttpServletRequest request)
+/*     */   {
+/* 572 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 574 */     return "/app/news/replyComment";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getUser"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Users> getUser(HttpServletRequest request)
+/*     */   {
+/* 586 */     return this.newsCommentService.getUser(request);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getCount"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> getCount(String parent_id)
+/*     */   {
+/* 599 */     ToJson json = new ToJson();
+/*     */     try {
+/* 601 */       int count = this.newsCommentService.getCount(parent_id);
+/* 602 */       json.setFlag(0);
+/* 603 */       json.setMsg("ok");
+/* 604 */       json.setObject(Integer.valueOf(count));
+/*     */     } catch (Exception e) {
+/* 606 */       json.setFlag(1);
+/* 607 */       json.setMsg("err");
+/* 608 */       json.setObject(Integer.valueOf(0));
+/* 609 */       e.printStackTrace();
+/*     */     }
+/* 611 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/deleteComment"})
+/*     */   @ResponseBody
+/*     */   public ToJson<NewsComment> deleteComment(String comment_id, HttpServletRequest request)
+/*     */   {
+/* 624 */     ToJson json = new ToJson();
+/*     */     try {
+/* 626 */       String string = this.newsCommentService.deleteComment(comment_id, request);
+/* 627 */       json.setMsg(string);
+/* 628 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 630 */       e.printStackTrace();
+/* 631 */       json.setMsg("err");
+/* 632 */       json.setFlag(1);
+/*     */     }
+/* 634 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getNewsCount"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> getNewsCount(String news_id)
+/*     */   {
+/* 647 */     ToJson json = new ToJson();
+/*     */     try {
+/* 649 */       int newsCount = this.newsCommentService.getNewsCount(news_id);
+/* 650 */       json.setMsg("ok");
+/* 651 */       json.setFlag(0);
+/* 652 */       json.setObject(Integer.valueOf(newsCount));
+/*     */     } catch (Exception e) {
+/* 654 */       e.printStackTrace();
+/* 655 */       json.setMsg("ok");
+/* 656 */       json.setFlag(0);
+/* 657 */       json.setObject(Integer.valueOf(0));
+/*     */     }
+/* 659 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getNewCountByType"})
+/*     */   public BaseWrapper getNewCountByType(String type)
+/*     */   {
+/* 672 */     return this.newService.getNewCountByType(type);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.news.NewsController
+ * JD-Core Version:    0.6.0
+ */

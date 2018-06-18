@@ -1,0 +1,73 @@
+/*    */ package com.xoa.service.contactPerson;
+/*    */ 
+/*    */ import com.xoa.dao.email.EmailBodyMapper;
+/*    */ import com.xoa.dao.users.UserExtMapper;
+/*    */ import com.xoa.dao.users.UsersMapper;
+/*    */ import com.xoa.model.users.UserExt;
+/*    */ import com.xoa.model.users.Users;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import com.xoa.util.common.StringUtils;
+/*    */ import com.xoa.util.common.session.SessionUtils;
+/*    */ import java.util.ArrayList;
+/*    */ import java.util.List;
+/*    */ import javax.annotation.Resource;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.beans.factory.annotation.Autowired;
+/*    */ import org.springframework.stereotype.Service;
+/*    */ 
+/*    */ @Service
+/*    */ public class ContactPersonService
+/*    */ {
+/*    */ 
+/*    */   @Autowired
+/*    */   public EmailBodyMapper emailBodyMapperl;
+/*    */ 
+/*    */   @Autowired
+/*    */   public UsersMapper usersMapper;
+/*    */ 
+/*    */   @Resource
+/*    */   public UserExtMapper userExtMapper;
+/*    */ 
+/*    */   public ToJson<Users> serchContactPerson(HttpServletRequest request)
+/*    */   {
+/* 35 */     ToJson toJson = new ToJson();
+/*    */     try {
+/* 37 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 38 */       UserExt userExt = this.userExtMapper.queryUserExtByUserId(user.getUserId());
+/* 39 */       String emailRecentLinkman = userExt.getEmailRecentLinkman();
+/* 40 */       String emailId = userExt.getTableIcon();
+/* 41 */       String[] split = emailRecentLinkman.split(",");
+/* 42 */       String[] split1 = emailId.split(",");
+/* 43 */       List list = new ArrayList();
+/* 44 */       if (split.length > 5) {
+/* 45 */         for (int i = 0; i < 5; i++) {
+/* 46 */           if (!StringUtils.checkNull(split[i]).booleanValue()) {
+/* 47 */             Users usersByuserId = this.usersMapper.getUsersByuserId(split[i]);
+/* 48 */             list.add(usersByuserId);
+/*    */           }
+/*    */         }
+/*    */       }
+/*    */       else {
+/* 53 */         for (int i = 0; i < split.length; i++) {
+/* 54 */           if (!StringUtils.checkNull(split[i]).booleanValue()) {
+/* 55 */             Users usersByuserId = this.usersMapper.getUsersByuserId(split[i]);
+/* 56 */             list.add(usersByuserId);
+/*    */           }
+/*    */         }
+/*    */       }
+/* 60 */       toJson.setObj(list);
+/* 61 */       toJson.setFlag(0);
+/* 62 */       toJson.setMsg("查询成功");
+/*    */     } catch (Exception e) {
+/* 64 */       e.printStackTrace();
+/* 65 */       toJson.setFlag(1);
+/* 66 */       toJson.setMsg("查询失败");
+/*    */     }
+/* 68 */     return toJson;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.contactPerson.ContactPersonService
+ * JD-Core Version:    0.6.0
+ */

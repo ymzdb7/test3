@@ -1,0 +1,94 @@
+package com.xoa.controller.smsSettings;
+
+import com.xoa.model.smsSettings.SmsSettings;
+import com.xoa.service.smssetting.SmsSettingsService;
+import com.xoa.util.ToJson;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@RequestMapping({ "/smsSettings" })
+@Controller
+public class SmsSettingsController {
+
+	@Autowired
+	private SmsSettingsService smsSettingsService;
+
+	@RequestMapping({ "/index" })
+	public String smsIndex() {
+		return "app/smsSettings/index";
+	}
+
+	@RequestMapping({ "/indexnum1" })
+	public String smsIndex1() {
+		return "app/smsSettings/indexnum1";
+	}
+
+	@RequestMapping({ "/indexnum2" })
+	public String smsIndex2() {
+		return "app/smsSettings/indexnum2";
+	}
+
+	@RequestMapping({ "/indexnum3" })
+	public String smsIndex3() {
+		return "app/smsSettings/indexnum3";
+	}
+
+	@RequestMapping({ "/indexnum4" })
+	public String smsIndex4() {
+		return "app/smsSettings/indexnum4";
+	}
+
+	@RequestMapping({ "/indexnum5" })
+	public String smsIndex5() {
+		return "app/smsSettings/indexnum5";
+	}
+
+	@RequestMapping({ "/indexnum7" })
+	public String smsIndex7() {
+		return "app/smsSettings/indexnum7";
+	}
+
+	@RequestMapping({ "/indexnum6" })
+	public String smsIndex6() {
+		return "app/smsSettings/indexnum6";
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/insertSmsSettings" })
+	public ToJson insertSmsSettings(SmsSettings smsSettings) {
+		return this.smsSettingsService.insertSmsSettings(smsSettings);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/delSmsSettings" })
+	public ToJson delSmsSettings(int id) {
+		return this.smsSettingsService.delSmsSettings(id);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/upSmsSettings" })
+	public ToJson upSmsSettings(SmsSettings smsSettings) {
+		return this.smsSettingsService.upSmsSettings(smsSettings);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selectSmsSettings" })
+	public ToJson selectSmsSettings() {
+		return this.smsSettingsService.selectSmsSettings();
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selectSmsSettingsAll" })
+	public ToJson selectSmsSettingsAll() {
+		return this.smsSettingsService.selectSmsSettingsAll();
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selectSmsSettingsById" })
+	public ToJson selectSmsSettingsById(HttpServletRequest request, Integer id) {
+		return this.smsSettingsService.selectSmsSettingsById(request, id);
+	}
+}

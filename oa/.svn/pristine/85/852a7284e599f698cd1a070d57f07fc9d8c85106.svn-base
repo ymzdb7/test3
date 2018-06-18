@@ -1,0 +1,95 @@
+/*    */ package com.xoa.util.netdisk;
+/*    */ 
+/*    */ import java.io.File;
+/*    */ import java.io.FileInputStream;
+/*    */ import java.io.FileOutputStream;
+/*    */ import java.io.IOException;
+/*    */ import java.io.InputStream;
+/*    */ import java.util.zip.ZipEntry;
+/*    */ import java.util.zip.ZipOutputStream;
+/*    */ 
+/*    */ public class ZipUtils
+/*    */ {
+/*    */   public static void doCompress(String srcFile, String zipFile)
+/*    */     throws Exception
+/*    */   {
+/* 12 */     doCompress(new File(srcFile), new File(zipFile));
+/*    */   }
+/*    */ 
+/*    */   public static void doCompress(File srcFile, File destFile)
+/*    */     throws Exception
+/*    */   {
+/* 21 */     ZipOutputStream out = new ZipOutputStream(new FileOutputStream(destFile));
+/* 22 */     if (srcFile.isDirectory()) {
+/* 23 */       File[] files = srcFile.listFiles();
+/* 24 */       for (File file : files)
+/* 25 */         doCompress(file, out);
+/*    */     }
+/*    */     else {
+/* 28 */       doCompress(srcFile, out);
+/*    */     }
+/*    */   }
+/*    */ 
+/*    */   public static void doCompress(String pathname, ZipOutputStream out) throws IOException {
+/* 33 */     doCompress(new File(pathname), out);
+/*    */   }
+/*    */ 
+/*    */   public static void doCompress(File file, ZipOutputStream out) throws IOException {
+/* 37 */     if (file.exists()) {
+/* 38 */       byte[] buffer = new byte[1024];
+/* 39 */       FileInputStream fis = new FileInputStream(file);
+/* 40 */       out.putNextEntry(new ZipEntry(file.getName()));
+/* 41 */       int len = 0;
+/*    */ 
+/* 43 */       while ((len = fis.read(buffer)) > 0) {
+/* 44 */         out.write(buffer, 0, len);
+/*    */       }
+/* 46 */       out.flush();
+/* 47 */       out.closeEntry();
+/* 48 */       fis.close();
+/*    */     }
+/*    */   }
+/*    */ 
+/*    */   public static void zip(String inName, String outName)
+/*    */   {
+/* 59 */     File file = new File(inName);
+/* 60 */     int length = (int)file.length();
+/* 61 */     byte[] b = new byte[length];
+/*    */     try {
+/* 63 */       InputStream in = new FileInputStream(file);
+/* 64 */       in.read(b);
+/* 65 */       in.close();
+/*    */     } catch (Exception e) {
+/* 67 */       e.printStackTrace();
+/*    */     }
+/*    */     try
+/*    */     {
+/* 71 */       ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(new File(outName)));
+/* 72 */       zout.setLevel(9);
+/* 73 */       ZipEntry zipEntry = new ZipEntry(file.getName());
+/* 74 */       zout.putNextEntry(zipEntry);
+/* 75 */       zout.write(b);
+/* 76 */       zout.finish();
+/* 77 */       zout.close();
+/*    */     } catch (Exception e) {
+/* 79 */       e.printStackTrace();
+/*    */     }
+/*    */   }
+/*    */ 
+/*    */   public static double getM(double k)
+/*    */   {
+/* 86 */     double m = k / 1024.0D;
+/* 87 */     return m;
+/*    */   }
+/*    */ 
+/*    */   public static double getKB(double b)
+/*    */   {
+/* 92 */     double kb = b / 1024.0D;
+/* 93 */     return kb;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.netdisk.ZipUtils
+ * JD-Core Version:    0.6.0
+ */

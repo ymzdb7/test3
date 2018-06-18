@@ -1,0 +1,328 @@
+/*     */ package com.xoa.service.edu.schoolRollInfo;
+/*     */ 
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.edu.schoolRollInfo.SchoolRollInfoMapper;
+/*     */ import com.xoa.model.edu.schoolRollInfo.SchoolRollInfo;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ExcelUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.InputStream;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.ResourceBundle;
+/*     */ import java.util.UUID;
+/*     */ import javax.servlet.ServletOutputStream;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.apache.poi.ss.usermodel.Cell;
+/*     */ import org.apache.poi.ss.usermodel.Row;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Service
+/*     */ public class SchoolRollInfoService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private SchoolRollInfoMapper schoolRollInfoMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<SchoolRollInfo> addShoolRollInfo(SchoolRollInfo schoolRollInfo, HttpServletRequest request)
+/*     */   {
+/*  50 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  52 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  53 */       schoolRollInfo.setFlag("0");
+/*  54 */       schoolRollInfo.setCreateTime(new Date());
+/*  55 */       schoolRollInfo.setCreateUser(user.getUserId());
+/*  56 */       int count = this.schoolRollInfoMapper.insert(schoolRollInfo);
+/*  57 */       if (count > 0) {
+/*  58 */         json.setMsg("ok");
+/*  59 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  62 */       json.setMsg(e.getMessage());
+/*  63 */       e.printStackTrace();
+/*  64 */       L.e(new Object[] { "SchoolRollInfoService addShoolRollInfo:" + e });
+/*     */     }
+/*  66 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<SchoolRollInfo> delShoolRollInfo(int id)
+/*     */   {
+/*  78 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  80 */       int count = this.schoolRollInfoMapper.deleteByPrimaryKey(Integer.valueOf(id));
+/*  81 */       if (count > 0) {
+/*  82 */         json.setMsg("ok");
+/*  83 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  86 */       json.setMsg(e.getMessage());
+/*  87 */       e.printStackTrace();
+/*  88 */       L.e(new Object[] { "SchoolRollInfoService delShoolRollInfo:" + e });
+/*     */     }
+/*  90 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<SchoolRollInfo> updateShoolRollInfo(SchoolRollInfo schoolRollInfo)
+/*     */   {
+/* 102 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 104 */       schoolRollInfo.setEditTime(new Date());
+/* 105 */       int count = this.schoolRollInfoMapper.updateByPrimaryKeySelective(schoolRollInfo);
+/* 106 */       if (count > 0) {
+/* 107 */         json.setMsg("ok");
+/* 108 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 111 */       json.setMsg(e.getMessage());
+/* 112 */       e.printStackTrace();
+/* 113 */       L.e(new Object[] { "SchoolRollInfoService updateShoolRollInfo:" + e });
+/*     */     }
+/* 115 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SchoolRollInfo> selSchoolRollInfoById(int id)
+/*     */   {
+/* 126 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 128 */       SchoolRollInfo schoolRollInfo = this.schoolRollInfoMapper.selectByPrimaryKey(Integer.valueOf(id));
+/* 129 */       json.setFlag(0);
+/* 130 */       json.setMsg("ok");
+/* 131 */       json.setObject(schoolRollInfo);
+/*     */     } catch (Exception e) {
+/* 133 */       json.setMsg(e.getMessage());
+/* 134 */       e.printStackTrace();
+/* 135 */       L.e(new Object[] { "SchoolRollInfoService selSchoolRollInfoById:" + e });
+/*     */     }
+/* 137 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SchoolRollInfo> selSchoolRollInfo(SchoolRollInfo schoolRollInfo, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 148 */     ToJson json = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 151 */       PageParams pageParams = new PageParams();
+/* 152 */       pageParams.setPage(page);
+/* 153 */       pageParams.setPageSize(pageSize);
+/* 154 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 155 */       Map map = new HashMap();
+/* 156 */       map.put("page", pageParams);
+/* 157 */       map.put("schoolRollInfo", schoolRollInfo);
+/* 158 */       List list = this.schoolRollInfoMapper.selSchoolRollInfo(map);
+/* 159 */       json.setFlag(0);
+/* 160 */       json.setMsg("ok");
+/* 161 */       json.setObj(list);
+/* 162 */       json.setTotleNum(pageParams.getTotal());
+/*     */     } catch (Exception e) {
+/* 164 */       json.setMsg(e.getMessage());
+/* 165 */       e.printStackTrace();
+/* 166 */       L.e(new Object[] { "SchoolRollInfoService selSchoolRollInfo:" + e });
+/*     */     }
+/* 168 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SchoolRollInfo> importSchoolRollInfo(HttpServletRequest request, HttpServletResponse response, MultipartFile file)
+/*     */   {
+/* 179 */     ToJson json = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 183 */       ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 184 */       String osName = System.getProperty("os.name");
+/* 185 */       StringBuffer path = new StringBuffer();
+/* 186 */       if (osName.toLowerCase().startsWith("win"))
+/* 187 */         path = path.append(rb.getString("upload.win"));
+/*     */       else {
+/* 189 */         path = path.append(rb.getString("upload.linux"));
+/*     */       }
+/* 191 */       int success = 0;
+/*     */ 
+/* 193 */       if (file.isEmpty()) {
+/* 194 */         json.setMsg("请上传文件！");
+/* 195 */         json.setFlag(1);
+/* 196 */         return json;
+/*     */       }
+/* 198 */       String fileName = file.getOriginalFilename();
+/* 199 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 200 */         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+/* 201 */         int pos = fileName.indexOf(".");
+/* 202 */         String extName = fileName.substring(pos);
+/* 203 */         String newFileName = uuid + extName;
+/* 204 */         File dest = new File(path.toString(), newFileName);
+/* 205 */         file.transferTo(dest);
+/*     */ 
+/* 208 */         String readPath = path.append(System.getProperty("file.separator")).append(newFileName).toString();
+/* 209 */         InputStream in = new FileInputStream(readPath);
+/* 210 */         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+/* 211 */         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+/* 212 */         Row row = sheetObj.getRow(0);
+/* 213 */         int colNum = row.getPhysicalNumberOfCells();
+/* 214 */         int lastRowNum = sheetObj.getLastRowNum();
+/* 215 */         Map map = new HashMap();
+/* 216 */         map.put("schoolCode", Integer.valueOf(0));
+/* 217 */         map.put("schoolName", Integer.valueOf(1));
+/* 218 */         map.put("name", Integer.valueOf(2));
+/* 219 */         map.put("learnPhaseId", Integer.valueOf(3));
+/* 220 */         map.put("gradeId", Integer.valueOf(4));
+/* 221 */         map.put("classId", Integer.valueOf(5));
+/* 222 */         map.put("sex", Integer.valueOf(6));
+/* 223 */         map.put("brith", Integer.valueOf(7));
+/* 224 */         map.put("districtNo", Integer.valueOf(8));
+/* 225 */         map.put("origin", Integer.valueOf(9));
+/* 226 */         map.put("nation", Integer.valueOf(10));
+/* 227 */         map.put("nationality", Integer.valueOf(11));
+/* 228 */         map.put("cardType", Integer.valueOf(12));
+/* 229 */         map.put("cardId", Integer.valueOf(13));
+/* 230 */         map.put("region", Integer.valueOf(14));
+/* 231 */         map.put("health", Integer.valueOf(15));
+/* 232 */         map.put("political", Integer.valueOf(16));
+/* 233 */         map.put("registration", Integer.valueOf(17));
+/* 234 */         map.put("registrDistrict", Integer.valueOf(18));
+/* 235 */         map.put("entranceDate", Integer.valueOf(19));
+/* 236 */         map.put("entranceWay", Integer.valueOf(20));
+/* 237 */         map.put("studyWay", Integer.valueOf(21));
+/* 238 */         map.put("address", Integer.valueOf(22));
+/* 239 */         map.put("mailAddress", Integer.valueOf(23));
+/* 240 */         map.put("homrAddress", Integer.valueOf(24));
+/* 241 */         map.put("phone", Integer.valueOf(25));
+/* 242 */         map.put("postalCode", Integer.valueOf(26));
+/* 243 */         map.put("onlyChild", Integer.valueOf(27));
+/* 244 */         map.put("preEducation", Integer.valueOf(28));
+/* 245 */         map.put("leftChild", Integer.valueOf(29));
+/* 246 */         map.put("appliedFund", Integer.valueOf(30));
+/* 247 */         map.put("supplement", Integer.valueOf(31));
+/* 248 */         map.put("orphan", Integer.valueOf(32));
+/* 249 */         map.put("martyrsChild", Integer.valueOf(33));
+/* 250 */         map.put("goDistance", Integer.valueOf(34));
+/* 251 */         map.put("goWay", Integer.valueOf(35));
+/* 252 */         map.put("takeBus", Integer.valueOf(36));
+/* 253 */         map.put("preName", Integer.valueOf(37));
+/* 254 */         map.put("cardValiDate", Integer.valueOf(38));
+/* 255 */         map.put("bloodType", Integer.valueOf(39));
+/* 256 */         map.put("specialty", Integer.valueOf(40));
+/* 257 */         map.put("auxiliaryNum", Integer.valueOf(41));
+/* 258 */         map.put("stuNo", Integer.valueOf(42));
+/* 259 */         map.put("stuSource", Integer.valueOf(43));
+/* 260 */         map.put("eMail", Integer.valueOf(44));
+/* 261 */         map.put("homePage", Integer.valueOf(45));
+/* 262 */         map.put("disabilityType", Integer.valueOf(46));
+/* 263 */         map.put("governDegree", Integer.valueOf(47));
+/* 264 */         map.put("regularStudy", Integer.valueOf(48));
+/* 265 */         map.put("hidden", Integer.valueOf(49));
+/* 266 */         map.put("member1Name", Integer.valueOf(50));
+/* 267 */         map.put("member1Relation", Integer.valueOf(51));
+/* 268 */         map.put("member1RelationDesc", Integer.valueOf(52));
+/* 269 */         map.put("member1Address", Integer.valueOf(53));
+/* 270 */         map.put("member1District", Integer.valueOf(54));
+/* 271 */         map.put("member1Phone", Integer.valueOf(55));
+/* 272 */         map.put("member1Keeper", Integer.valueOf(56));
+/* 273 */         map.put("member1CardType", Integer.valueOf(57));
+/* 274 */         map.put("member1CardId", Integer.valueOf(58));
+/* 275 */         map.put("member1Nation", Integer.valueOf(59));
+/* 276 */         map.put("member1Workplace", Integer.valueOf(60));
+/* 277 */         map.put("member1Post", Integer.valueOf(61));
+/* 278 */         map.put("member2Name", Integer.valueOf(62));
+/* 279 */         map.put("member2Relation", Integer.valueOf(63));
+/* 280 */         map.put("member2RelationDesc", Integer.valueOf(64));
+/* 281 */         map.put("member2Address", Integer.valueOf(65));
+/* 282 */         map.put("member2District", Integer.valueOf(66));
+/* 283 */         map.put("member2Phone", Integer.valueOf(67));
+/* 284 */         map.put("member2Keeper", Integer.valueOf(68));
+/* 285 */         map.put("member2CardType", Integer.valueOf(69));
+/* 286 */         map.put("member2CardId", Integer.valueOf(70));
+/* 287 */         map.put("member2Nation", Integer.valueOf(71));
+/* 288 */         map.put("member2Workplace", Integer.valueOf(72));
+/* 289 */         map.put("member2Post", Integer.valueOf(73));
+/* 290 */         map.put("migrantChild", Integer.valueOf(74));
+/* 291 */         for (int i = 2; i <= lastRowNum; i++) {
+/* 292 */           row = sheetObj.getRow(i);
+/* 293 */           Cell cell = row.getCell(1);
+/* 294 */           SchoolRollInfo schoolRollInfo = (SchoolRollInfo)ExcelUtil.setCellInfoToModel(row, SchoolRollInfo.class, new SchoolRollInfo(), map);
+/* 295 */           if ((schoolRollInfo != null) && (!StringUtils.checkNull(schoolRollInfo.getName()).booleanValue())) {
+/* 296 */             success += this.schoolRollInfoMapper.insertSelective(schoolRollInfo);
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 301 */       SchoolRollInfo temp = new SchoolRollInfo();
+/* 302 */       temp.setSuccessCount(Integer.valueOf(success));
+/* 303 */       json.setFlag(0);
+/* 304 */       json.setMsg("ok");
+/* 305 */       json.setObject(temp);
+/*     */     } catch (Exception e) {
+/* 307 */       e.printStackTrace();
+/* 308 */       json.setMsg("数据保存异常");
+/* 309 */       json.setFlag(1);
+/*     */     }
+/* 311 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SchoolRollInfo> outputSchoolRollInfo(HttpServletRequest request, HttpServletResponse response)
+/*     */     throws Exception
+/*     */   {
+/* 321 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 323 */       HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("学籍信息导出", 9);
+/* 324 */       String[] secondTitles = { "学校标识码", "学校名称", "姓名", "学段", "年级", "班级", "性别", "出生日期", "出生地行政区划代码", "籍贯", "民族", "国籍/地区", "身份证件类型", "身份证件号", "港澳台侨外", "健康状况", "政治面貌", "户口性质", "户口所在地行政区划", "入学时间", "入学方式", "就读方式", "现住址", "通信地址", "家庭住址", "联系电话", "邮政编码", "是否独生子女（0-否，1-是）", "是否受过学前教育（0-否，1-是）", "是否留守儿童（0-否，1-是）", "是否需要申请资助（0-否，1-是）", "是否享受一补（0-否，1-是）", "是否孤儿（0-否，1-是）", "是否烈士或优抚子女（0-否，1-是）", "上下学距离", "上下学方式", "是否需要乘坐校车（0-否，1-是）", "曾用名", "身份证件有效期", "血型", "特长", "学籍辅号", "班内学号", "学生来源", "电子信箱", "主页地址", "残疾类型", "是否由政府购买学位（0-否，1-是）", "随班就读", "隐藏", "成员1姓名", "成员1关系", "成员1关系说明", "成员1现住址", "成员1户口所在地行政区划", "成员1联系电话", "成员1是否监护人", "成员1身份证件类型", "成员1身份证件号", "成员1名族", "成员1工作单位", "成员1职务", "成员2姓名", "成员2关系", "成员2关系说明", "成员2现住址", "成员2户口所在地行政区划", "成员2联系电话", "成员2是否监护人", "成员2身份证件类型", "成员2身份证号", "成员2民族", "成员2工作单位", "成员2职务", "是否进程务工人员随迁子女（0-否，1-是）" };
+/*     */ 
+/* 333 */       HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/* 334 */       Map map = new HashMap();
+/* 335 */       SchoolRollInfo schoolRollInfo = new SchoolRollInfo();
+/* 336 */       map.put("schoolRollInfo", schoolRollInfo);
+/* 337 */       List<SchoolRollInfo> infoList = this.schoolRollInfoMapper.selSchoolRollInfo(map);
+/* 338 */       for (SchoolRollInfo info : infoList) {
+/* 339 */         if (info.getBrith() != null) {
+/* 340 */           info.setBrithStr(DateFormat.getDatestr(info.getBrith()));
+/*     */         }
+/* 342 */         if (info.getEntranceDate() != null) {
+/* 343 */           info.setEntranceDateStr(DateFormat.getDatestr(info.getEntranceDate()));
+/*     */         }
+/*     */       }
+/* 346 */       String[] beanProperty = { "schoolCode", "schoolName", "name", "learnPhaseId", "gradeId", "classId", "sex", "brithStr", "districtNo", "origin", "nation", "nationality", "cardType", "cardId", "region", "health", "political", "registration", "registrDistrict", "entranceDateStr", "entranceWay", "studyWay", "address", "mailAddress", "homrAddress", "phone", "postalCode", "onlyChild", "preEducation", "leftChild", "appliedFund", "supplement", "orphan", "martyrsChild", "goDistance", "goWay", "takeBus", "preName", "cardValiDate", "bloodType", "specialty", "auxiliaryNum", "stuNo", "stuSource", "eMail", "homePage", "disabilityType", "governDegree", "regularStudy", "hidden", "member1Name", "member1Relation", "member1RelationDesc", "member1Address", "member1District", "member1Phone", "member1Keeper", "member1CardType", "member1CardId", "member1Nation", "member1Workplace", "member1Post", "member2Name", "member2Relation", "member2RelationDesc", "member2Address", "member2District", "member2Phone", "member2Keeper", "member2CardType", "member2CardId", "member2Nation", "member2Workplace", "member2Post", "migrantChild" };
+/*     */ 
+/* 354 */       HSSFWorkbook workbook = ExcelUtil.exportExcelData(workbook2, infoList, beanProperty);
+/* 355 */       ServletOutputStream out = response.getOutputStream();
+/* 356 */       String filename = "学籍信息导出.xls";
+/* 357 */       filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/*     */ 
+/* 359 */       response.setContentType("application/vnd.ms-excel");
+/* 360 */       response.setHeader("content-disposition", "attachment;filename=" + filename);
+/*     */ 
+/* 362 */       workbook.write(out);
+/* 363 */       out.close();
+/* 364 */       json.setMsg("OK");
+/* 365 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 367 */       json.setMsg(e.getMessage());
+/*     */ 
+/* 369 */       L.e(new Object[] { "SchoolRollInfoService outputSchoolRollInfo:" + e });
+/*     */     }
+/* 371 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.schoolRollInfo.SchoolRollInfoService
+ * JD-Core Version:    0.6.0
+ */

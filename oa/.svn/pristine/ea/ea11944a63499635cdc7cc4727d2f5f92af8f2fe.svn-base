@@ -1,0 +1,101 @@
+/*     */ package com.xoa.util.common;
+/*     */ 
+/*     */ import com.alibaba.fastjson.JSONArray;
+/*     */ import org.apache.log4j.Logger;
+/*     */ 
+/*     */ public class L extends LoggerBase
+/*     */ {
+/*     */   private static volatile L lloader;
+/*  15 */   private long startTime = System.currentTimeMillis();
+/*     */ 
+/*  17 */   public static L getInstance() { if (lloader == null) {
+/*  18 */       synchronized (L.class) {
+/*  19 */         if (lloader == null) {
+/*  20 */           lloader = new L();
+/*     */         }
+/*     */       }
+/*     */     }
+/*  24 */     return lloader;
+/*     */   }
+/*     */ 
+/*     */   public static void w(Object[] msgs)
+/*     */   {
+/*  37 */     L lloader = getInstance();
+/*  38 */     lloader.loadLogger(17);
+/*  39 */     lloader.log.warn(lloader.subString(msgs));
+/*     */   }
+/*     */ 
+/*     */   public static void d(Object[] msgs)
+/*     */   {
+/*  52 */     L lloader = getInstance();
+/*  53 */     lloader.loadLogger(17);
+/*  54 */     lloader.log.debug(lloader.subString(msgs));
+/*     */   }
+/*     */ 
+/*     */   public static void e(Object[] msgs)
+/*     */   {
+/*  66 */     L lloader = getInstance();
+/*  67 */     lloader.loadLogger(18);
+/*  68 */     lloader.log.error(lloader.subString(msgs));
+/*     */   }
+/*     */ 
+/*     */   public static void a(Object[] msgs)
+/*     */   {
+/*  81 */     L lloader = getInstance();
+/*  82 */     lloader.loadLogger(19);
+/*  83 */     lloader.log.info(lloader.subString(msgs));
+/*     */   }
+/*     */ 
+/*     */   public static void i(Object[] msgs)
+/*     */   {
+/*  96 */     L lloader = getInstance();
+/*  97 */     lloader.loadLogger(19);
+/*  98 */     lloader.log.info(lloader.subString(msgs));
+/*     */   }
+/*     */ 
+/*     */   public static void s(Object[] msgs) {
+/* 102 */     L lloader = getInstance();
+/* 103 */     lloader.loadLogger(19);
+/* 104 */     lloader.log.info(lloader.subSysUrl(msgs));
+/*     */   }
+/*     */ 
+/*     */   public String subSysUrl(Object[] msgs)
+/*     */   {
+/* 109 */     StringBuffer sbBuffer = new StringBuffer("system log :");
+/* 110 */     for (Object msg : msgs) {
+/* 111 */       sbBuffer.append(JSONArray.toJSON(msg) + "\n ");
+/*     */     }
+/* 113 */     return sbBuffer.toString();
+/*     */   }
+/*     */ 
+/*     */   private String subString(Object[] obj)
+/*     */   {
+/* 130 */     StringBuffer sbBuffer = new StringBuffer("------------日志信息开始-------------");
+/*     */ 
+/* 132 */     sbBuffer.append("\r\n");
+/* 133 */     sbBuffer.append("file:" + getFileName());
+/* 134 */     sbBuffer.append("\r\n");
+/* 135 */     sbBuffer.append("class:  at " + getClassName() + "(" + getClassName().substring(getClassName().lastIndexOf(".") + 1, getClassName().length()) + ".java:1)");
+/* 136 */     sbBuffer.append("\r\n");
+/* 137 */     sbBuffer.append("method:" + getMethodName());
+/* 138 */     sbBuffer.append("\r\n");
+/* 139 */     sbBuffer.append("line:  at " + getLinNumber() + " " + getClassName() + "(" + getClassName().substring(getClassName().lastIndexOf(".") + 1, getClassName().length()) + ".java:" + getLinNumber() + ")");
+/* 140 */     sbBuffer.append("\r\n");
+/* 141 */     sbBuffer.append("your write info is:");
+/* 142 */     sbBuffer.append("\r\n");
+/* 143 */     for (Object msg : obj) {
+/* 144 */       sbBuffer.append(JSONArray.toJSON(msg) + " ");
+/*     */     }
+/* 146 */     sbBuffer.append("\n [执行：");
+/* 147 */     long endTime = System.currentTimeMillis();
+/* 148 */     sbBuffer.append(endTime - this.startTime);
+/* 149 */     sbBuffer.append("\tms] \n");
+/* 150 */     sbBuffer.append("------------日志信息结束-------------");
+/* 151 */     return sbBuffer.toString();
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.common.L
+ * JD-Core Version:    0.6.0
+ */

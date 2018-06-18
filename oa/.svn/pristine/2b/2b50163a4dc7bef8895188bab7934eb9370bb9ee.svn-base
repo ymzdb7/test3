@@ -1,0 +1,567 @@
+ package com.myoa.model.workflow;
+ 
+ import com.myoa.model.users.Users;
+import com.myoa.util.DateFormat;
+
+import java.util.List;
+ 
+ public class FlowRunPrcs
+ {
+   protected int id;
+   protected int runId;
+   protected int prcsId;
+   protected String userId;
+   protected String prcsTime;
+   protected String deliverTime;
+   protected String prcsFlag;
+   protected int flowPrcs;
+   protected String opFlag;
+   protected String topFlag;
+   protected String parent;
+   protected int childRun;
+   protected String timeOut;
+   protected String freeItem;
+   protected String timeOutTemp;
+   protected String otherUser;
+   protected String timeOutFlag;
+   protected String createTime;
+   protected String fromUser;
+   protected String activeTime;
+   protected String comment;
+   protected int prcsDept;
+   protected String parentPrcsId;
+   protected int backPrcsId;
+   protected int backFlowPrcs;
+   protected Object timeOutAttend;
+   protected Integer timeOutType;
+   protected String runPrcsName;
+   protected String runPrcsId;
+   protected Integer mobileFlag;
+   protected int isRemind;
+   protected Integer tempPrcsFlag;
+   protected String workingdaysType;
+   protected List<FlowRunPrcs> flowStep;
+   protected String userName;
+   protected FlowRun flowRun;
+   protected FlowTypeModel flowType;
+   protected FlowProcess flowProcess;
+   protected String receiptTime;
+   protected String arriveTime;
+   protected String handleTime;
+   private String receive;
+   private String myworkconditions;
+   private String prcsName;
+   private String runName;
+   private String flowName;
+   private String flowId;
+   private String avatar;
+   private String state;
+   private String state1;
+   private String state2;
+   private String bz;
+   private String currentPeople;
+   private String jbbz;
+   private Users users;
+   private Integer uid;
+   private String allowBack;
+   private Integer counts;
+ 
+   public Users getUsers()
+   {
+     return this.users;
+   }
+ 
+   public void setUsers(Users users) {
+     this.users = users;
+   }
+ 
+   public Integer getCounts()
+   {
+     return this.counts;
+   }
+ 
+   public void setCounts(Integer counts) {
+     this.counts = counts;
+   }
+ 
+   public Integer getUid() {
+     return this.uid;
+   }
+ 
+   public void setUid(Integer uid) {
+     this.uid = uid;
+   }
+ 
+   public String getJbbz() {
+     return this.jbbz;
+   }
+ 
+   public void setJbbz(String jbbz) {
+     this.jbbz = jbbz;
+   }
+ 
+   public String getBz() {
+     return this.bz;
+   }
+ 
+   public void setBz(String bz) {
+     this.bz = bz;
+   }
+ 
+   public String getCurrentPeople() {
+     return this.currentPeople;
+   }
+ 
+   public void setCurrentPeople(String currentPeople) {
+     this.currentPeople = currentPeople;
+   }
+ 
+   public String getState2() {
+     return this.state2;
+   }
+ 
+   public void setState2(String state2) {
+     this.state2 = state2;
+   }
+ 
+   public String getState() {
+     return this.state;
+   }
+ 
+   public void setState(String state) {
+     this.state = state;
+   }
+ 
+   public String getState1() {
+     return this.state1;
+   }
+ 
+   public void setState1(String state1) {
+     this.state1 = state1;
+   }
+ 
+   public String getAvatar() {
+     return this.avatar == null ? "" : this.avatar.trim();
+   }
+ 
+   public void setAvatar(String avatar) {
+     this.avatar = avatar;
+   }
+ 
+   public String getRunName() {
+     return this.runName;
+   }
+ 
+   public void setRunName(String runName) {
+     this.runName = runName;
+   }
+ 
+   public String getFlowName() {
+     return this.flowName;
+   }
+ 
+   public void setFlowName(String flowName) {
+     this.flowName = flowName;
+   }
+ 
+   public String getFlowId() {
+     return this.flowId;
+   }
+ 
+   public void setFlowId(String flowId) {
+     this.flowId = flowId;
+   }
+ 
+   public String getPrcsName() {
+     return this.prcsName;
+   }
+ 
+   public void setPrcsName(String prcsName) {
+     this.prcsName = prcsName;
+   }
+ 
+   public FlowRun getFlowRun() {
+     return this.flowRun;
+   }
+ 
+   public void setFlowRun(FlowRun flowRun) {
+     this.flowRun = flowRun;
+   }
+ 
+   public String getFreeItem() {
+     return this.freeItem == null ? "" : this.freeItem.trim();
+   }
+ 
+   public void setFreeItem(String freeItem) {
+     this.freeItem = (freeItem == null ? "" : freeItem.trim());
+   }
+ 
+   public String getOtherUser() {
+     return this.otherUser == null ? "" : this.otherUser.trim();
+   }
+ 
+   public void setOtherUser(String otherUser) {
+     this.otherUser = (otherUser == null ? null : otherUser.trim());
+   }
+ 
+   public String getComment() {
+     return this.comment == null ? "" : this.comment.trim();
+   }
+ 
+   public void setComment(String comment) {
+     this.comment = (comment == null ? null : comment.trim());
+   }
+ 
+   public Integer getId() {
+     return Integer.valueOf(this.id);
+   }
+ 
+   public void setId(Integer id) {
+     this.id = id.intValue();
+   }
+ 
+   public Integer getRunId() {
+     return Integer.valueOf(this.runId);
+   }
+ 
+   public void setRunId(Integer runId) {
+     this.runId = runId.intValue();
+   }
+ 
+   public Integer getPrcsId() {
+     return Integer.valueOf(this.prcsId);
+   }
+ 
+   public void setPrcsId(Integer prcsId) {
+     this.prcsId = prcsId.intValue();
+   }
+ 
+   public String getUserId() {
+     return this.userId == null ? "" : this.userId.trim();
+   }
+ 
+   public void setUserId(String userId) {
+     this.userId = (userId == null ? null : userId.trim());
+   }
+ 
+   public String getPrcsTime() {
+     return this.prcsTime == null ? DateFormat.getStrTime(Integer.valueOf(-621701856)) : this.prcsTime;
+   }
+ 
+   public void setPrcsTime(String prcsTime)
+   {
+     this.prcsTime = prcsTime;
+   }
+ 
+   public String getDeliverTime() {
+     return this.deliverTime == null ? "" : this.deliverTime.trim();
+   }
+ 
+   public void setDeliverTime(String deliverTime)
+   {
+     this.deliverTime = deliverTime;
+   }
+ 
+   public String getPrcsFlag() {
+     return this.prcsFlag == null ? "" : this.prcsFlag.trim();
+   }
+ 
+   public void setPrcsFlag(String prcsFlag) {
+     this.prcsFlag = (prcsFlag == null ? null : prcsFlag.trim());
+   }
+ 
+   public Integer getFlowPrcs() {
+     return Integer.valueOf(this.flowPrcs);
+   }
+ 
+   public void setFlowPrcs(Integer flowPrcs) {
+     this.flowPrcs = flowPrcs.intValue();
+   }
+ 
+   public String getOpFlag() {
+     return this.opFlag == null ? "" : this.opFlag.trim();
+   }
+ 
+   public void setOpFlag(String opFlag) {
+     this.opFlag = (opFlag == null ? null : opFlag.trim());
+   }
+ 
+   public String getTopFlag() {
+     return this.topFlag == null ? "" : this.topFlag.trim();
+   }
+ 
+   public void setTopFlag(String topFlag) {
+     this.topFlag = (topFlag == null ? null : topFlag.trim());
+   }
+ 
+   public String getParent() {
+     return this.parent == null ? "" : this.parent.trim();
+   }
+ 
+   public void setParent(String parent) {
+     this.parent = (parent == null ? null : parent.trim());
+   }
+ 
+   public Integer getChildRun() {
+     return Integer.valueOf(this.childRun);
+   }
+ 
+   public void setChildRun(Integer childRun) {
+     this.childRun = childRun.intValue();
+   }
+ 
+   public String getTimeOut() {
+     return this.timeOut == null ? "" : this.timeOut.trim();
+   }
+ 
+   public void setTimeOut(String timeOut) {
+     this.timeOut = (timeOut == null ? null : timeOut.trim());
+   }
+ 
+   public String getTimeOutTemp() {
+     return this.timeOutTemp == null ? "" : this.timeOutTemp.trim();
+   }
+ 
+   public void setTimeOutTemp(String timeOutTemp) {
+     this.timeOutTemp = (timeOutTemp == null ? null : timeOutTemp.trim());
+   }
+ 
+   public String getTimeOutFlag() {
+     return this.timeOutFlag == null ? "" : this.timeOutFlag.trim();
+   }
+ 
+   public void setTimeOutFlag(String timeOutFlag) {
+     this.timeOutFlag = (timeOutFlag == null ? null : timeOutFlag.trim());
+   }
+ 
+   public String getCreateTime() {
+     return this.createTime == null ? "" : this.createTime.trim();
+   }
+ 
+   public void setCreateTime(String createTime) {
+     this.createTime = createTime;
+   }
+ 
+   public String getFromUser() {
+     return this.fromUser == null ? "" : this.fromUser.trim();
+   }
+ 
+   public void setFromUser(String fromUser) {
+     this.fromUser = (fromUser == null ? null : fromUser.trim());
+   }
+ 
+   public String getActiveTime() {
+     return this.activeTime == null ? "" : this.activeTime.trim();
+   }
+ 
+   public void setActiveTime(String activeTime) {
+     this.activeTime = activeTime;
+   }
+ 
+   public Integer getPrcsDept() {
+     return Integer.valueOf(this.prcsDept);
+   }
+ 
+   public void setPrcsDept(Integer prcsDept) {
+     this.prcsDept = prcsDept.intValue();
+   }
+ 
+   public String getParentPrcsId() {
+     return this.parentPrcsId == null ? "" : this.parentPrcsId.trim();
+   }
+ 
+   public void setParentPrcsId(String parentPrcsId) {
+     this.parentPrcsId = (parentPrcsId == null ? null : parentPrcsId.trim());
+   }
+ 
+   public Integer getBackPrcsId() {
+     return Integer.valueOf(this.backPrcsId);
+   }
+ 
+   public void setBackPrcsId(Integer backPrcsId) {
+     this.backPrcsId = backPrcsId.intValue();
+   }
+ 
+   public Integer getBackFlowPrcs() {
+     return Integer.valueOf(this.backFlowPrcs);
+   }
+ 
+   public void setBackFlowPrcs(Integer backFlowPrcs) {
+     this.backFlowPrcs = backFlowPrcs.intValue();
+   }
+ 
+   public Object getTimeOutAttend() {
+     return this.timeOutAttend;
+   }
+ 
+   public void setTimeOutAttend(Object timeOutAttend) {
+     this.timeOutAttend = timeOutAttend;
+   }
+ 
+   public Integer getTimeOutType() {
+     return this.timeOutType;
+   }
+ 
+   public void setTimeOutType(Integer timeOutType) {
+     this.timeOutType = timeOutType;
+   }
+ 
+   public String getRunPrcsName() {
+     return this.runPrcsName == null ? "" : this.runPrcsName.trim();
+   }
+ 
+   public void setRunPrcsName(String runPrcsName) {
+     this.runPrcsName = (runPrcsName == null ? null : runPrcsName.trim());
+   }
+ 
+   public String getRunPrcsId() {
+     return this.runPrcsId == null ? "" : this.runPrcsId.trim();
+   }
+ 
+   public void setRunPrcsId(String runPrcsId) {
+     this.runPrcsId = (runPrcsId == null ? null : runPrcsId.trim());
+   }
+ 
+   public Integer getMobileFlag() {
+     return this.mobileFlag;
+   }
+ 
+   public void setMobileFlag(Integer mobileFlag) {
+     this.mobileFlag = mobileFlag;
+   }
+ 
+   public Integer getIsRemind() {
+     return Integer.valueOf(this.isRemind);
+   }
+ 
+   public void setIsRemind(Integer isRemind) {
+     this.isRemind = isRemind.intValue();
+   }
+ 
+   public Integer getTempPrcsFlag() {
+     return this.tempPrcsFlag;
+   }
+ 
+   public void setTempPrcsFlag(Integer tempPrcsFlag) {
+     this.tempPrcsFlag = tempPrcsFlag;
+   }
+ 
+   public String getWorkingdaysType() {
+     return this.workingdaysType == null ? "" : this.workingdaysType.trim();
+   }
+ 
+   public void setWorkingdaysType(String workingdaysType) {
+     this.workingdaysType = (workingdaysType == null ? null : workingdaysType.trim());
+   }
+ 
+   public String getUserName() {
+     return this.userName;
+   }
+ 
+   public void setUserName(String userName) {
+     this.userName = userName;
+   }
+ 
+   public FlowTypeModel getFlowType() {
+     return this.flowType;
+   }
+ 
+   public void setFlowType(FlowTypeModel flowType) {
+     this.flowType = flowType;
+   }
+ 
+   public FlowProcess getFlowProcess()
+   {
+     return this.flowProcess;
+   }
+ 
+   public void setFlowProcess(FlowProcess flowProcess)
+   {
+     this.flowProcess = flowProcess;
+   }
+ 
+   public String getReceiptTime() {
+     return this.receiptTime == null ? "" : this.receiptTime;
+   }
+ 
+   public void setReceiptTime(String receiptTime)
+   {
+     this.receiptTime = receiptTime;
+   }
+ 
+   public String getArriveTime()
+   {
+     return this.arriveTime == null ? "" : this.arriveTime;
+   }
+ 
+   public void setArriveTime(String arriveTime)
+   {
+     this.arriveTime = arriveTime;
+   }
+ 
+   public String getHandleTime()
+   {
+     return this.handleTime == null ? "" : this.handleTime;
+   }
+ 
+   public void setHandleTime(String handleTime)
+   {
+     this.handleTime = handleTime;
+   }
+ 
+   public String getReceive()
+   {
+     return this.receive == null ? "" : this.receive;
+   }
+ 
+   public void setReceive(String receive)
+   {
+     this.receive = receive;
+   }
+ 
+   public String getMyworkconditions()
+   {
+     return this.myworkconditions == null ? null : this.myworkconditions.trim();
+   }
+ 
+   public void setMyworkconditions(String myworkconditions)
+   {
+     this.myworkconditions = myworkconditions;
+   }
+ 
+   public FlowRunPrcs() {
+   }
+ 
+   public FlowRunPrcs(int runId, int prcsId, String userId, String prcsTime, String deliverTime, String prcsFlag, int flowPrcs, String opFlag, String topFlag, String createTime, String activeTime, int prcsDept, String parent) {
+     this.runId = runId;
+     this.prcsId = prcsId;
+     this.userId = userId;
+     this.prcsTime = prcsTime;
+     this.deliverTime = deliverTime;
+     this.prcsFlag = prcsFlag;
+     this.flowPrcs = flowPrcs;
+     this.opFlag = opFlag;
+     this.topFlag = topFlag;
+     this.createTime = createTime;
+     this.activeTime = activeTime;
+     this.prcsDept = prcsDept;
+     this.parent = parent;
+   }
+ 
+   public List<FlowRunPrcs> getFlowStep() {
+     return this.flowStep;
+   }
+ 
+   public void setFlowStep(List<FlowRunPrcs> flowStep) {
+     this.flowStep = flowStep;
+   }
+ 
+   public String getAllowBack() {
+     return this.allowBack;
+   }
+ 
+   public void setAllowBack(String allowBack) {
+     this.allowBack = allowBack;
+   }
+ }
+

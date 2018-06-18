@@ -1,0 +1,100 @@
+ package com.myoa.model.weather;
+ 
+ import java.io.PrintStream;
+ import java.util.Arrays;
+ 
+ public class WeatherInf
+ {
+   private OneDayWeatherInf[] weatherInfs;
+   private String dressAdvise;
+   private String washCarAdvise;
+   private String coldAdvise;
+   private String sportsAdvise;
+   private String ultravioletRaysAdvise;
+ 
+   public WeatherInf()
+   {
+     this.dressAdvise = "";
+     this.washCarAdvise = "";
+     this.coldAdvise = "";
+     this.sportsAdvise = "";
+     this.ultravioletRaysAdvise = "";
+   }
+ 
+   public void printInf()
+   {
+     System.out.println(this.dressAdvise);
+     System.out.println(this.washCarAdvise);
+     System.out.println(this.coldAdvise);
+     System.out.println(this.sportsAdvise);
+     System.out.println(this.ultravioletRaysAdvise);
+     for (int i = 0; i < this.weatherInfs.length; i++)
+       System.out.println(this.weatherInfs[i]);
+   }
+ 
+   public OneDayWeatherInf[] getWeatherInfs()
+   {
+     return this.weatherInfs;
+   }
+ 
+   public void setWeatherInfs(OneDayWeatherInf[] weatherInfs)
+   {
+     this.weatherInfs = weatherInfs;
+   }
+ 
+   public String getDressAdvise()
+   {
+     return this.dressAdvise;
+   }
+ 
+   public void setDressAdvise(String dressAdvise)
+   {
+     this.dressAdvise = dressAdvise;
+   }
+ 
+   public String getWashCarAdvise()
+   {
+     return this.washCarAdvise;
+   }
+ 
+   public void setWashCarAdvise(String washCarAdvise)
+   {
+     this.washCarAdvise = washCarAdvise;
+   }
+ 
+   public String getColdAdvise()
+   {
+     return this.coldAdvise;
+   }
+ 
+   public void setColdAdvise(String coldAdvise)
+   {
+     this.coldAdvise = coldAdvise;
+   }
+ 
+   public String getSportsAdvise()
+   {
+     return this.sportsAdvise;
+   }
+ 
+   public void setSportsAdvise(String sportsAdvise)
+   {
+     this.sportsAdvise = sportsAdvise;
+   }
+ 
+   public String getUltravioletRaysAdvise()
+   {
+     return this.ultravioletRaysAdvise;
+   }
+ 
+   public void setUltravioletRaysAdvise(String ultravioletRaysAdvise)
+   {
+     this.ultravioletRaysAdvise = ultravioletRaysAdvise;
+   }
+ 
+   public String toString()
+   {
+     return "WeatherInf{weatherInfs=" + Arrays.toString(this.weatherInfs) + ", dressAdvise='" + this.dressAdvise + '\'' + ", washCarAdvise='" + this.washCarAdvise + '\'' + ", coldAdvise='" + this.coldAdvise + '\'' + ", sportsAdvise='" + this.sportsAdvise + '\'' + ", ultravioletRaysAdvise='" + this.ultravioletRaysAdvise + '\'' + '}';
+   }
+ }
+

@@ -1,0 +1,46 @@
+/*    */ package com.xoa.util;
+/*    */ 
+/*    */ import com.mysql.jdbc.Connection;
+/*    */ import com.mysql.jdbc.Statement;
+/*    */ import java.io.IOException;
+/*    */ import java.io.PrintStream;
+/*    */ import java.sql.DriverManager;
+/*    */ import java.sql.ResultSet;
+/*    */ import java.sql.SQLException;
+/*    */ import java.text.ParseException;
+/*    */ 
+/*    */ public class checkMysql
+/*    */ {
+/* 15 */   public static String url = "jdbc:mysql://192.168.0.17:3306/*****_orders";
+/*    */ 
+/* 17 */   public static String user = "root";
+/* 18 */   public static String password = "gaosubo3000";
+/*    */ 
+/*    */   public static void main(String[] args) throws ClassNotFoundException, IOException, SQLException, ParseException
+/*    */   {
+/* 22 */     String createBrandDatabase = "create table userbrandtime(uid int(10) unsigned NOT NULL,brand_ids int(10) unsigned NOT NULL,timestamp int(10) unsigned NOT NULL,primary key(uid,brand_ids)) DEFAULT CHARSET=utf8";
+/*    */ 
+/* 27 */     String checkTable = "show tables like \"userbrandtime\"";
+/*    */     try {
+/* 29 */       Class.forName("com.mysql.jdbc.Driver");
+/* 30 */       Connection con = (Connection)DriverManager.getConnection(url, user, password);
+/*    */ 
+/* 32 */       Statement stmt = (Statement)con.createStatement();
+/*    */ 
+/* 34 */       ResultSet resultSet = stmt.executeQuery(checkTable);
+/* 35 */       if (resultSet.next()) {
+/* 36 */         System.out.println("table exist!");
+/*    */       }
+/* 38 */       else if (stmt.executeUpdate(createBrandDatabase) == 0)
+/* 39 */         System.out.println("create table success!");
+/*    */     }
+/*    */     finally
+/*    */     {
+/*    */     }
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.checkMysql
+ * JD-Core Version:    0.6.0
+ */

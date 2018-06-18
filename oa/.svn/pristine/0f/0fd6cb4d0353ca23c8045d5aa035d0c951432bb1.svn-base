@@ -1,0 +1,124 @@
+/*     */ package com.xoa.service.enclosure.impl;
+/*     */ 
+/*     */ import com.xoa.dao.enclosure.AttachmentMapper;
+/*     */ import com.xoa.model.enclosure.Attachment;
+/*     */ import com.xoa.service.enclosure.EnclosureServiceDemo;
+/*     */ import com.xoa.util.ModuleEnum;
+/*     */ import java.io.File;
+/*     */ import java.io.UnsupportedEncodingException;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Arrays;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ import java.util.ResourceBundle;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class EnclosureServiceImplDemo
+/*     */   implements EnclosureServiceDemo
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   AttachmentMapper attachmentMapper;
+/*     */ 
+/*     */   public Attachment upload(File file, String company, String module)
+/*     */     throws UnsupportedEncodingException
+/*     */   {
+/*  30 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/*  31 */     String os = System.getProperty("os.name");
+/*  32 */     StringBuffer sb = new StringBuffer();
+/*  33 */     if (os.toLowerCase().startsWith("win"))
+/*  34 */       sb = sb.append(rb.getString("upload.win"));
+/*     */     else {
+/*  36 */       sb = sb.append(rb.getString("upload.linux"));
+/*     */     }
+/*  38 */     List list = new ArrayList();
+/*     */ 
+/*  40 */     String ym = new SimpleDateFormat("yyMM").format(new Date());
+/*     */ 
+/*  42 */     String path = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + company + System.getProperty("file.separator") + module + System.getProperty("file.separator") + ym;
+/*     */ 
+/*  44 */     Attachment attachment = new Attachment();
+/*     */ 
+/*  46 */     if (file.exists())
+/*     */     {
+/*  49 */       String fileName = file.getName();
+/*     */ 
+/*  51 */       int attachID = Math.abs((int)System.currentTimeMillis());
+/*  52 */       StringBuffer s = new StringBuffer();
+/*  53 */       if (os.toLowerCase().startsWith("win"))
+/*  54 */         s = s.append(fileName);
+/*     */       else {
+/*  56 */         s = s.append(new String(fileName.getBytes(), "UTF-8"));
+/*     */       }
+/*  58 */       String newFileName = Integer.toString(attachID) + "." + fileName.toString();
+/*     */ 
+/*  60 */       if (!file.exists()) {
+/*     */         try {
+/*  62 */           if (!new File(path, newFileName).exists()) {
+/*  63 */             new File(path, newFileName).mkdirs();
+/*     */           }
+/*     */         }
+/*     */         catch (Exception e)
+/*     */         {
+/*  68 */           e.printStackTrace();
+/*     */         }
+/*     */       }
+/*     */ 
+/*  72 */       File f = new File(path + newFileName);
+/*  73 */       f.renameTo(new File(newFileName));
+/*  74 */       byte isImg = 3;
+/*     */ 
+/*  76 */       String type = fileName.substring(fileName.indexOf(".") + 1);
+/*  77 */       String[] imagType = { "jpg", "png", "bmp", "gif", "JPG", "PNG", "BMP", "GIF" };
+/*  78 */       List imageTyepLists = Arrays.asList(imagType);
+/*  79 */       if (imageTyepLists.contains(type))
+/*  80 */         isImg = 0;
+/*     */       else {
+/*  82 */         isImg = 1;
+/*     */       }
+/*  84 */       byte a = 0;
+/*  85 */       byte b = 2;
+/*     */ 
+/*  87 */       int moduleID = 0;
+/*  88 */       for (ModuleEnum em : ModuleEnum.values()) {
+/*  89 */         if (em.getName().equals(module.trim())) {
+/*  90 */           moduleID = em.getIndex();
+/*     */         }
+/*     */       }
+/*     */ 
+/*  94 */       byte mid = (byte)moduleID;
+/*  95 */       attachment = new Attachment();
+/*  96 */       attachment.setAttachId(Integer.valueOf(attachID));
+/*  97 */       attachment.setModule(Byte.valueOf(mid));
+/*  98 */       attachment.setAttachFile(fileName);
+/*  99 */       attachment.setAttachName(fileName);
+/* 100 */       attachment.setYm(ym);
+/* 101 */       attachment.setAttachSign(new Long(0L));
+/* 102 */       attachment.setDelFlag(Byte.valueOf(a));
+/* 103 */       attachment.setPosition(Byte.valueOf(b));
+/* 104 */       this.attachmentMapper.insertSelective(attachment);
+/* 105 */       attachment = findByLast();
+/* 106 */       String attUrl = "AID=" + attachment.getAid() + "&" + "MODULE=" + module + "&" + "COMPANY=" + company + "&" + "YM=" + attachment.getYm() + "&" + "ATTACHMENT_ID=" + attachment.getAttachId() + "&" + "ATTACHMENT_NAME=" + attachment.getAttachName();
+/* 107 */       attachment.setAttUrl(attUrl);
+/* 108 */       String url = path + System.getProperty("file.separator") + file.getName().trim();
+/* 109 */       attachment.setUrl(url);
+/* 110 */       attachment.setIsImage(Byte.valueOf(isImg));
+/*     */     }
+/*     */ 
+/* 113 */     return attachment;
+/*     */   }
+/*     */ 
+/*     */   public Attachment findByLast()
+/*     */   {
+/* 119 */     Attachment att = this.attachmentMapper.findByLast();
+/* 120 */     return att;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.enclosure.impl.EnclosureServiceImplDemo
+ * JD-Core Version:    0.6.0
+ */

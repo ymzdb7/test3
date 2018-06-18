@@ -1,0 +1,190 @@
+package com.xoa.controller.dingdingManage;
+
+import com.xoa.model.department.Department;
+import com.xoa.model.dingdingManage.DingdingUpdateDept;
+import com.xoa.service.dingdingManage.DingdingManageService;
+import com.xoa.util.ToJson;
+import com.xoa.util.common.wrapper.BaseWrapper;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.json.JSONException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@RequestMapping({ "/dingdingManage" })
+public class DingdingManageController {
+
+	@Autowired
+	DingdingManageService dingdingManageService;
+
+	@ResponseBody
+	@RequestMapping({ "/baseDingDingSetting" })
+	public BaseWrapper baseDingDingSetting(String oaUrl, String corpId,
+			String corpSecret) {
+		return this.dingdingManageService.baseDingDingSetting(oaUrl, corpId,
+				corpSecret);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/baseDingDingGet" })
+	public BaseWrapper baseDingDingGet() {
+		return this.dingdingManageService.baseDingDingGet();
+	}
+
+	@RequestMapping({ "/dingdingConnect" })
+	public void dingdingConnect(HttpServletResponse response, String dingUrl,
+			String dingRequest) throws JSONException {
+		this.dingdingManageService.dingdingConnect(response, dingUrl,
+				dingRequest);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/dingdingGetDeptList" })
+	public BaseWrapper dingdingGetDeptList(Integer deptId) {
+		return this.dingdingManageService.dingdingGetDeptList(deptId);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/dingdingGetUserList" })
+	public ToJson<Department> dingdingGetUserList(Integer deptId) {
+		return this.dingdingManageService.dingdingGetUserList(deptId);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/dingdingDeptSynchro" })
+	public BaseWrapper dingdingDeptSynchro() throws JSONException {
+		return this.dingdingManageService.dingdingDeptSynchro();
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/dingdingUserSynchro" })
+	public BaseWrapper dingdingUserSynchro(String synchroUsers)
+			throws JSONException {
+		return this.dingdingManageService.dingdingUserSynchro(synchroUsers);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getDingdingUserList" })
+	public BaseWrapper getDingdingUserList() throws JSONException {
+		return this.dingdingManageService.getDingdingUserList();
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/bindDingdingAndOA" })
+	public BaseWrapper bindDingdingAndOA(String dingdingId, String uid,
+			Integer type) {
+		return this.dingdingManageService.bindDingdingAndOA(dingdingId, uid,
+				type);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getDingdingApp" })
+	public BaseWrapper getDingdingApp(String appName) {
+		return this.dingdingManageService.getDingdingApp(appName);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/dingdingAppSetting" })
+	public BaseWrapper dingdingAppSetting(String appName, String appId) {
+		return this.dingdingManageService.dingdingAppSetting(appName, appId);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/dingdingDepSettingGet" })
+	public void dingdingDepSettingGet(HttpServletResponse response,
+			Integer deptId) {
+		this.dingdingManageService.dingdingDepSettingGet(response, deptId);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/dingdingDepSettingEdit" })
+	public BaseWrapper dingdingDepSettingEdit(
+			DingdingUpdateDept dingdingUpdateDept) {
+		return this.dingdingManageService
+				.dingdingDepSettingEdit(dingdingUpdateDept);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/dingdingDepSettingDelete" })
+	public BaseWrapper dingdingDepSettingDelete(Integer deptId) {
+		return this.dingdingManageService.dingdingDepSettingDelete(deptId);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/dingdingDepSettingMenu" })
+	public BaseWrapper dingdingDepSettingMenu() {
+		return this.dingdingManageService.dingdingDepSettingMenu();
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/dingdingCodeGetUser" })
+	public BaseWrapper dingdingCodeGetUser(HttpServletRequest request,
+			HttpServletResponse response, String corpId, String corpSecret,
+			String code, String oId) throws JSONException {
+		return this.dingdingManageService.dingdingCodeGetUser(request,
+				response, corpId, corpSecret, code, oId);
+	}
+
+	@RequestMapping({ "/getEnterpriseManage" })
+	public String getEnterpriseManage() {
+		return "/app/dingdingManage/enterpriseSetting";
+	}
+
+	@RequestMapping({ "/getIndex" })
+	public String getIndex() {
+		return "/app/dingdingManage/index";
+	}
+
+	@RequestMapping({ "/getArameterSetting" })
+	public String getArameterSetting() {
+		return "/app/dingdingManage/arameterSetting";
+	}
+
+	@RequestMapping({ "/getDataImport" })
+	public String getDataImport() {
+		return "/app/dingdingManage/dataImport";
+	}
+
+	@RequestMapping({ "/getChooseDepartment" })
+	public String getChooseDepartment() {
+		return "/app/dingdingManage/chooseDepartment";
+	}
+
+	@RequestMapping({ "/getImportPersonnel" })
+	public String getImportPersonnel() {
+		return "/app/dingdingManage/importPersonnel";
+	}
+
+	@RequestMapping({ "/getImportPeople" })
+	public String getImportPeople() {
+		return "/app/dingdingManage/importPeople";
+	}
+
+	@RequestMapping({ "/getPublicNotice" })
+	public String getPublicNotice() {
+		return "/app/dingdingManage/publicNotice";
+	}
+
+	@RequestMapping({ "/getImportLogs" })
+	public String getImportLogs() {
+		return "/app/dingdingManage/importLogs";
+	}
+
+	@RequestMapping({ "/getOrganizationManagement" })
+	public String getOrganizationManagement() {
+		return "/app/dingdingManage/organizationManagement";
+	}
+
+	@RequestMapping({ "/getOaBinding" })
+	public String getOaBinding() {
+		return "/app/dingdingManage/oaBinding";
+	}
+
+	@RequestMapping({ "/getOrganizationalStructure" })
+	public String organizationalStructure() {
+		return "/app/dingdingManage/organizationalStructure";
+	}
+}

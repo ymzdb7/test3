@@ -1,0 +1,130 @@
+/*     */ package com.xoa.service.smsDelivery.impl;
+/*     */ 
+/*     */ import com.xoa.dao.sms2.Sms2Mapper;
+/*     */ import com.xoa.model.sms2.Sms2;
+/*     */ import com.xoa.service.smsDelivery.Sms2Service;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class Sms2ServiceImpl
+/*     */   implements Sms2Service
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private Sms2Mapper sms2Mapper;
+/*     */ 
+/*     */   public ToJson<Sms2> selectSms2(HttpServletRequest request, HttpServletResponse response, Integer page, Integer pageSize, boolean useFlag, Sms2 sms2)
+/*     */   {
+/*  39 */     ToJson json = new ToJson();
+/*  40 */     PageParams pageParams = new PageParams();
+/*  41 */     pageParams.setPageSize(pageSize);
+/*  42 */     pageParams.setPage(page);
+/*  43 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*     */     try
+/*     */     {
+/*  46 */       Map map = new HashMap();
+/*  47 */       map.put("page", pageParams);
+/*  48 */       map.put("sms2", sms2);
+/*  49 */       List list = this.sms2Mapper.selectSms2(map);
+/*     */ 
+/*  59 */       if (list.size() > 0) {
+/*  60 */         json.setObj(list);
+/*  61 */         json.setTotleNum(pageParams.getTotal());
+/*  62 */         json.setMsg("success");
+/*  63 */         json.setFlag(0);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/*  67 */       json.setFlag(1);
+/*  68 */       json.setMsg(e.getMessage());
+/*  69 */       e.printStackTrace();
+/*     */     }
+/*  71 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson selectSms2ById(HttpServletRequest request, Integer smsId) {
+/*  77 */     ToJson json = new ToJson();
+/*     */     try {
+/*  79 */       Sms2 sms2 = this.sms2Mapper.selectByPrimaryKey(smsId);
+/*     */ 
+/*  87 */       json.setObject(sms2);
+/*  88 */       json.setFlag(0);
+/*  89 */       json.setMsg("ok");
+/*     */     }
+/*     */     catch (Exception e) {
+/*  92 */       json.setFlag(1);
+/*  93 */       json.setMsg(e.getMessage());
+/*  94 */       e.printStackTrace();
+/*     */     }
+/*  96 */     return json;
+/*     */   }
+/*     */   @Transactional
+/*     */   public ToJson insertSms2(Sms2 sms2) {
+/* 101 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 103 */       int temp = this.sms2Mapper.insertSelective(sms2);
+/* 104 */       if (temp > 0) {
+/* 105 */         toJson.setFlag(0);
+/* 106 */         toJson.setMsg("success");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 109 */       toJson.setFlag(1);
+/* 110 */       toJson.setMsg(e.getMessage());
+/* 111 */       e.printStackTrace();
+/*     */     }
+/*     */ 
+/* 114 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson delSms2(Sms2 sms2) {
+/* 120 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 122 */       int temp = this.sms2Mapper.delSms2(sms2);
+/* 123 */       if (temp > 0) {
+/* 124 */         toJson.setFlag(0);
+/* 125 */         toJson.setMsg("success");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 128 */       toJson.setFlag(1);
+/* 129 */       toJson.setMsg(e.getMessage());
+/* 130 */       e.printStackTrace();
+/*     */     }
+/* 132 */     return toJson;
+/*     */   }
+/* 136 */   @Transactional
+/*     */   public ToJson upSms2(Sms2 sms2) { ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 138 */       int temp = this.sms2Mapper.updateByPrimaryKeySelective(sms2);
+/* 139 */       if (temp > 0) {
+/* 140 */         toJson.setFlag(0);
+/* 141 */         toJson.setMsg("success");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 144 */       toJson.setFlag(1);
+/* 145 */       toJson.setMsg(e.getMessage());
+/* 146 */       e.printStackTrace();
+/*     */     }
+/* 148 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson SendSms()
+/*     */   {
+/* 154 */     return null;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.smsDelivery.impl.Sms2ServiceImpl
+ * JD-Core Version:    0.6.0
+ */

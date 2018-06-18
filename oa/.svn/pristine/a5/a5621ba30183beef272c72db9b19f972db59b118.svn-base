@@ -1,0 +1,183 @@
+/*     */ package com.xoa.util.ipUtil;
+
+/*     */
+/*     */ import com.xoa.util.CusAccessObjectUtil;
+/*     */ import java.net.Inet4Address;
+/*     */ import java.net.InetAddress;
+/*     */ import java.net.NetworkInterface;
+/*     */ import java.net.SocketException;
+/*     */ import java.util.Enumeration;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.slf4j.Logger;
+/*     */ import org.slf4j.LoggerFactory;
+
+/*     */
+/*     */ public class IpAddr
+/*     */ {
+	/* 23 */ private static final Logger LOG = LoggerFactory.getLogger(IpAddr.class);
+
+	/*     */
+	/*     */ public static String getIpAddr(HttpServletRequest request)
+	/*     */ {
+		/* 35 */ String ip = request.getHeader("x-forwarded-for");
+		/* 36 */ if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+			/* 37 */ ip = request.getHeader("Proxy-Client-IP");
+			/*     */ }
+		/* 39 */ if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+			/* 40 */ ip = request.getHeader("WL-Proxy-Client-IP");
+			/*     */ }
+		/* 42 */ if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+			/* 43 */ ip = request.getRemoteAddr();
+			/*     */ }
+		/* 45 */ return ip;
+		/*     */ }
+
+	/*     */
+	/*     */ public static String getIpAddress(HttpServletRequest request)
+	/*     */ {
+		/* 58 */ String ip = request.getHeader("X-Forwarded-For");
+		/* 59 */ if (LOG.isInfoEnabled()) {
+			/* 60 */ LOG.info("getIpAddress(HttpServletRequest) - X-Forwarded-For - String ip=" + ip);
+			/*     */ }
+		/* 62 */ if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+			/* 63 */ if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+				/* 64 */ ip = request.getHeader("Proxy-Client-IP");
+				/* 65 */ if (LOG.isInfoEnabled()) {
+					/* 66 */ LOG.info("getIpAddress(HttpServletRequest) - Proxy-Client-IP - String ip=" + ip);
+					/*     */ }
+				/*     */ }
+			/* 69 */ if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+				/* 70 */ ip = request.getHeader("WL-Proxy-Client-IP");
+				/* 71 */ if (LOG.isInfoEnabled()) {
+					/* 72 */ LOG.info("getIpAddress(HttpServletRequest) - WL-Proxy-Client-IP - String ip=" + ip);
+					/*     */ }
+				/*     */ }
+			/* 75 */ if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+				/* 76 */ ip = request.getHeader("HTTP_CLIENT_IP");
+				/* 77 */ if (LOG.isInfoEnabled()) {
+					/* 78 */ LOG.info("getIpAddress(HttpServletRequest) - HTTP_CLIENT_IP - String ip=" + ip);
+					/*     */ }
+				/*     */ }
+			/* 81 */ if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+				/* 82 */ ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+				/* 83 */ if (LOG.isInfoEnabled()) {
+					/* 84 */ LOG.info("getIpAddress(HttpServletRequest) - HTTP_X_FORWARDED_FOR - String ip=" + ip);
+					/*     */ }
+				/*     */ }
+			/* 87 */ if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+				/* 88 */ ip = request.getRemoteAddr();
+				/* 89 */ if (LOG.isInfoEnabled())
+					/* 90 */ LOG.info("getIpAddress(HttpServletRequest) - getRemoteAddr - String ip=" + ip);
+				/*     */ }
+			/*     */ }
+		/* 93 */ else if (ip.length() > 15) {
+			/* 94 */ String[] ips = ip.split(",");
+			/* 95 */ for (int index = 0; index < ips.length; index++) {
+				/* 96 */ String strIp = ips[index];
+				/* 97 */ if (!"unknown".equalsIgnoreCase(strIp)) {
+					/* 98 */ ip = strIp;
+					/* 99 */ break;
+					/*     */ }
+				/*     */ }
+			/*     */ }
+		/* 103 */ return ip;
+		/*     */ }
+
+	/*     */
+	/*     */ public static InetAddress getCurrentIp() {
+		/*     */ try {
+			/* 108 */ Enumeration networkInterfaces = NetworkInterface.getNetworkInterfaces();
+			/* 109 */ while (networkInterfaces.hasMoreElements()) {
+				/* 110 */ NetworkInterface ni = (NetworkInterface) networkInterfaces.nextElement();
+				/* 111 */ Enumeration nias = ni.getInetAddresses();
+				/* 112 */ while (nias.hasMoreElements()) {
+					/* 113 */ InetAddress ia = (InetAddress) nias.nextElement();
+					/* 114 */ if ((!ia.isLinkLocalAddress()) && (!ia.isLoopbackAddress())
+							&& ((ia instanceof Inet4Address)))
+						/* 115 */ return ia;
+					/*     */ }
+				/*     */ }
+			/*     */ }
+		/*     */ catch (SocketException e) {
+			/*     */ }
+		/* 121 */ return null;
+		/*     */ }
+
+	/*     */
+	/*     */ public static String getInternetIp()
+	/*     */ {
+		/*     */ try
+		/*     */ {
+			/* 131 */ Enumeration networks = NetworkInterface.getNetworkInterfaces();
+			/*     */ while (true) {
+				InetAddress ip = null;
+				/*     */ while (true) {
+					/* 134 */ if (networks.hasMoreElements())
+					/*     */ {
+						/* 136 */ Enumeration addrs = ((NetworkInterface) networks.nextElement()).getInetAddresses();
+						/* 137 */ if (!addrs.hasMoreElements())
+							/*     */ continue;
+						/* 139 */ ip = (InetAddress) addrs.nextElement();
+						/*     */
+						/* 141 */ if ((ip == null) || (!(ip instanceof Inet4Address)) || (!ip.isSiteLocalAddress())
+								|| (ip.getHostAddress().equals(CusAccessObjectUtil.INTRANET_IP)))
+						/*     */ {
+							/*     */ break;
+							/*     */ }
+						/*     */
+						/* 146 */ return ip.getHostAddress();
+						/*     */ }
+					/*     */ }
+				/*     */
+				/*     */ }
+			/*     */
+//			/* 152 */ return CusAccessObjectUtil.INTRANET_IP;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+			/*     */ }
+		/* 154 */ 
+		/*     */ }
+
+	/*     */
+	/*     */ public static String getV4IP()
+	/*     */ {
+		/* 202 */ String localip = null;
+		/* 203 */ String netip = null;
+		/*     */
+		/* 205 */ Enumeration netInterfaces = null;
+		/*     */ try {
+			/* 207 */ netInterfaces = NetworkInterface.getNetworkInterfaces();
+			/*     */ } catch (SocketException e) {
+			/* 209 */ e.printStackTrace();
+			/*     */ }
+		/* 211 */ InetAddress ip = null;
+		/* 212 */ boolean finded = false;
+		/* 213 */ while ((netInterfaces.hasMoreElements()) && (!finded)) {
+			/* 214 */ NetworkInterface ni = (NetworkInterface) netInterfaces.nextElement();
+			/* 215 */ Enumeration address = ni.getInetAddresses();
+			/* 216 */ while (address.hasMoreElements()) {
+				/* 217 */ ip = (InetAddress) address.nextElement();
+				/* 218 */ if ((!ip.isSiteLocalAddress()) && (!ip.isLoopbackAddress())
+						&& (ip.getHostAddress().indexOf(":") == -1)) {
+					/* 219 */ netip = ip.getHostAddress();
+					/* 220 */ finded = true;
+					/* 221 */ break;
+					/* 222 */ }
+				if ((!ip.isSiteLocalAddress()) || (ip.isLoopbackAddress()) || (ip.getHostAddress().indexOf(":") != -1))
+					/*     */ continue;
+				/* 224 */ localip = ip.getHostAddress();
+				/*     */ }
+			/*     */
+			/*     */ }
+		/*     */
+		/* 229 */ if ((netip != null) && (!"".equals(netip))) {
+			/* 230 */ return netip;
+			/*     */ }
+		/* 232 */ return localip;
+		/*     */ }
+	/*     */ }
+
+/*
+ * Location: D:\xoa\webapps\ROOT\WEB-INF\classes\ Qualified Name:
+ * com.xoa.util.ipUtil.IpAddr JD-Core Version: 0.6.0
+ */

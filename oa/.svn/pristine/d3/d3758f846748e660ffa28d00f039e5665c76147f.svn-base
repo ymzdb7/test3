@@ -1,0 +1,819 @@
+/*     */ package com.xoa.model.sys;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class SealLogExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public SealLogExample()
+/*     */   {
+/*  39 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  49 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  59 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  69 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  79 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  89 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  99 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 109 */     Criteria criteria = createCriteriaInternal();
+/* 110 */     this.oredCriteria.add(criteria);
+/* 111 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 121 */     Criteria criteria = createCriteriaInternal();
+/* 122 */     if (this.oredCriteria.size() == 0) {
+/* 123 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 125 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 135 */     Criteria criteria = new Criteria();
+/* 136 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 146 */     this.oredCriteria.clear();
+/* 147 */     this.orderByClause = null;
+/* 148 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 846 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 850 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 854 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 858 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 862 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 866 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 870 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 874 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 879 */       this.condition = condition;
+/* 880 */       this.typeHandler = null;
+/* 881 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 886 */       this.condition = condition;
+/* 887 */       this.value = value;
+/* 888 */       this.typeHandler = typeHandler;
+/* 889 */       if ((value instanceof List))
+/* 890 */         this.listValue = true;
+/*     */       else
+/* 892 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 897 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 902 */       this.condition = condition;
+/* 903 */       this.value = value;
+/* 904 */       this.secondValue = secondValue;
+/* 905 */       this.typeHandler = typeHandler;
+/* 906 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 910 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends SealLogExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<SealLogExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 162 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 166 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<SealLogExample.Criterion> getAllCriteria() {
+/* 170 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<SealLogExample.Criterion> getCriteria() {
+/* 174 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 178 */       if (condition == null) {
+/* 179 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 181 */       this.criteria.add(new SealLogExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 185 */       if (value == null) {
+/* 186 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 188 */       this.criteria.add(new SealLogExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 192 */       if ((value1 == null) || (value2 == null)) {
+/* 193 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 195 */       this.criteria.add(new SealLogExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogIdIsNull() {
+/* 199 */       addCriterion("LOG_ID is null");
+/* 200 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogIdIsNotNull() {
+/* 204 */       addCriterion("LOG_ID is not null");
+/* 205 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogIdEqualTo(Integer value) {
+/* 209 */       addCriterion("LOG_ID =", value, "logId");
+/* 210 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogIdNotEqualTo(Integer value) {
+/* 214 */       addCriterion("LOG_ID <>", value, "logId");
+/* 215 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogIdGreaterThan(Integer value) {
+/* 219 */       addCriterion("LOG_ID >", value, "logId");
+/* 220 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogIdGreaterThanOrEqualTo(Integer value) {
+/* 224 */       addCriterion("LOG_ID >=", value, "logId");
+/* 225 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogIdLessThan(Integer value) {
+/* 229 */       addCriterion("LOG_ID <", value, "logId");
+/* 230 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogIdLessThanOrEqualTo(Integer value) {
+/* 234 */       addCriterion("LOG_ID <=", value, "logId");
+/* 235 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogIdIn(List<Integer> values) {
+/* 239 */       addCriterion("LOG_ID in", values, "logId");
+/* 240 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogIdNotIn(List<Integer> values) {
+/* 244 */       addCriterion("LOG_ID not in", values, "logId");
+/* 245 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogIdBetween(Integer value1, Integer value2) {
+/* 249 */       addCriterion("LOG_ID between", value1, value2, "logId");
+/* 250 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogIdNotBetween(Integer value1, Integer value2) {
+/* 254 */       addCriterion("LOG_ID not between", value1, value2, "logId");
+/* 255 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andSIdIsNull() {
+/* 259 */       addCriterion("S_ID is null");
+/* 260 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andSIdIsNotNull() {
+/* 264 */       addCriterion("S_ID is not null");
+/* 265 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andSIdEqualTo(String value) {
+/* 269 */       addCriterion("S_ID =", value, "sId");
+/* 270 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andSIdNotEqualTo(String value) {
+/* 274 */       addCriterion("S_ID <>", value, "sId");
+/* 275 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andSIdGreaterThan(String value) {
+/* 279 */       addCriterion("S_ID >", value, "sId");
+/* 280 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andSIdGreaterThanOrEqualTo(String value) {
+/* 284 */       addCriterion("S_ID >=", value, "sId");
+/* 285 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andSIdLessThan(String value) {
+/* 289 */       addCriterion("S_ID <", value, "sId");
+/* 290 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andSIdLessThanOrEqualTo(String value) {
+/* 294 */       addCriterion("S_ID <=", value, "sId");
+/* 295 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andSIdLike(String value) {
+/* 299 */       addCriterion("S_ID like", value, "sId");
+/* 300 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andSIdNotLike(String value) {
+/* 304 */       addCriterion("S_ID not like", value, "sId");
+/* 305 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andSIdIn(List<String> values) {
+/* 309 */       addCriterion("S_ID in", values, "sId");
+/* 310 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andSIdNotIn(List<String> values) {
+/* 314 */       addCriterion("S_ID not in", values, "sId");
+/* 315 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andSIdBetween(String value1, String value2) {
+/* 319 */       addCriterion("S_ID between", value1, value2, "sId");
+/* 320 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andSIdNotBetween(String value1, String value2) {
+/* 324 */       addCriterion("S_ID not between", value1, value2, "sId");
+/* 325 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andUserIdIsNull() {
+/* 329 */       addCriterion("USER_ID is null");
+/* 330 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andUserIdIsNotNull() {
+/* 334 */       addCriterion("USER_ID is not null");
+/* 335 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andUserIdEqualTo(String value) {
+/* 339 */       addCriterion("USER_ID =", value, "userId");
+/* 340 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andUserIdNotEqualTo(String value) {
+/* 344 */       addCriterion("USER_ID <>", value, "userId");
+/* 345 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andUserIdGreaterThan(String value) {
+/* 349 */       addCriterion("USER_ID >", value, "userId");
+/* 350 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andUserIdGreaterThanOrEqualTo(String value) {
+/* 354 */       addCriterion("USER_ID >=", value, "userId");
+/* 355 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andUserIdLessThan(String value) {
+/* 359 */       addCriterion("USER_ID <", value, "userId");
+/* 360 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andUserIdLessThanOrEqualTo(String value) {
+/* 364 */       addCriterion("USER_ID <=", value, "userId");
+/* 365 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andUserIdLike(String value) {
+/* 369 */       addCriterion("USER_ID like", value, "userId");
+/* 370 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andUserIdNotLike(String value) {
+/* 374 */       addCriterion("USER_ID not like", value, "userId");
+/* 375 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andUserIdIn(List<String> values) {
+/* 379 */       addCriterion("USER_ID in", values, "userId");
+/* 380 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andUserIdNotIn(List<String> values) {
+/* 384 */       addCriterion("USER_ID not in", values, "userId");
+/* 385 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andUserIdBetween(String value1, String value2) {
+/* 389 */       addCriterion("USER_ID between", value1, value2, "userId");
+/* 390 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andUserIdNotBetween(String value1, String value2) {
+/* 394 */       addCriterion("USER_ID not between", value1, value2, "userId");
+/* 395 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTimeIsNull() {
+/* 399 */       addCriterion("LOG_TIME is null");
+/* 400 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTimeIsNotNull() {
+/* 404 */       addCriterion("LOG_TIME is not null");
+/* 405 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTimeEqualTo(Date value) {
+/* 409 */       addCriterion("LOG_TIME =", value, "logTime");
+/* 410 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTimeNotEqualTo(Date value) {
+/* 414 */       addCriterion("LOG_TIME <>", value, "logTime");
+/* 415 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTimeGreaterThan(Date value) {
+/* 419 */       addCriterion("LOG_TIME >", value, "logTime");
+/* 420 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTimeGreaterThanOrEqualTo(Date value) {
+/* 424 */       addCriterion("LOG_TIME >=", value, "logTime");
+/* 425 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTimeLessThan(Date value) {
+/* 429 */       addCriterion("LOG_TIME <", value, "logTime");
+/* 430 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTimeLessThanOrEqualTo(Date value) {
+/* 434 */       addCriterion("LOG_TIME <=", value, "logTime");
+/* 435 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTimeIn(List<Date> values) {
+/* 439 */       addCriterion("LOG_TIME in", values, "logTime");
+/* 440 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTimeNotIn(List<Date> values) {
+/* 444 */       addCriterion("LOG_TIME not in", values, "logTime");
+/* 445 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTimeBetween(Date value1, Date value2) {
+/* 449 */       addCriterion("LOG_TIME between", value1, value2, "logTime");
+/* 450 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTimeNotBetween(Date value1, Date value2) {
+/* 454 */       addCriterion("LOG_TIME not between", value1, value2, "logTime");
+/* 455 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTypeIsNull() {
+/* 459 */       addCriterion("LOG_TYPE is null");
+/* 460 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTypeIsNotNull() {
+/* 464 */       addCriterion("LOG_TYPE is not null");
+/* 465 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTypeEqualTo(String value) {
+/* 469 */       addCriterion("LOG_TYPE =", value, "logType");
+/* 470 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTypeNotEqualTo(String value) {
+/* 474 */       addCriterion("LOG_TYPE <>", value, "logType");
+/* 475 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTypeGreaterThan(String value) {
+/* 479 */       addCriterion("LOG_TYPE >", value, "logType");
+/* 480 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTypeGreaterThanOrEqualTo(String value) {
+/* 484 */       addCriterion("LOG_TYPE >=", value, "logType");
+/* 485 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTypeLessThan(String value) {
+/* 489 */       addCriterion("LOG_TYPE <", value, "logType");
+/* 490 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTypeLessThanOrEqualTo(String value) {
+/* 494 */       addCriterion("LOG_TYPE <=", value, "logType");
+/* 495 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTypeLike(String value) {
+/* 499 */       addCriterion("LOG_TYPE like", value, "logType");
+/* 500 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTypeNotLike(String value) {
+/* 504 */       addCriterion("LOG_TYPE not like", value, "logType");
+/* 505 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTypeIn(List<String> values) {
+/* 509 */       addCriterion("LOG_TYPE in", values, "logType");
+/* 510 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTypeNotIn(List<String> values) {
+/* 514 */       addCriterion("LOG_TYPE not in", values, "logType");
+/* 515 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTypeBetween(String value1, String value2) {
+/* 519 */       addCriterion("LOG_TYPE between", value1, value2, "logType");
+/* 520 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andLogTypeNotBetween(String value1, String value2) {
+/* 524 */       addCriterion("LOG_TYPE not between", value1, value2, "logType");
+/* 525 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andResultIsNull() {
+/* 529 */       addCriterion("RESULT is null");
+/* 530 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andResultIsNotNull() {
+/* 534 */       addCriterion("RESULT is not null");
+/* 535 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andResultEqualTo(String value) {
+/* 539 */       addCriterion("RESULT =", value, "result");
+/* 540 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andResultNotEqualTo(String value) {
+/* 544 */       addCriterion("RESULT <>", value, "result");
+/* 545 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andResultGreaterThan(String value) {
+/* 549 */       addCriterion("RESULT >", value, "result");
+/* 550 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andResultGreaterThanOrEqualTo(String value) {
+/* 554 */       addCriterion("RESULT >=", value, "result");
+/* 555 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andResultLessThan(String value) {
+/* 559 */       addCriterion("RESULT <", value, "result");
+/* 560 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andResultLessThanOrEqualTo(String value) {
+/* 564 */       addCriterion("RESULT <=", value, "result");
+/* 565 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andResultLike(String value) {
+/* 569 */       addCriterion("RESULT like", value, "result");
+/* 570 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andResultNotLike(String value) {
+/* 574 */       addCriterion("RESULT not like", value, "result");
+/* 575 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andResultIn(List<String> values) {
+/* 579 */       addCriterion("RESULT in", values, "result");
+/* 580 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andResultNotIn(List<String> values) {
+/* 584 */       addCriterion("RESULT not in", values, "result");
+/* 585 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andResultBetween(String value1, String value2) {
+/* 589 */       addCriterion("RESULT between", value1, value2, "result");
+/* 590 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andResultNotBetween(String value1, String value2) {
+/* 594 */       addCriterion("RESULT not between", value1, value2, "result");
+/* 595 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andMacAddIsNull() {
+/* 599 */       addCriterion("MAC_ADD is null");
+/* 600 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andMacAddIsNotNull() {
+/* 604 */       addCriterion("MAC_ADD is not null");
+/* 605 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andMacAddEqualTo(String value) {
+/* 609 */       addCriterion("MAC_ADD =", value, "macAdd");
+/* 610 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andMacAddNotEqualTo(String value) {
+/* 614 */       addCriterion("MAC_ADD <>", value, "macAdd");
+/* 615 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andMacAddGreaterThan(String value) {
+/* 619 */       addCriterion("MAC_ADD >", value, "macAdd");
+/* 620 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andMacAddGreaterThanOrEqualTo(String value) {
+/* 624 */       addCriterion("MAC_ADD >=", value, "macAdd");
+/* 625 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andMacAddLessThan(String value) {
+/* 629 */       addCriterion("MAC_ADD <", value, "macAdd");
+/* 630 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andMacAddLessThanOrEqualTo(String value) {
+/* 634 */       addCriterion("MAC_ADD <=", value, "macAdd");
+/* 635 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andMacAddLike(String value) {
+/* 639 */       addCriterion("MAC_ADD like", value, "macAdd");
+/* 640 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andMacAddNotLike(String value) {
+/* 644 */       addCriterion("MAC_ADD not like", value, "macAdd");
+/* 645 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andMacAddIn(List<String> values) {
+/* 649 */       addCriterion("MAC_ADD in", values, "macAdd");
+/* 650 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andMacAddNotIn(List<String> values) {
+/* 654 */       addCriterion("MAC_ADD not in", values, "macAdd");
+/* 655 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andMacAddBetween(String value1, String value2) {
+/* 659 */       addCriterion("MAC_ADD between", value1, value2, "macAdd");
+/* 660 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andMacAddNotBetween(String value1, String value2) {
+/* 664 */       addCriterion("MAC_ADD not between", value1, value2, "macAdd");
+/* 665 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andIpAddIsNull() {
+/* 669 */       addCriterion("IP_ADD is null");
+/* 670 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andIpAddIsNotNull() {
+/* 674 */       addCriterion("IP_ADD is not null");
+/* 675 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andIpAddEqualTo(String value) {
+/* 679 */       addCriterion("IP_ADD =", value, "ipAdd");
+/* 680 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andIpAddNotEqualTo(String value) {
+/* 684 */       addCriterion("IP_ADD <>", value, "ipAdd");
+/* 685 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andIpAddGreaterThan(String value) {
+/* 689 */       addCriterion("IP_ADD >", value, "ipAdd");
+/* 690 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andIpAddGreaterThanOrEqualTo(String value) {
+/* 694 */       addCriterion("IP_ADD >=", value, "ipAdd");
+/* 695 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andIpAddLessThan(String value) {
+/* 699 */       addCriterion("IP_ADD <", value, "ipAdd");
+/* 700 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andIpAddLessThanOrEqualTo(String value) {
+/* 704 */       addCriterion("IP_ADD <=", value, "ipAdd");
+/* 705 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andIpAddLike(String value) {
+/* 709 */       addCriterion("IP_ADD like", value, "ipAdd");
+/* 710 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andIpAddNotLike(String value) {
+/* 714 */       addCriterion("IP_ADD not like", value, "ipAdd");
+/* 715 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andIpAddIn(List<String> values) {
+/* 719 */       addCriterion("IP_ADD in", values, "ipAdd");
+/* 720 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andIpAddNotIn(List<String> values) {
+/* 724 */       addCriterion("IP_ADD not in", values, "ipAdd");
+/* 725 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andIpAddBetween(String value1, String value2) {
+/* 729 */       addCriterion("IP_ADD between", value1, value2, "ipAdd");
+/* 730 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andIpAddNotBetween(String value1, String value2) {
+/* 734 */       addCriterion("IP_ADD not between", value1, value2, "ipAdd");
+/* 735 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andClientTypeIsNull() {
+/* 739 */       addCriterion("CLIENT_TYPE is null");
+/* 740 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andClientTypeIsNotNull() {
+/* 744 */       addCriterion("CLIENT_TYPE is not null");
+/* 745 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andClientTypeEqualTo(String value) {
+/* 749 */       addCriterion("CLIENT_TYPE =", value, "clientType");
+/* 750 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andClientTypeNotEqualTo(String value) {
+/* 754 */       addCriterion("CLIENT_TYPE <>", value, "clientType");
+/* 755 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andClientTypeGreaterThan(String value) {
+/* 759 */       addCriterion("CLIENT_TYPE >", value, "clientType");
+/* 760 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andClientTypeGreaterThanOrEqualTo(String value) {
+/* 764 */       addCriterion("CLIENT_TYPE >=", value, "clientType");
+/* 765 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andClientTypeLessThan(String value) {
+/* 769 */       addCriterion("CLIENT_TYPE <", value, "clientType");
+/* 770 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andClientTypeLessThanOrEqualTo(String value) {
+/* 774 */       addCriterion("CLIENT_TYPE <=", value, "clientType");
+/* 775 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andClientTypeLike(String value) {
+/* 779 */       addCriterion("CLIENT_TYPE like", value, "clientType");
+/* 780 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andClientTypeNotLike(String value) {
+/* 784 */       addCriterion("CLIENT_TYPE not like", value, "clientType");
+/* 785 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andClientTypeIn(List<String> values) {
+/* 789 */       addCriterion("CLIENT_TYPE in", values, "clientType");
+/* 790 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andClientTypeNotIn(List<String> values) {
+/* 794 */       addCriterion("CLIENT_TYPE not in", values, "clientType");
+/* 795 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andClientTypeBetween(String value1, String value2) {
+/* 799 */       addCriterion("CLIENT_TYPE between", value1, value2, "clientType");
+/* 800 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SealLogExample.Criteria andClientTypeNotBetween(String value1, String value2) {
+/* 804 */       addCriterion("CLIENT_TYPE not between", value1, value2, "clientType");
+/* 805 */       return (SealLogExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.sys.SealLogExample
+ * JD-Core Version:    0.6.0
+ */

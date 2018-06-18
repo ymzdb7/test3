@@ -1,0 +1,188 @@
+/*     */ package com.xoa.service.edu.eduCourse.impl;
+/*     */ 
+/*     */ import com.xoa.dao.edu.eduCourse.EduCourseMapper;
+/*     */ import com.xoa.model.edu.eduCourse.EduCourse;
+/*     */ import com.xoa.model.edu.eduCourse.EduCourseWithBLOBs;
+/*     */ import com.xoa.model.enclosure.Attachment;
+/*     */ import com.xoa.service.edu.eduCourse.EduCourseService;
+/*     */ import com.xoa.util.GetAttachmentListUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.beans.Transient;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduCourseServiceImpl
+/*     */   implements EduCourseService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private EduCourseMapper eduCourseMapper;
+/*     */ 
+/*     */   @Transient
+/*     */   public ToJson<EduCourseWithBLOBs> selectEdu(EduCourse eduCourse)
+/*     */   {
+/*  45 */     ToJson json = new ToJson();
+/*     */     try {
+/*  47 */       List edulsit = this.eduCourseMapper.selectByExample(eduCourse);
+/*  48 */       if (edulsit.size() > 0) {
+/*  49 */         json.setObj(edulsit);
+/*  50 */         json.setMsg("ok");
+/*  51 */         json.setFlag(0);
+/*  52 */         return json;
+/*     */       }
+/*  54 */       json.setMsg("false");
+/*  55 */       json.setFlag(1);
+/*     */     } catch (Exception e) {
+/*  57 */       e.printStackTrace();
+/*     */     }
+/*  59 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transient
+/*     */   public ToJson insertEdu(EduCourseWithBLOBs eduCourseWithBLOBs)
+/*     */   {
+/*  70 */     ToJson toJson = new ToJson();
+/*     */     try {
+/*  72 */       if (eduCourseWithBLOBs.getCourseId() == null)
+/*  73 */         eduCourseWithBLOBs.setCourseId("无");
+/*  74 */       else if (eduCourseWithBLOBs.getOrderNo() == null)
+/*  75 */         eduCourseWithBLOBs.setOrderNo(Integer.valueOf(0));
+/*  76 */       else if (eduCourseWithBLOBs.getStage() == null)
+/*  77 */         eduCourseWithBLOBs.setStage("无");
+/*  78 */       else if (eduCourseWithBLOBs.getCourseName() == null)
+/*  79 */         eduCourseWithBLOBs.setCourseName("无");
+/*  80 */       else if (eduCourseWithBLOBs.getCourseScore() == null)
+/*  81 */         eduCourseWithBLOBs.setCourseScore("无");
+/*  82 */       else if (eduCourseWithBLOBs.getCourseDescription() == null)
+/*  83 */         eduCourseWithBLOBs.setCourseDescription("无");
+/*  84 */       else if (eduCourseWithBLOBs.getCreateUser() == null)
+/*  85 */         eduCourseWithBLOBs.setCreateUser("无");
+/*  86 */       else if (eduCourseWithBLOBs.getViewPriv() == null)
+/*  87 */         eduCourseWithBLOBs.setViewPriv("无");
+/*  88 */       else if (eduCourseWithBLOBs.getEditPriv() == null)
+/*  89 */         eduCourseWithBLOBs.setEditPriv("无");
+/*  90 */       else if (eduCourseWithBLOBs.getAttachmentId() == null)
+/*  91 */         eduCourseWithBLOBs.setAttachmentId("无");
+/*  92 */       else if (eduCourseWithBLOBs.getAttachmentName() == null)
+/*  93 */         eduCourseWithBLOBs.setAttachmentName("无");
+/*  94 */       else if (eduCourseWithBLOBs.getRealm() == null)
+/*  95 */         eduCourseWithBLOBs.setRealm("无");
+/*  96 */       else if (eduCourseWithBLOBs.getCourseType() == null)
+/*  97 */         eduCourseWithBLOBs.setCourseType("无");
+/*  98 */       else if (eduCourseWithBLOBs.getDepartment() == null)
+/*  99 */         eduCourseWithBLOBs.setDepartment("无");
+/* 100 */       else if (eduCourseWithBLOBs.getGuidance() == null)
+/* 101 */         eduCourseWithBLOBs.setGuidance("无");
+/* 102 */       else if (eduCourseWithBLOBs.getCreditHours() == null)
+/* 103 */         eduCourseWithBLOBs.setCreditHours(Integer.valueOf(0));
+/* 104 */       else if (eduCourseWithBLOBs.getMaxMember() == null)
+/* 105 */         eduCourseWithBLOBs.setMaxMember(Integer.valueOf(0));
+/* 106 */       else if (eduCourseWithBLOBs.getGradeReq() == null)
+/* 107 */         eduCourseWithBLOBs.setGradeReq("无");
+/* 108 */       else if (eduCourseWithBLOBs.getAcademyReq() == null)
+/* 109 */         eduCourseWithBLOBs.setAcademyReq("无");
+/* 110 */       else if (eduCourseWithBLOBs.getSexReq() == null)
+/* 111 */         eduCourseWithBLOBs.setSexReq("无");
+/* 112 */       else if (eduCourseWithBLOBs.getClassTimeReq() == null)
+/* 113 */         eduCourseWithBLOBs.setClassTimeReq("无");
+/* 114 */       else if (eduCourseWithBLOBs.getSiteReq() == null) {
+/* 115 */         eduCourseWithBLOBs.setSiteReq("无");
+/*     */       }
+/* 117 */       int count = this.eduCourseMapper.insertSelective(eduCourseWithBLOBs);
+/* 118 */       if (count > 0) {
+/* 119 */         toJson.setFlag(0);
+/* 120 */         toJson.setMsg("ok");
+/* 121 */         return toJson;
+/*     */       }
+/* 123 */       toJson.setFlag(1);
+/* 124 */       toJson.setMsg("false");
+/*     */     } catch (Exception e) {
+/* 126 */       e.printStackTrace();
+/*     */     }
+/* 128 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transient
+/*     */   public ToJson deleteByPrimaryKey(Integer id)
+/*     */   {
+/* 140 */     ToJson toJson = new ToJson();
+/*     */     try {
+/* 142 */       this.eduCourseMapper.deleteByPrimaryKey(id);
+/* 143 */       toJson.setFlag(1);
+/* 144 */       toJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 146 */       e.printStackTrace();
+/* 147 */       toJson.setFlag(0);
+/* 148 */       toJson.setMsg("false");
+/*     */     }
+/* 150 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduCourseWithBLOBs> selectByPrimaryKey(Integer id)
+/*     */   {
+/* 162 */     ToJson toJson = new ToJson();
+/* 163 */     List list = null;
+/*     */     try {
+/* 165 */       EduCourseWithBLOBs eduCourseWithBLOBs = this.eduCourseMapper.selectByPrimaryKey(id);
+/* 166 */       if ((eduCourseWithBLOBs.getAttachmentName() != null) && (eduCourseWithBLOBs.getAttachmentId() != null)) {
+/* 167 */         list = GetAttachmentListUtil.returnAttachment(eduCourseWithBLOBs.getAttachmentName(), eduCourseWithBLOBs.getAttachmentId(), null, null);
+/* 168 */         eduCourseWithBLOBs.setAttUrl(((Attachment)list.get(0)).getAttUrl());
+/*     */       }
+/* 170 */       if (eduCourseWithBLOBs != null) {
+/* 171 */         toJson.setObject(eduCourseWithBLOBs);
+/* 172 */         toJson.setMsg("ok");
+/* 173 */         toJson.setFlag(0);
+/* 174 */         return toJson;
+/*     */       }
+/* 176 */       toJson.setFlag(0);
+/* 177 */       toJson.setMsg("err");
+/*     */     } catch (Exception e) {
+/* 179 */       e.printStackTrace();
+/*     */     }
+/* 181 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transient
+/*     */   public ToJson updateByPrimaryKeySelective(EduCourseWithBLOBs eduCourseWithBLOBs)
+/*     */   {
+/* 194 */     ToJson toJson = new ToJson();
+/*     */     try {
+/* 196 */       int count = this.eduCourseMapper.updateByPrimaryKeySelective(eduCourseWithBLOBs);
+/* 197 */       if (count > 0) {
+/* 198 */         toJson.setFlag(0);
+/* 199 */         toJson.setMsg("ok");
+/* 200 */         return toJson;
+/*     */       }
+/* 202 */       toJson.setFlag(1);
+/* 203 */       toJson.setMsg("err");
+/*     */     } catch (Exception e) {
+/* 205 */       e.printStackTrace();
+/* 206 */       toJson.setFlag(1);
+/* 207 */       toJson.setMsg("false");
+/*     */     }
+/* 209 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transient
+/*     */   public ToJson updateKey(EduCourse eduCourse)
+/*     */   {
+/* 221 */     ToJson toJson = new ToJson();
+/*     */     try {
+/* 223 */       this.eduCourseMapper.updatekey(eduCourse);
+/* 224 */       toJson.setFlag(1);
+/* 225 */       toJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 227 */       e.printStackTrace();
+/* 228 */       toJson.setFlag(0);
+/* 229 */       toJson.setMsg("false");
+/*     */     }
+/* 231 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduCourse.impl.EduCourseServiceImpl
+ * JD-Core Version:    0.6.0
+ */

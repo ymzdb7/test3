@@ -1,0 +1,255 @@
+/*     */ package com.xoa.controller.vehicle;
+/*     */ 
+/*     */ import com.xoa.model.vehicle.VehicleUsageWithBLOBs;
+/*     */ import com.xoa.model.vehicle.VehicleWithBLOBs;
+/*     */ import com.xoa.service.vehicle.VeHicleService;
+/*     */ import com.xoa.util.AjaxJson;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/veHicle"})
+/*     */ public class VeHicleController
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   VeHicleService veHicleService;
+/*     */ 
+/*     */   @RequestMapping({"/addVeHicle"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson addVeHicle(HttpServletRequest request, VehicleWithBLOBs vehicleWithBLOBs)
+/*     */   {
+/*  38 */     return this.veHicleService.addVeHicle(request, vehicleWithBLOBs);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/editVeHicle"})
+/*     */   public AjaxJson editVeHicle(VehicleWithBLOBs vehicleWithBLOBs)
+/*     */   {
+/*  50 */     return this.veHicleService.editVeHicle(vehicleWithBLOBs);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deleteVeHicleByVid"})
+/*     */   public AjaxJson deleteVeHicleByVid(Integer vId)
+/*     */   {
+/*  61 */     return this.veHicleService.deleteVeHicleByVid(vId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deleteVeHiclesByVids"})
+/*     */   public AjaxJson deleteVeHiclesByVids(String[] vIds)
+/*     */   {
+/*  73 */     return this.veHicleService.deleteVeHiclesByVids(vIds);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getDetailVeHicle"})
+/*     */   public AjaxJson getDetailVeHicle(Integer vId)
+/*     */   {
+/*  84 */     return this.veHicleService.getDetailVeHicle(vId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getAllVeHicle"})
+/*     */   public AjaxJson getAllVeHicle(HttpServletRequest request)
+/*     */   {
+/*  96 */     return this.veHicleService.getAllVeHicle(request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getVeHicleFixRecord"})
+/*     */   public AjaxJson getVeHicleFixRecord(Integer vId)
+/*     */   {
+/* 107 */     return this.veHicleService.getVeHicleFixRecord(vId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/veHicleIndex"})
+/*     */   public String veHicleIndex()
+/*     */   {
+/* 118 */     return "app/vehicle/vehicleInfoManage/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/veHicleInfoManage"})
+/*     */   public String veHicleInfoManage()
+/*     */   {
+/* 129 */     return "app/vehicle/vehicleInfoManage/infoManagement";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/veHicleEdit"})
+/*     */   public String veHicleAdd(int editFlag, String vId, Map<String, Object> map, HttpServletRequest request)
+/*     */   {
+/* 140 */     map.put("editFlag", Integer.valueOf(editFlag));
+/* 141 */     map.put("vId", vId);
+/* 142 */     return "app/vehicle/vehicleInfoManage/editVehicle";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/oilCardManagement"})
+/*     */   public String oilCardManagement()
+/*     */   {
+/* 153 */     return "app/vehicle/vehicleInfoManage/oilCardManage";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/editOilCard"})
+/*     */   public String addOilCard(int editFlag, String id, Map<String, Object> map)
+/*     */   {
+/* 164 */     map.put("editFlag", Integer.valueOf(editFlag));
+/* 165 */     map.put("id", id);
+/* 166 */     return "app/vehicle/vehicleInfoManage/editOilCard";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/veHicleUseageIndex"})
+/*     */   public String veHicleUseageIndex()
+/*     */   {
+/* 177 */     return "app/vehicle/veHicleUseage/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/vehicleUseApply"})
+/*     */   public String vehicleUse(int editFlag, String vuId, String sign, Map<String, Object> map)
+/*     */   {
+/* 188 */     map.put("editFlag", Integer.valueOf(editFlag));
+/* 189 */     map.put("vuId", vuId);
+/* 190 */     map.put("sign", sign);
+/* 191 */     return "app/vehicle/veHicleUseage/vehicleUseApply";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/pendingApply"})
+/*     */   public String pendingApply()
+/*     */   {
+/* 202 */     return "app/vehicle/veHicleUseage/pendingApply";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/approvedApply"})
+/*     */   public String approvedApply()
+/*     */   {
+/* 213 */     return "app/vehicle/veHicleUseage/approvedApply";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/inUseVehicle"})
+/*     */   public String inUseVehicle()
+/*     */   {
+/* 224 */     return "app/vehicle/veHicleUseage/inUseVehicle";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/notApply"})
+/*     */   public String notApply()
+/*     */   {
+/* 235 */     return "app/vehicle/veHicleUseage/notApply";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/veHicledetail"})
+/*     */   public String veHicledetail(Map<String, Object> map, String vuId)
+/*     */   {
+/* 245 */     map.put("vuId", vuId);
+/* 246 */     return "app/vehicle/veHicledetail";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/veDetail"})
+/*     */   public String veDetail(Map<String, Object> map, String vId)
+/*     */   {
+/* 257 */     map.put("vId", vId);
+/* 258 */     return "app/vehicle/veDetail";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getDropDownBox"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson getDropDownBox(HttpServletRequest request)
+/*     */   {
+/* 269 */     return this.veHicleService.getDropDownBox(request);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/vehicleDeptApproveIndex"})
+/*     */   public String vehicleDeptApproveIndex()
+/*     */   {
+/* 279 */     return "app/vehicle/veHicleDeptApprove/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/vehicleDeptpendApply"})
+/*     */   public String vehicleDeptpendApply()
+/*     */   {
+/* 289 */     return "app/vehicle/veHicleDeptApprove/pendingApply";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/vehicleDeptnotApply"})
+/*     */   public String vehicleDeptnotApply()
+/*     */   {
+/* 299 */     return "app/vehicle/veHicleDeptApprove/notApply";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/vehicleDeptApproveApply"})
+/*     */   public String vehicleDeptApproveApply()
+/*     */   {
+/* 309 */     return "app/vehicle/veHicleDeptApprove/approvedApply";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/operatorIndex"})
+/*     */   public String operatorIndex()
+/*     */   {
+/* 319 */     return "app/vehicle/vehicleOperator/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/operatorpendingApply"})
+/*     */   public String operatorpendingApply()
+/*     */   {
+/* 329 */     return "app/vehicle/vehicleOperator/pendingApply";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/operatorapprovedApply"})
+/*     */   public String operatorapprovedApply()
+/*     */   {
+/* 339 */     return "app/vehicle/vehicleOperator/approvedApply";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/operatorinUseVehicle"})
+/*     */   public String operatorinUseVehicle()
+/*     */   {
+/* 349 */     return "app/vehicle/vehicleOperator/inUseVehicle";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/operatornotApply"})
+/*     */   public String operatornotApply()
+/*     */   {
+/* 359 */     return "app/vehicle/vehicleOperator/notApply";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/operatorUseEnd"})
+/*     */   public String operatorUseEnd()
+/*     */   {
+/* 369 */     return "app/vehicle/vehicleOperator/operatorUseEnd";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/operatorQuery"})
+/*     */   public String operatorQuery()
+/*     */   {
+/* 380 */     return "app/vehicle/vehicleOperator/operatorQuery";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/OperatorMange"})
+/*     */   public String OperatorMange()
+/*     */   {
+/* 391 */     return "app/vehicle/vehicleOperator/manage";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getVeHicleByNum"})
+/*     */   public AjaxJson getVeHicleByNum(String vNum)
+/*     */   {
+/* 402 */     return this.veHicleService.getVeHicleByNum(vNum);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getVeHicleStatus"})
+/*     */   public AjaxJson getVeHicleStatus(VehicleUsageWithBLOBs vehicleUsageWithBLOBs)
+/*     */   {
+/* 413 */     return this.veHicleService.getVeHicleStatus(vehicleUsageWithBLOBs);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.vehicle.VeHicleController
+ * JD-Core Version:    0.6.0
+ */

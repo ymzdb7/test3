@@ -1,0 +1,194 @@
+/*     */ package com.xoa.controller.edu.eduTrain;
+/*     */ 
+/*     */ import com.xoa.model.edu.eduTrainingPlan.EduTrainingPlan;
+/*     */ import com.xoa.service.edu.eduTrainingPlan.IEduTrainingPlanService;
+/*     */ import com.xoa.util.AjaxJson;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.Date;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.propertyeditors.CustomDateEditor;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.WebDataBinder;
+/*     */ import org.springframework.web.bind.annotation.InitBinder;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/eduTrainPlan"})
+/*     */ public class EduTrainPlanController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private IEduTrainingPlanService eduTrainingPlanService;
+/*     */ 
+/*     */   @RequestMapping({"/getHrtailDetail"})
+/*     */   @ResponseBody
+/*     */   public ToJson<EduTrainingPlan> getHrtailDetail(Integer planId)
+/*     */   {
+/*  41 */     return this.eduTrainingPlanService.getHrtailDetail(planId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getAllTrain"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson getAllTrain(HttpServletRequest request, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  53 */     return this.eduTrainingPlanService.getAll(request, page, pageSize, useFlag);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/editTrain"})
+/*     */   public AjaxJson editTrain(EduTrainingPlan eduTrainingPlan)
+/*     */   {
+/*  64 */     return this.eduTrainingPlanService.editTrain(eduTrainingPlan);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deleteTrainObjects"})
+/*     */   public AjaxJson deleteTrainObjects(String[] planIds)
+/*     */   {
+/*  75 */     return this.eduTrainingPlanService.deleteTrainObjects(planIds);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deleteTrainById"})
+/*     */   public AjaxJson deleteTrainById(String planId)
+/*     */   {
+/*  86 */     return this.eduTrainingPlanService.deleteTrainById(planId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/addTrain"})
+/*     */   public AjaxJson addTrain(HttpServletRequest request, EduTrainingPlan eduTrainingPlan)
+/*     */   {
+/*  97 */     return this.eduTrainingPlanService.addTrain(request, eduTrainingPlan);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/queryTrain"})
+/*     */   public AjaxJson queryTrain(Integer page, Integer pageSize, boolean useFlag, EduTrainingPlan eduTrainingPlan)
+/*     */   {
+/* 108 */     return this.eduTrainingPlanService.queryTrain(page, pageSize, useFlag, eduTrainingPlan);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/goIndex"})
+/*     */   public String goIndex()
+/*     */   {
+/* 118 */     return "app/edu/eduTrainPlan/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/goManage"})
+/*     */   public String goManage()
+/*     */   {
+/* 128 */     return "app/edu/eduTrainPlan/mange";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/goNew"})
+/*     */   public String goNew()
+/*     */   {
+/* 138 */     return "app/edu/eduTrainPlan/trainPlanNew";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/goQuery"})
+/*     */   public String goQuery()
+/*     */   {
+/* 148 */     return "app/edu/eduTrainPlan/trainPlanQuery";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/assessIndex"})
+/*     */   public String assessIndex()
+/*     */   {
+/* 158 */     return "app/edu/eduTrainPlan/assessIndex";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/assessManage"})
+/*     */   public String assessManage()
+/*     */   {
+/* 168 */     return "app/edu/eduTrainPlan/assessMange";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/approvalTrue"})
+/*     */   public String ApprovalTrue()
+/*     */   {
+/* 179 */     return "app/edu/eduTrainPlan/approvalTrue";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/approvalFalse"})
+/*     */   public String ApprovalFlase()
+/*     */   {
+/* 189 */     return "app/edu/eduTrainPlan/approvalFalse";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/approvalQuery"})
+/*     */   public String approvalQuery()
+/*     */   {
+/* 199 */     return "app/edu/eduTrainPlan/approvalQuery";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getEduTrainByStatus"})
+/*     */   public AjaxJson getEduTrainByStatus(HttpServletRequest request, String assessingStatus)
+/*     */   {
+/* 211 */     return this.eduTrainingPlanService.getEduTrainByStatus(request, assessingStatus);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getMinePlanByStatus"})
+/*     */   public AjaxJson getMinePlanByStatus(HttpServletRequest request, String assessingStatus)
+/*     */   {
+/* 222 */     return this.eduTrainingPlanService.getMinePlanByStatus(request, assessingStatus);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/editEduTrainByStatus"})
+/*     */   public AjaxJson editEduTrainByStatus(EduTrainingPlan eduTrainingPlan)
+/*     */   {
+/* 233 */     return this.eduTrainingPlanService.editEduTrainByStatus(eduTrainingPlan);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/QueryPlan"})
+/*     */   public AjaxJson QueryPlan(EduTrainingPlan eduTrainingPlan, String startTime, String endTime)
+/*     */   {
+/* 245 */     return this.eduTrainingPlanService.QueryPlan(eduTrainingPlan, startTime, endTime);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/QueryPlanStatus"})
+/*     */   public AjaxJson QueryPlanStatus(EduTrainingPlan eduTrainingPlan, String startTime, String endTime, HttpServletRequest request)
+/*     */   {
+/* 256 */     return this.eduTrainingPlanService.QueryPlanStatus(eduTrainingPlan, startTime, endTime, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getAllPlan"})
+/*     */   public AjaxJson getAllPlan()
+/*     */   {
+/* 268 */     return this.eduTrainingPlanService.getAllPlan();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getAllPlanTrue"})
+/*     */   public AjaxJson getAllPlanTrue()
+/*     */   {
+/* 280 */     return this.eduTrainingPlanService.getAllPlanTrue();
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/goDetail"})
+/*     */   public String goDetail(String planId)
+/*     */   {
+/* 290 */     return "app/edu/eduTrainPlan/trainPlanDetail";
+/*     */   }
+/*     */   @InitBinder
+/*     */   public void initBinder(WebDataBinder binder) {
+/* 295 */     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+/* 296 */     dateFormat.setLenient(false);
+/* 297 */     binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.edu.eduTrain.EduTrainPlanController
+ * JD-Core Version:    0.6.0
+ */

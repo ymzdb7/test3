@@ -1,0 +1,626 @@
+/*     */ package com.xoa.model.vehicle;
+/*     */ 
+/*     */ import java.math.BigDecimal;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class VehicleMaintenanceExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public VehicleMaintenanceExample()
+/*     */   {
+/*  41 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  51 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  61 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  71 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  81 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  91 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/* 101 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 111 */     Criteria criteria = createCriteriaInternal();
+/* 112 */     this.oredCriteria.add(criteria);
+/* 113 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 123 */     Criteria criteria = createCriteriaInternal();
+/* 124 */     if (this.oredCriteria.size() == 0) {
+/* 125 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 127 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 137 */     Criteria criteria = new Criteria();
+/* 138 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 148 */     this.oredCriteria.clear();
+/* 149 */     this.orderByClause = null;
+/* 150 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 654 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 658 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 662 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 666 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 670 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 674 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 678 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 682 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 687 */       this.condition = condition;
+/* 688 */       this.typeHandler = null;
+/* 689 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 694 */       this.condition = condition;
+/* 695 */       this.value = value;
+/* 696 */       this.typeHandler = typeHandler;
+/* 697 */       if ((value instanceof List))
+/* 698 */         this.listValue = true;
+/*     */       else
+/* 700 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 705 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 710 */       this.condition = condition;
+/* 711 */       this.value = value;
+/* 712 */       this.secondValue = secondValue;
+/* 713 */       this.typeHandler = typeHandler;
+/* 714 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 718 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends VehicleMaintenanceExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<VehicleMaintenanceExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 164 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 168 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<VehicleMaintenanceExample.Criterion> getAllCriteria() {
+/* 172 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<VehicleMaintenanceExample.Criterion> getCriteria() {
+/* 176 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 180 */       if (condition == null) {
+/* 181 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 183 */       this.criteria.add(new VehicleMaintenanceExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 187 */       if (value == null) {
+/* 188 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 190 */       this.criteria.add(new VehicleMaintenanceExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 194 */       if ((value1 == null) || (value2 == null)) {
+/* 195 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 197 */       this.criteria.add(new VehicleMaintenanceExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterionForJDBCDate(String condition, java.util.Date value, String property) {
+/* 201 */       if (value == null) {
+/* 202 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 204 */       addCriterion(condition, new java.sql.Date(value.getTime()), property);
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterionForJDBCDate(String condition, List<java.util.Date> values, String property) {
+/* 208 */       if ((values == null) || (values.size() == 0)) {
+/* 209 */         throw new RuntimeException("Value list for " + property + " cannot be null or empty");
+/*     */       }
+/* 211 */       List dateList = new ArrayList();
+/* 212 */       Iterator iter = values.iterator();
+/* 213 */       while (iter.hasNext()) {
+/* 214 */         dateList.add(new java.sql.Date(((java.util.Date)iter.next()).getTime()));
+/*     */       }
+/* 216 */       addCriterion(condition, dateList, property);
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterionForJDBCDate(String condition, java.util.Date value1, java.util.Date value2, String property) {
+/* 220 */       if ((value1 == null) || (value2 == null)) {
+/* 221 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 223 */       addCriterion(condition, new java.sql.Date(value1.getTime()), new java.sql.Date(value2.getTime()), property);
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmIdIsNull() {
+/* 227 */       addCriterion("VM_ID is null");
+/* 228 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmIdIsNotNull() {
+/* 232 */       addCriterion("VM_ID is not null");
+/* 233 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmIdEqualTo(Integer value) {
+/* 237 */       addCriterion("VM_ID =", value, "vmId");
+/* 238 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmIdNotEqualTo(Integer value) {
+/* 242 */       addCriterion("VM_ID <>", value, "vmId");
+/* 243 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmIdGreaterThan(Integer value) {
+/* 247 */       addCriterion("VM_ID >", value, "vmId");
+/* 248 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmIdGreaterThanOrEqualTo(Integer value) {
+/* 252 */       addCriterion("VM_ID >=", value, "vmId");
+/* 253 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmIdLessThan(Integer value) {
+/* 257 */       addCriterion("VM_ID <", value, "vmId");
+/* 258 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmIdLessThanOrEqualTo(Integer value) {
+/* 262 */       addCriterion("VM_ID <=", value, "vmId");
+/* 263 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmIdIn(List<Integer> values) {
+/* 267 */       addCriterion("VM_ID in", values, "vmId");
+/* 268 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmIdNotIn(List<Integer> values) {
+/* 272 */       addCriterion("VM_ID not in", values, "vmId");
+/* 273 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmIdBetween(Integer value1, Integer value2) {
+/* 277 */       addCriterion("VM_ID between", value1, value2, "vmId");
+/* 278 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmIdNotBetween(Integer value1, Integer value2) {
+/* 282 */       addCriterion("VM_ID not between", value1, value2, "vmId");
+/* 283 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVIdIsNull() {
+/* 287 */       addCriterion("V_ID is null");
+/* 288 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVIdIsNotNull() {
+/* 292 */       addCriterion("V_ID is not null");
+/* 293 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVIdEqualTo(String value) {
+/* 297 */       addCriterion("V_ID =", value, "vId");
+/* 298 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVIdNotEqualTo(String value) {
+/* 302 */       addCriterion("V_ID <>", value, "vId");
+/* 303 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVIdGreaterThan(String value) {
+/* 307 */       addCriterion("V_ID >", value, "vId");
+/* 308 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVIdGreaterThanOrEqualTo(String value) {
+/* 312 */       addCriterion("V_ID >=", value, "vId");
+/* 313 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVIdLessThan(String value) {
+/* 317 */       addCriterion("V_ID <", value, "vId");
+/* 318 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVIdLessThanOrEqualTo(String value) {
+/* 322 */       addCriterion("V_ID <=", value, "vId");
+/* 323 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVIdLike(String value) {
+/* 327 */       addCriterion("V_ID like", value, "vId");
+/* 328 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVIdNotLike(String value) {
+/* 332 */       addCriterion("V_ID not like", value, "vId");
+/* 333 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVIdIn(List<String> values) {
+/* 337 */       addCriterion("V_ID in", values, "vId");
+/* 338 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVIdNotIn(List<String> values) {
+/* 342 */       addCriterion("V_ID not in", values, "vId");
+/* 343 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVIdBetween(String value1, String value2) {
+/* 347 */       addCriterion("V_ID between", value1, value2, "vId");
+/* 348 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVIdNotBetween(String value1, String value2) {
+/* 352 */       addCriterion("V_ID not between", value1, value2, "vId");
+/* 353 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmRequestDateIsNull() {
+/* 357 */       addCriterion("VM_REQUEST_DATE is null");
+/* 358 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmRequestDateIsNotNull() {
+/* 362 */       addCriterion("VM_REQUEST_DATE is not null");
+/* 363 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmRequestDateEqualTo(java.util.Date value) {
+/* 367 */       addCriterionForJDBCDate("VM_REQUEST_DATE =", value, "vmRequestDate");
+/* 368 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmRequestDateNotEqualTo(java.util.Date value) {
+/* 372 */       addCriterionForJDBCDate("VM_REQUEST_DATE <>", value, "vmRequestDate");
+/* 373 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmRequestDateGreaterThan(java.util.Date value) {
+/* 377 */       addCriterionForJDBCDate("VM_REQUEST_DATE >", value, "vmRequestDate");
+/* 378 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmRequestDateGreaterThanOrEqualTo(java.util.Date value) {
+/* 382 */       addCriterionForJDBCDate("VM_REQUEST_DATE >=", value, "vmRequestDate");
+/* 383 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmRequestDateLessThan(java.util.Date value) {
+/* 387 */       addCriterionForJDBCDate("VM_REQUEST_DATE <", value, "vmRequestDate");
+/* 388 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmRequestDateLessThanOrEqualTo(java.util.Date value) {
+/* 392 */       addCriterionForJDBCDate("VM_REQUEST_DATE <=", value, "vmRequestDate");
+/* 393 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmRequestDateIn(List<java.util.Date> values) {
+/* 397 */       addCriterionForJDBCDate("VM_REQUEST_DATE in", values, "vmRequestDate");
+/* 398 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmRequestDateNotIn(List<java.util.Date> values) {
+/* 402 */       addCriterionForJDBCDate("VM_REQUEST_DATE not in", values, "vmRequestDate");
+/* 403 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmRequestDateBetween(java.util.Date value1, java.util.Date value2) {
+/* 407 */       addCriterionForJDBCDate("VM_REQUEST_DATE between", value1, value2, "vmRequestDate");
+/* 408 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmRequestDateNotBetween(java.util.Date value1, java.util.Date value2) {
+/* 412 */       addCriterionForJDBCDate("VM_REQUEST_DATE not between", value1, value2, "vmRequestDate");
+/* 413 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmTypeIsNull() {
+/* 417 */       addCriterion("VM_TYPE is null");
+/* 418 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmTypeIsNotNull() {
+/* 422 */       addCriterion("VM_TYPE is not null");
+/* 423 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmTypeEqualTo(String value) {
+/* 427 */       addCriterion("VM_TYPE =", value, "vmType");
+/* 428 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmTypeNotEqualTo(String value) {
+/* 432 */       addCriterion("VM_TYPE <>", value, "vmType");
+/* 433 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmTypeGreaterThan(String value) {
+/* 437 */       addCriterion("VM_TYPE >", value, "vmType");
+/* 438 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmTypeGreaterThanOrEqualTo(String value) {
+/* 442 */       addCriterion("VM_TYPE >=", value, "vmType");
+/* 443 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmTypeLessThan(String value) {
+/* 447 */       addCriterion("VM_TYPE <", value, "vmType");
+/* 448 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmTypeLessThanOrEqualTo(String value) {
+/* 452 */       addCriterion("VM_TYPE <=", value, "vmType");
+/* 453 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmTypeLike(String value) {
+/* 457 */       addCriterion("VM_TYPE like", value, "vmType");
+/* 458 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmTypeNotLike(String value) {
+/* 462 */       addCriterion("VM_TYPE not like", value, "vmType");
+/* 463 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmTypeIn(List<String> values) {
+/* 467 */       addCriterion("VM_TYPE in", values, "vmType");
+/* 468 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmTypeNotIn(List<String> values) {
+/* 472 */       addCriterion("VM_TYPE not in", values, "vmType");
+/* 473 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmTypeBetween(String value1, String value2) {
+/* 477 */       addCriterion("VM_TYPE between", value1, value2, "vmType");
+/* 478 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmTypeNotBetween(String value1, String value2) {
+/* 482 */       addCriterion("VM_TYPE not between", value1, value2, "vmType");
+/* 483 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmFeeIsNull() {
+/* 487 */       addCriterion("VM_FEE is null");
+/* 488 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmFeeIsNotNull() {
+/* 492 */       addCriterion("VM_FEE is not null");
+/* 493 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmFeeEqualTo(BigDecimal value) {
+/* 497 */       addCriterion("VM_FEE =", value, "vmFee");
+/* 498 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmFeeNotEqualTo(BigDecimal value) {
+/* 502 */       addCriterion("VM_FEE <>", value, "vmFee");
+/* 503 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmFeeGreaterThan(BigDecimal value) {
+/* 507 */       addCriterion("VM_FEE >", value, "vmFee");
+/* 508 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmFeeGreaterThanOrEqualTo(BigDecimal value) {
+/* 512 */       addCriterion("VM_FEE >=", value, "vmFee");
+/* 513 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmFeeLessThan(BigDecimal value) {
+/* 517 */       addCriterion("VM_FEE <", value, "vmFee");
+/* 518 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmFeeLessThanOrEqualTo(BigDecimal value) {
+/* 522 */       addCriterion("VM_FEE <=", value, "vmFee");
+/* 523 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmFeeIn(List<BigDecimal> values) {
+/* 527 */       addCriterion("VM_FEE in", values, "vmFee");
+/* 528 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmFeeNotIn(List<BigDecimal> values) {
+/* 532 */       addCriterion("VM_FEE not in", values, "vmFee");
+/* 533 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmFeeBetween(BigDecimal value1, BigDecimal value2) {
+/* 537 */       addCriterion("VM_FEE between", value1, value2, "vmFee");
+/* 538 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmFeeNotBetween(BigDecimal value1, BigDecimal value2) {
+/* 542 */       addCriterion("VM_FEE not between", value1, value2, "vmFee");
+/* 543 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmPersonIsNull() {
+/* 547 */       addCriterion("VM_PERSON is null");
+/* 548 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmPersonIsNotNull() {
+/* 552 */       addCriterion("VM_PERSON is not null");
+/* 553 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmPersonEqualTo(String value) {
+/* 557 */       addCriterion("VM_PERSON =", value, "vmPerson");
+/* 558 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmPersonNotEqualTo(String value) {
+/* 562 */       addCriterion("VM_PERSON <>", value, "vmPerson");
+/* 563 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmPersonGreaterThan(String value) {
+/* 567 */       addCriterion("VM_PERSON >", value, "vmPerson");
+/* 568 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmPersonGreaterThanOrEqualTo(String value) {
+/* 572 */       addCriterion("VM_PERSON >=", value, "vmPerson");
+/* 573 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmPersonLessThan(String value) {
+/* 577 */       addCriterion("VM_PERSON <", value, "vmPerson");
+/* 578 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmPersonLessThanOrEqualTo(String value) {
+/* 582 */       addCriterion("VM_PERSON <=", value, "vmPerson");
+/* 583 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmPersonLike(String value) {
+/* 587 */       addCriterion("VM_PERSON like", value, "vmPerson");
+/* 588 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmPersonNotLike(String value) {
+/* 592 */       addCriterion("VM_PERSON not like", value, "vmPerson");
+/* 593 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmPersonIn(List<String> values) {
+/* 597 */       addCriterion("VM_PERSON in", values, "vmPerson");
+/* 598 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmPersonNotIn(List<String> values) {
+/* 602 */       addCriterion("VM_PERSON not in", values, "vmPerson");
+/* 603 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmPersonBetween(String value1, String value2) {
+/* 607 */       addCriterion("VM_PERSON between", value1, value2, "vmPerson");
+/* 608 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VehicleMaintenanceExample.Criteria andVmPersonNotBetween(String value1, String value2) {
+/* 612 */       addCriterion("VM_PERSON not between", value1, value2, "vmPerson");
+/* 613 */       return (VehicleMaintenanceExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.vehicle.VehicleMaintenanceExample
+ * JD-Core Version:    0.6.0
+ */

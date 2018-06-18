@@ -1,0 +1,145 @@
+/*     */ package com.xoa.util;
+/*     */ 
+/*     */ import com.xoa.model.enclosure.Attachment;
+/*     */ import com.xoa.service.enclosure.EnclosureService;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.PostConstruct;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Component;
+/*     */ 
+/*     */ @Component
+/*     */ public class GetAttachmentListUtil
+/*     */ {
+/*     */   public static final String MODULE_ATTEND = "attend";
+/*     */   public static final String MODULE_EMAIL = "email";
+/*     */   public static final String MODULE_WORKFLOW = "workflow";
+/*     */   public static final String MODULE_FILE_FOLDER = "file_folder";
+/*     */   public static final String MODULE_NOTIFY = "notify";
+/*     */   public static final String MODULE_NEWS = "news";
+/*     */   public static final String MODULE_DIARY = "diary";
+/*     */   public static final String MODULE_BBS = "bbs";
+/*     */   public static final String MODULE_BOOK = "book";
+/*     */   public static final String MODULE_CRM = "crm";
+/*     */   public static final String MODULE_DOCUMENT = "document";
+/*     */   public static final String MODULE_FAX = "fax";
+/*     */   public static final String MODULE_HR = "hr";
+/*     */   public static final String MODULE_MEETING = "meeting";
+/*     */   public static final String MODULE_OFFICE_PRODUCT = "office_product";
+/*     */   public static final String MODULE_PROJECT = "project";
+/*     */   public static final String MODULE_REPORTSHOP = "reportshop";
+/*     */   public static final String MODULE_ROLL_MANAGE = "roll_manage";
+/*     */   public static final String MODULE_SALE_MANAGE = "sale_manage";
+/*     */   public static final String MODULE_TRAINING = "training";
+/*     */   public static final String MODULE_VEHICLE = "vehicle";
+/*     */   public static final String MODULE_VOTE = "vote";
+/*     */   public static final String MODULE_WORK_PLAN = "work_plan";
+/*     */   public static final String MODULE_ZHIDAO = "zhidao";
+/*     */   public static final String MODULE_UNIT = "unit";
+/*     */   public static final String MODULE_MODEL = "model";
+/*     */   public static final String MODULE_IM = "im";
+/*     */   public static final String MODULE_EXT_DATA = "ext_data";
+/*     */   public static final String MODULE_ASSET = "asset";
+/*     */   public static final String MODULE_UNKNOWN = "unknown";
+/*     */   public static final String MODULE_ADDRESS = "address";
+/*     */   public static final String MODULE_VOICEMSG = "voicemsg";
+/*     */   public static final String MODULE_PORTAL = "portal";
+/*     */   public static final String MODULE_WEIXUNSHARE = "weixunshare";
+/*     */   public static final String MODULE_SAFEDOC = "safedoc";
+/*     */   public static final String MODULE_UPLOAD_TEMP = "upload_temp";
+/*     */   public static final String MODULE_ITASK = "itask";
+/*     */   public static final String MODULE_SYS = "sys";
+/*     */   public static final String MODULE_SUMMARY_MEET = "summary_meet";
+/*     */   public static final String MODULE_HRSTAFFCONTRACT = "hr_staffcontract";
+/*     */   public static final String MODULE_HRSTAFFINFO = "hr_staffinfo";
+/*     */   public static final String MODULE_SEAL = "seal";
+/*     */   public static final String MODULE_INTERFACE = "interface";
+/*     */   public static final String WE_CHAT = "wechat";
+/*     */   public static final String EMAIL_COUNT = "emailCount";
+/*     */   public static final String RMS_FILE = "rmsFile";
+/*     */   public static final String MODULE_USERJOB = "userjob";
+/*     */   public static final String MODULE_USERPOST = "userpost";
+/*     */ 
+/*     */   @Autowired
+/*     */   private EnclosureService enclosureService;
+/*     */   private static GetAttachmentListUtil getAttachmentListUtil;
+/*     */ 
+/*     */   @PostConstruct
+/*     */   public void init()
+/*     */   {
+/*  74 */     getAttachmentListUtil = this;
+/*  75 */     getAttachmentListUtil.enclosureService = this.enclosureService;
+/*     */   }
+/*     */ 
+/*     */   public static List<Attachment> returnAttachment(String attachmentName, String attachmentId, String sqlType, String module)
+/*     */   {
+/*  89 */     List list = new ArrayList();
+/*  90 */     if ((StringUtils.checkNull(attachmentId).booleanValue()) && (StringUtils.checkNull(attachmentName).booleanValue()))
+/*  91 */       return list;
+/*     */     try
+/*     */     {
+/*  94 */       if (attachmentId.contains("@")) {
+/*  95 */         String[] attachmentIds = attachmentId.split(",");
+/*  96 */         String[] attachmentNames = attachmentName.split("\\*");
+/*  97 */         int attachmentidLength = attachmentIds.length;
+/*  98 */         for (int i = 0; i < attachmentidLength; i++) {
+/*  99 */           Attachment attachment = getAttachmentListUtil.enclosureService.findByAttachId(Integer.valueOf(attachmentIds[i].substring(attachmentIds[i].indexOf("_") + 1, attachmentIds[i].length())).intValue());
+/* 100 */           if (attachment != null) {
+/* 101 */             attachment.setAttUrl("AID=" + attachment.getAid() + "&MODULE=" + module + "&COMPANY=" + sqlType + "&YM=" + attachment.getYm() + "&ATTACHMENT_ID=" + attachment.getAttachId() + "&ATTACHMENT_NAME=" + attachment.getAttachName());
+/* 102 */             StringBuffer id = new StringBuffer();
+/* 103 */             StringBuffer name = new StringBuffer();
+/* 104 */             int aid = attachment.getAid().intValue();
+/* 105 */             int attachId = attachment.getAttachId().intValue();
+/* 106 */             String ym = attachment.getYm();
+/* 107 */             String attachName = attachment.getAttachName();
+/* 108 */             String all = aid + "@" + ym + "_" + attachId;
+/* 109 */             id.append(all).append(",");
+/* 110 */             name.append(attachName).append("*");
+/* 111 */             attachment.setId(id.toString());
+/* 112 */             attachment.setName(name.toString());
+/* 113 */             list.add(attachment);
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */       else
+/*     */       {
+/* 119 */         String[] attachmentIds = attachmentId.split(",");
+/* 120 */         String[] attachmentNames = attachmentName.split("\\*");
+/* 121 */         int attachmentidLength = attachmentIds.length;
+/* 122 */         for (int i = 0; i < attachmentidLength; i++)
+/*     */         {
+/* 131 */           Attachment attachment = getAttachmentListUtil.enclosureService.findByAttachId(Integer.valueOf(attachmentIds[i].substring(attachmentIds[i].indexOf("_") + 1, attachmentIds[i].length())).intValue());
+/* 132 */           if (attachment != null) {
+/* 133 */             attachment.setAttUrl("AID=" + attachment.getAid() + "&MODULE=" + module + "&COMPANY=" + sqlType + "&YM=" + attachment.getYm() + "&ATTACHMENT_ID=" + attachment.getAttachId() + "&ATTACHMENT_NAME=" + attachment.getAttachName());
+/* 134 */             StringBuffer id = new StringBuffer();
+/* 135 */             StringBuffer name = new StringBuffer();
+/* 136 */             int aid = attachment.getAid().intValue();
+/* 137 */             int attachId = attachment.getAttachId().intValue();
+/* 138 */             String ym = attachment.getYm();
+/* 139 */             String attachName = attachment.getAttachName();
+/* 140 */             String all = aid + "@" + ym + "_" + attachId;
+/* 141 */             id.append(all).append(",");
+/* 142 */             name.append(attachName).append("*");
+/* 143 */             attachment.setId(id.toString());
+/* 144 */             attachment.setName(name.toString());
+/* 145 */             list.add(attachment);
+/* 146 */             list.add(attachment);
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 154 */       e.printStackTrace();
+/*     */     }
+/*     */ 
+/* 157 */     return list;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.GetAttachmentListUtil
+ * JD-Core Version:    0.6.0
+ */

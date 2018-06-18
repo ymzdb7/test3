@@ -1,0 +1,201 @@
+/*     */ package com.xoa.controller.officeSupplies;
+/*     */ 
+/*     */ import com.xoa.dao.officesupplies.OfficeDepositoryMapper;
+/*     */ import com.xoa.model.officesupplies.OfficeDepositoryWithBLOBs;
+/*     */ import com.xoa.model.officesupplies.OfficeProductsWithBLOBs;
+/*     */ import com.xoa.model.officesupplies.OfficeType;
+/*     */ import com.xoa.service.officesupplies.OfficeProductService;
+/*     */ import com.xoa.service.officesupplies.OfficeTypeService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/officeSupplies"})
+/*     */ public class OfficeSuppliesController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private OfficeProductService officeProductService;
+/*     */ 
+/*     */   @Resource
+/*     */   private OfficeTypeService officeTypeService;
+/*     */ 
+/*     */   @Resource
+/*     */   private OfficeDepositoryMapper officeDepositoryMapper;
+/*     */ 
+/*     */   @RequestMapping({"/info"})
+/*     */   public String info(HttpServletRequest request)
+/*     */   {
+/*  38 */     return "app/officeSupplies/infoQuery";
+/*     */   }
+/*  42 */   @RequestMapping({"/infoManage"})
+/*     */   public String manage(HttpServletRequest request) { return "app/officeSupplies/infoManage"; } 
+/*     */   @RequestMapping({"/librarySet"})
+/*     */   public String librarySet(HttpServletRequest request) {
+/*  46 */     return "app/officeSupplies/librarySet";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/goOfficeList"})
+/*     */   public String goOfficeList(String typeId, Map<String, Object> map)
+/*     */   {
+/*  56 */     map.put("typeId", typeId);
+/*  57 */     return "app/officeSupplies/Information/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/goInfomationHome"})
+/*     */   public String goInfomationHome()
+/*     */   {
+/*  68 */     return "app/officeSupplies/Information/fileHome";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/goOfficeQuery"})
+/*     */   public String goOfficeList()
+/*     */   {
+/*  80 */     return "app/officeSupplies/Information/query";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/goimport"})
+/*     */   public String goimport()
+/*     */   {
+/*  91 */     return "app/officeSupplies/Information/import";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/newProduct"})
+/*     */   public String goNewProduct(String editFlag, int proId, Map<String, Object> map)
+/*     */   {
+/* 101 */     map.put("editFlag", editFlag);
+/* 102 */     map.put("proId", Integer.valueOf(proId));
+/* 103 */     return "app/officeSupplies/Information/newProduct";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/goProductApply"})
+/*     */   public String goProductApply()
+/*     */   {
+/* 113 */     return "app/officeSupplies/product/fileHome";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/goOfficeTypeList"})
+/*     */   public String goOfficeTypeList(String typeDepository, Map<String, Object> map)
+/*     */   {
+/* 124 */     map.put("typeDepository", typeDepository);
+/* 125 */     return "app/officeSupplies/offType/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/addOfficeProducts"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> addOfficeProducts(OfficeProductsWithBLOBs officeProductsWithBLOBs)
+/*     */   {
+/* 136 */     return this.officeProductService.addOfficeProducts(officeProductsWithBLOBs);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/editOfficeProducts"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> editOfficeProducts(OfficeProductsWithBLOBs officeProductsWithBLOBs)
+/*     */   {
+/* 147 */     return this.officeProductService.editOfficeProducts(officeProductsWithBLOBs);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getOfficeProductById"})
+/*     */   @ResponseBody
+/*     */   public ToJson<OfficeProductsWithBLOBs> getOfficeProductById(Integer proId)
+/*     */   {
+/* 158 */     return this.officeProductService.getOfficeProductById(proId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/deleteOfficeProductById"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> deleteOfficeProductById(Integer proId)
+/*     */   {
+/* 170 */     return this.officeProductService.deleteOfficeProductById(proId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/deleteOfficeProducts"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> deleteOfficeProducts(String[] proIds)
+/*     */   {
+/* 181 */     return this.officeProductService.deleteOfficeProducts(proIds);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/selectOfficeProducts"})
+/*     */   @ResponseBody
+/*     */   public ToJson<OfficeProductsWithBLOBs> selectOfficeProducts(HttpServletRequest request, HttpServletResponse response, String id, String typeId, String proId, String export)
+/*     */   {
+/* 192 */     return this.officeProductService.selectOfficeProducts(request, response, id, typeId, proId, export);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/importOfficeProducts"})
+/*     */   public ToJson<Object> importOfficeProducts(MultipartFile file, HttpServletRequest request, HttpServletResponse response, HttpSession session)
+/*     */   {
+/* 204 */     return this.officeProductService.importOfficeProducts(file, request, response, session);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/editOfficeType"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> editOfficeType(OfficeType OfficeType)
+/*     */   {
+/* 215 */     return this.officeTypeService.editOfficeType(OfficeType);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/deleteOfficeTypeById"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> deleteOfficeTypeById(Integer id)
+/*     */   {
+/* 226 */     return this.officeTypeService.deleteOfficeTypeById(id);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selDepositoryByDept"})
+/*     */   public ToJson<OfficeDepositoryWithBLOBs> selDepositoryByDept(HttpServletRequest request)
+/*     */   {
+/* 239 */     return this.officeProductService.selDepositoryByDept(request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selProductByType"})
+/*     */   public ToJson<OfficeProductsWithBLOBs> selProductByType(String typeId)
+/*     */   {
+/* 252 */     return this.officeProductService.selProductByType(typeId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/addOffType"})
+/*     */   public ToJson<Object> addOffType(OfficeType officeType)
+/*     */   {
+/* 263 */     return this.officeTypeService.addOfficeType(officeType);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectAllOffType"})
+/*     */   public ToJson<OfficeType> selectAllOffType(HttpServletRequest request, String typeDepository)
+/*     */   {
+/* 274 */     return this.officeTypeService.selectAllOffType(request, typeDepository);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getOfficeTypeById"})
+/*     */   public ToJson<OfficeType> getOfficeTypeById(Integer id)
+/*     */   {
+/* 285 */     return this.officeTypeService.getOfficeTypeById(id);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getInfo"})
+/*     */   public ToJson<OfficeProductsWithBLOBs> getInfo(HttpServletRequest request)
+/*     */   {
+/* 296 */     return this.officeProductService.getInfo(request);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.officeSupplies.OfficeSuppliesController
+ * JD-Core Version:    0.6.0
+ */

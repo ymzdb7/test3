@@ -1,0 +1,381 @@
+package com.xoa.controller.sys;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.xoa.dao.common.SecureLogMapper;
+import com.xoa.dao.common.SysParaMapper;
+import com.xoa.model.common.SecureLog;
+import com.xoa.model.common.SysPara;
+import com.xoa.model.notify.Notify;
+import com.xoa.model.users.Users;
+import com.xoa.service.sys.InterFaceService;
+import com.xoa.service.syspara.SysParaNotifyService;
+import com.xoa.service.users.UsersPrivService;
+import com.xoa.service.users.UsersService;
+import com.xoa.util.AjaxJson;
+import com.xoa.util.Constant;
+import com.xoa.util.ToJson;
+import com.xoa.util.common.StringUtils;
+import com.xoa.util.common.session.SessionUtils;
+import com.xoa.util.common.wrapper.BaseWrapper;
+import com.xoa.util.dataSource.ContextHolder;
+import com.xoa.util.ipUtil.IpAddr;
+import java.net.InetAddress;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import org.apache.commons.codec.digest.Md5Crypt;
+import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@RequestMapping({ "/sys" })
+public class sysController {
+	private Logger loger = Logger.getLogger(sysController.class);
+
+	@Resource
+	private SysParaMapper sysParaMapper;
+
+	@Resource
+	private SecureLogMapper secureLogMapper;
+
+	@Resource
+	private UsersService usersService;
+
+	@Resource
+	UsersPrivService usersPrivService;
+
+	@Resource
+	SysParaNotifyService sysParaNotifyService;
+
+	@Resource
+	InterFaceService interFaceService;
+
+	@RequestMapping({ "/organizational" })
+	public String companyInfo(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA + (String) request.getSession().getAttribute("loginDateSouse"));
+		 return "app/sys/Organizational";
+	}
+
+	@RequestMapping({ "/statusBar" })
+	public String statusBar(HttpServletRequest request) {
+		/* 80 */ ContextHolder.setConsumerType(Constant.MYOA + (String) request.getSession().getAttribute("loginDateSouse"));
+
+		/* 82 */ return "app/sys/statusBar";
+	}
+
+	/* 86 */ @RequestMapping({ "/sysInfo" })
+	public String sysInfo(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA + (String) request.getSession().getAttribute("loginDateSouse"));
+
+		/* 88 */ return "app/sys/sysInfo";
+	}
+
+	@RequestMapping({ "/interfaceSettings" })
+	public String interfaceSettings(HttpServletRequest request) {
+		/* 92 */ ContextHolder.setConsumerType(Constant.MYOA + (String) request.getSession().getAttribute("loginDateSouse"));
+
+		/* 94 */ return "app/sys/interfaceSettings";
+	}
+
+	/* 98 */ @RequestMapping({ "/menuSetting" })
+	public String menuSetting(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA + (String) request.getSession().getAttribute("loginDateSouse"));
+
+		/* 100 */ return "app/sys/menuSetting";
+	}
+
+	@RequestMapping({ "/userInfor" })
+	public String userInfor(HttpServletRequest request) {
+		/* 105 */ ContextHolder.setConsumerType(Constant.MYOA + (String) request.getSession().getAttribute("loginDateSouse"));
+
+		/* 107 */ return "app/sys/userInfor";
+	}
+
+	/* 111 */ @RequestMapping({ "/userDetails" })
+	public String userDetails(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA + (String) request.getSession().getAttribute("loginDateSouse"));
+
+		/* 113 */ return "app/sys/userDetails";
+	}
+
+	@RequestMapping({ "/underdevelopment" })
+	public String underdevelopment(HttpServletRequest request) {
+		/* 117 */ ContextHolder.setConsumerType(Constant.MYOA + (String) request.getSession().getAttribute("loginDateSouse"));
+
+		/* 119 */ return "app/sys/underdevelopment";
+	}
+
+	/* 123 */ @RequestMapping({ "/secure_rule" })
+	public String secure_rule(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA + (String) request.getSession().getAttribute("loginDateSouse"));
+
+		/* 125 */ return "app/sys/secure_rule";
+	}
+
+	@RequestMapping({ "/secureIndex" })
+	public String secureIndex(HttpServletRequest request, Map<String, Object> map) {
+		/* 129 */ Users users = (Users) SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+		/* 130 */ String sy = (String) SessionUtils.getSessionInfo(request.getSession(), "sysuperPwd", String.class);
+		/* 131 */ if (StringUtils.checkNull(sy).booleanValue()) {
+			/* 132 */ map.put("sign", Integer.valueOf(0));
+			/* 133 */ if (users.getUserId().equals("admin")) {
+				/* 134 */ return "app/sys/secureIndex";
+			}
+			/* 136 */ return "app/common/development";
+		}
+
+		/* 139 */ map.put("sign", Integer.valueOf(1));
+		/* 140 */ if (users.getUserId().equals("admin")) {
+			/* 141 */ return "app/sys/secureIndex";
+		}
+		/* 143 */ return "app/common/development";
+	}
+
+	@RequestMapping({ "/checkpwd" })
+	@ResponseBody
+	public AjaxJson checkpwd(HttpServletRequest request, String password, Map<String, Object> map) {
+		/* 151 */ AjaxJson ajaxJson = new AjaxJson();
+		try {
+			/* 153 */ SysPara sysPara = this.sysParaMapper.querySysPara("SECURE_SUPER_PASS");
+			/* 154 */ String sypwd = sysPara.getParaValue();
+			/* 155 */ if ((StringUtils.checkNull(password).booleanValue()) &&
+			/* 156 */ (sypwd.equals("tVHbkPWW57Hw."))) {
+				/* 157 */ SessionUtils.putSession(request.getSession(), "sysuperPwd", sypwd);
+				/* 158 */ ajaxJson.setMsg("OK");
+				/* 159 */ ajaxJson.setFlag(true);
+				/* 160 */ return ajaxJson;
+			}
+
+			/* 163 */ String md5Password = Md5Crypt.md5Crypt(password.getBytes(), sypwd);
+			/* 164 */ if (sypwd.equals(md5Password)) {
+				/* 165 */ if (password == "") {
+					/* 166 */ password = "OK";
+				}
+				/* 168 */ SessionUtils.putSession(request.getSession(), "sysuperPwd", password);
+				/* 169 */ ajaxJson.setMsg("OK");
+				/* 170 */ ajaxJson.setFlag(true);
+				/* 171 */ return ajaxJson;
+			}
+			/* 173 */ ajaxJson.setFlag(false);
+			/* 174 */ ajaxJson.setMsg("false");
+		} catch (Exception e) {
+			/* 176 */ e.printStackTrace();
+			/* 177 */ ajaxJson.setFlag(false);
+			/* 178 */ ajaxJson.setMsg("false");
+		}
+		/* 180 */ return ajaxJson;
+	}
+
+	@RequestMapping({ "/secureRule" })
+	public String secureRule(HttpServletRequest request) {
+		/* 185 */ ContextHolder.setConsumerType(Constant.MYOA + (String) request.getSession().getAttribute("loginDateSouse"));
+
+		/* 187 */ return "app/sys/secureRule";
+	}
+
+	/* 191 */ @RequestMapping({ "/secureManager" })
+	public String secureManager(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA + (String) request.getSession().getAttribute("loginDateSouse"));
+
+		/* 193 */ return "app/sys/secureManager";
+	}
+
+	@RequestMapping({ "/getSecureRule" })
+	public String getSecureRule() {
+		/* 198 */ return "app/sys/seIndex2";
+	}
+
+	@RequestMapping({ "/secureIndex1" })
+	public String secure1(HttpServletRequest request) {
+		/* 203 */ return "app/sys/seIndex";
+	}
+
+	@RequestMapping({ "/secureIndex3" })
+	public String secure3(HttpServletRequest request) {
+		/* 208 */ return "app/sys/index3";
+	}
+
+	@RequestMapping({ "/setSuperPwd" })
+	public String setSuperPwd(HttpServletRequest request) {
+		/* 213 */ return "app/sys/setSysSuperPassword";
+	}
+
+	/* 219 */ @RequestMapping({ "/savesy" })
+	@ResponseBody
+	public AjaxJson savesy(HttpServletRequest request, String swith, String syser, String safer, String auditor,
+			String userPriv) {
+		AjaxJson ajaxJson = new AjaxJson();
+		/* 220 */ JSONObject jsonObject = new JSONObject();
+		/* 221 */ jsonObject.put("swith", swith);
+		/* 222 */ jsonObject.put("syser", syser);
+		/* 223 */ jsonObject.put("safer", safer);
+		/* 224 */ jsonObject.put("auditor", auditor);
+		/* 225 */ jsonObject.put("userPriv", userPriv);
+		/* 226 */ String secureSwitch = jsonObject.toString();
+		/* 227 */ SysPara sysPara = new SysPara();
+		/* 228 */ sysPara.setParaName("SECURE_SWITCH");
+		/* 229 */ sysPara.setParaValue(secureSwitch);
+		try {
+			/* 231 */ this.sysParaMapper.updateSysPara(sysPara);
+			/* 232 */ SecureLog secureLog = new SecureLog();
+			/* 233 */ if (swith.equals("1")) {
+				/* 234 */ String remark = "启用三员安全管理";
+				/* 235 */ secureLog.setRemark(remark);
+			}
+			/* 237 */ if (swith.equals("0")) {
+				/* 238 */ String remark = "关闭三员安全管理";
+				/* 239 */ secureLog.setRemark(remark);
+			}
+			/* 241 */ Date date = new Date();
+			/* 242 */ long time = date.getTime();
+			/* 243 */ int i1 = Math.abs((int) time);
+			/* 244 */ secureLog.setLogTime(Integer.valueOf(i1));
+			/* 245 */ InetAddress currentIp = IpAddr.getCurrentIp();
+			/* 246 */ secureLog.setIp(currentIp.toString().substring(1, currentIp.toString().length()));
+
+			/* 248 */ Users users = (Users) SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+			/* 249 */ Integer uid = users.getUid();
+			/* 250 */ secureLog.setUid(uid);
+			/* 251 */ int i2 = this.secureLogMapper.insertSelective(secureLog);
+			/* 252 */ ajaxJson.setFlag(true);
+			/* 253 */ ajaxJson.setMsg("true");
+		} catch (Exception e) {
+			/* 257 */ e.printStackTrace();
+			/* 258 */ ajaxJson.setFlag(false);
+			/* 259 */ ajaxJson.setMsg(e.getMessage());
+		}
+		/* 261 */ return ajaxJson;
+	}
+
+	@RequestMapping({ "/checkSy" })
+	@ResponseBody
+	public AjaxJson checkSy(HttpServletRequest request) {
+		/* 267 */ AjaxJson ajaxJson = new AjaxJson();
+		/* 268 */ SysPara sysPara = this.sysParaMapper.querySysPara("SECURE_SWITCH");
+		/* 269 */ String paraValue = sysPara.getParaValue();
+		/* 270 */ Map param = new HashMap();
+		/* 271 */ JSONArray json = new JSONArray();
+		/* 272 */ param = (Map) JSONArray.parseObject(paraValue, Map.class);
+		/* 273 */ String swith = (String) param.get("swith");
+		/* 274 */ String syser = (String) param.get("syser");
+		/* 275 */ String safer = (String) param.get("safer");
+		/* 276 */ String auditor = (String) param.get("auditor");
+		/* 277 */ String userPriv = (String) param.get("userPriv");
+		/* 278 */ List syserList = this.usersService.getUserByuId(syser);
+		/* 279 */ List saferList = this.usersService.getUserByuId(safer);
+		/* 280 */ List auditorList = this.usersService.getUserByuId(auditor);
+		/* 281 */ Map map = new HashMap();
+		/* 282 */ map.put("syser", syserList);
+		/* 283 */ map.put("safer", saferList);
+		/* 284 */ map.put("auditor", auditorList);
+		/* 285 */ map.put("switch", swith);
+		/* 286 */ map.put("userPriv", userPriv);
+		/* 287 */ ajaxJson.setAttributes(map);
+		/* 288 */ return ajaxJson;
+	}
+
+	@RequestMapping({ "/checkSuperPwd" })
+	@ResponseBody
+	public AjaxJson checkSuperPwd(String password, HttpServletRequest request) {
+		/* 301 */ AjaxJson ajaxJson = new AjaxJson();
+		try {
+			/* 303 */ SysPara sysPara = this.sysParaMapper.querySysPara("SECURE_SUPER_PASS");
+			/* 304 */ String paraValue = sysPara.getParaValue();
+			/* 305 */ String md5Password = Md5Crypt.md5Crypt(password.getBytes(), paraValue);
+			/* 306 */ if (paraValue.equals(md5Password)) {
+				/* 307 */ ajaxJson.setFlag(false);
+				/* 308 */ ajaxJson.setMsg("OK");
+			} else {
+				/* 310 */ ajaxJson.setFlag(true);
+				/* 311 */ ajaxJson.setMsg("false");
+			}
+		} catch (Exception e) {
+			/* 314 */ e.printStackTrace();
+			/* 315 */ ajaxJson.setMsg(e.getMessage());
+			/* 316 */ ajaxJson.setFlag(false);
+		}
+		/* 318 */ return ajaxJson;
+	}
+
+	@RequestMapping({ "/updateSuperPwd" })
+	@ResponseBody
+	public AjaxJson updateSuperPwd(String password, HttpServletRequest request) {
+		/* 332 */ AjaxJson ajaxJson = new AjaxJson();
+		try {
+			/* 334 */ SysPara sysPara = new SysPara();
+			/* 335 */ sysPara.setParaName("SECURE_SUPER_PASS");
+			/* 336 */ sysPara.setParaValue(this.usersService.getEncryptString(password.trim()));
+			/* 337 */ SessionUtils.putSession(request.getSession(), "sysuperPwd", "");
+			/* 338 */ this.sysParaMapper.updateSysPara(sysPara);
+			/* 339 */ ajaxJson.setFlag(true);
+			/* 340 */ ajaxJson.setMsg("OK");
+		} catch (Exception e) {
+			/* 342 */ e.printStackTrace();
+			/* 343 */ ajaxJson.setMsg(e.getMessage());
+			/* 344 */ ajaxJson.setFlag(false);
+		}
+		/* 346 */ return ajaxJson;
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/editNotify" })
+	public ToJson<Object> editNotify(String singls, String manager, String edit, String userIds) {
+		/* 362 */ return this.sysParaNotifyService.editNotify(singls, manager, edit, userIds);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selectNotify" })
+	public ToJson<Object> selectNotify() {
+		/* 374 */ return this.sysParaNotifyService.selectNotify();
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getDeptManagers" })
+	public ToJson<Object> getDeptManagers(HttpServletRequest request) {
+		/* 386 */ return this.sysParaNotifyService.getDeptManagers(request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getApprovedNotifyList" })
+	public ToJson<Notify> getApprovedNotifyList(String typeId, Integer start, Integer size,
+			@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize,
+			@RequestParam("useFlag") Boolean useFlag) {
+		/* 404 */ return this.sysParaNotifyService.getApprovedNotifyList(typeId, start, size, page, pageSize, useFlag);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getPendingNotifyList" })
+	public ToJson<Notify> getPendingNotifyList(String typeId, Integer start, Integer size,
+			@RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize,
+			@RequestParam("useFlag") Boolean useFlag) {
+		/* 422 */ return this.sysParaNotifyService.getPendingNotifyList(typeId, start, size, page, pageSize, useFlag);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getNotifyTypeList" })
+	public ToJson<Object> getNotifyTypeList() {
+		 return this.sysParaNotifyService.getNotifyTypeList();
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getNotifyCode" })
+	public ToJson<Object> getNotifyCode() {
+		return this.sysParaNotifyService.getNotifyCode();
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/pushMessage" })
+	public BaseWrapper pushMessage(String userId, String app, HttpServletRequest request, String title, String content)
+			throws JSONException {
+	    return this.interFaceService.pushMessage(userId, app, request, title, content);
+	}
+}

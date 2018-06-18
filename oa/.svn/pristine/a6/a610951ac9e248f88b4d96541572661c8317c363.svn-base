@@ -1,0 +1,1007 @@
+/*      */ package com.xoa.service.edu.voteTitle.impl;
+/*      */ 
+/*      */ import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+/*      */ import com.xoa.dao.common.SysCodeMapper;
+/*      */ import com.xoa.dao.edu.voteItem.VoteItemMapper;
+/*      */ import com.xoa.dao.edu.voteTitle.VoteTitleMapper;
+/*      */ import com.xoa.dao.sms.SmsMapper;
+/*      */ import com.xoa.dao.users.UsersMapper;
+/*      */ import com.xoa.model.common.SysCode;
+/*      */ import com.xoa.model.edu.voteItem.VoteItem;
+/*      */ import com.xoa.model.edu.voteTitle.VoteTitle;
+/*      */ import com.xoa.model.sms.SmsBody;
+/*      */ import com.xoa.model.users.Users;
+/*      */ import com.xoa.service.department.DepartmentService;
+/*      */ import com.xoa.service.edu.voteTitle.IVoteTitleService;
+/*      */ import com.xoa.service.sms.SmsService;
+/*      */ import com.xoa.service.users.UsersPrivService;
+/*      */ import com.xoa.service.users.UsersService;
+/*      */ import com.xoa.util.AjaxJson;
+/*      */ import com.xoa.util.DateFormat;
+/*      */ import com.xoa.util.ToJson;
+/*      */ import com.xoa.util.common.L;
+/*      */ import com.xoa.util.common.session.SessionUtils;
+/*      */ import com.xoa.util.page.PageParams;
+/*      */ import java.text.SimpleDateFormat;
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.Arrays;
+/*      */ import java.util.Date;
+/*      */ import java.util.HashMap;
+/*      */ import java.util.HashSet;
+/*      */ import java.util.List;
+/*      */ import java.util.Map;
+/*      */ import java.util.Set;
+/*      */ import javax.annotation.Resource;
+/*      */ import javax.servlet.http.HttpServletRequest;
+/*      */ import javax.servlet.http.HttpSession;
+/*      */ import org.springframework.beans.factory.annotation.Autowired;
+/*      */ import org.springframework.stereotype.Service;
+/*      */ 
+/*      */ @Service
+/*      */ public class VoteTitleServiceImpl extends ServiceImpl<VoteTitleMapper, VoteTitle>
+/*      */   implements IVoteTitleService
+/*      */ {
+/*      */ 
+/*      */   @Autowired
+/*      */   VoteTitleMapper voteTitleMapper;
+/*      */ 
+/*      */   @Autowired
+/*      */   SysCodeMapper sysCodeMapper;
+/*      */ 
+/*      */   @Autowired
+/*      */   DepartmentService departmentService;
+/*      */ 
+/*      */   @Autowired
+/*      */   UsersMapper usersMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private SmsService smsService;
+/*      */ 
+/*      */   @Autowired
+/*      */   SmsMapper smsMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   UsersPrivService usersPrivService;
+/*      */ 
+/*      */   @Resource
+/*      */   UsersService usersService;
+/*      */ 
+/*      */   @Resource
+/*      */   VoteItemMapper voteItemMapper;
+/*      */ 
+/*      */   public ToJson<VoteTitle> getVoteTitleList(HttpServletRequest request, VoteTitle voteTitle, Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*      */   {
+/*   83 */     ToJson toJson = new ToJson(1, "error");
+/*   84 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*   85 */     PageParams pageParams = new PageParams();
+/*   86 */     pageParams.setPage(page);
+/*   87 */     pageParams.setPageSize(pageSize);
+/*   88 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*   89 */     maps.put("page", pageParams);
+/*   90 */     int getcount = 0;
+/*      */     try {
+/*   92 */       if ((voteTitle.getSendTime() == null) || (voteTitle.getSendTime() == "")) {
+/*   93 */         voteTitle.setSendTime(DateFormat.getCurrentTime());
+/*      */       }
+/*   95 */       if ((voteTitle.getEndDate() == null) || (voteTitle.getEndDate() == "0000-00-00")) {
+/*   96 */         voteTitle.setEndDate(DateFormat.getCurrentTime());
+/*      */       }
+/*   98 */       List<VoteTitle> list = this.voteTitleMapper.getVoteTitleList(maps);
+/*   99 */       String viewResult = null;
+/*      */ 
+/*  101 */       for (VoteTitle voteTitle1 : list) {
+/*  102 */         voteTitle1.setSendTime(org.apache.commons.lang.StringUtils.substring(voteTitle1.getSendTime(), 0, voteTitle1.getSendTime().length() - 10));
+/*      */ 
+/*  113 */         String toID = this.departmentService.getDeptNameByDeptId(voteTitle1.getToId(), ",");
+/*  114 */         voteTitle1.setToDeptName(toID);
+/*      */ 
+/*  116 */         String privId = this.usersPrivService.getPrivNameByPrivId(voteTitle1.getPrivId(), ",");
+/*  117 */         voteTitle1.setToPrivName(privId);
+/*      */ 
+/*  119 */         String userId = this.usersService.getUserNameById(voteTitle1.getUserId(), ",");
+/*  120 */         voteTitle1.setToUserName(userId);
+/*      */ 
+/*  122 */         String viewResultPrivId = this.usersPrivService.getPrivNameByPrivId(voteTitle1.getViewResultPrivId(), ",");
+/*  123 */         voteTitle1.setViewResultPrivId(viewResultPrivId);
+/*      */ 
+/*  125 */         String viewResultUserId = this.usersService.getUserNameById(voteTitle1.getViewResultUserId(), ",");
+/*  126 */         voteTitle1.setViewResultUserId(viewResultUserId);
+/*      */       }
+/*      */ 
+/*  129 */       getcount = this.voteTitleMapper.getcount();
+/*      */ 
+/*  131 */       if (list != null) {
+/*  132 */         toJson.setObj(list);
+/*  133 */         toJson.setTotleNum(Integer.valueOf(getcount));
+/*  134 */         toJson.setMsg("ok");
+/*      */       } else {
+/*  136 */         toJson.setMsg("列表为空");
+/*      */       }
+/*  138 */       toJson.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  140 */       e.printStackTrace();
+/*  141 */       toJson.setMsg(e.getMessage());
+/*  142 */       L.e(new Object[] { "VoteTitleServiceImpl getVoteTitleList:" + e });
+/*      */     }
+/*  144 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson getVoteTitleListOner(HttpServletRequest request, VoteTitle voteTitle, Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*      */   {
+/*  149 */     ToJson json = new ToJson();
+/*      */     try {
+/*  151 */       PageParams pageParams = new PageParams();
+/*  152 */       pageParams.setPage(page);
+/*  153 */       pageParams.setPageSize(pageSize);
+/*  154 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  155 */       maps.put("page", pageParams);
+/*      */ 
+/*  157 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  158 */       user = this.usersMapper.getUsersByuserId(user.getUserId());
+/*  159 */       List list = this.voteTitleMapper.getVoteTitleList(maps);
+/*      */ 
+/*  161 */       for (int i = 0; i < list.size(); i++) {
+/*  162 */         VoteTitle voteTitle1 = (VoteTitle)list.get(i);
+/*  163 */         if (voteTitle1 != null) {
+/*  164 */           String toId = voteTitle1.getToId();
+/*  165 */           String privId = voteTitle1.getPrivId();
+/*  166 */           String userId = voteTitle1.getUserId();
+/*  167 */           String viewResultPrivId = voteTitle1.getViewResultPrivId();
+/*  168 */           String viewResultUserId = voteTitle1.getViewResultUserId();
+/*  169 */           String[] toIds = null; String[] privIds = null; String[] userIds = null; String[] viewResultPrivIds = null; String[] viewResultUserIds = null;
+/*  170 */           if (toId != null) {
+/*  171 */             toIds = toId.split(",");
+/*      */           }
+/*  173 */           if (privId != null) {
+/*  174 */             privIds = privId.split(",");
+/*      */           }
+/*  176 */           if (userId != null) {
+/*  177 */             userIds = userId.split(",");
+/*      */           }
+/*  179 */           if (viewResultPrivId != null) {
+/*  180 */             viewResultPrivIds = viewResultPrivId.split(",");
+/*      */           }
+/*  182 */           if (viewResultUserId != null) {
+/*  183 */             viewResultUserIds = viewResultUserId.split(",");
+/*      */           }
+/*  185 */           if (toIds != null) {
+/*  186 */             if ((Arrays.asList(toIds).contains(user.getDeptId())) || 
+/*  187 */               (privIds == null) || 
+/*  188 */               (Arrays.asList(privIds).contains(user.getUid())) || 
+/*  189 */               (userIds == null) || 
+/*  190 */               (Arrays.asList(userIds).contains(user.getUserId())) || 
+/*  191 */               (viewResultPrivIds == null) || 
+/*  192 */               (Arrays.asList(viewResultPrivIds).contains(user.getUid())) || 
+/*  193 */               (viewResultUserIds == null) || 
+/*  194 */               (Arrays.asList(viewResultUserIds).contains(user.getUserId()))) continue;
+/*  195 */             list.remove(i);
+/*      */           }
+/*  206 */           else if (privIds != null) {
+/*  207 */             if ((Arrays.asList(privIds).contains(user.getUid())) || 
+/*  208 */               (userIds == null) || 
+/*  209 */               (Arrays.asList(userIds).contains(user.getUserId())) || 
+/*  210 */               (viewResultPrivIds == null) || 
+/*  211 */               (Arrays.asList(viewResultPrivIds).contains(user.getUid())) || 
+/*  212 */               (viewResultUserIds == null) || 
+/*  213 */               (Arrays.asList(viewResultUserIds).contains(user.getUserId()))) continue;
+/*  214 */             list.remove(i);
+/*      */           }
+/*  223 */           else if (userIds != null) {
+/*  224 */             if ((Arrays.asList(userIds).contains(user.getUserId())) || 
+/*  225 */               (viewResultPrivIds == null) || 
+/*  226 */               (Arrays.asList(viewResultPrivIds).contains(user.getUid())) || 
+/*  227 */               (viewResultUserIds == null) || 
+/*  228 */               (Arrays.asList(viewResultUserIds).contains(user.getUserId()))) continue;
+/*  229 */             list.remove(i);
+/*      */           }
+/*  236 */           else if (viewResultPrivIds != null) {
+/*  237 */             if ((Arrays.asList(viewResultPrivIds).contains(user.getUid())) || 
+/*  238 */               (viewResultUserIds == null) || 
+/*  239 */               (Arrays.asList(viewResultUserIds).contains(user.getUserId()))) continue;
+/*  240 */             list.remove(i);
+/*      */           }
+/*      */           else
+/*      */           {
+/*  245 */             if ((viewResultUserIds == null) || 
+/*  246 */               (Arrays.asList(viewResultUserIds).contains(user.getUserId()))) continue;
+/*  247 */             list.remove(i);
+/*      */           }
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  253 */       if (list.size() > 0) {
+/*  254 */         json.setObj(list);
+/*  255 */         json.setMsg("ok");
+/*  256 */         json.setTotleNum(pageParams.getTotal());
+/*  257 */         json.setFlag(0);
+/*  258 */         return json;
+/*      */       }
+/*  260 */       json.setFlag(0);
+/*  261 */       json.setMsg("err");
+/*      */     } catch (Exception e) {
+/*  263 */       e.printStackTrace();
+/*      */     }
+/*  265 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<VoteTitle> newVoteTitle(HttpServletRequest request, VoteTitle voteTitle)
+/*      */   {
+/*  270 */     ToJson toJson = new ToJson(1, "error");
+/*  271 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*      */     try {
+/*  273 */       if (voteTitle.getParentId() == null) {
+/*  274 */         voteTitle.setParentId(Integer.valueOf(0));
+/*      */       }
+/*  276 */       if (com.xoa.util.common.StringUtils.checkNull(voteTitle.getBeginDate()).booleanValue()) {
+/*  277 */         voteTitle.setBeginDate(DateFormat.getCurrentTime2());
+/*      */       }
+/*  279 */       if (com.xoa.util.common.StringUtils.checkNull(voteTitle.getEndDate()).booleanValue()) {
+/*  280 */         voteTitle.setEndDate(DateFormat.getCurrentTime2());
+/*      */       }
+/*  282 */       if (com.xoa.util.common.StringUtils.checkNull(voteTitle.getSendTime()).booleanValue()) {
+/*  283 */         voteTitle.setSendTime(DateFormat.getCurrentTime());
+/*      */       }
+/*  285 */       voteTitle.setFromId(users.getUserId());
+/*  286 */       int a = this.voteTitleMapper.newVoteTitle(voteTitle);
+/*  287 */       if (a > 0) {
+/*  288 */         toJson.setMsg("新建成功");
+/*  289 */         toJson.setObject(voteTitle.getVoteId());
+/*  290 */         toJson.setFlag(0);
+/*      */       } else {
+/*  292 */         toJson.setMsg("新建失败");
+/*  293 */         toJson.setFlag(1);
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  296 */       e.printStackTrace();
+/*  297 */       toJson.setMsg(e.getMessage());
+/*  298 */       L.e(new Object[] { "VoteTitleServiceImpl newVoteTitle:" + e });
+/*      */     }
+/*  300 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<VoteTitle> updateVoteTitle(HttpServletRequest request, VoteTitle voteTitle)
+/*      */   {
+/*  305 */     ToJson toJson = new ToJson(1, "error");
+/*  306 */     VoteTitle voteTitle1 = new VoteTitle();
+/*  307 */     SmsBody smsBody = new SmsBody();
+/*      */     try {
+/*  309 */       if (voteTitle.getParentId() == null) {
+/*  310 */         voteTitle.setParentId(Integer.valueOf(0));
+/*      */       }
+/*  312 */       if (voteTitle.getBeginDate() == null) {
+/*  313 */         voteTitle.setBeginDate(DateFormat.getCurrentTime());
+/*      */       }
+/*  315 */       if (voteTitle.getEndDate() == null) {
+/*  316 */         voteTitle.setEndDate(DateFormat.getCurrentTime());
+/*      */       }
+/*  318 */       if (voteTitle.getSendTime() == null) {
+/*  319 */         voteTitle.setSendTime(DateFormat.getCurrentTime());
+/*      */       }
+/*  321 */       int a = this.voteTitleMapper.updateVoteTitle(voteTitle);
+/*  322 */       if (a > 0) {
+/*  323 */         toJson.setMsg("修改成功");
+/*  324 */         toJson.setFlag(0);
+/*      */       } else {
+/*  326 */         toJson.setMsg("修改失败");
+/*  327 */         toJson.setFlag(1);
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  330 */       e.printStackTrace();
+/*  331 */       toJson.setMsg(e.getMessage());
+/*  332 */       L.e(new Object[] { "VoteTitleServiceImpl updateVoteTitle:" + e });
+/*      */     }
+/*  334 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<VoteTitle> getChildVoteList(HttpServletRequest request, VoteTitle voteTitle, Integer voteId)
+/*      */   {
+/*  339 */     ToJson toJson = new ToJson(1, "error");
+/*      */     try
+/*      */     {
+/*  342 */       VoteTitle voteTitle1 = getVoTitle(voteId);
+/*  343 */       if (!com.xoa.util.common.StringUtils.checkNull(voteTitle1.getSendTime()).booleanValue()) {
+/*  344 */         voteTitle1.setSendTime(voteTitle1.getSendTime().substring(0, voteTitle1.getSendTime().length() - 2));
+/*      */       }
+/*  346 */       List voteItemList = this.voteItemMapper.getVoteItemList(voteId);
+/*  347 */       voteTitle1.setVoteItemList(voteItemList);
+/*      */ 
+/*  349 */       List<VoteTitle> list = this.voteTitleMapper.getChildVoteList(voteId);
+/*  350 */       if (list != null) {
+/*  351 */         for (VoteTitle voteTitle2 : list) {
+/*  352 */           List voteItemList1 = this.voteItemMapper.getVoteItemList(voteTitle2.getVoteId());
+/*  353 */           voteTitle2.setVoteItemList(voteItemList1);
+/*      */         }
+/*      */       }
+/*  356 */       voteTitle1.setVoteTitleList(list);
+/*  357 */       toJson.setFlag(0);
+/*  358 */       toJson.setMsg("OK");
+/*  359 */       toJson.setObject(voteTitle1);
+/*      */     } catch (Exception e) {
+/*  361 */       e.printStackTrace();
+/*  362 */       toJson.setMsg(e.getMessage());
+/*  363 */       toJson.setFlag(1);
+/*  364 */       L.e(new Object[] { "VoteTitleServiceImpl getChildVoteList:" + e });
+/*      */     }
+/*  366 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<VoteTitle> addChildVoteTitle(HttpServletRequest request, VoteTitle voteTitle)
+/*      */   {
+/*  371 */     ToJson toJson = new ToJson(1, "error");
+/*      */     try {
+/*  373 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  374 */       voteTitle.setFromId(user.getUserId());
+/*  375 */       voteTitle.setParentId(voteTitle.getVoteId());
+/*  376 */       if (voteTitle.getBeginDate() == null) {
+/*  377 */         voteTitle.setBeginDate(DateFormat.getCurrentTime());
+/*      */       }
+/*  379 */       if (voteTitle.getEndDate() == null) {
+/*  380 */         voteTitle.setEndDate(DateFormat.getCurrentTime());
+/*      */       }
+/*  382 */       if (voteTitle.getSendTime() == null) {
+/*  383 */         voteTitle.setSendTime(DateFormat.getCurrentTime());
+/*      */       }
+/*  385 */       int a = this.voteTitleMapper.newVoteTitle(voteTitle);
+/*  386 */       if (a > 0) {
+/*  387 */         toJson.setMsg("新建子投票成功");
+/*  388 */         toJson.setFlag(0);
+/*      */       } else {
+/*  390 */         toJson.setMsg("新建子投票失败");
+/*  391 */         toJson.setFlag(1);
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  394 */       e.printStackTrace();
+/*  395 */       toJson.setMsg(e.getMessage());
+/*  396 */       L.e(new Object[] { "VoteTitleServiceImpl addChildVoteTitle:" + e });
+/*      */     }
+/*  398 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<VoteTitle> getChilddetail(HttpServletRequest request, Integer voteId)
+/*      */   {
+/*  403 */     ToJson toJson = new ToJson(1, "error");
+/*      */     try {
+/*  405 */       VoteTitle voteTitle = this.voteTitleMapper.getChilddetail(voteId);
+/*      */ 
+/*  407 */       if (voteTitle != null) {
+/*  408 */         String toID = this.departmentService.getDeptNameByDeptId(voteTitle.getToId(), ",");
+/*  409 */         voteTitle.setToId(toID);
+/*      */ 
+/*  411 */         String privId = this.usersPrivService.getPrivNameByPrivId(voteTitle.getPrivId(), ",");
+/*  412 */         voteTitle.setPrivId(privId);
+/*      */ 
+/*  414 */         String userId = this.usersService.getUserNameById(voteTitle.getUserId(), ",");
+/*  415 */         voteTitle.setUserId(userId);
+/*      */ 
+/*  417 */         String viewResultPrivId = this.usersPrivService.getPrivNameByPrivId(voteTitle.getViewResultPrivId(), ",");
+/*  418 */         voteTitle.setViewResultPrivId(viewResultPrivId);
+/*      */ 
+/*  420 */         String viewResultUserId = this.usersService.getUserNameById(voteTitle.getViewResultUserId(), ",");
+/*  421 */         voteTitle.setViewResultUserId(viewResultUserId);
+/*      */       }
+/*  423 */       if (voteTitle != null) {
+/*  424 */         toJson.setObject(voteTitle);
+/*  425 */         toJson.setMsg("ok");
+/*      */       } else {
+/*  427 */         toJson.setMsg("投票信息为空");
+/*      */       }
+/*  429 */       toJson.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  431 */       e.printStackTrace();
+/*  432 */       toJson.setMsg(e.getMessage());
+/*  433 */       L.e(new Object[] { "VoteTitleServiceImpl getChilddetail:" + e });
+/*      */     }
+/*  435 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<VoteTitle> deleteByVoteId(HttpServletRequest request, String[] voteIds)
+/*      */   {
+/*  440 */     ToJson toJson = new ToJson(1, "error");
+/*  441 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*      */     try {
+/*  443 */       if (voteIds.length > 0) {
+/*  444 */         this.voteTitleMapper.deleteByVoteId(voteIds);
+/*      */ 
+/*  446 */         for (int i = 0; i < voteIds.length; i++) {
+/*  447 */           Map map = new HashMap();
+/*  448 */           String remingUrl = "vote/manage/voteResult?resultId=" + voteIds[i] + "&type=0";
+/*  449 */           map.put("toId", user.getUserId());
+/*  450 */           map.put("smsType", Integer.valueOf(11));
+/*  451 */           map.put("remindUrl", remingUrl);
+/*  452 */           Integer bodyId = this.smsMapper.putStringOne(map);
+/*  453 */           if (bodyId != null) {
+/*  454 */             this.smsMapper.deleteOne(bodyId);
+/*  455 */             this.smsMapper.deleteOnet(bodyId);
+/*      */           }
+/*      */         }
+/*      */       }
+/*  459 */       toJson.setMsg("删除成功");
+/*  460 */       toJson.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  462 */       e.printStackTrace();
+/*  463 */       toJson.setMsg(e.getMessage());
+/*  464 */       L.e(new Object[] { "VoteTitleServiceImpl deleteByVoteId:" + e });
+/*      */     }
+/*  466 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<VoteTitle> getVoteDataByVoteId(HttpServletRequest request, Integer voteId)
+/*      */   {
+/*  471 */     ToJson toJson = new ToJson(1, "error");
+/*      */     try
+/*      */     {
+/*  474 */       VoteTitle voteTitle = this.voteTitleMapper.getChilddetail(voteId);
+/*      */ 
+/*  476 */       List voteItemList = this.voteItemMapper.getVoteItemList(voteId);
+/*      */ 
+/*  478 */       int countZ = count(voteItemList);
+/*  479 */       voteTitle.setSum(Integer.valueOf(countZ));
+/*  480 */       voteTitle.setVoteItemList(voteItemList);
+/*      */ 
+/*  483 */       List<VoteTitle> list = this.voteTitleMapper.getChildVoteList(voteId);
+/*  484 */       for (VoteTitle voteTitle1 : list)
+/*      */       {
+/*  486 */         List voteItemList1 = this.voteItemMapper.getVoteItemList(voteTitle1.getVoteId());
+/*      */ 
+/*  488 */         int countson = count(voteItemList1);
+/*  489 */         voteTitle1.setSum(Integer.valueOf(countson));
+/*  490 */         voteTitle1.setVoteItemList(voteItemList1);
+/*      */       }
+/*  492 */       voteTitle.setVoteTitleList(list);
+/*  493 */       toJson.setObject(voteTitle);
+/*  494 */       toJson.setMsg("ok");
+/*  495 */       toJson.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  497 */       e.printStackTrace();
+/*  498 */       toJson.setMsg(e.getMessage());
+/*  499 */       toJson.setFlag(1);
+/*  500 */       L.e(new Object[] { "VoteTitleServiceImpl getVoteDataByVoteId:" + e });
+/*      */     }
+/*  502 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<VoteTitle> searchVoteTitleList(HttpServletRequest request, VoteTitle voteTitle, Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*      */   {
+/*  508 */     ToJson toJson = new ToJson(1, "error");
+/*  509 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  510 */     String userId = null;
+/*  511 */     String userPriv = null;
+/*  512 */     String deptId = null;
+/*  513 */     if ((user != null) && (user.getUserId() != null)) {
+/*  514 */       userId = user.getUserId() + "";
+/*  515 */       userPriv = user.getUserPriv() + "";
+/*  516 */       deptId = user.getDeptId() + "";
+/*      */     }
+/*  518 */     PageParams pageParams = new PageParams();
+/*  519 */     pageParams.setPage(page);
+/*  520 */     pageParams.setPageSize(pageSize);
+/*  521 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  522 */     maps.put("page", pageParams);
+/*  523 */     maps.put("userId", userId);
+/*  524 */     maps.put("userPriv", userPriv);
+/*  525 */     maps.put("deptId", deptId);
+/*  526 */     int getcount = 0;
+/*      */     try
+/*      */     {
+/*  529 */       List<VoteTitle> list = this.voteTitleMapper.searchVoteTitleList(maps);
+/*  530 */       for (VoteTitle voteTitle2 : list)
+/*      */       {
+/*  532 */         if (voteTitle2.getFromId().equals(user.getUserId())) {
+/*  533 */           voteTitle2.setRight(true);
+/*      */         }
+/*  535 */         boolean isVotitle = isVotite(String.valueOf(voteTitle2.getVoteId()), user);
+/*  536 */         voteTitle2.setHave(isVotitle);
+/*  537 */         voteTitle2.setSendTime(org.apache.commons.lang.StringUtils.substring(voteTitle2.getSendTime(), 0, voteTitle2.getSendTime().length() - 10));
+/*      */       }
+/*      */ 
+/*  540 */       getcount = this.voteTitleMapper.getcount1();
+/*      */ 
+/*  542 */       if (list != null) {
+/*  543 */         toJson.setObj(list);
+/*  544 */         toJson.setTotleNum(Integer.valueOf(getcount));
+/*  545 */         toJson.setMsg("ok");
+/*      */       } else {
+/*  547 */         toJson.setMsg("投票为空");
+/*      */       }
+/*  549 */       toJson.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  551 */       e.printStackTrace();
+/*  552 */       toJson.setMsg(e.getMessage());
+/*  553 */       L.e(new Object[] { "VoteTitleServiceImpl searchVoteTitleList:" + e });
+/*      */     }
+/*  555 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<VoteTitle> getVoteTitleCount(HttpServletRequest request, VoteTitle voteTitle, Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*      */   {
+/*  561 */     ToJson toJson = new ToJson(1, "error");
+/*  562 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  563 */     String userId = null;
+/*  564 */     String userPriv = null;
+/*  565 */     String deptId = null;
+/*  566 */     if ((user != null) && (user.getUserId() != null)) {
+/*  567 */       userId = user.getUid() + "";
+/*  568 */       userPriv = user.getUserPriv() + "";
+/*  569 */       deptId = user.getDeptId() + "";
+/*      */     }
+/*  571 */     PageParams pageParams = new PageParams();
+/*  572 */     pageParams.setPage(page);
+/*  573 */     pageParams.setPageSize(pageSize);
+/*  574 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  575 */     maps.put("page", pageParams);
+/*  576 */     maps.put("userId", userId);
+/*  577 */     maps.put("userPriv", userPriv);
+/*  578 */     maps.put("deptId", deptId);
+/*  579 */     int getcount = 0;
+/*      */     try {
+/*  581 */       List<VoteTitle> list = this.voteTitleMapper.getVoteTitleCount(maps);
+/*  582 */       if ((list != null) && (list.size() > 0)) {
+/*  583 */         for (VoteTitle voteTitle1 : list)
+/*      */         {
+/*  585 */           if (voteTitle1.getFromId().equals(user.getUserId())) {
+/*  586 */             voteTitle1.setRight(true);
+/*      */           }
+/*  588 */           voteTitle1.setSendTime(org.apache.commons.lang.StringUtils.substring(voteTitle1.getSendTime(), 0, voteTitle1.getSendTime().length() - 10));
+/*      */         }
+/*  590 */         getcount = this.voteTitleMapper.getcount2();
+/*  591 */         toJson.setObj(list);
+/*  592 */         toJson.setTotleNum(Integer.valueOf(getcount));
+/*  593 */         toJson.setMsg("ok");
+/*      */       } else {
+/*  595 */         toJson.setMsg("数据为空");
+/*      */       }
+/*  597 */       toJson.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  599 */       e.printStackTrace();
+/*  600 */       toJson.setMsg(e.getMessage());
+/*  601 */       L.e(new Object[] { "VoteTitleServiceImpl getVoteTitleCount:" + e });
+/*      */     }
+/*  603 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public String checkAll(String checkString)
+/*      */   {
+/*  612 */     StringBuffer sb = new StringBuffer("");
+/*  613 */     Map mapParam = new HashMap();
+/*      */ 
+/*  619 */     if (checkString != null)
+/*      */     {
+/*  621 */       String checkUserId = checkString.substring(0, checkString.length() == 0 ? 0 : checkString.length() - 1);
+/*  622 */       if ((checkUserId != null) && (!"".equals(checkUserId))) {
+/*  623 */         checkUserId = "'" + checkUserId.replace(",", "','") + "'";
+/*  624 */         mapParam.put("checkUserId", checkUserId);
+/*  625 */         List listCheckVoteUser = this.usersMapper.getUserNames(mapParam);
+/*  626 */         sb.append(getString(listCheckVoteUser));
+/*      */       } else {
+/*  628 */         sb.append("");
+/*      */       }
+/*      */     }
+/*  631 */     return sb.toString();
+/*      */   }
+/*      */ 
+/*      */   public String getString(List<String> Strings) {
+/*  635 */     StringBuffer sb = new StringBuffer("");
+/*  636 */     for (String s : Strings) {
+/*  637 */       sb.append(s);
+/*  638 */       sb.append(",");
+/*      */     }
+/*  640 */     return sb.toString();
+/*      */   }
+/*      */ 
+/*      */   public boolean isVotite(String voteId, Users users)
+/*      */   {
+/*  647 */     List<VoteItem> list = this.voteItemMapper.getVoteItemList(Integer.valueOf(Integer.parseInt(voteId)));
+/*  648 */     if (list != null) {
+/*  649 */       for (VoteItem voteItem : list) {
+/*  650 */         if (!com.xoa.util.common.StringUtils.checkNull(voteItem.getVoteUser()).booleanValue()) {
+/*  651 */           String[] userAll = voteItem.getVoteUser().split(",");
+/*      */ 
+/*  653 */           if (Arrays.asList(userAll).contains(users.getUserId())) {
+/*  654 */             return true;
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */     }
+/*  659 */     return false;
+/*      */   }
+/*      */ 
+/*      */   public AjaxJson addVoteTitle(HttpServletRequest request, VoteTitle voteTitle, String options, Integer voteId)
+/*      */   {
+/*  664 */     AjaxJson ajaxJson = new AjaxJson();
+/*  665 */     voteTitle = this.voteTitleMapper.getChilddetail(voteId);
+/*  666 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  667 */     if (DateFormat.getDateTime(voteTitle.getSendTime()).intValue() > DateFormat.getDateTime(voteTitle.getEndDate()).intValue()) {
+/*  668 */       ajaxJson.setFlag(false);
+/*  669 */       ajaxJson.setMsg("投票日期不符");
+/*  670 */     } else if (DateFormat.getDateTime(DateFormat.getCurrentTime()).intValue() > DateFormat.getDateTime(voteTitle.getEndDate()).intValue()) {
+/*  671 */       ajaxJson.setFlag(false);
+/*  672 */       ajaxJson.setMsg("投票日期已过");
+/*  673 */     } else if (isVotite(String.valueOf(voteId), users)) {
+/*  674 */       ajaxJson.setFlag(false);
+/*  675 */       ajaxJson.setMsg("已经投过票，不能重复投票");
+/*      */     } else {
+/*      */       try {
+/*  678 */         String[] itemIds = options.split(",");
+/*  679 */         for (int i = 0; i < itemIds.length; i++) {
+/*  680 */           VoteItem voteItem = this.voteItemMapper.getVoteItem(Integer.valueOf(Integer.parseInt(itemIds[i])));
+/*  681 */           if (voteItem.getVoteCount() != null)
+/*  682 */             voteItem.setVoteCount(Integer.valueOf(voteItem.getVoteCount().intValue() + 1));
+/*      */           else {
+/*  684 */             voteItem.setVoteCount(Integer.valueOf(1));
+/*      */           }
+/*  686 */           if (com.xoa.util.common.StringUtils.checkNull(voteItem.getVoteUser()).booleanValue())
+/*  687 */             voteItem.setVoteUser(users.getUserId());
+/*      */           else {
+/*  689 */             voteItem.setVoteUser(voteItem.getVoteUser() + "," + users.getUserId());
+/*      */           }
+/*  691 */           this.voteItemMapper.updateVote(voteItem);
+/*      */         }
+/*      */       } catch (Exception e) {
+/*  694 */         e.printStackTrace();
+/*  695 */         ajaxJson.setMsg(e.getMessage());
+/*  696 */         ajaxJson.setFlag(false);
+/*      */       }
+/*      */ 
+/*  703 */       String remingUrl = "/vote/manage/voteResult?resultId=" + voteId + "&type=1";
+/*  704 */       this.smsService.updatequerySmsByType("11", users.getUserId(), remingUrl);
+/*  705 */       ajaxJson.setFlag(true);
+/*  706 */       ajaxJson.setMsg("OK");
+/*      */     }
+/*  708 */     return ajaxJson;
+/*      */   }
+/*      */ 
+/*      */   public AjaxJson statusUpdate(HttpServletRequest request, Integer voteId)
+/*      */   {
+/*  714 */     SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*      */ 
+/*  716 */     AjaxJson ajaxJson = new AjaxJson();
+/*  717 */     VoteTitle voteTitle1 = new VoteTitle();
+/*  718 */     SmsBody smsBody = new SmsBody();
+/*      */     try
+/*      */     {
+/*  721 */       List list = this.voteItemMapper.getVoteItemList(voteId);
+/*      */ 
+/*  724 */       List list1 = this.voteTitleMapper.getChildVoteList(voteId);
+/*  725 */       if ((list.size() == 0) && (list1.size() == 0)) {
+/*  726 */         ajaxJson.setFlag(false);
+/*  727 */         ajaxJson.setObj(voteId);
+/*  728 */         ajaxJson.setMsg("No voting items!");
+/*      */       } else {
+/*  730 */         VoteTitle voteTitle = this.voteTitleMapper.getChilddetail(voteId);
+/*  731 */         if (voteTitle.getParentId() == null) {
+/*  732 */           voteTitle.setParentId(Integer.valueOf(0));
+/*      */         }
+/*  734 */         if (voteTitle.getBeginDate() == null) {
+/*  735 */           voteTitle.setBeginDate(DateFormat.getCurrentTime());
+/*      */         }
+/*  737 */         if (voteTitle.getEndDate() == null) {
+/*  738 */           voteTitle.setEndDate(DateFormat.getCurrentTime());
+/*      */         }
+/*  740 */         voteTitle.setSendTime(sdf1.format(new Date()));
+/*  741 */         voteTitle.setPublish("1");
+/*  742 */         this.voteTitleMapper.updateVoteTitle(voteTitle);
+/*  743 */         ajaxJson.setFlag(true);
+/*  744 */         ajaxJson.setMsg("OK!");
+/*      */ 
+/*  746 */         voteTitle1 = this.voteTitleMapper.voteSelectOne(voteTitle.getVoteId());
+/*  747 */         if (voteTitle1 != null)
+/*      */         {
+/*  749 */           String[] userIdList = null;
+/*  750 */           if ((voteTitle1.getUserId() != null) && (voteTitle1.getUserId() != "")) userIdList = voteTitle.getUserId().split(",");
+/*      */ 
+/*  752 */           List<String> userArray = new ArrayList();
+/*  753 */           if (userIdList != null) {
+/*  754 */             for (String userId : userIdList) {
+/*  755 */               userArray.add(userId);
+/*      */             }
+/*      */           }
+/*      */ 
+/*  759 */           List<Users> deptList = new ArrayList();
+/*  760 */           if (!com.xoa.util.common.StringUtils.checkNull(voteTitle1.getToId()).booleanValue()) {
+/*  761 */             deptList = this.usersService.getUserByDeptIds(voteTitle1.getToId(), Integer.valueOf(1));
+/*      */           }
+/*  763 */           List<String> deptArray = new ArrayList();
+/*  764 */           for (Users users : deptList) {
+/*  765 */             deptArray.add(users.getUserId());
+/*      */           }
+/*      */ 
+/*  768 */           List<Users> privList = new ArrayList();
+/*  769 */           if (!com.xoa.util.common.StringUtils.checkNull(voteTitle1.getPrivId()).booleanValue()) {
+/*  770 */             privList = this.usersService.getUserByDeptIds(voteTitle1.getPrivId(), Integer.valueOf(2));
+/*      */           }
+/*  772 */           List<String> privArray = new ArrayList();
+/*  773 */           for (Users users : privList) {
+/*  774 */             privArray.add(users.getUserId());
+/*      */           }
+/*      */ 
+/*  777 */           if (userArray != null) {
+/*  778 */             for (String userId : userArray) {
+/*  779 */               int f1 = 0;
+/*  780 */               for (String deptUser : deptArray) {
+/*  781 */                 if (userId.equals(deptUser)) {
+/*  782 */                   f1 = 1;
+/*  783 */                   break;
+/*      */                 }
+/*      */               }
+/*  786 */               if (f1 == 0) {
+/*  787 */                 deptArray.add(userId);
+/*      */               }
+/*      */             }
+/*      */           }
+/*  791 */           for (String temp1 : deptArray) {
+/*  792 */             int f2 = 0;
+/*  793 */             for (String privUser : privArray) {
+/*  794 */               if (temp1.equals(privUser)) {
+/*  795 */                 f2 = 1;
+/*  796 */                 break;
+/*      */               }
+/*      */             }
+/*  799 */             if (f2 == 0) {
+/*  800 */               privArray.add(temp1);
+/*      */             }
+/*      */           }
+/*  803 */           StringBuffer userStr = new StringBuffer();
+/*  804 */           for (String tempUser : privArray) {
+/*  805 */             Map map = new HashMap();
+/*  806 */             map.put("readers", tempUser);
+/*  807 */             map.put("voteId", voteTitle.getVoteId());
+/*  808 */             VoteTitle voteTitle2 = this.voteTitleMapper.slectUserTd(map);
+/*  809 */             if (voteTitle2 == null) {
+/*  810 */               userStr.append(tempUser + ",");
+/*      */             }
+/*      */           }
+/*  813 */           SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-ddHH:mm:ss");
+/*  814 */           Date date = sdf.parse(voteTitle1.getSendTime().substring(0, voteTitle1.getSendTime().length() - 2));
+/*  815 */           smsBody.setFromId(voteTitle1.getFromId());
+/*  816 */           smsBody.setContent(voteTitle1.getSubject());
+/*  817 */           smsBody.setSendTime(Integer.valueOf((int)(date.getTime() / 1000L)));
+/*  818 */           SysCode sysCode = new SysCode();
+/*  819 */           sysCode.setCodeName("投票");
+/*  820 */           sysCode.setParentNo("SMS_REMIND");
+/*  821 */           if (this.sysCodeMapper.getCodeNoByNameAndParentNo(sysCode) != null) {
+/*  822 */             smsBody.setSmsType(this.sysCodeMapper.getCodeNoByNameAndParentNo(sysCode).getCodeNo());
+/*      */           }
+/*  824 */           String[] array = userStr.toString().split(",");
+/*  825 */           Set set = new HashSet();
+/*  826 */           for (int i = 0; i < array.length; i++) {
+/*  827 */             set.add(array[i]);
+/*      */           }
+/*  829 */           String[] arrayResult = (String[])(String[])set.toArray(new String[set.size()]);
+/*  830 */           StringBuffer sb = new StringBuffer();
+/*  831 */           for (int i = 0; i < arrayResult.length; i++) {
+/*  832 */             sb.append(arrayResult[i]);
+/*  833 */             sb.append(",");
+/*      */           }
+/*  835 */           String s = sb.toString();
+/*  836 */           smsBody.setRemindUrl("/vote/manage/voteResult?resultId=" + voteTitle1.getVoteId() + "&type=1");
+/*  837 */           smsBody.setSmsType("11");
+/*  838 */           String sqlType = (String)request.getSession().getAttribute("loginDateSouse");
+/*  839 */           this.smsService.saveSms(smsBody, s, "1", "2", "", "", sqlType);
+/*      */         }
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  843 */       ajaxJson.setFlag(false);
+/*  844 */       ajaxJson.setMsg("false");
+/*      */     }
+/*  846 */     return ajaxJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<VoteTitle> getOptionVoteList(HttpServletRequest request, VoteTitle voteTitle, Integer voteId)
+/*      */   {
+/*  851 */     ToJson toJson = new ToJson(1, "error");
+/*      */     try {
+/*  853 */       List list = this.voteTitleMapper.getVoteDataByVoteId(voteId);
+/*  854 */       if (list != null) {
+/*  855 */         toJson.setObj(list);
+/*  856 */         toJson.setMsg("ok");
+/*      */       } else {
+/*  858 */         toJson.setMsg("子列表为空");
+/*      */       }
+/*  860 */       toJson.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  862 */       e.printStackTrace();
+/*  863 */       toJson.setMsg(e.getMessage());
+/*  864 */       L.e(new Object[] { "VoteTitleServiceImpl getOptionVoteList:" + e });
+/*      */     }
+/*  866 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public VoteTitle getVoTitle(Integer voteId) {
+/*  870 */     VoteTitle voteTitle = this.voteTitleMapper.getChilddetail(voteId);
+/*      */ 
+/*  872 */     String toID = this.departmentService.getDeptNameByDeptId(voteTitle.getToId(), ",");
+/*  873 */     voteTitle.setToId(toID);
+/*      */ 
+/*  875 */     String privId = this.usersPrivService.getPrivNameByPrivId(voteTitle.getPrivId(), ",");
+/*  876 */     voteTitle.setPrivId(privId);
+/*      */ 
+/*  878 */     String userId = this.usersService.getUserNameById(voteTitle.getUserId(), ",");
+/*  879 */     voteTitle.setUserId(userId);
+/*      */ 
+/*  881 */     String viewResultPrivId = this.usersPrivService.getPrivNameByPrivId(voteTitle.getViewResultPrivId(), ",");
+/*  882 */     voteTitle.setViewResultPrivId(viewResultPrivId);
+/*      */ 
+/*  884 */     String viewResultUserId = this.usersService.getUserNameById(voteTitle.getViewResultUserId(), ",");
+/*  885 */     voteTitle.setViewResultUserId(viewResultUserId);
+/*  886 */     return voteTitle;
+/*      */   }
+/*      */ 
+/*      */   public int count(List<VoteItem> list)
+/*      */   {
+/*  891 */     int sum = 0;
+/*  892 */     for (VoteItem voteItem : list)
+/*      */     {
+/*  894 */       int count = voteItem.getVoteCount().intValue();
+/*  895 */       sum += count;
+/*      */     }
+/*  897 */     return sum;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<VoteTitle> getPublishVoteTitleList(HttpServletRequest request, VoteTitle voteTitle, Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*      */   {
+/*  910 */     ToJson toJson = new ToJson(1, "error");
+/*  911 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  912 */     String userId = null;
+/*  913 */     String userPriv = null;
+/*  914 */     String deptId = null;
+/*  915 */     if ((user != null) && (user.getUserId() != null)) {
+/*  916 */       userId = user.getUid() + "";
+/*  917 */       userPriv = user.getUserPriv() + "";
+/*  918 */       deptId = user.getDeptId() + "";
+/*      */     }
+/*  920 */     PageParams pageParams = new PageParams();
+/*  921 */     pageParams.setPage(page);
+/*  922 */     pageParams.setPageSize(pageSize);
+/*  923 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  924 */     maps.put("page", pageParams);
+/*  925 */     maps.put("userId", userId);
+/*  926 */     maps.put("userPriv", userPriv);
+/*  927 */     maps.put("deptId", deptId);
+/*  928 */     int getcount = 0;
+/*      */     try {
+/*  930 */       List<VoteTitle> list = this.voteTitleMapper.searchVoteTitleList(maps);
+/*  931 */       for (VoteTitle voteTitle2 : list)
+/*      */       {
+/*  933 */         List<VoteItem> voteItemList = this.voteItemMapper.getVoteItemList(voteTitle2.getVoteId());
+/*  934 */         int sum = 0;
+/*  935 */         int voteCount = 0;
+/*  936 */         List tempList = new ArrayList();
+/*  937 */         for (VoteItem voteItem : voteItemList) {
+/*  938 */           String voteUser = voteItem.getVoteUser();
+/*  939 */           if (!com.xoa.util.common.StringUtils.checkNull(voteUser).booleanValue()) {
+/*  940 */             List<String> list1 = new ArrayList();
+/*  941 */             String[] voteU = voteUser.split(",");
+/*  942 */             int i = 0; for (int len = voteU.length; i < len; i++) {
+/*  943 */               list1.add(voteU[i]);
+/*      */             }
+/*      */ 
+/*  952 */             for (String is : list1) {
+/*  953 */               if (!tempList.contains(is)) {
+/*  954 */                 tempList.add(is);
+/*  955 */                 tempList.size();
+/*      */               }
+/*      */             }
+/*      */ 
+/*      */           }
+/*      */ 
+/*  961 */           int count = voteItem.getVoteCount().intValue();
+/*  962 */           sum += count;
+/*      */ 
+/*  964 */           voteCount = tempList.size();
+/*      */         }
+/*  966 */         voteTitle2.setSum(Integer.valueOf(sum));
+/*      */ 
+/*  968 */         voteTitle2.setVoteCount(Integer.valueOf(voteCount));
+/*  969 */         voteTitle2.setVoteItemList(voteItemList);
+/*      */ 
+/*  971 */         if (voteTitle2.getFromId().equals(user.getUserId())) {
+/*  972 */           voteTitle2.setRight(true);
+/*      */         }
+/*  974 */         boolean isVotitle = isVotite(String.valueOf(voteTitle2.getVoteId()), user);
+/*  975 */         voteTitle2.setHave(isVotitle);
+/*  976 */         voteTitle2.setSendTime(org.apache.commons.lang.StringUtils.substring(voteTitle2.getSendTime(), 0, voteTitle2.getSendTime().length() - 10));
+/*      */       }
+/*  978 */       getcount = this.voteTitleMapper.getcount1();
+/*  979 */       voteTitle.setGetCount(Integer.valueOf(getcount));
+/*  980 */       if (list != null) {
+/*  981 */         toJson.setObj(list);
+/*  982 */         toJson.setObject(voteTitle);
+/*  983 */         toJson.setMsg("ok");
+/*      */       } else {
+/*  985 */         toJson.setMsg("投票为空");
+/*      */       }
+/*  987 */       toJson.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  989 */       e.printStackTrace();
+/*  990 */       toJson.setMsg(e.getMessage());
+/*  991 */       L.e(new Object[] { "VoteTitleServiceImpl searchVoteTitleList:" + e });
+/*      */     }
+/*  993 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<VoteTitle> getPublishVoteTitleCount(HttpServletRequest request, VoteTitle voteTitle, Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*      */   {
+/* 1007 */     ToJson toJson = new ToJson(1, "error");
+/* 1008 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 1009 */     String userId = null;
+/* 1010 */     String userPriv = null;
+/* 1011 */     String deptId = null;
+/* 1012 */     if ((user != null) && (user.getUserId() != null)) {
+/* 1013 */       userId = user.getUid() + "";
+/* 1014 */       userPriv = user.getUserPriv() + "";
+/* 1015 */       deptId = user.getDeptId() + "";
+/*      */     }
+/* 1017 */     PageParams pageParams = new PageParams();
+/* 1018 */     pageParams.setPage(page);
+/* 1019 */     pageParams.setPageSize(pageSize);
+/* 1020 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 1021 */     maps.put("page", pageParams);
+/* 1022 */     maps.put("userId", userId);
+/* 1023 */     maps.put("userPriv", userPriv);
+/* 1024 */     maps.put("deptId", deptId);
+/* 1025 */     int getcount = 0;
+/*      */     try {
+/* 1027 */       List<VoteTitle> list = this.voteTitleMapper.getVoteTitleCount(maps);
+/*      */ 
+/* 1030 */       if ((list != null) && (list.size() > 0)) {
+/* 1031 */         for (VoteTitle voteTitle1 : list)
+/*      */         {
+/* 1033 */           List<VoteItem> voteItemList = this.voteItemMapper.getVoteItemList(voteTitle1.getVoteId());
+/* 1034 */           int sum = 0;
+/* 1035 */           int voteCount = 0;
+/* 1036 */           List tempList = new ArrayList();
+/* 1037 */           for (VoteItem voteItem : voteItemList) {
+/* 1038 */             String voteUser = voteItem.getVoteUser();
+/* 1039 */             if (!com.xoa.util.common.StringUtils.checkNull(voteUser).booleanValue()) {
+/* 1040 */               List<String> list1 = new ArrayList();
+/* 1041 */               String[] voteU = voteUser.split(",");
+/* 1042 */               int i = 0; 
+                         for (int len = voteU.length; i < len; i++) {
+/* 1043 */                 list1.add(voteU[i]);
+/*      */               }
+/*      */ 
+/* 1046 */               for (String is : list1) {
+/* 1047 */                 if (!tempList.contains(is)) {
+/* 1048 */                   tempList.add(is);
+/* 1049 */                   tempList.size();
+/*      */                 }
+/*      */               }
+/*      */ 
+/*      */             }
+/*      */ 
+/* 1055 */             int count = voteItem.getVoteCount().intValue();
+/* 1056 */             sum += count;
+/*      */ 
+/* 1058 */             voteCount = tempList.size();
+/*      */           }
+/* 1060 */           voteTitle1.setSum(Integer.valueOf(sum));
+/* 1061 */           voteTitle1.setVoteCount(Integer.valueOf(voteCount));
+/* 1062 */           voteTitle1.setVoteItemList(voteItemList);
+/*      */ 
+/* 1064 */           if (voteTitle1.getFromId().equals(user.getUserId())) {
+/* 1065 */             voteTitle1.setRight(true);
+/*      */           }
+/* 1067 */           voteTitle1.setSendTime(org.apache.commons.lang.StringUtils.substring(voteTitle1.getSendTime(), 0, voteTitle1.getSendTime().length() - 10));
+/*      */         }
+/* 1069 */         getcount = this.voteTitleMapper.getcount2();
+/* 1070 */         voteTitle.setGetCount(Integer.valueOf(getcount));
+/* 1071 */         toJson.setObj(list);
+/* 1072 */         toJson.setObject(voteTitle);
+/* 1073 */         toJson.setMsg("ok");
+/*      */       } else {
+/* 1075 */         toJson.setMsg("err");
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 1078 */       e.printStackTrace();
+/* 1079 */       toJson.setMsg(e.getMessage());
+/* 1080 */       L.e(new Object[] { "VoteTitleServiceImpl getVoteTitleCount:" + e });
+/*      */     }
+/* 1082 */     return toJson;
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.voteTitle.impl.VoteTitleServiceImpl
+ * JD-Core Version:    0.6.0
+ */

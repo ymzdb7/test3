@@ -1,0 +1,633 @@
+ package com.xoa.service.edu.eduTrainingPlan.impl;
+ 
+ import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+ import com.xoa.dao.department.DepartmentMapper;
+ import com.xoa.dao.edu.eduTrainingPlan.EduTrainingPlanMapper;
+ import com.xoa.dao.edu.eduUser.EduUserMapper;
+ import com.xoa.model.department.Department;
+ import com.xoa.model.edu.eduTrainingPlan.EduTrainingPlan;
+ import com.xoa.model.edu.eduUser.EduUser;
+ import com.xoa.model.users.Users;
+ import com.xoa.service.edu.eduTrainingPlan.IEduTrainingPlanService;
+ import com.xoa.util.AjaxJson;
+ import com.xoa.util.ToJson;
+ import com.xoa.util.common.session.SessionUtils;
+ import com.xoa.util.page.PageParams;
+ import java.util.Date;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import javax.servlet.http.HttpServletRequest;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Service;
+ 
+ @Service
+ public class EduTrainingPlanServiceImpl extends ServiceImpl<EduTrainingPlanMapper, EduTrainingPlan>
+   implements IEduTrainingPlanService
+ {
+ 
+   @Autowired
+   EduTrainingPlanMapper eduTrainingPlanMapper;
+ 
+   @Autowired
+   DepartmentMapper eduDepartmentMapper;
+ 
+   @Autowired
+   EduUserMapper eduUserMapper;
+ 
+   public ToJson<EduTrainingPlan> getHrtailDetail(Integer planId)
+   {
+     ToJson json = new ToJson();
+     try {
+       EduTrainingPlan traindetailById = this.eduTrainingPlanMapper.getTraindetailById(planId.intValue());
+ 
+       String sponsoringDepartment = traindetailById.getSponsoringDepartment();
+       if (sponsoringDepartment != null) {
+         sponsoringDepartment = sponsoringDepartment.substring(0, sponsoringDepartment.length() - 1);
+         Department eduDepartmentWithBLOBs = this.eduDepartmentMapper.getDeptById(Integer.valueOf(sponsoringDepartment).intValue());
+         if (eduDepartmentWithBLOBs != null)
+           traindetailById.setSponsoringDepartmentName(eduDepartmentWithBLOBs.getDeptName());
+         else {
+           traindetailById.setSponsoringDepartmentName("");
+         }
+ 
+       }
+ 
+       String chargePerson = traindetailById.getChargePerson();
+       if (chargePerson != null) {
+         chargePerson = chargePerson.substring(0, chargePerson.length() - 1);
+         EduUser byuserId = this.eduUserMapper.getByuserId(chargePerson);
+         if (byuserId != null)
+           traindetailById.setChargePersonName(byuserId.getUserName());
+         else {
+           traindetailById.setChargePersonName("");
+         }
+ 
+       }
+ 
+       String assessingOfficer = traindetailById.getAssessingOfficer();
+       if (assessingOfficer != null) {
+         assessingOfficer = assessingOfficer.substring(0, assessingOfficer.length() - 1);
+         EduUser byuserId3 = this.eduUserMapper.getByuserId(assessingOfficer);
+         if (byuserId3 != null)
+           traindetailById.setAssessingOfficerName(byuserId3.getUserName());
+         else {
+           traindetailById.setAssessingOfficerName("");
+         }
+ 
+       }
+ 
+       StringBuffer sb = new StringBuffer();
+       String joinDept = traindetailById.getJoinDept();
+       if ((joinDept != null) && (!"".equals(joinDept))) {
+         String[] split = joinDept.split(",");
+         for (String s : split) {
+           Department eduDepartmentWithBLOBs1 = this.eduDepartmentMapper.getDeptById(Integer.valueOf(s).intValue());
+           if (eduDepartmentWithBLOBs1 != null) {
+             sb.append(eduDepartmentWithBLOBs1.getDeptName() + ",");
+           }
+         }
+       }
+       traindetailById.setJoinDeptName(sb.toString());
+ 
+       StringBuffer sbUser = new StringBuffer();
+       String joinPerson = traindetailById.getJoinPerson();
+       if ((joinPerson != null) && (!"".equals(joinPerson))) {
+         String[] split = joinPerson.split(",");
+         for (String s : split) {
+           EduUser byuserId2 = this.eduUserMapper.getByuserId(s);
+           if (byuserId2 != null) {
+             sbUser.append(byuserId2.getUserName() + ",");
+           }
+         }
+       }
+       traindetailById.setJoinPersonName(sbUser.toString());
+ 
+       traindetailById.setAssessingStatuName("");
+       traindetailById.setChannelName("");
+       traindetailById.setCourseTypesName("");
+       if (traindetailById.getAssessingStatus() != null) {
+         if (traindetailById.getAssessingStatus().intValue() == 0) {
+           traindetailById.setAssessingStatuName("待审批");
+         }
+         else if (traindetailById.getAssessingStatus().intValue() == 1) {
+           traindetailById.setAssessingStatuName("已批准");
+         }
+         else {
+           traindetailById.setAssessingStatuName("已拒绝");
+         }
+       }
+       if (traindetailById.getChannel() != null) {
+         if (traindetailById.getChannel().equals("0"))
+           traindetailById.setChannelName("内部培训");
+         else if (traindetailById.getChannel().equals("1"))
+           traindetailById.setChannelName("渠道培训");
+         else {
+           traindetailById.setChannelName("");
+         }
+       }
+       if (traindetailById.getCourseTypes() != null) {
+         if (traindetailById.getCourseTypes().equals("1")) {
+           traindetailById.setCourseTypesName("面授");
+         }
+         else if (traindetailById.getCourseTypes().equals("2")) {
+           traindetailById.setCourseTypesName("函授");
+         }
+         else {
+           traindetailById.setCourseTypesName("其他");
+         }
+       }
+       json.setFlag(0);
+       json.setObject(traindetailById);
+       json.setMsg("ok");
+     } catch (Exception e) {
+       json.setMsg("err");
+       json.setFlag(1);
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public AjaxJson getAll(HttpServletRequest request, Integer page, Integer pageSize, boolean useFlag)
+   {
+     AjaxJson ajaxJson = new AjaxJson();
+ 
+     PageParams pageParams = new PageParams();
+     pageParams.setPage(page);
+     pageParams.setPageSize(pageSize);
+     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+     Map map = new HashMap();
+     map.put("page", pageParams);
+     try
+     {
+       List<EduTrainingPlan> allEduTail = this.eduTrainingPlanMapper.getAll(map);
+       for (EduTrainingPlan eduTrainingPlan : allEduTail) {
+         if (eduTrainingPlan.getAssessingStatus() != null) {
+           if (eduTrainingPlan.getAssessingStatus().intValue() == 0) {
+             eduTrainingPlan.setAssessingStatuName("待审批");
+           }
+           else if (eduTrainingPlan.getAssessingStatus().intValue() == 1) {
+             eduTrainingPlan.setAssessingStatuName("已批准");
+           }
+           else {
+             eduTrainingPlan.setAssessingStatuName("已拒绝");
+           }
+         }
+         if (eduTrainingPlan.getChannel() != null) {
+           if (eduTrainingPlan.getChannel().equals("0"))
+             eduTrainingPlan.setChannelName("内部培训");
+           else if (eduTrainingPlan.getChannel().equals("1"))
+             eduTrainingPlan.setChannelName("渠道培训");
+           else {
+             eduTrainingPlan.setChannelName("");
+           }
+         }
+         if (eduTrainingPlan.getCourseTypes() != null) {
+           if (eduTrainingPlan.getCourseTypes().equals("1")) {
+             eduTrainingPlan.setCourseTypesName("面授");
+           }
+           else if (eduTrainingPlan.getCourseTypes().equals("2")) {
+             eduTrainingPlan.setCourseTypesName("函授");
+           }
+           else {
+             eduTrainingPlan.setCourseTypesName("其他");
+           }
+         }
+       }
+       int count = this.eduTrainingPlanMapper.getCount();
+       ajaxJson.setTotleNum(Integer.valueOf(count));
+       ajaxJson.setFlag(true);
+       ajaxJson.setMsg("ok");
+       ajaxJson.setObj(allEduTail);
+     } catch (Exception e) {
+       ajaxJson.setFlag(false);
+       ajaxJson.setMsg("err");
+       e.printStackTrace();
+     }
+     return ajaxJson;
+   }
+ 
+   public AjaxJson editTrain(EduTrainingPlan eduTrainingPlan)
+   {
+     AjaxJson ajaxJson = new AjaxJson();
+     ajaxJson.setFlag(false);
+     try {
+       this.eduTrainingPlanMapper.editTrain(eduTrainingPlan);
+       ajaxJson.setMsg("ok");
+       ajaxJson.setFlag(true);
+     } catch (Exception e) {
+       ajaxJson.setMsg(e.getMessage());
+       ajaxJson.setFlag(false);
+       e.printStackTrace();
+     }
+     return ajaxJson;
+   }
+ 
+   public AjaxJson deleteTrainObjects(String[] planIds)
+   {
+     AjaxJson ajaxJson = new AjaxJson();
+     ajaxJson.setFlag(false);
+     try {
+       this.eduTrainingPlanMapper.deleteObject(planIds);
+       ajaxJson.setMsg("ok");
+       ajaxJson.setFlag(true);
+     } catch (Exception e) {
+       ajaxJson.setMsg(e.getMessage());
+       ajaxJson.setFlag(false);
+       e.printStackTrace();
+     }
+     return ajaxJson;
+   }
+ 
+   public AjaxJson deleteTrainById(String planId)
+   {
+     AjaxJson ajaxJson = new AjaxJson();
+     ajaxJson.setFlag(false);
+     try {
+       this.eduTrainingPlanMapper.deleteObjectById(planId);
+       ajaxJson.setMsg("ok");
+       ajaxJson.setFlag(true);
+     } catch (Exception e) {
+       ajaxJson.setMsg(e.getMessage());
+       ajaxJson.setFlag(false);
+       e.printStackTrace();
+     }
+     return ajaxJson;
+   }
+ 
+   public AjaxJson addTrain(HttpServletRequest request, EduTrainingPlan eduTrainingPlan)
+   {
+     AjaxJson ajaxJson = new AjaxJson();
+     ajaxJson.setFlag(false);
+     Date date = new Date();
+     try
+     {
+       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       eduTrainingPlan.setCreateUserId(users.getUserId());
+       eduTrainingPlan.setCreateDeptId(users.getDeptId());
+       eduTrainingPlan.setAddTime(date);
+       this.eduTrainingPlanMapper.addTrain(eduTrainingPlan);
+       ajaxJson.setMsg("ok");
+       ajaxJson.setFlag(true);
+     } catch (Exception e) {
+       ajaxJson.setMsg(e.getMessage());
+       ajaxJson.setFlag(false);
+       e.printStackTrace();
+     }
+     return ajaxJson;
+   }
+ 
+   public AjaxJson queryTrain(Integer page, Integer pageSize, boolean useFlag, EduTrainingPlan eduTrainingPlan)
+   {
+     AjaxJson ajaxJson = new AjaxJson();
+     ajaxJson.setFlag(false);
+     try
+     {
+       PageParams pageParams = new PageParams();
+       pageParams.setPage(page);
+       pageParams.setPageSize(pageSize);
+       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+       Map map = new HashMap();
+       map.put("page", pageParams);
+       map.put("eduTrainingPlan", eduTrainingPlan);
+       List<EduTrainingPlan> eduTrainingPlans = this.eduTrainingPlanMapper.queryTrain(map);
+       for (EduTrainingPlan eduTrainingPlan_1 : eduTrainingPlans)
+       {
+         eduTrainingPlan_1.setAssessingStatuName("");
+         eduTrainingPlan_1.setChannelName("");
+         eduTrainingPlan_1.setCourseTypesName("");
+         if (eduTrainingPlan_1.getAssessingStatus() != null) {
+           if (eduTrainingPlan_1.getAssessingStatus().intValue() == 0) {
+             eduTrainingPlan_1.setAssessingStatuName("待审批");
+           }
+           else if (eduTrainingPlan_1.getAssessingStatus().intValue() == 1) {
+             eduTrainingPlan_1.setAssessingStatuName("已批准");
+           }
+           else {
+             eduTrainingPlan_1.setAssessingStatuName("已拒绝");
+           }
+         }
+         if (eduTrainingPlan_1.getChannel() != null) {
+           if (eduTrainingPlan_1.getChannel().equals("0"))
+             eduTrainingPlan_1.setChannelName("内部培训");
+           else if (eduTrainingPlan_1.getChannel().equals("1"))
+             eduTrainingPlan_1.setChannelName("渠道培训");
+           else {
+             eduTrainingPlan_1.setChannelName("");
+           }
+         }
+         if (eduTrainingPlan_1.getCourseTypes() != null) {
+           if (eduTrainingPlan_1.getCourseTypes().equals("1")) {
+             eduTrainingPlan_1.setCourseTypesName("面授");
+           }
+           else if (eduTrainingPlan_1.getCourseTypes().equals("2")) {
+             eduTrainingPlan_1.setCourseTypesName("函授");
+           }
+           else {
+             eduTrainingPlan_1.setCourseTypesName("其他");
+           }
+         }
+       }
+       ajaxJson.setObj(eduTrainingPlans);
+       ajaxJson.setMsg("ok");
+       ajaxJson.setFlag(true);
+     } catch (Exception e) {
+       ajaxJson.setMsg(e.getMessage());
+       ajaxJson.setFlag(false);
+       e.printStackTrace();
+     }
+     return ajaxJson;
+   }
+ 
+   public AjaxJson getEduTrainByStatus(HttpServletRequest request, String assessingStatus)
+   {
+     AjaxJson ajaxJson = new AjaxJson();
+     ajaxJson.setFlag(false);
+     try
+     {
+       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       String userId = users.getUserId();
+       Map map = new HashMap();
+       map.put("userId", userId);
+       map.put("assessingStatus", assessingStatus);
+       List<EduTrainingPlan> eduTrainByStatus = this.eduTrainingPlanMapper.getEduTrainByStatus(map);
+       for (EduTrainingPlan eduTrainingPlan : eduTrainByStatus)
+       {
+         eduTrainingPlan.setAssessingStatuName("");
+         eduTrainingPlan.setChannelName("");
+         eduTrainingPlan.setCourseTypesName("");
+         if (eduTrainingPlan.getAssessingStatus() != null) {
+           if (eduTrainingPlan.getAssessingStatus().intValue() == 0) {
+             eduTrainingPlan.setAssessingStatuName("待审批");
+           }
+           else if (eduTrainingPlan.getAssessingStatus().intValue() == 1) {
+             eduTrainingPlan.setAssessingStatuName("已批准");
+           }
+           else {
+             eduTrainingPlan.setAssessingStatuName("已拒绝");
+           }
+         }
+         if (eduTrainingPlan.getChannel() != null) {
+           if (eduTrainingPlan.getChannel().equals("0"))
+             eduTrainingPlan.setChannelName("内部培训");
+           else if (eduTrainingPlan.getChannel().equals("1"))
+             eduTrainingPlan.setChannelName("渠道培训");
+           else {
+             eduTrainingPlan.setChannelName("");
+           }
+         }
+         if (eduTrainingPlan.getCourseTypes() != null) {
+           if (eduTrainingPlan.getCourseTypes().equals("1")) {
+             eduTrainingPlan.setCourseTypesName("面授");
+           }
+           else if (eduTrainingPlan.getCourseTypes().equals("2")) {
+             eduTrainingPlan.setCourseTypesName("函授");
+           }
+           else {
+             eduTrainingPlan.setCourseTypesName("其他");
+           }
+         }
+       }
+       ajaxJson.setObj(eduTrainByStatus);
+       ajaxJson.setMsg("ok");
+       ajaxJson.setFlag(true);
+     } catch (Exception e) {
+       ajaxJson.setMsg(e.getMessage());
+       ajaxJson.setFlag(false);
+       e.printStackTrace();
+     }
+     return ajaxJson;
+   }
+ 
+   public AjaxJson editEduTrainByStatus(EduTrainingPlan eduTrainingPlan)
+   {
+     AjaxJson ajaxJson = new AjaxJson();
+     ajaxJson.setFlag(false);
+ 
+     Date date = new Date();
+     eduTrainingPlan.setAssessingTime(date);
+     try {
+       this.eduTrainingPlanMapper.editEduTrainByStatus(eduTrainingPlan);
+       ajaxJson.setMsg("ok");
+       ajaxJson.setFlag(true);
+     } catch (Exception e) {
+       ajaxJson.setMsg(e.getMessage());
+       ajaxJson.setFlag(false);
+       e.printStackTrace();
+     }
+     return ajaxJson;
+   }
+ 
+   public AjaxJson QueryPlan(EduTrainingPlan eduTrainingPlan, String startTime, String endTime)
+   {
+     AjaxJson ajaxJson = new AjaxJson();
+     try {
+       Map map = new HashMap();
+       map.put("eduTrainingPlan", eduTrainingPlan);
+       map.put("startTime", startTime);
+       map.put("endTime", endTime);
+       List<EduTrainingPlan> eduTrainingPlans = this.eduTrainingPlanMapper.QueryPlan(map);
+       for (EduTrainingPlan eduTrainingPlan_1 : eduTrainingPlans)
+       {
+         eduTrainingPlan_1.setAssessingStatuName("");
+         eduTrainingPlan_1.setChannelName("");
+         eduTrainingPlan_1.setCourseTypesName("");
+         if (eduTrainingPlan_1.getAssessingStatus() != null) {
+           if (eduTrainingPlan_1.getAssessingStatus().intValue() == 0) {
+             eduTrainingPlan_1.setAssessingStatuName("待审批");
+           }
+           else if (eduTrainingPlan_1.getAssessingStatus().intValue() == 1) {
+             eduTrainingPlan_1.setAssessingStatuName("已批准");
+           }
+           else {
+             eduTrainingPlan_1.setAssessingStatuName("已拒绝");
+           }
+         }
+         if (eduTrainingPlan_1.getChannel() != null) {
+           if (eduTrainingPlan_1.getChannel().equals("0"))
+             eduTrainingPlan_1.setChannelName("内部培训");
+           else if (eduTrainingPlan_1.getChannel().equals("1"))
+             eduTrainingPlan_1.setChannelName("渠道培训");
+           else {
+             eduTrainingPlan_1.setChannelName("");
+           }
+         }
+         if (eduTrainingPlan_1.getCourseTypes() != null) {
+           if (eduTrainingPlan_1.getCourseTypes().equals("1")) {
+             eduTrainingPlan_1.setCourseTypesName("面授");
+           }
+           else if (eduTrainingPlan_1.getCourseTypes().equals("2")) {
+             eduTrainingPlan_1.setCourseTypesName("函授");
+           }
+           else {
+             eduTrainingPlan_1.setCourseTypesName("其他");
+           }
+         }
+       }
+       ajaxJson.setMsg("ok");
+       ajaxJson.setFlag(true);
+       ajaxJson.setObj(eduTrainingPlans);
+     } catch (Exception e) {
+       ajaxJson.setMsg(e.getMessage());
+       ajaxJson.setFlag(false);
+       e.printStackTrace();
+     }
+     return ajaxJson;
+   }
+ 
+   public AjaxJson QueryPlanStatus(EduTrainingPlan eduTrainingPlan, String startTime, String endTime, HttpServletRequest request)
+   {
+     AjaxJson ajaxJson = new AjaxJson();
+     try {
+       Map map = new HashMap();
+ 
+       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       String userId = users.getUserId();
+       map.put("eduTrainingPlan", eduTrainingPlan);
+       map.put("startTime", startTime);
+       map.put("endTime", endTime);
+       map.put("userId", userId);
+       List<EduTrainingPlan> eduTrainingPlans = this.eduTrainingPlanMapper.QueryPlanStatus(map);
+       for (EduTrainingPlan eduTrainingPlan_1 : eduTrainingPlans)
+       {
+         eduTrainingPlan_1.setAssessingStatuName("");
+         eduTrainingPlan_1.setChannelName("");
+         eduTrainingPlan_1.setCourseTypesName("");
+         if (eduTrainingPlan_1.getAssessingStatus() != null) {
+           if (eduTrainingPlan_1.getAssessingStatus().intValue() == 0) {
+             eduTrainingPlan_1.setAssessingStatuName("待审批");
+           }
+           else if (eduTrainingPlan_1.getAssessingStatus().intValue() == 1) {
+             eduTrainingPlan_1.setAssessingStatuName("已批准");
+           }
+           else {
+             eduTrainingPlan_1.setAssessingStatuName("已拒绝");
+           }
+         }
+         if (eduTrainingPlan_1.getChannel() != null) {
+           if (eduTrainingPlan_1.getChannel().equals("0"))
+             eduTrainingPlan_1.setChannelName("内部培训");
+           else if (eduTrainingPlan_1.getChannel().equals("1"))
+             eduTrainingPlan_1.setChannelName("渠道培训");
+           else {
+             eduTrainingPlan_1.setChannelName("");
+           }
+         }
+         if (eduTrainingPlan_1.getCourseTypes() != null) {
+           if (eduTrainingPlan_1.getCourseTypes().equals("1")) {
+             eduTrainingPlan_1.setCourseTypesName("面授");
+           }
+           else if (eduTrainingPlan_1.getCourseTypes().equals("2")) {
+             eduTrainingPlan_1.setCourseTypesName("函授");
+           }
+           else {
+             eduTrainingPlan_1.setCourseTypesName("其他");
+           }
+         }
+       }
+       ajaxJson.setMsg("ok");
+       ajaxJson.setFlag(true);
+       ajaxJson.setObj(eduTrainingPlans);
+     } catch (Exception e) {
+       ajaxJson.setMsg(e.getMessage());
+       ajaxJson.setFlag(false);
+       e.printStackTrace();
+     }
+     return ajaxJson;
+   }
+ 
+   public AjaxJson getMinePlanByStatus(HttpServletRequest request, String assessingStatus)
+   {
+     AjaxJson ajaxJson = new AjaxJson();
+     ajaxJson.setFlag(false);
+     try
+     {
+       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       String userId = users.getUserId();
+       Map map = new HashMap();
+       map.put("userId", userId);
+       map.put("assessingStatus", assessingStatus);
+       List<EduTrainingPlan> eduTrainByStatus = this.eduTrainingPlanMapper.getMinePlanByStatus(map);
+       for (EduTrainingPlan eduTrainingPlan : eduTrainByStatus)
+       {
+         eduTrainingPlan.setAssessingStatuName("");
+         eduTrainingPlan.setChannelName("");
+         eduTrainingPlan.setCourseTypesName("");
+         if (eduTrainingPlan.getAssessingStatus() != null) {
+           if (eduTrainingPlan.getAssessingStatus().intValue() == 0) {
+             eduTrainingPlan.setAssessingStatuName("待审批");
+           }
+           else if (eduTrainingPlan.getAssessingStatus().intValue() == 1) {
+             eduTrainingPlan.setAssessingStatuName("已批准");
+           }
+           else {
+             eduTrainingPlan.setAssessingStatuName("已拒绝");
+           }
+         }
+         if (eduTrainingPlan.getChannel() != null) {
+           if (eduTrainingPlan.getChannel().equals("0"))
+             eduTrainingPlan.setChannelName("内部培训");
+           else if (eduTrainingPlan.getChannel().equals("1"))
+             eduTrainingPlan.setChannelName("渠道培训");
+           else {
+             eduTrainingPlan.setChannelName("");
+           }
+         }
+         if (eduTrainingPlan.getCourseTypes() != null) {
+           if (eduTrainingPlan.getCourseTypes().equals("1")) {
+             eduTrainingPlan.setCourseTypesName("面授");
+           }
+           else if (eduTrainingPlan.getCourseTypes().equals("2")) {
+             eduTrainingPlan.setCourseTypesName("函授");
+           }
+           else {
+             eduTrainingPlan.setCourseTypesName("其他");
+           }
+         }
+       }
+       ajaxJson.setObj(eduTrainByStatus);
+       ajaxJson.setMsg("ok");
+       ajaxJson.setFlag(true);
+     } catch (Exception e) {
+       ajaxJson.setMsg(e.getMessage());
+       ajaxJson.setFlag(false);
+       e.printStackTrace();
+     }
+     return ajaxJson;
+   }
+ 
+   public AjaxJson getAllPlan()
+   {
+     AjaxJson ajaxJson = new AjaxJson();
+     ajaxJson.setFlag(false);
+     try {
+       List allPlan = this.eduTrainingPlanMapper.getAllPlan();
+       ajaxJson.setObj(allPlan);
+       ajaxJson.setMsg("ok");
+       ajaxJson.setFlag(true);
+     } catch (Exception e) {
+       ajaxJson.setMsg(e.getMessage());
+       ajaxJson.setFlag(false);
+       e.printStackTrace();
+     }
+     return ajaxJson;
+   }
+ 
+   public AjaxJson getAllPlanTrue()
+   {
+     AjaxJson ajaxJson = new AjaxJson();
+     ajaxJson.setFlag(false);
+     try {
+       List allPlan = this.eduTrainingPlanMapper.getAllPlanTrue();
+       ajaxJson.setObj(allPlan);
+       ajaxJson.setMsg("ok");
+       ajaxJson.setFlag(true);
+     } catch (Exception e) {
+       ajaxJson.setMsg(e.getMessage());
+       ajaxJson.setFlag(false);
+       e.printStackTrace();
+     }
+     return ajaxJson;
+   }
+ }
+

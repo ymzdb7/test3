@@ -1,0 +1,79 @@
+ package com.myoa.model.workflow;
+ 
+ public class FlowHook
+ {
+   private Integer hid;
+   private Integer flowId;
+   private String hname;
+   private String hdesc;
+   private String hmodule;
+   private String plugin;
+   private Integer status;
+   private String system;
+ 
+   public Integer getHid()
+   {
+     return this.hid;
+   }
+ 
+   public void setHid(Integer hid) {
+     this.hid = hid;
+   }
+ 
+   public Integer getFlowId() {
+     return this.flowId;
+   }
+ 
+   public void setFlowId(Integer flowId) {
+     this.flowId = flowId;
+   }
+ 
+   public String getHname() {
+     return this.hname;
+   }
+ 
+   public void setHname(String hname) {
+     this.hname = (hname == null ? "" : hname.trim());
+   }
+ 
+   public String getHdesc() {
+     return this.hdesc;
+   }
+ 
+   public void setHdesc(String hdesc) {
+     this.hdesc = (hdesc == null ? "" : hdesc.trim());
+   }
+ 
+   public String getHmodule() {
+     return this.hmodule;
+   }
+ 
+   public void setHmodule(String hmodule) {
+     this.hmodule = (hmodule == null ? "" : hmodule.trim());
+   }
+ 
+   public String getPlugin() {
+     return this.plugin == null ? "" : this.plugin.trim();
+   }
+ 
+   public void setPlugin(String plugin) {
+     this.plugin = (plugin == null ? "" : plugin.trim());
+   }
+ 
+   public Integer getStatus() {
+     return this.status;
+   }
+ 
+   public void setStatus(Integer status) {
+     this.status = status;
+   }
+ 
+   public String getSystem() {
+     return this.system;
+   }
+ 
+   public void setSystem(String system) {
+     this.system = (system == null ? "" : system.trim());
+   }
+ }
+

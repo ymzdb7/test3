@@ -1,0 +1,397 @@
+package com.xoa.kg.model;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class KgRelationKeySignExample {
+	protected String orderByClause;
+	protected boolean distinct;
+	protected List<Criteria> oredCriteria;
+
+	public KgRelationKeySignExample() {
+		this.oredCriteria = new ArrayList();
+	}
+
+	public void setOrderByClause(String orderByClause) {
+		this.orderByClause = orderByClause;
+	}
+
+	public String getOrderByClause() {
+		return this.orderByClause;
+	}
+
+	public void setDistinct(boolean distinct) {
+		this.distinct = distinct;
+	}
+
+	public boolean isDistinct() {
+		return this.distinct;
+	}
+
+	public List<Criteria> getOredCriteria() {
+		return this.oredCriteria;
+	}
+
+	public void or(Criteria criteria) {
+		this.oredCriteria.add(criteria);
+	}
+
+	public Criteria or() {
+		Criteria criteria = createCriteriaInternal();
+		this.oredCriteria.add(criteria);
+		return criteria;
+	}
+
+	public Criteria createCriteria() {
+		Criteria criteria = createCriteriaInternal();
+		if (this.oredCriteria.size() == 0) {
+			this.oredCriteria.add(criteria);
+		}
+		return criteria;
+	}
+
+	protected Criteria createCriteriaInternal() {
+		Criteria criteria = new Criteria();
+		return criteria;
+	}
+
+	public void clear() {
+		this.oredCriteria.clear();
+		this.orderByClause = null;
+		this.distinct = false;
+	}
+
+	public static class Criterion {
+		private String condition;
+		private Object value;
+		private Object secondValue;
+		private boolean noValue;
+		private boolean singleValue;
+		private boolean betweenValue;
+		private boolean listValue;
+		private String typeHandler;
+
+		public String getCondition() {
+			return this.condition;
+		}
+
+		public Object getValue() {
+			return this.value;
+		}
+
+		public Object getSecondValue() {
+			return this.secondValue;
+		}
+
+		public boolean isNoValue() {
+			return this.noValue;
+		}
+
+		public boolean isSingleValue() {
+			return this.singleValue;
+		}
+
+		public boolean isBetweenValue() {
+			return this.betweenValue;
+		}
+
+		public boolean isListValue() {
+			return this.listValue;
+		}
+
+		public String getTypeHandler() {
+			return this.typeHandler;
+		}
+
+		protected Criterion(String condition) {
+			this.condition = condition;
+			this.typeHandler = null;
+			this.noValue = true;
+		}
+
+		protected Criterion(String condition, Object value, String typeHandler) {
+			this.condition = condition;
+			this.value = value;
+			this.typeHandler = typeHandler;
+			if ((value instanceof List))
+				this.listValue = true;
+			else
+				this.singleValue = true;
+		}
+
+		protected Criterion(String condition, Object value) {
+			this(condition, value, null);
+		}
+
+		protected Criterion(String condition, Object value, Object secondValue,
+				String typeHandler) {
+			this.condition = condition;
+			this.value = value;
+			this.secondValue = secondValue;
+			this.typeHandler = typeHandler;
+			this.betweenValue = true;
+		}
+
+		protected Criterion(String condition, Object value, Object secondValue) {
+			this(condition, value, secondValue, null);
+		}
+	}
+
+	public static class Criteria extends
+			KgRelationKeySignExample.GeneratedCriteria {
+	}
+
+	protected static abstract class GeneratedCriteria {
+		protected List<KgRelationKeySignExample.Criterion> criteria;
+
+		protected GeneratedCriteria() {
+			this.criteria = new ArrayList();
+		}
+
+		public boolean isValid() {
+			return this.criteria.size() > 0;
+		}
+
+		public List<KgRelationKeySignExample.Criterion> getAllCriteria() {
+			return this.criteria;
+		}
+
+		public List<KgRelationKeySignExample.Criterion> getCriteria() {
+			return this.criteria;
+		}
+
+		protected void addCriterion(String condition) {
+			if (condition == null) {
+				throw new RuntimeException("Value for condition cannot be null");
+			}
+			this.criteria
+					.add(new KgRelationKeySignExample.Criterion(condition));
+		}
+
+		protected void addCriterion(String condition, Object value,
+				String property) {
+			if (value == null) {
+				throw new RuntimeException("Value for " + property
+						+ " cannot be null");
+			}
+			this.criteria.add(new KgRelationKeySignExample.Criterion(condition,
+					value));
+		}
+
+		protected void addCriterion(String condition, Object value1,
+				Object value2, String property) {
+			if ((value1 == null) || (value2 == null)) {
+				throw new RuntimeException("Between values for " + property
+						+ " cannot be null");
+			}
+			this.criteria.add(new KgRelationKeySignExample.Criterion(condition,
+					value1, value2));
+		}
+
+		public KgRelationKeySignExample.Criteria andRelationIdIsNull() {
+			addCriterion("RELATION_ID is null");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andRelationIdIsNotNull() {
+			addCriterion("RELATION_ID is not null");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andRelationIdEqualTo(
+				Integer value) {
+			addCriterion("RELATION_ID =", value, "relationId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andRelationIdNotEqualTo(
+				Integer value) {
+			addCriterion("RELATION_ID <>", value, "relationId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andRelationIdGreaterThan(
+				Integer value) {
+			addCriterion("RELATION_ID >", value, "relationId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andRelationIdGreaterThanOrEqualTo(
+				Integer value) {
+			addCriterion("RELATION_ID >=", value, "relationId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andRelationIdLessThan(
+				Integer value) {
+			addCriterion("RELATION_ID <", value, "relationId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andRelationIdLessThanOrEqualTo(
+				Integer value) {
+			addCriterion("RELATION_ID <=", value, "relationId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andRelationIdIn(
+				List<Integer> values) {
+			addCriterion("RELATION_ID in", values, "relationId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andRelationIdNotIn(
+				List<Integer> values) {
+			addCriterion("RELATION_ID not in", values, "relationId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andRelationIdBetween(
+				Integer value1, Integer value2) {
+			addCriterion("RELATION_ID between", value1, value2, "relationId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andRelationIdNotBetween(
+				Integer value1, Integer value2) {
+			addCriterion("RELATION_ID not between", value1, value2,
+					"relationId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andKeyIdIsNull() {
+			addCriterion("KEY_ID is null");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andKeyIdIsNotNull() {
+			addCriterion("KEY_ID is not null");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andKeyIdEqualTo(Integer value) {
+			addCriterion("KEY_ID =", value, "keyId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andKeyIdNotEqualTo(
+				Integer value) {
+			addCriterion("KEY_ID <>", value, "keyId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andKeyIdGreaterThan(
+				Integer value) {
+			addCriterion("KEY_ID >", value, "keyId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andKeyIdGreaterThanOrEqualTo(
+				Integer value) {
+			addCriterion("KEY_ID >=", value, "keyId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andKeyIdLessThan(Integer value) {
+			addCriterion("KEY_ID <", value, "keyId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andKeyIdLessThanOrEqualTo(
+				Integer value) {
+			addCriterion("KEY_ID <=", value, "keyId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andKeyIdIn(List<Integer> values) {
+			addCriterion("KEY_ID in", values, "keyId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andKeyIdNotIn(
+				List<Integer> values) {
+			addCriterion("KEY_ID not in", values, "keyId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andKeyIdBetween(
+				Integer value1, Integer value2) {
+			addCriterion("KEY_ID between", value1, value2, "keyId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andKeyIdNotBetween(
+				Integer value1, Integer value2) {
+			addCriterion("KEY_ID not between", value1, value2, "keyId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andSignIdIsNull() {
+			addCriterion("SIGN_ID is null");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andSignIdIsNotNull() {
+			addCriterion("SIGN_ID is not null");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andSignIdEqualTo(Integer value) {
+			addCriterion("SIGN_ID =", value, "signId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andSignIdNotEqualTo(
+				Integer value) {
+			addCriterion("SIGN_ID <>", value, "signId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andSignIdGreaterThan(
+				Integer value) {
+			addCriterion("SIGN_ID >", value, "signId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andSignIdGreaterThanOrEqualTo(
+				Integer value) {
+			addCriterion("SIGN_ID >=", value, "signId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andSignIdLessThan(Integer value) {
+			addCriterion("SIGN_ID <", value, "signId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andSignIdLessThanOrEqualTo(
+				Integer value) {
+			addCriterion("SIGN_ID <=", value, "signId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andSignIdIn(
+				List<Integer> values) {
+			addCriterion("SIGN_ID in", values, "signId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andSignIdNotIn(
+				List<Integer> values) {
+			addCriterion("SIGN_ID not in", values, "signId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andSignIdBetween(
+				Integer value1, Integer value2) {
+			addCriterion("SIGN_ID between", value1, value2, "signId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+
+		public KgRelationKeySignExample.Criteria andSignIdNotBetween(
+				Integer value1, Integer value2) {
+			addCriterion("SIGN_ID not between", value1, value2, "signId");
+			return (KgRelationKeySignExample.Criteria) this;
+		}
+	}
+}

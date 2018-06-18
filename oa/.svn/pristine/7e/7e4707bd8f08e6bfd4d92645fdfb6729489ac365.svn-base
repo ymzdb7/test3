@@ -1,0 +1,158 @@
+/*     */ package com.xoa.util.treeUtil;
+/*     */ 
+/*     */ import java.lang.reflect.Array;
+/*     */ import java.lang.reflect.Method;
+/*     */ import java.util.Collection;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.Map;
+/*     */ import java.util.Set;
+/*     */ import org.json.JSONArray;
+/*     */ import org.json.JSONException;
+/*     */ import org.json.JSONObject;
+/*     */ import org.json.JSONString;
+/*     */ 
+/*     */ public class JSONUtil
+/*     */ {
+/*  20 */   private static JSONUtil instance = null;
+/*     */ 
+/*     */   protected Object proxyCheck(Object bean)
+/*     */   {
+/*  32 */     return bean;
+/*     */   }
+/*     */ 
+/*     */   public static String toJSONString(Object obj) throws JSONException {
+/*  36 */     return toJSONString(obj, false);
+/*     */   }
+/*     */ 
+/*     */   public static String toJSONString(Object obj, boolean useClassConvert) throws JSONException {
+/*  40 */     if (instance == null)
+/*  41 */       instance = new JSONUtil();
+/*  42 */     return instance.getJSONObject(obj, useClassConvert).toString();
+/*     */   }
+/*     */ 
+/*     */   private String getJSONArray(Object arrayObj, boolean useClassConvert)
+/*     */     throws JSONException
+/*     */   {
+/*  48 */     if (arrayObj == null) {
+/*  49 */       return "null";
+/*     */     }
+/*  51 */     arrayObj = proxyCheck(arrayObj);
+/*     */ 
+/*  53 */     JSONArray jSONArray = new JSONArray();
+/*  54 */     if ((arrayObj instanceof Collection)) {
+/*  55 */       Iterator iterator = ((Collection)arrayObj).iterator();
+/*  56 */       while (iterator.hasNext()) {
+/*  57 */         Object rowObj = iterator.next();
+/*  58 */         if (rowObj == null)
+/*  59 */           jSONArray.put(new JSONStringObject(null));
+/*  60 */         else if ((rowObj.getClass().isArray()) || ((rowObj instanceof Collection)))
+/*  61 */           jSONArray.put(getJSONArray(rowObj, useClassConvert));
+/*     */         else
+/*  63 */           jSONArray.put(getJSONObject(rowObj, useClassConvert));
+/*     */       }
+/*     */     }
+/*  66 */     if (arrayObj.getClass().isArray()) {
+/*  67 */       int arrayLength = Array.getLength(arrayObj);
+/*  68 */       for (int i = 0; i < arrayLength; i++) {
+/*  69 */         Object rowObj = Array.get(arrayObj, i);
+/*  70 */         if (rowObj == null)
+/*  71 */           jSONArray.put(new JSONStringObject(null));
+/*  72 */         else if ((rowObj.getClass().isArray()) || ((rowObj instanceof Collection)))
+/*  73 */           jSONArray.put(getJSONArray(rowObj, useClassConvert));
+/*     */         else
+/*  75 */           jSONArray.put(getJSONObject(rowObj, useClassConvert));
+/*     */       }
+/*     */     }
+/*  78 */     return jSONArray.toString();
+/*     */   }
+/*     */ 
+/*     */   JSONStringObject getJSONObject(Object value, boolean useClassConvert)
+/*     */     throws JSONException
+/*     */   {
+/*  86 */     if (value == null) {
+/*  87 */       return new JSONStringObject("null");
+/*     */     }
+/*  89 */     value = proxyCheck(value);
+/*  90 */     if ((value instanceof JSONString)) {
+/*     */       Object o;
+/*     */       try { o = ((JSONString)value).toJSONString();
+/*     */       } catch (Exception e) {
+/*  95 */         throw new JSONException(e);
+/*     */       }
+/*  97 */       throw new JSONException("Bad value from toJSONString: " + o);
+/*     */     }
+/*  99 */     if ((value instanceof Number)) {
+/* 100 */       return new JSONStringObject(JSONObject.numberToString((Number)value));
+/*     */     }
+/* 102 */     if (((value instanceof Boolean)) || ((value instanceof JSONObject)) || ((value instanceof JSONArray)))
+/*     */     {
+/* 104 */       return new JSONStringObject(value.toString());
+/*     */     }
+/* 106 */     if ((value instanceof String))
+/* 107 */       return new JSONStringObject(JSONObject.quote(value.toString()));
+/* 108 */     if ((value instanceof Map))
+/*     */     {
+/* 110 */       JSONObject jSONObject = new JSONObject();
+/*     */ 
+/* 112 */       Iterator iterator = ((Map)value).keySet().iterator();
+/* 113 */       while (iterator.hasNext()) {
+/* 114 */         String key = iterator.next().toString();
+/* 115 */         Object valueObj = ((Map)value).get(key);
+/* 116 */         jSONObject.put(key, getJSONObject(valueObj, useClassConvert));
+/*     */       }
+/* 118 */       return new JSONStringObject(jSONObject.toString());
+/*     */     }
+/*     */ 
+/* 123 */     if ((value instanceof Class)) {
+/* 124 */       return new JSONStringObject(JSONObject.quote(((Class)value).getSimpleName()));
+/*     */     }
+/*     */ 
+/* 128 */     if (((value instanceof Collection)) || (value.getClass().isArray())) {
+/* 129 */       return new JSONStringObject(getJSONArray(proxyCheck(value), useClassConvert));
+/*     */     }
+/*     */ 
+/* 132 */     return reflectObject(value, useClassConvert);
+/*     */   }
+/*     */ 
+/*     */   private JSONStringObject reflectObject(Object bean, boolean useClassConvert)
+/*     */   {
+/* 138 */     JSONObject jSONObject = new JSONObject();
+/*     */ 
+/* 140 */     Class klass = bean.getClass();
+/* 141 */     Method[] methods = klass.getMethods();
+/* 142 */     for (int i = 0; i < methods.length; i++)
+/*     */       try {
+/* 144 */         Method method = methods[i];
+/* 145 */         String name = method.getName();
+/* 146 */         String key = "";
+/* 147 */         if (name.startsWith("get"))
+/* 148 */           key = name.substring(3);
+/* 149 */         else if (name.startsWith("is")) {
+/* 150 */           key = name.substring(2);
+/*     */         }
+/* 152 */         if ((key.length() > 0) && (Character.isUpperCase(key.charAt(0))) && (method.getParameterTypes().length == 0))
+/*     */         {
+/* 155 */           if (key.length() == 1)
+/* 156 */             key = key.toLowerCase();
+/* 157 */           else if (!Character.isUpperCase(key.charAt(1))) {
+/* 158 */             key = key.substring(0, 1).toLowerCase() + key.substring(1);
+/*     */           }
+/*     */ 
+/* 161 */           Object elementObj = method.invoke(bean, null);
+/* 162 */           if ((!useClassConvert) && ((elementObj instanceof Class))) {
+/*     */             continue;
+/*     */           }
+/* 165 */           jSONObject.put(key, getJSONObject(elementObj, useClassConvert));
+/*     */         }
+/*     */       }
+/*     */       catch (Exception e)
+/*     */       {
+/*     */       }
+/* 171 */     return new JSONStringObject(jSONObject.toString());
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.treeUtil.JSONUtil
+ * JD-Core Version:    0.6.0
+ */

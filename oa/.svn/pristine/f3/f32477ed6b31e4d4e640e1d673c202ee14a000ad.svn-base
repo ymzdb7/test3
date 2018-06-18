@@ -1,0 +1,119 @@
+ package com.xoa.util.treeUtil;
+ 
+ import com.xoa.model.supervision.SupervisionType;
+ import java.util.ArrayList;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ 
+ public class SuperviseTreeUtil
+ {
+   private static final String MENU_ID = "";
+   List<SupervisionType> rootTree;
+   List<SupervisionType> childTree;
+   Map<String, Object> map;
+ 
+   public SuperviseTreeUtil(List<SupervisionType> rootTree, List<SupervisionType> childTree, Map<String, Object> map)
+   {
+     this.rootTree = rootTree;
+     this.childTree = childTree;
+     this.map = map;
+   }
+ 
+   public List<TreeGirdNode> getTreeGirdNode()
+   {
+     return getRootNodes();
+   }
+ 
+   public List<TreeGirdNode> getTreeGirdNodeMap() {
+     return getRootNodeMap();
+   }
+ 
+   private List<TreeGirdNode> getRootNodes()
+   {
+     List rootNodes = new ArrayList();
+     for (SupervisionType fs : this.rootTree) {
+       TreeGirdNode node = RootToNode(fs);
+       if (node != null) {
+         addChlidNodes(node);
+         rootNodes.add(node);
+       }
+     }
+     return rootNodes;
+   }
+ 
+   public List<TreeGirdNode> getRootNodeMap()
+   {
+     List rootNodes = new ArrayList();
+     for (SupervisionType fs : this.rootTree) {
+       TreeGirdNode node = RootToNode(fs);
+       if ((node != null) && (this.map != null)) {
+         if (CheckTree.checkAll(fs.getUserId(), this.map)) {
+           addChlidNodeMap(node, false);
+         }
+         rootNodes.add(node);
+       }
+     }
+     return rootNodes;
+   }
+ 
+   private TreeGirdNode RootToNode(SupervisionType fs)
+   {
+     if (fs == null) {
+       return null;
+     }
+     TreeGirdNode node = new TreeGirdNode();
+     Map attributes = new HashMap();
+ 
+     String[] checkStrings = (fs.getUserName() == null ? "" : fs.getUserName()).split("\\|");
+ 
+     if (checkStrings.length == 1) {
+       node.setDeptNames(checkStrings[0]);
+       node.setRoleNames("");
+       node.setUserNames("");
+     }
+ 
+     if (checkStrings.length == 2) {
+       node.setDeptNames(checkStrings[0]);
+       node.setRoleNames(checkStrings[1]);
+       node.setUserNames("");
+     }
+ 
+     if (checkStrings.length == 3) {
+       node.setDeptNames(checkStrings[0]);
+       node.setRoleNames(checkStrings[1]);
+       node.setUserNames(checkStrings[2]);
+     }
+     node.setId(String.valueOf(fs.getSid()));
+     node.setText(fs.getTypeName());
+     return node;
+   }
+ 
+   private void addChlidNodeMap(TreeGirdNode rootNode, boolean flag)
+   {
+     List childNodes = new ArrayList();
+     boolean cFlag = false;
+     for (SupervisionType fs : this.childTree) {
+       if (rootNode.getId().equals(String.valueOf(fs.getParentId()))) {
+         TreeGirdNode node = RootToNode(fs);
+         childNodes.add(node);
+         addChlidNodeMap(node, cFlag);
+       }
+     }
+     rootNode.setChildren(childNodes);
+   }
+ 
+   private void addChlidNodes(TreeGirdNode rootNode)
+   {
+     List childNodes = new ArrayList();
+     for (SupervisionType fs : this.childTree) {
+       if ((rootNode.getId().equals(String.valueOf(fs.getParentId()))) && (CheckTree.checkAll(fs.getUserId(), this.map))) {
+         TreeGirdNode node = RootToNode(fs);
+         childNodes.add(node);
+         addChlidNodes(node);
+       }
+     }
+     rootNode.setChildren(childNodes);
+   }
+ }
+

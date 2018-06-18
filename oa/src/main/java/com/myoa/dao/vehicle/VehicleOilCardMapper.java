@@ -1,0 +1,43 @@
+package com.myoa.dao.vehicle;
+
+import com.myoa.model.vehicle.VehicleOilCard;
+import com.myoa.model.vehicle.VehicleOilCardExample;
+
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface VehicleOilCardMapper {
+	public abstract int countByExample(
+			VehicleOilCardExample paramVehicleOilCardExample);
+
+	public abstract int deleteByExample(
+			VehicleOilCardExample paramVehicleOilCardExample);
+
+	public abstract int deleteByPrimaryKey(Integer paramInteger);
+
+	public abstract int insert(VehicleOilCard paramVehicleOilCard);
+
+	public abstract int insertSelective(VehicleOilCard paramVehicleOilCard);
+
+	public abstract List<VehicleOilCard> selectByExample(
+			VehicleOilCardExample paramVehicleOilCardExample);
+
+	public abstract VehicleOilCard selectByPrimaryKey(Integer paramInteger);
+
+	public abstract int updateByExampleSelective(
+			@Param("record") VehicleOilCard paramVehicleOilCard,
+			@Param("example") VehicleOilCardExample paramVehicleOilCardExample);
+
+	public abstract int updateByExample(
+			@Param("record") VehicleOilCard paramVehicleOilCard,
+			@Param("example") VehicleOilCardExample paramVehicleOilCardExample);
+
+	public abstract int updateByPrimaryKeySelective(
+			VehicleOilCard paramVehicleOilCard);
+
+	public abstract int updateByPrimaryKey(VehicleOilCard paramVehicleOilCard);
+
+	public abstract int deleteCards(@Param("ids") String[] paramArrayOfString);
+
+	public abstract List<VehicleOilCard> selectAllCard();
+}

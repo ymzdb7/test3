@@ -1,0 +1,68 @@
+/*    */ package com.xoa.service.edu.eduUser.impl;
+/*    */ 
+/*    */ import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+/*    */ import com.xoa.dao.edu.eduUser.EduUserMapper;
+/*    */ import com.xoa.model.edu.eduUser.EduUser;
+/*    */ import com.xoa.service.edu.eduUser.IEduUserService;
+/*    */ import java.util.List;
+/*    */ import java.util.Map;
+/*    */ import javax.annotation.Resource;
+/*    */ import org.springframework.stereotype.Service;
+/*    */ 
+/*    */ @Service
+/*    */ public class EduUserServiceImpl extends ServiceImpl<EduUserMapper, EduUser>
+/*    */   implements IEduUserService
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   EduUserMapper eduUserMapper;
+/*    */ 
+/*    */   public EduUser getByuserId(String userId)
+/*    */   {
+/* 33 */     EduUser eduUser = ((EduUserMapper)this.baseMapper).getByuserId(userId);
+/* 34 */     return eduUser;
+/*    */   }
+/*    */ 
+/*    */   public String getUserNameByUids(String uids)
+/*    */   {
+/* 39 */     String[] userArray = uids.split(",");
+/* 40 */     StringBuffer stringBuffer = new StringBuffer();
+/* 41 */     for (int i = 0; i < userArray.length; i++) {
+/* 42 */       EduUser user = this.eduUserMapper.getByUid(Integer.valueOf(userArray[i]));
+/* 43 */       if (user != null) {
+/* 44 */         String userName = user.getUserName();
+/* 45 */         stringBuffer.append(userName).append(",");
+/*    */       }
+/*    */     }
+/* 48 */     return stringBuffer.toString();
+/*    */   }
+/*    */ 
+/*    */   public String getUserNameByUserIds(String userIds)
+/*    */   {
+/* 53 */     String[] userArray = userIds.split(",");
+/* 54 */     StringBuffer stringBuffer = new StringBuffer();
+/* 55 */     for (int i = 0; i < userArray.length; i++) {
+/* 56 */       EduUser user = this.eduUserMapper.getByuserId(userArray[i]);
+/* 57 */       if (user != null) {
+/* 58 */         String userName = user.getUserName();
+/* 59 */         stringBuffer.append(userName).append(",");
+/*    */       }
+/*    */     }
+/* 62 */     return stringBuffer.toString();
+/*    */   }
+/*    */ 
+/*    */   public List<EduUser> getBySearch(Map<String, Object> maps)
+/*    */   {
+/* 81 */     return this.eduUserMapper.getBySearch(maps);
+/*    */   }
+/*    */ 
+/*    */   public EduUser getByUid(Integer uid)
+/*    */   {
+/* 88 */     return this.eduUserMapper.getByUid(uid);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduUser.impl.EduUserServiceImpl
+ * JD-Core Version:    0.6.0
+ */

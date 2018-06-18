@@ -1,0 +1,247 @@
+/*     */ package com.xoa.service.edu.eduTrainingRecord;
+/*     */ 
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.edu.eduTrainingPlanRecord.EduTrainingRecordMapper;
+/*     */ import com.xoa.dao.edu.eduUser.EduUserMapper;
+/*     */ import com.xoa.model.department.Department;
+/*     */ import com.xoa.model.edu.eduTrainingPlanRecord.EduTrainingRecordWithBLOBs;
+/*     */ import com.xoa.model.edu.eduUser.EduUser;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.util.AjaxJson;
+/*     */ import com.xoa.util.ExcelUtil;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.OutputStream;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduTrainingRecordService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private EduTrainingRecordMapper eduTrainingRecordMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private EduUserMapper eduUserMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private DepartmentMapper eduDepartmentMapper;
+/*     */ 
+/*     */   public AjaxJson addEduTrainPlainRecord(HttpServletRequest request, EduTrainingRecordWithBLOBs eduTrainingRecordWithBLOBs)
+/*     */   {
+/*  50 */     AjaxJson ajaxJson = new AjaxJson();
+/*  51 */     ajaxJson.setFlag(false);
+/*     */     try
+/*     */     {
+/*  54 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  55 */       eduTrainingRecordWithBLOBs.setCreateUserId(users.getUserId());
+/*  56 */       eduTrainingRecordWithBLOBs.setCreateDeptId(users.getDeptId());
+/*  57 */       this.eduTrainingRecordMapper.insertSelective(eduTrainingRecordWithBLOBs);
+/*  58 */       ajaxJson.setMsg("ok");
+/*  59 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/*  61 */       ajaxJson.setMsg(e.getMessage());
+/*  62 */       ajaxJson.setFlag(false);
+/*  63 */       e.printStackTrace();
+/*     */     }
+/*  65 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson editRecord(HttpServletRequest request, EduTrainingRecordWithBLOBs eduTrainingRecordWithBLOBs)
+/*     */   {
+/*  74 */     AjaxJson ajaxJson = new AjaxJson();
+/*  75 */     ajaxJson.setFlag(false);
+/*     */     try {
+/*  77 */       int i = this.eduTrainingRecordMapper.updateByPrimaryKeySelective(eduTrainingRecordWithBLOBs);
+/*  78 */       ajaxJson.setMsg("ok");
+/*  79 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/*  81 */       ajaxJson.setMsg(e.getMessage());
+/*  82 */       ajaxJson.setFlag(false);
+/*  83 */       e.printStackTrace();
+/*     */     }
+/*  85 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson deleteRecordById(HttpServletRequest request, Integer recordId)
+/*     */   {
+/*  94 */     AjaxJson ajaxJson = new AjaxJson();
+/*  95 */     ajaxJson.setFlag(false);
+/*     */     try {
+/*  97 */       int i = this.eduTrainingRecordMapper.deleteByPrimaryKey(recordId);
+/*  98 */       ajaxJson.setMsg("ok");
+/*  99 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 101 */       ajaxJson.setMsg(e.getMessage());
+/* 102 */       ajaxJson.setFlag(false);
+/* 103 */       e.printStackTrace();
+/*     */     }
+/* 105 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getdetail(HttpServletRequest request, Integer recordId)
+/*     */   {
+/* 114 */     AjaxJson ajaxJson = new AjaxJson();
+/* 115 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 117 */       EduTrainingRecordWithBLOBs eduTrainingRecordWithBLOBs = this.eduTrainingRecordMapper.selectByPrimaryKey(recordId);
+/* 118 */       if (eduTrainingRecordWithBLOBs.getCreateUserId() != null) {
+/* 119 */         EduUser byuserId = this.eduUserMapper.getByuserId(eduTrainingRecordWithBLOBs.getCreateUserId());
+/* 120 */         eduTrainingRecordWithBLOBs.setCreateUserName(byuserId.getUserName());
+/*     */       }
+/* 122 */       if (eduTrainingRecordWithBLOBs.getCreateDeptId() != null) {
+/* 123 */         Department eduDepartmentWithBLOBs = this.eduDepartmentMapper.getDeptById(Integer.valueOf(eduTrainingRecordWithBLOBs.getCreateDeptId().intValue()).intValue());
+/* 124 */         eduTrainingRecordWithBLOBs.setCreateDeptName(eduDepartmentWithBLOBs.getDeptName());
+/*     */       }
+/* 126 */       StringBuffer sb = new StringBuffer();
+/* 127 */       if (eduTrainingRecordWithBLOBs.getStaffUserId() != null) {
+/* 128 */         String staffUserId = eduTrainingRecordWithBLOBs.getStaffUserId();
+/* 129 */         String[] split = staffUserId.split(",");
+/* 130 */         for (String s : split) {
+/* 131 */           EduUser byuserId = this.eduUserMapper.getByuserId(s);
+/* 132 */           sb.append(byuserId.getUserName() + ",");
+/*     */         }
+/*     */       }
+/* 135 */       eduTrainingRecordWithBLOBs.setStaffUserName(sb.toString());
+/* 136 */       ajaxJson.setObj(eduTrainingRecordWithBLOBs);
+/* 137 */       ajaxJson.setMsg("ok");
+/* 138 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 140 */       ajaxJson.setMsg(e.getMessage());
+/* 141 */       ajaxJson.setFlag(false);
+/* 142 */       e.printStackTrace();
+/*     */     }
+/* 144 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getAll(HttpServletRequest request, Integer page, Integer pageSize, Boolean useFlag)
+/*     */   {
+/* 153 */     AjaxJson ajaxJson = new AjaxJson();
+/* 154 */     ajaxJson.setFlag(false);
+/*     */     try
+/*     */     {
+/* 157 */       PageParams pageParams = new PageParams();
+/* 158 */       pageParams.setPage(page);
+/* 159 */       pageParams.setPageSize(pageSize);
+/* 160 */       pageParams.setUseFlag(useFlag);
+/* 161 */       Map map = new HashMap();
+/* 162 */       map.put("page", pageParams);
+/*     */ 
+/* 164 */       List<EduTrainingRecordWithBLOBs> all = this.eduTrainingRecordMapper.getAll(map);
+/*     */ 
+/* 166 */       for (EduTrainingRecordWithBLOBs eduTrainingRecordWithBLOBs : all) {
+/* 167 */         StringBuffer sb = new StringBuffer();
+/* 168 */         if (eduTrainingRecordWithBLOBs.getStaffUserId() != null) {
+/* 169 */           String staffUserId = eduTrainingRecordWithBLOBs.getStaffUserId();
+/* 170 */           String[] split = staffUserId.split(",");
+/* 171 */           for (String s : split) {
+/* 172 */             EduUser byuserId = this.eduUserMapper.getByuserId(s);
+/* 173 */             if (byuserId != null) {
+/* 174 */               sb.append(byuserId.getUserName() + ",");
+/*     */             }
+/*     */           }
+/*     */         }
+/* 178 */         eduTrainingRecordWithBLOBs.setStaffUserName(sb.toString());
+/*     */       }
+/* 180 */       int count = this.eduTrainingRecordMapper.getCount();
+/* 181 */       ajaxJson.setTotleNum(Integer.valueOf(count));
+/* 182 */       ajaxJson.setObj(all);
+/* 183 */       ajaxJson.setMsg("ok");
+/* 184 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 186 */       ajaxJson.setMsg(e.getMessage());
+/* 187 */       ajaxJson.setFlag(false);
+/* 188 */       e.printStackTrace();
+/*     */     }
+/* 190 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson queryRecord(EduTrainingRecordWithBLOBs eduTrainingRecordWithBLOBs, String export, HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/* 199 */     AjaxJson ajaxJson = new AjaxJson();
+/* 200 */     ajaxJson.setFlag(false);
+/* 201 */     if (export == null)
+/* 202 */       export = "0";
+/*     */     try
+/*     */     {
+/* 205 */       Map map = new HashMap();
+/* 206 */       map.put("eduTrainingRecordWithBLOBs", eduTrainingRecordWithBLOBs);
+/* 207 */       List<EduTrainingRecordWithBLOBs> all = this.eduTrainingRecordMapper.queryRecord(map);
+/* 208 */       for (EduTrainingRecordWithBLOBs eduTrainingRecordWithBLOBs1 : all) {
+/* 209 */         if (eduTrainingRecordWithBLOBs1.getCreateUserId() != null) {
+/* 210 */           EduUser byuserId = this.eduUserMapper.getByuserId(eduTrainingRecordWithBLOBs1.getCreateUserId());
+/* 211 */           eduTrainingRecordWithBLOBs1.setCreateUserName(byuserId.getUserName());
+/*     */         }
+/* 213 */         if (eduTrainingRecordWithBLOBs1.getCreateDeptId() != null) {
+/* 214 */           Department eduDepartmentWithBLOBs2 = this.eduDepartmentMapper.getDeptById(Integer.valueOf(eduTrainingRecordWithBLOBs1.getCreateDeptId().intValue()).intValue());
+/* 215 */           eduTrainingRecordWithBLOBs1.setCreateDeptName(eduDepartmentWithBLOBs2.getDeptName());
+/*     */         }
+/* 217 */         StringBuffer sb = new StringBuffer();
+/* 218 */         if (eduTrainingRecordWithBLOBs1.getStaffUserId() != null) {
+/* 219 */           String staffUserId = eduTrainingRecordWithBLOBs1.getStaffUserId();
+/* 220 */           String[] split = staffUserId.split(",");
+/* 221 */           for (String s : split) {
+/* 222 */             EduUser byuserId = this.eduUserMapper.getByuserId(s);
+/* 223 */             if (byuserId != null) {
+/* 224 */               sb.append(byuserId.getUserName() + ",");
+/*     */             }
+/*     */           }
+/*     */         }
+/* 228 */         eduTrainingRecordWithBLOBs1.setStaffUserName(sb.toString());
+/*     */       }
+/* 230 */       ajaxJson.setObj(all);
+/* 231 */       ajaxJson.setMsg("ok");
+/* 232 */       ajaxJson.setFlag(true);
+/* 233 */       if (export.equals("1")) {
+/* 234 */         HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("培训记录导出信息表", 9);
+/* 235 */         String[] secondTitles = { "Id", "创建者用户名", "创建者部门", "培训人员", "培训计划编号", "培训计划名称", "培训机构名称", "培训费用", "出勤情况" };
+/* 236 */         HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/* 237 */         String[] beanProperty = { "recordId", "createUserName", "createDeptName", "staffUserName", "tPlanNo", "tPlanName", "tInstitutionName", "trainningCost", "dutySituation" };
+/* 238 */         HSSFWorkbook workbook = ExcelUtil.exportExcelData(workbook2, all, beanProperty);
+/* 239 */         OutputStream out = response.getOutputStream();
+/* 240 */         String filename = "培训记录导出信息表.xls";
+/* 241 */         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/* 242 */         response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+/* 243 */         response.setHeader("content-disposition", "attachment;filename=" + filename);
+/* 244 */         workbook.write(out);
+/* 245 */         out.close();
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 250 */       ajaxJson.setMsg(e.getMessage());
+/* 251 */       ajaxJson.setFlag(false);
+/* 252 */       e.printStackTrace();
+/*     */     }
+/* 254 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson deleteByIds(String[] recordIds)
+/*     */   {
+/* 263 */     AjaxJson ajaxJson = new AjaxJson();
+/* 264 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 266 */       this.eduTrainingRecordMapper.deleteByIds(recordIds);
+/* 267 */       ajaxJson.setMsg("ok");
+/* 268 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 270 */       ajaxJson.setMsg(e.getMessage());
+/* 271 */       ajaxJson.setFlag(false);
+/* 272 */       e.printStackTrace();
+/*     */     }
+/* 274 */     return ajaxJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduTrainingRecord.EduTrainingRecordService
+ * JD-Core Version:    0.6.0
+ */

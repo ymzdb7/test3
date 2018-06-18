@@ -1,0 +1,643 @@
+ package com.xoa.service.officesupplies;
+ 
+ import com.xoa.dao.department.DepartmentMapper;
+ import com.xoa.dao.edu.eduUser.EduUserMapper;
+ import com.xoa.dao.officesupplies.OfficeProductsMapper;
+ import com.xoa.dao.officesupplies.OfficeTranshistoryMapper;
+ import com.xoa.dao.officesupplies.OfficeTypeMapper;
+ import com.xoa.model.edu.eduUser.EduUser;
+ import com.xoa.model.officesupplies.OfficeProductsWithBLOBs;
+ import com.xoa.model.officesupplies.OfficeTranshistoryWithBLOBs;
+ import com.xoa.model.users.Users;
+ import com.xoa.util.AjaxJson;
+ import com.xoa.util.ExcelUtil;
+ import com.xoa.util.ToJson;
+ import com.xoa.util.common.L;
+ import com.xoa.util.common.StringUtils;
+ import com.xoa.util.common.log.FileUtils;
+ import com.xoa.util.common.session.SessionUtils;
+ import com.xoa.util.page.PageParams;
+ import java.io.OutputStream;
+ import java.text.SimpleDateFormat;
+ import java.util.Date;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import javax.annotation.Resource;
+ import javax.servlet.http.HttpServletRequest;
+ import javax.servlet.http.HttpServletResponse;
+ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+ import org.springframework.stereotype.Service;
+ 
+ @Service
+ public class OfficeTransHistoryService
+ {
+ 
+   @Resource
+   private OfficeTranshistoryMapper officeTranshistoryMapper;
+ 
+   @Resource
+   private OfficeTypeMapper officeTypeMapper;
+ 
+   @Resource
+   private OfficeProductsMapper officeProductsMapper;
+ 
+   @Resource
+   private EduUserMapper eduUserMapper;
+ 
+   @Resource
+   private DepartmentMapper departmentMapper;
+ 
+   public ToJson<Object> insertObject(HttpServletRequest request, OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs, int flag)
+   {
+     ToJson json = new ToJson(1, "err");
+     try {
+       OfficeProductsWithBLOBs temp = new OfficeProductsWithBLOBs();
+       temp.setProId(officeTranshistoryWithBLOBs.getProId());
+       temp.setOfficeProtype(String.valueOf(officeTranshistoryWithBLOBs.getTypeId()));
+       temp.setDepositoryId(String.valueOf(officeTranshistoryWithBLOBs.getDepositoryId()));
+       OfficeProductsWithBLOBs pro = this.officeProductsMapper.selByDepoAndTypeAndPro(temp);
+       if (officeTranshistoryWithBLOBs.getTransQty() == null) {
+         officeTranshistoryWithBLOBs.setTransQty(Integer.valueOf(1));
+       }
+       if ((!StringUtils.checkNull(officeTranshistoryWithBLOBs.getTransFlag()).booleanValue()) && (!officeTranshistoryWithBLOBs.getTransFlag().equals("3"))) {
+         if ((pro != null) && 
+           (pro.getProStock().intValue() - officeTranshistoryWithBLOBs.getTransQty().intValue() < pro.getProLowstock().intValue()) && (pro.getProStock().intValue() - officeTranshistoryWithBLOBs.getTransQty().intValue() < 0)) {
+           json.setMsg("numNoEnough");
+           return json;
+         }
+       }
+       else if ((!StringUtils.checkNull(officeTranshistoryWithBLOBs.getTransFlag()).booleanValue()) && (officeTranshistoryWithBLOBs.getTransFlag().equals("3")) && 
+         (pro != null) && (pro.getProMaxstock() != null) && (pro.getProMaxstock().intValue() != 0) && 
+         (pro.getProStock().intValue() + officeTranshistoryWithBLOBs.getTransQty().intValue() > pro.getProMaxstock().intValue())) {
+         json.setMsg("numMax");
+         return json;
+       }
+ 
+       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       if (flag == 1) {
+         officeTranshistoryWithBLOBs.setBorrower(users.getUserId());
+       }
+       if ((!StringUtils.checkNull(officeTranshistoryWithBLOBs.getBorrower()).booleanValue()) && 
+         (officeTranshistoryWithBLOBs.getBorrower().contains(","))) {
+         officeTranshistoryWithBLOBs.setBorrower(officeTranshistoryWithBLOBs.getBorrower().substring(0, officeTranshistoryWithBLOBs.getBorrower().length() - 1));
+       }
+ 
+       EduUser borrowUser = null;
+       if (!StringUtils.checkNull(officeTranshistoryWithBLOBs.getBorrower()).booleanValue()) {
+         borrowUser = this.eduUserMapper.getByuserId(officeTranshistoryWithBLOBs.getBorrower());
+       }
+ 
+       if (borrowUser != null) {
+         officeTranshistoryWithBLOBs.setDeptId(borrowUser.getDeptId());
+       }
+       if ((!StringUtils.checkNull(officeTranshistoryWithBLOBs.getDeptManager()).booleanValue()) && 
+         (officeTranshistoryWithBLOBs.getDeptManager().contains(","))) {
+         officeTranshistoryWithBLOBs.setDeptManager(officeTranshistoryWithBLOBs.getDeptManager().substring(0, officeTranshistoryWithBLOBs.getDeptManager().length() - 1));
+       }
+ 
+       officeTranshistoryWithBLOBs.setOperator(users.getUserId());
+       Date date = new Date();
+       officeTranshistoryWithBLOBs.setTransDate(date);
+       if (!StringUtils.checkNull(officeTranshistoryWithBLOBs.getDeptManager()).booleanValue())
+         officeTranshistoryWithBLOBs.setTransState("01");
+       else {
+         officeTranshistoryWithBLOBs.setTransState("02");
+       }
+       int i = this.officeTranshistoryMapper.insertSelective(officeTranshistoryWithBLOBs);
+       if (pro != null) {
+         if ((!StringUtils.checkNull(officeTranshistoryWithBLOBs.getTransFlag()).booleanValue()) && (!officeTranshistoryWithBLOBs.getTransFlag().equals("3")))
+           pro.setProStock(Integer.valueOf(pro.getProStock().intValue() - officeTranshistoryWithBLOBs.getTransQty().intValue()));
+         else if ((!StringUtils.checkNull(officeTranshistoryWithBLOBs.getTransFlag()).booleanValue()) && (officeTranshistoryWithBLOBs.getTransFlag().equals("3"))) {
+           pro.setProStock(Integer.valueOf(pro.getProStock().intValue() + officeTranshistoryWithBLOBs.getTransQty().intValue()));
+         }
+       }
+       i += this.officeProductsMapper.updateByPrimaryKeyWithBLOBs(pro);
+       if (i > 0) {
+         json.setFlag(0);
+         json.setMsg("ok");
+       }
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<OfficeTranshistoryWithBLOBs> getMyHistroy(HttpServletRequest request)
+   {
+     ToJson json = new ToJson(1, "err");
+ 
+     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+     OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs = new OfficeTranshistoryWithBLOBs();
+     officeTranshistoryWithBLOBs.setBorrower(users.getUserId());
+     try {
+       List<OfficeTranshistoryWithBLOBs> myHistory = this.officeTranshistoryMapper.getMyHistory(officeTranshistoryWithBLOBs);
+       for (OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs1 : myHistory)
+       {
+         Integer proId = officeTranshistoryWithBLOBs1.getProId();
+         if (proId != null) {
+           OfficeProductsWithBLOBs officeProductsWithBLOBs = this.officeProductsMapper.selectByPrimaryKey(proId);
+           officeTranshistoryWithBLOBs1.setProName(officeProductsWithBLOBs.getProName());
+         }
+ 
+         String transFlag = officeTranshistoryWithBLOBs1.getTransFlag();
+         if (!StringUtils.checkNull(transFlag).booleanValue()) {
+           if (transFlag.equals("1"))
+             officeTranshistoryWithBLOBs1.setTransFlagName("领用");
+           else {
+             officeTranshistoryWithBLOBs1.setTransFlagName("借用");
+           }
+         }
+ 
+         String transState = officeTranshistoryWithBLOBs1.getTransState();
+         if (!StringUtils.checkNull(transState).booleanValue()) {
+           if (transState.equals("01")) {
+             officeTranshistoryWithBLOBs1.setTransStateName("待部门审批人审批");
+           }
+           else if (transState.equals("02")) {
+             officeTranshistoryWithBLOBs1.setTransStateName("待库管理员审批");
+           }
+           else if (transState.equals("1")) {
+             officeTranshistoryWithBLOBs1.setTransStateName("审批通过");
+           }
+           else if (transState.equals("21")) {
+             officeTranshistoryWithBLOBs1.setTransStateName("部门审批驳回");
+           }
+           else {
+             officeTranshistoryWithBLOBs1.setTransStateName("库管员驳回");
+           }
+ 
+         }
+ 
+         String deptManager = officeTranshistoryWithBLOBs1.getDeptManager();
+         EduUser byuserId = this.eduUserMapper.getByuserId(deptManager);
+         if (byuserId != null) {
+           officeTranshistoryWithBLOBs1.setDeptManagerName(byuserId.getUserName());
+         }
+       }
+       json.setObj(myHistory);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<Object> deleteObject(Integer transId)
+   {
+     ToJson json = new ToJson(1, "err");
+     try {
+       OfficeTranshistoryWithBLOBs trans = this.officeTranshistoryMapper.selectByPrimaryKey(transId);
+       if ((!StringUtils.checkNull(trans.getTransState()).booleanValue()) && (
+         (trans.getTransState().equals("01")) || (trans.getTransState().equals("02")))) {
+         OfficeProductsWithBLOBs temp = new OfficeProductsWithBLOBs();
+         temp.setProId(trans.getProId());
+         temp.setOfficeProtype(String.valueOf(trans.getTypeId()));
+         temp.setDepositoryId(String.valueOf(trans.getDepositoryId()));
+         OfficeProductsWithBLOBs pro = this.officeProductsMapper.selByDepoAndTypeAndPro(temp);
+         pro.setProStock(Integer.valueOf(pro.getProStock().intValue() + trans.getTransQty().intValue()));
+         this.officeProductsMapper.updateByPrimaryKeyWithBLOBs(pro);
+       }
+ 
+       int i = this.officeTranshistoryMapper.deleteByPrimaryKey(transId);
+       if (i > 0) {
+         json.setFlag(0);
+         json.setMsg("ok");
+       }
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<Object> editObject(OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs)
+   {
+     ToJson json = new ToJson(1, "err");
+     try {
+       OfficeProductsWithBLOBs temp = new OfficeProductsWithBLOBs();
+       temp.setProId(officeTranshistoryWithBLOBs.getProId());
+       temp.setOfficeProtype(String.valueOf(officeTranshistoryWithBLOBs.getTypeId()));
+       temp.setDepositoryId(String.valueOf(officeTranshistoryWithBLOBs.getDepositoryId()));
+       OfficeProductsWithBLOBs pro = this.officeProductsMapper.selByDepoAndTypeAndPro(temp);
+       if (officeTranshistoryWithBLOBs.getTransQty() == null) {
+         officeTranshistoryWithBLOBs.setTransQty(Integer.valueOf(1));
+       }
+       OfficeTranshistoryWithBLOBs trans = this.officeTranshistoryMapper.selectByPrimaryKey(officeTranshistoryWithBLOBs.getTransId());
+ 
+       if ((!StringUtils.checkNull(trans.getTransFlag()).booleanValue()) && (!trans.getTransFlag().equals("3"))) {
+         if ((pro != null) && 
+           (pro.getProStock().intValue() + trans.getTransQty().intValue() - officeTranshistoryWithBLOBs.getTransQty().intValue() < pro.getProLowstock().intValue()) && (pro.getProStock().intValue() + trans.getTransQty().intValue() - officeTranshistoryWithBLOBs.getTransQty().intValue() < 0)) {
+           json.setMsg("numNoEnough");
+           return json;
+         }
+       }
+       else if ((!StringUtils.checkNull(trans.getTransFlag()).booleanValue()) && (trans.getTransFlag().equals("3")) && 
+         (pro != null) && (pro.getProMaxstock() != null) && (pro.getProMaxstock().intValue() != 0) && 
+         (pro.getProStock().intValue() - trans.getTransQty().intValue() + officeTranshistoryWithBLOBs.getTransQty().intValue() > pro.getProMaxstock().intValue())) {
+         json.setMsg("numMax");
+         return json;
+       }
+ 
+       if ((!StringUtils.checkNull(officeTranshistoryWithBLOBs.getBorrower()).booleanValue()) && 
+         (officeTranshistoryWithBLOBs.getBorrower().contains(","))) {
+         officeTranshistoryWithBLOBs.setBorrower(officeTranshistoryWithBLOBs.getBorrower().substring(0, officeTranshistoryWithBLOBs.getBorrower().length() - 1));
+       }
+ 
+       if ((!StringUtils.checkNull(officeTranshistoryWithBLOBs.getDeptManager()).booleanValue()) && 
+         (officeTranshistoryWithBLOBs.getDeptManager().contains(","))) {
+         officeTranshistoryWithBLOBs.setDeptManager(officeTranshistoryWithBLOBs.getDeptManager().substring(0, officeTranshistoryWithBLOBs.getDeptManager().length() - 1));
+       }
+ 
+       int i = this.officeTranshistoryMapper.updateByPrimaryKeySelective(officeTranshistoryWithBLOBs);
+       if (i > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       json.setFlag(1);
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<OfficeTranshistoryWithBLOBs> getObjectById(Integer transId)
+   {
+     ToJson json = new ToJson(1, "err");
+     try {
+       OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs = this.officeTranshistoryMapper.selectByPrimaryKey(transId);
+       String borrower = officeTranshistoryWithBLOBs.getBorrower();
+       EduUser byuserId = this.eduUserMapper.getByuserId(borrower);
+       if (byuserId != null) {
+         officeTranshistoryWithBLOBs.setBorrowerName(byuserId.getUserName());
+       }
+ 
+       String deptManager = officeTranshistoryWithBLOBs.getDeptManager();
+       EduUser byuserId1 = this.eduUserMapper.getByuserId(deptManager);
+       if (byuserId1 != null) {
+         officeTranshistoryWithBLOBs.setDeptManagerName(byuserId1.getUserName());
+       }
+       json.setMsg("ok");
+       json.setFlag(0);
+       json.setObject(officeTranshistoryWithBLOBs);
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<OfficeTranshistoryWithBLOBs> selTranshistoryByState(HttpServletRequest request)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       List<OfficeTranshistoryWithBLOBs> list = this.officeTranshistoryMapper.selTranshistoryByState(users.getUserId());
+       for (OfficeTranshistoryWithBLOBs transhistoryWithBLOBs : list) {
+         EduUser eduUser = this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getBorrower());
+         if (eduUser != null) {
+           transhistoryWithBLOBs.setBorrowerName(eduUser.getUserName());
+         }
+       }
+       json.setObj(list);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "OfficeTransHistoryService selTranshistoryByState:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<OfficeTranshistoryWithBLOBs> upTransHistoryState(OfficeTranshistoryWithBLOBs transhistory)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       OfficeTranshistoryWithBLOBs temp = this.officeTranshistoryMapper.selectByPrimaryKey(transhistory.getTransId());
+       if ((transhistory.getTransState().equals("1")) && 
+         (temp.getTransState().equals("01"))) {
+         transhistory.setTransState("02");
+       }
+ 
+       if (transhistory.getTransState().equals("2")) {
+         if (temp.getTransState().equals("01")) {
+           transhistory.setTransState("21");
+         }
+         if (temp.getTransState().equals("02")) {
+           transhistory.setTransState("22");
+         }
+ 
+         OfficeProductsWithBLOBs proTemp = new OfficeProductsWithBLOBs();
+         proTemp.setProId(temp.getProId());
+         proTemp.setOfficeProtype(String.valueOf(temp.getTypeId()));
+         proTemp.setDepositoryId(String.valueOf(temp.getDepositoryId()));
+         OfficeProductsWithBLOBs pro = this.officeProductsMapper.selByDepoAndTypeAndPro(proTemp);
+         pro.setProStock(Integer.valueOf(pro.getProStock().intValue() + temp.getTransQty().intValue()));
+         this.officeProductsMapper.updateByPrimaryKeyWithBLOBs(pro);
+       }
+       int count = this.officeTranshistoryMapper.upTransHistoryState(transhistory);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "OfficeTransHistoryService selTranshistoryByState:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public AjaxJson getDownObjects(String typeDepository, String officeProductType)
+   {
+     AjaxJson ajaxJson = new AjaxJson();
+     if (!StringUtils.checkNull(typeDepository).booleanValue()) {
+       List officeTypes = this.officeTypeMapper.selectDownObject(typeDepository);
+       ajaxJson.setMsg("ok");
+       ajaxJson.setFlag(true);
+       ajaxJson.setSuccess(true);
+       ajaxJson.setObj(officeTypes);
+     }
+     if (!StringUtils.checkNull(officeProductType).booleanValue()) {
+       List officeProductsWithBLOBs = this.officeProductsMapper.selectDownObject(officeProductType);
+       ajaxJson.setMsg("ok");
+       ajaxJson.setFlag(true);
+       ajaxJson.setSuccess(true);
+       ajaxJson.setObj(officeProductsWithBLOBs);
+     }
+     return ajaxJson;
+   }
+ 
+   public ToJson<OfficeTranshistoryWithBLOBs> selGrantByCond(OfficeTranshistoryWithBLOBs transhistory, HttpServletRequest request, Integer page, Integer pageSize, boolean useFlag)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       transhistory.setCurrentUser(users.getUserId());
+       if ((!StringUtils.checkNull(transhistory.getBorrower()).booleanValue()) && 
+         (transhistory.getBorrower().contains(","))) {
+         transhistory.setBorrower(transhistory.getBorrower().substring(0, transhistory.getBorrower().length() - 1));
+       }
+ 
+       PageParams pageParams = new PageParams();
+       pageParams.setPage(page);
+       pageParams.setPageSize(pageSize);
+       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+       Map map = new HashMap();
+       map.put("page", pageParams);
+       map.put("OfficeTranshistory", transhistory);
+       List<OfficeTranshistoryWithBLOBs> list = this.officeTranshistoryMapper.selGrantByCond(map);
+       for (OfficeTranshistoryWithBLOBs temp : list) {
+         if ((!StringUtils.checkNull(temp.getBorrower()).booleanValue()) && 
+           (this.eduUserMapper.getByuserId(temp.getBorrower()) != null)) {
+           temp.setBorrowerName(this.eduUserMapper.getByuserId(temp.getBorrower()).getUserName());
+         }
+ 
+         if ((!StringUtils.checkNull(temp.getGrantor()).booleanValue()) && 
+           (this.eduUserMapper.getByuserId(temp.getGrantor()) != null)) {
+           temp.setGrantorName(this.eduUserMapper.getByuserId(temp.getGrantor()).getUserName());
+         }
+       }
+ 
+       json.setTotleNum(Integer.valueOf(this.officeTranshistoryMapper.selGrantCountByCond(transhistory)));
+       json.setObj(list);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "OfficeTransHistoryService selGrantByCond:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<OfficeTranshistoryWithBLOBs> upGrantStatus(OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       int count = this.officeTranshistoryMapper.upGrantStatus(officeTranshistoryWithBLOBs);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "OfficeTransHistoryService upGrantStatus:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<OfficeTranshistoryWithBLOBs> selTranshistoryByCond(OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs, int output, HttpServletRequest request, HttpServletResponse response)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       if ((!StringUtils.checkNull(officeTranshistoryWithBLOBs.getBorrower()).booleanValue()) && (officeTranshistoryWithBLOBs.getBorrower().contains(","))) {
+         officeTranshistoryWithBLOBs.setBorrower(officeTranshistoryWithBLOBs.getBorrower().substring(0, officeTranshistoryWithBLOBs.getBorrower().length() - 1));
+       }
+       List<OfficeTranshistoryWithBLOBs> list = this.officeTranshistoryMapper.selTranshistoryByCond(officeTranshistoryWithBLOBs);
+       for (OfficeTranshistoryWithBLOBs transhistoryWithBLOBs : list) {
+         if ((!StringUtils.checkNull(transhistoryWithBLOBs.getBorrower()).booleanValue()) && 
+           (this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getBorrower()) != null)) {
+           transhistoryWithBLOBs.setBorrowerName(this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getBorrower()).getUserName());
+         }
+ 
+         if ((!StringUtils.checkNull(transhistoryWithBLOBs.getOperator()).booleanValue()) && 
+           (this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getOperator()) != null)) {
+           transhistoryWithBLOBs.setOperatorName(this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getOperator()).getUserName());
+         }
+ 
+         if ((!StringUtils.checkNull(transhistoryWithBLOBs.getGrantor()).booleanValue()) && 
+           (this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getGrantor()) != null)) {
+           transhistoryWithBLOBs.setGrantorName(this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getGrantor()).getUserName());
+         }
+ 
+         if (transhistoryWithBLOBs.getTransFlag().equals("1"))
+           transhistoryWithBLOBs.setTransFlagName("领用");
+         else if (transhistoryWithBLOBs.getTransFlag().equals("2")) {
+           transhistoryWithBLOBs.setTransFlagName("借用");
+         }
+         if (transhistoryWithBLOBs.getDeptId() != null) {
+           transhistoryWithBLOBs.setDeptName(this.departmentMapper.getDeptNameById(transhistoryWithBLOBs.getDeptId().intValue()));
+         }
+         transhistoryWithBLOBs.setGrantStatusName("未通过审核");
+         if (transhistoryWithBLOBs.getTransState().equals("01")) {
+           transhistoryWithBLOBs.setTransStateName("待部门审批人审批");
+         } else if (transhistoryWithBLOBs.getTransState().equals("02")) {
+           transhistoryWithBLOBs.setTransStateName("待库管理员审批");
+         } else if (transhistoryWithBLOBs.getTransState().equals("1")) {
+           transhistoryWithBLOBs.setTransStateName("审批通过");
+           if (transhistoryWithBLOBs.getGrantStatus().equals("0"))
+             transhistoryWithBLOBs.setGrantStatusName("等待发放");
+           else if (transhistoryWithBLOBs.getGrantStatus().equals("1"))
+             transhistoryWithBLOBs.setGrantStatusName("已发放");
+         }
+         else if (transhistoryWithBLOBs.getTransState().equals("21")) {
+           transhistoryWithBLOBs.setTransStateName("部门审批驳回");
+         } else if (transhistoryWithBLOBs.getTransState().equals("22")) {
+           transhistoryWithBLOBs.setTransStateName("库管员驳回");
+         }
+ 
+         transhistoryWithBLOBs.setFlag(Integer.valueOf(0));
+         Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+         transhistoryWithBLOBs.setCurrentUser(users.getUserId());
+         if (this.officeTranshistoryMapper.isApproval(transhistoryWithBLOBs) == 1) {
+           transhistoryWithBLOBs.setFlag(Integer.valueOf(1));
+         }
+         if (this.officeTranshistoryMapper.isGrant(transhistoryWithBLOBs) == 1) {
+           transhistoryWithBLOBs.setFlag(Integer.valueOf(2));
+         }
+       }
+       if (output == 1) {
+         HSSFWorkbook tableWork = ExcelUtil.makeExcelHead("办公用品申请记录表", 15);
+         String[] secondTitles = { "办公用品名称", "办公用品库", "办公用品类别", "登记类型", "申请人", "所属部门", "数量", "价格", "申请日期", "审批状态", "状态", "备注" };
+         HSSFWorkbook excelWork = ExcelUtil.makeSecondHead(tableWork, secondTitles);
+         String[] beanProperty = { "proName", "depositoryName", "typeName", "transFlagName", "borrowerName", "deptName", "transQty", "price", "transDate", "transStateName", "grantStatusName", "remark" };
+         HSSFWorkbook workbook = ExcelUtil.exportExcelData(excelWork, list, beanProperty);
+         response.setContentType("text/html;charset=UTF-8");
+         OutputStream out = response.getOutputStream();
+ 
+         String filename = "办公用品申请记录表.xls";
+         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+ 
+         response.setContentType("application/vnd.ms-excel");
+         response.setHeader("content-disposition", "attachment;filename=" + filename);
+ 
+         workbook.write(out);
+         out.flush();
+         out.close();
+       }
+       json.setObj(list);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "OfficeTransHistoryService selTranshistoryByCond:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<OfficeTranshistoryWithBLOBs> selMaintain(OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs, HttpServletRequest request)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       Date date = new Date();
+       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+       String format = sdf.format(date);
+       officeTranshistoryWithBLOBs.setCurrentUser(users.getUserId());
+       officeTranshistoryWithBLOBs.setCurrentTime(format);
+       List<OfficeTranshistoryWithBLOBs> list = this.officeTranshistoryMapper.selMaintain(officeTranshistoryWithBLOBs);
+       for (OfficeTranshistoryWithBLOBs transhistoryWithBLOBs : list) {
+         if ((!StringUtils.checkNull(transhistoryWithBLOBs.getBorrower()).booleanValue()) && 
+           (this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getBorrower()) != null)) {
+           transhistoryWithBLOBs.setBorrowerName(this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getBorrower()).getUserName());
+         }
+ 
+         if ((!StringUtils.checkNull(transhistoryWithBLOBs.getOperator()).booleanValue()) && 
+           (this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getOperator()) != null)) {
+           transhistoryWithBLOBs.setOperatorName(this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getOperator()).getUserName());
+         }
+ 
+         if ((!StringUtils.checkNull(transhistoryWithBLOBs.getGrantor()).booleanValue()) && 
+           (this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getGrantor()) != null)) {
+           transhistoryWithBLOBs.setGrantorName(this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getGrantor()).getUserName());
+         }
+       }
+ 
+       json.setObj(list);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "OfficeTransHistoryService selMaintain:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<OfficeTranshistoryWithBLOBs> selInstead(OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs, HttpServletRequest request)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       Date date = new Date();
+       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+       String format = sdf.format(date);
+       officeTranshistoryWithBLOBs.setCurrentUser(users.getUserId());
+       officeTranshistoryWithBLOBs.setCurrentTime(format);
+       List<OfficeTranshistoryWithBLOBs> list = this.officeTranshistoryMapper.selInstead(officeTranshistoryWithBLOBs);
+       for (OfficeTranshistoryWithBLOBs transhistoryWithBLOBs : list) {
+         if ((!StringUtils.checkNull(transhistoryWithBLOBs.getBorrower()).booleanValue()) && 
+           (this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getBorrower()) != null)) {
+           transhistoryWithBLOBs.setBorrowerName(this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getBorrower()).getUserName());
+         }
+ 
+         if ((!StringUtils.checkNull(transhistoryWithBLOBs.getGrantor()).booleanValue()) && 
+           (this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getGrantor()) != null)) {
+           transhistoryWithBLOBs.setGrantorName(this.eduUserMapper.getByuserId(transhistoryWithBLOBs.getGrantor()).getUserName());
+         }
+       }
+ 
+       json.setObj(list);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "OfficeTransHistoryService selInstead:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<Object> returnObject(String transIds)
+   {
+     ToJson json = new ToJson(1, "err");
+     try {
+       OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs = new OfficeTranshistoryWithBLOBs();
+       String[] split = transIds.split(",");
+       for (String s : split)
+       {
+         officeTranshistoryWithBLOBs.setTransId(Integer.valueOf(s));
+ 
+         Date date = new Date();
+         officeTranshistoryWithBLOBs.setReturnDate(date);
+ 
+         officeTranshistoryWithBLOBs.setReturnStatus(Integer.valueOf(1));
+ 
+         OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs1 = this.officeTranshistoryMapper.selectByPrimaryKey(Integer.valueOf(s));
+         int i1;
+         if (officeTranshistoryWithBLOBs1 != null) {
+           Integer transQty = officeTranshistoryWithBLOBs1.getTransQty();
+           OfficeProductsWithBLOBs officeProductsWithBLOBs = this.officeProductsMapper.selectByPrimaryKey(officeTranshistoryWithBLOBs1.getProId());
+           Integer proStock = officeProductsWithBLOBs.getProStock();
+           int i = transQty.intValue() + proStock.intValue();
+           OfficeProductsWithBLOBs officeProductsWithBLOBs1 = new OfficeProductsWithBLOBs();
+           officeProductsWithBLOBs.setProId(officeProductsWithBLOBs.getProId());
+           officeProductsWithBLOBs.setProStock(Integer.valueOf(i));
+           i1 = this.officeProductsMapper.updateByPrimaryKeySelective(officeProductsWithBLOBs);
+         }
+ 
+         this.officeTranshistoryMapper.updateByPrimaryKeySelective(officeTranshistoryWithBLOBs);
+       }
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       json.setFlag(1);
+       e.printStackTrace();
+     }
+     return json;
+   }
+ }
+

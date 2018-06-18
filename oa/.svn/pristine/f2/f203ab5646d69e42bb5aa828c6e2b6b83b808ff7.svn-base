@@ -1,0 +1,208 @@
+/*     */ package com.xoa.controller.todoList;
+/*     */ 
+/*     */ import com.xoa.model.daiban.Daiban;
+/*     */ import com.xoa.model.menu.SysFunction;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.email.EmailService;
+/*     */ import com.xoa.service.notify.NotifyService;
+/*     */ import com.xoa.service.todoList.TodolistService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.log4j.Logger;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ public class TodolistController
+/*     */ {
+/*  37 */   private Logger loger = Logger.getLogger(TodolistController.class);
+/*     */ 
+/*     */   @Resource
+/*     */   private TodolistService todolistService;
+/*     */ 
+/*     */   @Resource
+/*     */   private EmailService emailService;
+/*     */ 
+/*     */   @Resource
+/*     */   private NotifyService notifyService;
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/todoList/list"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Daiban> list(HttpServletRequest request, @RequestParam(value="userId", required=false) String userId)
+/*     */   {
+/*  60 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  62 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/*  64 */       String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/*  66 */       if (!StringUtils.checkNull(userId).booleanValue()) {
+/*  67 */         Daiban db = this.todolistService.list(userId, sqlType, request);
+/*  68 */         json.setObject(db);
+/*  69 */         json.setMsg("OK");
+/*  70 */         json.setFlag(0);
+/*     */       } else {
+/*  72 */         Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  73 */         Daiban db = this.todolistService.list(String.valueOf(user.getUserId()), sqlType, request);
+/*  74 */         json.setObject(db);
+/*  75 */         json.setMsg("OK");
+/*  76 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  79 */       json.setMsg(e.getMessage());
+/*     */     }
+/*  81 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/todoList/readList"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Daiban> readList(HttpServletRequest request, @RequestParam(value="userId", required=false) String userId) {
+/*  89 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  91 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/*  93 */       String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/*  95 */       if (!StringUtils.checkNull(userId).booleanValue()) {
+/*  96 */         Daiban db = this.todolistService.readList(userId, sqlType, request);
+/*  97 */         json.setObject(db);
+/*  98 */         json.setMsg("OK");
+/*  99 */         json.setFlag(0);
+/*     */       } else {
+/* 101 */         Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 102 */         Daiban db = this.todolistService.readList(String.valueOf(user.getUserId()), sqlType, request);
+/* 103 */         json.setObject(db);
+/* 104 */         json.setMsg("OK");
+/* 105 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 108 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 110 */     return json;
+/*     */   }
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/todoList/readHaveList"}, produces={"application/json;charset=UTF-8"})
+/*     */   public BaseWrapper readHaveList(String classification, HttpServletRequest request, @RequestParam(value="userId", required=false) String userId) throws Exception {
+/* 117 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 119 */     if (!StringUtils.checkNull(userId).booleanValue()) {
+/* 120 */       return this.todolistService.readHaveList(classification, userId, sqlType, request);
+/*     */     }
+/* 122 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 123 */     return this.todolistService.readHaveList(classification, user.getUserId(), sqlType, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/todoList/readTotal"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Daiban> readTotal(HttpServletRequest request, @RequestParam(value="userId", required=false) String userId, String superfluity)
+/*     */   {
+/* 132 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 134 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 136 */       String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 138 */       if (!StringUtils.checkNull(userId).booleanValue()) {
+/* 139 */         Daiban db = this.todolistService.readTotal(userId, sqlType, request, superfluity);
+/* 140 */         json.setObject(db);
+/* 141 */         json.setMsg("OK");
+/* 142 */         json.setFlag(0);
+/*     */       } else {
+/* 144 */         Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 145 */         Daiban db = this.todolistService.readTotal(String.valueOf(user.getUserId()), sqlType, request, superfluity);
+/* 146 */         json.setObject(db);
+/* 147 */         json.setMsg("OK");
+/* 148 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 151 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 153 */     return json;
+/*     */   }
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/todoList/delete"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Daiban> delete(HttpServletRequest request, Integer qid, String type, String deleteFlag) {
+/* 160 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 162 */     ToJson json = new ToJson(0, null);
+/*     */     try
+/*     */     {
+/*     */       String returnRes;
+/* 164 */       if (type.equals("email")) {
+/* 165 */         returnRes = this.emailService.deleteInEmail(qid, deleteFlag);
+/*     */       }
+/* 167 */       if (type.equals("notify")) {
+/* 168 */         this.notifyService.delete(qid);
+/*     */       }
+/* 170 */       if (json.getObj().size() > 0) {
+/* 171 */         json.setFlag(0);
+/* 172 */         json.setMsg("ok");
+/*     */       } else {
+/* 174 */         json.setFlag(1);
+/* 175 */         json.setMsg("error");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 178 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 180 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/todoList/queryUserByUserId"})
+/*     */   public ToJson<Users> queryUserByUserId(String userName)
+/*     */   {
+/* 195 */     if (StringUtils.checkNull(userName).booleanValue()) {
+/* 196 */       userName = "";
+/*     */     }
+/* 198 */     return this.todolistService.queryUserByUserId(userName.trim());
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/todoList/queryCountByUserId"})
+/*     */   public ToJson<Users> queryCountByUserId(String userName)
+/*     */   {
+/* 212 */     if (StringUtils.checkNull(userName).booleanValue()) {
+/* 213 */       userName = "";
+/*     */     }
+/* 215 */     return this.todolistService.queryCountByUserId(userName.trim());
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/todoList/getSysFunctionByName"})
+/*     */   public ToJson<SysFunction> getSysFunctionByName(String funName, HttpServletRequest request)
+/*     */   {
+/* 230 */     return this.todolistService.getSysFunctionByName(funName.trim(), request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/todoList/getCountSysFunctionByName"})
+/*     */   public ToJson<SysFunction> getCountSysFunctionByName(String funName)
+/*     */   {
+/* 243 */     return this.todolistService.getCountSysFunctionByName(funName.trim()); } 
+/* 248 */   @ResponseBody
+/*     */   @RequestMapping({"/todoList/smsListByType"})
+/*     */   public BaseWrapper SmsListByType(String userId, HttpServletRequest request, String type) { return this.todolistService.smsListByType(userId, request, type); } 
+/* 253 */   @ResponseBody
+/*     */   @RequestMapping({"/todoList/getUserFunctionByUserId"})
+/*     */   public BaseWrapper getUserFunctionByUserId(String userId, HttpServletRequest request) { return this.todolistService.getUserFunctionByUserId(userId, request); } 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/todoList/getWillDocSendOrReceive"})
+/*     */   public BaseWrapper getWillDocSendOrReceive(String userId, String documentType, HttpServletRequest request) {
+/* 259 */     return this.todolistService.getWillDocSendOrReceive(userId, documentType, request);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.todoList.TodolistController
+ * JD-Core Version:    0.6.0
+ */

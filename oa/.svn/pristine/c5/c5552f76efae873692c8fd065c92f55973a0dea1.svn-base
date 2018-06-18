@@ -1,0 +1,38 @@
+package com.myoa.model.event;
+
+public class TimeLineViewDept
+{
+  private String timelineId;
+  private Integer deptId;
+  private String deptName;
+
+  public String getDeptName()
+  {
+    return this.deptName;
+  }
+
+  public void setDeptName(String deptName) {
+    this.deptName = deptName;
+  }
+
+  public String getTimelineId()
+  {
+    return this.timelineId;
+  }
+
+  public void setTimelineId(String timelineId)
+  {
+    this.timelineId = (timelineId == null ? null : timelineId.trim());
+  }
+
+  public Integer getDeptId()
+  {
+    return this.deptId;
+  }
+
+  public void setDeptId(Integer deptId)
+  {
+    this.deptId = deptId;
+  }
+}
+

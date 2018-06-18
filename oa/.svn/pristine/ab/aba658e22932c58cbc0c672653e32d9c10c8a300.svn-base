@@ -1,0 +1,27 @@
+/*    */ package com.xoa.util.common.log;
+/*    */ 
+/*    */ import java.io.IOException;
+/*    */ import java.net.URLEncoder;
+/*    */ import sun.misc.BASE64Encoder;
+/*    */ 
+/*    */ public class FileUtils
+/*    */ {
+/*    */   public static String encodeDownloadFilename(String filename, String agent)
+/*    */     throws IOException
+/*    */   {
+/* 19 */     if (agent.contains("Firefox")) {
+/* 20 */       filename = "=?UTF-8?B?" + new BASE64Encoder().encode(filename.getBytes("utf-8")) + "?=";
+/*    */ 
+/* 23 */       filename = filename.replaceAll("\r\n", "");
+/*    */     } else {
+/* 25 */       filename = URLEncoder.encode(filename, "utf-8");
+/* 26 */       filename = filename.replace("+", " ");
+/*    */     }
+/* 28 */     return filename;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.common.log.FileUtils
+ * JD-Core Version:    0.6.0
+ */

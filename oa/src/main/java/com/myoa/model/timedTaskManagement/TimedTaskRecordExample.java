@@ -1,0 +1,541 @@
+ package com.myoa.model.timedTaskManagement;
+ 
+ import java.util.ArrayList;
+ import java.util.Iterator;
+ import java.util.List;
+ 
+ public class TimedTaskRecordExample
+ {
+   protected String orderByClause;
+   protected boolean distinct;
+   protected List<Criteria> oredCriteria;
+ 
+   public TimedTaskRecordExample()
+   {
+     this.oredCriteria = new ArrayList();
+   }
+ 
+   public void setOrderByClause(String orderByClause)
+   {
+     this.orderByClause = orderByClause;
+   }
+ 
+   public String getOrderByClause()
+   {
+     return this.orderByClause;
+   }
+ 
+   public void setDistinct(boolean distinct)
+   {
+     this.distinct = distinct;
+   }
+ 
+   public boolean isDistinct()
+   {
+     return this.distinct;
+   }
+ 
+   public List<Criteria> getOredCriteria()
+   {
+     return this.oredCriteria;
+   }
+ 
+   public void or(Criteria criteria)
+   {
+     this.oredCriteria.add(criteria);
+   }
+ 
+   public Criteria or()
+   {
+     Criteria criteria = createCriteriaInternal();
+     this.oredCriteria.add(criteria);
+     return criteria;
+   }
+ 
+   public Criteria createCriteria()
+   {
+     Criteria criteria = createCriteriaInternal();
+     if (this.oredCriteria.size() == 0) {
+       this.oredCriteria.add(criteria);
+     }
+     return criteria;
+   }
+ 
+   protected Criteria createCriteriaInternal()
+   {
+     Criteria criteria = new Criteria();
+     return criteria;
+   }
+ 
+   public void clear()
+   {
+     this.oredCriteria.clear();
+     this.orderByClause = null;
+     this.distinct = false;
+   }
+ 
+   public static class Criterion
+   {
+     private String condition;
+     private Object value;
+     private Object secondValue;
+     private boolean noValue;
+     private boolean singleValue;
+     private boolean betweenValue;
+     private boolean listValue;
+     private String typeHandler;
+ 
+     public String getCondition()
+     {
+       return this.condition;
+     }
+ 
+     public Object getValue() {
+       return this.value;
+     }
+ 
+     public Object getSecondValue() {
+       return this.secondValue;
+     }
+ 
+     public boolean isNoValue() {
+       return this.noValue;
+     }
+ 
+     public boolean isSingleValue() {
+       return this.singleValue;
+     }
+ 
+     public boolean isBetweenValue() {
+       return this.betweenValue;
+     }
+ 
+     public boolean isListValue() {
+       return this.listValue;
+     }
+ 
+     public String getTypeHandler() {
+       return this.typeHandler;
+     }
+ 
+     protected Criterion(String condition)
+     {
+       this.condition = condition;
+       this.typeHandler = null;
+       this.noValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value, String typeHandler)
+     {
+       this.condition = condition;
+       this.value = value;
+       this.typeHandler = typeHandler;
+       if ((value instanceof List))
+         this.listValue = true;
+       else
+         this.singleValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value)
+     {
+       this(condition, value, null);
+     }
+ 
+     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+     {
+       this.condition = condition;
+       this.value = value;
+       this.secondValue = secondValue;
+       this.typeHandler = typeHandler;
+       this.betweenValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value, Object secondValue) {
+       this(condition, value, secondValue, null);
+     }
+   }
+ 
+   public static class Criteria extends TimedTaskRecordExample.GeneratedCriteria
+   {
+   }
+ 
+   protected static abstract class GeneratedCriteria
+   {
+     protected List<TimedTaskRecordExample.Criterion> criteria;
+ 
+     protected GeneratedCriteria()
+     {
+       this.criteria = new ArrayList();
+     }
+ 
+     public boolean isValid() {
+       return this.criteria.size() > 0;
+     }
+ 
+     public List<TimedTaskRecordExample.Criterion> getAllCriteria() {
+       return this.criteria;
+     }
+ 
+     public List<TimedTaskRecordExample.Criterion> getCriteria() {
+       return this.criteria;
+     }
+ 
+     protected void addCriterion(String condition) {
+       if (condition == null) {
+         throw new RuntimeException("Value for condition cannot be null");
+       }
+       this.criteria.add(new TimedTaskRecordExample.Criterion(condition));
+     }
+ 
+     protected void addCriterion(String condition, Object value, String property) {
+       if (value == null) {
+         throw new RuntimeException("Value for " + property + " cannot be null");
+       }
+       this.criteria.add(new TimedTaskRecordExample.Criterion(condition, value));
+     }
+ 
+     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+       if ((value1 == null) || (value2 == null)) {
+         throw new RuntimeException("Between values for " + property + " cannot be null");
+       }
+       this.criteria.add(new TimedTaskRecordExample.Criterion(condition, value1, value2));
+     }
+ 
+     protected void addCriterionForJDBCDate(String condition, java.util.Date value, String property) {
+       if (value == null) {
+         throw new RuntimeException("Value for " + property + " cannot be null");
+       }
+       addCriterion(condition, new java.sql.Date(value.getTime()), property);
+     }
+ 
+     protected void addCriterionForJDBCDate(String condition, List<java.util.Date> values, String property) {
+       if ((values == null) || (values.size() == 0)) {
+         throw new RuntimeException("Value list for " + property + " cannot be null or empty");
+       }
+       List dateList = new ArrayList();
+       Iterator iter = values.iterator();
+       while (iter.hasNext()) {
+         dateList.add(new java.sql.Date(((java.util.Date)iter.next()).getTime()));
+       }
+       addCriterion(condition, dateList, property);
+     }
+ 
+     protected void addCriterionForJDBCDate(String condition, java.util.Date value1, java.util.Date value2, String property) {
+       if ((value1 == null) || (value2 == null)) {
+         throw new RuntimeException("Between values for " + property + " cannot be null");
+       }
+       addCriterion(condition, new java.sql.Date(value1.getTime()), new java.sql.Date(value2.getTime()), property);
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtrIdIsNull() {
+       addCriterion("TTR_ID is null");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtrIdIsNotNull() {
+       addCriterion("TTR_ID is not null");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtrIdEqualTo(Integer value) {
+       addCriterion("TTR_ID =", value, "ttrId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtrIdNotEqualTo(Integer value) {
+       addCriterion("TTR_ID <>", value, "ttrId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtrIdGreaterThan(Integer value) {
+       addCriterion("TTR_ID >", value, "ttrId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtrIdGreaterThanOrEqualTo(Integer value) {
+       addCriterion("TTR_ID >=", value, "ttrId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtrIdLessThan(Integer value) {
+       addCriterion("TTR_ID <", value, "ttrId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtrIdLessThanOrEqualTo(Integer value) {
+       addCriterion("TTR_ID <=", value, "ttrId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtrIdIn(List<Integer> values) {
+       addCriterion("TTR_ID in", values, "ttrId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtrIdNotIn(List<Integer> values) {
+       addCriterion("TTR_ID not in", values, "ttrId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtrIdBetween(Integer value1, Integer value2) {
+       addCriterion("TTR_ID between", value1, value2, "ttrId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtrIdNotBetween(Integer value1, Integer value2) {
+       addCriterion("TTR_ID not between", value1, value2, "ttrId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtmIdIsNull() {
+       addCriterion("TTM_ID is null");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtmIdIsNotNull() {
+       addCriterion("TTM_ID is not null");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtmIdEqualTo(Integer value) {
+       addCriterion("TTM_ID =", value, "ttmId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtmIdNotEqualTo(Integer value) {
+       addCriterion("TTM_ID <>", value, "ttmId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtmIdGreaterThan(Integer value) {
+       addCriterion("TTM_ID >", value, "ttmId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtmIdGreaterThanOrEqualTo(Integer value) {
+       addCriterion("TTM_ID >=", value, "ttmId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtmIdLessThan(Integer value) {
+       addCriterion("TTM_ID <", value, "ttmId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtmIdLessThanOrEqualTo(Integer value) {
+       addCriterion("TTM_ID <=", value, "ttmId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtmIdIn(List<Integer> values) {
+       addCriterion("TTM_ID in", values, "ttmId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtmIdNotIn(List<Integer> values) {
+       addCriterion("TTM_ID not in", values, "ttmId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtmIdBetween(Integer value1, Integer value2) {
+       addCriterion("TTM_ID between", value1, value2, "ttmId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andTtmIdNotBetween(Integer value1, Integer value2) {
+       addCriterion("TTM_ID not between", value1, value2, "ttmId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andUserIdIsNull() {
+       addCriterion("USER_ID is null");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andUserIdIsNotNull() {
+       addCriterion("USER_ID is not null");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andUserIdEqualTo(String value) {
+       addCriterion("USER_ID =", value, "userId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andUserIdNotEqualTo(String value) {
+       addCriterion("USER_ID <>", value, "userId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andUserIdGreaterThan(String value) {
+       addCriterion("USER_ID >", value, "userId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andUserIdGreaterThanOrEqualTo(String value) {
+       addCriterion("USER_ID >=", value, "userId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andUserIdLessThan(String value) {
+       addCriterion("USER_ID <", value, "userId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andUserIdLessThanOrEqualTo(String value) {
+       addCriterion("USER_ID <=", value, "userId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andUserIdLike(String value) {
+       addCriterion("USER_ID like", value, "userId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andUserIdNotLike(String value) {
+       addCriterion("USER_ID not like", value, "userId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andUserIdIn(List<String> values) {
+       addCriterion("USER_ID in", values, "userId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andUserIdNotIn(List<String> values) {
+       addCriterion("USER_ID not in", values, "userId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andUserIdBetween(String value1, String value2) {
+       addCriterion("USER_ID between", value1, value2, "userId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andUserIdNotBetween(String value1, String value2) {
+       addCriterion("USER_ID not between", value1, value2, "userId");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andExecutionTimeIsNull() {
+       addCriterion("EXECUTION_TIME is null");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andExecutionTimeIsNotNull() {
+       addCriterion("EXECUTION_TIME is not null");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andExecutionTimeEqualTo(java.util.Date value) {
+       addCriterionForJDBCDate("EXECUTION_TIME =", value, "executionTime");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andExecutionTimeNotEqualTo(java.util.Date value) {
+       addCriterionForJDBCDate("EXECUTION_TIME <>", value, "executionTime");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andExecutionTimeGreaterThan(java.util.Date value) {
+       addCriterionForJDBCDate("EXECUTION_TIME >", value, "executionTime");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andExecutionTimeGreaterThanOrEqualTo(java.util.Date value) {
+       addCriterionForJDBCDate("EXECUTION_TIME >=", value, "executionTime");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andExecutionTimeLessThan(java.util.Date value) {
+       addCriterionForJDBCDate("EXECUTION_TIME <", value, "executionTime");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andExecutionTimeLessThanOrEqualTo(java.util.Date value) {
+       addCriterionForJDBCDate("EXECUTION_TIME <=", value, "executionTime");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andExecutionTimeIn(List<java.util.Date> values) {
+       addCriterionForJDBCDate("EXECUTION_TIME in", values, "executionTime");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andExecutionTimeNotIn(List<java.util.Date> values) {
+       addCriterionForJDBCDate("EXECUTION_TIME not in", values, "executionTime");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andExecutionTimeBetween(java.util.Date value1, java.util.Date value2) {
+       addCriterionForJDBCDate("EXECUTION_TIME between", value1, value2, "executionTime");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andExecutionTimeNotBetween(java.util.Date value1, java.util.Date value2) {
+       addCriterionForJDBCDate("EXECUTION_TIME not between", value1, value2, "executionTime");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andResultIsNull() {
+       addCriterion("RESULT is null");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andResultIsNotNull() {
+       addCriterion("RESULT is not null");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andResultEqualTo(Integer value) {
+       addCriterion("RESULT =", value, "result");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andResultNotEqualTo(Integer value) {
+       addCriterion("RESULT <>", value, "result");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andResultGreaterThan(Integer value) {
+       addCriterion("RESULT >", value, "result");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andResultGreaterThanOrEqualTo(Integer value) {
+       addCriterion("RESULT >=", value, "result");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andResultLessThan(Integer value) {
+       addCriterion("RESULT <", value, "result");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andResultLessThanOrEqualTo(Integer value) {
+       addCriterion("RESULT <=", value, "result");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andResultIn(List<Integer> values) {
+       addCriterion("RESULT in", values, "result");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andResultNotIn(List<Integer> values) {
+       addCriterion("RESULT not in", values, "result");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andResultBetween(Integer value1, Integer value2) {
+       addCriterion("RESULT between", value1, value2, "result");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+ 
+     public TimedTaskRecordExample.Criteria andResultNotBetween(Integer value1, Integer value2) {
+       addCriterion("RESULT not between", value1, value2, "result");
+       return (TimedTaskRecordExample.Criteria)this;
+     }
+   }
+ }
+

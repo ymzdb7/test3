@@ -1,0 +1,73 @@
+ package com.myoa.model.customNumber;
+ 
+ import java.util.Date;
+ 
+ public class CustomNumber
+ {
+   private Integer uuid;
+   private String setStyle;
+   private Integer types;
+   private Integer numberBit;
+   private Integer currentNumber;
+   private Date lastDate;
+ 
+   public Integer getUuid()
+   {
+     return this.uuid;
+   }
+ 
+   public void setUuid(Integer uuid)
+   {
+     this.uuid = uuid;
+   }
+ 
+   public String getSetStyle()
+   {
+     return this.setStyle;
+   }
+ 
+   public void setSetStyle(String setStyle)
+   {
+     this.setStyle = (setStyle == null ? null : setStyle.trim());
+   }
+ 
+   public Integer getTypes()
+   {
+     return this.types;
+   }
+ 
+   public void setTypes(Integer types)
+   {
+     this.types = types;
+   }
+ 
+   public Integer getNumberBit()
+   {
+     return this.numberBit;
+   }
+ 
+   public void setNumberBit(Integer numberBit)
+   {
+     this.numberBit = numberBit;
+   }
+ 
+   public Integer getCurrentNumber()
+   {
+     return this.currentNumber;
+   }
+ 
+   public void setCurrentNumber(Integer currentNumber)
+   {
+     this.currentNumber = currentNumber;
+   }
+ 
+   public Date getLastDate()
+   {
+     return this.lastDate;
+   }
+ 
+   public void setLastDate(Date lastDate) {
+     this.lastDate = lastDate;
+   }
+ }
+

@@ -1,0 +1,267 @@
+ package com.myoa.service.workflow.flowformtype;
+ 
+ import com.myoa.dao.workflow.FlowFormTypeMapper;
+import com.myoa.model.workflow.FlowFormType;
+import com.myoa.model.workflow.FlowFormTypeExtends;
+import com.myoa.model.workflow.FlowFormTypeParentModel;
+import com.myoa.service.workflow.wrapper.FlowFormWrappers;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.common.wrapper.BaseWrapper;
+
+ import java.util.ArrayList;
+ import java.util.Comparator;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.Map.Entry;
+ import java.util.TreeMap;
+ import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+ 
+ @Service
+ public class FlowFormService
+ {
+ 
+   @Autowired
+   FlowFormTypeMapper flowFormTypeMapper;
+ 
+   public FlowFormWrappers getFormBySortId(Integer sortId)
+   {
+     FlowFormWrappers wrappers = new FlowFormWrappers();
+     List datas = this.flowFormTypeMapper.selectFormBySort(sortId);
+     if ((datas != null) && (datas.size() > 0)) {
+       wrappers.setDatas(datas);
+       wrappers.setStatus(true);
+       wrappers.setFlag(true);
+       wrappers.setMsg("数据请求成功");
+     } else {
+       wrappers.setStatus(true);
+       wrappers.setFlag(false);
+       wrappers.setMsg("没有数据了，请新建...");
+     }
+ 
+     return wrappers;
+   }
+ 
+   public FlowFormWrappers seachForm(String searchValue, Integer sortId)
+   {
+     FlowFormWrappers wrapper = new FlowFormWrappers();
+ 
+     if (StringUtils.checkNull(searchValue).booleanValue()) {
+       wrapper.setMsg("搜素字段不能为空");
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       return wrapper;
+     }
+     List datas = this.flowFormTypeMapper.queryBySearchValue(searchValue, sortId);
+     if ((datas != null) && (datas.size() > 0)) {
+       wrapper.setDatas(datas);
+       wrapper.setStatus(true);
+       wrapper.setFlag(true);
+       wrapper.setMsg("数据请求成功");
+     } else {
+       wrapper.setStatus(true);
+       wrapper.setFlag(false);
+       wrapper.setMsg("没有数据了，请新建...");
+     }
+     return wrapper;
+   }
+ 
+   public BaseWrapper newForm(String formName, Integer deptId, Integer formSort, String otherinfo)
+   {
+     BaseWrapper wrapper = new BaseWrapper();
+     if (StringUtils.checkNull(formName).booleanValue()) {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("表单名称不能为空");
+       return wrapper;
+     }
+     FlowFormType flowFormType = new FlowFormType();
+     flowFormType.setFormName(formName);
+     flowFormType.setDeptId(deptId);
+     flowFormType.setFormSort(formSort);
+     flowFormType.setPrintModel(otherinfo);
+     int res = this.flowFormTypeMapper.insertSelectParam(flowFormType);
+     if (res > 0) {
+       wrapper.setFlag(true);
+       wrapper.setStatus(true);
+       wrapper.setMsg("新建表单成功");
+     } else {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("新建表单失败");
+     }
+ 
+     return wrapper;
+   }
+ 
+   public BaseWrapper updateForm(Integer formId, String formName, Integer deptId, Integer formSort, String otherinfo)
+   {
+     BaseWrapper wrapper = new BaseWrapper();
+     if (StringUtils.checkNull(formName).booleanValue()) {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("表单名称不能为空");
+       return wrapper;
+     }
+     if (formId == null) {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("表单Id不能为空");
+       return wrapper;
+     }
+     FlowFormTypeExtends flowFormType = new FlowFormTypeExtends();
+     flowFormType.setFormName(formName);
+     flowFormType.setDeptId(deptId);
+     flowFormType.setFormSort(formSort);
+     flowFormType.setFormId(formId);
+ 
+     int res = this.flowFormTypeMapper.updateSelectParam(flowFormType);
+     if (res > 0) {
+       wrapper.setFlag(true);
+       wrapper.setStatus(true);
+       wrapper.setMsg("更新表单成功");
+     } else {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("更新表单失败");
+     }
+ 
+     return wrapper;
+   }
+ 
+   public BaseWrapper deleteForm(Integer formId)
+   {
+     BaseWrapper wrapper = new BaseWrapper();
+     if (formId == null) {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("表单Id不能为空");
+       return wrapper;
+     }
+ 
+     int useNumber = this.flowFormTypeMapper.checkFormUserNumber(formId);
+     if (useNumber > 0) {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("表单被占用，请先解除关联或删除对应流程");
+       return wrapper;
+     }
+ 
+     int res = this.flowFormTypeMapper.deleteForm(formId);
+ 
+     if (res > 0) {
+       wrapper.setFlag(true);
+       wrapper.setStatus(true);
+       wrapper.setMsg("删除成功");
+     } else {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("操作失败");
+     }
+     return wrapper;
+   }
+ 
+   public BaseWrapper updateFormType(Integer formId, String formName, Integer deptId, Integer formSort, String printModel, Integer itemMax, String script, String css) {
+     BaseWrapper wrapper = new BaseWrapper();
+ 
+     if (formId == null) {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("表单Id不能为空");
+       return wrapper;
+     }
+ 
+     FlowFormTypeExtends flowFormType = new FlowFormTypeExtends();
+     flowFormType.setFormId(formId);
+     if (!StringUtils.checkNull(printModel).booleanValue()) {
+       flowFormType.setPrintModel(printModel);
+       flowFormType.setPrintModelShort(printModel);
+       flowFormType.setItemMax(itemMax);
+     }
+     if (!StringUtils.checkNull(script).booleanValue()) {
+       flowFormType.setScript(script);
+     }
+     if (!StringUtils.checkNull(css).booleanValue()) {
+       flowFormType.setCss(css);
+     }
+ 
+     int res = this.flowFormTypeMapper.updateSelectParam(flowFormType);
+     if (res > 0) {
+       wrapper.setFlag(true);
+       wrapper.setStatus(true);
+       wrapper.setMsg("更新表单成功");
+     } else {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("更新表单失败");
+     }
+ 
+     return wrapper;
+   }
+ 
+   public FlowFormWrappers getFormByAll()
+   {
+     FlowFormWrappers wrappers = new FlowFormWrappers();
+     List redatas = this.flowFormTypeMapper.selectAllForm();
+ 
+     List datas = formatForm(redatas);
+     if ((datas != null) && (datas.size() > 0)) {
+       wrappers.setDatas(datas);
+       wrappers.setStatus(true);
+       wrappers.setFlag(true);
+       wrappers.setMsg("数据请求成功");
+     } else {
+       wrappers.setStatus(true);
+       wrappers.setFlag(false);
+       wrappers.setMsg("没有数据了，请新建...");
+     }
+     return wrappers;
+   }
+ 
+   private List<FlowFormTypeParentModel> formatForm(List<FlowFormType> redatas) {
+     List ret = new ArrayList();
+     Map<Object,Object> map = new TreeMap(
+		      new Comparator()
+     { 
+				@Override
+				public int compare(Object o1, Object o2) {
+					 return  o1.toString().compareTo(o2.toString());
+				}
+		      }
+
+ );
+     List flist = new ArrayList();
+     for (FlowFormType form : redatas) {
+       Integer sortId = form.getFormSort();
+       if ((sortId == null) || (sortId.intValue() == 0)) {
+         sortId = Integer.valueOf(-1);
+       }
+       String keyId = String.valueOf(sortId);
+       flist = (List)map.get(keyId);
+       if (flist == null) {
+         flist = new ArrayList();
+       }
+       flist.add(form);
+       map.put(keyId, flist);
+     }
+     for (Map.Entry entry : map.entrySet()) {
+       FlowFormTypeParentModel model = new FlowFormTypeParentModel();
+       if ("-1".equals(entry.getKey())) {
+         model.setSortName("未分类");
+         model.setForm((List)entry.getValue());
+         ret.add(model);
+       } else {
+         List child = (List)entry.getValue();
+         String name = "未知类型";
+         if ((child != null) && (child.size() > 0)) {
+           name = ((FlowFormType)child.get(0)).getSortName();
+         }
+         model.setSortName(name);
+         model.setForm((List)entry.getValue());
+         ret.add(model);
+       }
+     }
+     return ret;
+   }
+ }
+

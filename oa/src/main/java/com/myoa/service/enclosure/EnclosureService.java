@@ -1,0 +1,32 @@
+package com.myoa.service.enclosure;
+
+import com.myoa.model.enclosure.Attachment;
+import com.myoa.util.ToJson;
+
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
+public abstract interface EnclosureService
+{
+  public abstract void saveAttachment(Attachment paramAttachment);
+
+  public abstract Attachment findByAttachId(int paramInt);
+
+  public abstract Attachment findByLast();
+
+  public abstract List<Attachment> upload(MultipartFile[] paramArrayOfMultipartFile, String paramString1, String paramString2)
+    throws UnsupportedEncodingException;
+
+  public abstract String attachmenturl(Attachment paramAttachment, String paramString1, String paramString2);
+
+  public abstract List<Attachment> uploadReturn(MultipartFile[] paramArrayOfMultipartFile, String paramString1, String paramString2);
+
+  public abstract ToJson delete(@RequestParam("AID") String paramString1, @RequestParam("MODULE") String paramString2, @RequestParam("YM") String paramString3, @RequestParam("ATTACHMENT_ID") String paramString4, @RequestParam("ATTACHMENT_NAME") String paramString5, @RequestParam("COMPANY") String paramString6, HttpServletResponse paramHttpServletResponse, HttpServletRequest paramHttpServletRequest);
+
+  public abstract ToJson<Attachment> selectByPrimaryKey(Integer paramInteger, String paramString, HttpServletRequest paramHttpServletRequest);
+}
+

@@ -1,0 +1,548 @@
+/*     */ package com.xoa.model.hierarchical;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class HierarchicalGlobalExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public HierarchicalGlobalExample()
+/*     */   {
+/*  38 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  48 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  58 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  68 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  78 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  88 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  98 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 108 */     Criteria criteria = createCriteriaInternal();
+/* 109 */     this.oredCriteria.add(criteria);
+/* 110 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 120 */     Criteria criteria = createCriteriaInternal();
+/* 121 */     if (this.oredCriteria.size() == 0) {
+/* 122 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 124 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 134 */     Criteria criteria = new Criteria();
+/* 135 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 145 */     this.oredCriteria.clear();
+/* 146 */     this.orderByClause = null;
+/* 147 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 575 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 579 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 583 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 587 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 591 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 595 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 599 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 603 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 608 */       this.condition = condition;
+/* 609 */       this.typeHandler = null;
+/* 610 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 615 */       this.condition = condition;
+/* 616 */       this.value = value;
+/* 617 */       this.typeHandler = typeHandler;
+/* 618 */       if ((value instanceof List))
+/* 619 */         this.listValue = true;
+/*     */       else
+/* 621 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 626 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 631 */       this.condition = condition;
+/* 632 */       this.value = value;
+/* 633 */       this.secondValue = secondValue;
+/* 634 */       this.typeHandler = typeHandler;
+/* 635 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 639 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends HierarchicalGlobalExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<HierarchicalGlobalExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 161 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 165 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<HierarchicalGlobalExample.Criterion> getAllCriteria() {
+/* 169 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<HierarchicalGlobalExample.Criterion> getCriteria() {
+/* 173 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 177 */       if (condition == null) {
+/* 178 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 180 */       this.criteria.add(new HierarchicalGlobalExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 184 */       if (value == null) {
+/* 185 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 187 */       this.criteria.add(new HierarchicalGlobalExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 191 */       if ((value1 == null) || (value2 == null)) {
+/* 192 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 194 */       this.criteria.add(new HierarchicalGlobalExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalIdIsNull() {
+/* 198 */       addCriterion("GLOBAL_ID is null");
+/* 199 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalIdIsNotNull() {
+/* 203 */       addCriterion("GLOBAL_ID is not null");
+/* 204 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalIdEqualTo(Integer value) {
+/* 208 */       addCriterion("GLOBAL_ID =", value, "globalId");
+/* 209 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalIdNotEqualTo(Integer value) {
+/* 213 */       addCriterion("GLOBAL_ID <>", value, "globalId");
+/* 214 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalIdGreaterThan(Integer value) {
+/* 218 */       addCriterion("GLOBAL_ID >", value, "globalId");
+/* 219 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalIdGreaterThanOrEqualTo(Integer value) {
+/* 223 */       addCriterion("GLOBAL_ID >=", value, "globalId");
+/* 224 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalIdLessThan(Integer value) {
+/* 228 */       addCriterion("GLOBAL_ID <", value, "globalId");
+/* 229 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalIdLessThanOrEqualTo(Integer value) {
+/* 233 */       addCriterion("GLOBAL_ID <=", value, "globalId");
+/* 234 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalIdIn(List<Integer> values) {
+/* 238 */       addCriterion("GLOBAL_ID in", values, "globalId");
+/* 239 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalIdNotIn(List<Integer> values) {
+/* 243 */       addCriterion("GLOBAL_ID not in", values, "globalId");
+/* 244 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalIdBetween(Integer value1, Integer value2) {
+/* 248 */       addCriterion("GLOBAL_ID between", value1, value2, "globalId");
+/* 249 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalIdNotBetween(Integer value1, Integer value2) {
+/* 253 */       addCriterion("GLOBAL_ID not between", value1, value2, "globalId");
+/* 254 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andModelIdIsNull() {
+/* 258 */       addCriterion("MODEL_ID is null");
+/* 259 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andModelIdIsNotNull() {
+/* 263 */       addCriterion("MODEL_ID is not null");
+/* 264 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andModelIdEqualTo(String value) {
+/* 268 */       addCriterion("MODEL_ID =", value, "modelId");
+/* 269 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andModelIdNotEqualTo(String value) {
+/* 273 */       addCriterion("MODEL_ID <>", value, "modelId");
+/* 274 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andModelIdGreaterThan(String value) {
+/* 278 */       addCriterion("MODEL_ID >", value, "modelId");
+/* 279 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andModelIdGreaterThanOrEqualTo(String value) {
+/* 283 */       addCriterion("MODEL_ID >=", value, "modelId");
+/* 284 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andModelIdLessThan(String value) {
+/* 288 */       addCriterion("MODEL_ID <", value, "modelId");
+/* 289 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andModelIdLessThanOrEqualTo(String value) {
+/* 293 */       addCriterion("MODEL_ID <=", value, "modelId");
+/* 294 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andModelIdLike(String value) {
+/* 298 */       addCriterion("MODEL_ID like", value, "modelId");
+/* 299 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andModelIdNotLike(String value) {
+/* 303 */       addCriterion("MODEL_ID not like", value, "modelId");
+/* 304 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andModelIdIn(List<String> values) {
+/* 308 */       addCriterion("MODEL_ID in", values, "modelId");
+/* 309 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andModelIdNotIn(List<String> values) {
+/* 313 */       addCriterion("MODEL_ID not in", values, "modelId");
+/* 314 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andModelIdBetween(String value1, String value2) {
+/* 318 */       addCriterion("MODEL_ID between", value1, value2, "modelId");
+/* 319 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andModelIdNotBetween(String value1, String value2) {
+/* 323 */       addCriterion("MODEL_ID not between", value1, value2, "modelId");
+/* 324 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPersonIsNull() {
+/* 328 */       addCriterion("GLOBAL_PERSON is null");
+/* 329 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPersonIsNotNull() {
+/* 333 */       addCriterion("GLOBAL_PERSON is not null");
+/* 334 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPersonEqualTo(String value) {
+/* 338 */       addCriterion("GLOBAL_PERSON =", value, "globalPerson");
+/* 339 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPersonNotEqualTo(String value) {
+/* 343 */       addCriterion("GLOBAL_PERSON <>", value, "globalPerson");
+/* 344 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPersonGreaterThan(String value) {
+/* 348 */       addCriterion("GLOBAL_PERSON >", value, "globalPerson");
+/* 349 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPersonGreaterThanOrEqualTo(String value) {
+/* 353 */       addCriterion("GLOBAL_PERSON >=", value, "globalPerson");
+/* 354 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPersonLessThan(String value) {
+/* 358 */       addCriterion("GLOBAL_PERSON <", value, "globalPerson");
+/* 359 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPersonLessThanOrEqualTo(String value) {
+/* 363 */       addCriterion("GLOBAL_PERSON <=", value, "globalPerson");
+/* 364 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPersonLike(String value) {
+/* 368 */       addCriterion("GLOBAL_PERSON like", value, "globalPerson");
+/* 369 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPersonNotLike(String value) {
+/* 373 */       addCriterion("GLOBAL_PERSON not like", value, "globalPerson");
+/* 374 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPersonIn(List<String> values) {
+/* 378 */       addCriterion("GLOBAL_PERSON in", values, "globalPerson");
+/* 379 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPersonNotIn(List<String> values) {
+/* 383 */       addCriterion("GLOBAL_PERSON not in", values, "globalPerson");
+/* 384 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPersonBetween(String value1, String value2) {
+/* 388 */       addCriterion("GLOBAL_PERSON between", value1, value2, "globalPerson");
+/* 389 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPersonNotBetween(String value1, String value2) {
+/* 393 */       addCriterion("GLOBAL_PERSON not between", value1, value2, "globalPerson");
+/* 394 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalDeptIsNull() {
+/* 398 */       addCriterion("GLOBAL_DEPT is null");
+/* 399 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalDeptIsNotNull() {
+/* 403 */       addCriterion("GLOBAL_DEPT is not null");
+/* 404 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalDeptEqualTo(String value) {
+/* 408 */       addCriterion("GLOBAL_DEPT =", value, "globalDept");
+/* 409 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalDeptNotEqualTo(String value) {
+/* 413 */       addCriterion("GLOBAL_DEPT <>", value, "globalDept");
+/* 414 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalDeptGreaterThan(String value) {
+/* 418 */       addCriterion("GLOBAL_DEPT >", value, "globalDept");
+/* 419 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalDeptGreaterThanOrEqualTo(String value) {
+/* 423 */       addCriterion("GLOBAL_DEPT >=", value, "globalDept");
+/* 424 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalDeptLessThan(String value) {
+/* 428 */       addCriterion("GLOBAL_DEPT <", value, "globalDept");
+/* 429 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalDeptLessThanOrEqualTo(String value) {
+/* 433 */       addCriterion("GLOBAL_DEPT <=", value, "globalDept");
+/* 434 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalDeptLike(String value) {
+/* 438 */       addCriterion("GLOBAL_DEPT like", value, "globalDept");
+/* 439 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalDeptNotLike(String value) {
+/* 443 */       addCriterion("GLOBAL_DEPT not like", value, "globalDept");
+/* 444 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalDeptIn(List<String> values) {
+/* 448 */       addCriterion("GLOBAL_DEPT in", values, "globalDept");
+/* 449 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalDeptNotIn(List<String> values) {
+/* 453 */       addCriterion("GLOBAL_DEPT not in", values, "globalDept");
+/* 454 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalDeptBetween(String value1, String value2) {
+/* 458 */       addCriterion("GLOBAL_DEPT between", value1, value2, "globalDept");
+/* 459 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalDeptNotBetween(String value1, String value2) {
+/* 463 */       addCriterion("GLOBAL_DEPT not between", value1, value2, "globalDept");
+/* 464 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPrivIsNull() {
+/* 468 */       addCriterion("GLOBAL_PRIV is null");
+/* 469 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPrivIsNotNull() {
+/* 473 */       addCriterion("GLOBAL_PRIV is not null");
+/* 474 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPrivEqualTo(String value) {
+/* 478 */       addCriterion("GLOBAL_PRIV =", value, "globalPriv");
+/* 479 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPrivNotEqualTo(String value) {
+/* 483 */       addCriterion("GLOBAL_PRIV <>", value, "globalPriv");
+/* 484 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPrivGreaterThan(String value) {
+/* 488 */       addCriterion("GLOBAL_PRIV >", value, "globalPriv");
+/* 489 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPrivGreaterThanOrEqualTo(String value) {
+/* 493 */       addCriterion("GLOBAL_PRIV >=", value, "globalPriv");
+/* 494 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPrivLessThan(String value) {
+/* 498 */       addCriterion("GLOBAL_PRIV <", value, "globalPriv");
+/* 499 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPrivLessThanOrEqualTo(String value) {
+/* 503 */       addCriterion("GLOBAL_PRIV <=", value, "globalPriv");
+/* 504 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPrivLike(String value) {
+/* 508 */       addCriterion("GLOBAL_PRIV like", value, "globalPriv");
+/* 509 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPrivNotLike(String value) {
+/* 513 */       addCriterion("GLOBAL_PRIV not like", value, "globalPriv");
+/* 514 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPrivIn(List<String> values) {
+/* 518 */       addCriterion("GLOBAL_PRIV in", values, "globalPriv");
+/* 519 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPrivNotIn(List<String> values) {
+/* 523 */       addCriterion("GLOBAL_PRIV not in", values, "globalPriv");
+/* 524 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPrivBetween(String value1, String value2) {
+/* 528 */       addCriterion("GLOBAL_PRIV between", value1, value2, "globalPriv");
+/* 529 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public HierarchicalGlobalExample.Criteria andGlobalPrivNotBetween(String value1, String value2) {
+/* 533 */       addCriterion("GLOBAL_PRIV not between", value1, value2, "globalPriv");
+/* 534 */       return (HierarchicalGlobalExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.hierarchical.HierarchicalGlobalExample
+ * JD-Core Version:    0.6.0
+ */

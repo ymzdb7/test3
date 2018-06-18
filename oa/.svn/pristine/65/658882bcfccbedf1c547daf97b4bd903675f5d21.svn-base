@@ -1,0 +1,951 @@
+/*      */ package com.xoa.service.meeting.impl;
+/*      */ 
+/*      */ import com.xoa.dao.department.DepartmentMapper;
+/*      */ import com.xoa.dao.hr.HrStaffInfoMapper;
+/*      */ import com.xoa.dao.meet.MeetingAttendConfirmMapper;
+/*      */ import com.xoa.dao.meet.MeetingMapper;
+/*      */ import com.xoa.dao.meet.MeetingRoomMapper;
+/*      */ import com.xoa.dao.users.UserPrivMapper;
+/*      */ import com.xoa.dao.users.UsersMapper;
+/*      */ import com.xoa.model.calender.Calendar;
+/*      */ import com.xoa.model.hr.HrStaffInfo;
+/*      */ import com.xoa.model.meet.Meeting;
+/*      */ import com.xoa.model.meet.MeetingAttendConfirm;
+/*      */ import com.xoa.model.meet.MeetingRoom;
+/*      */ import com.xoa.model.meet.MeetingWithBLOBs;
+/*      */ import com.xoa.model.sms2.Sms2Priv;
+/*      */ import com.xoa.model.users.Users;
+/*      */ import com.xoa.service.ThreadSerivice.ThreadService;
+/*      */ import com.xoa.service.calender.CalenderService;
+/*      */ import com.xoa.service.meeting.MeetingService;
+/*      */ import com.xoa.service.sms.SmsService;
+/*      */ import com.xoa.service.smsDelivery.Sms2PrivService;
+import com.xoa.util.Constant;
+/*      */ import com.xoa.util.DateFormat;
+/*      */ import com.xoa.util.GetAttachmentListUtil;
+/*      */ import com.xoa.util.ToJson;
+/*      */ import com.xoa.util.common.L;
+/*      */ import com.xoa.util.common.StringUtils;
+/*      */ import com.xoa.util.common.session.SessionUtils;
+/*      */ import com.xoa.util.page.PageParams;
+/*      */ import java.io.PrintWriter;
+/*      */ import java.net.URLEncoder;
+/*      */ import java.text.SimpleDateFormat;
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.Date;
+/*      */ import java.util.HashMap;
+/*      */ import java.util.List;
+/*      */ import java.util.Map;
+/*      */ import javax.annotation.Resource;
+/*      */ import javax.servlet.http.HttpServletRequest;
+/*      */ import javax.servlet.http.HttpServletResponse;
+/*      */ import javax.servlet.http.HttpSession;
+/*      */ import org.apache.commons.collections.map.HashedMap;
+/*      */ import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+/*      */ 
+/*      */ @Service
+/*      */ public class MeetingServiceImpl
+/*      */   implements MeetingService
+/*      */ {
+/*      */ 
+/*      */   @Resource
+/*      */   private MeetingMapper meetingMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersMapper usersMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private MeetingRoomMapper meetingRoomMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private MeetingAttendConfirmMapper meetingAttendConfirmMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private DepartmentMapper departmentMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private UserPrivMapper userPrivMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private CalenderService calenderService;
+/*      */ 
+/*      */   @Resource
+/*      */   private HrStaffInfoMapper hrStaffInfoMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   ThreadService threadService;
+/*      */ 
+/*      */   @Resource
+/*      */   private SmsService smsService;
+/*      */ 
+/*      */   @Resource
+/*      */   private Sms2PrivService sms2PrivService;
+/*      */ 
+/*      */   public ToJson<MeetingWithBLOBs> queryMeeting(MeetingWithBLOBs meetingWithBLOBs, Integer page, Integer pageSize, boolean useFlag)
+/*      */   {
+/*   99 */     ToJson json = new ToJson(1, "error");
+/*      */     try
+/*      */     {
+/*  102 */       PageParams pageParams = new PageParams();
+/*  103 */       pageParams.setPage(page);
+/*  104 */       pageParams.setPageSize(pageSize);
+/*  105 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  106 */       Map map = new HashMap();
+/*  107 */       map.put("page", pageParams);
+/*      */ 
+/*  109 */       Date date = new Date();
+/*  110 */       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  111 */       long currentTime = Long.valueOf(DateFormat.getTime(sdf.format(date)).intValue()).longValue();
+/*  112 */       List<MeetingWithBLOBs> meetingList = new ArrayList();
+/*  113 */       if ((meetingWithBLOBs.getStatus() != null) && (
+/*  114 */         (meetingWithBLOBs.getStatus().intValue() == 3) || (meetingWithBLOBs.getStatus().intValue() == 5))) {
+/*  115 */         meetingWithBLOBs.setCurrentTime(sdf.format(date));
+/*      */       }
+/*      */ 
+/*  119 */       map.put("meetingWithBLOBs", meetingWithBLOBs);
+/*  120 */       meetingList = this.meetingMapper.queryMeeting(map);
+/*  121 */       if ((meetingWithBLOBs.getStatus() != null) && 
+/*  122 */         (meetingWithBLOBs.getStatus().intValue() == 2)) {
+/*  123 */         meetingList = approveMeeting(meetingWithBLOBs, page, pageSize, useFlag);
+/*      */       }
+/*      */ 
+/*  126 */       for (MeetingWithBLOBs meeting : meetingList) {
+/*  127 */         if (meeting.getUid() != null) {
+/*  128 */           meeting.setUserName(this.usersMapper.getUsernameById(meeting.getUid().intValue()));
+/*      */         }
+/*  130 */         if (meeting.getManagerId() != null) {
+/*  131 */           meeting.setManagerName(this.usersMapper.getUsernameById(meeting.getManagerId().intValue()));
+/*      */         }
+/*  133 */         if (meeting.getMeetRoomId() != null) {
+/*  134 */           MeetingRoom meetingRoom = this.meetingRoomMapper.getMeetRoomBySid(Integer.valueOf(meeting.getMeetRoomId().intValue()));
+/*  135 */           if (meetingRoom != null) {
+/*  136 */             meeting.setMeetRoomName(meetingRoom.getMrName());
+/*      */           }
+/*      */         }
+/*  139 */         long startTime = 0L;
+/*  140 */         long endTime = 0L;
+/*  141 */         if (!StringUtils.checkNull(meeting.getStartTime()).booleanValue()) {
+/*  142 */           startTime = DateFormat.getTime(meeting.getStartTime()).intValue();
+/*      */         }
+/*  144 */         if (!StringUtils.checkNull(meeting.getEndTime()).booleanValue()) {
+/*  145 */           endTime = DateFormat.getTime(meeting.getEndTime()).intValue();
+/*      */         }
+/*      */ 
+/*  153 */         if (meeting.getStatus() != null) {
+/*  154 */           switch (meeting.getStatus().intValue()) {
+/*      */           case 1:
+/*  156 */             meeting.setStatusName("待审批");
+/*  157 */             meeting.setStatus(Integer.valueOf(1));
+/*  158 */             break;
+/*      */           case 2:
+/*  160 */             if ((startTime <= currentTime) && (currentTime < endTime)) {
+/*  161 */               meeting.setStatusName("进行中");
+/*  162 */               meeting.setStatus(Integer.valueOf(3));
+/*  163 */             } else if ((startTime <= currentTime) && (currentTime >= endTime)) {
+/*  164 */               meeting.setStatusName("已结束");
+/*  165 */               meeting.setStatus(Integer.valueOf(5));
+/*      */             } else {
+/*  167 */               meeting.setStatusName("已审批");
+/*  168 */               meeting.setStatus(Integer.valueOf(2));
+/*      */             }
+/*  170 */             break;
+/*      */           case 4:
+/*  172 */             meeting.setStatusName("未批准");
+/*  173 */             meeting.setStatus(Integer.valueOf(4));
+/*  174 */             break;
+/*      */           case 5:
+/*  176 */             meeting.setStatusName("已结束");
+/*  177 */             meeting.setStatus(Integer.valueOf(5));
+/*      */           case 3:
+/*      */           }
+/*      */         }
+/*      */ 
+/*  182 */         if (!StringUtils.checkNull(meeting.getStartTime()).booleanValue()) {
+/*  183 */           meeting.setStartTime(meeting.getStartTime().substring(0, meeting.getStartTime().length() - 2));
+/*      */         }
+/*  185 */         if (!StringUtils.checkNull(meeting.getEndTime()).booleanValue()) {
+/*  186 */           meeting.setEndTime(meeting.getEndTime().substring(0, meeting.getEndTime().length() - 2));
+/*      */         }
+/*  188 */         if (!StringUtils.checkNull(meeting.getCreateTime()).booleanValue()) {
+/*  189 */           meeting.setCreateTime(meeting.getCreateTime().substring(0, meeting.getCreateTime().length() - 2));
+/*      */         }
+/*      */       }
+/*  192 */       json.setObj(meetingList);
+/*  193 */       json.setFlag(0);
+/*  194 */       json.setMsg("ok");
+/*      */     } catch (Exception e) {
+/*  196 */       json.setMsg(e.getMessage());
+/*  197 */       L.e(new Object[] { "MeetingServiceImpl queryMeeting:" + e });
+/*      */     }
+/*  199 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<MeetingWithBLOBs> getMyMeeting(HttpServletRequest request, MeetingWithBLOBs meetingWithBLOBs, Integer page, Integer pageSize, boolean useFlag)
+/*      */   {
+/*  211 */     ToJson json = new ToJson(1, "error");
+/*      */     try
+/*      */     {
+/*  214 */       PageParams pageParams = new PageParams();
+/*  215 */       pageParams.setPage(page);
+/*  216 */       pageParams.setPageSize(pageSize);
+/*  217 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  218 */       Map map = new HashMap();
+/*  219 */       map.put("page", pageParams);
+/*      */ 
+/*  221 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  222 */       meetingWithBLOBs.setUid(user.getUid());
+/*  223 */       map.put("meetingWithBLOBs", meetingWithBLOBs);
+/*      */ 
+/*  225 */       Date date = new Date();
+/*  226 */       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  227 */       long currentTime = Long.valueOf(DateFormat.getTime(sdf.format(date)).intValue()).longValue();
+/*  228 */       List<MeetingWithBLOBs> meetingList = meetingList = this.meetingMapper.getMyMeeting(map);
+/*  229 */       for (MeetingWithBLOBs meeting : meetingList) {
+/*  230 */         if (meeting.getUid() != null) {
+/*  231 */           meeting.setUserName(this.usersMapper.getUsernameById(meeting.getUid().intValue()));
+/*      */         }
+/*  233 */         if (meeting.getMeetRoomId() != null) {
+/*  234 */           MeetingRoom meetingRoom = this.meetingRoomMapper.getMeetRoomBySid(Integer.valueOf(meeting.getMeetRoomId().intValue()));
+/*  235 */           if (meetingRoom != null) {
+/*  236 */             meeting.setMeetRoomName(meetingRoom.getMrName());
+/*      */           }
+/*      */         }
+/*  239 */         long startTime = 0L;
+/*  240 */         long endTime = 0L;
+/*  241 */         if (!StringUtils.checkNull(meeting.getStartTime()).booleanValue()) {
+/*  242 */           startTime = DateFormat.getTime(meeting.getStartTime()).intValue();
+/*      */         }
+/*  244 */         if (!StringUtils.checkNull(meeting.getEndTime()).booleanValue()) {
+/*  245 */           endTime = DateFormat.getTime(meeting.getEndTime()).intValue();
+/*      */         }
+/*      */ 
+/*  253 */         if (meeting.getStatus() != null) {
+/*  254 */           switch (meeting.getStatus().intValue()) {
+/*      */           case 1:
+/*  256 */             meeting.setStatusName("待审批");
+/*  257 */             break;
+/*      */           case 2:
+/*  259 */             if ((startTime <= currentTime) && (currentTime < endTime))
+/*  260 */               meeting.setStatusName("进行中");
+/*  261 */             else if ((startTime <= currentTime) && (currentTime >= endTime))
+/*  262 */               meeting.setStatusName("已结束");
+/*      */             else {
+/*  264 */               meeting.setStatusName("已审批");
+/*      */             }
+/*  266 */             break;
+/*      */           case 4:
+/*  268 */             meeting.setStatusName("未批准");
+/*  269 */             break;
+/*      */           case 5:
+/*  271 */             meeting.setStatusName("已结束");
+/*      */           case 3:
+/*      */           }
+/*      */         }
+/*      */ 
+/*  276 */         if (!StringUtils.checkNull(meeting.getStartTime()).booleanValue()) {
+/*  277 */           meeting.setStartTime(meeting.getStartTime().substring(0, meeting.getStartTime().length() - 2));
+/*      */         }
+/*  279 */         if (!StringUtils.checkNull(meeting.getEndTime()).booleanValue()) {
+/*  280 */           meeting.setEndTime(meeting.getEndTime().substring(0, meeting.getEndTime().length() - 2));
+/*      */         }
+/*  282 */         if (!StringUtils.checkNull(meeting.getCreateTime()).booleanValue()) {
+/*  283 */           meeting.setCreateTime(meeting.getCreateTime().substring(0, meeting.getCreateTime().length() - 2));
+/*      */         }
+/*      */       }
+/*  286 */       json.setObj(meetingList);
+/*  287 */       json.setFlag(0);
+/*  288 */       json.setMsg("ok");
+/*      */     } catch (Exception e) {
+/*  290 */       json.setMsg(e.getMessage());
+/*  291 */       L.e(new Object[] { "MeetingServiceImpl getMyMeeting:" + e });
+/*      */     }
+/*  293 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<MeetingWithBLOBs> queryMeetingById(HttpServletRequest request, HttpServletResponse response, String sid, int output)
+/*      */   {
+/*  305 */     ToJson json = new ToJson(1, "error");
+/*      */     try {
+/*  307 */       MeetingWithBLOBs meetingWithBLOBs = this.meetingMapper.queryMeetingById(sid);
+/*      */ 
+/*  309 */       List attachmentList = new ArrayList();
+/*  310 */       if ((meetingWithBLOBs.getAttachmentName() != null) && (!"".equals(meetingWithBLOBs.getAttachmentName()))) {
+/*  311 */         attachmentList = GetAttachmentListUtil.returnAttachment(meetingWithBLOBs.getAttachmentName(), meetingWithBLOBs.getAttachmentId(), Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "meeting");
+/*      */       }
+/*  313 */       meetingWithBLOBs.setAttachmentList(attachmentList);
+/*  314 */       if (!StringUtils.checkNull(meetingWithBLOBs.getAttendee()).booleanValue()) {
+/*  315 */         StringBuffer attendName = new StringBuffer();
+/*  316 */         String[] attendArray = meetingWithBLOBs.getAttendee().split(",");
+/*  317 */         int i = 1;
+/*  318 */         for (String attend : attendArray) {
+/*  319 */           if (this.usersMapper.getUsernameById(attend) != null) {
+/*  320 */             if (i < attendArray.length)
+/*  321 */               attendName.append(this.usersMapper.getUsernameById(attend) + ",");
+/*      */             else {
+/*  323 */               attendName.append(this.usersMapper.getUsernameById(attend));
+/*      */             }
+/*      */           }
+/*  326 */           i++;
+/*      */         }
+/*  328 */         meetingWithBLOBs.setAttendeeName(attendName.toString());
+/*      */       }
+/*  330 */       if (meetingWithBLOBs.getRecorderId() != null) {
+/*  331 */         meetingWithBLOBs.setRecorderName(this.usersMapper.getUsernameById(meetingWithBLOBs.getRecorderId().intValue()));
+/*      */       }
+/*  333 */       if (meetingWithBLOBs.getManagerId() != null) {
+/*  334 */         meetingWithBLOBs.setManagerName(this.usersMapper.getUsernameById(meetingWithBLOBs.getManagerId().intValue()));
+/*      */       }
+/*  336 */       if (meetingWithBLOBs.getUid() != null) {
+/*  337 */         meetingWithBLOBs.setUserName(this.usersMapper.getUsernameById(meetingWithBLOBs.getUid().intValue()));
+/*      */       }
+/*  339 */       if (meetingWithBLOBs.getMeetRoomId() != null) {
+/*  340 */         MeetingRoom meetingRoom = this.meetingRoomMapper.getMeetRoomBySid(Integer.valueOf(meetingWithBLOBs.getMeetRoomId().intValue()));
+/*  341 */         if (meetingRoom != null) {
+/*  342 */           meetingWithBLOBs.setMeetRoomName(meetingRoom.getMrName());
+/*      */         }
+/*      */       }
+/*  345 */       if (!StringUtils.checkNull(meetingWithBLOBs.getStartTime()).booleanValue()) {
+/*  346 */         meetingWithBLOBs.setStartTime(meetingWithBLOBs.getStartTime().substring(0, meetingWithBLOBs.getStartTime().length() - 2));
+/*      */       }
+/*  348 */       if (!StringUtils.checkNull(meetingWithBLOBs.getEndTime()).booleanValue()) {
+/*  349 */         meetingWithBLOBs.setEndTime(meetingWithBLOBs.getEndTime().substring(0, meetingWithBLOBs.getEndTime().length() - 2));
+/*      */       }
+/*  351 */       if (!StringUtils.checkNull(meetingWithBLOBs.getCreateTime()).booleanValue()) {
+/*  352 */         meetingWithBLOBs.setCreateTime(meetingWithBLOBs.getCreateTime().substring(0, meetingWithBLOBs.getCreateTime().length() - 2));
+/*      */       }
+/*  354 */       long startTime = 0L;
+/*  355 */       long endTime = 0L;
+/*  356 */       if (!StringUtils.checkNull(meetingWithBLOBs.getStartTime()).booleanValue()) {
+/*  357 */         startTime = DateFormat.getTime(meetingWithBLOBs.getStartTime()).intValue();
+/*      */       }
+/*  359 */       if (!StringUtils.checkNull(meetingWithBLOBs.getEndTime()).booleanValue()) {
+/*  360 */         endTime = DateFormat.getTime(meetingWithBLOBs.getEndTime()).intValue();
+/*      */       }
+/*      */ 
+/*  363 */       Date date = new Date();
+/*  364 */       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  365 */       long currentTime = Long.valueOf(DateFormat.getTime(sdf.format(date)).intValue()).longValue();
+/*  366 */       if (meetingWithBLOBs.getStatus() != null) {
+/*  367 */         switch (meetingWithBLOBs.getStatus().intValue()) {
+/*      */         case 1:
+/*  369 */           meetingWithBLOBs.setStatusName("待审批");
+/*  370 */           meetingWithBLOBs.setStatus(Integer.valueOf(1));
+/*  371 */           break;
+/*      */         case 2:
+/*  373 */           if ((startTime <= currentTime) && (currentTime < endTime)) {
+/*  374 */             meetingWithBLOBs.setStatusName("进行中");
+/*  375 */             meetingWithBLOBs.setStatus(Integer.valueOf(3));
+/*  376 */           } else if ((startTime <= currentTime) && (currentTime >= endTime)) {
+/*  377 */             meetingWithBLOBs.setStatusName("已结束");
+/*  378 */             meetingWithBLOBs.setStatus(Integer.valueOf(5));
+/*      */           } else {
+/*  380 */             meetingWithBLOBs.setStatusName("已审批");
+/*  381 */             meetingWithBLOBs.setStatus(Integer.valueOf(2));
+/*      */           }
+/*  383 */           break;
+/*      */         case 4:
+/*  385 */           meetingWithBLOBs.setStatusName("未批准");
+/*  386 */           meetingWithBLOBs.setStatus(Integer.valueOf(4));
+/*  387 */           break;
+/*      */         case 5:
+/*  389 */           meetingWithBLOBs.setStatusName("已结束");
+/*  390 */           meetingWithBLOBs.setStatus(Integer.valueOf(5));
+/*      */         case 3:
+/*      */         }
+/*      */ 
+/*  394 */         Map map = new HashedMap();
+/*  395 */         Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  396 */         map.put("meetingId", sid);
+/*  397 */         map.put("attendeeId", user.getUid());
+/*  398 */         MeetingAttendConfirm meetingAttendConfirm = this.meetingAttendConfirmMapper.queryMyAttend(map);
+/*  399 */         if (meetingAttendConfirm != null) {
+/*  400 */           if (meetingAttendConfirm.getAttendFlag().equals(Integer.valueOf(1))) {
+/*  401 */             meetingWithBLOBs.setMyAttend("已签到");
+/*  402 */             meetingWithBLOBs.setMyAttendStatus(Integer.valueOf(1));
+/*      */           } else {
+/*  404 */             meetingWithBLOBs.setMyAttend("未签到");
+/*  405 */             meetingWithBLOBs.setMyAttendStatus(Integer.valueOf(0));
+/*      */           }
+/*      */         }
+/*  408 */         this.smsService.updatequerySmsByType("8", user.getUserId(), String.valueOf(sid));
+/*      */       }
+/*      */ 
+/*  411 */       if (output == 1)
+/*      */       {
+/*  413 */         List<MeetingAttendConfirm> meetingAttendConfirmList = this.meetingAttendConfirmMapper.queryAttendByMeetId(sid);
+/*  414 */         StringBuffer realAttendName = new StringBuffer();
+/*  415 */         for (MeetingAttendConfirm meetingAttendConfirm : meetingAttendConfirmList) {
+/*  416 */           if ((meetingAttendConfirm.getAttendeeId() != null) && 
+/*  417 */             (!StringUtils.checkNull(this.usersMapper.getUsernameById(meetingAttendConfirm.getAttendeeId().intValue())).booleanValue())) {
+/*  418 */             realAttendName.append(this.usersMapper.getUsernameById(meetingAttendConfirm.getAttendeeId().intValue()) + ",");
+/*      */           }
+/*      */         }
+/*      */ 
+/*  422 */         if (!StringUtils.checkNull(realAttendName.toString()).booleanValue()) {
+/*  423 */           meetingWithBLOBs.setRealAttendeeName(realAttendName.toString().substring(0, realAttendName.length() - 1));
+/*      */         }
+/*  425 */         response.setContentType("text/html");
+/*  426 */         response.setCharacterEncoding("utf-8");
+/*  427 */         response.setHeader("Cache-control", "private");
+/*  428 */         response.setContentType("application/octet-stream");
+/*  429 */         response.setHeader("Accept-Ranges", "bytes");
+/*  430 */         response.setHeader("Cache-Control", "maxage=3600");
+/*  431 */         response.setHeader("Pragma", "public");
+/*      */ 
+/*  433 */         response.setHeader("Content-disposition", "attachment; filename=\"" + URLEncoder.encode("会议信息导出.html", "UTF-8") + "\"");
+/*      */ 
+/*  437 */         StringBuilder sb = new StringBuilder();
+/*  438 */         PrintWriter out = response.getWriter();
+/*  439 */         out.write("<html>");
+/*  440 */         out.write("<head>");
+/*  441 */         out.write("<title>会议信息导出</title>");
+/*  442 */         out.write("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />");
+/*  443 */         out.write("</head>");
+/*  444 */         out.write("<body>");
+/*  445 */         out.write("<table><tr>");
+/*  446 */         out.write("<td><span>会议名称:</span></td>");
+/*  447 */         out.write("<td><span>" + meetingWithBLOBs.getMeetName() + "</span></td>");
+/*  448 */         out.write("</tr>");
+/*  449 */         out.write("<tr>");
+/*  450 */         out.write("<td><span>会议主题:</span></td>");
+/*  451 */         out.write("<td><span>" + meetingWithBLOBs.getSubject() + "</span></td>");
+/*  452 */         out.write("</tr>");
+/*  453 */         out.write("<tr>");
+/*  454 */         out.write("<td><span>会议时间:</span></td>");
+/*  455 */         out.write("<td><span>" + meetingWithBLOBs.getStartTime() + "</span><span>至</span><span>" + meetingWithBLOBs.getEndTime() + "</span></td>");
+/*  456 */         out.write("</tr>");
+/*  457 */         out.write("<tr>");
+/*  458 */         out.write("<td><span>参会人:</span></td>");
+/*  459 */         out.write("<td><span>" + meetingWithBLOBs.getRealAttendeeName() + "</span></td>");
+/*  460 */         out.write("</tr>");
+/*  461 */         out.write("<tr>");
+/*  462 */         out.write("<td><span>会议描述:</span></td>");
+/*  463 */         out.write("<td><span>" + meetingWithBLOBs.getMeetDesc() + "</span></td>");
+/*  464 */         out.write("</tr>");
+/*  465 */         out.write("<tr>");
+/*  466 */         out.write("<td>会议纪要:</td>");
+/*  467 */         out.write("<td><span>" + meetingWithBLOBs.getSummary() + "</span></td>");
+/*  468 */         out.write("</tr>");
+/*  469 */         out.write("</table>");
+/*  470 */         out.write("</body>");
+/*  471 */         out.write("</html>");
+/*      */       }
+/*      */ 
+/*  474 */       json.setObject(meetingWithBLOBs);
+/*  475 */       json.setMsg("ok");
+/*  476 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  478 */       json.setMsg(e.getMessage());
+/*  479 */       L.e(new Object[] { "MeetingServiceImpl queryMeetingById:" + e });
+/*      */     }
+/*  481 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<MeetingWithBLOBs> updateMeetingById(MeetingWithBLOBs meetingWithBLOBs)
+/*      */   {
+/*  493 */     ToJson json = new ToJson(1, "error");
+/*      */     try {
+/*  495 */       Date date = new Date();
+/*  496 */       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  497 */       meetingWithBLOBs.setCreateTime(sdf.format(date));
+/*  498 */       int count = this.meetingMapper.updateMeetingById(meetingWithBLOBs);
+/*  499 */       if (count > 0) {
+/*  500 */         json.setMsg("ok");
+/*  501 */         json.setFlag(0);
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  504 */       json.setMsg(e.getMessage());
+/*  505 */       L.e(new Object[] { "MeetingServiceImpl updateMeetingById:" + e });
+/*      */     }
+/*  507 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<MeetingWithBLOBs> updMeetStatusById(HttpServletRequest request, Meeting meeting)
+/*      */   {
+/*  520 */     ToJson json = new ToJson(1, "error");
+/*  521 */     int count = 0;
+/*      */     try {
+/*  523 */       if (meeting.getStatus().intValue() == 2)
+/*      */       {
+/*  525 */         MeetingWithBLOBs meetingWithBLOBs = this.meetingMapper.queryMeetingById(meeting.getSid().toString());
+/*  526 */         Map map = new HashedMap();
+/*  527 */         map.put("meetRoomId", meetingWithBLOBs.getMeetRoomId());
+/*  528 */         int useRommTotalCount = this.meetingMapper.selCountRoomNoConflict(map);
+/*  529 */         map.put("startTime", meetingWithBLOBs.getStartTime());
+/*  530 */         map.put("endTime", meetingWithBLOBs.getEndTime());
+/*  531 */         int useRommNoConflictCount = this.meetingMapper.selCountRoomNoConflict(map);
+/*  532 */         if (useRommTotalCount == useRommNoConflictCount) {
+/*  533 */           Date date = new Date();
+/*  534 */           SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  535 */           MeetingAttendConfirm meetingAttendConfirm = new MeetingAttendConfirm();
+/*  536 */           meetingAttendConfirm.setAttendFlag(Integer.valueOf(0));
+/*  537 */           meetingAttendConfirm.setCreateTime(sdf.format(date));
+/*  538 */           meetingAttendConfirm.setMeetingId(meetingWithBLOBs.getSid());
+/*  539 */           meetingAttendConfirm.setReadFlag(Integer.valueOf(0));
+/*  540 */           meetingAttendConfirm.setRemark("");
+/*  541 */           Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  542 */           meetingAttendConfirm.setCreateUser(user.getUid());
+/*  543 */           if (!StringUtils.checkNull(meetingWithBLOBs.getAttendee()).booleanValue()) {
+/*  544 */             String[] attendArray = meetingWithBLOBs.getAttendee().split(",");
+/*  545 */             if (attendArray.length > 0) {
+/*  546 */               for (String attendId : attendArray) {
+/*  547 */                 meetingAttendConfirm.setAttendeeId(Integer.valueOf(attendId));
+/*  548 */                 count += this.meetingAttendConfirmMapper.insertConfirm(meetingAttendConfirm);
+/*      */               }
+/*      */             }
+/*      */           }
+/*      */ 
+/*  553 */           Calendar calendar = new Calendar();
+/*  554 */           calendar.setContent("会议：" + meetingWithBLOBs.getSubject());
+/*  555 */           calendar.setCalType("1");
+/*  556 */           if (!StringUtils.checkNull(meetingWithBLOBs.getStartTime()).booleanValue()) {
+/*  557 */             calendar.setCalTime(DateFormat.getTime(meetingWithBLOBs.getStartTime()));
+/*      */           }
+/*  559 */           if (!StringUtils.checkNull(meetingWithBLOBs.getEndTime()).booleanValue()) {
+/*  560 */             calendar.setEndTime(DateFormat.getTime(meetingWithBLOBs.getEndTime()));
+/*      */           }
+/*  562 */           calendar.setAddTime(date);
+/*  563 */           calendar.setUserId(user.getUserId());
+/*  564 */           calendar.setCalLevel("1");
+/*  565 */           calendar.setBeforeRemaind("0|" + meetingWithBLOBs.getResendHour() + "|" + meetingWithBLOBs.getResendMinute());
+/*  566 */           String[] takerArray = meetingWithBLOBs.getAttendee().split(",");
+/*  567 */           StringBuffer takerStr = new StringBuffer();
+/*  568 */           for (String uid : takerArray) {
+/*  569 */             if (!StringUtils.checkNull(uid).booleanValue()) {
+/*  570 */               Users userTemp = this.usersMapper.findUserByuid(Integer.valueOf(uid).intValue());
+/*  571 */               if ((userTemp == null) || 
+/*  572 */                 (StringUtils.checkNull(userTemp.getUserId()).booleanValue())) continue;
+/*  573 */               takerStr.append(userTemp.getUserId() + ",");
+/*      */             }
+/*      */ 
+/*      */           }
+/*      */ 
+/*  578 */           calendar.setTaker(takerStr.toString());
+/*  579 */           this.calenderService.insertSelective(calendar);
+/*  580 */           String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  582 */           this.threadService.addMeeting(user, meetingWithBLOBs, sqlType);
+/*      */         } else {
+/*  584 */           json.setMsg("会议室已被占用,请重新修改时间");
+/*  585 */           json.setFlag(1);
+/*  586 */           return json;
+/*      */         }
+/*      */       }
+/*  589 */       count += this.meetingMapper.updMeetStatusById(meeting);
+/*  590 */       if (count > 0) {
+/*  591 */         MeetingWithBLOBs meetingWithBLOBs = this.meetingMapper.queryMeetingByIdInt(meeting.getSid());
+/*  592 */         Sms2Priv sms2Priv = new Sms2Priv();
+/*  593 */         StringBuffer contextString = null;
+/*  594 */         if ((meetingWithBLOBs.getSmsRemind().equals("0")) && (!meetingWithBLOBs.getSubject().equals(""))) {
+/*  595 */           sms2Priv.setResendHour(meetingWithBLOBs.getResendHour());
+/*  596 */           sms2Priv.setResendMinute(meetingWithBLOBs.getResendMinute());
+/*  597 */           sms2Priv.setUserId(meetingWithBLOBs.getAttendee());
+/*  598 */           contextString = new StringBuffer(meetingWithBLOBs.getSubject());
+/*      */ 
+/*  600 */           SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  601 */           String StartTime = meetingWithBLOBs.getStartTime();
+/*  602 */           Date date = sdf.parse(StartTime);
+/*  603 */           date.setHours(date.getHours() - meetingWithBLOBs.getResendHour().intValue());
+/*  604 */           date.setMinutes(date.getMinutes() - meetingWithBLOBs.getResendMinute().intValue());
+/*  605 */           SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  606 */           meetingWithBLOBs.setStartTime(sdf1.format(date));
+/*  607 */           sms2Priv.setStartTime(meetingWithBLOBs.getStartTime());
+/*      */         }
+/*      */ 
+/*  612 */         this.sms2PrivService.selSenderMobile(meetingWithBLOBs.getSmsRemind(), sms2Priv, contextString, request);
+/*  613 */         json.setMsg("ok");
+/*  614 */         json.setFlag(0);
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  617 */       json.setMsg(e.getMessage());
+/*  618 */       L.e(new Object[] { "MeetingServiceImpl updMeetStatusById:" + e });
+/*      */     }
+/*  620 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<MeetingWithBLOBs> insertMeeting(MeetingWithBLOBs meetingWithBLOBs, HttpServletRequest request)
+/*      */   {
+/*  633 */     ToJson json = new ToJson(1, "error");
+/*      */     try {
+/*  635 */       Date date = new Date();
+/*  636 */       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  637 */       meetingWithBLOBs.setCreateTime(sdf.format(date));
+/*  638 */       meetingWithBLOBs.setStatus(Integer.valueOf(1));
+/*  639 */       Map map = new HashedMap();
+/*  640 */       map.put("meetRoomId", meetingWithBLOBs.getMeetRoomId());
+/*  641 */       int useRommTotalCount = this.meetingMapper.selCountRoomNoConflict(map);
+/*  642 */       map.put("startTime", meetingWithBLOBs.getStartTime());
+/*  643 */       map.put("endTime", meetingWithBLOBs.getEndTime());
+/*  644 */       int useRommNoConflictCount = this.meetingMapper.selCountRoomNoConflict(map);
+/*  645 */       if (useRommTotalCount == useRommNoConflictCount) {
+/*  646 */         int count = this.meetingMapper.insertMeeting(meetingWithBLOBs);
+/*  647 */         if (count > 0) {
+/*  648 */           json.setMsg("申请成功");
+/*  649 */           json.setFlag(0);
+/*      */         }
+/*      */       } else {
+/*  652 */         json.setMsg("该会议室已被占用");
+/*  653 */         json.setFlag(1);
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  656 */       json.setMsg(e.getMessage());
+/*  657 */       L.e(new Object[] { "MeetingServiceImpl insertMeeting:" + e });
+/*      */     }
+/*  659 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<MeetingWithBLOBs> delMeetingById(String sid)
+/*      */   {
+/*  672 */     ToJson json = new ToJson(1, "error");
+/*      */     try {
+/*  674 */       int count = this.meetingMapper.delMeetingById(sid);
+/*  675 */       this.meetingAttendConfirmMapper.delConfirmById(sid);
+/*  676 */       if (count > 0) {
+/*  677 */         json.setMsg("ok");
+/*  678 */         json.setFlag(0);
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  681 */       json.setMsg(e.getMessage());
+/*  682 */       L.e(new Object[] { "MeetingServiceImpl delMeetingById:" + e });
+/*      */     }
+/*  684 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<MeetingAttendConfirm> queryAttendConfirm(String meetingId)
+/*      */   {
+/*  696 */     ToJson json = new ToJson(1, "error");
+/*      */     try {
+/*  698 */       List<MeetingAttendConfirm> meetingAttendConfirmList = this.meetingAttendConfirmMapper.queryAttendConfirm(meetingId);
+/*  699 */       if (meetingAttendConfirmList.size() > 0) {
+/*  700 */         for (MeetingAttendConfirm meetingAttendConfirm : meetingAttendConfirmList) {
+/*  701 */           if (meetingAttendConfirm.getCreateUser() != null) {
+/*  702 */             Users users = this.usersMapper.getUserByUid(meetingAttendConfirm.getCreateUser().intValue());
+/*  703 */             if (users != null) {
+/*  704 */               meetingAttendConfirm.setCreateName(users.getUserName());
+/*      */             }
+/*      */           }
+/*  707 */           if (meetingAttendConfirm.getAttendeeId() != null) {
+/*  708 */             Users users = this.usersMapper.getUserByUid(meetingAttendConfirm.getAttendeeId().intValue());
+/*  709 */             if (users != null) {
+/*  710 */               meetingAttendConfirm.setAttendeeName(users.getUserName());
+/*  711 */               if (users.getDeptId() != null) {
+/*  712 */                 meetingAttendConfirm.setDeptName(this.departmentMapper.getDeptNameById(users.getDeptId().intValue()));
+/*      */               }
+/*  714 */               if (users.getUserPriv() != null) {
+/*  715 */                 meetingAttendConfirm.setUserPrivName(this.userPrivMapper.getPrivNameById(users.getUserPriv()));
+/*      */               }
+/*  717 */               meetingAttendConfirm.setAvatar(users.getAvatar());
+/*      */             }
+/*      */           }
+/*  720 */           if (meetingAttendConfirm.getAttendFlag() != null) {
+/*  721 */             int attendFlag = Integer.valueOf(meetingAttendConfirm.getAttendFlag().intValue()).intValue();
+/*  722 */             switch (attendFlag) {
+/*      */             case 0:
+/*  724 */               meetingAttendConfirm.setAttendFlagStr("待确认");
+/*  725 */               break;
+/*      */             case 1:
+/*  727 */               meetingAttendConfirm.setAttendFlagStr("参会");
+/*  728 */               break;
+/*      */             case 2:
+/*  730 */               meetingAttendConfirm.setAttendFlagStr("不参会");
+/*      */             }
+/*      */           }
+/*      */ 
+/*  734 */           if (meetingAttendConfirm.getReadFlag() != null) {
+/*  735 */             int attendFlag = Integer.valueOf(meetingAttendConfirm.getReadFlag().intValue()).intValue();
+/*  736 */             switch (attendFlag) {
+/*      */             case 0:
+/*  738 */               meetingAttendConfirm.setReadFlagStr("待阅读");
+/*  739 */               break;
+/*      */             case 1:
+/*  741 */               meetingAttendConfirm.setReadFlagStr("已签阅");
+/*      */             }
+/*      */           }
+/*      */ 
+/*  745 */           if (!StringUtils.checkNull(meetingAttendConfirm.getCreateTime()).booleanValue()) {
+/*  746 */             meetingAttendConfirm.setCreateTime(meetingAttendConfirm.getCreateTime().substring(0, meetingAttendConfirm.getCreateTime().length() - 2));
+/*      */           }
+/*  748 */           if (!StringUtils.checkNull(meetingAttendConfirm.getReadingTime()).booleanValue()) {
+/*  749 */             meetingAttendConfirm.setReadingTime(meetingAttendConfirm.getReadingTime().substring(0, meetingAttendConfirm.getReadingTime().length() - 2));
+/*      */           }
+/*  751 */           if (!StringUtils.checkNull(meetingAttendConfirm.getConfirmTime()).booleanValue()) {
+/*  752 */             meetingAttendConfirm.setConfirmTime(meetingAttendConfirm.getConfirmTime().substring(0, meetingAttendConfirm.getConfirmTime().length() - 2));
+/*      */           }
+/*      */         }
+/*      */       }
+/*  756 */       json.setObj(meetingAttendConfirmList);
+/*  757 */       json.setMsg("ok");
+/*  758 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  760 */       e.printStackTrace();
+/*  761 */       json.setMsg(e.getMessage());
+/*  762 */       L.e(new Object[] { "MeetingServiceImpl queryAttendConfirm:" + e });
+/*      */     }
+/*  764 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Meeting> queryCountByStatus(HttpServletRequest request)
+/*      */   {
+/*  775 */     ToJson json = new ToJson(1, "error");
+/*  776 */     Meeting meeting = new Meeting();
+/*  777 */     Meeting paraMeeting = new Meeting();
+/*  778 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  779 */     paraMeeting.setManagerId(user.getUid());
+/*      */     try {
+/*  781 */       Date date = new Date();
+/*  782 */       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  783 */       paraMeeting.setStatus(Integer.valueOf(1));
+/*  784 */       meeting.setPendingCount(Integer.valueOf(this.meetingMapper.queryCountByStatus(paraMeeting)));
+/*      */ 
+/*  788 */       MeetingWithBLOBs meetingWithBLOBs = new MeetingWithBLOBs();
+/*  789 */       meetingWithBLOBs.setStatus(Integer.valueOf(2));
+/*  790 */       meetingWithBLOBs.setManagerId(user.getUid());
+/*  791 */       List meetingWithBLOBsList = approveMeeting(meetingWithBLOBs, Integer.valueOf(1), Integer.valueOf(0), false);
+/*  792 */       meeting.setApprovedCount(Integer.valueOf(meetingWithBLOBsList.size()));
+/*      */ 
+/*  794 */       paraMeeting.setStatus(Integer.valueOf(4));
+/*  795 */       meeting.setNotApprovedCount(Integer.valueOf(this.meetingMapper.queryCountByStatus(paraMeeting)));
+/*  796 */       paraMeeting.setStatus(Integer.valueOf(3));
+/*  797 */       paraMeeting.setCurrentTime(sdf.format(date));
+/*  798 */       meeting.setProcessingCount(Integer.valueOf(this.meetingMapper.queryCountByStatus(paraMeeting)));
+/*  799 */       paraMeeting.setStatus(Integer.valueOf(5));
+/*  800 */       paraMeeting.setCurrentTime(sdf.format(date));
+/*  801 */       meeting.setOverCount(Integer.valueOf(this.meetingMapper.queryCountByStatus(paraMeeting)));
+/*  802 */       json.setObject(meeting);
+/*  803 */       json.setMsg("ok");
+/*  804 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  806 */       json.setMsg(e.getMessage());
+/*  807 */       L.e(new Object[] { "MeetingServiceImpl queryCountByStatus:" + e });
+/*      */     }
+/*  809 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public List<MeetingWithBLOBs> approveMeeting(MeetingWithBLOBs meetingWithBLOBs, Integer page, Integer pageSize, boolean useFlag) {
+/*  813 */     PageParams pageParams = new PageParams();
+/*  814 */     pageParams.setPage(page);
+/*  815 */     pageParams.setPageSize(pageSize);
+/*  816 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  817 */     Map map = new HashMap();
+/*  818 */     map.put("page", pageParams);
+/*  819 */     meetingWithBLOBs.setStatus(Integer.valueOf(2));
+/*  820 */     map.put("meetingWithBLOBs", meetingWithBLOBs);
+/*  821 */     List<MeetingWithBLOBs> allApproveMeetList = this.meetingMapper.queryMeeting(map);
+/*      */ 
+/*  823 */     map.remove("page");
+/*  824 */     meetingWithBLOBs.setStatus(Integer.valueOf(3));
+/*  825 */     Date date = new Date();
+/*  826 */     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  827 */     meetingWithBLOBs.setCurrentTime(sdf.format(date));
+/*  828 */     map.put("meetingWithBLOBs", meetingWithBLOBs);
+/*  829 */     List doingMeetList = this.meetingMapper.queryMeeting(map);
+/*  830 */     meetingWithBLOBs.setStatus(Integer.valueOf(5));
+/*  831 */     map.put("meetingWithBLOBs", meetingWithBLOBs);
+/*  832 */     List endingMeetList = this.meetingMapper.queryMeeting(map);
+/*  833 */     List<MeetingWithBLOBs> meetingWithBLOBsTemp = new ArrayList();
+/*  834 */     meetingWithBLOBsTemp.addAll(doingMeetList);
+/*  835 */     meetingWithBLOBsTemp.addAll(endingMeetList);
+/*  836 */     List approveMeetList = new ArrayList();
+/*  837 */     for (MeetingWithBLOBs meeting : allApproveMeetList) {
+/*  838 */       int count = 0;
+/*  839 */       for (MeetingWithBLOBs temp : meetingWithBLOBsTemp) {
+/*  840 */         if (meeting.getSid() == temp.getSid()) {
+/*  841 */           count++;
+/*  842 */           break;
+/*      */         }
+/*      */       }
+/*  845 */       if (count == 0) {
+/*  846 */         approveMeetList.add(meeting);
+/*      */       }
+/*      */     }
+/*  849 */     return approveMeetList;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<MeetingWithBLOBs> updateConfirmReadStatusBySId(MeetingAttendConfirm meetingAttendConfirm, HttpServletRequest request)
+/*      */   {
+/*  862 */     ToJson json = new ToJson(1, "error");
+/*      */     try {
+/*  864 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  865 */       Date date = new Date();
+/*  866 */       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  867 */       meetingAttendConfirm.setAttendeeId(user.getUid());
+/*  868 */       meetingAttendConfirm.setReadingTime(sdf.format(date));
+/*  869 */       meetingAttendConfirm.setReadFlag(Integer.valueOf(1));
+/*  870 */       this.meetingAttendConfirmMapper.updateStatusBySId(meetingAttendConfirm);
+/*  871 */       json.setMsg("ok");
+/*  872 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  874 */       json.setMsg(e.getMessage());
+/*  875 */       L.e(new Object[] { "MeetingServiceImpl updateConfirmReadStatusBySId:" + e });
+/*      */     }
+/*  877 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<Users> updateConfirmAttendStatusBySId(MeetingAttendConfirm meetingAttendConfirm, HttpServletRequest request)
+/*      */   {
+/*  891 */     ToJson json = new ToJson(1, "error");
+/*      */     try {
+/*  893 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*      */ 
+/*  896 */       MeetingWithBLOBs meetingWithBLOBs = new MeetingWithBLOBs();
+/*  897 */       if (meetingAttendConfirm.getMeetingId() != null) {
+/*  898 */         meetingWithBLOBs = this.meetingMapper.queryMeetingById(meetingAttendConfirm.getMeetingId().toString());
+/*  899 */         if (meetingWithBLOBs != null) {
+/*  900 */           String currentDay = meetingWithBLOBs.getStartTime().substring(0, 10) + " 00:00:00";
+/*  901 */           long currentDayTime = DateFormat.getTime(currentDay).intValue();
+/*  902 */           long endDayTime = DateFormat.getTime(meetingWithBLOBs.getEndTime()).intValue();
+/*  903 */           long currentTime = DateFormat.getTime(DateFormat.getStrDate(new Date())).intValue();
+/*  904 */           if (currentTime < currentDayTime) {
+/*  905 */             json.setMsg("未到签到时间");
+/*  906 */             return json;
+/*      */           }
+/*  908 */           if (currentTime > endDayTime) {
+/*  909 */             json.setMsg("签到时间已过，会议已结束");
+/*  910 */             return json;
+/*      */           }
+/*      */ 
+/*  913 */           if (!StringUtils.checkNull(meetingWithBLOBs.getAttendee()).booleanValue()) {
+/*  914 */             if ((!meetingWithBLOBs.getAttendee().contains(user.getUid() + ",")) && (!meetingWithBLOBs.getAttendee().contains("," + user.getUid() + ","))) {
+/*  915 */               json.setMsg("您没有签到权限");
+/*  916 */               return json;
+/*      */             }
+/*      */           } else {
+/*  919 */             json.setMsg("您没有签到权限");
+/*  920 */             return json;
+/*      */           }
+/*      */ 
+/*  923 */           Map map = new HashMap();
+/*  924 */           map.put("meetingId", meetingAttendConfirm.getMeetingId());
+/*  925 */           map.put("attendeeId", meetingAttendConfirm.getAttendeeId());
+/*  926 */           MeetingAttendConfirm temp = this.meetingAttendConfirmMapper.queryMyAttend(map);
+/*  927 */           if ((temp != null) && 
+/*  928 */             (temp.getAttendFlag().intValue() == 1)) {
+/*  929 */             json.setMsg("不能重复签到");
+/*  930 */             return json;
+/*      */           }
+/*      */ 
+/*  934 */           Date date = new Date();
+/*  935 */           SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  936 */           meetingAttendConfirm.setAttendeeId(user.getUid());
+/*  937 */           meetingAttendConfirm.setConfirmTime(sdf.format(date));
+/*  938 */           meetingAttendConfirm.setAttendFlag(Integer.valueOf(1));
+/*  939 */           int count = this.meetingAttendConfirmMapper.updateStatusBySId(meetingAttendConfirm);
+/*      */ 
+/*  942 */           HrStaffInfo hrStaffInfo = this.hrStaffInfoMapper.getStaffByUserId(user.getUserId());
+/*  943 */           if (hrStaffInfo != null) {
+/*  944 */             user.setPhotoName(hrStaffInfo.getPhotoName());
+/*      */           }
+/*  946 */           if (count > 0) {
+/*  947 */             HttpSession session = request.getSession();
+/*  948 */             Map paraMap = new HashedMap();
+/*  949 */             paraMap.put("attendFlag", Boolean.valueOf(true));
+/*  950 */             SessionUtils.putSession(session, paraMap);
+/*      */ 
+/*  952 */             json.setMsg("ok");
+/*  953 */             json.setFlag(0);
+/*  954 */             json.setObject(user);
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  959 */       json.setMsg(e.getMessage());
+/*  960 */       L.e(new Object[] { "MeetingServiceImpl updateConfirmAttendStatusBySId:" + e });
+/*      */     }
+/*  962 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Users> checkAttend(HttpServletRequest request) {
+/*  966 */     ToJson toJson = new ToJson(0, "ok");
+/*  967 */     String attendFlag = (String)SessionUtils.getSessionInfo(request.getSession(), "attendFlag", String.class);
+/*  968 */     String avatar = (String)SessionUtils.getSessionInfo(request.getSession(), "avatar", String.class);
+/*  969 */     String photoName = (String)SessionUtils.getSessionInfo(request.getSession(), "photoName", String.class);
+/*  970 */     String userName = (String)SessionUtils.getSessionInfo(request.getSession(), "userName", String.class);
+/*  971 */     String deptName = (String)SessionUtils.getSessionInfo(request.getSession(), "deptName", String.class);
+/*  972 */     String userPrivName = (String)SessionUtils.getSessionInfo(request.getSession(), "userPrivName", String.class);
+/*  973 */     Users users = new Users();
+/*  974 */     users.setMyStatus(attendFlag);
+/*  975 */     users.setAvatar(avatar);
+/*  976 */     users.setPhotoName(photoName);
+/*  977 */     users.setUserName(userName);
+/*  978 */     users.setDeptName(deptName);
+/*  979 */     users.setUserPrivName(userPrivName);
+/*  980 */     toJson.setObject(users);
+/*  981 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<MeetingWithBLOBs> getMeetingNotify(HttpServletRequest request, MeetingWithBLOBs meetingWithBLOBs, Integer page, Integer pageSize, boolean useFlag)
+/*      */   {
+/*  996 */     ToJson json = new ToJson(1, "error");
+/*      */     try {
+/*  998 */       PageParams pageParams = new PageParams();
+/*  999 */       pageParams.setPage(page);
+/* 1000 */       pageParams.setPageSize(pageSize);
+/* 1001 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 1002 */       Map map = new HashMap();
+/* 1003 */       map.put("page", pageParams);
+/* 1004 */       map.put("meetingWithBLOBs", meetingWithBLOBs);
+/*      */ 
+/* 1006 */       Date date = new Date();
+/* 1007 */       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/* 1008 */       long currentTime = Long.valueOf(DateFormat.getTime(sdf.format(date)).intValue()).longValue();
+/* 1009 */       List<MeetingWithBLOBs> meetingList = this.meetingMapper.getMeetingNotify(map);
+/* 1010 */       for (MeetingWithBLOBs meetingWithBLOBs1 : meetingList)
+/*      */       {
+/* 1012 */         Long startDate = Long.valueOf(DateFormat.getTime(meetingWithBLOBs1.getStartTime()).intValue());
+/* 1013 */         Long endDate = Long.valueOf(DateFormat.getTime(meetingWithBLOBs1.getEndTime()).intValue());
+/* 1014 */         if ((2 == meetingWithBLOBs1.getStatus().intValue()) && (currentTime >= startDate.longValue()) && (currentTime <= endDate.longValue())) {
+/* 1015 */           meetingWithBLOBs1.setStatus(Integer.valueOf(3));
+/* 1016 */           meetingWithBLOBs1.setStatusName("进行中");
+/* 1017 */         } else if (2 == meetingWithBLOBs1.getStatus().intValue()) {
+/* 1018 */           meetingWithBLOBs1.setStatusName("已批准");
+/* 1019 */         } else if (3 == meetingWithBLOBs1.getStatus().intValue()) {
+/* 1020 */           meetingWithBLOBs1.setStatusName("进行中");
+/*      */         }
+/*      */ 
+/* 1023 */         if (meetingWithBLOBs1.getUid() != null) {
+/* 1024 */           meetingWithBLOBs1.setUserName(this.usersMapper.getUsernameById(meetingWithBLOBs1.getUid().intValue()));
+/*      */         }
+/* 1026 */         if (meetingWithBLOBs1.getManagerId() != null) {
+/* 1027 */           meetingWithBLOBs1.setManagerName(this.usersMapper.getUsernameById(meetingWithBLOBs1.getManagerId().intValue()));
+/*      */         }
+/* 1029 */         if (meetingWithBLOBs1.getMeetRoomId() != null) {
+/* 1030 */           MeetingRoom meetingRoom = this.meetingRoomMapper.getMeetRoomBySid(Integer.valueOf(meetingWithBLOBs1.getMeetRoomId().intValue()));
+/* 1031 */           if (meetingRoom != null) {
+/* 1032 */             meetingWithBLOBs1.setMeetRoomName(meetingRoom.getMrName());
+/*      */           }
+/*      */         }
+/*      */ 
+/* 1036 */         if (!StringUtils.checkNull(meetingWithBLOBs1.getStartTime()).booleanValue()) {
+/* 1037 */           meetingWithBLOBs1.setStartTime(meetingWithBLOBs1.getStartTime().substring(0, meetingWithBLOBs1.getStartTime().length() - 2));
+/*      */         }
+/* 1039 */         if (!StringUtils.checkNull(meetingWithBLOBs1.getEndTime()).booleanValue()) {
+/* 1040 */           meetingWithBLOBs1.setEndTime(meetingWithBLOBs1.getEndTime().substring(0, meetingWithBLOBs1.getEndTime().length() - 2));
+/*      */         }
+/* 1042 */         if (!StringUtils.checkNull(meetingWithBLOBs1.getCreateTime()).booleanValue()) {
+/* 1043 */           meetingWithBLOBs1.setCreateTime(meetingWithBLOBs1.getCreateTime().substring(0, meetingWithBLOBs1.getCreateTime().length() - 2));
+/*      */         }
+/*      */       }
+/* 1046 */       json.setObj(meetingList);
+/* 1047 */       json.setTotleNum(pageParams.getTotal());
+/* 1048 */       json.setFlag(0);
+/* 1049 */       json.setMsg("ok");
+/*      */     } catch (Exception e) {
+/* 1051 */       e.printStackTrace();
+/* 1052 */       json.setMsg(e.getMessage());
+/* 1053 */       L.e(new Object[] { "MeetingServiceImpl queryMeeting:" + e });
+/*      */     }
+/* 1055 */     return json;
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.meeting.impl.MeetingServiceImpl
+ * JD-Core Version:    0.6.0
+ */

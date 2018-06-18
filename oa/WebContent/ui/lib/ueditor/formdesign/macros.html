@@ -1,0 +1,224 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>宏控件</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >
+    <link rel="stylesheet" href="../formdesign/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="../../../css/ueditor/site.css">
+    <script type="text/javascript" src="../dialogs/internal.js"></script>
+    <script type="text/javascript" src="../../../js/jquery/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="../../../js/base/base.js"></script>
+    <script type="text/javascript">
+function createElement(type, name)
+{     
+    var element = null;     
+    try {        
+        element = document.createElement('<'+type+' name="'+name+'">');     
+    } catch (e) {}   
+    if(element==null) {     
+        element = document.createElement(type);     
+        element.name = name;     
+    } 
+    return element;     
+}
+    </script>
+</head>
+<body>
+<div class="content">
+    <table class="table table-bordered table-striped table-hover">
+        <tbody id='itemAttr'>
+        <tr>
+            <th><span>控件名称</span><span class="label label-important">*</span></th>
+            <th><span>类型</span></th>
+        </tr>
+        <tr>
+            <td>
+                <input id="orgname" type="text" placeholder="必填项"/>
+            </td>
+            <td>
+                <select  id="datafld" class="">
+                    <optgroup label="----单行输入框----">
+                        <option value="SYS_DATE">当前日期，形如：1999-01-01</option>
+                        <option value="SYS_DATE_CN">当前日期，形如：2009年1月1日</option>
+                        <option value="SYS_DATE_CN_SHORT3">当前日期，形如：2009年</option>
+                        <option value="SYS_DATE_CN_SHORT4">当前年份，形如：2009</option>
+                        <option value="SYS_DATE_CN_SHORT1">当前日期，形如：2009年1月</option>
+                        <option value="SYS_DATE_CN_SHORT2">当前日期，形如：1月1日</option>
+                        <option value="SYS_TIME">当前时间</option>
+                        <option value="SYS_DATETIME">当前日期+时间</option>
+                        <option value="SYS_WEEK">当前星期中的第几天，形如：星期一</option>
+                        <option value="SYS_USERID">当前用户ID</option>
+                        <option value="SYS_USERNAME">当前用户姓名</option>
+                        <option value="SYS_DEPTNAME">当前用户部门(长名称)</option>
+                        <option value="SYS_DEPTNAME_SHORT">当前用户部门(短名称)</option>
+                        <option value="SYS_USERPRIV">当前用户角色</option>
+                        <option value="SYS_USERPRIVOTHER">当前用户辅助角色</option>
+                        <option value="SYS_USERNAME_DATE">当前用户姓名+日期</option>
+                        <option value="SYS_USERNAME_DATETIME">当前用户姓名+日期+时间</option>
+                        <option value="SYS_FORMNAME">表单名称</option>
+                        <option value="SYS_RUNNAME">工作名称/文号</option>
+                        <option value="SYS_RUNDATE">流程开始日期</option>
+                        <option value="SYS_RUNDATETIME">流程开始日期+时间</option>
+                        <option value="SYS_RUNID">流水号</option>
+                        <option value="SYS_AUTONUM">文号计数器</option>
+                        <option value="SYS_AUTONUM_YEAR">文号计数器(按年编号)</option>
+                        <option value="SYS_AUTONUM_MONTH">文号计数器(按月编号)</option>
+                        <option value="SYS_IP">经办人IP地址</option>
+                        <option value="SYS_MANAGER1">部门主管(本部门)</option>
+                        <option value="SYS_MANAGER2">部门主管(上级部门)</option>
+                        <option value="SYS_MANAGER3">部门主管(一级部门)</option>
+                        <option value="SYS_SQL">来自SQL查询语句</option>
+                    </optgroup>
+                    <optgroup label="----下拉菜单----">
+                        <option value="SYS_LIST_DEPT">部门列表</option>
+                        <option value="SYS_LIST_USER">人员列表</option>
+                        <option value="SYS_LIST_PRIV">角色列表</option>
+                        <option value="SYS_LIST_PRIV_ONLY">主角色列表</option>
+                        <option value="SYS_LIST_PRIV_OTHER">辅助角色列表</option>
+                        <option value="SYS_LIST_PRCSUSER1">流程设置所有经办人列表</option>
+                        <option value="SYS_LIST_PRCSUSER2">本步骤设置经办人列表</option>
+                        <option value="SYS_LIST_MANAGER1">部门主管(本部门)</option>
+                        <option value="SYS_LIST_MANAGER2">部门主管(上级部门)</option>
+                        <option value="SYS_LIST_MANAGER3">部门主管(一级部门)</option>
+                        <option value="SYS_LIST_SQL">来自SQL查询语句的列表</option>
+                    </optgroup>
+                </select>
+            </td>
+        </tr>
+
+
+        <tr>
+            <th colspan="2"><span>控件样式</span></th>
+            <!--<th><span>可见性</span></th>-->
+        </tr>
+        <tr>
+            <td colspan="2">
+                宽 <input id="orgwidth" type="text" value="150" class="input-small span1" placeholder="auto"/> px
+                &nbsp;&nbsp;
+                高 <input id="orgheight" type="text" value="" class="input-small span1" placeholder="auto"/> px
+                &nbsp;&nbsp;
+                字体 <input id="orgfontsize" type="text" value="" class="input-small span1" placeholder="auto"/> px
+            </td>
+            <!--<td>-->
+                <label  style="display: none;" class="checkbox"> <input id="orghide" type="checkbox"> 隐藏 </label>
+            <!--</td>-->
+        </tr>
+    </tbody>
+    
+    </table>
+</div>
+<script type="text/javascript">
+    $(function () {
+
+        var oNode = null,thePlugins = 'macros';
+        var dataid = $.getQueryString('dataid');
+        var dataNumber=parent.pluginId;
+            if( UE.plugins[thePlugins].editdom ) {
+                oNode = UE.plugins[thePlugins].editdom;
+                var gTitle=oNode.getAttribute('title').replace(/&quot;/g,"\""),gHidden=oNode.getAttribute('orghide'),gFontSize=oNode.getAttribute('orgfontsize'),gWidth=oNode.getAttribute('orgwidth'),gHeight=oNode.getAttribute('orgheight'),gType=oNode.getAttribute('datafld');
+                gTitle = gTitle==null ? '' : gTitle;
+                $G('orgname').value = gTitle;
+                //if( oNode.tagName == 'INPUT' ) {}
+                if(oNode.getAttribute('orghide')=='1'){
+                    $G('orghide').checked = true;
+                }
+                $G('orgname').value    = gTitle;
+                $G('datafld').value    = gType;
+                $G('orgwidth').value = gWidth;
+                $G('orgheight').value = gHeight;
+                $G('orgfontsize').value = gFontSize;
+            }
+
+
+        dialog.oncancel = function () {
+            if( UE.plugins[thePlugins].editdom ) {
+                delete UE.plugins[thePlugins].editdom;
+            }
+        };
+        dialog.onok = function (){
+            if ( $G('orgname').value == '' ) {
+                alert('控件名称不能为空');
+                return false;
+            }
+            var gTitle=$G('orgname').value.replace(/\"/g,"&quot;"),gFontSize=$G('orgfontsize').value,gWidth=$G('orgwidth').value,gType=$G('datafld').value,gHeight=$G('orgheight').value;
+            if( !oNode ) {
+                try {
+
+
+                    oNode = createElement('input','leipiNewField');
+                    oNode.setAttribute('type','text');
+                    oNode.setAttribute('value','{macros}');
+                    oNode.setAttribute('class', "AUTO  form_item ");
+                    oNode.setAttribute('data-type', "macros");
+                    oNode.setAttribute('title',gTitle);
+                    oNode.setAttribute('name','DATA_'+dataNumber);
+                    oNode.setAttribute('id','DATA_'+dataNumber);
+                    oNode.setAttribute('datafld',gType);
+                    if( $G('orghide').checked ) {
+                        oNode.setAttribute('orghide', '1' ) ;
+                    } else {
+                        oNode.setAttribute('orghide', '0' ) ;
+                    }
+                    if( gFontSize != '' ) {
+                        oNode.style.fontSize = gFontSize + 'px';
+                        oNode.setAttribute('orgfontsize',gFontSize );
+                    }
+                    if( gWidth != '' ) {
+                        oNode.style.width = gWidth + 'px';
+                        oNode.setAttribute('orgwidth',gWidth );
+                    }
+                    if( gHeight != '' ) {
+                        oNode.style.height = gHeight + 'px';
+                        oNode.setAttribute('orgheight',gHeight );
+                    }
+                    editor.execCommand('insertHtml',oNode.outerHTML);
+                    return true;
+                } catch ( e ) {
+                    try {
+                        editor.execCommand('error');
+                    } catch ( e ) {
+                        alert(控件异常);
+                    }
+                    return false;
+                }
+            } else {
+
+                oNode.setAttribute('type','text');
+                oNode.setAttribute('value','{macros}');
+                oNode.setAttribute('class', "AUTO  form_item ");
+                oNode.setAttribute('data-type', "macros");
+                oNode.setAttribute('title',gTitle);
+                oNode.setAttribute('name','DATA_'+dataid);
+                oNode.setAttribute('id','DATA_'+dataid);
+                oNode.setAttribute('datafld',gType);
+                if( $G('orghide').checked ) {
+                    oNode.setAttribute('orghide', '1' ) ;
+                } else {
+                    oNode.setAttribute('orghide', '0' ) ;
+                }
+                if( gFontSize != '' ) {
+                    oNode.style.fontSize = gFontSize + 'px';
+                    oNode.setAttribute('orgfontsize',gFontSize );
+                }else{
+                    oNode.setAttribute('orgfontsize', '');
+                }
+                if( gWidth != '' ) {
+                    oNode.style.width = gWidth + 'px';
+                    oNode.setAttribute('orgwidth',gWidth );
+                }else{
+                    oNewNode.setAttribute('orgwidth', '');
+                }
+                if( gHeight != '' ) {
+                    oNode.style.height = gHeight + 'px';
+                    oNode.setAttribute('orgheight',gHeight );
+                }
+                delete UE.plugins[thePlugins].editdom;
+            }
+        };
+
+    });
+
+</script>
+</body>
+</html>

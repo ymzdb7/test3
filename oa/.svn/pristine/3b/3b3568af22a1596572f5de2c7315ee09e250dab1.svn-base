@@ -1,0 +1,185 @@
+/*     */ package com.xoa.model.sms;
+/*     */ 
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class SmsBody
+/*     */ {
+/*     */   private Integer bodyId;
+/*     */   private String fromId;
+/*     */   private String fromName;
+/*     */   private String smsType;
+/*     */   private String smsTypeName;
+/*     */   private Integer sendTime;
+/*     */   private String sendTimeStr;
+/*     */   private String remindUrl;
+/*     */   private String content;
+/*     */   private String toId;
+/*     */   private String toName;
+/*     */   private String remindFlag;
+/*     */   private String remindStr;
+/*     */   private String deleteFlag;
+/*     */   private String title;
+/*     */   private List<Sms> smsList;
+/*     */   private String isAttach;
+/*     */ 
+/*     */   public String getTitle()
+/*     */   {
+/*  41 */     return this.title;
+/*     */   }
+/*     */ 
+/*     */   public void setTitle(String title) {
+/*  45 */     this.title = title;
+/*     */   }
+/*     */ 
+/*     */   public String getIsAttach()
+/*     */   {
+/*  52 */     return this.isAttach == null ? "0" : this.isAttach;
+/*     */   }
+/*     */ 
+/*     */   public void setIsAttach(String isAttach) {
+/*  56 */     this.isAttach = isAttach;
+/*     */   }
+/*     */ 
+/*     */   public SmsBody()
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   public Integer getBodyId() {
+/*  64 */     return this.bodyId;
+/*     */   }
+/*     */ 
+/*     */   public void setBodyId(Integer bodyId) {
+/*  68 */     this.bodyId = bodyId;
+/*     */   }
+/*     */ 
+/*     */   public String getFromId() {
+/*  72 */     return this.fromId;
+/*     */   }
+/*     */ 
+/*     */   public void setFromId(String fromId) {
+/*  76 */     this.fromId = (fromId == null ? null : fromId.trim());
+/*     */   }
+/*     */ 
+/*     */   public String getSmsType() {
+/*  80 */     return this.smsType;
+/*     */   }
+/*     */ 
+/*     */   public void setSmsType(String smsType) {
+/*  84 */     this.smsType = (smsType == null ? null : smsType.trim());
+/*     */   }
+/*     */ 
+/*     */   public Integer getSendTime() {
+/*  88 */     return this.sendTime;
+/*     */   }
+/*     */ 
+/*     */   public void setSendTime(Integer sendTime) {
+/*  92 */     this.sendTime = sendTime;
+/*     */   }
+/*     */ 
+/*     */   public String getRemindUrl() {
+/*  96 */     return this.remindUrl;
+/*     */   }
+/*     */ 
+/*     */   public void setRemindUrl(String remindUrl) {
+/* 100 */     this.remindUrl = (remindUrl == null ? null : remindUrl.trim());
+/*     */   }
+/*     */ 
+/*     */   public String getContent() {
+/* 104 */     return this.content;
+/*     */   }
+/*     */ 
+/*     */   public void setContent(String content) {
+/* 108 */     this.content = (content == null ? null : content.trim());
+/*     */   }
+/*     */ 
+/*     */   public String getFromName() {
+/* 112 */     return this.fromName;
+/*     */   }
+/*     */ 
+/*     */   public void setFromName(String fromName) {
+/* 116 */     this.fromName = fromName;
+/*     */   }
+/*     */ 
+/*     */   public String getToId() {
+/* 120 */     return this.toId;
+/*     */   }
+/*     */ 
+/*     */   public void setToId(String toId) {
+/* 124 */     this.toId = toId;
+/*     */   }
+/*     */ 
+/*     */   public String getToName() {
+/* 128 */     return this.toName;
+/*     */   }
+/*     */ 
+/*     */   public void setToName(String toName) {
+/* 132 */     this.toName = toName;
+/*     */   }
+/*     */ 
+/*     */   public List<Sms> getSmsList() {
+/* 136 */     return this.smsList;
+/*     */   }
+/*     */ 
+/*     */   public void setSmsList(List<Sms> smsList) {
+/* 140 */     this.smsList = smsList;
+/*     */   }
+/*     */ 
+/*     */   public String getRemindFlag() {
+/* 144 */     return this.remindFlag;
+/*     */   }
+/*     */ 
+/*     */   public void setRemindFlag(String remindFlag) {
+/* 148 */     this.remindFlag = remindFlag;
+/*     */   }
+/*     */ 
+/*     */   public String getDeleteFlag() {
+/* 152 */     return this.deleteFlag;
+/*     */   }
+/*     */ 
+/*     */   public void setDeleteFlag(String deleteFlag) {
+/* 156 */     this.deleteFlag = deleteFlag;
+/*     */   }
+/*     */ 
+/*     */   public String getSmsTypeName() {
+/* 160 */     return this.smsTypeName;
+/*     */   }
+/*     */ 
+/*     */   public void setSmsTypeName(String smsTypeName) {
+/* 164 */     this.smsTypeName = smsTypeName;
+/*     */   }
+/*     */ 
+/*     */   public String getSendTimeStr() {
+/* 168 */     this.sendTimeStr = DateFormat.getDateStrTime(this.sendTime);
+/* 169 */     return this.sendTimeStr;
+/*     */   }
+/*     */ 
+/*     */   public void setSendTimeStr(String sendTimeStr) {
+/* 173 */     this.sendTimeStr = sendTimeStr;
+/*     */   }
+/*     */ 
+/*     */   public String getRemindStr() {
+/* 177 */     if (this.remindFlag != null) {
+/* 178 */       return this.remindFlag.equals("0") ? "否" : "是";
+/*     */     }
+/* 180 */     return "是";
+/*     */   }
+/*     */ 
+/*     */   public void setRemindStr(String remindStr)
+/*     */   {
+/* 186 */     this.remindStr = remindStr;
+/*     */   }
+/*     */ 
+/*     */   public SmsBody(String fromId, String smsType, Integer sendTime, String remindUrl, String content) {
+/* 190 */     this.fromId = fromId;
+/* 191 */     this.smsType = smsType;
+/* 192 */     this.sendTime = sendTime;
+/* 193 */     this.remindUrl = remindUrl;
+/* 194 */     this.content = content;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.sms.SmsBody
+ * JD-Core Version:    0.6.0
+ */

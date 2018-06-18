@@ -1,0 +1,39 @@
+/*    */ package com.xoa.controller.sys;
+/*    */ 
+/*    */ import com.xoa.model.sys.SealLog;
+/*    */ import com.xoa.service.sys.SealLogService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import javax.annotation.Resource;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.stereotype.Controller;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.RequestParam;
+/*    */ import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"/SealLog"})
+/*    */ public class SealLogController
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   private SealLogService sealLogService;
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/getAllSealLog"})
+/*    */   public ToJson<SealLog> getAllSealLog(String startTime, String endTime, HttpServletRequest request, String sealName, SealLog sealLog, Integer page, Integer pageSize, boolean useFlag)
+/*    */   {
+/* 36 */     return this.sealLogService.getAllSealLog(startTime, endTime, request, sealName, sealLog, page, pageSize, useFlag);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/deleteSealLog"})
+/*    */   public ToJson<Object> deleteSealLog(@RequestParam("ids[]") String[] ids)
+/*    */   {
+/* 48 */     return this.sealLogService.deleteSealLog(ids);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.sys.SealLogController
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,376 @@
+/*     */ package com.xoa.service.meeting.impl;
+/*     */ 
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.meet.MeetingMapper;
+/*     */ import com.xoa.dao.meet.MeetingRoomMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.meet.MeetingRoomWithBLOBs;
+/*     */ import com.xoa.model.meet.MeetingWithBLOBs;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.meeting.MeetRoomService;
+/*     */ import com.xoa.service.meeting.MeetingService;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.apache.commons.collections.map.HashedMap;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class MeetRoomServiceImpl
+/*     */   implements MeetRoomService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private MeetingRoomMapper meetingRoomMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private MeetingMapper meetingMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private MeetingService meetingService;
+/*     */ 
+/*     */   public ToJson<MeetingRoomWithBLOBs> getAllMeetRoomInfo(Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  49 */     ToJson json = new ToJson();
+/*  50 */     Map map = new HashMap();
+/*  51 */     PageParams pageParams = new PageParams();
+/*  52 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  53 */     pageParams.setPage(page);
+/*  54 */     pageParams.setPageSize(pageSize);
+/*  55 */     map.put("page", pageParams);
+/*     */     try
+/*     */     {
+/*  59 */       List<MeetingRoomWithBLOBs> allMeetRoomInfo = this.meetingRoomMapper.getAllMeetRoomInfo(map);
+/*     */ 
+/*  61 */       for (MeetingRoomWithBLOBs meetingRoomWithBLOBs : allMeetRoomInfo)
+/*     */       {
+/*  63 */         if (meetingRoomWithBLOBs.getMrPlace() == null) {
+/*  64 */           meetingRoomWithBLOBs.setMrPlace("");
+/*     */         }
+/*     */ 
+/*  67 */         StringBuffer sbmanagername = new StringBuffer();
+/*     */ 
+/*  69 */         String managerids = meetingRoomWithBLOBs.getManagerids();
+/*  70 */         if ((managerids != null) && (managerids != "")) {
+/*  71 */           String[] split = managerids.split(",");
+/*  72 */           for (String s : split) {
+/*  73 */             String usernameById = this.usersMapper.getUsernameById(Integer.valueOf(s).intValue());
+/*  74 */             if (!StringUtils.checkNull(usernameById).booleanValue()) {
+/*  75 */               sbmanagername.append(usernameById + ",");
+/*     */             }
+/*     */           }
+/*     */         }
+/*  79 */         meetingRoomWithBLOBs.setManagetnames(sbmanagername.toString());
+/*     */ 
+/*  81 */         String meetroomperson = meetingRoomWithBLOBs.getMeetroomperson();
+/*     */ 
+/*  83 */         String meetroomdept = meetingRoomWithBLOBs.getMeetroomdept();
+/*     */ 
+/*  85 */         StringBuffer sb = new StringBuffer();
+/*  86 */         StringBuffer sbdept = new StringBuffer();
+/*  87 */         if ((meetroomperson != null) && (meetroomperson != ""))
+/*     */         {
+/*  89 */           String[] split = meetroomperson.split(",");
+/*  90 */           for (String s : split) {
+/*  91 */             String usernameById = this.usersMapper.getUsernameById(Integer.valueOf(s).intValue());
+/*  92 */             if (!StringUtils.checkNull(usernameById).booleanValue()) {
+/*  93 */               sb.append(usernameById + ",");
+/*     */             }
+/*     */           }
+/*     */         }
+/*  97 */         if ((meetroomdept != null) && (meetroomdept != "") && (!"ALL_DEPT".equals(meetroomdept)))
+/*     */         {
+/*  99 */           String[] split = meetroomdept.split(",");
+/* 100 */           for (String s : split) {
+/* 101 */             String deptNameByDeptId = this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(s));
+/* 102 */             if (!StringUtils.checkNull(deptNameByDeptId).booleanValue())
+/* 103 */               sbdept.append(deptNameByDeptId + ",");
+/*     */           }
+/*     */         }
+/* 106 */         else if ("ALL_DEPT".equals(meetroomdept)) {
+/* 107 */           sbdept.append("全部部门");
+/*     */         }
+/*     */ 
+/* 110 */         meetingRoomWithBLOBs.setMeetroompersonName(sb.toString());
+/*     */ 
+/* 112 */         meetingRoomWithBLOBs.setMeetroomdeptName(sbdept.toString());
+/* 113 */         if (meetingRoomWithBLOBs.getSid() != null) {
+/* 114 */           MeetingWithBLOBs meetingWithBLOBs = new MeetingWithBLOBs();
+/* 115 */           meetingWithBLOBs.setMeetRoomId(meetingRoomWithBLOBs.getSid());
+/* 116 */           Map meetMap = new HashedMap();
+/* 117 */           meetMap.put("meetingWithBLOBs", meetingWithBLOBs);
+/* 118 */           meetingRoomWithBLOBs.setMeetingWithBLOBs(this.meetingMapper.queryMeeting(meetMap));
+/*     */         }
+/*     */       }
+/* 121 */       json.setObj(allMeetRoomInfo);
+/* 122 */       json.setMsg("ok");
+/* 123 */       json.setFlag(0);
+/*     */     } catch (NumberFormatException e) {
+/* 125 */       json.setMsg("err");
+/* 126 */       json.setFlag(1);
+/* 127 */       json.setObj(null);
+/* 128 */       e.printStackTrace();
+/*     */     }
+/* 130 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<MeetingRoomWithBLOBs> getMeetRoomBySid(String sid)
+/*     */   {
+/* 135 */     ToJson json = new ToJson();
+/* 136 */     if ((sid != null) && (sid != "")) {
+/*     */       try {
+/* 138 */         MeetingRoomWithBLOBs meetRoomBySid = this.meetingRoomMapper.getMeetRoomBySid(Integer.valueOf(sid));
+/* 139 */         if (meetRoomBySid != null)
+/*     */         {
+/* 141 */           MeetingWithBLOBs meetingWithBLOBs = new MeetingWithBLOBs();
+/* 142 */           meetingWithBLOBs.setMeetRoomId(Integer.valueOf(sid));
+/* 143 */           meetRoomBySid.setMeetingWithBLOBs(this.meetingService.queryMeeting(meetingWithBLOBs, Integer.valueOf(1), Integer.valueOf(0), false).getObj());
+/*     */ 
+/* 146 */           StringBuffer sbmanagername = new StringBuffer();
+/*     */ 
+/* 148 */           String managerids = meetRoomBySid.getManagerids();
+/* 149 */           if ((managerids != null) && (managerids != "")) {
+/* 150 */             String[] split = managerids.split(",");
+/* 151 */             for (String s : split) {
+/* 152 */               String usernameById = this.usersMapper.getUsernameById(Integer.valueOf(s).intValue());
+/* 153 */               if ((usernameById != null) && (usernameById != "")) {
+/* 154 */                 sbmanagername.append(usernameById + ",");
+/*     */               }
+/*     */             }
+/*     */           }
+/*     */ 
+/* 159 */           meetRoomBySid.setManagetnames(sbmanagername.toString());
+/*     */ 
+/* 161 */           String meetroomperson = meetRoomBySid.getMeetroomperson();
+/*     */ 
+/* 163 */           String meetroomdept = meetRoomBySid.getMeetroomdept();
+/*     */ 
+/* 165 */           StringBuffer sb = new StringBuffer();
+/* 166 */           StringBuffer sbdept = new StringBuffer();
+/* 167 */           if ((meetroomperson != null) && (meetroomperson != ""))
+/*     */           {
+/* 169 */             String[] split = meetroomperson.split(",");
+/* 170 */             for (String s : split) {
+/* 171 */               String usernameById = this.usersMapper.getUsernameById(Integer.valueOf(s).intValue());
+/* 172 */               if (!StringUtils.checkNull(usernameById).booleanValue()) {
+/* 173 */                 sb.append(usernameById + ",");
+/*     */               }
+/*     */             }
+/*     */           }
+/* 177 */           if ((meetroomdept != null) && (meetroomdept != "") && (!"ALL_DEPT".equals(meetroomdept)))
+/*     */           {
+/* 179 */             String[] split = meetroomdept.split(",");
+/* 180 */             for (String s : split) {
+/* 181 */               String deptNameByDeptId = this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(s));
+/* 182 */               if (!StringUtils.checkNull(deptNameByDeptId).booleanValue())
+/* 183 */                 sbdept.append(deptNameByDeptId + ",");
+/*     */             }
+/*     */           }
+/* 186 */           else if ("ALL_DEPT".equals(meetroomdept)) {
+/* 187 */             sbdept.append("全部部门");
+/*     */           }
+/*     */ 
+/* 190 */           meetRoomBySid.setMeetroompersonName(sb.toString());
+/*     */ 
+/* 192 */           meetRoomBySid.setMeetroomdeptName(sbdept.toString());
+/*     */         }
+/* 194 */         json.setObject(meetRoomBySid);
+/* 195 */         json.setFlag(0);
+/* 196 */         json.setMsg("ok");
+/*     */       } catch (NumberFormatException e) {
+/* 198 */         json.setObject(null);
+/* 199 */         json.setFlag(1);
+/* 200 */         json.setMsg("err");
+/* 201 */         e.printStackTrace();
+/*     */       }
+/*     */     }
+/* 204 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> deleteMeetRoomBySid(String sid)
+/*     */   {
+/* 209 */     ToJson json = new ToJson();
+/* 210 */     if ((sid != null) && (sid != "")) {
+/*     */       try {
+/* 212 */         this.meetingRoomMapper.deleteMeetRoomBySid(Integer.valueOf(sid));
+/* 213 */         json.setFlag(0);
+/* 214 */         json.setMsg("ok");
+/*     */       } catch (NumberFormatException e) {
+/* 216 */         json.setFlag(1);
+/* 217 */         json.setMsg("err");
+/* 218 */         e.printStackTrace();
+/*     */       }
+/*     */     }
+/* 221 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> addMeetRoom(MeetingRoomWithBLOBs meetingRoomWithBLOBs)
+/*     */   {
+/* 226 */     ToJson json = new ToJson();
+/*     */     try {
+/* 228 */       int i = this.meetingRoomMapper.insertSelective(meetingRoomWithBLOBs);
+/* 229 */       json.setFlag(0);
+/* 230 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 232 */       json.setFlag(1);
+/* 233 */       json.setMsg("err");
+/* 234 */       e.printStackTrace();
+/*     */     }
+/* 236 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> editMeetRoom(MeetingRoomWithBLOBs meetingRoomWithBLOBs)
+/*     */   {
+/* 241 */     ToJson json = new ToJson();
+/*     */     try {
+/* 243 */       this.meetingRoomMapper.editMeetRoom(meetingRoomWithBLOBs);
+/* 244 */       json.setFlag(0);
+/* 245 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 247 */       json.setFlag(1);
+/* 248 */       json.setMsg("err");
+/* 249 */       e.printStackTrace();
+/*     */     }
+/* 251 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<MeetingRoomWithBLOBs> getAllMeetRoom(HttpServletRequest request)
+/*     */   {
+/* 256 */     ToJson json = new ToJson(1, "err");
+/*     */     try
+/*     */     {
+/* 259 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 260 */       Integer uid = users.getUid();
+/* 261 */       Integer deptId = users.getDeptId();
+/* 262 */       Map map = new HashMap();
+/* 263 */       map.put("uid", uid);
+/* 264 */       map.put("deptId", deptId);
+/* 265 */       List<MeetingRoomWithBLOBs> someMeetRoom = this.meetingRoomMapper.getSomeMeetRoom(map);
+/* 266 */       for (MeetingRoomWithBLOBs meetingWithBLOBs : someMeetRoom) {
+/* 267 */         if (meetingWithBLOBs.getMrName() == null) {
+/* 268 */           meetingWithBLOBs.setMrName("");
+/*     */         }
+/*     */       }
+/* 271 */       json.setObj(someMeetRoom);
+/* 272 */       json.setMsg("ok");
+/* 273 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 275 */       json.setMsg("err");
+/* 276 */       json.setFlag(1);
+/* 277 */       e.printStackTrace();
+/*     */     }
+/* 279 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<MeetingRoomWithBLOBs> getUserRoomCondition(String currentDate)
+/*     */   {
+/* 288 */     ToJson json = new ToJson();
+/* 289 */     Map map = new HashMap();
+/*     */     try
+/*     */     {
+/* 292 */       List<MeetingRoomWithBLOBs> allMeetRoomInfo = this.meetingRoomMapper.getAllMeetRoomInfo(map);
+/*     */ 
+/* 294 */       for (MeetingRoomWithBLOBs meetingRoomWithBLOBs : allMeetRoomInfo)
+/*     */       {
+/* 296 */         if (meetingRoomWithBLOBs.getMrPlace() == null) {
+/* 297 */           meetingRoomWithBLOBs.setMrPlace("");
+/*     */         }
+/*     */ 
+/* 300 */         StringBuffer sbmanagername = new StringBuffer();
+/*     */ 
+/* 302 */         String managerids = meetingRoomWithBLOBs.getManagerids();
+/* 303 */         if ((managerids != null) && (managerids != "")) {
+/* 304 */           String[] split = managerids.split(",");
+/* 305 */           for (String s : split) {
+/* 306 */             String usernameById = this.usersMapper.getUsernameById(Integer.valueOf(s).intValue());
+/* 307 */             if (!StringUtils.checkNull(usernameById).booleanValue()) {
+/* 308 */               sbmanagername.append(usernameById + ",");
+/*     */             }
+/*     */           }
+/*     */         }
+/* 312 */         meetingRoomWithBLOBs.setManagetnames(sbmanagername.toString());
+/*     */ 
+/* 314 */         String meetroomperson = meetingRoomWithBLOBs.getMeetroomperson();
+/*     */ 
+/* 316 */         String meetroomdept = meetingRoomWithBLOBs.getMeetroomdept();
+/*     */ 
+/* 318 */         StringBuffer sb = new StringBuffer();
+/* 319 */         StringBuffer sbdept = new StringBuffer();
+/* 320 */         if ((meetroomperson != null) && (meetroomperson != ""))
+/*     */         {
+/* 322 */           String[] split = meetroomperson.split(",");
+/* 323 */           for (String s : split) {
+/* 324 */             String usernameById = this.usersMapper.getUsernameById(Integer.valueOf(s).intValue());
+/* 325 */             if (!StringUtils.checkNull(usernameById).booleanValue()) {
+/* 326 */               sb.append(usernameById + ",");
+/*     */             }
+/*     */           }
+/*     */         }
+/* 330 */         if ((meetroomdept != null) && (meetroomdept != ""))
+/*     */         {
+/* 332 */           String[] split = meetroomdept.split(",");
+/* 333 */           for (String s : split) {
+/* 334 */             String deptNameByDeptId = this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(s));
+/* 335 */             if (!StringUtils.checkNull(deptNameByDeptId).booleanValue()) {
+/* 336 */               sbdept.append(deptNameByDeptId + ",");
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */ 
+/* 341 */         meetingRoomWithBLOBs.setMeetroompersonName(sb.toString());
+/*     */ 
+/* 343 */         meetingRoomWithBLOBs.setMeetroomdeptName(sbdept.toString());
+				  String currentBeginTime;
+/*     */         String currentEndTime;
+/* 344 */         if (meetingRoomWithBLOBs.getSid() != null) {
+/* 345 */           currentBeginTime = currentDate + " 00:00:00";
+/* 346 */           currentEndTime = currentDate + " 23:59:59";
+/* 347 */           Map meetMap = new HashedMap();
+/* 348 */           meetMap.put("meetRoomId", meetingRoomWithBLOBs.getSid());
+/* 349 */           meetMap.put("currentBeginTime", currentBeginTime);
+/* 350 */           meetMap.put("currentEndTime", currentEndTime);
+/* 351 */           meetingRoomWithBLOBs.setMeetingWithBLOBs(this.meetingMapper.queryCurrentRoomUserCondition(meetMap));
+/* 352 */           for (MeetingWithBLOBs meeting : meetingRoomWithBLOBs.getMeetingWithBLOBs()) {
+/* 353 */             long currentBegin = DateFormat.getTime(currentBeginTime).intValue();
+/* 354 */             long currentEnd = DateFormat.getTime(currentEndTime).intValue();
+/* 355 */             long start = DateFormat.getTime(meeting.getStartTime()).intValue();
+/* 356 */             long end = DateFormat.getTime(meeting.getEndTime()).intValue();
+/* 357 */             if (start <= currentBegin) {
+/* 358 */               meeting.setStartTime(currentBeginTime);
+/*     */             }
+/* 360 */             if (end >= currentEnd)
+/* 361 */               meeting.setEndTime(currentEndTime);
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */       
+/* 366 */       json.setObj(allMeetRoomInfo);
+/* 367 */       json.setMsg("ok");
+/* 368 */       json.setFlag(0);
+/*     */     } catch (NumberFormatException e) {
+/* 370 */       json.setMsg("err");
+/* 371 */       json.setFlag(1);
+/* 372 */       json.setObj(null);
+/* 373 */       e.printStackTrace();
+/*     */     }
+/* 375 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.meeting.impl.MeetRoomServiceImpl
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,49 @@
+package com.xoa.service.event;
+
+import com.xoa.model.event.TimeLine;
+import com.xoa.model.event.TimeLinePostDept;
+import com.xoa.model.event.TimeLinePostRole;
+import com.xoa.model.event.TimeLinePostUser;
+import com.xoa.model.event.TimeLineViewDept;
+import com.xoa.model.event.TimeLineViewRole;
+import com.xoa.model.event.TimeLineViewUser;
+import com.xoa.util.ToJson;
+import com.xoa.util.page.PageParams;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Service;
+
+@Service
+public abstract interface TimeLineService
+{
+  public abstract ToJson<TimeLine> getDetailByUuid(HttpServletRequest paramHttpServletRequest, String paramString);
+
+  public abstract ToJson<TimeLine> getTimeLineByUuid(HttpServletRequest paramHttpServletRequest, String paramString);
+
+  public abstract ToJson<TimeLine> getInforList(HttpServletRequest paramHttpServletRequest, TimeLine paramTimeLine);
+
+  public abstract ToJson<TimeLine> getInforList1(HttpServletRequest paramHttpServletRequest, TimeLine paramTimeLine);
+
+  public abstract ToJson<TimeLine> updateData(HttpServletRequest paramHttpServletRequest, TimeLine paramTimeLine, TimeLinePostDept paramTimeLinePostDept, TimeLinePostRole paramTimeLinePostRole, TimeLinePostUser paramTimeLinePostUser, TimeLineViewDept paramTimeLineViewDept, TimeLineViewRole paramTimeLineViewRole, TimeLineViewUser paramTimeLineViewUser, String paramString1, String paramString2, String paramString3, String paramString4, String paramString5, String paramString6);
+
+  public abstract ToJson<TimeLine> deleteByUuid(HttpServletRequest paramHttpServletRequest, String paramString);
+
+  public abstract ToJson<TimeLine> addData(HttpServletRequest paramHttpServletRequest, TimeLine paramTimeLine, String paramString1, String paramString2, String paramString3, String paramString4, String paramString5, String paramString6);
+
+  public abstract List<TimeLine> getTimelines(HttpServletRequest paramHttpServletRequest)
+    throws UnsupportedEncodingException;
+
+  public abstract List<TimeLine> getPageTimelines(HttpServletRequest paramHttpServletRequest, PageParams paramPageParams, Map paramMap)
+    throws UnsupportedEncodingException;
+
+  public abstract List<TimeLine> postTimelines(HttpServletRequest paramHttpServletRequest, PageParams paramPageParams, String paramString);
+
+  public abstract ToJson<Object> getTimelineCode(HttpServletRequest paramHttpServletRequest, String paramString);
+}
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.event.TimeLineService
+ * JD-Core Version:    0.6.0
+ */

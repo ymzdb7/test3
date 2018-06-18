@@ -1,0 +1,224 @@
+/*     */ package com.xoa.util.ipUtil;
+/*     */ 
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import java.io.BufferedReader;
+/*     */ import java.io.IOException;
+/*     */ import java.io.InputStreamReader;
+/*     */ import java.io.PrintStream;
+/*     */ import java.net.InetAddress;
+/*     */ import java.net.NetworkInterface;
+/*     */ import java.net.SocketException;
+/*     */ import java.net.UnknownHostException;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Enumeration;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class MachineCode
+/*     */ {
+/*     */   public static List<String> getMacIds()
+/*     */   {
+/*  22 */     InetAddress ip = null;
+/*  23 */     NetworkInterface ni = null;
+/*  24 */     List macList = new ArrayList();
+/*     */     try {
+/*  26 */       Enumeration netInterfaces = NetworkInterface.getNetworkInterfaces();
+/*     */ 
+/*  28 */       while (netInterfaces.hasMoreElements()) {
+/*  29 */         ni = (NetworkInterface)netInterfaces.nextElement();
+/*     */ 
+/*  33 */         Enumeration ips = ni.getInetAddresses();
+/*  34 */         while (ips.hasMoreElements()) {
+/*  35 */           ip = (InetAddress)ips.nextElement();
+/*  36 */           if ((ip.isLoopbackAddress()) || (!ip.getHostAddress().matches("(\\d{1,3}\\.){3}\\d{1,3}"))) {
+/*     */             continue;
+/*     */           }
+/*  39 */           macList.add(getMacFromBytes(ni.getHardwareAddress()));
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/*     */     }
+/*  46 */     return macList;
+/*     */   }
+/*     */ 
+/*     */   public static List<String> get16CharMacs() {
+/*  50 */     List list16Macs = new ArrayList();
+/*  51 */     String osName = System.getProperty("os.name");
+/*  52 */     List<String> macIds = new ArrayList<String>();
+/*  53 */     if (osName.toLowerCase().startsWith("win")) {
+/*  54 */       String config = getWindowsMACAddress();
+/*  55 */       macIds.add(config);
+/*     */     } else {
+/*  57 */       macIds = getMacIds();
+/*     */     }
+/*  59 */     for (String macId : macIds) {
+/*  60 */       StringBuffer sb = new StringBuffer();
+/*  61 */       char[] chars = macId.toCharArray();
+/*     */ 
+/*  63 */       for (char aChar : chars) {
+/*  64 */         if ((('0' > aChar) || (aChar > '9')) && (('A' > aChar) || (aChar > 'Z')) && (('a' > aChar) || (aChar > 'z'))) {
+/*     */           continue;
+/*     */         }
+/*  67 */         sb.append(aChar);
+/*     */       }
+/*     */ 
+/*  72 */       while (sb.length() < 12) {
+/*  73 */         sb.append("A");
+/*     */       }
+/*  75 */       if (sb.length() > 12) {
+/*  76 */         sb.substring(0, 12);
+/*     */       }
+/*  78 */       list16Macs.add(sb.toString());
+/*     */     }
+/*     */ 
+/*  82 */     return list16Macs;
+/*     */   }
+/*     */ 
+/*     */   public static List<String> get16CharMacsType() {
+/*  86 */     List list16Macs = new ArrayList();
+/*  87 */     String osName = System.getProperty("os.name");
+/*  88 */     List<String> macIds = new ArrayList<String>();
+/*  89 */     if (osName.toLowerCase().startsWith("win")) {
+/*  90 */       String config = getWindowsMACAddress();
+/*  91 */       macIds.add(config);
+/*     */     } else {
+/*  93 */       macIds = getMacIds();
+/*     */     }
+/*  95 */     for (String macId : macIds)
+/*     */     {
+/*  97 */       StringBuffer sb = new StringBuffer();
+/*  98 */       char[] chars = macId.toCharArray();
+/*     */ 
+/* 100 */       for (char aChar : chars) {
+/* 101 */         if ((('0' > aChar) || (aChar > '9')) && (('A' > aChar) || (aChar > 'Z')) && (('a' > aChar) || (aChar > 'z'))) {
+/*     */           continue;
+/*     */         }
+/* 104 */         sb.append(aChar);
+/*     */       }
+/*     */ 
+/* 110 */       while ((!StringUtils.checkNull(sb.toString()).booleanValue()) && (sb.length() < 16)) {
+/* 111 */         String a1 = sb.substring(0, 1);
+/* 112 */         String a2 = sb.substring(2, 3);
+/* 113 */         String a3 = sb.substring(4, 5);
+/* 114 */         String a4 = sb.substring(6, 7);
+/* 115 */         sb.append(a1);
+/* 116 */         sb.append(a2);
+/* 117 */         sb.append(a3);
+/* 118 */         sb.append(a4);
+/*     */       }
+/* 120 */       if (sb.length() > 16) {
+/* 121 */         sb.substring(0, 16);
+/*     */       }
+/* 123 */       list16Macs.add(sb.toString());
+/*     */     }
+/*     */ 
+/* 127 */     return list16Macs;
+/*     */   }
+/*     */ 
+/*     */   private static String getMacFromBytes(byte[] bytes) {
+/* 131 */     StringBuffer mac = new StringBuffer();
+/*     */ 
+/* 133 */     boolean first = false;
+/* 134 */     for (byte b : bytes) {
+/* 135 */       if (first) {
+/* 136 */         mac.append("-");
+/*     */       }
+/* 138 */       byte currentByte = (byte)((b & 0xF0) >> 4);
+/* 139 */       mac.append(Integer.toHexString(currentByte));
+/* 140 */       currentByte = (byte)(b & 0xF);
+/* 141 */       mac.append(Integer.toHexString(currentByte));
+/* 142 */       first = true;
+/*     */     }
+/* 144 */     return mac.toString().toUpperCase();
+/*     */   }
+/*     */ 
+/*     */   public static String getWindowsMACAddress()
+/*     */   {
+/* 149 */     String mac = null;
+/* 150 */     BufferedReader bufferedReader = null;
+/* 151 */     Process process = null;
+/*     */     try
+/*     */     {
+/* 154 */       process = Runtime.getRuntime().exec("ipconfig /all");
+/* 155 */       bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream(), "gbk"));
+/*     */ 
+/* 157 */       String line = null;
+/* 158 */       int index = -1;
+/* 159 */       while ((line = bufferedReader.readLine()) != null) {
+/* 160 */         System.out.println(line);
+/*     */ 
+/* 162 */         index = line.toLowerCase().indexOf("physical address");
+/*     */ 
+/* 164 */         if (index >= 0) {
+/* 165 */           index = line.indexOf(":");
+/* 166 */           if (index >= 0) {
+/* 167 */             System.out.println(mac);
+/*     */ 
+/* 169 */             mac = line.substring(index + 1).trim();
+/*     */           }
+/*     */         }
+/*     */ 
+/* 173 */         index = line.toLowerCase().indexOf("物理地址");
+/* 174 */         if (index >= 0) {
+/* 175 */           index = line.indexOf(":");
+/* 176 */           if (index < 0) break;
+/* 177 */           System.out.println(mac);
+/*     */ 
+/* 179 */           mac = line.substring(index + 1).trim();
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */     catch (IOException e1)
+/*     */     {
+/* 185 */       e1.printStackTrace();
+/*     */     } finally {
+/*     */       try {
+/* 188 */         if (bufferedReader != null)
+/* 189 */           bufferedReader.close();
+/*     */       }
+/*     */       catch (IOException e1) {
+/* 192 */         e1.printStackTrace();
+/*     */       }
+/* 194 */       bufferedReader = null;
+/* 195 */       process = null;
+/*     */     }
+/*     */ 
+/* 198 */     return mac;
+/*     */   }
+/*     */ 
+/*     */   private static void getLocalMac(InetAddress ia)
+/*     */     throws SocketException
+/*     */   {
+/* 204 */     byte[] mac = NetworkInterface.getByInetAddress(ia).getHardwareAddress();
+/* 205 */     System.out.println("mac数组长度：" + mac.length);
+/* 206 */     StringBuffer sb = new StringBuffer("");
+/*     */ 
+/* 208 */     for (int i = 0; i < mac.length; i++) {
+/* 209 */       if (i != 0) {
+/* 210 */         sb.append("-");
+/*     */       }
+/*     */ 
+/* 213 */       int temp = mac[i] & 0xFF;
+/* 214 */       String str = Integer.toHexString(temp);
+/* 215 */       System.out.println("每8位:" + str);
+/* 216 */       if (str.length() == 1)
+/* 217 */         sb.append("0" + str);
+/*     */       else {
+/* 219 */         sb.append(str);
+/*     */       }
+/*     */     }
+/* 222 */     System.out.println("本机MAC地址:" + sb.toString().toUpperCase());
+/*     */   }
+/*     */ 
+/*     */   public static void main(String[] args)
+/*     */     throws UnknownHostException, SocketException
+/*     */   {
+/* 229 */     System.out.println(getWindowsMACAddress());
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.ipUtil.MachineCode
+ * JD-Core Version:    0.6.0
+ */

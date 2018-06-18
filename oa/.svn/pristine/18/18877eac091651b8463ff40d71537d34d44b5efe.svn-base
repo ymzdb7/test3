@@ -1,0 +1,274 @@
+/*     */ package com.xoa.controller.diary;
+/*     */ 
+/*     */ import com.xoa.model.diary.DiaryCommentModel;
+/*     */ import com.xoa.model.diary.DiaryCommentReplyModel;
+/*     */ import com.xoa.model.diary.DiaryModel;
+/*     */ import com.xoa.model.enclosure.Attachment;
+/*     */ import com.xoa.service.diary.DiaryService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.UnsupportedEncodingException;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.Map;
+/*     */ import java.util.Set;
+/*     */ import java.util.zip.DataFormatException;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.log4j.Logger;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/diary"})
+/*     */ public class DiaryController
+/*     */ {
+/*  38 */   private Logger loger = Logger.getLogger(DiaryController.class);
+/*     */ 
+/*     */   @Resource
+/*     */   DiaryService diaryService;
+/*     */ 
+/*  44 */   @RequestMapping({"/workLog"})
+/*     */   public String workLog() { return "app/diary/workLog"; }
+/*     */ 
+/*     */   @RequestMapping({"/details"})
+/*     */   public String details() {
+/*  49 */     return "app/diary/details";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/index"})
+/*     */   public String diaryIndex(DiaryModel diaryModel, HttpServletRequest request)
+/*     */   {
+/*  63 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  65 */     return "app/diary/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/save"})
+/*     */   @ResponseBody
+/*     */   public ToJson<DiaryModel> diaryAdd(DiaryModel diaryModel, HttpServletRequest request)
+/*     */     throws UnsupportedEncodingException, DataFormatException
+/*     */   {
+/*  82 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  84 */     if (diaryModel.getUserId() == null) {
+/*  85 */       diaryModel.setUserId((String)request.getSession().getAttribute("userId"));
+/*     */     }
+/*  87 */     int temp = this.diaryService.saveDiary(diaryModel);
+/*  88 */     ToJson diaryListToJson = new ToJson();
+/*  89 */     if (temp == 1)
+/*  90 */       diaryListToJson.setFlag(0);
+/*     */     else {
+/*  92 */       diaryListToJson.setFlag(1);
+/*     */     }
+/*  94 */     return diaryListToJson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/update"})
+/*     */   @ResponseBody
+/*     */   public ToJson<DiaryModel> diaryUpdate(DiaryModel diaryModel, HttpServletRequest request)
+/*     */     throws UnsupportedEncodingException
+/*     */   {
+/* 110 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 112 */     int temp = this.diaryService.updateDiary(diaryModel);
+/* 113 */     ToJson diaryListToJson = new ToJson();
+/* 114 */     if (temp == 1) {
+/* 115 */       diaryListToJson.setFlag(0);
+/* 116 */       diaryListToJson.setMsg("修改成功！");
+/*     */     } else {
+/* 118 */       diaryListToJson.setFlag(1);
+/* 119 */       diaryListToJson.setMsg("修改失败！");
+/*     */     }
+/* 121 */     return diaryListToJson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/getIndex"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<DiaryModel> diaryGet(DiaryModel diaryModel, HttpServletRequest request, @RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam("useFlag") Boolean useFlag)
+/*     */   {
+/* 139 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 141 */     PageParams pageParams = new PageParams();
+/* 142 */     pageParams.setUseFlag(useFlag);
+/* 143 */     pageParams.setPage(page);
+/* 144 */     pageParams.setPageSize(pageSize);
+/* 145 */     if ((diaryModel.getUserId() == null) || ("".equals(diaryModel.getUserId()))) {
+/* 146 */       HttpSession session = request.getSession();
+/* 147 */       diaryModel.setUserId(session.getAttribute("userId").toString());
+/*     */     }
+/* 149 */     ToJson diaryToJson = this.diaryService.getDiaryIndex(diaryModel, pageParams, request);
+/* 150 */     return diaryToJson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getAll"})
+/*     */   @ResponseBody
+/*     */   public ToJson<DiaryModel> diaryGetAll(DiaryModel diaryModel, HttpServletResponse response, HttpServletRequest request, @RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam("useFlag") Boolean useFlag)
+/*     */   {
+/* 167 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/* 168 */     PageParams pageParams = new PageParams();
+/* 169 */     pageParams.setUseFlag(useFlag);
+/* 170 */     pageParams.setPage(page);
+/* 171 */     pageParams.setPageSize(pageSize);
+/* 172 */     if ((diaryModel.getUserId() == null) || ("".equals(diaryModel.getUserId()))) {
+/* 173 */       HttpSession session = request.getSession();
+/* 174 */       diaryModel.setUserId(session.getAttribute("userId").toString());
+/*     */     }
+/* 176 */     ToJson diaryToJson = this.diaryService.getDiaryAll(diaryModel, pageParams, request);
+/* 177 */     return diaryToJson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/getOther"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<DiaryModel> diaryGetOther(DiaryModel diaryModel, HttpServletRequest request, @RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam("useFlag") Boolean useFlag)
+/*     */   {
+/* 196 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 198 */     PageParams pageParams = new PageParams();
+/* 199 */     pageParams.setUseFlag(useFlag);
+/* 200 */     pageParams.setPage(page);
+/* 201 */     pageParams.setPageSize(pageSize);
+/*     */ 
+/* 203 */     if ((diaryModel.getUserId() == null) || ("".equals(diaryModel.getUserId()))) {
+/* 204 */       HttpSession session = request.getSession();
+/* 205 */       diaryModel.setUserId(session.getAttribute("userId").toString());
+/*     */     }
+/* 207 */     ToJson diaryOtherToJson = this.diaryService.getDiaryOther(diaryModel, pageParams, request);
+/* 208 */     return diaryOtherToJson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/getConByDiaId"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Attachment> getConByDiaId(DiaryModel diaryModel, HttpServletRequest request)
+/*     */   {
+/* 224 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 226 */     ContextHolder.setConsumerType(sqlType);
+/* 227 */     if ((diaryModel.getUserId() == null) || ("".equals(diaryModel.getUserId()))) {
+/* 228 */       HttpSession session = request.getSession();
+/* 229 */       diaryModel.setUserId(session.getAttribute("userId").toString());
+/*     */     }
+/* 231 */     ToJson diaryOtherToJson = this.diaryService.getDiaryByDiaId(diaryModel, sqlType);
+/* 232 */     return diaryOtherToJson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/delete"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<DiaryModel> deletDiaById(DiaryModel diaryModel, HttpServletRequest request)
+/*     */   {
+/* 248 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 250 */     ToJson diaryResult = new ToJson();
+/* 251 */     if ((diaryModel.getDiaId() == null) || ("".equals(diaryModel.getDiaId()))) {
+/* 252 */       diaryResult.setMsg("删除失败");
+/* 253 */       return diaryResult;
+/*     */     }
+/* 255 */     int i = this.diaryService.deletDiaById(diaryModel);
+/* 256 */     if (i == 0) {
+/* 257 */       diaryResult.setMsg("无该条记录");
+/* 258 */       return diaryResult;
+/*     */     }
+/* 260 */     diaryResult.setFlag(0);
+/* 261 */     diaryResult.setMsg(i + "");
+/* 262 */     return diaryResult;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/diarySelect"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<DiaryModel> diarySelect(DiaryModel diaryModel, HttpServletRequest request)
+/*     */   {
+/* 278 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 280 */     ToJson diaryResult = new ToJson();
+/* 281 */     Map mapParamter = new HashMap();
+/*     */ 
+/* 283 */     Map paramMap = request.getParameterMap();
+/*     */ 
+/* 285 */     Iterator iKeys = paramMap.keySet().iterator();
+/* 286 */     while (iKeys.hasNext()) {
+/* 287 */       String key = (String)iKeys.next();
+/* 288 */       String[] value = (String[])paramMap.get(key);
+/* 289 */       if ((value != null) && (value.length > 0))
+/* 290 */         mapParamter.put(key, value[0]);
+/*     */       else {
+/* 292 */         mapParamter.put(key, "");
+/*     */       }
+/*     */     }
+/* 295 */     diaryResult = this.diaryService.diarySelect(mapParamter, request);
+/* 296 */     return diaryResult;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/insertDiaryComment"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<DiaryCommentModel> insertDiaryComment(DiaryCommentModel diaryCommentModel, HttpServletRequest request)
+/*     */   {
+/* 309 */     return this.diaryService.insertDiaryComment(diaryCommentModel, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getDiaryCommentByDiaId"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<DiaryCommentModel> getDiaryCommentByDiaId(String diaId)
+/*     */   {
+/* 322 */     return this.diaryService.getDiaryCommentByDiaId(diaId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/insertCommentReply"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<DiaryCommentReplyModel> insertCommentReply(DiaryCommentReplyModel diaryCommentReplyModel, HttpServletRequest request)
+/*     */   {
+/* 335 */     return this.diaryService.insertCommentReply(diaryCommentReplyModel, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/delDiaryCommentByCommentId"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<DiaryCommentModel> delDiaryCommentByCommentId(String commentId)
+/*     */   {
+/* 348 */     return this.diaryService.delDiaryCommentByCommentId(commentId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/delCommentReplyByReplyId"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<DiaryCommentReplyModel> delCommentReplyByReplyId(String replyId)
+/*     */   {
+/* 361 */     return this.diaryService.delCommentReplyByReplyId(replyId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getDiaryCommentCount"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<DiaryCommentModel> getDiaryCommentCount(Integer diaId)
+/*     */   {
+/* 374 */     return this.diaryService.getDiaryCommentCount(diaId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/insertDiaryTop"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<DiaryModel> insertDiaryTop(String diaId, HttpServletRequest request)
+/*     */   {
+/* 387 */     return this.diaryService.insertDiaryTop(diaId, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/deleteDiaryTop"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<DiaryModel> deleteDiaryTop(String diaId, HttpServletRequest request)
+/*     */   {
+/* 400 */     return this.diaryService.deleteDiaryTop(diaId, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getReaders"})
+/*     */   public ToJson<DiaryModel> getReaders(Integer diaId)
+/*     */   {
+/* 412 */     return this.diaryService.getReadUsers(diaId);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.diary.DiaryController
+ * JD-Core Version:    0.6.0
+ */

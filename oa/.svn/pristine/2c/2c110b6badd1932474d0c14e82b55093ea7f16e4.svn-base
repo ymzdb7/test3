@@ -1,0 +1,205 @@
+/*     */ package com.xoa.service.hr.impl;
+/*     */ 
+/*     */ import com.xoa.dao.hr.HrStaffInfoMapper;
+/*     */ import com.xoa.dao.hr.HrStaffLeaveMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.hr.HrStaffInfo;
+/*     */ import com.xoa.model.hr.HrStaffLeave;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.hr.HrStaffLeaveService;
+/*     */ import com.xoa.util.DateCompute;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class HrStaffLeaveServiceImpl
+/*     */   implements HrStaffLeaveService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   HrStaffLeaveMapper hrStaffLeaveMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   UsersMapper usersMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   HrStaffInfoMapper hrStaffInfoMapper;
+/*     */ 
+/*     */   public ToJson<HrStaffInfo> querytLeavePersonByDeptId(HttpServletRequest request, Integer deptId)
+/*     */   {
+/*  38 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  40 */       List<HrStaffInfo> list = this.hrStaffInfoMapper.selectLeavePersonByDeptId(deptId);
+/*  41 */       for (HrStaffInfo hrStaffInfo : list) {
+/*  42 */         if (!StringUtils.checkNull(hrStaffInfo.getUserId()).booleanValue()) {
+/*  43 */           Users users = this.usersMapper.getUsersByuserId(hrStaffInfo.getUserId());
+/*  44 */           if (users != null) {
+/*  45 */             hrStaffInfo.setAvatar(users.getAvatar());
+/*     */           }
+/*     */         }
+/*  48 */         hrStaffInfo.setUserName(hrStaffInfo.getStaffName());
+/*  49 */         HrStaffLeave hrStaffLeave = this.hrStaffLeaveMapper.queryStaffLeaveByLeavePerson(hrStaffInfo.getUserId());
+/*  50 */         if (hrStaffLeave != null) {
+/*  51 */           hrStaffInfo.setLeaveReason(hrStaffLeave.getQuitReason());
+/*     */         }
+/*  53 */         if (StringUtils.checkNull(hrStaffInfo.getAvatar()).booleanValue()) {
+/*  54 */           hrStaffInfo.setAvatar(hrStaffInfo.getStaffSex());
+/*     */         }
+/*     */       }
+/*  57 */       if (list.size() > 0) {
+/*  58 */         toJson.setObject(list);
+/*  59 */         toJson.setObj(list);
+/*  60 */         toJson.setMsg("ok");
+/*     */       } else {
+/*  62 */         toJson.setMsg("离职人员信息为空");
+/*     */       }
+/*  64 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  66 */       e.printStackTrace();
+/*  67 */       toJson.setMsg(e.getMessage());
+/*     */     }
+/*  69 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<HrStaffLeave> getLeaveUsersByDeptId(HttpServletRequest request, Integer deptId) {
+/*  73 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  75 */       List list = this.hrStaffLeaveMapper.getLeaveUsersByDeptId(deptId);
+/*  76 */       if (list.size() > 0) {
+/*  77 */         toJson.setObj(list);
+/*  78 */         toJson.setMsg("ok");
+/*     */       } else {
+/*  80 */         toJson.setObject("没数据");
+/*  81 */         toJson.setMsg("离职人员为空");
+/*     */       }
+/*  83 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  85 */       e.printStackTrace();
+/*  86 */       toJson.setMsg(e.getMessage());
+/*     */     }
+/*  88 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<HrStaffLeave> addLeaveInfor(HrStaffLeave hrStaffLeave, HttpServletRequest request)
+/*     */   {
+/* 111 */     if (hrStaffLeave.getQuitTimePlan() != null) {
+/* 112 */       hrStaffLeave.setQuitTimePlan(hrStaffLeave.getQuitTimePlan().trim().equals("") ? "0000-00-00" : hrStaffLeave.getQuitTimePlan().trim().trim());
+/*     */     }
+/* 114 */     if (hrStaffLeave.getLastSalaryTime() != null) {
+/* 115 */       hrStaffLeave.setLastSalaryTime(hrStaffLeave.getLastSalaryTime().trim().equals("") ? "0000-00-00" : hrStaffLeave.getLastSalaryTime().trim().trim());
+/*     */     }
+/* 117 */     if (hrStaffLeave.getQuitTimeFact() != null) {
+/* 118 */       hrStaffLeave.setQuitTimeFact(hrStaffLeave.getQuitTimeFact().trim().equals("") ? "0000-00-00" : hrStaffLeave.getQuitTimeFact().trim().trim());
+/*     */     }
+/* 120 */     if (hrStaffLeave.getAddTime() != null) {
+/* 121 */       hrStaffLeave.setAddTime(hrStaffLeave.getAddTime().trim().equals("") ? "0000-00-00 00:00:00" : hrStaffLeave.getAddTime().trim().trim());
+/*     */     }
+/* 123 */     if (hrStaffLeave.getLastUpdateTime() != null) {
+/* 124 */       hrStaffLeave.setLastUpdateTime(hrStaffLeave.getLastUpdateTime().trim().equals("") ? "0000-00-00 00:00:00" : hrStaffLeave.getLastUpdateTime().trim().trim());
+/*     */     }
+/* 126 */     if (hrStaffLeave.getApplicationDate() != null) {
+/* 127 */       hrStaffLeave.setApplicationDate(hrStaffLeave.getApplicationDate().trim().equals("") ? "0000-00-00" : hrStaffLeave.getApplicationDate().trim().trim());
+/*     */     }
+/* 129 */     if (hrStaffLeave.getQuitType() == null) {
+/* 130 */       hrStaffLeave.setQuitType("");
+/*     */     }
+/* 132 */     if (hrStaffLeave.getQuitReason() == null) {
+/* 133 */       hrStaffLeave.setQuitReason("");
+/*     */     }
+/* 135 */     if (hrStaffLeave.getTrace() == null) {
+/* 136 */       hrStaffLeave.setTrace("");
+/*     */     }
+/* 138 */     if (hrStaffLeave.getRemark() == null) {
+/* 139 */       hrStaffLeave.setRemark("");
+/*     */     }
+/*     */ 
+/* 142 */     if (hrStaffLeave.getLeavePerson() == null) {
+/* 143 */       hrStaffLeave.setLeavePerson("");
+/*     */     }
+/* 145 */     if (hrStaffLeave.getMaterialsCondition() == null) {
+/* 146 */       hrStaffLeave.setMaterialsCondition("");
+/*     */     }
+/* 148 */     if (hrStaffLeave.getDespacho() == null) {
+/* 149 */       hrStaffLeave.setDespacho("");
+/*     */     }
+/* 151 */     if (hrStaffLeave.getDespachoPerson() == null) {
+/* 152 */       hrStaffLeave.setDespachoPerson("");
+/*     */     }
+/* 154 */     if (hrStaffLeave.getPosition() == null) {
+/* 155 */       hrStaffLeave.setPosition("");
+/*     */     }
+/*     */ 
+/* 158 */     if (hrStaffLeave.getAttachmentId() == null) {
+/* 159 */       hrStaffLeave.setAttachmentId("");
+/*     */     }
+/* 161 */     if (hrStaffLeave.getAttachmentName() == null) {
+/* 162 */       hrStaffLeave.setAttachmentName("");
+/*     */     }
+/*     */ 
+/* 165 */     if (hrStaffLeave.getLeaveDept() == null) {
+/* 166 */       hrStaffLeave.setLeaveDept("");
+/*     */     }
+/* 168 */     if (hrStaffLeave.getIsReinstatement() == null) {
+/* 169 */       hrStaffLeave.setIsReinstatement(Integer.valueOf(0));
+/*     */     }
+/* 171 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 173 */       int count = 0;
+/*     */ 
+/* 175 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 176 */       hrStaffLeave.setCreateUserId(users.getUserId());
+/* 177 */       hrStaffLeave.setCreateDeptId(users.getDeptId());
+/* 178 */       count += this.hrStaffLeaveMapper.addLeaveInfor(hrStaffLeave);
+/*     */ 
+/* 181 */       HrStaffInfo hrStaffInfo = this.hrStaffInfoMapper.getStaffByUserId(hrStaffLeave.getLeavePerson());
+/* 182 */       hrStaffInfo.setWorkStatus("02");
+/* 183 */       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+/* 184 */       int year = DateCompute.workAge(sdf.parse(hrStaffLeave.getQuitTimeFact()), sdf.parse(hrStaffInfo.getJobBeginning()));
+/* 185 */       hrStaffInfo.setJobAge(String.valueOf(year));
+/*     */ 
+/* 187 */       count += this.hrStaffInfoMapper.updatePersonFile(hrStaffInfo);
+/*     */ 
+/* 189 */       Users users1 = this.usersMapper.getUsersByuserId(hrStaffLeave.getLeavePerson());
+/* 190 */       users1.setDeptId(Integer.valueOf(0));
+/* 191 */       users1.setNotLogin(Byte.valueOf((byte) 1));
+/* 192 */       count += this.usersMapper.editUser(users1);
+/* 193 */       if (count == 3) {
+/* 194 */         toJson.setFlag(0);
+/* 195 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 198 */       e.printStackTrace();
+/* 199 */       toJson.setMsg(e.getMessage());
+/*     */     }
+/* 201 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<HrStaffLeave> getLeaveUserByDeptId(HttpServletRequest request, Integer deptId) {
+/* 205 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 207 */       List list = this.hrStaffLeaveMapper.getLeaveUserByDeptId(deptId);
+/* 208 */       if (list.size() > 0) {
+/* 209 */         toJson.setObj(list);
+/* 210 */         toJson.setMsg("ok");
+/*     */       } else {
+/* 212 */         toJson.setMsg("无用户");
+/*     */       }
+/* 214 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 216 */       e.printStackTrace();
+/* 217 */       toJson.setMsg(e.getMessage());
+/*     */     }
+/* 219 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.hr.impl.HrStaffLeaveServiceImpl
+ * JD-Core Version:    0.6.0
+ */

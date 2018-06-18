@@ -1,0 +1,113 @@
+/*     */ package com.xoa.service.worldnews.impl;
+/*     */ 
+/*     */ import com.xoa.dao.worldnews.NewsCommentMapper;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.worldnews.NewsComment;
+/*     */ import com.xoa.service.users.UsersService;
+/*     */ import com.xoa.service.worldnews.NewsCommentService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class NewsCommentServiceImpl
+/*     */   implements NewsCommentService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private NewsCommentMapper newsCommentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersService usersService;
+/*     */ 
+/*     */   public void addNewsComment(HttpServletRequest request, NewsComment newsComment)
+/*     */   {
+/*  40 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  41 */     newsComment.setUser_id(users.getUserId());
+/*     */ 
+/*  43 */     if (newsComment.getContent() == null) {
+/*  44 */       newsComment.setContent("");
+/*     */     }
+/*  46 */     this.newsCommentMapper.addNewsComment(newsComment);
+/*     */   }
+/*     */ 
+/*     */   public List<NewsComment> getNewsCommentInfo(HttpServletRequest request, String news_id)
+/*     */   {
+/*  57 */     List<NewsComment> newsCommentInfo = this.newsCommentMapper.getNewsCommentInfo(news_id);
+/*  58 */     for (NewsComment newsComment : newsCommentInfo) {
+/*  59 */       String user_id = newsComment.getUser_id();
+/*     */ 
+/*  61 */       int count = this.newsCommentMapper.getCount(newsComment.getComment_id());
+/*  62 */       newsComment.setCount(count);
+/*     */ 
+/*  64 */       Users usersByuserId = this.usersService.getUsersByuserId(user_id);
+/*  65 */       newsComment.setUser_id(usersByuserId.getUserName());
+/*     */     }
+/*  67 */     return newsCommentInfo;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Users> getUser(HttpServletRequest request)
+/*     */   {
+/*  78 */     ToJson json = new ToJson();
+/*     */     try {
+/*  80 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  81 */       json.setMsg("ok");
+/*  82 */       json.setFlag(0);
+/*  83 */       json.setObject(users);
+/*     */     }
+/*     */     catch (Exception e) {
+/*  86 */       json.setMsg("ok");
+/*  87 */       json.setFlag(0);
+/*  88 */       json.setObject(null);
+/*  89 */       e.printStackTrace();
+/*     */     }
+/*  91 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public int getCount(String parent_id)
+/*     */   {
+/* 102 */     return this.newsCommentMapper.getCount(Integer.valueOf(parent_id));
+/*     */   }
+/*     */ 
+/*     */   public String deleteComment(String comment_id, HttpServletRequest request)
+/*     */   {
+/* 113 */     Users name = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/* 115 */     NewsComment comment = this.newsCommentMapper.getNewsCommentById(Integer.valueOf(Integer.parseInt(comment_id)));
+/* 116 */     if (name.getUserId().equals(comment.getUser_id()))
+/*     */     {
+/* 118 */       deleteEachComment(comment_id);
+/* 119 */       return "成功";
+/*     */     }
+/* 121 */     return "您不能删除别人发布的东西";
+/*     */   }
+/*     */ 
+/*     */   public void deleteEachComment(String comment_id)
+/*     */   {
+/* 138 */     this.newsCommentMapper.deleteComment(Integer.valueOf(comment_id));
+/*     */ 
+/* 140 */     List<NewsComment> commentByparentId = this.newsCommentMapper.getCommentByparentId(Integer.valueOf(comment_id));
+/*     */ 
+/* 142 */     if (commentByparentId != null)
+/* 143 */       for (NewsComment newsComment : commentByparentId)
+/*     */       {
+/* 145 */         if (newsComment != null)
+/*     */         {
+/* 147 */           deleteEachComment(String.valueOf(newsComment.getComment_id()));
+/*     */         }
+/*     */       }
+/*     */   }
+/*     */ 
+/*     */   public int getNewsCount(String news_id)
+/*     */   {
+/* 170 */     return this.newsCommentMapper.getNewsCount(Integer.valueOf(news_id));
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.worldnews.impl.NewsCommentServiceImpl
+ * JD-Core Version:    0.6.0
+ */

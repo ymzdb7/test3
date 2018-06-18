@@ -1,0 +1,257 @@
+/*     */ package com.xoa.service.im;
+/*     */ 
+/*     */ import com.xoa.dao.enclosure.AttachmentMapper;
+/*     */ import com.xoa.model.enclosure.Attachment;
+/*     */ import com.xoa.util.ModuleEnum;
+/*     */ import com.xoa.util.netdisk.ReadFile;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.IOException;
+/*     */ import java.net.URLEncoder;
+/*     */ import java.nio.channels.FileChannel;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Arrays;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ import java.util.ResourceBundle;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Service
+/*     */ public class ImEnclosureService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   AttachmentMapper attachmentMapper;
+/*     */ 
+/*     */   public void saveAttachment(Attachment attachment)
+/*     */   {
+/*  36 */     this.attachmentMapper.insertSelective(attachment);
+/*     */   }
+/*     */ 
+/*     */   public Attachment findByAttachId(int attachId)
+/*     */   {
+/*  41 */     Attachment a = this.attachmentMapper.findByAttachId(attachId);
+/*  42 */     return a;
+/*     */   }
+/*     */ 
+/*     */   public Attachment findByLast()
+/*     */   {
+/*  54 */     Attachment att = this.attachmentMapper.findByLast();
+/*  55 */     return att;
+/*     */   }
+/*     */ 
+/*     */   public List<Attachment> upload(MultipartFile[] files, String types, String module, String company, boolean isMobile)
+/*     */     throws IOException
+/*     */   {
+/*  72 */     if (files.length == 0) {
+/*  73 */       return null;
+/*     */     }
+/*  75 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/*  76 */     String os = System.getProperty("os.name");
+/*  77 */     StringBuffer sb = new StringBuffer();
+/*  78 */     if (os.toLowerCase().startsWith("win"))
+/*  79 */       sb = sb.append(rb.getString("upload.win"));
+/*     */     else {
+/*  81 */       sb = sb.append(rb.getString("upload.linux"));
+/*     */     }
+/*  83 */     List list = new ArrayList();
+/*     */ 
+/*  85 */     String ym = new SimpleDateFormat("yyMM").format(new Date());
+/*     */ 
+/*  87 */     String path = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + company + System.getProperty("file.separator") + module + System.getProperty("file.separator") + ym;
+/*     */ 
+/*  90 */     Attachment attachment = new Attachment();
+/*  91 */     for (int i = 0; i < files.length; i++) {
+/*  92 */       MultipartFile file = files[i];
+/*  93 */       if (file.isEmpty())
+/*     */         continue;
+/*  95 */       String fileName = file.getOriginalFilename().trim();
+/*     */ 
+/*  97 */       int attachID = Math.abs((int)System.currentTimeMillis());
+/*  98 */       StringBuffer s = new StringBuffer();
+/*  99 */       if (os.toLowerCase().startsWith("win"))
+/* 100 */         s.append(fileName);
+/*     */       else {
+/* 102 */         s.append(fileName);
+/*     */       }
+/* 104 */       String sf = Integer.toString(attachID) + "." + s.toString();
+/* 105 */       String newFileName = sf;
+/* 106 */       File dir = new File(path);
+/* 107 */       File newFile = null;
+/* 108 */       if (!file.isEmpty()) {
+/*     */         try {
+/* 110 */           if (!dir.exists()) {
+/* 111 */             dir.mkdirs();
+/*     */           }
+/* 113 */           newFile = new File(dir, newFileName);
+/*     */ 
+/* 115 */           if (!newFile.exists()) {
+/* 116 */             newFile.createNewFile();
+/*     */           }
+/* 118 */           file.transferTo(newFile);
+/*     */         } catch (Exception e) {
+/* 120 */           e.printStackTrace();
+/*     */         }
+/*     */       }
+/*     */ 
+/* 124 */       byte isImg = 3;
+/*     */ 
+/* 126 */       String type = fileName.substring(fileName.indexOf(".") + 1);
+/* 127 */       String[] imagType = { "jpg", "png", "bmp", "gif", "JPG", "PNG", "BMP", "GIF" };
+/* 128 */       List imageTyepLists = Arrays.asList(imagType);
+/* 129 */       if (imageTyepLists.contains(type))
+/* 130 */         isImg = 0;
+/*     */       else {
+/* 132 */         isImg = 1;
+/*     */       }
+/* 134 */       byte a = 0;
+/* 135 */       byte b = 2;
+/*     */ 
+/* 137 */       int moduleID = ModuleEnum.IM.getIndex();
+/* 138 */       byte mid = (byte)moduleID;
+/* 139 */       attachment = new Attachment();
+/* 140 */       attachment.setAttachId(Integer.valueOf(attachID));
+/* 141 */       attachment.setModule(Byte.valueOf(mid));
+/* 142 */       attachment.setAttachFile(fileName);
+/* 143 */       attachment.setAttachName(fileName);
+/* 144 */       attachment.setYm(ym);
+/* 145 */       attachment.setAttachSign(new Long(0L));
+/* 146 */       attachment.setDelFlag(Byte.valueOf(a));
+/* 147 */       attachment.setPosition(Byte.valueOf(b));
+/*     */ 
+/* 149 */       saveAttachment(attachment);
+/* 150 */       attachment = findByLast();
+/* 151 */       String attUrl = null;
+/* 152 */       if (newFile != null) {
+/* 153 */         String url = newFile.getAbsolutePath();
+/* 154 */         FileInputStream fis = new FileInputStream(newFile);
+/* 155 */         long size = fis.getChannel().size();
+/* 156 */         if (isMobile) {
+/* 157 */           attUrl = "AID=" + attachment.getAid() + "&" + "MODULE=" + module + "&" + "COMPANY=" + company + "&" + "YM=" + attachment.getYm() + "&" + "ATTACHMENT_ID=" + attachment.getAttachId() + "&" + "ATTACHMENT_NAME=" + attachment.getAttachName() + "&" + "FILESIZE=" + ReadFile.FormetFileSize(size);
+/*     */         }
+/*     */         else {
+/* 160 */           attUrl = "AID=" + attachment.getAid() + "&" + "MODULE=" + module + "&" + "COMPANY=" + company + "&" + "YM=" + attachment.getYm() + "&" + "ATTACHMENT_ID=" + attachment.getAttachId() + "&" + "ATTACHMENT_NAME=" + URLEncoder.encode(attachment.getAttachName(), "utf-8") + "&" + "FILESIZE=" + ReadFile.FormetFileSize(size);
+/*     */         }
+/*     */ 
+/* 163 */         fis.close();
+/* 164 */         attachment.setUrl(url);
+/*     */       }
+/* 166 */       attachment.setAttUrl(attUrl);
+/* 167 */       attachment.setPath(path);
+/* 168 */       attachment.setIsImage(Byte.valueOf(isImg));
+/* 169 */       list.add(attachment);
+/*     */     }
+/*     */ 
+/* 172 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public Attachment upload(MultipartFile file, String types, String module, String company, boolean isMobile) throws IOException
+/*     */   {
+/* 177 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 178 */     String os = System.getProperty("os.name");
+/* 179 */     StringBuffer sb = new StringBuffer();
+/* 180 */     if (os.toLowerCase().startsWith("win"))
+/* 181 */       sb = sb.append(rb.getString("upload.win"));
+/*     */     else {
+/* 183 */       sb = sb.append(rb.getString("upload.linux"));
+/*     */     }
+/*     */ 
+/* 186 */     String ym = new SimpleDateFormat("yyMM").format(new Date());
+/*     */ 
+/* 188 */     String path = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + company + System.getProperty("file.separator") + module + System.getProperty("file.separator") + ym;
+/*     */ 
+/* 191 */     Attachment attachment = new Attachment();
+/* 192 */     if (!file.isEmpty())
+/*     */     {
+/* 194 */       String fileName = file.getOriginalFilename().trim();
+/*     */ 
+/* 196 */       int attachID = Math.abs((int)System.currentTimeMillis());
+/* 197 */       StringBuffer s = new StringBuffer();
+/* 198 */       if (os.toLowerCase().startsWith("win"))
+/* 199 */         s.append(fileName);
+/*     */       else {
+/* 201 */         s.append(fileName);
+/*     */       }
+/* 203 */       String sf = Integer.toString(attachID) + "." + s.toString();
+/* 204 */       String newFileName = sf;
+/* 205 */       File dir = new File(path);
+/* 206 */       File newFile = null;
+/* 207 */       if (!file.isEmpty()) {
+/*     */         try {
+/* 209 */           if (!dir.exists()) {
+/* 210 */             dir.mkdirs();
+/*     */           }
+/* 212 */           newFile = new File(dir, newFileName);
+/*     */ 
+/* 214 */           if (!newFile.exists()) {
+/* 215 */             newFile.createNewFile();
+/*     */           }
+/* 217 */           file.transferTo(newFile);
+/*     */         } catch (Exception e) {
+/* 219 */           e.printStackTrace();
+/*     */         }
+/*     */       }
+/*     */ 
+/* 223 */       byte isImg = 3;
+/*     */ 
+/* 225 */       String type = fileName.substring(fileName.indexOf(".") + 1);
+/* 226 */       String[] imagType = { "jpg", "png", "bmp", "gif", "JPG", "PNG", "BMP", "GIF" };
+/* 227 */       List imageTyepLists = Arrays.asList(imagType);
+/* 228 */       if (imageTyepLists.contains(type))
+/* 229 */         isImg = 0;
+/*     */       else {
+/* 231 */         isImg = 1;
+/*     */       }
+/* 233 */       byte a = 0;
+/* 234 */       byte b = 2;
+/*     */ 
+/* 236 */       int moduleID = ModuleEnum.IM.getIndex();
+/* 237 */       byte mid = (byte)moduleID;
+/* 238 */       attachment = new Attachment();
+/* 239 */       attachment.setAttachId(Integer.valueOf(attachID));
+/* 240 */       attachment.setModule(Byte.valueOf(mid));
+/* 241 */       attachment.setAttachFile(fileName);
+/* 242 */       attachment.setAttachName(fileName);
+/* 243 */       attachment.setYm(ym);
+/* 244 */       attachment.setAttachSign(new Long(0L));
+/* 245 */       attachment.setDelFlag(Byte.valueOf(a));
+/* 246 */       attachment.setPosition(Byte.valueOf(b));
+/* 247 */       saveAttachment(attachment);
+/* 248 */       attachment = findByLast();
+/* 249 */       String attUrl = null;
+/* 250 */       if (newFile != null) {
+/* 251 */         String url = newFile.getAbsolutePath();
+/* 252 */         FileInputStream fis = new FileInputStream(newFile);
+/* 253 */         long size = fis.getChannel().size();
+/* 254 */         if (isMobile) {
+/* 255 */           attUrl = "AID=" + attachment.getAid() + "&" + "MODULE=" + module + "&" + "COMPANY=" + company + "&" + "YM=" + attachment.getYm() + "&" + "ATTACHMENT_ID=" + attachment.getAttachId() + "&" + "ATTACHMENT_NAME=" + attachment.getAttachName() + "&" + "FILESIZE=" + ReadFile.FormetFileSize(size);
+/*     */         }
+/*     */         else {
+/* 258 */           attUrl = "AID=" + attachment.getAid() + "&" + "MODULE=" + module + "&" + "COMPANY=" + company + "&" + "YM=" + attachment.getYm() + "&" + "ATTACHMENT_ID=" + attachment.getAttachId() + "&" + "ATTACHMENT_NAME=" + URLEncoder.encode(attachment.getAttachName(), "utf-8") + "&" + "FILESIZE=" + ReadFile.FormetFileSize(size);
+/*     */         }
+/*     */ 
+/* 261 */         fis.close();
+/* 262 */         attachment.setUrl(url);
+/*     */       }
+/* 264 */       attachment.setAttUrl(attUrl);
+/* 265 */       attachment.setPath(path);
+/* 266 */       attachment.setIsImage(Byte.valueOf(isImg));
+/*     */     }
+/*     */ 
+/* 269 */     return attachment;
+/*     */   }
+/*     */ 
+/*     */   public String attachmenturl(Attachment att, String company, String module)
+/*     */   {
+/* 274 */     String attUrl = "AID=" + att.getAid() + "&" + "MODULE=" + module + "&" + "YM=" + att.getYm() + "&" + "ATTACHMENT_ID=" + att.getAttachId() + "&" + "ATTACHMENT_NAME=" + att.getAttachName();
+/* 275 */     return attUrl;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.im.ImEnclosureService
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,32 @@
+/*    */ package com.xoa.util;
+/*    */ 
+/*    */ import java.lang.reflect.InvocationTargetException;
+/*    */ import java.util.Date;
+/*    */ import java.util.Map;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.apache.commons.beanutils.BeanUtils;
+/*    */ import org.apache.commons.beanutils.ConvertUtils;
+/*    */ import org.apache.commons.beanutils.converters.DateConverter;
+/*    */ 
+/*    */ public class ServletUtil
+/*    */ {
+/*    */   public static void requestParamsCopyToObject(HttpServletRequest request, Object target)
+/*    */   {
+/* 18 */     ConvertUtils.register(new DateConverter(null), Date.class);
+/* 19 */     Map params = request.getParameterMap();
+/*    */     try {
+/* 21 */       BeanUtils.copyProperties(target, params);
+/*    */     }
+/*    */     catch (IllegalAccessException e) {
+/* 24 */       e.printStackTrace();
+/*    */     }
+/*    */     catch (InvocationTargetException e) {
+/* 27 */       e.printStackTrace();
+/*    */     }
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.ServletUtil
+ * JD-Core Version:    0.6.0
+ */

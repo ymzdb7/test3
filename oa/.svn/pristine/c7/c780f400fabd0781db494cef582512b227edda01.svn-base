@@ -1,0 +1,78 @@
+package com.xoa.model.edu.voteItem;
+
+import com.baomidou.mybatisplus.activerecord.Model;
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.annotations.TableName;
+import com.baomidou.mybatisplus.enums.IdType;
+import java.io.Serializable;
+
+@TableName("vote_item")
+public class VoteItem extends Model<VoteItem> {
+	private static final long serialVersionUID = 1L;
+
+	@TableId(value = "ITEM_ID", type = IdType.AUTO)
+	private Integer itemId;
+
+	@TableField("VOTE_ID")
+	private Integer voteId;
+
+	@TableField("ITEM_NAME")
+	private String itemName;
+
+	@TableField("VOTE_COUNT")
+	private Integer voteCount;
+
+	@TableField("VOTE_USER")
+	private String voteUser;
+
+	public Integer getItemId() {
+		return this.itemId;
+	}
+
+	public void setItemId(Integer itemId) {
+		this.itemId = itemId;
+	}
+
+	public Integer getVoteId() {
+		return this.voteId;
+	}
+
+	public void setVoteId(Integer voteId) {
+		this.voteId = voteId;
+	}
+
+	public String getItemName() {
+		return this.itemName;
+	}
+
+	public void setItemName(String itemName) {
+		this.itemName = itemName;
+	}
+
+	public Integer getVoteCount() {
+		return this.voteCount;
+	}
+
+	public void setVoteCount(Integer voteCount) {
+		this.voteCount = voteCount;
+	}
+
+	public String getVoteUser() {
+		return this.voteUser;
+	}
+
+	public void setVoteUser(String voteUser) {
+		this.voteUser = voteUser;
+	}
+
+	protected Serializable pkVal() {
+		return this.itemId;
+	}
+
+	public String toString() {
+		return "VoteItem{itemId=" + this.itemId + ", voteId=" + this.voteId
+				+ ", itemName=" + this.itemName + ", voteCount="
+				+ this.voteCount + ", voteUser=" + this.voteUser + "}";
+	}
+}

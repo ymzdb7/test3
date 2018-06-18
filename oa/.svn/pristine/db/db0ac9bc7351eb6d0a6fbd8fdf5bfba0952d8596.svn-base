@@ -1,0 +1,126 @@
+/*     */ package com.xoa.util;
+/*     */ 
+/*     */ import net.sourceforge.pinyin4j.PinyinHelper;
+/*     */ import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
+/*     */ import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
+/*     */ import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
+/*     */ import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
+/*     */ import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
+/*     */ import org.apache.commons.lang.CharUtils;
+/*     */ import org.apache.commons.lang.StringUtils;
+/*     */ 
+/*     */ public class PinYinUtil
+/*     */ {
+/*     */   public static String getPingYin(String inputString)
+/*     */   {
+/*  25 */     HanyuPinyinOutputFormat format = new HanyuPinyinOutputFormat();
+/*  26 */     format.setCaseType(HanyuPinyinCaseType.LOWERCASE);
+/*  27 */     format.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
+/*  28 */     format.setVCharType(HanyuPinyinVCharType.WITH_V);
+/*     */ 
+/*  30 */     char[] input = inputString.trim().toCharArray();
+/*  31 */     String output = "";
+/*     */     try
+/*     */     {
+/*  34 */       for (int i = 0; i < input.length; i++)
+/*  35 */         if (Character.toString(input[i]).matches("[\\u4E00-\\u9FA5]+")) {
+/*  36 */           String[] temp = PinyinHelper.toHanyuPinyinStringArray(input[i], format);
+/*  37 */           output = output + temp[0];
+/*     */         } else {
+/*  39 */           output = output + Character.toString(input[i]);
+/*     */         }
+/*     */     } catch (BadHanyuPinyinOutputFormatCombination e) {
+/*  42 */       e.printStackTrace();
+/*     */     }
+/*  44 */     return output;
+/*     */   }
+/*     */ 
+/*     */   public static String getFirstSpell(String chinese)
+/*     */   {
+/*  52 */     StringBuffer pybf = new StringBuffer();
+/*  53 */     char[] arr = chinese.toCharArray();
+/*  54 */     HanyuPinyinOutputFormat defaultFormat = new HanyuPinyinOutputFormat();
+/*  55 */     defaultFormat.setCaseType(HanyuPinyinCaseType.LOWERCASE);
+/*  56 */     defaultFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
+/*  57 */     for (int i = 0; i < arr.length; i++) {
+/*  58 */       if (arr[i] > '')
+/*     */         try {
+/*  60 */           String[] temp = PinyinHelper.toHanyuPinyinStringArray(arr[i], defaultFormat);
+/*  61 */           if (temp != null)
+/*  62 */             pybf.append(temp[0].charAt(0));
+/*     */         }
+/*     */         catch (BadHanyuPinyinOutputFormatCombination e) {
+/*  65 */           e.printStackTrace();
+/*     */         }
+/*     */       else {
+/*  68 */         pybf.append(arr[i]);
+/*     */       }
+/*     */     }
+/*  71 */     return pybf.toString().replaceAll("\\W", "").trim();
+/*     */   }
+/*     */ 
+/*     */   public static String getFullSpell(String chinese)
+/*     */   {
+/*  79 */     StringBuffer pybf = new StringBuffer();
+/*  80 */     char[] arr = chinese.toCharArray();
+/*  81 */     HanyuPinyinOutputFormat defaultFormat = new HanyuPinyinOutputFormat();
+/*  82 */     defaultFormat.setCaseType(HanyuPinyinCaseType.LOWERCASE);
+/*  83 */     defaultFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
+/*  84 */     for (int i = 0; i < arr.length; i++) {
+/*  85 */       if (arr[i] > '')
+/*     */         try {
+/*  87 */           pybf.append(PinyinHelper.toHanyuPinyinStringArray(arr[i], defaultFormat)[0]);
+/*     */         } catch (BadHanyuPinyinOutputFormatCombination e) {
+/*  89 */           e.printStackTrace();
+/*     */         }
+/*     */       else {
+/*  92 */         pybf.append(arr[i]);
+/*     */       }
+/*     */     }
+/*  95 */     return pybf.toString();
+/*     */   }
+/*     */ 
+/*     */   public static String propertyToField(String property)
+/*     */   {
+/* 105 */     if (null == property) {
+/* 106 */       return "";
+/*     */     }
+/* 108 */     char[] chars = property.toCharArray();
+/* 109 */     StringBuffer sb = new StringBuffer();
+/* 110 */     for (char c : chars) {
+/* 111 */       if (CharUtils.isAsciiAlphaUpper(c))
+/* 112 */         sb.append("_" + StringUtils.lowerCase(CharUtils.toString(c)));
+/*     */       else {
+/* 114 */         sb.append(c);
+/*     */       }
+/*     */     }
+/* 117 */     return sb.toString();
+/*     */   }
+/*     */ 
+/*     */   public static String fieldToProperty(String field)
+/*     */   {
+/* 126 */     if (null == field) {
+/* 127 */       return "";
+/*     */     }
+/* 129 */     char[] chars = field.toCharArray();
+/* 130 */     StringBuffer sb = new StringBuffer();
+/* 131 */     for (int i = 0; i < chars.length; i++) {
+/* 132 */       char c = chars[i];
+/* 133 */       if (c == '_') {
+/* 134 */         int j = i + 1;
+/* 135 */         if (j < chars.length) {
+/* 136 */           sb.append(StringUtils.upperCase(CharUtils.toString(chars[j])));
+/* 137 */           i++;
+/*     */         }
+/*     */       } else {
+/* 140 */         sb.append(c);
+/*     */       }
+/*     */     }
+/* 143 */     return sb.toString();
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.PinYinUtil
+ * JD-Core Version:    0.6.0
+ */

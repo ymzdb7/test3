@@ -1,0 +1,184 @@
+/*     */ package com.xoa.controller.dingdingManage;
+/*     */ 
+/*     */ import com.xoa.model.common.SysPara;
+/*     */ import com.xoa.service.dingdingManage.DingdingManageService;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import java.util.List;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/dingdingMicroApp"})
+/*     */ public class DingdingMicroAppController
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   DingdingManageService dingdingManageService;
+/*     */ 
+/*     */   @RequestMapping({"/getMainddh5"})
+/*     */   public String mainddh5(HttpServletRequest request)
+/*     */   {
+/*  28 */     BaseWrapper wrapper = this.dingdingManageService.baseDingDingGet();
+/*  29 */     String corpId = "";
+/*  30 */     String corpSecret = "";
+/*  31 */     if (wrapper.isFlag()) {
+/*  32 */       List<SysPara> sysParaList = (List<SysPara>)wrapper.getData();
+/*  33 */       for (SysPara sysPara : sysParaList) {
+/*  34 */         if (sysPara.getParaName().equals("DINGDINGQY_CORPID")) {
+/*  35 */           corpId = sysPara.getParaValue();
+/*     */         }
+/*  37 */         if (sysPara.getParaName().equals("DINGDINGQY_SECRET")) {
+/*  38 */           corpSecret = sysPara.getParaValue();
+/*     */         }
+/*     */       }
+/*  41 */       request.setAttribute("corpId", corpId);
+/*  42 */       request.setAttribute("corpSecret", corpSecret);
+/*     */     }
+/*  44 */     return "/app/main/mainddh5";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/chooseTeam"})
+/*     */   public String chooseTeam()
+/*     */   {
+/*  53 */     return "/app/main/m/maintionh5";
+/*     */   }
+/*     */   @RequestMapping({"/noticeh5"})
+/*     */   public String noticeh5() {
+/*  58 */     return "/app/notice/m/noticeh5";
+/*     */   }
+/*     */   @RequestMapping({"/noticeDetailsh5"})
+/*     */   public String noticeDetailsh5() {
+/*  63 */     return "/app/notice/m/noticeDetailsh5";
+/*     */   }
+/*     */   @RequestMapping({"/emailh5"})
+/*     */   public String emailh5() {
+/*  68 */     return "/app/email/m/emailh5";
+/*     */   }
+/*     */   @RequestMapping({"/addMailh5"})
+/*     */   public String addMailh5() {
+/*  73 */     return "/app/email/m/add_mailh5";
+/*     */   }
+/*     */   @RequestMapping({"/detailh5"})
+/*     */   public String detailh5() {
+/*  78 */     return "/app/email/m/detailh5";
+/*     */   }
+/*     */   @RequestMapping({"/turnMailh5"})
+/*     */   public String turnMailh5() {
+/*  83 */     return "/app/email/m/turn_mailh5";
+/*     */   }
+/*     */   @RequestMapping({"/emailPoph5"})
+/*     */   public String emailPoph5() {
+/*  88 */     return "/app/email/m/emailPoph5";
+/*     */   }
+/*     */   @RequestMapping({"/replyMailh5"})
+/*     */   public String replyMailh5() {
+/*  93 */     return "/app/email/m/replyMailh5";
+/*     */   }
+/*     */   @RequestMapping({"/newsh5"})
+/*     */   public String newsh5() {
+/*  98 */     return "/app/news/m/newsh5";
+/*     */   }
+/*     */   @RequestMapping({"/newsdetailh5"})
+/*     */   public String newsdetailh5() {
+/* 103 */     return "/app/news/m/newsdetailh5";
+/*     */   }
+/*     */   @RequestMapping({"/calendarh5"})
+/*     */   public String calendarh5() {
+/* 108 */     return "/app/calendar/m/calendarh5";
+/*     */   }
+/*     */   @RequestMapping({"/addScheduleh5"})
+/*     */   public String addScheduleh5() {
+/* 113 */     return "/app/calendar/m/addScheduleh5";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/diaryIndex"})
+/*     */   public String diaryIndex()
+/*     */   {
+/* 120 */     return "/app/diary/m/index";
+/*     */   }
+/*     */   @RequestMapping({"/iStartedList"})
+/*     */   public String iStartedList() {
+/* 125 */     return "/app/diary/m/iStarted_list";
+/*     */   }
+/*     */   @RequestMapping({"/diaryCreate"})
+/*     */   public String diaryCreate() {
+/* 130 */     return "/app/diary/m/Create";
+/*     */   }
+/*     */   @RequestMapping({"/diaryConsult"})
+/*     */   public String diaryConsult() {
+/* 135 */     return "/app/diary/m/consult";
+/*     */   }
+/*     */   @RequestMapping({"/diaryComment"})
+/*     */   public String diaryComment() {
+/* 140 */     return "/app/diary/m/comment";
+/*     */   }
+/*     */   @RequestMapping({"/diaryShareList"})
+/*     */   public String diaryShareList() {
+/* 145 */     return "/app/diary/m/share_list";
+/*     */   }
+/*     */   @RequestMapping({"/diaryReceivedDetails"})
+/*     */   public String diaryReceivedDetails() {
+/* 150 */     return "/app/diary/m/received_details";
+/*     */   }
+/*     */   @RequestMapping({"/diaryCount"})
+/*     */   public String diaryCount() {
+/* 155 */     return "/app/diary/m/count";
+/*     */   }
+/*     */   @RequestMapping({"/diaryCountList"})
+/*     */   public String diaryCountList() {
+/* 160 */     return "/app/diary/m/count_list";
+/*     */   }
+/*     */   @RequestMapping({"/diaryCalender"})
+/*     */   public String diaryCalender() {
+/* 165 */     return "/app/diary/m/calender";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/workflowAdd"})
+/*     */   public String workflowAdd() {
+/* 171 */     return "/app/workflow/m/add";
+/*     */   }
+/*     */   @RequestMapping({"/workflowIndex"})
+/*     */   public String workflowIndex() {
+/* 176 */     return "/app/workflow/m/index";
+/*     */   }
+/*     */   @RequestMapping({"/workflowNewWork"})
+/*     */   public String workflowNewWork() {
+/* 181 */     return "/app/workflow/m/new_work";
+/*     */   }
+/*     */   @RequestMapping({"/workflowLaunch"})
+/*     */   public String workflowLaunch() {
+/* 186 */     return "/app/workflow/m/launch";
+/*     */   }
+/*     */   @RequestMapping({"/workform"})
+/*     */   public String workform() {
+/* 191 */     return "/app/workflow/m/workform";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/fileIndex"})
+/*     */   public String fileIndex()
+/*     */   {
+/* 198 */     return "/app/file/m/index";
+/*     */   }
+/*     */   @RequestMapping({"/fileContent"})
+/*     */   public String fileContent() {
+/* 203 */     return "/app/file/m/file_content";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/attendIndex"})
+/*     */   public String attendIndex() {
+/* 209 */     return "/app/attend/m/index"; } 
+/* 212 */   @RequestMapping({"/attendCount"})
+/*     */   public String attendCount() { return "/app/attend/m/kqtj_index"; } 
+/* 215 */   @RequestMapping({"/attendAddtype"})
+/*     */   public String attendAddtype() { return "/app/attend/m/addtype"; } 
+/* 218 */   @RequestMapping({"/attendWindex"})
+/*     */   public String attendWindex() { return "/app/attend/m/windex";
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.dingdingManage.DingdingMicroAppController
+ * JD-Core Version:    0.6.0
+ */

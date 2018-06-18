@@ -1,0 +1,51 @@
+/*    */ package com.xoa.service.event.impl;
+/*    */ 
+/*    */ import com.xoa.dao.event.TimeLineViewUserMapper;
+/*    */ import com.xoa.model.event.TimeLineViewUser;
+/*    */ import com.xoa.service.event.TimeLineViewUserService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import com.xoa.util.common.L;
+/*    */ import javax.annotation.Resource;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.stereotype.Service;
+/*    */ 
+/*    */ @Service
+/*    */ public class TimeLineViewUserServiceImpl
+/*    */   implements TimeLineViewUserService
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   TimeLineViewUserMapper timeLineViewUserMapper;
+/*    */ 
+/*    */   public ToJson<TimeLineViewUser> updateTimeLineViewUser(HttpServletRequest request, TimeLineViewUser timeLineViewUser)
+/*    */   {
+/* 23 */     ToJson toJson = new ToJson(1, "error");
+/*    */ 
+/* 38 */     return toJson;
+/*    */   }
+/*    */ 
+/*    */   public ToJson<TimeLineViewUser> addTimeLineViewUser(HttpServletRequest request, TimeLineViewUser timeLineViewUser)
+/*    */   {
+/* 43 */     ToJson toJson = new ToJson(1, "error");
+/*    */     try {
+/* 45 */       int a = this.timeLineViewUserMapper.addTimeLineViewUser(timeLineViewUser);
+/* 46 */       if (a > 0) {
+/* 47 */         toJson.setMsg("ok");
+/* 48 */         toJson.setFlag(0);
+/*    */       } else {
+/* 50 */         toJson.setMsg("修改失败");
+/* 51 */         toJson.setFlag(1);
+/*    */       }
+/*    */     } catch (Exception e) {
+/* 54 */       e.printStackTrace();
+/* 55 */       toJson.setMsg(e.getMessage());
+/* 56 */       L.e(new Object[] { "TimeLineViewUserServiceImpl addTimeLineViewUser:" + e });
+/*    */     }
+/* 58 */     return toJson;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.event.impl.TimeLineViewUserServiceImpl
+ * JD-Core Version:    0.6.0
+ */

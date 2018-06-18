@@ -1,0 +1,174 @@
+/*     */ package com.xoa.controller.syspara;
+/*     */ 
+/*     */ import com.xoa.model.common.SysPara;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.common.SecureRuleService;
+/*     */ import com.xoa.service.syspara.SysParaService;
+/*     */ import com.xoa.util.AjaxJson;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.log4j.Logger;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/syspara"})
+/*     */ public class SysParaController
+/*     */ {
+/*  33 */   private Logger loger = Logger.getLogger(SysParaController.class);
+/*     */ 
+/*     */   @Resource
+/*     */   private SysParaService sysParaService;
+/*     */ 
+/*     */   @Resource
+/*     */   private SecureRuleService secureRuleService;
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/selectSysPara"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<SysPara> selectSysPara(HttpServletRequest request)
+/*     */   {
+/*  53 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  55 */     ToJson tojson = new ToJson(0, "");
+/*     */     try {
+/*  57 */       List list = this.sysParaService.getIeTitle();
+/*     */ 
+/*  59 */       tojson.setObject(list);
+/*  60 */       tojson.setMsg("ok");
+/*  61 */       tojson.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  63 */       tojson.setMsg(e.getMessage());
+/*     */     }
+/*  65 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/updateSysPara"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   @ResponseBody
+/*     */   public ToJson<SysPara> updateSysPara(SysPara sysPara, HttpServletRequest request, SysParaService surface)
+/*     */   {
+/*  82 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  84 */     ToJson tojson = new ToJson(0, "");
+/*  85 */     this.loger.debug("ID" + surface.getIeTitle());
+/*     */     try {
+/*  87 */       this.sysParaService.updateSysPara(sysPara);
+/*  88 */       this.sysParaService.updateSysPara1(sysPara);
+/*  89 */       tojson.setObject(sysPara);
+/*  90 */       tojson.setMsg("ok");
+/*  91 */       tojson.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  93 */       tojson.setMsg(e.getMessage());
+/*     */     }
+/*  95 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/selectTheSysPara"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<SysPara> selectTheSysPara(HttpServletRequest request, String paraName)
+/*     */   {
+/* 109 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 111 */     ToJson tojson = new ToJson(0, "");
+/*     */     try {
+/* 113 */       List list = this.sysParaService.getTheSysParam(paraName);
+/*     */ 
+/* 115 */       tojson.setObject(list);
+/* 116 */       tojson.setMsg("ok");
+/* 117 */       tojson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 119 */       tojson.setMsg(e.getMessage());
+/*     */     }
+/* 121 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/updateSysParaByParaName"})
+/*     */   public String updateSysPara(SysPara sysPara, HttpServletRequest request)
+/*     */   {
+/* 133 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 135 */     ToJson tojson = new ToJson(0, "");
+/*     */     try {
+/* 137 */       this.sysParaService.updateSysPara(sysPara);
+/* 138 */       return "redirect:selectTheSysPara?paraName=" + sysPara.getParaName(); } catch (Exception e) {
+/*     */     }
+/* 140 */     return null;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/editSysPara"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> editSysPara(String usersIds)
+/*     */   {
+/* 156 */     return this.sysParaService.editSysPara(usersIds);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getUserName"})
+/*     */   @ResponseBody
+/*     */   public ToJson<SysPara> getUserName(String paraName)
+/*     */   {
+/* 169 */     return this.sysParaService.getUserName(paraName);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/checkSecureAdmin"})
+/*     */   @ResponseBody
+/*     */   public String checkSecureAdmin(HttpServletRequest request)
+/*     */   {
+/* 182 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 183 */     if (users.getUserId().equals("admin")) {
+/* 184 */       return "OK";
+/*     */     }
+/* 186 */     return "当前用户并非三员超级管理员，不可执行该操作";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/eduSetParam"})
+/*     */   @ResponseBody
+/*     */   public ToJson<SysPara> eduSetParam(String firstDate, String secondDate, String initPwd)
+/*     */   {
+/* 216 */     return this.sysParaService.eduSetParam(firstDate, secondDate, initPwd);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/selEduParam"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson selEduParam()
+/*     */   {
+/* 229 */     return this.sysParaService.selEduParam();
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/eduSetParamIndex"})
+/*     */   public String eduSetParamIndex()
+/*     */   {
+/* 239 */     return "app/edu/eduSetParam/setParam";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/editOperator"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> editOperator(String usersIds)
+/*     */   {
+/* 252 */     return this.sysParaService.editOperator(usersIds);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getStatus"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> getStatus()
+/*     */   {
+/* 264 */     return this.sysParaService.getStatus();
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getOperator"})
+/*     */   @ResponseBody
+/*     */   public ToJson<SysPara> getOperator(String paraName)
+/*     */   {
+/* 276 */     return this.sysParaService.getOperator(paraName);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.syspara.SysParaController
+ * JD-Core Version:    0.6.0
+ */

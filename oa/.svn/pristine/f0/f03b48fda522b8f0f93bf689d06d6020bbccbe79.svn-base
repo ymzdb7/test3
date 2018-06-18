@@ -1,0 +1,128 @@
+/*     */ package com.xoa.service.meeting.impl;
+/*     */ 
+/*     */ import com.xoa.dao.meet.MeetingEquuipmentMapper;
+/*     */ import com.xoa.model.meet.MeetingEquuipment;
+/*     */ import com.xoa.service.meeting.MeetEquuipmentService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class MeetEquuipServiceImpl
+/*     */   implements MeetEquuipmentService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private MeetingEquuipmentMapper meetingEquuipmentMapper;
+/*     */ 
+/*     */   public ToJson<MeetingEquuipment> getAllEquip(Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  38 */     ToJson json = new ToJson();
+/*  39 */     Map map = new HashMap();
+/*  40 */     PageParams pageParams = new PageParams();
+/*  41 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  42 */     pageParams.setPage(page);
+/*  43 */     pageParams.setPageSize(pageSize);
+/*  44 */     map.put("page", pageParams);
+/*     */     try {
+/*  46 */       List allequuip = this.meetingEquuipmentMapper.getAllequuip(map);
+/*  47 */       json.setObj(allequuip);
+/*  48 */       json.setFlag(0);
+/*  49 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/*  51 */       json.setObj(null);
+/*  52 */       json.setFlag(1);
+/*  53 */       json.setMsg("err");
+/*  54 */       e.printStackTrace();
+/*     */     }
+/*  56 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<MeetingEquuipment> getdetailEquiet(String Sid)
+/*     */   {
+/*  67 */     ToJson json = new ToJson();
+/*  68 */     if ((Sid != null) && (Sid != "")) {
+/*     */       try {
+/*  70 */         MeetingEquuipment meetingEquuipment = this.meetingEquuipmentMapper.getdetailEquiet(Integer.valueOf(Sid));
+/*  71 */         json.setFlag(0);
+/*  72 */         json.setObject(meetingEquuipment);
+/*  73 */         json.setMsg("ok");
+/*     */       } catch (NumberFormatException e) {
+/*  75 */         json.setFlag(1);
+/*  76 */         json.setObject(null);
+/*  77 */         json.setMsg("err");
+/*  78 */         e.printStackTrace();
+/*     */       }
+/*     */     } else {
+/*  81 */       json.setFlag(1);
+/*  82 */       json.setObject(null);
+/*  83 */       json.setMsg("err");
+/*     */     }
+/*  85 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> updateEquiet(MeetingEquuipment meetingEquuipment)
+/*     */   {
+/*  90 */     ToJson json = new ToJson();
+/*  91 */     if (meetingEquuipment != null) {
+/*     */       try {
+/*  93 */         this.meetingEquuipmentMapper.updatequuip(meetingEquuipment);
+/*  94 */         json.setFlag(0);
+/*  95 */         json.setMsg("ok");
+/*     */       } catch (Exception e) {
+/*  97 */         json.setFlag(1);
+/*  98 */         json.setMsg("err");
+/*  99 */         e.printStackTrace();
+/*     */       }
+/*     */     } else {
+/* 102 */       json.setFlag(1);
+/* 103 */       json.setMsg("err");
+/*     */     }
+/* 105 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> deleteEquiets(String Sids)
+/*     */   {
+/* 110 */     ToJson json = new ToJson();
+/*     */     try {
+/* 112 */       if (!StringUtils.checkNull(Sids).booleanValue()) {
+/* 113 */         String[] split = Sids.split(",");
+/* 114 */         if ((split != null) && (split.length > 0)) {
+/* 115 */           this.meetingEquuipmentMapper.deleteequuips(split);
+/* 116 */           json.setFlag(0);
+/* 117 */           json.setMsg("ok");
+/*     */         }
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 121 */       json.setFlag(1);
+/* 122 */       json.setMsg("err");
+/* 123 */       e.printStackTrace();
+/*     */     }
+/* 125 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> addEquiet(MeetingEquuipment meetingEquuipment)
+/*     */   {
+/* 130 */     ToJson json = new ToJson();
+/*     */     try {
+/* 132 */       this.meetingEquuipmentMapper.insertSelective(meetingEquuipment);
+/* 133 */       json.setFlag(0);
+/* 134 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 136 */       json.setFlag(1);
+/* 137 */       json.setMsg("err");
+/* 138 */       e.printStackTrace();
+/*     */     }
+/* 140 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.meeting.impl.MeetEquuipServiceImpl
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,121 @@
+package com.myoa.model.edu.eduElectiveStudentCount;
+
+import com.baomidou.mybatisplus.activerecord.Model;
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.annotations.TableName;
+import com.baomidou.mybatisplus.enums.IdType;
+import java.io.Serializable;
+
+@TableName("edu_elective_student_count")
+public class EduElectiveStudentCount extends Model<EduElectiveStudentCount> {
+	private static final long serialVersionUID = 1L;
+
+	@TableId(value = "id", type = IdType.AUTO)
+	private Integer id;
+	private Integer contsum;
+	private String deptFunc;
+
+	@TableField("student_id")
+	private String studentId;
+
+	@TableField("class_id")
+	private Integer classId;
+	private Integer sid;
+
+	@TableField("nid_count")
+	private Integer nidCount;
+	private Integer sum;
+	private Integer ysesum;
+	private Integer nosum;
+
+	public Integer getContsum() {
+		return this.contsum;
+	}
+
+	public void setContsum(Integer contsum) {
+		this.contsum = contsum;
+	}
+
+	public String getDeptFunc() {
+		return this.deptFunc;
+	}
+
+	public void setDeptFunc(String deptFunc) {
+		this.deptFunc = deptFunc;
+	}
+
+	public Integer getSum() {
+		return this.sum;
+	}
+
+	public void setSum(Integer sum) {
+		this.sum = sum;
+	}
+
+	public Integer getYsesum() {
+		return this.ysesum;
+	}
+
+	public void setYsesum(Integer ysesum) {
+		this.ysesum = ysesum;
+	}
+
+	public Integer getNosum() {
+		return this.nosum;
+	}
+
+	public void setNosum(Integer nosum) {
+		this.nosum = nosum;
+	}
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getStudentId() {
+		return this.studentId;
+	}
+
+	public void setStudentId(String studentId) {
+		this.studentId = studentId;
+	}
+
+	public Integer getClassId() {
+		return this.classId;
+	}
+
+	public void setClassId(Integer classId) {
+		this.classId = classId;
+	}
+
+	public Integer getSid() {
+		return this.sid;
+	}
+
+	public void setSid(Integer sid) {
+		this.sid = sid;
+	}
+
+	public Integer getNidCount() {
+		return this.nidCount;
+	}
+
+	public void setNidCount(Integer nidCount) {
+		this.nidCount = nidCount;
+	}
+
+	protected Serializable pkVal() {
+		return this.id;
+	}
+
+	public String toString() {
+		return "EduElectiveStudentCount{id=" + this.id + ", studentId="
+				+ this.studentId + ", classId=" + this.classId + ", sid="
+				+ this.sid + ", nidCount=" + this.nidCount + "}";
+	}
+}

@@ -1,0 +1,141 @@
+/*     */ package com.xoa.service.portalTemplate.impl;
+/*     */ 
+/*     */ import com.xoa.dao.portalTemplate.PortalTemplateMapper;
+/*     */ import com.xoa.model.portalTemplate.PortalTemplateExample;
+/*     */ import com.xoa.model.portalTemplate.PortalTemplateExample.Criteria;
+/*     */ import com.xoa.model.portalTemplate.PortalTemplateWithBLOBs;
+/*     */ import com.xoa.service.portalTemplate.PortalTemplateService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.io.File;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.ServletContext;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class PortalTemplateServiceImpl
+/*     */   implements PortalTemplateService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private PortalTemplateMapper portalTemplateMapper;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<PortalTemplateWithBLOBs> selectPortalTemplate(Integer portalId)
+/*     */   {
+/*  30 */     ToJson json = new ToJson();
+/*     */     try {
+/*  32 */       List list = this.portalTemplateMapper.selectPortalTemplate(portalId);
+/*  33 */       if (list.size() > 0) {
+/*  34 */         json.setObj(list);
+/*  35 */         json.setMsg("ok");
+/*  36 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  39 */       json.setFlag(1);
+/*  40 */       json.setMsg(e.getMessage());
+/*  41 */       e.printStackTrace();
+/*     */     }
+/*  43 */     return json;
+/*     */   }
+/*     */   @Transactional
+/*     */   public ToJson<PortalTemplateWithBLOBs> selectPortalTemplateById(Integer templateId) {
+/*  48 */     ToJson json = new ToJson();
+/*     */     try {
+/*  50 */       PortalTemplateWithBLOBs portalTemplate = this.portalTemplateMapper.selectByPrimaryKey(templateId);
+/*     */ 
+/*  52 */       json.setObject(portalTemplate);
+/*  53 */       json.setMsg("ok");
+/*  54 */       json.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e) {
+/*  57 */       json.setFlag(1);
+/*  58 */       json.setMsg(e.getMessage());
+/*  59 */       e.printStackTrace();
+/*     */     }
+/*  61 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<PortalTemplateWithBLOBs> insertPortalTemplate(HttpServletRequest request, PortalTemplateWithBLOBs portalTemplateWithBLOBs)
+/*     */   {
+/*  68 */     ToJson toJson = new ToJson(1, "error");
+/*     */ 
+/*  71 */     PortalTemplateExample example = new PortalTemplateExample();
+/*  72 */     PortalTemplateExample.Criteria criteria = example.createCriteria();
+/*  73 */     criteria.andTemplateFileEqualTo(portalTemplateWithBLOBs.getTemplateFile());
+/*  74 */     int a = this.portalTemplateMapper.countByExample(example);
+/*  75 */     if (a > 0) {
+/*  76 */       toJson.setFlag(1);
+/*  77 */       toJson.setMsg("存在相同的文件名称");
+/*  78 */       return toJson;
+/*     */     }
+/*     */     try
+/*     */     {
+/*  82 */       int temp = this.portalTemplateMapper.insertSelective(portalTemplateWithBLOBs);
+/*  83 */       if (temp > 0) {
+/*  84 */         toJson.setFlag(0);
+/*  85 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  88 */       toJson.setFlag(1);
+/*  89 */       toJson.setMsg(e.getMessage());
+/*  90 */       e.printStackTrace();
+/*  91 */       return toJson;
+/*     */     }
+/*     */ 
+/*  95 */     String rootPath = request.getSession().getServletContext().getRealPath("/") + File.separator + "cmsTmp" + File.separator + portalTemplateWithBLOBs.getPortalId();
+/*  96 */     File path = new File(rootPath);
+/*  97 */     if (!path.exists()) {
+/*  98 */       path.mkdirs();
+/*     */     }
+/*     */ 
+/* 101 */     File temp = new File(path, portalTemplateWithBLOBs.getTemplateFile());
+/*     */ 
+/* 104 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<PortalTemplateWithBLOBs> upPortalTemplate(PortalTemplateWithBLOBs portalTemplateWithBLOBs) {
+/* 110 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 113 */       int temp = this.portalTemplateMapper.updateByPrimaryKeySelective(portalTemplateWithBLOBs);
+/* 114 */       if (temp > 0) {
+/* 115 */         toJson.setFlag(0);
+/* 116 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 119 */       toJson.setFlag(1);
+/* 120 */       toJson.setMsg(e.getMessage());
+/* 121 */       e.printStackTrace();
+/*     */     }
+/* 123 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<PortalTemplateWithBLOBs> delPortalTemplate(PortalTemplateWithBLOBs portalTemplateWithBLOBs)
+/*     */   {
+/* 128 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 131 */       int temp = this.portalTemplateMapper.delPortalTemplate(portalTemplateWithBLOBs);
+/* 132 */       if (temp > 0) {
+/* 133 */         toJson.setFlag(0);
+/* 134 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 137 */       toJson.setFlag(1);
+/* 138 */       toJson.setMsg(e.getMessage());
+/* 139 */       e.printStackTrace();
+/*     */     }
+/* 141 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.portalTemplate.impl.PortalTemplateServiceImpl
+ * JD-Core Version:    0.6.0
+ */

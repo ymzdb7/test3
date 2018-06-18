@@ -1,0 +1,38 @@
+/*    */ package com.xoa.controller.event;
+/*    */ 
+/*    */ import com.xoa.model.event.TimeLineViewUser;
+/*    */ import com.xoa.service.event.TimeLineViewUserService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.beans.factory.annotation.Autowired;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ import org.springframework.web.bind.annotation.RestController;
+/*    */ 
+/*    */ @RestController
+/*    */ @RequestMapping({"/timeLineViewUser"})
+/*    */ public class TimeLineViewUserController
+/*    */ {
+/*    */ 
+/*    */   @Autowired
+/*    */   TimeLineViewUserService timeLineViewUserService;
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/updateTimeLineViewUser"})
+/*    */   public ToJson<TimeLineViewUser> updateTimeLineViewUser(HttpServletRequest request, TimeLineViewUser timeLineViewUser)
+/*    */   {
+/* 35 */     return this.timeLineViewUserService.updateTimeLineViewUser(request, timeLineViewUser);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/addTimeLineViewUser"})
+/*    */   public ToJson<TimeLineViewUser> addTimeLineViewUser(HttpServletRequest request, TimeLineViewUser timeLineViewUser)
+/*    */   {
+/* 48 */     return this.timeLineViewUserService.addTimeLineViewUser(request, timeLineViewUser);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.event.TimeLineViewUserController
+ * JD-Core Version:    0.6.0
+ */

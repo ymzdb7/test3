@@ -1,0 +1,185 @@
+/*     */ package com.xoa.controller.footprint;
+/*     */ 
+/*     */ import com.xoa.model.footprint.Foot;
+/*     */ import com.xoa.service.footprint.FootPrintService;
+/*     */ import com.xoa.service.footprint.FootSetSerivce;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/footprint"})
+/*     */ public class FootPrintController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private FootPrintService footPrintService;
+/*     */ 
+/*     */   @Resource
+/*     */   private FootSetSerivce footSetService;
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/addFootPrint"})
+/*     */   public ToJson<Foot> addFootPrint(HttpServletRequest request, Foot foot, @RequestParam("create_time") Integer createTime, @RequestParam("flag") Byte isNew, @RequestParam("update_time") Integer updateTime)
+/*     */   {
+/*  52 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  54 */     foot.setCreateTime(createTime);
+/*  55 */     foot.setIsNew(isNew.byteValue());
+/*  56 */     foot.setUpdateTime(updateTime);
+/*  57 */     return this.footPrintService.addFootPrint(foot);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getFootPrint"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Foot> getFootPrint(HttpServletRequest request, String app, Integer uid, String pageNum)
+/*     */   {
+/*  74 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  77 */     ToJson tojson = new ToJson(0, "");
+/*     */     try {
+/*  79 */       List footList = this.footPrintService.getFootPrint(app, uid, pageNum);
+/*  80 */       tojson.setMsg("ok");
+/*  81 */       tojson.setFlag(0);
+/*  82 */       tojson.setObj(footList);
+/*     */     } catch (Exception e) {
+/*  84 */       tojson.setMsg(e.getMessage());
+/*     */     }
+/*  86 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getTheFootPrint"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Foot> getTheFootPrint(HttpServletRequest request, String day, Integer uid)
+/*     */   {
+/*  99 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 102 */     ToJson tojson = new ToJson(0, "");
+/*     */     try {
+/* 104 */       List foot = this.footPrintService.getTheFootPrint(day, uid);
+/* 105 */       tojson.setMsg("ok");
+/* 106 */       tojson.setFlag(0);
+/* 107 */       tojson.setObject(foot);
+/*     */     } catch (Exception e) {
+/* 109 */       tojson.setMsg(e.getMessage());
+/*     */     }
+/*     */ 
+/* 112 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getFootUpdateTime"})
+/*     */   @ResponseBody
+/*     */   public ToJson<String> getFootUpdateTime(HttpServletRequest request)
+/*     */   {
+/* 125 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 128 */     ToJson tojson = new ToJson(0, "");
+/*     */     try {
+/* 130 */       String time = this.footSetService.getTime();
+/* 131 */       tojson.setMsg("ok");
+/* 132 */       tojson.setFlag(0);
+/* 133 */       tojson.setObject(time);
+/*     */     } catch (Exception e) {
+/* 135 */       tojson.setMsg(e.getMessage());
+/*     */     }
+/* 137 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/editUpdateTime"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> editUpdateTime(HttpServletRequest request, String time)
+/*     */   {
+/* 150 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 152 */     ToJson tojson = new ToJson(0, "");
+/*     */     try {
+/* 154 */       this.footSetService.editUpdateTime(time);
+/* 155 */       tojson.setMsg("ok");
+/* 156 */       tojson.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e) {
+/* 159 */       tojson.setMsg(e.getMessage());
+/*     */     }
+/*     */ 
+/* 162 */     return tojson;
+/*     */   }
+/*     */   @RequestMapping({"/editUpdateTimeByuid"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Foot> editUpdateTimeByuid(String time, Integer uid, Integer id) {
+/* 169 */     return this.footPrintService.editUpdateTimeByuid(time, uid, id);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/findByCondition"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Foot> findByCondition(HttpServletRequest request, String condition, String app, String pageNum, Integer uid)
+/*     */   {
+/* 186 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 189 */     ToJson tojson = new ToJson(0, "");
+/*     */     try {
+/* 191 */       List list = this.footPrintService.findByCondition(condition, app, pageNum, uid);
+/* 192 */       tojson.setMsg("ok");
+/* 193 */       tojson.setFlag(0);
+/* 194 */       tojson.setObj(list);
+/*     */     } catch (Exception e) {
+/* 196 */       tojson.setMsg(e.getMessage());
+/*     */     }
+/* 198 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/getTheDayFootPrint"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Foot> getTheDayFootPrint(HttpServletRequest request, String day, Integer uid)
+/*     */   {
+/* 212 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 215 */     ToJson tojson = new ToJson(0, "");
+/*     */     try {
+/* 217 */       List list = this.footPrintService.getTheDayFootPrint(day, uid);
+/* 218 */       tojson.setMsg("ok");
+/* 219 */       tojson.setFlag(0);
+/* 220 */       tojson.setObj(list);
+/*     */     } catch (Exception e) {
+/* 222 */       tojson.setMsg(e.getMessage());
+/*     */     }
+/* 224 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/index"})
+/*     */   public String getFootPrintList(HttpServletRequest request)
+/*     */   {
+/* 237 */     return "app/foot/index";
+/*     */   }
+/*     */   @RequestMapping({"/index1"})
+/*     */   public String getFootPrintList1(HttpServletRequest request) {
+/* 242 */     return "app/foot/index1";
+/*     */   }
+/*     */   @RequestMapping({"/index2"})
+/*     */   public String getFootPrintList2(HttpServletRequest request) {
+/* 247 */     return "app/foot/index2";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getWebFootPrint"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Foot> getWebFootPrint(HttpServletRequest request, String app, @RequestParam(value="time", required=false, defaultValue="") String time, @RequestParam(value="detail", required=false, defaultValue="0") String detail, Integer uid, @RequestParam(value="page", required=false) Integer page, @RequestParam(value="pageSize", required=false) Integer pageSize, @RequestParam(value="useFlag", required=false) Boolean useFlag)
+/*     */   {
+/* 267 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 270 */     ToJson tojson = new ToJson(0, "");
+/*     */ 
+/* 272 */     return this.footPrintService.getWebFootPrint(app, time, detail, uid, page, pageSize, useFlag);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.footprint.FootPrintController
+ * JD-Core Version:    0.6.0
+ */

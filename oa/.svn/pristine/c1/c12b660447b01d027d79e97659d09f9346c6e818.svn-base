@@ -1,0 +1,510 @@
+/*     */ package com.xoa.service.calender.impl;
+/*     */ 
+/*     */ import com.xoa.dao.calendar.CalendarMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.calender.Calendar;
+/*     */ import com.xoa.model.calender.CalendarAll;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.calender.CalenderService;
+/*     */ import com.xoa.util.DateCompute;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.apache.commons.collections.map.HashedMap;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class CalenderServiceImpl
+/*     */   implements CalenderService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private CalendarMapper calendarMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   public List<Calendar> getschedule(int calTime, int endTime, String userId)
+/*     */   {
+/*  43 */     Map maps = new HashMap();
+/*  44 */     maps.put("calTime", Integer.valueOf(calTime));
+/*  45 */     maps.put("endTime", Integer.valueOf(endTime));
+/*  46 */     maps.put("userId", userId);
+/*  47 */     List list = this.calendarMapper.getschedule(maps);
+/*  48 */     SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/*  49 */     for (int j = 0; j < list.size(); j++) {
+/*  50 */       Calendar calendar = (Calendar)list.get(j);
+/*  51 */       int cT = calendar.getCalTime().intValue();
+/*  52 */       int eT = calendar.getEndTime().intValue();
+/*  53 */       Long ct = Long.valueOf(cT * 1000L);
+/*  54 */       Long et = Long.valueOf(eT * 1000L);
+/*  55 */       String s = f.format(ct);
+/*  56 */       String e = f.format(et);
+/*  57 */       calendar.setStim(s);
+/*  58 */       calendar.setEtim(e);
+/*     */     }
+/*  60 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public List<Calendar> getscheduleBycId(String userId)
+/*     */   {
+/*  73 */     Map maps = new HashMap();
+/*  74 */     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+/*  75 */     String date = sdf.format(new Date()) + " 00:00:00";
+/*  76 */     Integer starTime = DateFormat.getTime(date);
+/*  77 */     Integer strTime = Integer.valueOf(518400000);
+/*     */ 
+/*  79 */     Integer endTime = Integer.valueOf(starTime.intValue() + strTime.intValue());
+/*     */ 
+/*  86 */     maps.put("userId", userId);
+/*  87 */     maps.put("starTime", starTime);
+/*  88 */     maps.put("endTime", endTime);
+/*  89 */     List list = this.calendarMapper.getscheduleBycIds(maps);
+/*     */ 
+/*  92 */     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+/*  93 */     SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/*  94 */     List listAll = new ArrayList();
+/*  95 */     for (int i = 0; i < 30; i++) {
+/*  96 */       Calendar Allcal = new Calendar();
+/*  97 */       int pd = starTime.intValue() + 86400 * i;
+/*  98 */       Long t = Long.valueOf(pd * 1000L);
+/*  99 */       List list1 = new ArrayList();
+/* 100 */       String data = format.format(t);
+/* 101 */       for (int j = 0; j < list.size(); j++) {
+/* 102 */         Calendar calendar = (Calendar)list.get(j);
+/* 103 */         CalendarAll ca = new CalendarAll();
+/* 104 */         int cT = calendar.getCalTime().intValue();
+/* 105 */         int eT = calendar.getEndTime().intValue();
+/* 106 */         Long ct = Long.valueOf(cT * 1000L);
+/* 107 */         Long et = Long.valueOf(eT * 1000L);
+/* 108 */         String s = f.format(ct);
+/* 109 */         String e = f.format(et);
+/* 110 */         calendar.setStim(s);
+/* 111 */         calendar.setEtim(e);
+/* 112 */         if (((pd <= cT) && (cT <= pd + 86400)) || ((pd <= eT) && (pd >= cT))) {
+/* 113 */           ca.setAddTime(calendar.getAddTime());
+/* 114 */           ca.setCalId(calendar.getCalId());
+/* 115 */           ca.setCalType(calendar.getCalType());
+/* 116 */           ca.setEndTime(calendar.getEndTime());
+/* 117 */           ca.setContent(calendar.getContent());
+/* 118 */           ca.setCalLevel(calendar.getCalLevel());
+/* 119 */           ca.setCalTime(calendar.getCalTime());
+/* 120 */           ca.setTaker(calendar.getTaker());
+/* 121 */           ca.setStim(calendar.getStim());
+/* 122 */           ca.setEtim(calendar.getEtim());
+/* 123 */           ca.setOwner(calendar.getOwner());
+/* 124 */           list1.add(ca);
+/*     */         }
+/*     */       }
+/* 127 */       Allcal.setCalData(data);
+/* 128 */       Allcal.setCalMessage(list1);
+/* 129 */       listAll.add(Allcal);
+/*     */     }
+/* 131 */     return listAll;
+/*     */   }
+/*     */ 
+/*     */   public List<Calendar> getscheduleBycId(String userId, String calTime) {
+/* 135 */     List list = new ArrayList();
+/* 136 */     List listAll = new ArrayList();
+/*     */     try {
+/* 138 */       Map maps = new HashedMap();
+/* 139 */       String monthTime = DateCompute.getMonthTime(calTime);
+/* 140 */       String[] split = monthTime.split(",");
+/* 141 */       String startTime = split[0] + " 00:00:00";
+/* 142 */       String eTime = split[1] + " 23:59:59";
+/* 143 */       Integer startTime_1 = DateFormat.getTime(startTime);
+/* 144 */       Integer endTime = DateFormat.getTime(eTime);
+/* 145 */       maps.put("userId", userId);
+/* 146 */       maps.put("starTime", startTime_1);
+/* 147 */       maps.put("endTime", endTime);
+/* 148 */       list = this.calendarMapper.getscheduleBycId(maps);
+/*     */ 
+/* 161 */       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+/* 162 */       SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/* 163 */       for (int i = 0; i < 30; i++) {
+/* 164 */         Calendar Allcal = new Calendar();
+/* 165 */         int pd = startTime_1.intValue() + 86400 * i;
+/* 166 */         Long t = Long.valueOf(pd * 1000L);
+/* 167 */         List list1 = new ArrayList();
+/* 168 */         String data = format.format(t);
+/* 169 */         for (int j = 0; j < list.size(); j++) {
+/* 170 */           Calendar calendar = (Calendar)list.get(j);
+/* 171 */           CalendarAll ca = new CalendarAll();
+/* 172 */           int cT = calendar.getCalTime().intValue();
+/* 173 */           int eT = calendar.getEndTime().intValue();
+/* 174 */           Long ct = Long.valueOf(cT * 1000L);
+/* 175 */           Long et = Long.valueOf(eT * 1000L);
+/* 176 */           String s = f.format(ct);
+/* 177 */           String e = f.format(et);
+/* 178 */           calendar.setStim(s);
+/* 179 */           calendar.setEtim(e);
+/* 180 */           if (((pd <= cT) && (cT <= pd + 86400)) || ((pd <= eT) && (pd >= cT))) {
+/* 181 */             ca.setAddTime(calendar.getAddTime());
+/* 182 */             ca.setCalId(calendar.getCalId());
+/* 183 */             ca.setCalType(calendar.getCalType());
+/* 184 */             ca.setEndTime(calendar.getEndTime());
+/* 185 */             ca.setContent(calendar.getContent());
+/* 186 */             ca.setCalLevel(calendar.getCalLevel());
+/* 187 */             ca.setCalTime(calendar.getCalTime());
+/* 188 */             ca.setTaker(calendar.getTaker());
+/* 189 */             ca.setStim(calendar.getStim());
+/* 190 */             ca.setEtim(calendar.getEtim());
+/* 191 */             ca.setOwner(calendar.getOwner());
+/* 192 */             list1.add(ca);
+/*     */           }
+/*     */         }
+/* 195 */         Allcal.setCalData(data);
+/* 196 */         Allcal.setCalMessage(list1);
+/* 197 */         listAll.add(Allcal);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 200 */       e.printStackTrace();
+/*     */     }
+/*     */ 
+/* 203 */     return listAll;
+/*     */   }
+/*     */ 
+/*     */   public void insertSelective(Calendar record)
+/*     */   {
+/* 215 */     this.calendarMapper.insertSelective(record);
+/*     */   }
+/*     */ 
+/*     */   public void delete(int calId, HttpServletRequest request)
+/*     */   {
+/* 226 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 227 */     Calendar calendar = this.calendarMapper.selCalendarById(calId);
+/* 228 */     if (calendar.getUserId().equals(user.getUserId())) {
+/* 229 */       calendar.setOverStatus("1");
+/*     */     }
+/* 231 */     String owner = "";
+/* 232 */     if (calendar.getOwner().contains("," + user.getUserId() + ",")) {
+/* 233 */       owner = calendar.getOwner().replace("," + user.getUserId() + ",", ",");
+/* 234 */       calendar.setOwner(owner);
+/* 235 */     } else if (calendar.getOwner().startsWith(user.getUserId() + ",")) {
+/* 236 */       owner = calendar.getOwner().replace(user.getUserId() + ",", "");
+/* 237 */       calendar.setOwner(owner);
+/*     */     }
+/* 239 */     String taker = "";
+/* 240 */     if (calendar.getTaker().contains("," + user.getUserId() + ",")) {
+/* 241 */       taker = calendar.getTaker().replace("," + user.getUserId() + ",", ",");
+/* 242 */       calendar.setTaker(taker);
+/* 243 */     } else if (calendar.getTaker().startsWith(user.getUserId() + ",")) {
+/* 244 */       taker = calendar.getTaker().replace(user.getUserId() + ",", "");
+/* 245 */       calendar.setTaker(taker);
+/*     */     }
+/* 247 */     this.calendarMapper.update(calendar);
+/*     */ 
+/* 249 */     Calendar calendarNew = this.calendarMapper.selCalendarById(calId);
+/* 250 */     if ((calendarNew.getOverStatus().equals("1")) && (StringUtils.checkNull(calendarNew.getTaker()).booleanValue()) && (StringUtils.checkNull(calendarNew.getOwner()).booleanValue()))
+/* 251 */       this.calendarMapper.delete(calId);
+/*     */   }
+/*     */ 
+/*     */   public int update(Calendar calendar)
+/*     */   {
+/* 265 */     return this.calendarMapper.update(calendar);
+/*     */   }
+/*     */ 
+/*     */   public List<Calendar> getscheduleByDay(String userId, int time)
+/*     */   {
+/* 272 */     Map maps = new HashMap();
+/* 273 */     maps.put("userId", userId);
+/* 274 */     maps.put("calTime", Integer.valueOf(time));
+/* 275 */     List list = this.calendarMapper.getscheduleByDay(maps);
+/* 276 */     for (int i = 0; i < list.size(); i++) {
+/* 277 */       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/* 278 */       Calendar cal = (Calendar)list.get(i);
+/* 279 */       int cT = cal.getCalTime().intValue();
+/* 280 */       int eT = cal.getEndTime().intValue();
+/* 281 */       Long ct = Long.valueOf(cT * 1000L);
+/* 282 */       Long et = Long.valueOf(eT * 1000L);
+/* 283 */       String s = format.format(ct);
+/* 284 */       String e = format.format(et);
+/* 285 */       cal.setStim(s);
+/* 286 */       cal.setEtim(e);
+/*     */     }
+/* 288 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public List<Calendar> getAllschedule(String userId)
+/*     */   {
+/* 293 */     Map maps = new HashMap();
+/* 294 */     maps.put("userId", userId);
+/* 295 */     List list = this.calendarMapper.getAllschedule(maps);
+/*     */ 
+/* 297 */     SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/* 298 */     for (int j = 0; j < list.size(); j++) {
+/* 299 */       Calendar calendar = (Calendar)list.get(j);
+/* 300 */       int cT = calendar.getCalTime().intValue();
+/* 301 */       int eT = calendar.getEndTime().intValue();
+/* 302 */       Long ct = Long.valueOf(cT * 1000L);
+/* 303 */       Long et = Long.valueOf(eT * 1000L);
+/* 304 */       String s = f.format(ct);
+/* 305 */       String e = f.format(et);
+/* 306 */       calendar.setStim(s);
+/* 307 */       calendar.setEtim(e);
+/*     */     }
+/* 309 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public List<Calendar> getAllscheduleinfo(Integer deptId)
+/*     */   {
+/* 316 */     Map maps = new HashMap();
+/* 317 */     maps.put("deptId", deptId);
+/* 318 */     List list = this.calendarMapper.getAllscheduleinfo(maps);
+/*     */     try {
+/* 320 */       if (list.size() > 0) {
+/* 321 */         return list;
+/*     */       }
+/* 323 */       return list;
+/*     */     }
+/*     */     catch (Exception e) {
+/* 326 */       e.printStackTrace();
+/*     */     }
+/* 328 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public List<Calendar> getscheduleByTakerAndOwner(String userId, String calTime)
+/*     */   {
+/* 342 */     Map maps = new HashMap();
+/* 343 */     maps.put("userId", userId);
+/*     */ 
+/* 345 */     String date = DateCompute.getMonthTime(DateFormat.getDateStrTime(Integer.valueOf(calTime)));
+/* 346 */     String[] dateArray = date.split(",");
+/*     */ 
+/* 348 */     long startTime = DateFormat.getDateTime(dateArray[0]).intValue();
+/* 349 */     long endTime = DateFormat.getDateTime(dateArray[1]).intValue();
+/* 350 */     maps.put("startTime", Long.valueOf(startTime));
+/* 351 */     maps.put("endTime", Long.valueOf(endTime));
+/* 352 */     List<Calendar> list = this.calendarMapper.getscheduleByTakerAndOwner(maps);
+/* 353 */     List<Calendar> list1 = this.calendarMapper.getscheduleByUserId(maps);
+/* 354 */     for (Calendar calendar1 : list1) {
+/* 355 */       boolean flag = false;
+/* 356 */       if (list.size() > 0) {
+/* 357 */         for (Calendar calendar : list) {
+/* 358 */           if (calendar.getCalId() == calendar1.getCalId()) {
+/* 359 */             flag = true;
+/*     */           }
+/*     */         }
+/* 362 */         if (!flag)
+/* 363 */           list.add(calendar1);
+/*     */       }
+/*     */       else {
+/* 366 */         list.addAll(list1);
+/*     */       }
+/*     */     }
+/*     */ 
+/* 370 */     SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/* 371 */     for (int j = 0; j < list.size(); j++) {
+/* 372 */       Calendar calendar = (Calendar)list.get(j);
+/* 373 */       int cT = calendar.getCalTime().intValue();
+/* 374 */       int eT = calendar.getEndTime().intValue();
+/* 375 */       Long ct = Long.valueOf(cT * 1000L);
+/* 376 */       Long et = Long.valueOf(eT * 1000L);
+/* 377 */       String s = f.format(ct);
+/* 378 */       String e = f.format(et);
+/* 379 */       calendar.setStim(s);
+/* 380 */       calendar.setEtim(e);
+/*     */     }
+/* 382 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public List<Calendar> getscheduleByTakerAndOwner(String userId)
+/*     */   {
+/* 396 */     Map maps = new HashMap();
+/* 397 */     Date date = new Date();
+/* 398 */     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+/* 399 */     String da = simpleDateFormat.format(date);
+/* 400 */     long calTime = DateFormat.getDateTime(da).intValue();
+/* 401 */     maps.put("userId", userId);
+/* 402 */     maps.put("calTime", Long.valueOf(calTime));
+/* 403 */     List<Calendar> list = this.calendarMapper.getAllScheduleByTakerAndOwner(maps);
+/* 404 */     List<Calendar> list1 = this.calendarMapper.getAllScheduleByUserId(maps);
+/* 405 */     for (Calendar calendar1 : list1) {
+/* 406 */       boolean flag = false;
+/* 407 */       if (list.size() > 0) {
+/* 408 */         for (Calendar calendar : list) {
+/* 409 */           if (calendar.getCalId() == calendar1.getCalId()) {
+/* 410 */             flag = true;
+/*     */           }
+/*     */         }
+/* 413 */         if (!flag)
+/* 414 */           list.add(calendar1);
+/*     */       }
+/*     */       else {
+/* 417 */         list.addAll(list1);
+/*     */       }
+/*     */     }
+/*     */ 
+/* 421 */     SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/* 422 */     for (int j = 0; j < list.size(); j++) {
+/* 423 */       Calendar calendar = (Calendar)list.get(j);
+/* 424 */       int cT = calendar.getCalTime().intValue();
+/* 425 */       int eT = calendar.getEndTime().intValue();
+/* 426 */       Long ct = Long.valueOf(cT * 1000L);
+/* 427 */       Long et = Long.valueOf(eT * 1000L);
+/* 428 */       String s = f.format(ct);
+/* 429 */       String e = f.format(et);
+/* 430 */       calendar.setStim(s);
+/* 431 */       calendar.setEtim(e);
+/*     */     }
+/* 433 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Calendar> getScheduleByUserIdAndType(HttpServletRequest request)
+/*     */   {
+/* 444 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 446 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 447 */       List<Calendar> calendarList = this.calendarMapper.getScheduleByUserIdAndType(user.getUserId());
+/* 448 */       List<Calendar> list1 = this.calendarMapper.getAllScheduleByAdmin(user.getUserId());
+/* 449 */       for (Calendar calendar1 : list1) {
+/* 450 */         boolean flag = false;
+/* 451 */         for (Calendar calendar : calendarList) {
+/* 452 */           if (calendar.getCalId() == calendar1.getCalId()) {
+/* 453 */             flag = true;
+/*     */           }
+/*     */         }
+/* 456 */         if (!flag) {
+/* 457 */           calendarList.add(calendar1);
+/*     */         }
+/*     */       }
+/* 460 */       SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/* 461 */       for (int j = 0; j < calendarList.size(); j++) {
+/* 462 */         Calendar calendar = (Calendar)calendarList.get(j);
+/* 463 */         int cT = calendar.getCalTime().intValue();
+/* 464 */         int eT = calendar.getEndTime().intValue();
+/* 465 */         Long ct = Long.valueOf(cT * 1000L);
+/* 466 */         Long et = Long.valueOf(eT * 1000L);
+/* 467 */         String s = f.format(ct);
+/* 468 */         String e = f.format(et);
+/* 469 */         calendar.setStim(s);
+/* 470 */         calendar.setEtim(e);
+/*     */       }
+/*     */ 
+/* 473 */       if (calendarList.size() > 0) {
+/* 474 */         for (Calendar calendar : calendarList) {
+/* 475 */           if (!StringUtils.checkNull(calendar.getTaker()).booleanValue()) {
+/* 476 */             String[] takerArr = calendar.getTaker().split(",");
+/* 477 */             StringBuffer takeName = new StringBuffer();
+/* 478 */             for (String takerId : takerArr) {
+/* 479 */               if ((StringUtils.checkNull(takerId).booleanValue()) || 
+/* 480 */                 (StringUtils.checkNull(this.usersMapper.getUsernameByUserId(takerId)).booleanValue())) continue;
+/* 481 */               takeName.append(this.usersMapper.getUsernameByUserId(takerId) + ",");
+/*     */             }
+/*     */ 
+/* 485 */             calendar.setTakeName(takeName.toString());
+/*     */           }
+/* 487 */           if (!StringUtils.checkNull(calendar.getOwner()).booleanValue()) {
+/* 488 */             String[] owerArr = calendar.getOwner().split(",");
+/* 489 */             StringBuffer owerName = new StringBuffer();
+/* 490 */             for (String owerId : owerArr) {
+/* 491 */               if ((StringUtils.checkNull(owerId).booleanValue()) || 
+/* 492 */                 (StringUtils.checkNull(this.usersMapper.getUsernameByUserId(owerId)).booleanValue())) continue;
+/* 493 */               owerName.append(this.usersMapper.getUsernameByUserId(owerId) + ",");
+/*     */             }
+/*     */ 
+/* 497 */             calendar.setOwnerName(owerName.toString());
+/*     */           }
+/*     */         }
+/*     */       }
+/* 501 */       json.setObj(calendarList);
+/* 502 */       json.setMsg("ok");
+/* 503 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 505 */       json.setMsg(e.getMessage());
+/* 506 */       L.e(new Object[] { "CalenderServiceImpl getAllSchedule:" + e });
+/*     */     }
+/* 508 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Calendar> getAllScheduleByDeptIdAndDate(String userId, String deptId)
+/*     */   {
+/* 519 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 521 */       Map maps = new HashMap();
+/*     */ 
+/* 531 */       maps.put("deptId", deptId);
+/* 532 */       maps.put("userId", userId);
+/* 533 */       List<Calendar> calendarList = this.calendarMapper.getAllScheduleByDeptIdAndDate(maps);
+/* 534 */       List<Calendar> list1 = this.calendarMapper.queryAllScheduleByTakerAndOwner(maps);
+/* 535 */       for (Calendar calendar1 : list1) {
+/* 536 */         boolean flag = false;
+/* 537 */         for (Calendar calendar : calendarList) {
+/* 538 */           if (calendar.getCalId() == calendar1.getCalId()) {
+/* 539 */             flag = true;
+/*     */           }
+/*     */         }
+/* 542 */         if (!flag) {
+/* 543 */           calendarList.add(calendar1);
+/*     */         }
+/*     */       }
+/* 546 */       SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/* 547 */       for (int j = 0; j < calendarList.size(); j++) {
+/* 548 */         Calendar calendar = (Calendar)calendarList.get(j);
+/* 549 */         int cT = calendar.getCalTime().intValue();
+/* 550 */         int eT = calendar.getEndTime().intValue();
+/* 551 */         Long ct = Long.valueOf(cT * 1000L);
+/* 552 */         Long et = Long.valueOf(eT * 1000L);
+/* 553 */         String s = f.format(ct);
+/* 554 */         String e = f.format(et);
+/* 555 */         calendar.setStim(s);
+/* 556 */         calendar.setEtim(e);
+/*     */       }
+/*     */ 
+/* 559 */       if (calendarList.size() > 0) {
+/* 560 */         for (Calendar calendar : calendarList) {
+/* 561 */           if (!StringUtils.checkNull(calendar.getTaker()).booleanValue()) {
+/* 562 */             String[] takerArr = calendar.getTaker().split(",");
+/* 563 */             StringBuffer takeName = new StringBuffer();
+/* 564 */             for (String takerId : takerArr) {
+/* 565 */               if ((StringUtils.checkNull(takerId).booleanValue()) || 
+/* 566 */                 (StringUtils.checkNull(this.usersMapper.getUsernameByUserId(takerId)).booleanValue())) continue;
+/* 567 */               takeName.append(this.usersMapper.getUsernameByUserId(takerId) + ",");
+/*     */             }
+/*     */ 
+/* 571 */             calendar.setTakeName(takeName.toString());
+/*     */           }
+/* 573 */           if (!StringUtils.checkNull(calendar.getOwner()).booleanValue()) {
+/* 574 */             String[] owerArr = calendar.getOwner().split(",");
+/* 575 */             StringBuffer owerName = new StringBuffer();
+/* 576 */             for (String owerId : owerArr) {
+/* 577 */               if ((StringUtils.checkNull(owerId).booleanValue()) || 
+/* 578 */                 (StringUtils.checkNull(this.usersMapper.getUsernameByUserId(owerId)).booleanValue())) continue;
+/* 579 */               owerName.append(this.usersMapper.getUsernameByUserId(owerId) + ",");
+/*     */             }
+/*     */ 
+/* 583 */             calendar.setOwnerName(owerName.toString());
+/*     */           }
+/*     */         }
+/*     */       }
+/* 587 */       json.setObj(calendarList);
+/* 588 */       json.setMsg("ok");
+/* 589 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 591 */       json.setMsg(e.getMessage());
+/* 592 */       L.e(new Object[] { "CalenderServiceImpl getAllScheduleByDeptIdAndDate:" + e });
+/*     */     }
+/* 594 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public List<Calendar> rChSelect()
+/*     */   {
+/* 602 */     List attendSet = this.calendarMapper.rChSelect();
+/* 603 */     return attendSet;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.calender.impl.CalenderServiceImpl
+ * JD-Core Version:    0.6.0
+ */

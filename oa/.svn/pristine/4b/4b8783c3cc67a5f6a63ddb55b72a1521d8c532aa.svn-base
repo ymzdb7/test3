@@ -1,0 +1,45 @@
+package com.myoa.service.address;
+
+import com.myoa.model.address.Address;
+import com.myoa.model.address.AddressWithBLOBs;
+import com.myoa.model.users.Users;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.wrapper.BaseWrapper;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.web.multipart.MultipartFile;
+
+public abstract interface AddressService
+{
+  public abstract BaseWrapper getUsersById(HttpServletRequest paramHttpServletRequest, String paramString1, String paramString2, String paramString3, String paramString4);
+
+  public abstract BaseWrapper selectByPrimaryKey(String paramString);
+
+  public abstract BaseWrapper addUser(HttpServletRequest paramHttpServletRequest, AddressWithBLOBs paramAddressWithBLOBs, String paramString);
+
+  public abstract BaseWrapper getNotUserById(HttpServletRequest paramHttpServletRequest, String paramString1, String paramString2, String paramString3, String paramString4);
+
+  public abstract BaseWrapper updateUser(HttpServletRequest paramHttpServletRequest, AddressWithBLOBs paramAddressWithBLOBs, String paramString);
+
+  public abstract BaseWrapper deleteUser(HttpServletRequest paramHttpServletRequest, Integer paramInteger);
+
+  public abstract BaseWrapper queryAddress(Integer paramInteger, String paramString);
+
+  public abstract BaseWrapper getColleagues(HttpServletRequest paramHttpServletRequest);
+
+  public abstract ToJson<Address> importAddress(HttpServletRequest paramHttpServletRequest, HttpServletResponse paramHttpServletResponse, MultipartFile paramMultipartFile);
+
+  public abstract BaseWrapper exportAddress(HttpServletRequest paramHttpServletRequest, HttpServletResponse paramHttpServletResponse, Integer paramInteger);
+
+  public abstract ToJson<Address> selectAddress(HttpServletRequest paramHttpServletRequest, Integer paramInteger1, Integer paramInteger2, boolean paramBoolean, Address paramAddress, String paramString, HttpServletResponse paramHttpServletResponse);
+
+  public abstract ToJson<Users> selectUser(HttpServletRequest paramHttpServletRequest, Integer paramInteger1, Integer paramInteger2, boolean paramBoolean, Users paramUsers);
+
+  public abstract ToJson<Users> getUserInfoById(Integer paramInteger, HttpServletRequest paramHttpServletRequest);
+
+  public abstract ToJson<AddressWithBLOBs> importPublicAddressWithBLOBs(Integer paramInteger, MultipartFile paramMultipartFile, HttpServletRequest paramHttpServletRequest, HttpServletResponse paramHttpServletResponse);
+
+  public abstract BaseWrapper getAddressUser(HttpServletRequest paramHttpServletRequest, String paramString1, String paramString2, String paramString3, String paramString4);
+}
+

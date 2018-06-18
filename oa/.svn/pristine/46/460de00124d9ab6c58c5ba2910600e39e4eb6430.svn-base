@@ -1,0 +1,720 @@
+/*     */ package com.xoa.service.vehicle;
+/*     */ 
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.edu.eduUser.EduUserMapper;
+/*     */ import com.xoa.dao.vehicle.VehicleMapper;
+/*     */ import com.xoa.dao.vehicle.VehicleUsageMapper;
+/*     */ import com.xoa.model.department.Department;
+/*     */ import com.xoa.model.edu.eduUser.EduUser;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.vehicle.VehicleUsageWithBLOBs;
+/*     */ import com.xoa.model.vehicle.VehicleWithBLOBs;
+/*     */ import com.xoa.util.AjaxJson;
+/*     */ import com.xoa.util.ExcelUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.io.OutputStream;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import org.apache.commons.collections.map.HashedMap;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class VeHicleUsageService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private VehicleUsageMapper vehicleUsageMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private EduUserMapper eduUserMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private VehicleMapper vehicleMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   public AjaxJson addVeHicle(HttpServletRequest request, VehicleUsageWithBLOBs vehicleUsageWithBLOBs)
+/*     */   {
+/*  57 */     AjaxJson ajaxJson = new AjaxJson();
+/*  58 */     ajaxJson.setSuccess(true);
+/*  59 */     ajaxJson.setFlag(false);
+/*     */     try
+/*     */     {
+/*  62 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  63 */       String userId = users.getUserId();
+/*     */ 
+/*  65 */       vehicleUsageWithBLOBs.setVuProposer(userId + ",");
+/*  66 */       Date date1 = new Date();
+/*  67 */       vehicleUsageWithBLOBs.setVuRequestDate(date1);
+/*     */ 
+/*  69 */       String vuUser = vehicleUsageWithBLOBs.getVuUser();
+/*  70 */       if (vuUser != null) {
+/*  71 */         vehicleUsageWithBLOBs.setVuUser(vuUser);
+/*     */       }
+/*     */ 
+/*  74 */       String deptManager = vehicleUsageWithBLOBs.getDeptManager();
+/*  75 */       if (deptManager != null) {
+/*  76 */         vehicleUsageWithBLOBs.setDeptManager(deptManager);
+/*     */       }
+/*     */ 
+/*  79 */       String s = vehicleUsageWithBLOBs.getvId();
+/*  80 */       if (!StringUtils.checkNull(s).booleanValue()) {
+/*  81 */         VehicleWithBLOBs vehicleWithBLOBs = this.vehicleMapper.selectByPrimaryKey(Integer.valueOf(s));
+/*  82 */         if (vehicleWithBLOBs != null) {
+/*  83 */           vehicleUsageWithBLOBs.setVuDriver(vehicleWithBLOBs.getvDriver());
+/*     */         }
+/*     */       }
+/*     */ 
+/*  87 */       Map map = new HashedMap();
+/*  88 */       map.put("vId", vehicleUsageWithBLOBs.getvId());
+/*  89 */       int count = this.vehicleUsageMapper.getCount(map);
+/*  90 */       map.put("startTime", vehicleUsageWithBLOBs.getVuStart());
+/*  91 */       map.put("endTime", vehicleUsageWithBLOBs.getVuEnd());
+/*  92 */       int VehicleCount = this.vehicleUsageMapper.getCount(map);
+/*  93 */       if (count == VehicleCount) {
+/*  94 */         if (!StringUtils.checkNull(vehicleUsageWithBLOBs.getDeptManager()).booleanValue()) {
+/*  95 */           vehicleUsageWithBLOBs.setDmerStatus("0");
+/*     */         }
+/*  97 */         int i = this.vehicleUsageMapper.insertSelective(vehicleUsageWithBLOBs);
+/*  98 */         if (i > 0) {
+/*  99 */           ajaxJson.setFlag(true);
+/* 100 */           ajaxJson.setMsg("申请成功");
+/*     */         }
+/*     */       } else {
+/* 103 */         ajaxJson.setFlag(false);
+/* 104 */         ajaxJson.setMsg("您预约车辆的时间段已经被占用");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 107 */       e.printStackTrace();
+/* 108 */       ajaxJson.setFlag(false);
+/* 109 */       ajaxJson.setMsg(e.getMessage());
+/*     */     }
+/* 111 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson selectAllVeHicle(HttpServletResponse response, HttpServletRequest request, String vuStatusName, String applyStartTime, VehicleUsageWithBLOBs vehicleUsageWithBLOBs3, String applyEndTime, String export)
+/*     */   {
+/* 121 */     if (export == null) {
+/* 122 */       export = "0";
+/*     */     }
+/*     */ 
+/* 125 */     AjaxJson ajaxJson = new AjaxJson();
+/* 126 */     ajaxJson.setSuccess(true);
+/* 127 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 129 */       Map map = new HashMap();
+/* 130 */       map.put("vId", vehicleUsageWithBLOBs3.getvId());
+/* 131 */       map.put("vuDriver", vehicleUsageWithBLOBs3.getVuDriver());
+/* 132 */       map.put("applyStartTime", applyStartTime);
+/* 133 */       map.put("applyEndTime", applyEndTime);
+/* 134 */       map.put("vuUser", vehicleUsageWithBLOBs3.getVuUser());
+/* 135 */       map.put("vuDept", vehicleUsageWithBLOBs3.getVuDept());
+/* 136 */       map.put("vuProposer", vehicleUsageWithBLOBs3.getVuProposer());
+/* 137 */       map.put("vuOperator", vehicleUsageWithBLOBs3.getVuOperator());
+/* 138 */       map.put("vuReason", vehicleUsageWithBLOBs3.getVuReason());
+/* 139 */       map.put("vuRemark", vehicleUsageWithBLOBs3.getVuRemark());
+/*     */ 
+/* 141 */       List <VehicleUsageWithBLOBs> vehicleUsageWithBLOBs1 = null;
+/*     */ 
+/* 143 */       if (vuStatusName.equals("0"))
+/*     */       {
+/* 145 */         vehicleUsageWithBLOBs1 = this.vehicleUsageMapper.getNoApproval(map);
+/*     */       }
+/* 148 */       else if (vuStatusName.equals("1"))
+/*     */       {
+/* 150 */         vehicleUsageWithBLOBs1 = this.vehicleUsageMapper.selectAlredyAllVeHicle();
+/* 151 */         List <VehicleUsageWithBLOBs> vehicleUsageWithBLOBsList1 = this.vehicleUsageMapper.getAllApprovalVehicle(map);
+/* 152 */         for (VehicleUsageWithBLOBs vehicleUsageWithBLOBs : vehicleUsageWithBLOBsList1) {
+/* 153 */           if ((vehicleUsageWithBLOBs.getDeptManager() == null) || (vehicleUsageWithBLOBs.getDeptManager().equals(""))) {
+/* 154 */             vehicleUsageWithBLOBs1.add(vehicleUsageWithBLOBs);
+/*     */           }
+/*     */         }
+/*     */ 
+/*     */       }
+/* 159 */       else if (vuStatusName.equals("2")) {
+/* 160 */         vehicleUsageWithBLOBs1 = this.vehicleUsageMapper.selectAlredyAllVeHicle();
+/* 161 */         List <VehicleUsageWithBLOBs> vehicleUsageWithBLOBsList1 = this.vehicleUsageMapper.getAllApprovalVehicle(map);
+/* 162 */         for (VehicleUsageWithBLOBs vehicleUsageWithBLOBs : vehicleUsageWithBLOBsList1) {
+/* 163 */           if (vehicleUsageWithBLOBs.getDeptManager() == null) {
+/* 164 */             vehicleUsageWithBLOBs1.add(vehicleUsageWithBLOBs);
+/*     */           }
+/*     */         }
+/*     */ 
+/* 168 */         List <VehicleUsageWithBLOBs> vehicleUsageWithBLOBsList = new ArrayList <VehicleUsageWithBLOBs>();
+/* 169 */         for (VehicleUsageWithBLOBs vehicleUsageWithBLOBs : vehicleUsageWithBLOBs1) {
+/* 170 */           Date date = new Date();
+/* 171 */           Date vuStart = vehicleUsageWithBLOBs.getVuStart();
+/* 172 */           Date vuEnd = vehicleUsageWithBLOBs.getVuEnd();
+/* 173 */           long time = date.getTime();
+/* 174 */           long startTime = vuStart.getTime();
+/* 175 */           long endTime = vuEnd.getTime();
+/* 176 */           if ((startTime <= time) && (endTime >= time)) {
+/* 177 */             vehicleUsageWithBLOBsList.add(vehicleUsageWithBLOBs);
+/*     */           }
+/*     */         }
+/*     */ 
+/* 181 */         vehicleUsageWithBLOBs1 = vehicleUsageWithBLOBsList;
+/*     */       }
+/* 184 */       else if (vuStatusName.equals("3")) {
+/* 185 */         vehicleUsageWithBLOBs1 = this.vehicleUsageMapper.selectAlredyAllVeHicle();
+/* 186 */         List <VehicleUsageWithBLOBs> vehicleUsageWithBLOBsList1 = this.vehicleUsageMapper.getAllApprovalVehicle(map);
+/* 187 */         for (VehicleUsageWithBLOBs vehicleUsageWithBLOBs : vehicleUsageWithBLOBsList1) {
+/* 188 */           if (vehicleUsageWithBLOBs.getDeptManager() == null) {
+/* 189 */             vehicleUsageWithBLOBs1.add(vehicleUsageWithBLOBs);
+/*     */           }
+/*     */         }
+/*     */ 
+/* 193 */         List vehicleUsageWithBLOBsList = new ArrayList();
+/* 194 */         for (VehicleUsageWithBLOBs vehicleUsageWithBLOBs : vehicleUsageWithBLOBs1) {
+/* 195 */           Date date = new Date();
+/* 196 */           Date vuStart = vehicleUsageWithBLOBs.getVuStart();
+/* 197 */           Date vuEnd = vehicleUsageWithBLOBs.getVuEnd();
+/* 198 */           long time = date.getTime();
+/* 199 */           long startTime = vuStart.getTime();
+/* 200 */           long endTime = vuEnd.getTime();
+/* 201 */           if ((startTime >= time) && (endTime >= time)) {
+/* 202 */             vehicleUsageWithBLOBsList.add(vehicleUsageWithBLOBs);
+/*     */           }
+/*     */         }
+/*     */ 
+/* 206 */         vehicleUsageWithBLOBs1 = vehicleUsageWithBLOBsList;
+/*     */       }
+/* 209 */       else if (vuStatusName.equals("4"))
+/*     */       {
+/* 211 */         vehicleUsageWithBLOBs1 = this.vehicleUsageMapper.selectRefuseVehicle(map);
+/*     */       }
+/* 213 */       else if (vuStatusName.equals("5"))
+/*     */       {
+/* 215 */         vehicleUsageWithBLOBs1 = this.vehicleUsageMapper.selectNoUseVehicle(map);
+/*     */       }
+/*     */       else {
+/* 218 */         vehicleUsageWithBLOBs1 = this.vehicleUsageMapper.seVehicle(map);
+/*     */       }
+/* 220 */       if (vehicleUsageWithBLOBs1 != null) {
+/* 221 */         for (VehicleUsageWithBLOBs vehicleUsageWithBLOBs : vehicleUsageWithBLOBs1)
+/*     */         {
+/* 223 */           if (!StringUtils.checkNull(vehicleUsageWithBLOBs.getvId()).booleanValue()) {
+/* 224 */             VehicleWithBLOBs vehicleWithBLOBs = this.vehicleMapper.selectByPrimaryKey(Integer.valueOf(vehicleUsageWithBLOBs.getvId()));
+/* 225 */             if (vehicleWithBLOBs != null)
+/* 226 */               vehicleUsageWithBLOBs.setvIdNum(vehicleWithBLOBs.getvNum());
+/*     */             else {
+/* 228 */               vehicleUsageWithBLOBs.setvIdNum("");
+/*     */             }
+/*     */           }
+/*     */ 
+/* 232 */           if ((vehicleUsageWithBLOBs.getVuUser() != null) && (vehicleUsageWithBLOBs.getVuUser() != "")) {
+/* 233 */             EduUser byuserId = this.eduUserMapper.getByuserId(vehicleUsageWithBLOBs.getVuUser().substring(0, vehicleUsageWithBLOBs.getVuUser().length() - 1));
+/* 234 */             if (byuserId != null) {
+/* 235 */               vehicleUsageWithBLOBs.setVuUserName(byuserId.getUserName());
+/*     */             }
+/*     */ 
+/*     */           }
+/*     */ 
+/* 240 */           if ((vehicleUsageWithBLOBs.getDeptManager() != null) && (vehicleUsageWithBLOBs.getDeptManager() != "")) {
+/* 241 */             EduUser byuserId1 = this.eduUserMapper.getByuserId(vehicleUsageWithBLOBs.getDeptManager().substring(0, vehicleUsageWithBLOBs.getDeptManager().length() - 1));
+/* 242 */             if (byuserId1 != null) {
+/* 243 */               vehicleUsageWithBLOBs.setDeptManagerName(byuserId1.getUserName());
+/*     */             }
+/*     */ 
+/*     */           }
+/*     */ 
+/* 248 */           String vuSuite = vehicleUsageWithBLOBs.getVuSuite();
+/* 249 */           if ((vuSuite != null) && (vuSuite != "")) {
+/* 250 */             StringBuffer sb = new StringBuffer();
+/* 251 */             String[] split = vuSuite.split(",");
+/* 252 */             for (String s : split) {
+/* 253 */               EduUser byuserId2 = this.eduUserMapper.getByuserId(s);
+/* 254 */               if (byuserId2 != null) {
+/* 255 */                 sb.append(byuserId2.getUserName() + ",");
+/*     */               }
+/* 257 */               vehicleUsageWithBLOBs.setVuSuiteName(sb.toString());
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 264 */       if (export.equals("1")) {
+/* 265 */         HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("车辆信息导入表", 9);
+/* 266 */         String[] secondTitles = { "车牌号", "用车人", "随行人员", "事由", "开始时间", "结束时间", "备注" };
+/* 267 */         HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/* 268 */         String[] beanProperty = { "vIdNum", "vuUserName", "vuSuiteName", "vuReason", "vuStart", "vuEnd", "vuRemark" };
+/* 269 */         HSSFWorkbook workbook = null;
+/* 270 */         workbook = ExcelUtil.exportExcelData(workbook2, vehicleUsageWithBLOBs1, beanProperty);
+/* 271 */         OutputStream out = response.getOutputStream();
+/* 272 */         String filename = "车辆信息导出表.xls";
+/* 273 */         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/* 274 */         response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+/* 275 */         response.setHeader("content-disposition", "attachment;filename=" + filename);
+/* 276 */         workbook.write(out);
+/* 277 */         out.close();
+/*     */       }
+/*     */ 
+/* 280 */       ajaxJson.setObj(vehicleUsageWithBLOBs1);
+/* 281 */       ajaxJson.setFlag(true);
+/* 282 */       ajaxJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 284 */       e.printStackTrace();
+/* 285 */       ajaxJson.setMsg(e.getMessage());
+/*     */     }
+/* 287 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson deptApproval(HttpServletRequest request, String dmerStatus)
+/*     */   {
+/* 299 */     AjaxJson ajaxJson = new AjaxJson();
+/* 300 */     ajaxJson.setSuccess(true);
+/* 301 */     ajaxJson.setFlag(false);
+/*     */     try
+/*     */     {
+/* 304 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 305 */       String userId = users.getUserId();
+/* 306 */       VehicleUsageWithBLOBs vehicleUsageWithBLOBs = new VehicleUsageWithBLOBs();
+/* 307 */       vehicleUsageWithBLOBs.setDeptManager(userId);
+/* 308 */       vehicleUsageWithBLOBs.setDmerStatus(dmerStatus);
+/* 309 */       List <VehicleUsageWithBLOBs> vehicleUsageWithBLOBs1 = this.vehicleUsageMapper.deptApproval(vehicleUsageWithBLOBs);
+/* 310 */       for (VehicleUsageWithBLOBs vehicleUsageWithBLOBs2 : vehicleUsageWithBLOBs1)
+/*     */       {
+/* 313 */         VehicleWithBLOBs vehicleWithBLOBs = this.vehicleMapper.selectByPrimaryKey(Integer.valueOf(vehicleUsageWithBLOBs2.getvId()));
+/* 314 */         if (vehicleWithBLOBs != null) {
+/* 315 */           vehicleUsageWithBLOBs2.setvIdNum(vehicleWithBLOBs.getvNum());
+/*     */         }
+/*     */ 
+/* 318 */         String vuUser = vehicleUsageWithBLOBs2.getVuUser();
+/* 319 */         if (!StringUtils.checkNull(vuUser).booleanValue()) {
+/* 320 */           EduUser byuserId = this.eduUserMapper.getByuserId(vuUser.substring(0, vuUser.length() - 1));
+/* 321 */           if (byuserId != null) {
+/* 322 */             vehicleUsageWithBLOBs2.setVuUserName(byuserId.getUserName());
+/*     */           }
+/*     */         }
+/*     */ 
+/* 326 */         String vuSuite = vehicleUsageWithBLOBs2.getVuSuite();
+/* 327 */         if ((vuSuite != null) && (vuSuite != "")) {
+/* 328 */           StringBuffer sb = new StringBuffer();
+/* 329 */           String[] split = vuSuite.split(",");
+/* 330 */           for (String s : split) {
+/* 331 */             EduUser byuserId2 = this.eduUserMapper.getByuserId(s);
+/* 332 */             if (byuserId2 != null) {
+/* 333 */               sb.append(byuserId2.getUserName() + ",");
+/*     */             }
+/* 335 */             vehicleUsageWithBLOBs2.setVuSuiteName(sb.toString());
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 340 */       ajaxJson.setObj(vehicleUsageWithBLOBs1);
+/* 341 */       ajaxJson.setMsg("ok");
+/* 342 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 344 */       ajaxJson.setFlag(false);
+/* 345 */       ajaxJson.setMsg(e.getMessage());
+/* 346 */       e.printStackTrace();
+/*     */     }
+/* 348 */     return ajaxJson;
+/*     */   }
+/*     */   public AjaxJson editDeptApproval(VehicleUsageWithBLOBs vehicleUsageWithBLOBs) {
+/* 351 */     AjaxJson ajaxJson = new AjaxJson();
+/* 352 */     ajaxJson.setSuccess(true);
+/* 353 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 355 */       vehicleUsageWithBLOBs.setVuStatus("0");
+/* 356 */       int i = this.vehicleUsageMapper.updateByPrimaryKeySelective(vehicleUsageWithBLOBs);
+/* 357 */       ajaxJson.setFlag(true);
+/* 358 */       ajaxJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 360 */       ajaxJson.setMsg(e.getMessage());
+/* 361 */       ajaxJson.setFlag(false);
+/* 362 */       e.printStackTrace();
+/*     */     }
+/* 364 */     return ajaxJson;
+/*     */   }
+/*     */   public AjaxJson editOperatorstatu(VehicleUsageWithBLOBs vehicleUsageWithBLOBs) {
+/* 367 */     AjaxJson ajaxJson = new AjaxJson();
+/* 368 */     ajaxJson.setSuccess(true);
+/* 369 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 371 */       int i = this.vehicleUsageMapper.updateByPrimaryKeySelective(vehicleUsageWithBLOBs);
+/* 372 */       if (i > 0) {
+/* 373 */         ajaxJson.setFlag(true);
+/* 374 */         ajaxJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 377 */       ajaxJson.setMsg(e.getMessage());
+/* 378 */       ajaxJson.setFlag(false);
+/* 379 */       e.printStackTrace();
+/*     */     }
+/* 381 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<VehicleUsageWithBLOBs> getReservation(Integer vId)
+/*     */   {
+/* 390 */     ToJson json = new ToJson(1, "err");
+/*     */     try
+/*     */     {
+/* 393 */       List <VehicleUsageWithBLOBs> reservation = this.vehicleUsageMapper.getReservation(vId);
+/* 394 */       for (VehicleUsageWithBLOBs vehicleUsageWithBLOBs2 : reservation)
+/*     */       {
+/* 396 */         if ((vehicleUsageWithBLOBs2.getDeptManager() != null) && (vehicleUsageWithBLOBs2.getDeptManager() != "")) {
+/* 397 */           if (vehicleUsageWithBLOBs2.getDmerStatus().equals("0")) {
+/* 398 */             vehicleUsageWithBLOBs2.setVuStatusName("部门审批员待审批");
+/*     */           }
+/* 400 */           else if (vehicleUsageWithBLOBs2.getDmerStatus().equals("1"))
+/* 401 */             vehicleUsageWithBLOBs2.setVuStatusName("部门审批员已批准");
+/*     */           else {
+/* 403 */             vehicleUsageWithBLOBs2.setVuStatusName("部门审批员未批准");
+/*     */           }
+/*     */         }
+/* 406 */         else if (vehicleUsageWithBLOBs2.getVuStatus().equals("0")) {
+/* 407 */           vehicleUsageWithBLOBs2.setVuStatusName("调度员待审批");
+/*     */         }
+/* 409 */         else if (vehicleUsageWithBLOBs2.getVuStatus().equals("1")) {
+/* 410 */           vehicleUsageWithBLOBs2.setVuStatusName("调度员已批准");
+/*     */         }
+/*     */         else {
+/* 413 */           vehicleUsageWithBLOBs2.setVuStatusName("调度员未批准");
+/*     */         }
+/*     */ 
+/* 416 */         for (VehicleUsageWithBLOBs vehicleUsageWithBLOBs : reservation)
+/*     */         {
+/* 418 */           VehicleWithBLOBs vehicleWithBLOBs = this.vehicleMapper.selectByPrimaryKey(Integer.valueOf(vehicleUsageWithBLOBs.getvId()));
+/* 419 */           if (vehicleWithBLOBs != null) {
+/* 420 */             vehicleUsageWithBLOBs.setvIdNum(vehicleWithBLOBs.getvNum());
+/*     */           }
+/*     */ 
+/* 423 */           if ((vehicleUsageWithBLOBs.getVuUser() != null) && (vehicleUsageWithBLOBs.getVuUser() != "")) {
+/* 424 */             EduUser byuserId = this.eduUserMapper.getByuserId(vehicleUsageWithBLOBs.getVuUser().substring(0, vehicleUsageWithBLOBs.getVuUser().length() - 1));
+/* 425 */             if (byuserId != null) {
+/* 426 */               vehicleUsageWithBLOBs.setVuUserName(byuserId.getUserName());
+/*     */             }
+/*     */ 
+/*     */           }
+/*     */ 
+/* 431 */           if ((vehicleUsageWithBLOBs.getDeptManager() != null) && (vehicleUsageWithBLOBs.getDeptManager() != "")) {
+/* 432 */             EduUser byuserId1 = this.eduUserMapper.getByuserId(vehicleUsageWithBLOBs.getDeptManager().substring(0, vehicleUsageWithBLOBs.getDeptManager().length() - 1));
+/* 433 */             if (byuserId1 != null) {
+/* 434 */               vehicleUsageWithBLOBs.setDeptManagerName(byuserId1.getUserName());
+/*     */             }
+/*     */ 
+/*     */           }
+/*     */ 
+/* 439 */           String vuSuite = vehicleUsageWithBLOBs.getVuSuite();
+/* 440 */           if ((vuSuite != null) && (vuSuite != "")) {
+/* 441 */             StringBuffer sb = new StringBuffer();
+/* 442 */             String[] split = vuSuite.split(",");
+/* 443 */             for (String s : split) {
+/* 444 */               EduUser byuserId2 = this.eduUserMapper.getByuserId(s);
+/* 445 */               if (byuserId2 != null) {
+/* 446 */                 sb.append(byuserId2.getUserName() + ",");
+/*     */               }
+/* 448 */               vehicleUsageWithBLOBs.setVuSuiteName(sb.toString());
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 455 */       json.setObj(reservation);
+/* 456 */       json.setMsg("ok");
+/* 457 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 459 */       json.setMsg("err");
+/* 460 */       json.setFlag(1);
+/* 461 */       e.printStackTrace();
+/*     */     }
+/* 463 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson GetOperator(HttpServletRequest request, String applyStartTime, String applyEndTime, VehicleUsageWithBLOBs vehicleUsageWithBLOBs)
+/*     */   {
+/* 474 */     AjaxJson ajaxJson = new AjaxJson();
+/* 475 */     ajaxJson.setSuccess(true);
+/* 476 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 478 */       Map map = new HashMap();
+/*     */ 
+/* 480 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 481 */       String userId = users.getUserId();
+/* 482 */       vehicleUsageWithBLOBs.setVuOperator(userId);
+/*     */ 
+/* 484 */       List <VehicleUsageWithBLOBs> vehicleUsageWithBLOBsList = null;
+/* 485 */       if (vehicleUsageWithBLOBs.getSign().equals("0")) {
+/* 486 */         vehicleUsageWithBLOBsList = this.vehicleUsageMapper.GetOperator(vehicleUsageWithBLOBs);
+/*     */ 
+/* 488 */         List <VehicleUsageWithBLOBs> vehicleUsageWithBLOBsList1 = this.vehicleUsageMapper.getAllPendingVehicle(map);
+/* 489 */         for (VehicleUsageWithBLOBs vehicleUsageWithBLOBs2 : vehicleUsageWithBLOBsList1) {
+/* 490 */           if ((vehicleUsageWithBLOBs2.getDeptManager() == null) || (vehicleUsageWithBLOBs2.getDeptManager().equals(""))) {
+/* 491 */             vehicleUsageWithBLOBsList.add(vehicleUsageWithBLOBs2);
+/*     */           }
+/*     */         }
+/*     */       }
+/* 495 */       else if (vehicleUsageWithBLOBs.getSign().equals("1")) {
+/* 496 */         vehicleUsageWithBLOBsList = this.vehicleUsageMapper.GetOperator(vehicleUsageWithBLOBs);
+/*     */ 
+/* 498 */         Map map1 = new HashMap();
+/* 499 */         map1.put("vuOperator", userId);
+/* 500 */         List <VehicleUsageWithBLOBs>vehicleUsageWithBLOBsList1 = this.vehicleUsageMapper.getAllapproveVehicle(map1);
+/* 501 */         for (VehicleUsageWithBLOBs vehicleUsageWithBLOBs2 : vehicleUsageWithBLOBsList1) {
+/* 502 */           if ((vehicleUsageWithBLOBs2.getDeptManager() == null) || (vehicleUsageWithBLOBs2.getDeptManager().equals(""))) {
+/* 503 */             vehicleUsageWithBLOBsList.add(vehicleUsageWithBLOBs2);
+/*     */           }
+/*     */         }
+/*     */       }
+/* 507 */       else if (vehicleUsageWithBLOBs.getSign().equals("2")) {
+/* 508 */         vehicleUsageWithBLOBsList = this.vehicleUsageMapper.selectAlredyAllVeHicle();
+/* 509 */         List <VehicleUsageWithBLOBs> vehicleUsageWithBLOBsList1 = this.vehicleUsageMapper.getAllApprovalVehicle(map);
+/* 510 */         for (VehicleUsageWithBLOBs vehicleUsageWithBLOBs2 : vehicleUsageWithBLOBsList1) {
+/* 511 */           if ((vehicleUsageWithBLOBs2.getDeptManager() == null) || (vehicleUsageWithBLOBs2.getDeptManager().equals(""))) {
+/* 512 */             vehicleUsageWithBLOBsList.add(vehicleUsageWithBLOBs2);
+/*     */           }
+/*     */         }
+/*     */ 
+/* 516 */         List <VehicleUsageWithBLOBs> vehicleUsageWithBLOBsList3 = new ArrayList <VehicleUsageWithBLOBs>();
+/* 517 */         for (VehicleUsageWithBLOBs vehicleUsageWithBLOBs4 : vehicleUsageWithBLOBsList) {
+/* 518 */           Date date = new Date();
+/* 519 */           Date vuStart = vehicleUsageWithBLOBs4.getVuStart();
+/* 520 */           Date vuEnd = vehicleUsageWithBLOBs4.getVuEnd();
+/* 521 */           long time = date.getTime();
+/* 522 */           long startTime = vuStart.getTime();
+/* 523 */           long endTime = vuEnd.getTime();
+/* 524 */           if ((startTime <= time) && (endTime >= time)) {
+/* 525 */             vehicleUsageWithBLOBsList3.add(vehicleUsageWithBLOBs4);
+/*     */           }
+/*     */         }
+/*     */ 
+/* 529 */         vehicleUsageWithBLOBsList = vehicleUsageWithBLOBsList3;
+/*     */       }
+/* 532 */       else if (vehicleUsageWithBLOBs.getSign().equals("3"))
+/*     */       {
+/* 534 */         Map map1 = new HashMap();
+/* 535 */         map1.put("vuOperator", userId);
+/* 536 */         vehicleUsageWithBLOBsList = this.vehicleUsageMapper.selectRefuseByOperator(map1);
+/*     */       }
+/* 539 */       else if (vehicleUsageWithBLOBs.getSign().equals("4")) {
+/* 540 */         vehicleUsageWithBLOBsList = this.vehicleUsageMapper.selectAlredyAllVeHicle();
+/* 541 */         List <VehicleUsageWithBLOBs> vehicleUsageWithBLOBsList4 = this.vehicleUsageMapper.getAllApprovalVehicle(map);
+/* 542 */         for (VehicleUsageWithBLOBs vehicleUsageWithBLOBs3 : vehicleUsageWithBLOBsList4) {
+/* 543 */           if ((vehicleUsageWithBLOBs3.getDeptManager() == null) || (vehicleUsageWithBLOBs3.getDeptManager().equals(""))) {
+/* 544 */             vehicleUsageWithBLOBsList.add(vehicleUsageWithBLOBs3);
+/*     */           }
+/*     */         }
+/*     */ 
+/* 548 */         List vehicleUsageWithBLOBsList2 = new ArrayList();
+/* 549 */         for (VehicleUsageWithBLOBs vehicleUsageWithBLOBs5 : vehicleUsageWithBLOBsList) {
+/* 550 */           Date date = new Date();
+/* 551 */           Date vuStart = vehicleUsageWithBLOBs5.getVuStart();
+/* 552 */           Date vuEnd = vehicleUsageWithBLOBs5.getVuEnd();
+/* 553 */           long time = date.getTime();
+/* 554 */           long startTime = vuStart.getTime();
+/* 555 */           long endTime = vuEnd.getTime();
+/* 556 */           if ((startTime >= time) && (endTime >= time)) {
+/* 557 */             vehicleUsageWithBLOBsList2.add(vehicleUsageWithBLOBs5);
+/*     */           }
+/*     */         }
+/*     */ 
+/* 561 */         vehicleUsageWithBLOBsList = vehicleUsageWithBLOBsList2;
+/*     */       } else {
+/* 563 */         vehicleUsageWithBLOBsList = this.vehicleUsageMapper.GetOperator(vehicleUsageWithBLOBs);
+/*     */       }
+/*     */ 
+/* 566 */       if (vehicleUsageWithBLOBsList != null) {
+/* 567 */         for (VehicleUsageWithBLOBs vehicleUsageWithBLOBs1 : vehicleUsageWithBLOBsList)
+/*     */         {
+/* 569 */           VehicleWithBLOBs vehicleWithBLOBs2 = this.vehicleMapper.selectByPrimaryKey(Integer.valueOf(vehicleUsageWithBLOBs1.getvId()));
+/* 570 */           if (vehicleWithBLOBs2 != null) {
+/* 571 */             vehicleUsageWithBLOBs1.setvIdNum(vehicleWithBLOBs2.getvNum());
+/*     */           }
+/*     */ 
+/* 574 */           String vuUser = vehicleUsageWithBLOBs1.getVuUser();
+/* 575 */           if (!StringUtils.checkNull(vuUser).booleanValue()) {
+/* 576 */             EduUser byuserId = this.eduUserMapper.getByuserId(vuUser.substring(0, vuUser.length() - 1));
+/* 577 */             if (byuserId != null) {
+/* 578 */               vehicleUsageWithBLOBs1.setVuUserName(byuserId.getUserName());
+/*     */             }
+/*     */ 
+/*     */           }
+/*     */ 
+/* 584 */           String vuProposer = vehicleUsageWithBLOBs1.getVuProposer();
+/* 585 */           if (!StringUtils.checkNull(vuProposer).booleanValue()) {
+/* 586 */             EduUser byuserId3 = this.eduUserMapper.getByuserId(vuProposer.substring(0, vuProposer.length() - 1));
+/* 587 */             if (byuserId3 != null) {
+/* 588 */               vehicleUsageWithBLOBs1.setVuProposerName(byuserId3.getUserName());
+/*     */             }
+/*     */           }
+/*     */ 
+/* 592 */           String deptManager = vehicleUsageWithBLOBs1.getDeptManager();
+/* 593 */           if (!StringUtils.checkNull(deptManager).booleanValue()) {
+/* 594 */             EduUser byuserId1 = this.eduUserMapper.getByuserId(deptManager.substring(0, deptManager.length() - 1));
+/* 595 */             if (byuserId1 != null) {
+/* 596 */               vehicleUsageWithBLOBs1.setDeptManagerName(byuserId1.getUserName());
+/*     */             }
+/*     */           }
+/*     */ 
+/* 600 */           String vuSuite = vehicleUsageWithBLOBs1.getVuSuite();
+/* 601 */           if ((vuSuite != null) && (vuSuite != "")) {
+/* 602 */             StringBuffer sb = new StringBuffer();
+/* 603 */             String[] split = vuSuite.split(",");
+/* 604 */             for (String s : split) {
+/* 605 */               EduUser byuserId2 = this.eduUserMapper.getByuserId(s);
+/* 606 */               if (byuserId2 != null) {
+/* 607 */                 sb.append(byuserId2.getUserName() + ",");
+/*     */               }
+/* 609 */               vehicleUsageWithBLOBs1.setVuSuiteName(sb.toString());
+/*     */             }
+/*     */ 
+/*     */           }
+/*     */ 
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 618 */       ajaxJson.setFlag(true);
+/* 619 */       ajaxJson.setMsg("ok");
+/* 620 */       ajaxJson.setObj(vehicleUsageWithBLOBsList);
+/*     */     } catch (Exception e) {
+/* 622 */       ajaxJson.setMsg(e.getMessage());
+/* 623 */       ajaxJson.setFlag(false);
+/* 624 */       e.printStackTrace();
+/*     */     }
+/* 626 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getVehicleUsageDetail(Integer vuId)
+/*     */   {
+/* 636 */     AjaxJson ajaxJson = new AjaxJson();
+/* 637 */     ajaxJson.setSuccess(true);
+/* 638 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 640 */       VehicleUsageWithBLOBs vehicleUsageWithBLOBs = this.vehicleUsageMapper.selectByPrimaryKey(vuId);
+/* 641 */       if (vehicleUsageWithBLOBs != null)
+/*     */       {
+/* 643 */         VehicleWithBLOBs vehicleWithBLOBs = this.vehicleMapper.selectByPrimaryKey(Integer.valueOf(vehicleUsageWithBLOBs.getvId()));
+/* 644 */         if (vehicleWithBLOBs != null) {
+/* 645 */           vehicleUsageWithBLOBs.setvIdNum(vehicleWithBLOBs.getvNum());
+/*     */         }
+/*     */ 
+/* 648 */         String s1 = vehicleUsageWithBLOBs.getVuDriver();
+/* 649 */         if (!StringUtils.checkNull(s1).booleanValue()) {
+/* 650 */           EduUser byuserId6 = this.eduUserMapper.getByuserId(s1.substring(0, s1.length() - 1));
+/* 651 */           if (byuserId6 != null) {
+/* 652 */             vehicleUsageWithBLOBs.setVuDriverName(byuserId6.getUserName());
+/*     */           }
+/*     */ 
+/*     */         }
+/*     */ 
+/* 657 */         String vuProposer = vehicleUsageWithBLOBs.getVuProposer();
+/* 658 */         if (!StringUtils.checkNull(vuProposer).booleanValue()) {
+/* 659 */           EduUser byuserId3 = this.eduUserMapper.getByuserId(vuProposer.substring(0, vuProposer.length() - 1));
+/* 660 */           if (byuserId3 != null) {
+/* 661 */             vehicleUsageWithBLOBs.setVuProposerName(byuserId3.getUserName());
+/*     */           }
+/*     */         }
+/*     */ 
+/* 665 */         String vuDept = vehicleUsageWithBLOBs.getVuDept();
+/* 666 */         if (!StringUtils.checkNull(vuDept).booleanValue()) {
+/* 667 */           Department deptById = this.departmentMapper.getDeptById(Integer.valueOf(vuDept.substring(0, vuDept.length() - 1)).intValue());
+/* 668 */           if (deptById != null) {
+/* 669 */             vehicleUsageWithBLOBs.setVuDeptName(deptById.getDeptName());
+/*     */           }
+/*     */         }
+/*     */ 
+/* 673 */         String vuUser = vehicleUsageWithBLOBs.getVuUser();
+/* 674 */         if (!StringUtils.checkNull(vuUser).booleanValue()) {
+/* 675 */           EduUser byuserId = this.eduUserMapper.getByuserId(vuUser.substring(0, vuUser.length() - 1));
+/* 676 */           if (byuserId != null) {
+/* 677 */             vehicleUsageWithBLOBs.setVuUserName(byuserId.getUserName());
+/*     */           }
+/*     */ 
+/*     */         }
+/*     */ 
+/* 683 */         EduUser byuserId5 = this.eduUserMapper.getByuserId(vehicleUsageWithBLOBs.getVuOperator());
+/* 684 */         if (byuserId5 != null) {
+/* 685 */           vehicleUsageWithBLOBs.setVuOperatorName(byuserId5.getUserName());
+/*     */         }
+/*     */ 
+/* 689 */         String deptManager = vehicleUsageWithBLOBs.getDeptManager();
+/* 690 */         if (!StringUtils.checkNull(deptManager).booleanValue()) {
+/* 691 */           EduUser byuserId1 = this.eduUserMapper.getByuserId(deptManager.substring(0, deptManager.length() - 1));
+/* 692 */           if (byuserId1 != null) {
+/* 693 */             vehicleUsageWithBLOBs.setDeptManagerName(byuserId1.getUserName());
+/*     */           }
+/*     */ 
+/*     */         }
+/*     */ 
+/* 698 */         String vuSuite = vehicleUsageWithBLOBs.getVuSuite();
+/* 699 */         if ((vuSuite != null) && (vuSuite != "")) {
+/* 700 */           StringBuffer sb = new StringBuffer();
+/* 701 */           String[] split = vuSuite.split(",");
+/* 702 */           for (String s : split) {
+/* 703 */             EduUser byuserId2 = this.eduUserMapper.getByuserId(s);
+/* 704 */             if (byuserId2 != null) {
+/* 705 */               sb.append(byuserId2.getUserName() + ",");
+/*     */             }
+/* 707 */             vehicleUsageWithBLOBs.setVuSuiteName(sb.toString());
+/*     */           }
+/*     */         }
+/* 710 */         ajaxJson.setObj(vehicleUsageWithBLOBs);
+/* 711 */         ajaxJson.setFlag(true);
+/* 712 */         ajaxJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 715 */       ajaxJson.setMsg(e.getMessage());
+/* 716 */       ajaxJson.setFlag(false);
+/* 717 */       e.printStackTrace();
+/*     */     }
+/* 719 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson deleteVehicleUsage(Integer vuId)
+/*     */   {
+/* 730 */     AjaxJson ajaxJson = new AjaxJson();
+/* 731 */     ajaxJson.setSuccess(true);
+/* 732 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 734 */       int i = this.vehicleUsageMapper.deleteByPrimaryKey(vuId);
+/* 735 */       if (i > 0) {
+/* 736 */         ajaxJson.setFlag(true);
+/* 737 */         ajaxJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 740 */       ajaxJson.setFlag(false);
+/* 741 */       ajaxJson.setMsg(e.getMessage());
+/* 742 */       e.printStackTrace();
+/*     */     }
+/* 744 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson editVehicleUsage(VehicleUsageWithBLOBs vehicleUsageWithBLOBs)
+/*     */   {
+/* 754 */     AjaxJson ajaxJson = new AjaxJson();
+/* 755 */     ajaxJson.setSuccess(true);
+/* 756 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 758 */       int i = this.vehicleUsageMapper.updateByPrimaryKeySelective(vehicleUsageWithBLOBs);
+/* 759 */       if (i > 0) {
+/* 760 */         ajaxJson.setFlag(true);
+/* 761 */         ajaxJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 764 */       ajaxJson.setMsg(e.getMessage());
+/* 765 */       ajaxJson.setFlag(false);
+/* 766 */       e.printStackTrace();
+/*     */     }
+/* 768 */     return ajaxJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.vehicle.VeHicleUsageService
+ * JD-Core Version:    0.6.0
+ */

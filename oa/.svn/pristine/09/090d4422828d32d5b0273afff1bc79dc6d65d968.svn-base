@@ -1,0 +1,24 @@
+/*    */ package com.xoa.util.common;
+/*    */ 
+/*    */ public class MobileCheck
+/*    */ {
+/*    */   public static boolean isMobileDevice(String requestHeader)
+/*    */   {
+/* 13 */     String[] deviceArray = { "android", "windows phone", "nokia", "sony", "ericsson", "mot", "samsung", "htc", "sgh", "lg", "sharp", "sie-", "philips", "panasonic", "alcatel", "lenovo", "iphone", "ipod", "blackberry", "meizu", "android", "netfront", "symbian", "ucweb", "windowsce", "palm", "operamini", "operamobi", "opera mobi", "openwave", "nexusone", "cldc", "midp", "wap", "mobile" };
+/*    */ 
+/* 17 */     if (requestHeader == null)
+/* 18 */       return false;
+/* 19 */     requestHeader = requestHeader.toLowerCase();
+/* 20 */     for (int i = 0; i < deviceArray.length; i++) {
+/* 21 */       if (requestHeader.indexOf(deviceArray[i]) > 0) {
+/* 22 */         return true;
+/*    */       }
+/*    */     }
+/* 25 */     return false;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.common.MobileCheck
+ * JD-Core Version:    0.6.0
+ */

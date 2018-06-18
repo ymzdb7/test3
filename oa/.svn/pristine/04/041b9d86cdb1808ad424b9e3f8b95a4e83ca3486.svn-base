@@ -1,0 +1,40 @@
+package com.xoa.dao.im;
+
+import com.xoa.model.im.ImChatData;
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface ImChatDataMapper {
+	public abstract int saveChat(ImChatData paramImChatData);
+
+	public abstract List<String> getSingleObject(Map<String, Object> paramMap);
+
+	public abstract int updateChatlist(ImChatData paramImChatData);
+
+	public abstract List<Object> getChatList(Map<String, Object> paramMap);
+
+	public abstract int getSingleObjectInt(Map<String, Object> paramMap);
+
+	public abstract ImChatData getSingleByListId(Map<String, Object> paramMap);
+
+	public abstract ImChatData getPriv(Map<String, Object> paramMap);
+
+	public abstract List<Object> getChatListByFrom(Map<String, Object> paramMap);
+
+	public abstract int getCountSingleObject(Map<String, Object> paramMap);
+
+	public abstract List<String> getDataSingleObject(
+			Map<String, Object> paramMap);
+
+	public abstract String getDatagroupObject(@Param("toUid") String paramString);
+
+	public abstract int upChatByIgnore(Map<String, Object> paramMap);
+
+	public abstract ImChatData selChatByListId(int paramInt);
+
+	public abstract ImChatData getGroupByToUid(
+			@Param("toUid") String paramString);
+
+	public abstract ImChatData getDataSingleByUid(Map<String, Object> paramMap);
+}

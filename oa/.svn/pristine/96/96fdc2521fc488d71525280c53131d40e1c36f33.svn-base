@@ -1,0 +1,126 @@
+/*     */ package com.xoa.service.edu.eduElectiveCourse.impl;
+/*     */ 
+/*     */ import java.beans.Transient;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Service;
+
+import com.xoa.dao.common.SysCodeMapper;
+import com.xoa.dao.edu.eduElectiveCourse.EduElectiveCourseMapper;
+import com.xoa.model.common.SysCode;
+import com.xoa.model.edu.eduElectiveCourse.eduElectiveCourseWithBLOBs;
+import com.xoa.service.edu.eduElectiveCourse.IEduElectiveCourseSerivce;
+import com.xoa.util.ToJson;
+/*     */ 
+/*     */ @Service
+/*     */ public class IEduElectiveCourseSerivceImpl
+/*     */   implements IEduElectiveCourseSerivce
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private SysCodeMapper sysCodeMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private EduElectiveCourseMapper eduElectiveCourseMapper;
+/*     */ 
+/*     */   @Transient
+/*     */   public ToJson insertSelective(eduElectiveCourseWithBLOBs eduElectiveCourseWithBLOBs, HttpServletRequest request)
+/*     */   {
+/*  39 */     ToJson json = new ToJson();
+/*     */     try
+/*     */     {
+/*  43 */       eduElectiveCourseWithBLOBs.setCreateUser("wwww");
+/*  44 */       eduElectiveCourseWithBLOBs.setAttachmentId("无");
+/*  45 */       eduElectiveCourseWithBLOBs.setAttachmentName("无");
+/*  46 */       int count = this.eduElectiveCourseMapper.insertSelective(eduElectiveCourseWithBLOBs);
+/*  47 */       if (count > 0) {
+/*  48 */         json.setFlag(0);
+/*  49 */         json.setMsg("ok");
+/*     */       } else {
+/*  51 */         json.setFlag(1);
+/*  52 */         json.setMsg("err");
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  55 */       e.printStackTrace();
+/*     */     }
+/*  57 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<eduElectiveCourseWithBLOBs> selectEduElectiveCourse(eduElectiveCourseWithBLOBs eduElectiveCourseWithBLOBs, HttpServletRequest request, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  69 */     ToJson json = new ToJson();
+/*     */     try {
+/*  71 */       List<eduElectiveCourseWithBLOBs> list = this.eduElectiveCourseMapper.selectEduElectiveCourse(eduElectiveCourseWithBLOBs);
+/*  72 */       for (Iterator<eduElectiveCourseWithBLOBs> i$ = list.iterator(); i$.hasNext(); ) {eduElectiveCourseWithBLOBs eduElectiveCourseWithBLOBs1 = i$.next();
+/*  73 */         List<SysCode> code = this.sysCodeMapper.getSysCode("ELECTIVE_COURSE");
+/*  74 */         for (SysCode sysCode : code)
+/*  75 */           if (sysCode.getCodeNo().equals(eduElectiveCourseWithBLOBs1.getCourseArea()))
+/*  76 */             eduElectiveCourseWithBLOBs1.setCourseAreaName(sysCode.getCodeName());
+/*     */       }
+/*     */       eduElectiveCourseWithBLOBs eduElectiveCourseWithBLOBs1;
+/*  80 */       if (list.size() > 0) {
+/*  81 */         json.setObj(list);
+/*  82 */         json.setFlag(list.size());
+/*  83 */         json.setMsg("ok");
+/*     */       } else {
+/*  85 */         json.setMsg("err");
+/*  86 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  89 */       e.printStackTrace();
+/*     */     }
+/*  91 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transient
+/*     */   public ToJson updateByPrimaryKeySelective(eduElectiveCourseWithBLOBs eduElectiveCourseWithBLOBs)
+/*     */   {
+/* 104 */     ToJson json = new ToJson();
+/*     */     try {
+/* 106 */       int count = this.eduElectiveCourseMapper.updateByPrimaryKeySelective(eduElectiveCourseWithBLOBs);
+/* 107 */       if (count > 0) {
+/* 108 */         json.setMsg("ok");
+/* 109 */         json.setFlag(count);
+/*     */       } else {
+/* 111 */         json.setFlag(0);
+/* 112 */         json.setMsg("err");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 115 */       e.printStackTrace();
+/*     */     }
+/* 117 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transient
+/*     */   public ToJson deleteElectveCourse(HttpServletRequest request)
+/*     */   {
+/* 129 */     ToJson json = new ToJson();
+/* 130 */     int t = 0; int count = 0;
+/*     */     try {
+/* 132 */       String[] id = request.getParameterValues("id[]");
+/* 133 */       for (int i = 0; i < id.length; i++) {
+/* 134 */         count = this.eduElectiveCourseMapper.deleteElectveCourse(id[i]);
+/* 135 */         t += count;
+/*     */       }
+/* 137 */       if (t > 0) {
+/* 138 */         json.setFlag(0);
+/* 139 */         json.setMsg("ok" + count);
+/*     */       } else {
+/* 141 */         json.setMsg("err");
+/* 142 */         json.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 145 */       e.printStackTrace();
+/*     */     }
+/* 147 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduElectiveCourse.impl.IEduElectiveCourseSerivceImpl
+ * JD-Core Version:    0.6.0
+ */

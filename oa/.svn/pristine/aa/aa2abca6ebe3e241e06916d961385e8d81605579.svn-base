@@ -1,0 +1,262 @@
+/*     */ package com.xoa.controller.spirit;
+/*     */ 
+/*     */ import com.xoa.dao.common.SysParaMapper;
+/*     */ import com.xoa.dao.sms.SmsBodyMapper;
+/*     */ import com.xoa.model.common.SysPara;
+/*     */ import com.xoa.model.daiban.Daiban;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.todoList.TodolistService;
+/*     */ import com.xoa.service.users.UsersService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.HashSet;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.Set;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.log4j.Logger;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.ui.Model;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/spirit"})
+/*     */ public class SpiritController
+/*     */ {
+/*  37 */   private final String one = "1";
+/*  38 */   private Logger logger = Logger.getLogger(SpiritController.class);
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersService usersService;
+/*     */ 
+/*     */   @Resource
+/*     */   private SysParaMapper sysParaMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private TodolistService todolistService;
+/*     */ 
+/*     */   @Resource
+/*     */   private SmsBodyMapper smsBodyMapper;
+/*     */ 
+/*  55 */   @RequestMapping({"/login"})
+/*     */   public String login(HttpServletRequest request, String company, Model model) { request.getSession().setAttribute("loginDateSouse", company);
+/*  56 */     L.w(new Object[] { company });
+/*  57 */     String a = (String)request.getSession().getAttribute("loginDateSouse");
+/*  58 */     L.w(new Object[] { a });
+/*  59 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  61 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  62 */     String ip = "";
+/*  63 */     String gimHost = "";
+/*  64 */     SysPara sysParaHost = this.sysParaMapper.querySysPara("IM_HOST");
+/*     */ 
+/*  66 */     SysPara sysParaStutes = this.sysParaMapper.querySysPara("IM_STUTES");
+/*  67 */     SysPara sysParaPort = this.sysParaMapper.querySysPara("IM_PORT");
+/*     */ 
+/*  69 */     if ((sysParaStutes != null) && (!StringUtils.checkNull(sysParaStutes.getParaValue()).booleanValue()) && 
+/*  70 */       ("1".equals(sysParaStutes.getParaValue()))) {
+/*  71 */       ip = sysParaHost.getParaValue();
+/*  72 */       gimHost = sysParaPort.getParaValue();
+/*     */     }
+/*     */ 
+/*  75 */     model.addAttribute("users", users);
+/*  76 */     model.addAttribute("gim_ip", ip);
+/*  77 */     model.addAttribute("gim_port", gimHost);
+/*     */ 
+/*  81 */     return "app/spirit/login/login"; }
+/*     */ 
+/*     */   @RequestMapping({"/main"})
+/*     */   public String main(Model model, HttpServletRequest request)
+/*     */   {
+/*  87 */     Set arg = new HashSet();
+/*  88 */     arg.add("paraName");
+/*  89 */     arg.add("paraValue");
+/*  90 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/*  92 */     model.addAllAttributes(SessionUtils.getSessionInfo(request.getSession(), arg));
+/*     */ 
+/* 105 */     model.addAttribute("users", users);
+/* 106 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 108 */     return "app/spirit/mains";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/menu"})
+/*     */   public String menu(HttpServletRequest request) {
+/* 114 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 116 */     return "app/spirit/menu";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/dh"})
+/*     */   public String dh(HttpServletRequest request) {
+/* 122 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 124 */     return "app/spirit/dh";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/groupChat"})
+/*     */   public String groupChat(HttpServletRequest request)
+/*     */   {
+/* 132 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 134 */     return "app/spirit/groupChat";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/newGroupChat"})
+/*     */   public String newGroupChat(HttpServletRequest request)
+/*     */   {
+/* 141 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 143 */     return "app/spirit/newGroupChat";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/groupChatLog"})
+/*     */   public String groupChatLog(HttpServletRequest request)
+/*     */   {
+/* 150 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 152 */     return "app/spirit/groupChatLog";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/group"})
+/*     */   public String group(HttpServletRequest request)
+/*     */   {
+/* 160 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 162 */     return "app/spirit/group";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/countersign"})
+/*     */   public String countersign(HttpServletRequest request) {
+/* 168 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 170 */     return "app/spirit/countersign";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/newgroup"})
+/*     */   public String newgroup(HttpServletRequest request) {
+/* 176 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 178 */     return "app/spirit/newgroup";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/editgroup"})
+/*     */   public String editgroup(HttpServletRequest request) {
+/* 184 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 186 */     return "app/spirit/editgroup";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/managegroup"})
+/*     */   public String managegroup(HttpServletRequest request) {
+/* 192 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 194 */     return "app/spirit/managegroup";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/bq"})
+/*     */   public String note(HttpServletRequest request) {
+/* 200 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 202 */     return "app/spirit/note";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/oaganization"})
+/*     */   public String oaganization(HttpServletRequest request) {
+/* 208 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 210 */     return "app/spirit/zz";
+/*     */   }
+/*     */   @RequestMapping({"/zz"})
+/*     */   public String zz(HttpServletRequest request) {
+/* 215 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 217 */     return "app/spirit/zz";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/willDoCounts"})
+/*     */   @ResponseBody
+/*     */   public BaseWrapper getToDolistCounts(String userId, String companyId, HttpServletRequest request)
+/*     */   {
+/* 228 */     ContextHolder.setConsumerType(companyId);
+/* 229 */     BaseWrapper wrappers = new BaseWrapper();
+/* 230 */     wrappers.setFlag(false);
+/* 231 */     wrappers.setStatus(true);
+/* 232 */     if (StringUtils.checkNull(userId).booleanValue()) {
+/* 233 */       wrappers.setMsg("无效的用户信息");
+/* 234 */       return wrappers;
+/*     */     }
+/* 236 */     if (("undefined".equals(userId)) && (StringUtils.checkNull(companyId).booleanValue()))
+/*     */     {
+/* 238 */       userId = (String)SessionUtils.getSessionInfo(request.getSession(), "userId", String.class);
+/* 239 */       companyId = (String)request.getSession().getAttribute("loginDateSouse");
+/*     */     }
+/*     */     try {
+/* 242 */       String sqlType = Constant.MYOA + companyId;
+/* 243 */       Daiban db = this.todolistService.list(userId, sqlType, request);
+/* 244 */       SessionUtils.putSession(request.getSession(), "userId", userId);
+/* 245 */       if (db != null) {
+/* 246 */         Integer email = Integer.valueOf(db.getEmail() == null ? 0 : db.getEmail().size());
+/* 247 */         Integer notify = Integer.valueOf(db.getNotify() == null ? 0 : db.getNotify().size());
+/* 248 */         Integer workFlow = Integer.valueOf(db.getWorkFlow() == null ? 0 : db.getWorkFlow().size());
+/* 249 */         Map map = new HashMap();
+/* 250 */         map.put("toId", userId);
+/* 251 */         map.put("remindFlag", "3");
+/* 252 */         Integer smsBodyCountByMap = this.smsBodyMapper.getSmsBodyCountByMap(map);
+/* 253 */         Map result = new HashMap();
+/* 254 */         result.put("email", email);
+/* 255 */         result.put("willDo", Integer.valueOf(notify.intValue() + workFlow.intValue()));
+/* 256 */         result.put("willDo", Integer.valueOf(notify.intValue() + workFlow.intValue()));
+/* 257 */         result.put("smsDo", smsBodyCountByMap);
+/* 258 */         wrappers.setData(result);
+/* 259 */         wrappers.setFlag(true);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 262 */       e.printStackTrace();
+/* 263 */       wrappers.setFlag(false);
+/* 264 */       wrappers.setMsg(e.getMessage());
+/*     */     }
+/*     */ 
+/* 267 */     return wrappers;
+/*     */   }
+/* 271 */   @RequestMapping({"/messageList"})
+/*     */   public String messageList(HttpServletRequest request, Model model) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 274 */     Users u = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 275 */     if ((u != null) && (u.getUid() != null)) {
+/* 276 */       model.addAttribute("uId", u.getUid());
+/*     */     }
+/* 278 */     return "app/spirit/messagelist"; }
+/*     */ 
+/*     */   @RequestMapping({"/searchBox"})
+/*     */   public String search(HttpServletRequest request) {
+/* 283 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 285 */     return "app/spirit/search";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/chatRecord"})
+/*     */   public String chatRecord()
+/*     */   {
+/* 292 */     return "app/spirit/chatRecord";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/webChatRecord"})
+/*     */   public String webChatRecord() {
+/* 298 */     return "app/spirit/webChatRecord";
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.spirit.SpiritController
+ * JD-Core Version:    0.6.0
+ */

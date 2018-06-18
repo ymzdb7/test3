@@ -1,0 +1,93 @@
+package com.myoa.controller.vehicle;
+
+import com.myoa.model.vehicle.VehicleMaintenanceWithBLOBs;
+import com.myoa.service.vehicle.VehicleMaintenanceService;
+import com.myoa.util.ToJson;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@RequestMapping({ "/tenance" })
+@Controller
+public class VehicleMaintenanceController {
+
+	@Autowired
+	VehicleMaintenanceService vehicleMaintenanceService;
+
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		dateFormat.setLenient(false);
+		binder.registerCustomEditor(Date.class, new CustomDateEditor(
+				dateFormat, true));
+	}
+
+	@RequestMapping({ "/index" })
+	public String index() {
+		return "app/vehicle/VehicleMaintenance/index";
+	}
+
+	@RequestMapping({ "/queryList" })
+	public String queryList(String queryFlag, Map<String, Object> map) {
+		map.put("queryFlag", queryFlag);
+		return "app/vehicle/VehicleMaintenance/queryList";
+	}
+
+	@RequestMapping({ "/editMaintenance" })
+	public String editMaintenance(String editFlag, int vmId,
+			HttpServletRequest request, HttpServletResponse response) {
+		request.setAttribute("editFlag", editFlag);
+		request.setAttribute("vmId", Integer.valueOf(vmId));
+		return "app/vehicle/VehicleMaintenance/editMaintenance";
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/addMaintenance" })
+	public ToJson<Object> addMaintenance(
+			VehicleMaintenanceWithBLOBs vehicleMaintenanceWithBLOBs) {
+		return this.vehicleMaintenanceService
+				.addMaintenance(vehicleMaintenanceWithBLOBs);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selectAllMaintenance" })
+	public ToJson<VehicleMaintenanceWithBLOBs> selectAllMaintenance(
+			HttpServletRequest request, HttpServletResponse response,
+			VehicleMaintenanceWithBLOBs vehicleMaintenanceWithBLOBs,
+			String startTime, String endTime, String startFee, String endFee,
+			String export) {
+		return this.vehicleMaintenanceService.selectAllMaintenance(request,
+				response, vehicleMaintenanceWithBLOBs, startTime, endTime,
+				startFee, endFee, export);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/edit" })
+	public ToJson<Object> edit(
+			VehicleMaintenanceWithBLOBs vehicleMaintenanceWithBLOBs) {
+		return this.vehicleMaintenanceService
+				.editMaintenance(vehicleMaintenanceWithBLOBs);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/deleteMaintenance" })
+	public ToJson<VehicleMaintenanceWithBLOBs> deleteMaintenance(Integer vmId) {
+		return this.vehicleMaintenanceService.deleteMaintenance(vmId);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getdetail" })
+	public ToJson<VehicleMaintenanceWithBLOBs> getdetail(Integer vmId) {
+		return this.vehicleMaintenanceService.getdetail(vmId);
+	}
+}

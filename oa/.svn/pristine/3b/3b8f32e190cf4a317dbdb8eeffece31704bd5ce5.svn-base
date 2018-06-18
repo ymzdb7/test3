@@ -1,0 +1,51 @@
+/*    */ package com.xoa.global.intercptor;
+/*    */ 
+/*    */ import com.xoa.util.common.L;
+/*    */ import java.util.HashMap;
+/*    */ import javax.servlet.http.HttpSession;
+/*    */ 
+/*    */ public class CommonSessionContext
+/*    */ {
+/*    */   private static CommonSessionContext instance;
+/*    */   private HashMap mymap;
+/*    */ 
+/*    */   private CommonSessionContext()
+/*    */   {
+/* 16 */     this.mymap = new HashMap();
+/*    */   }
+/*    */ 
+/*    */   public static CommonSessionContext getInstance() {
+/* 20 */     if (instance == null) {
+/* 21 */       synchronized (CommonSessionContext.class) {
+/* 22 */         if (instance == null) {
+/* 23 */           instance = new CommonSessionContext();
+/*    */         }
+/*    */       }
+/*    */     }
+/* 27 */     return instance;
+/*    */   }
+/*    */ 
+/*    */   public synchronized void AddSession(HttpSession session) {
+/* 31 */     if (session != null)
+/* 32 */       this.mymap.put(session.getId(), session);
+/*    */   }
+/*    */ 
+/*    */   public synchronized void DelSession(HttpSession session)
+/*    */   {
+/* 37 */     L.s(new Object[] { "run remove session" });
+/* 38 */     if (session != null)
+/* 39 */       this.mymap.remove(session.getId());
+/*    */   }
+/*    */ 
+/*    */   public synchronized HttpSession getSession(String session_id)
+/*    */   {
+/* 44 */     if (session_id == null)
+/* 45 */       return null;
+/* 46 */     return (HttpSession)this.mymap.get(session_id);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.global.intercptor.CommonSessionContext
+ * JD-Core Version:    0.6.0
+ */

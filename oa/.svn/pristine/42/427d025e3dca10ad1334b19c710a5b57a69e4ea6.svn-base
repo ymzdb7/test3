@@ -1,0 +1,203 @@
+/*     */ package com.xoa.service.officesupplies;
+/*     */ 
+/*     */ import com.xoa.dao.officesupplies.OfficeDepositoryMapper;
+/*     */ import com.xoa.model.officesupplies.OfficeDepositoryWithBLOBs;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.department.DepartmentService;
+/*     */ import com.xoa.service.edu.eduUser.IEduUserService;
+/*     */ import com.xoa.service.users.UsersPrivService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class OfficeDepositoryService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private OfficeDepositoryMapper officeDepositoryMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentService departmentService;
+/*     */ 
+/*     */   @Resource
+/*     */   private IEduUserService eduUserService;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersPrivService usersPrivService;
+/*     */ 
+/*     */   @Resource
+/*     */   private OfficeTypeService officeTypeService;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<OfficeDepositoryWithBLOBs> insertDepository(OfficeDepositoryWithBLOBs depositoryWithBLOBs)
+/*     */   {
+/*  57 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  59 */       int count = this.officeDepositoryMapper.insertDepository(depositoryWithBLOBs);
+/*  60 */       if (count > 0) {
+/*  61 */         json.setMsg("ok");
+/*  62 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  65 */       json.setMsg(e.getMessage());
+/*  66 */       L.e(new Object[] { "OfficeDepositoryService insertDepository:" + e });
+/*  67 */       e.printStackTrace();
+/*     */     }
+/*  69 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<OfficeDepositoryWithBLOBs> updateDepositoryById(OfficeDepositoryWithBLOBs depositoryWithBLOBs)
+/*     */   {
+/*  81 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  83 */       int count = this.officeDepositoryMapper.updateDepositoryById(depositoryWithBLOBs);
+/*  84 */       if (count > 0) {
+/*  85 */         json.setMsg("ok");
+/*  86 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  89 */       json.setMsg(e.getMessage());
+/*  90 */       L.e(new Object[] { "OfficeDepositoryService updateDepositoryById:" + e });
+/*  91 */       e.printStackTrace();
+/*     */     }
+/*  93 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<OfficeDepositoryWithBLOBs> delDepositoryById(Integer id)
+/*     */   {
+/* 105 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 107 */       int count = this.officeDepositoryMapper.delDepositoryById(id);
+/* 108 */       if (count > 0) {
+/* 109 */         json.setMsg("ok");
+/* 110 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 113 */       json.setMsg(e.getMessage());
+/* 114 */       L.e(new Object[] { "OfficeDepositoryService delDepositoryById:" + e });
+/* 115 */       e.printStackTrace();
+/*     */     }
+/* 117 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<OfficeDepositoryWithBLOBs> selDepositoryById(Integer id)
+/*     */   {
+/* 128 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 130 */       OfficeDepositoryWithBLOBs officeDepositoryWithBLOBs = this.officeDepositoryMapper.selDepositoryById(id);
+/* 131 */       if ((officeDepositoryWithBLOBs != null) && 
+/* 132 */         (!StringUtils.checkNull(officeDepositoryWithBLOBs.getDeptId()).booleanValue())) {
+/* 133 */         if (officeDepositoryWithBLOBs.getDeptId().equals("ALL_DEPT"))
+/* 134 */           officeDepositoryWithBLOBs.setDeptName("全体部门");
+/*     */         else {
+/* 136 */           officeDepositoryWithBLOBs.setDeptName(this.departmentService.getDeptNameByDeptId(officeDepositoryWithBLOBs.getDeptId(), ","));
+/*     */         }
+/*     */       }
+/*     */ 
+/* 140 */       if (!StringUtils.checkNull(officeDepositoryWithBLOBs.getManager()).booleanValue()) {
+/* 141 */         officeDepositoryWithBLOBs.setManagerName(this.eduUserService.getUserNameByUserIds(officeDepositoryWithBLOBs.getManager()));
+/*     */       }
+/* 143 */       if (!StringUtils.checkNull(officeDepositoryWithBLOBs.getProKeeper()).booleanValue()) {
+/* 144 */         officeDepositoryWithBLOBs.setProKeeperName(this.eduUserService.getUserNameByUserIds(officeDepositoryWithBLOBs.getProKeeper()));
+/*     */       }
+/* 146 */       if (!StringUtils.checkNull(officeDepositoryWithBLOBs.getPrivId()).booleanValue()) {
+/* 147 */         officeDepositoryWithBLOBs.setPrivName(this.usersPrivService.getPrivNameByPrivId(officeDepositoryWithBLOBs.getPrivId(), ","));
+/*     */       }
+/* 149 */       if (!StringUtils.checkNull(officeDepositoryWithBLOBs.getOfficeTypeId()).booleanValue()) {
+/* 150 */         officeDepositoryWithBLOBs.setOfficeTypeName(this.officeTypeService.getTypeNameByTypeIds(officeDepositoryWithBLOBs.getOfficeTypeId()));
+/*     */       }
+/* 152 */       json.setObject(officeDepositoryWithBLOBs);
+/* 153 */       json.setMsg("ok");
+/* 154 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 156 */       json.setMsg(e.getMessage());
+/* 157 */       L.e(new Object[] { "OfficeDepositoryService selDepositoryById:" + e });
+/* 158 */       e.printStackTrace();
+/*     */     }
+/* 160 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<OfficeDepositoryWithBLOBs> selAllDepository()
+/*     */   {
+/* 171 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 173 */       List<OfficeDepositoryWithBLOBs> officeDepositoryWithBLOBs = this.officeDepositoryMapper.selAllDepository();
+/* 174 */       for (OfficeDepositoryWithBLOBs depository : officeDepositoryWithBLOBs) {
+/* 175 */         if (!StringUtils.checkNull(depository.getDeptId()).booleanValue()) {
+/* 176 */           if (depository.getDeptId().equals("ALL_DEPT"))
+/* 177 */             depository.setDeptName("全体部门");
+/*     */           else {
+/* 179 */             depository.setDeptName(this.departmentService.getDeptNameByDeptId(depository.getDeptId(), ","));
+/*     */           }
+/*     */         }
+/* 182 */         if (!StringUtils.checkNull(depository.getManager()).booleanValue()) {
+/* 183 */           depository.setManagerName(this.eduUserService.getUserNameByUserIds(depository.getManager()));
+/*     */         }
+/* 185 */         if (!StringUtils.checkNull(depository.getProKeeper()).booleanValue()) {
+/* 186 */           depository.setProKeeperName(this.eduUserService.getUserNameByUserIds(depository.getProKeeper()));
+/*     */         }
+/* 188 */         if (!StringUtils.checkNull(depository.getPrivId()).booleanValue()) {
+/* 189 */           depository.setPrivName(this.usersPrivService.getPrivNameByPrivId(depository.getPrivId(), ","));
+/*     */         }
+/* 191 */         if (!StringUtils.checkNull(depository.getOfficeTypeId()).booleanValue()) {
+/* 192 */           depository.setOfficeTypeName(this.officeTypeService.getTypeNameByTypeIds(depository.getOfficeTypeId()));
+/*     */         }
+/*     */       }
+/* 195 */       json.setObj(officeDepositoryWithBLOBs);
+/* 196 */       json.setMsg("ok");
+/* 197 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 199 */       json.setMsg(e.getMessage());
+/* 200 */       L.e(new Object[] { "OfficeDepositoryService selAllDepository:" + e });
+/* 201 */       e.printStackTrace();
+/*     */     }
+/* 203 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<OfficeDepositoryWithBLOBs> selDepositoryByDept(HttpServletRequest request)
+/*     */   {
+/* 213 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 215 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 216 */       List list = this.officeDepositoryMapper.selDepositoryByDept(users.getUserId());
+/* 217 */       json.setObj(list);
+/* 218 */       json.setMsg("ok");
+/* 219 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 221 */       json.setMsg(e.getMessage());
+/* 222 */       L.e(new Object[] { "OfficeDepositoryService getDeposttoryByDept:" + e });
+/* 223 */       e.printStackTrace();
+/*     */     }
+/* 225 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<OfficeDepositoryWithBLOBs> getAllDeposttoryTree(HttpServletRequest request)
+/*     */   {
+/* 234 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 236 */       List list = this.officeDepositoryMapper.getAllDeposttoryTree();
+/* 237 */       json.setObj(list);
+/* 238 */       json.setMsg("ok");
+/* 239 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 241 */       json.setMsg(e.getMessage());
+/* 242 */       L.e(new Object[] { "OfficeDepositoryService getDeposttoryByDept:" + e });
+/* 243 */       e.printStackTrace();
+/*     */     }
+/* 245 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.officesupplies.OfficeDepositoryService
+ * JD-Core Version:    0.6.0
+ */

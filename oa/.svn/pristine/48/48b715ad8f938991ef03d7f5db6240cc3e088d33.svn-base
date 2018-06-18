@@ -1,0 +1,28 @@
+package com.xoa.controller.hierarchical;
+
+import org.apache.log4j.Logger;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+@Scope("prototype")
+@RequestMapping({ "/hierarchical" })
+public class HCommonController {
+	private Logger loger = Logger.getLogger(HCommonController.class);
+
+	@RequestMapping({ "/common/setting" })
+	public String setting() {
+		return "app/hierarchical/setting";
+	}
+
+	@RequestMapping({ "/common/deptManager" })
+	public String deptManager() {
+		return "app/hierarchical/deptManager";
+	}
+
+	@RequestMapping({ "/common/userManager" })
+	public String userManager() {
+		return "app/hierarchical/userManager";
+	}
+}

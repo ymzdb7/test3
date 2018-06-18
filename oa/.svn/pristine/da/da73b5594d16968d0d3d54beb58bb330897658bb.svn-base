@@ -1,0 +1,82 @@
+/*     */ package com.xoa.service.url.impl;
+/*     */ 
+/*     */ import com.xoa.dao.url.UrlMapper;
+/*     */ import com.xoa.model.url.Url;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.url.UrlService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class UrlServiceImpl
+/*     */   implements UrlService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private UrlMapper urlMapper;
+/*     */ 
+/*     */   public void insertUrl(Url url)
+/*     */   {
+/*  33 */     this.urlMapper.insertUrl(url);
+/*     */   }
+/*     */ 
+/*     */   public List<Url> selectData(Url url)
+/*     */   {
+/*  44 */     List list = this.urlMapper.selectData(url);
+/*  45 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public Url selectByUrlId(HttpServletRequest request, Integer urlId)
+/*     */   {
+/*  57 */     ToJson json = new ToJson(1, "error");
+/*  58 */     Url url = this.urlMapper.selectByUrlId(urlId);
+/*  59 */     if (url != null) {
+/*  60 */       json.setObject(url);
+/*  61 */       json.setMsg("ok");
+/*  62 */       json.setFlag(0);
+/*     */     } else {
+/*  64 */       json.setMsg("数据为空");
+/*  65 */       json.setFlag(0);
+/*     */     }
+/*  67 */     return url;
+/*     */   }
+/*     */ 
+/*     */   public void deleteData(Integer urlId)
+/*     */   {
+/*  79 */     this.urlMapper.deleteData(urlId);
+/*     */   }
+/*     */ 
+/*     */   public void deleteAll()
+/*     */   {
+/*  90 */     this.urlMapper.deleteAll();
+/*     */   }
+/*     */ 
+/*     */   public void updateUrl(Url url)
+/*     */   {
+/* 101 */     this.urlMapper.updateUrl(url);
+/*     */   }
+/*     */ 
+/*     */   public void addUrl(Url url, HttpServletRequest request)
+/*     */   {
+/* 117 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 118 */     Integer uid = users.getUid();
+/* 119 */     if (StringUtils.checkNull(url.getSubType()).booleanValue()) {
+/* 120 */       url.setSubType("");
+/*     */     }
+/*     */ 
+/* 123 */     url.setUrlIcon("");
+/*     */ 
+/* 125 */     url.setUser(String.valueOf(uid).concat(","));
+/* 126 */     this.urlMapper.insertSelective(url);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.url.impl.UrlServiceImpl
+ * JD-Core Version:    0.6.0
+ */

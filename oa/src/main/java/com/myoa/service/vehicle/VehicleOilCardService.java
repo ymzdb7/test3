@@ -1,0 +1,181 @@
+ package com.myoa.service.vehicle;
+ 
+ import com.myoa.dao.common.SysCodeMapper;
+import com.myoa.dao.department.DepartmentMapper;
+import com.myoa.dao.vehicle.VehicleOilCardMapper;
+import com.myoa.model.common.SysCode;
+import com.myoa.model.vehicle.VehicleOilCard;
+import com.myoa.service.edu.eduUser.IEduUserService;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.StringUtils;
+
+ import java.util.List;
+ import javax.servlet.http.HttpServletRequest;
+ import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+ 
+ @Service
+ public class VehicleOilCardService
+ {
+ 
+   @Autowired
+   VehicleOilCardMapper vehicleOilCardMapper;
+ 
+   @Autowired
+   IEduUserService eduUserService;
+ 
+   @Autowired
+   DepartmentMapper departmentMapper;
+ 
+   @Autowired
+   SysCodeMapper sysCodeMapper;
+ 
+   public ToJson<Object> addVehicleOilCard(VehicleOilCard vehicleOilCard)
+   {
+     ToJson json = new ToJson(1, "err");
+     try {
+       int i = this.vehicleOilCardMapper.insertSelective(vehicleOilCard);
+       if (i > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<Object> editVehicleOilCard(VehicleOilCard vehicleOilCard)
+   {
+     ToJson json = new ToJson(1, "err");
+     try {
+       int i = this.vehicleOilCardMapper.updateByPrimaryKeySelective(vehicleOilCard);
+       if (i > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<Object> deleteOilCard(Integer id)
+   {
+     ToJson json = new ToJson(1, "err");
+     try {
+       int i = this.vehicleOilCardMapper.deleteByPrimaryKey(id);
+       if (i > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<Object> deleteCards(String[] ids)
+   {
+     ToJson json = new ToJson(1, "err");
+     try {
+       int i = this.vehicleOilCardMapper.deleteCards(ids);
+       if (i > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<VehicleOilCard> selectAllCard(HttpServletRequest request)
+   {
+     ToJson json = new ToJson(1, "err");
+     try {
+       List <VehicleOilCard> vehicleOilCards = this.vehicleOilCardMapper.selectAllCard();
+       for (VehicleOilCard vehicleOilCard : vehicleOilCards) {
+         if (!StringUtils.checkNull(vehicleOilCard.getvDept()).booleanValue()) {
+           String depart = vehicleOilCard.getvDept();
+           vehicleOilCard.setvDeptName(this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(depart)));
+         }
+ 
+         if (vehicleOilCard.getvOnwer() != null) {
+           String owner = vehicleOilCard.getvOnwer();
+           vehicleOilCard.setvOnwerName(this.eduUserService.getUserNameByUserIds(owner));
+         }
+         if (vehicleOilCard.getvUser() != null) {
+           String owner = vehicleOilCard.getvUser();
+           vehicleOilCard.setvUserName(this.eduUserService.getUserNameByUserIds(owner));
+         }
+ 
+         SysCode sysCode = this.sysCodeMapper.getSingleCode("VEHICLETYPE", vehicleOilCard.getvType());
+         if (sysCode != null) {
+           vehicleOilCard.setvTypeName(sysCode.getCodeName());
+         }
+ 
+         SysCode sysCode1 = this.sysCodeMapper.getSingleCode("OILCARDSTATUS", vehicleOilCard.getOcStatus());
+         if (sysCode1 != null) {
+           vehicleOilCard.setOcStatusName(sysCode1.getCodeName());
+         }
+       }
+       json.setObj(vehicleOilCards);
+       json.setFlag(0);
+       json.setMsg("ok");
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<VehicleOilCard> selectOilCardById(Integer id)
+   {
+     ToJson json = new ToJson(1, "err");
+     try {
+       VehicleOilCard vehicleOilCard = this.vehicleOilCardMapper.selectByPrimaryKey(id);
+       if (!StringUtils.checkNull(vehicleOilCard.getvDept()).booleanValue()) {
+         String depart = vehicleOilCard.getvDept();
+         vehicleOilCard.setvDeptName(this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(depart)));
+       }
+ 
+       if (vehicleOilCard.getvOnwer() != null) {
+         String owner = vehicleOilCard.getvOnwer();
+         vehicleOilCard.setvOnwerName(this.eduUserService.getUserNameByUserIds(owner));
+       }
+       if (vehicleOilCard.getvUser() != null) {
+         String owner = vehicleOilCard.getvUser();
+         vehicleOilCard.setvUserName(this.eduUserService.getUserNameByUserIds(owner));
+       }
+ 
+       SysCode sysCode = this.sysCodeMapper.getSingleCode("VEHICLETYPE", vehicleOilCard.getvType());
+       if (sysCode != null) {
+         vehicleOilCard.setvTypeName(sysCode.getCodeName());
+       }
+ 
+       SysCode sysCode1 = this.sysCodeMapper.getSingleCode("OILCARDSTATUS", vehicleOilCard.getOcStatus());
+       if (sysCode1 != null) {
+         vehicleOilCard.setOcStatusName(sysCode1.getCodeName());
+       }
+       json.setObject(vehicleOilCard);
+       json.setFlag(0);
+       json.setMsg("ok");
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+ }
+

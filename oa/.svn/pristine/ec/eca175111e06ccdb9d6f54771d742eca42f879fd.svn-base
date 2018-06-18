@@ -1,0 +1,64 @@
+package com.xoa.controller.workPlan;
+
+import com.xoa.model.workPlan.WorkDetailWithBLOBs;
+import com.xoa.service.workPlan.WorkDetailService;
+import com.xoa.util.ToJson;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@RequestMapping({ "/workDetail" })
+public class WorkDetailController {
+
+	@Resource
+	private WorkDetailService workDetailService;
+
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		dateFormat.setLenient(false);
+		binder.registerCustomEditor(Date.class, new CustomDateEditor(
+				dateFormat, true));
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selWorkDetailByPlanId" })
+	ToJson<WorkDetailWithBLOBs> selWorkDetailByPlanId(
+			WorkDetailWithBLOBs workDetailWithBLOBs) {
+		return this.workDetailService
+				.selWorkDetailByPlanId(workDetailWithBLOBs);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selWorkDetailById" })
+	ToJson<WorkDetailWithBLOBs> selWorkDetailById(int detailId) {
+		return this.workDetailService.selWorkDetailById(detailId);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/updateWorkDetailById" })
+	ToJson<WorkDetailWithBLOBs> updateWorkDetailById(WorkDetailWithBLOBs record) {
+		return this.workDetailService.updateWorkDetailById(record);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/insertWorkDetail" })
+	ToJson<WorkDetailWithBLOBs> insertWorkDetail(WorkDetailWithBLOBs record,
+			HttpServletRequest request) {
+		return this.workDetailService.insertWorkDetail(record, request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/delWorkDetailById" })
+	public ToJson<WorkDetailWithBLOBs> delWorkDetailById(int detailId) {
+		return this.workDetailService.delWorkDetailById(detailId);
+	}
+}

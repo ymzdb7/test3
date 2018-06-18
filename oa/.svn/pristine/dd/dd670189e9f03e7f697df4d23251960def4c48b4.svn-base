@@ -1,0 +1,481 @@
+ package com.xoa.service.footprint.impl;
+ 
+ import com.xoa.dao.department.DepartmentMapper;
+ import com.xoa.dao.footprint.FootPrintMapper;
+ import com.xoa.model.department.Department;
+ import com.xoa.model.footprint.Foot;
+ import com.xoa.model.footprint.LngLat;
+ import com.xoa.service.footprint.FootPrintService;
+ import com.xoa.util.CoodinateCovertor;
+ import com.xoa.util.DateFormat;
+ import com.xoa.util.ToJson;
+ import com.xoa.util.common.StringUtils;
+ import com.xoa.util.page.PageParams;
+ import java.text.ParseException;
+ import java.text.SimpleDateFormat;
+ import java.util.ArrayList;
+ import java.util.Date;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import javax.annotation.Resource;
+ import org.springframework.stereotype.Service;
+ import org.springframework.transaction.annotation.Transactional;
+ 
+ @Service
+ public class FootPrintServiceImpl
+   implements FootPrintService
+ {
+   private static final String GET_MY_FOOTPRINT = "1";
+   private static final String GET_DEPT_FOOTPRINT = "2";
+ 
+   @Resource
+   private FootPrintMapper footPrintMapper;
+ 
+   @Resource
+   private DepartmentMapper departmentMapper;
+ 
+   @Transactional
+   public ToJson<Foot> addFootPrint(Foot foot)
+   {
+     ToJson toJson = new ToJson();
+     try {
+       this.footPrintMapper.addFootPrint(foot);
+       toJson.setFlag(0);
+       toJson.setMsg("ok");
+       toJson.setObject(foot);
+     } catch (Exception e) {
+       toJson.setFlag(1);
+       toJson.setMsg("error");
+     }
+     return toJson;
+   }
+ 
+   public List<Foot> getFootPrint(String app, Integer uid, String pageNum)
+   {
+     Integer start;
+     if (pageNum == null) {
+       Integer currentpage = Integer.valueOf(0);
+       start = Integer.valueOf(0);
+     } else {
+       Integer currentpage = Integer.valueOf(Integer.parseInt(pageNum));
+       start = Integer.valueOf((currentpage.intValue() - 1) * 10);
+     }
+ 
+     List list = null;
+ 
+     List departmentList = null;
+     if ("2".equals(app)) {
+       departmentList = this.departmentMapper.getDepartmentByUid(uid);
+     }
+ 
+     if ("2".equals(app))
+     {
+       if ((departmentList != null) && (departmentList.size() == 1)) {
+         Department department = (Department)departmentList.get(0);
+         if ((department != null) && (department.getDeptId() != null)) {
+           Map map = new HashMap();
+           map.put("deptId", department.getDeptId());
+           map.put("currentpage", start);
+           list = this.footPrintMapper.getFootPrintByDepId(map);
+         }
+       }
+     }
+     else if ("1".equals(app)) {
+       Map map = new HashMap();
+       map.put("uid", uid);
+       map.put("currentpage", start);
+       list = this.footPrintMapper.getFootPrintByUid(map);
+     }
+     else
+     {
+       Map map = new HashMap();
+       map.put("currentpage", start);
+       list = this.footPrintMapper.getAllFootPrint(map);
+     }
+     return list;
+   }
+ 
+   public List<Foot> getTheFootPrint(String dayStr, Integer uid)
+     throws ParseException
+   {
+     if ((dayStr == null) || (uid == null)) {
+       return null;
+     }
+ 
+     String startTime = dayStr.concat(" 00:00:00");
+     String endTime = dayStr.concat(" 23:59:59");
+     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+     Date start = sdf.parse(startTime);
+     Date end = sdf.parse(endTime);
+ 
+     Long beginDayTime = Long.valueOf(start.getTime() / 1000L);
+     Long endDayTime = Long.valueOf(end.getTime() / 1000L);
+ 
+     int startDay = beginDayTime.intValue();
+     int endDay = endDayTime.intValue();
+ 
+     Map hashMap = new HashMap();
+     hashMap.put("startDay", Integer.valueOf(startDay));
+     hashMap.put("endDay", Integer.valueOf(endDay));
+     hashMap.put("uid", uid);
+     List footList = this.footPrintMapper.getUserDayFootPrint(hashMap);
+ 
+     return footList;
+   }
+ 
+   public List<Foot> findByCondition(String condition, String app, String pageNum, Integer uid)
+   {
+     if ((condition == null) || ("".equals(condition)))
+       return getFootPrint(app, uid, pageNum);
+     Integer start;
+     if (pageNum == null) {
+       Integer currentpage = Integer.valueOf(0);
+       start = Integer.valueOf(0);
+     } else {
+       Integer currentpage = Integer.valueOf(Integer.parseInt(pageNum));
+       start = Integer.valueOf((currentpage.intValue() - 1) * 10);
+     }
+     List list = new ArrayList();
+ 
+     boolean flag = true;
+ 
+     Integer number = null;
+     try {
+       number = Integer.valueOf(Integer.parseInt(condition));
+     } catch (Exception e) {
+       flag = false;
+     }
+ 
+     if (!flag)
+     {
+       List departmentList = null;
+       if ("2".equals(app)) {
+         departmentList = this.departmentMapper.getDepartmentByUid(uid);
+       }
+ 
+       if ("2".equals(app)) {
+         if ((departmentList != null) && (departmentList.size() == 1)) {
+           Department department = (Department)departmentList.get(0);
+           if ((department != null) && (department.getDeptId() != null))
+           {
+             Map map = new HashMap();
+             map.put("deptId", department.getDeptId());
+             map.put("currentpage", start);
+             map.put("condition", "%".concat(condition).concat("%"));
+             list = this.footPrintMapper.getDeptFootPrintByCondition(map);
+           }
+         }
+       }
+       else if ("1".equals(app)) {
+         Map map = new HashMap();
+         map.put("uid", uid);
+         map.put("currentpage", start);
+         list = this.footPrintMapper.getFootPrintByUid(map);
+       }
+       else
+       {
+         Map map = new HashMap();
+         map.put("currentpage", start);
+         map.put("condition", "%".concat(condition).concat("%"));
+         list = this.footPrintMapper.getAllFootPrintByCondition(map);
+       }
+ 
+     }
+     else
+     {
+       List departmentList = null;
+       if ("2".equals(app)) {
+         departmentList = this.departmentMapper.getDepartmentByUid(uid);
+       }
+ 
+       if ("2".equals(app)) {
+         if ((departmentList != null) && (departmentList.size() == 1))
+         {
+           Department department = (Department)departmentList.get(0);
+           if ((department != null) && (department.getDeptId() != null))
+           {
+             try
+             {
+               List<Map<String, Long>>  mapList = paseDateCondition("" + number);
+ 
+               for (Map map : mapList) {
+                 Long dayStartSecond = (Long)map.get("dayStartSecond");
+                 Long dayEndSecond = (Long)map.get("dayEndSecond");
+ 
+                 Map hashMap = new HashMap();
+                 hashMap.put("deptId", department.getDeptId());
+                 hashMap.put("dayStartSecond", dayStartSecond);
+                 hashMap.put("dayEndSecond", dayEndSecond);
+                 List<Foot> eachTimeList = new ArrayList();
+                 eachTimeList = this.footPrintMapper.getDeptFootPrintByTime(map);
+ 
+                 if (eachTimeList != null) {
+                   for (Foot foot : eachTimeList) {
+                     list.add(foot);
+                   }
+                 }
+               }
+             }
+             catch (Exception e)
+             {
+               e.printStackTrace();
+             }
+           }
+         }
+       }
+       else if ("1".equals(app)) {
+         try {
+           List<Map<String, Long>>  mapList = paseDateCondition("" + number);
+ 
+           for (Map map : mapList) {
+             Long dayStartSecond = (Long)map.get("dayStartSecond");
+             Long dayEndSecond = (Long)map.get("dayEndSecond");
+             Map hashMap = new HashMap();
+             hashMap.put("uid", uid);
+             hashMap.put("currentpage", start);
+             hashMap.put("dayStartSecond", dayStartSecond);
+             hashMap.put("dayEndSecond", dayEndSecond);
+             List<Foot> eachTimeList = new ArrayList();
+             eachTimeList = this.footPrintMapper.getFootPrintByUidTime(hashMap);
+ 
+             if (eachTimeList != null) {
+               for (Foot foot : eachTimeList)
+                 list.add(foot);
+             }
+           }
+         }
+         catch (Exception e)
+         {
+           e.printStackTrace();
+         }
+       }
+       else {
+         try
+         {
+           List<Map<String, Long>>  mapList = paseDateCondition("" + number);
+ 
+           for (Map map : mapList) {
+             Map hashMap = new HashMap();
+             hashMap.put("currentpage", start);
+             hashMap.put("condition", condition);
+             hashMap.put("uid", uid);
+             Long dayStartSecond = (Long)map.get("dayStartSecond");
+             Long dayEndSecond = (Long)map.get("dayEndSecond");
+             hashMap.put("dayStartSecond", dayStartSecond);
+             hashMap.put("dayEndSecond", dayEndSecond);
+             List<Foot> eachTimeList = new ArrayList();
+             eachTimeList = this.footPrintMapper.getAllFootPrintByTime(hashMap);
+ 
+             if (eachTimeList != null) {
+               for (Foot foot1 : eachTimeList)
+                 list.add(foot1);
+             }
+           }
+         }
+         catch (Exception e)
+         {
+           e.printStackTrace();
+         }
+       }
+     }
+     return list;
+   }
+ 
+   public List<Foot> getTheDayFootPrint(String day, Integer uid)
+   {
+     if ((day != null) && (uid != null)) {
+       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+ 
+       String startDayStr = day.concat(" 00:00:00");
+       String endDayStr = day.concat(" 23:59:59");
+ 
+       Date startDaySecond = null;
+       try {
+         startDaySecond = sdf.parse(startDayStr);
+       } catch (ParseException e) {
+         e.printStackTrace();
+       }
+       Date endDaySecond = null;
+       try {
+         endDaySecond = sdf.parse(endDayStr);
+       } catch (ParseException e) {
+         e.printStackTrace();
+       }
+ 
+       Long start = Long.valueOf(startDaySecond.getTime() / 1000L);
+       Long end = Long.valueOf(endDaySecond.getTime() / 1000L);
+ 
+       Map hashMap = new HashMap();
+       hashMap.put("start", start);
+       hashMap.put("end", end);
+       hashMap.put("uid", uid);
+ 
+       return this.footPrintMapper.getTheDayFootPrint(hashMap);
+     }
+     return null;
+   }
+ 
+   public ToJson<Foot> editUpdateTimeByuid(String time, Integer uid, Integer id)
+   {
+     ToJson footToJson = new ToJson();
+     Foot foot = this.footPrintMapper.queryById(id);
+     if (foot != null) {
+       String a1 = DateFormat.getStrTime(foot.getCreateTime());
+ 
+       int a = this.footPrintMapper.editFootByTime(Integer.valueOf(Integer.parseInt(time)), uid, id);
+       footToJson.setMsg("ok");
+       footToJson.setFlag(0);
+       footToJson.setObject(DateFormat.returnTime(Integer.valueOf(Integer.parseInt(time) - foot.getCreateTime().intValue())));
+     }
+     else {
+       footToJson.setMsg("err");
+       footToJson.setFlag(1);
+     }
+     return footToJson;
+   }
+ 
+   public List<Map<String, Long>> paseDateCondition(String number)
+     throws ParseException
+   {
+     List list = new ArrayList();
+ 
+     List<String> dataStrList = new ArrayList();
+     String dateStr = "20";
+ 
+     for (int i = 17; i <= 50; i++) {
+       dateStr = dateStr.concat("" + i);
+       for (int k = 1; k <= 12; k++)
+       {
+         if (k < 10) {
+           dateStr = dateStr.concat("-0" + k);
+         }
+         else {
+           dateStr = dateStr.concat("-" + k);
+         }
+ 
+         for (int l = 1; l <= 31; l++)
+         {
+           if (l < 10) {
+             dateStr = dateStr.concat("-0" + l);
+             if (dateStr.contains(number))
+               dataStrList.add(dateStr);
+           }
+           else
+           {
+             dateStr = dateStr.concat("-" + l);
+             if (dateStr.contains(number)) {
+               dataStrList.add(dateStr);
+             }
+           }
+ 
+           dateStr = dateStr.substring(0, 7);
+         }
+ 
+         dateStr = dateStr.substring(0, 4);
+       }
+ 
+       dateStr = dateStr.substring(0, 2);
+     }
+ 
+     for (String s : dataStrList)
+     {
+       String dayStart = s.concat(" 00:00:00");
+       String dayEnd = s.concat(" 23:23:23");
+ 
+       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+       Date dayStartTime = sdf.parse(dayStart);
+       Long dayStartSecond = Long.valueOf(dayStartTime.getTime() / 1000L);
+ 
+       Date dayEndTime = sdf.parse(dayEnd);
+       Long dayEndSecond = Long.valueOf(dayEndTime.getTime() / 1000L);
+       Map map = new HashMap();
+       map.put("dayStartSecond", dayStartSecond);
+       map.put("dayEndSecond", dayEndSecond);
+       list.add(map);
+     }
+     return list;
+   }
+ 
+   public ToJson<Foot> getWebFootPrint(String app, String time, String detail, Integer uid, Integer page, Integer pageSize, Boolean useFlag)
+   {
+     ToJson json = new ToJson();
+ 
+     PageParams pageParams = new PageParams();
+     pageParams.setPage(page);
+     pageParams.setPageSize(pageSize);
+     pageParams.setUseFlag(useFlag);
+     List<Foot> list = null;
+ 
+     List departmentList = null;
+     try {
+       String beginTime = "";
+       String endTime = "";
+       if (!StringUtils.checkNull(time).booleanValue()) {
+         beginTime = time + " 00:00:00";
+         endTime = time + " 23:59:59";
+         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+         beginTime = String.valueOf(format.parse(beginTime).getTime() / 1000L);
+         endTime = String.valueOf(format.parse(endTime).getTime() / 1000L);
+       }
+       if ("2".equals(app)) {
+         departmentList = this.departmentMapper.getDepartmentByUid(uid);
+       }
+ 
+       if ("2".equals(app))
+       {
+         if ((departmentList != null) && (departmentList.size() == 1)) {
+           Department department = (Department)departmentList.get(0);
+           if ((department != null) && (department.getDeptId() != null)) {
+             Map map = new HashMap();
+             map.put("deptId", department.getDeptId());
+             map.put("page", pageParams);
+             map.put("time", time);
+             map.put("beginTime", beginTime);
+             map.put("endTime", endTime);
+             map.put("detail", detail);
+             list = this.footPrintMapper.getWebFootPrintByDepId(map);
+           }
+         }
+       }
+       else if ("1".equals(app)) {
+         Map map = new HashMap();
+         map.put("uid", uid);
+         map.put("page", pageParams);
+         map.put("time", time);
+         map.put("beginTime", beginTime);
+         map.put("endTime", endTime);
+         list = this.footPrintMapper.getWebFootPrintByUid(map);
+         for (Foot foot : list) {
+           LngLat lngLat = new LngLat();
+           lngLat.setLantitude(Double.valueOf(foot.getLng()).doubleValue());
+           lngLat.setLongitude(Double.valueOf(foot.getLat()).doubleValue());
+           LngLat lngLat1 = CoodinateCovertor.bd_encrypt(lngLat);
+           foot.setLantitude(String.valueOf(lngLat1.getLantitude()));
+           foot.setLongitude(String.valueOf(lngLat1.getLongitude()));
+         }
+       }
+       else
+       {
+         Map map = new HashMap();
+         map.put("page", pageParams);
+         map.put("time", time);
+         map.put("beginTime", beginTime);
+         map.put("endTime", endTime);
+         map.put("detail", detail);
+         list = this.footPrintMapper.getWebAllFootPrint(map);
+       }
+ 
+       json.setObj(list);
+       json.setTotleNum(pageParams.getTotal());
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       json.setFlag(1);
+       e.printStackTrace();
+     }
+     return json;
+   }
+ }
+

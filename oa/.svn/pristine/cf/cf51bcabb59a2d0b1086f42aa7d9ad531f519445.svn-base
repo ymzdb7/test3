@@ -1,0 +1,254 @@
+ package com.myoa.service.im;
+ 
+ import com.myoa.dao.enclosure.AttachmentMapper;
+import com.myoa.model.enclosure.Attachment;
+import com.myoa.util.ModuleEnum;
+import com.myoa.util.netdisk.ReadFile;
+
+ import java.io.File;
+ import java.io.FileInputStream;
+ import java.io.IOException;
+ import java.net.URLEncoder;
+ import java.nio.channels.FileChannel;
+ import java.text.SimpleDateFormat;
+ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.Date;
+ import java.util.List;
+ import java.util.ResourceBundle;
+ import javax.annotation.Resource;
+ import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+ 
+ @Service
+ public class ImEnclosureService
+ {
+ 
+   @Resource
+   AttachmentMapper attachmentMapper;
+ 
+   public void saveAttachment(Attachment attachment)
+   {
+     this.attachmentMapper.insertSelective(attachment);
+   }
+ 
+   public Attachment findByAttachId(int attachId)
+   {
+     Attachment a = this.attachmentMapper.findByAttachId(attachId);
+     return a;
+   }
+ 
+   public Attachment findByLast()
+   {
+     Attachment att = this.attachmentMapper.findByLast();
+     return att;
+   }
+ 
+   public List<Attachment> upload(MultipartFile[] files, String types, String module, String company, boolean isMobile)
+     throws IOException
+   {
+     if (files.length == 0) {
+       return null;
+     }
+     ResourceBundle rb = ResourceBundle.getBundle("upload");
+     String os = System.getProperty("os.name");
+     StringBuffer sb = new StringBuffer();
+     if (os.toLowerCase().startsWith("win"))
+       sb = sb.append(rb.getString("upload.win"));
+     else {
+       sb = sb.append(rb.getString("upload.linux"));
+     }
+     List list = new ArrayList();
+ 
+     String ym = new SimpleDateFormat("yyMM").format(new Date());
+ 
+     String path = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + company + System.getProperty("file.separator") + module + System.getProperty("file.separator") + ym;
+ 
+     Attachment attachment = new Attachment();
+     for (int i = 0; i < files.length; i++) {
+       MultipartFile file = files[i];
+       if (file.isEmpty())
+         continue;
+       String fileName = file.getOriginalFilename().trim();
+ 
+       int attachID = Math.abs((int)System.currentTimeMillis());
+       StringBuffer s = new StringBuffer();
+       if (os.toLowerCase().startsWith("win"))
+         s.append(fileName);
+       else {
+         s.append(fileName);
+       }
+       String sf = Integer.toString(attachID) + "." + s.toString();
+       String newFileName = sf;
+       File dir = new File(path);
+       File newFile = null;
+       if (!file.isEmpty()) {
+         try {
+           if (!dir.exists()) {
+             dir.mkdirs();
+           }
+           newFile = new File(dir, newFileName);
+ 
+           if (!newFile.exists()) {
+             newFile.createNewFile();
+           }
+           file.transferTo(newFile);
+         } catch (Exception e) {
+           e.printStackTrace();
+         }
+       }
+ 
+       byte isImg = 3;
+ 
+       String type = fileName.substring(fileName.indexOf(".") + 1);
+       String[] imagType = { "jpg", "png", "bmp", "gif", "JPG", "PNG", "BMP", "GIF" };
+       List imageTyepLists = Arrays.asList(imagType);
+       if (imageTyepLists.contains(type))
+         isImg = 0;
+       else {
+         isImg = 1;
+       }
+       byte a = 0;
+       byte b = 2;
+ 
+       int moduleID = ModuleEnum.IM.getIndex();
+       byte mid = (byte)moduleID;
+       attachment = new Attachment();
+       attachment.setAttachId(Integer.valueOf(attachID));
+       attachment.setModule(Byte.valueOf(mid));
+       attachment.setAttachFile(fileName);
+       attachment.setAttachName(fileName);
+       attachment.setYm(ym);
+       attachment.setAttachSign(new Long(0L));
+       attachment.setDelFlag(Byte.valueOf(a));
+       attachment.setPosition(Byte.valueOf(b));
+ 
+       saveAttachment(attachment);
+       attachment = findByLast();
+       String attUrl = null;
+       if (newFile != null) {
+         String url = newFile.getAbsolutePath();
+         FileInputStream fis = new FileInputStream(newFile);
+         long size = fis.getChannel().size();
+         if (isMobile) {
+           attUrl = "AID=" + attachment.getAid() + "&" + "MODULE=" + module + "&" + "COMPANY=" + company + "&" + "YM=" + attachment.getYm() + "&" + "ATTACHMENT_ID=" + attachment.getAttachId() + "&" + "ATTACHMENT_NAME=" + attachment.getAttachName() + "&" + "FILESIZE=" + ReadFile.FormetFileSize(size);
+         }
+         else {
+           attUrl = "AID=" + attachment.getAid() + "&" + "MODULE=" + module + "&" + "COMPANY=" + company + "&" + "YM=" + attachment.getYm() + "&" + "ATTACHMENT_ID=" + attachment.getAttachId() + "&" + "ATTACHMENT_NAME=" + URLEncoder.encode(attachment.getAttachName(), "utf-8") + "&" + "FILESIZE=" + ReadFile.FormetFileSize(size);
+         }
+ 
+         fis.close();
+         attachment.setUrl(url);
+       }
+       attachment.setAttUrl(attUrl);
+       attachment.setPath(path);
+       attachment.setIsImage(Byte.valueOf(isImg));
+       list.add(attachment);
+     }
+ 
+     return list;
+   }
+ 
+   public Attachment upload(MultipartFile file, String types, String module, String company, boolean isMobile) throws IOException
+   {
+     ResourceBundle rb = ResourceBundle.getBundle("upload");
+     String os = System.getProperty("os.name");
+     StringBuffer sb = new StringBuffer();
+     if (os.toLowerCase().startsWith("win"))
+       sb = sb.append(rb.getString("upload.win"));
+     else {
+       sb = sb.append(rb.getString("upload.linux"));
+     }
+ 
+     String ym = new SimpleDateFormat("yyMM").format(new Date());
+ 
+     String path = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + company + System.getProperty("file.separator") + module + System.getProperty("file.separator") + ym;
+ 
+     Attachment attachment = new Attachment();
+     if (!file.isEmpty())
+     {
+       String fileName = file.getOriginalFilename().trim();
+ 
+       int attachID = Math.abs((int)System.currentTimeMillis());
+       StringBuffer s = new StringBuffer();
+       if (os.toLowerCase().startsWith("win"))
+         s.append(fileName);
+       else {
+         s.append(fileName);
+       }
+       String sf = Integer.toString(attachID) + "." + s.toString();
+       String newFileName = sf;
+       File dir = new File(path);
+       File newFile = null;
+       if (!file.isEmpty()) {
+         try {
+           if (!dir.exists()) {
+             dir.mkdirs();
+           }
+           newFile = new File(dir, newFileName);
+ 
+           if (!newFile.exists()) {
+             newFile.createNewFile();
+           }
+           file.transferTo(newFile);
+         } catch (Exception e) {
+           e.printStackTrace();
+         }
+       }
+ 
+       byte isImg = 3;
+ 
+       String type = fileName.substring(fileName.indexOf(".") + 1);
+       String[] imagType = { "jpg", "png", "bmp", "gif", "JPG", "PNG", "BMP", "GIF" };
+       List imageTyepLists = Arrays.asList(imagType);
+       if (imageTyepLists.contains(type))
+         isImg = 0;
+       else {
+         isImg = 1;
+       }
+       byte a = 0;
+       byte b = 2;
+ 
+       int moduleID = ModuleEnum.IM.getIndex();
+       byte mid = (byte)moduleID;
+       attachment = new Attachment();
+       attachment.setAttachId(Integer.valueOf(attachID));
+       attachment.setModule(Byte.valueOf(mid));
+       attachment.setAttachFile(fileName);
+       attachment.setAttachName(fileName);
+       attachment.setYm(ym);
+       attachment.setAttachSign(new Long(0L));
+       attachment.setDelFlag(Byte.valueOf(a));
+       attachment.setPosition(Byte.valueOf(b));
+       saveAttachment(attachment);
+       attachment = findByLast();
+       String attUrl = null;
+       if (newFile != null) {
+         String url = newFile.getAbsolutePath();
+         FileInputStream fis = new FileInputStream(newFile);
+         long size = fis.getChannel().size();
+         if (isMobile) {
+           attUrl = "AID=" + attachment.getAid() + "&" + "MODULE=" + module + "&" + "COMPANY=" + company + "&" + "YM=" + attachment.getYm() + "&" + "ATTACHMENT_ID=" + attachment.getAttachId() + "&" + "ATTACHMENT_NAME=" + attachment.getAttachName() + "&" + "FILESIZE=" + ReadFile.FormetFileSize(size);
+         }
+         else {
+           attUrl = "AID=" + attachment.getAid() + "&" + "MODULE=" + module + "&" + "COMPANY=" + company + "&" + "YM=" + attachment.getYm() + "&" + "ATTACHMENT_ID=" + attachment.getAttachId() + "&" + "ATTACHMENT_NAME=" + URLEncoder.encode(attachment.getAttachName(), "utf-8") + "&" + "FILESIZE=" + ReadFile.FormetFileSize(size);
+         }
+ 
+         fis.close();
+         attachment.setUrl(url);
+       }
+       attachment.setAttUrl(attUrl);
+       attachment.setPath(path);
+       attachment.setIsImage(Byte.valueOf(isImg));
+     }
+ 
+     return attachment;
+   }
+ 
+   public String attachmenturl(Attachment att, String company, String module)
+   {
+     String attUrl = "AID=" + att.getAid() + "&" + "MODULE=" + module + "&" + "YM=" + att.getYm() + "&" + "ATTACHMENT_ID=" + att.getAttachId() + "&" + "ATTACHMENT_NAME=" + att.getAttachName();
+     return attUrl;
+   }
+ }
+

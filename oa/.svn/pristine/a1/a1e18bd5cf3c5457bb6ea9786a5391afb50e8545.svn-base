@@ -1,0 +1,133 @@
+package com.xoa.controller.event;
+
+import com.xoa.model.event.TimeLine;
+import com.xoa.model.event.TimeLinePostDept;
+import com.xoa.model.event.TimeLinePostRole;
+import com.xoa.model.event.TimeLinePostUser;
+import com.xoa.model.event.TimeLineViewDept;
+import com.xoa.model.event.TimeLineViewRole;
+import com.xoa.model.event.TimeLineViewUser;
+import com.xoa.service.event.TimeLineService;
+import com.xoa.util.ToJson;
+import com.xoa.util.page.PageParams;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping({ "/timeLine" })
+public class TimeLineController {
+
+	@Autowired
+	TimeLineService timeLineService;
+
+	@ResponseBody
+	@RequestMapping({ "/getDetailByUuid" })
+	public ToJson<TimeLine> getDetailByUuid(HttpServletRequest request,
+			String uuid) {
+		return this.timeLineService.getDetailByUuid(request, uuid);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getTimeLineByUuid" })
+	public ToJson<TimeLine> getTimeLineByUuid(HttpServletRequest request,
+			String uuid) {
+		return this.timeLineService.getTimeLineByUuid(request, uuid);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getTimeLineCode" })
+	public ToJson<Object> getTimeLineCode(HttpServletRequest request,
+			String uuid) {
+		return this.timeLineService.getTimelineCode(request, uuid);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getInforList" })
+	public ToJson<TimeLine> getInforList(HttpServletRequest request,
+			TimeLine timeLine) {
+		return this.timeLineService.getInforList(request, timeLine);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getInforList1" })
+	public ToJson<TimeLine> getInforList1(HttpServletRequest request,
+			TimeLine timeLine) {
+		return this.timeLineService.getInforList1(request, timeLine);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/updateData" })
+	public ToJson<TimeLine> updateData(HttpServletRequest request,
+			TimeLine timeLine, TimeLinePostDept timeLinePostDept,
+			TimeLinePostRole timeLinePostRole,
+			TimeLinePostUser timeLinePostUser,
+			TimeLineViewDept timeLineViewDept,
+			TimeLineViewRole timeLineViewRole,
+			TimeLineViewUser timeLineViewUser, String post1, String post2,
+			String post3, String view1, String view2, String view3) {
+		return this.timeLineService.updateData(request, timeLine,
+				timeLinePostDept, timeLinePostRole, timeLinePostUser,
+				timeLineViewDept, timeLineViewRole, timeLineViewUser, post1,
+				post2, post3, view1, view2, view3);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/addData" })
+	public ToJson<TimeLine> addData(HttpServletRequest request,
+			TimeLine timeLine, String post1, String post2, String post3,
+			String view1, String view2, String view3) {
+		return this.timeLineService.addData(request, timeLine, post1, post2,
+				post3, view1, view2, view3);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/deleteByUuid" })
+	public ToJson<TimeLine> deleteByUuid(HttpServletRequest request, String uuid) {
+		return this.timeLineService.deleteByUuid(request, uuid);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getTimelines" })
+	public ToJson<TimeLine> getTimelines(HttpServletRequest request)
+			throws UnsupportedEncodingException {
+		ToJson json = new ToJson();
+		json.setObj(this.timeLineService.getTimelines(request));
+		json.setFlag(0);
+		json.setMsg("ok");
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getPageTimelines" })
+	public ToJson<TimeLine> getPageTimelines(HttpServletRequest request,
+			PageParams page, String title, String tag)
+			throws UnsupportedEncodingException {
+		ToJson json = new ToJson();
+		Map map = new HashMap();
+		map.put("title", title);
+		map.put("tag", tag);
+		json.setObj(this.timeLineService.getPageTimelines(request, page, map));
+		json.setFlag(0);
+		json.setMsg("ok");
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/postPageTimelines" })
+	public ToJson<TimeLine> postPageTimelines(HttpServletRequest request,
+			PageParams page, String title, String tag)
+			throws UnsupportedEncodingException {
+		ToJson json = new ToJson();
+		Map map = new HashMap();
+		json.setObj(this.timeLineService.postTimelines(request, page, null));
+		json.setFlag(0);
+		json.setMsg("ok");
+		return json;
+	}
+}

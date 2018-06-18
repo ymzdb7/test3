@@ -1,0 +1,1898 @@
+/*      */ package com.xoa.service.WFE.WFERunner;
+/*      */ 
+/*      */ import com.alibaba.fastjson.JSONArray;
+/*      */ import com.xoa.dao.WFE.WFEFlowTypeModelMapper;
+/*      */ import com.xoa.dao.WFE.WFEFormTypeMapper;
+/*      */ import com.xoa.dao.flowRunFeedback.FlowRunFeedbackMapper;
+/*      */ import com.xoa.dao.flowhook.FlowHookMapper;
+/*      */ import com.xoa.dao.flowplugin.FlowPluginMapper;
+/*      */ import com.xoa.dao.work.WorkMapper;
+/*      */ import com.xoa.dao.workflow.FlowTiggerMapper;
+/*      */ import com.xoa.global.proxy.TriggerUtils.Trigger;
+/*      */ import com.xoa.model.department.Department;
+/*      */ import com.xoa.model.enclosure.Attachment;
+/*      */ import com.xoa.model.flowRunFeedback.FlowRunFeedback;
+/*      */ import com.xoa.model.flowplugin.FlowPluginModel;
+/*      */ import com.xoa.model.users.Users;
+/*      */ import com.xoa.model.workflow.FlowFast;
+/*      */ import com.xoa.model.workflow.FlowFormType;
+/*      */ import com.xoa.model.workflow.FlowHookWithBLOBs;
+/*      */ import com.xoa.model.workflow.FlowProcess;
+/*      */ import com.xoa.model.workflow.FlowRun;
+/*      */ import com.xoa.model.workflow.FlowRunPrcs;
+/*      */ import com.xoa.model.workflow.FlowTiggerModel;
+/*      */ import com.xoa.model.workflow.FlowTypeModel;
+/*      */ import com.xoa.model.workflow.TriggerPlugIn;
+/*      */ import com.xoa.service.WFE.WFE;
+/*      */ import com.xoa.service.WFE.WFEFactory.WFEFlowProcess;
+/*      */ import com.xoa.service.WFE.WFEFactory.WFEFlowType;
+/*      */ import com.xoa.service.WFE.WFEFactory.WFEFormType;
+/*      */ import com.xoa.service.department.DepartmentService;
+/*      */ import com.xoa.service.enclosure.EnclosureService;
+/*      */ import com.xoa.service.sms.SmsService;
+/*      */ import com.xoa.service.users.UsersService;
+/*      */ import com.xoa.service.work.WorkService;
+/*      */ import com.xoa.util.AjaxJson;
+import com.xoa.util.Constant;
+/*      */ import com.xoa.util.DateFormat;
+/*      */ import com.xoa.util.FileUploadUtil;
+/*      */ import com.xoa.util.GetAttachmentListUtil;
+/*      */ import com.xoa.util.ModuleEnum;
+/*      */ import com.xoa.util.ToJson;
+/*      */ import com.xoa.util.common.L;
+/*      */ import com.xoa.util.common.session.SessionUtils;
+/*      */ import java.io.OutputStream;
+/*      */ import java.net.URLEncoder;
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.Calendar;
+/*      */ import java.util.Collections;
+/*      */ import java.util.Comparator;
+/*      */ import java.util.Date;
+/*      */ import java.util.HashMap;
+/*      */ import java.util.Iterator;
+/*      */ import java.util.List;
+/*      */ import java.util.Map;
+/*      */ import java.util.Map.Entry;
+/*      */ import java.util.ResourceBundle;
+/*      */ import java.util.Set;
+/*      */ import javax.servlet.http.HttpServletRequest;
+/*      */ import javax.servlet.http.HttpServletResponse;
+/*      */ import javax.servlet.http.HttpSession;
+/*      */ import org.apache.poi.hssf.usermodel.HSSFCell;
+/*      */ import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+/*      */ import org.apache.poi.hssf.usermodel.HSSFFont;
+/*      */ import org.apache.poi.hssf.usermodel.HSSFRow;
+/*      */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*      */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*      */ import org.springframework.beans.factory.annotation.Autowired;
+/*      */ import org.springframework.stereotype.Service;
+/*      */ import org.springframework.web.bind.annotation.RequestParam;
+/*      */ import org.springframework.web.context.request.RequestContextHolder;
+/*      */ import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
+/*      */ 
+/*      */ @Service
+/*      */ public class WFEFlowRunInfo extends WFE
+/*      */ {
+/*      */ 
+/*      */   @Autowired
+/*      */   protected WFEFlowType wfeFlowType;
+/*      */ 
+/*      */   @Autowired
+/*      */   protected WFEFormType wfeFormType;
+/*      */ 
+/*      */   @Autowired
+/*      */   protected WFEFlowProcess wfeFlowProcess;
+/*      */ 
+/*      */   @Autowired
+/*      */   protected WFEFlowRun wfeFlowRun;
+/*      */ 
+/*      */   @Autowired
+/*      */   protected WFEFlowRunPrcs wfeFlowRunPrcs;
+/*      */ 
+/*      */   @Autowired
+/*      */   protected WFEFlowTypeModelMapper wfeFlowTypeModelMapper;
+/*      */ 
+/*      */   @Autowired
+/*      */   protected WFEFormTypeMapper wfeFormTypeMapper;
+/*      */ 
+/*      */   @Autowired
+/*      */   protected WorkMapper workMapper;
+/*      */ 
+/*      */   @Autowired
+/*      */   protected FlowTiggerMapper flowTiggerMapper;
+/*      */ 
+/*      */   @Autowired
+/*      */   protected FlowPluginMapper flowPluginMapper;
+/*      */ 
+/*      */   @Autowired
+/*      */   protected FlowHookMapper flowHookMapper;
+/*      */ 
+/*      */   @Autowired
+/*      */   protected FlowRunFeedbackMapper flowRunFeedbackMapper;
+/*      */ 
+/*      */   @Autowired
+/*      */   protected WorkService workService;
+/*   92 */   private final int BUILT_IN = 0;
+/*      */ 
+/*   96 */   private final int BUILT_OUT = 1;
+/*      */ 
+/*  100 */   private final int BUILT_PUSH = 2;
+/*      */ 
+/*  105 */   private static int create = 1;
+/*      */ 
+/*  110 */   private static int receive = 2;
+/*      */ 
+/*  115 */   private static int save = 3;
+/*      */ 
+/*  120 */   private static int turn = 4;
+/*      */ 
+/*  125 */   private static int intrust = 5;
+/*      */ 
+/*  130 */   private static int back = 6;
+/*      */ 
+/*  132 */   private static String document = "document";
+/*  133 */   private static String attend_leave = "attend_leave";
+/*  134 */   private static String attend_evection = "attend_evection";
+/*  135 */   private static String attend_out = "attend_out";
+/*      */ 
+/*      */   public ToJson<FlowFast> workFastAdd(Users users, int flowId, int prcsId, String flowPrcs, String id, HttpServletRequest request, String sqlType, String runName, String preView)
+/*      */   {
+/*  139 */     ToJson tj = new ToJson();
+/*      */     try
+/*      */     {
+/*  142 */       Department dep = this.departmentService.getDeptById(users.getDeptId().intValue());
+/*      */ 
+/*  144 */       FlowFast flowFast = conditionSetting(flowId, flowPrcs);
+/*      */ 
+/*  146 */       Map map = allflowProcessBymap(flowFast.getListFp());
+/*      */ 
+/*  148 */       FlowProcess flowProcess = (FlowProcess)map.get(flowPrcs);
+/*  149 */       flowFast.setFlowProcesses(flowProcess);
+/*      */ 
+/*  151 */       flowFast.setUserName(users.getUserName());
+/*      */ 
+/*  154 */       String isViewPriv = checkViewPriv(flowFast.getFlowTypeModel().getViewPriv().intValue(), flowProcess.getViewPriv().intValue());
+/*  155 */       flowFast.setIsViewPriv(isViewPriv);
+/*  156 */       List listView = new ArrayList();
+/*      */ 
+/*  158 */       if ("1".equals(isViewPriv)) {
+/*  159 */         listView = this.usersService.reAllPrivUser(flowFast.getFlowTypeModel().getViewUser(), flowFast.getFlowTypeModel().getViewDept(), flowFast.getFlowTypeModel().getViewRole());
+/*  160 */         flowFast.setListView(listView);
+/*      */       }
+/*      */ 
+/*  163 */       String viewUser = this.usersService.reAllName(listView);
+/*      */ 
+/*  165 */       String feedback = flowProcess.getFeedback();
+/*  166 */       flowFast.setFeedback(feedback);
+/*      */ 
+/*  168 */       flowFast.setAttachPriv(attachPriv(flowProcess));
+/*      */ 
+/*  173 */       String autoName = flowFast.getFlowTypeModel().getAutoName();
+/*      */ 
+/*  175 */       if (com.xoa.util.common.StringUtils.checkNull(runName).booleanValue()) {
+/*  176 */         if (autoName != "")
+/*      */         {
+/*  178 */           if (com.xoa.util.common.StringUtils.checkNull(id).booleanValue())
+/*  179 */             runName = lexicalParse(autoName, flowFast.getFlowTypeModel(), users, dep);
+/*      */         }
+/*      */         else {
+/*  182 */           runName = flowFast.getFlowTypeModel().getFlowName() + " " + DateFormat.getStrDate(new Date());
+/*      */         }
+/*      */       }
+/*  185 */       FlowRunPrcs flowRunPrcs = null;
+/*  186 */       FlowRun flowRun = null;
+/*      */ 
+/*  188 */       String beginTime = DateFormat.getStrDate(new Date());
+/*      */ 
+/*  190 */       if ((prcsId == 1) && ("".equals(id.trim())))
+/*      */       {
+/*  192 */         flowRun = getRun(runName, flowId, users, beginTime, viewUser);
+/*  193 */         int runId = flowRun.getRunId();
+/*  194 */         flowRun.setUid(String.valueOf(users.getUid()));
+/*  195 */         flowRun.setUserName(users.getUserName());
+/*  196 */         flowRun.setEndTime("");
+/*      */ 
+/*  205 */         flowRunPrcs = new FlowRunPrcs(runId, prcsId, users.getUserId(), beginTime, "0000-00-00 00:00:00", "2", 1, "1", "0", beginTime, "0000-00-00 00:00:00", users.getDeptId().intValue(), "0");
+/*  206 */         this.wfeFlowRunPrcs.save(flowRunPrcs);
+/*      */       }
+/*      */       else {
+/*  209 */         Map mapCheck = new HashMap();
+/*  210 */         mapCheck.put("prcsId", Integer.valueOf(prcsId));
+/*  211 */         mapCheck.put("runId", id);
+/*  212 */         mapCheck.put("flowPrcs", flowPrcs);
+/*  213 */         List<FlowRunPrcs> checkFloRunPrcs = this.wfeFlowRunPrcs.findByRunId(mapCheck);
+/*  214 */         if (checkFloRunPrcs.size() > 0) {
+/*  215 */           for (FlowRunPrcs flowRunPrcs1 : checkFloRunPrcs) {
+/*  216 */             if ("1".equals(preView)) {
+/*  217 */               flowRun = this.wfeFlowRun.find(Integer.valueOf(Integer.parseInt(id)));
+/*  218 */               Users u = this.usersService.getUsersByuserId(flowRun.getBeginUser());
+/*  219 */               flowRun.setUserName(u.getUserName());
+/*  220 */               flowFast.setFlowRun(flowRun);
+/*  221 */               flowFast.setFlowRunPrcs(flowRunPrcs1);
+/*      */ 
+/*  223 */               if ("1".equals(flowProcess.getGatherNode())) {
+/*  224 */                 Integer gatherNodePriv = reGatherNodePriv(String.valueOf(flowFast.getFlowRun().getRunId()), Integer.valueOf(Integer.parseInt(flowPrcs)), users.getUserId(), Integer.valueOf(flowId));
+/*  225 */                 flowFast.setGatherNodePriv(String.valueOf(gatherNodePriv));
+/*      */               } else {
+/*  227 */                 flowFast.setGatherNodePriv(flowProcess.getGatherNode());
+/*      */               }
+/*      */ 
+/*  231 */               tj.setObject(flowFast);
+/*  232 */               tj.setMsg("只显示查询！");
+/*  233 */               tj.setFlag(0);
+/*  234 */               return tj;
+/*      */             }
+/*  236 */             if ((users.getUserId().equals(flowRunPrcs1.getUserId())) && 
+/*  237 */               (Integer.parseInt(flowRunPrcs1.getPrcsFlag()) >= 3)) {
+/*  238 */               flowRun = this.wfeFlowRun.find(Integer.valueOf(Integer.parseInt(id)));
+/*  239 */               flowRun.setUserName(users.getUserName());
+/*  240 */               flowFast.setFlowRun(flowRun);
+/*  241 */               flowFast.setFlowRunPrcs(flowRunPrcs1);
+/*  242 */               if ("1".equals(flowProcess.getGatherNode())) {
+/*  243 */                 Integer gatherNodePriv = reGatherNodePriv(String.valueOf(flowFast.getFlowRun().getRunId()), Integer.valueOf(Integer.parseInt(flowPrcs)), users.getUserId(), Integer.valueOf(flowId));
+/*  244 */                 flowFast.setGatherNodePriv(String.valueOf(gatherNodePriv));
+/*      */               } else {
+/*  246 */                 flowFast.setGatherNodePriv(flowProcess.getGatherNode());
+/*      */               }
+/*  248 */               tj.setObject(flowFast);
+/*  249 */               tj.setMsg("已转交，不能再进行办理！");
+/*  250 */               tj.setFlag(0);
+/*  251 */               return tj;
+/*      */             }
+/*      */ 
+/*      */           }
+/*      */ 
+/*      */         }
+/*      */ 
+/*  259 */         flowRun = this.wfeFlowRun.find(Integer.valueOf(Integer.parseInt(id)));
+/*      */ 
+/*  261 */         if (com.xoa.util.common.StringUtils.checkNull(flowRun.getEndTime()).booleanValue()) {
+/*  262 */           flowRun.setEndTime("");
+/*      */         }
+/*  264 */         Users users1 = this.usersService.getUsersByuserId(flowRun.getBeginUser());
+/*      */ 
+/*  268 */         flowRun.setUid(String.valueOf(users1.getUid()));
+/*  269 */         flowRun.setUserName(users1.getUserName());
+/*  270 */         Map m = new HashMap();
+/*  271 */         m.put("runId", id);
+/*  272 */         m.put("prcsId", Integer.valueOf(prcsId));
+/*  273 */         m.put("prcsFlag", "2");
+/*  274 */         m.put("prcsTime", DateFormat.getStrDate(new Date()));
+/*      */ 
+/*  276 */         m.put("flowPrcs", flowPrcs);
+/*  277 */         List listFloRunPrcs = this.wfeFlowRunPrcs.findByRunId(m);
+/*      */ 
+/*  279 */         if ("1".equals(flowProcess.getTopDefault()));
+/*  283 */         flowRunPrcs = (FlowRunPrcs)listFloRunPrcs.get(0);
+/*  284 */         if (Integer.parseInt(flowRunPrcs.getPrcsFlag()) < 3)
+/*      */         {
+/*  286 */           this.wfeFlowRunPrcs.updateSql(m);
+/*  287 */           m.put("prcsFlag", "4");
+/*  288 */           m.put("prcsId", Integer.valueOf(prcsId - 1));
+/*  289 */           m.remove("prcsTime");
+/*  290 */           String parent = flowRunPrcs.getParent();
+/*      */ 
+/*  292 */           String aString = parent.substring(parent.indexOf(",") + 1, parent.length());
+/*  293 */           m.put("flowPrcs", aString);
+/*  294 */           this.wfeFlowRunPrcs.updateSql(m);
+/*      */         }
+/*      */       }
+/*  297 */       flowFast.setFlowRun(flowRun);
+/*  298 */       flowFast.setFlowRunPrcs(flowRunPrcs);
+/*  299 */       if ("1".equals(flowProcess.getGatherNode())) {
+/*  300 */         Integer gatherNodePriv = reGatherNodePriv(String.valueOf(flowFast.getFlowRun().getRunId()), Integer.valueOf(Integer.parseInt(flowPrcs)), users.getUserId(), Integer.valueOf(flowId));
+/*  301 */         flowFast.setGatherNodePriv(String.valueOf(gatherNodePriv));
+/*      */       } else {
+/*  303 */         flowFast.setGatherNodePriv(flowProcess.getGatherNode());
+/*      */       }
+/*  305 */       tj.setObject(flowFast);
+/*  306 */       tj.setMsg("OK");
+/*  307 */       tj.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  309 */       tj.setMsg(e.getMessage());
+/*  310 */       tj.setFlag(1);
+/*      */     }
+/*  312 */     return tj;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<FlowFast> nextwork(String flowId, String formdata, String modifydata, String formlength, int runId, String runName, String beginTime, String beginUser, String sqlType, String prcsId, String fromDateReject, String tableNameother, String tabId, String flowPrcs, HttpServletRequest request)
+/*      */   {
+/*  321 */     String workLevel = request.getParameter("workLevel");
+/*  322 */     Map mwl = new HashMap();
+/*  323 */     mwl.put("runId", Integer.valueOf(runId));
+/*  324 */     if (com.xoa.util.common.StringUtils.checkNull(workLevel).booleanValue())
+/*  325 */       mwl.put("workLevel", Integer.valueOf(0));
+/*      */     else {
+/*  327 */       mwl.put("workLevel", workLevel);
+/*      */     }
+/*  329 */     this.wfeFlowRun.updateState(mwl);
+/*      */ 
+/*  331 */     formdata = formdata.replace("'", "");
+/*  332 */     ToJson tj = new ToJson();
+/*      */ 
+/*  334 */     Map param = new HashMap();
+/*  335 */     JSONArray json = new JSONArray();
+/*      */ 
+/*  337 */     String tableName = "flow_data_" + flowId;
+/*      */ 
+/*  339 */     List<Map> l = (List<Map>)JSONArray.parseObject(formdata, List.class);
+/*      */ 
+/*  341 */     List<Map<String, Object>> lAll = new ArrayList<Map<String, Object>>();
+/*      */ 
+/*  343 */     for (int i = 0; i < l.size(); i++) {
+/*  344 */       if ((((Map)l.get(i)).size() == 2) && ((String)((Map)l.get(i)).get("key") != "")) {
+/*  345 */         lAll.add(l.get(i));
+/*      */       }
+/*      */     }
+/*      */ 
+/*  349 */     List keyc = new ArrayList();
+/*  350 */     for (Map map : l) {
+/*  351 */       if (keyc.contains(map.get("key"))) {
+/*  352 */         tj.setMsg("There are duplicate fields in the form parameter!");
+/*  353 */         tj.setFlag(1);
+/*  354 */         return tj;
+/*      */       }
+/*  356 */       keyc.add((String)map.get("key"));
+/*      */     }
+/*      */ 
+/*  360 */     List modify = (List)JSONArray.parseObject(modifydata, List.class);
+/*  361 */     List<Map> mAll = new ArrayList();
+/*  362 */     for (int i = 0; i < modify.size(); i++) {
+/*  363 */       if (((Map)modify.get(i)).size() == 2) {
+/*  364 */         mAll.add((Map)modify.get(i));
+/*      */       }
+/*      */     }
+/*      */ 
+/*      */     try
+/*      */     {
+/*  370 */       List<String> columns = createTable(tableName, sqlType, lAll);
+/*  371 */       if (columns.size() > 0)
+/*      */       {
+/*  373 */         List key = new ArrayList();
+/*      */ 
+/*  375 */         List unusual = new ArrayList();
+/*      */ 
+/*  377 */         List Allkey = new ArrayList();
+/*      */ 
+/*  379 */         List<String> delkey = new ArrayList();
+/*      */ 
+/*  381 */         for (Map map : lAll) {
+/*  382 */           if ((!columns.contains((String)map.get("key"))) && 
+/*  383 */             (!com.xoa.util.common.StringUtils.checkNull((String)map.get("key")).booleanValue()))
+/*      */           {
+/*  385 */             unusual.add((String)map.get("key"));
+/*      */           }
+/*      */ 
+/*  389 */           Allkey.add((String)map.get("key"));
+/*      */         }
+/*      */ 
+/*  392 */         Iterator it = columns.iterator();
+/*  393 */         while (it.hasNext()) {
+/*  394 */           String x = (String)it.next();
+/*  395 */           if (!x.toUpperCase().contains("DATA")) {
+/*  396 */             it.remove();
+/*      */           }
+/*      */         }
+/*      */ 
+/*  400 */         for (int i = 0; i < columns.size(); i++) {
+/*  401 */           if (!Allkey.contains(columns.get(i))) {
+/*  402 */             delkey.add(columns.get(i));
+/*      */           }
+/*      */         }
+/*      */ 
+/*  406 */         if (unusual.size() > 0) {
+/*  407 */           param.put("tableName", tableName);
+/*  408 */           param.put("keys", unusual);
+/*  409 */           this.workMapper.addcolumn(param);
+/*      */         }
+/*      */ 
+/*  412 */         Map maps = new HashMap();
+/*  413 */         maps.put("tableName", tableName);
+/*  414 */         maps.put("runId", Integer.valueOf(runId));
+/*      */ 
+/*  416 */         Map m = this.workMapper.select(maps);
+/*  417 */         key = new ArrayList();
+/*  418 */         List value = new ArrayList();
+/*  419 */         if ((m == null) || (m.size() == 0)) {
+/*  420 */           key.add("RUN_ID");
+/*  421 */           value.add(String.valueOf(runId));
+/*  422 */           key.add("RUN_NAME");
+/*  423 */           value.add(runName);
+/*  424 */           key.add("BEGIN_TIME");
+/*  425 */           value.add(beginTime);
+/*  426 */           key.add("BEGIN_USER");
+/*  427 */           value.add(beginUser);
+/*  428 */           key.add("FLOW_AUTO_NUM");
+/*  429 */           value.add(Integer.valueOf(0));
+/*  430 */           key.add("FLOW_AUTO_NUM_YEAR");
+/*  431 */           value.add(Integer.valueOf(0));
+/*  432 */           key.add("FLOW_AUTO_NUM_MONTH");
+/*  433 */           value.add(Integer.valueOf(0));
+/*      */ 
+/*  449 */           for (Map map : lAll) {
+/*  450 */             key.add((String)map.get("key"));
+/*  451 */             value.add((String)map.get("value"));
+/*      */           }
+/*      */ 
+/*  455 */           for (String s : delkey) {
+/*  456 */             key.add(s);
+/*  457 */             value.add("");
+/*      */           }
+/*  459 */           param.put("tableName", tableName);
+/*  460 */           param.put("keys", key);
+/*  461 */           param.put("values", value);
+/*  462 */           this.workMapper.insert(param);
+/*      */         }
+/*  464 */         else if (mAll.size() != 0) {
+/*  465 */           for (Map map : mAll) {
+/*  466 */             if (!com.xoa.util.common.StringUtils.checkNull((String)map.get("value")).booleanValue()) {
+/*  467 */               key.add((String)map.get("key") + "=" + "'" + (String)map.get("value") + "'");
+/*      */             }
+/*      */           }
+/*  470 */           param.put("tableName", tableName);
+/*  471 */           param.put("keys", key);
+/*  472 */           param.put("runId", String.valueOf(runId));
+/*  473 */           this.workMapper.update(param);
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  482 */       TriggerPlugIn triggerPlugIn = new TriggerPlugIn();
+/*  483 */       triggerPlugIn.setFlowId(flowId);
+/*  484 */       triggerPlugIn.setFormmat("2");
+/*  485 */       triggerPlugIn.setFromId(beginUser);
+/*  486 */       triggerPlugIn.setSendTime(DateFormat.getDate(beginTime));
+/*  487 */       triggerPlugIn.setSubject(runName);
+/*  488 */       String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + "/workflow/work/workformPreView?flowId=" + Integer.valueOf(flowId) + "&flowStep=" + Integer.valueOf(prcsId) + "&runId=" + runId + "";
+/*      */ 
+/*  490 */       triggerPlugIn.setContent("<a href=" + url + ">" + url + "</a>");
+/*  491 */       triggerPlugIn.setToId2("");
+/*  492 */       triggerPlugIn.setFlowPrcs(flowPrcs);
+/*  493 */       triggerPlugIn.setPrcsId(prcsId);
+/*  494 */       triggerPlugIn.setModify(modifydata);
+/*  495 */       triggerPlugIn.setReject(fromDateReject);
+/*  496 */       triggerPlugIn.setTableName(tableNameother);
+/*  497 */       triggerPlugIn.setRunId(runId + "");
+/*  498 */       triggerPlugIn.setRunName(runName);
+/*  499 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  500 */       triggerPlugIn.setUsers(user);
+/*  501 */       triggerPlugIn.setFlag((String)returnMap().get(Integer.valueOf(turn)));
+/*  502 */       triggerPlugIn.setRequest(request);
+/*  503 */       triggerPlugIn.setSqlType(sqlType);
+/*  504 */       triggerPlugIn.setTabId(tabId);
+/*  505 */       notifyNotice(triggerPlugIn);
+/*      */ 
+/*  508 */       tj.setMsg("OK");
+/*  509 */       tj.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  511 */       tj.setFlag(1);
+/*  512 */       tj.setMsg("false");
+/*  513 */       L.e(new Object[] { "work nextwork:" + e });
+/*      */     }
+/*  515 */     return tj;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<FlowRunPrcs> savework(String runId, String runName, String flowId, String prcsId, String prcsFlag, String flowPrcs, String beginTime, String beginUser, String jingbanUser, String viewUser, Users users, String currentPrcsId, String topDefault)
+/*      */   {
+/*  521 */     ToJson toJson = new ToJson();
+/*  522 */     Map maps = new HashMap();
+/*  523 */     maps.put("prcsId", Integer.valueOf(Integer.parseInt(prcsId)));
+/*  524 */     maps.put("runId", Integer.valueOf(Integer.parseInt(runId)));
+/*  525 */     maps.put("prcsFlag", "3");
+/*  526 */     maps.put("deliverTime", DateFormat.getStrDate(new Date()));
+/*  527 */     maps.put("userId", users.getUserId());
+/*      */ 
+/*  529 */     if (!flowPrcs.contains(",")) {
+/*  530 */       maps.put("flowPrcs", currentPrcsId);
+/*      */     }
+/*      */ 
+/*  533 */     this.wfeFlowRunPrcs.updateSql(maps);
+/*  534 */     FlowRunPrcs fl = new FlowRunPrcs();
+/*  535 */     if (flowPrcs.equals("0"))
+/*      */     {
+/*  537 */       FlowRun flowRun = this.wfeFlowRun.find(Integer.valueOf(runId));
+/*  538 */       if ((flowRun != null) && 
+/*  539 */         (!com.xoa.util.common.StringUtils.checkNull(viewUser).booleanValue()))
+/*      */       {
+/*  541 */         flowRun.setViewUser(viewUser);
+/*  542 */         Map map = new HashMap();
+/*  543 */         map.put("runId", runId);
+/*  544 */         map.put("viewUser", viewUser);
+/*  545 */         this.wfeFlowRun.updateState(map);
+/*      */       }
+/*      */ 
+/*  548 */       Map map = new HashMap();
+/*  549 */       map.put("endTime", DateFormat.getStrDate(new Date()));
+/*  550 */       map.put("runId", runId);
+/*  551 */       this.wfeFlowRun.updateState(map);
+/*  552 */       Map updateSatus = new HashMap();
+/*  553 */       updateSatus.put("prcsId", prcsId);
+/*  554 */       updateSatus.put("runId", runId);
+/*  555 */       updateSatus.put("prcsFlag", "4");
+/*  556 */       updateSatus.put("userId", users.getUserId());
+/*  557 */       this.wfeFlowRunPrcs.updateSql(updateSatus);
+/*      */       try {
+/*  559 */         toJson.setObject(fl);
+/*  560 */         toJson.setMsg("OK");
+/*  561 */         toJson.setFlag(0);
+/*      */       } catch (Exception e) {
+/*  563 */         toJson.setMsg(e.getMessage());
+/*  564 */         L.e(new Object[] { "work saveWork:" + e });
+/*      */       }
+/*  566 */       return toJson;
+/*      */     }
+/*      */ 
+/*  569 */     String[] fpArray = flowPrcs.split(",");
+/*      */ 
+/*  571 */     String[] alljingbanArray = jingbanUser.split("\\|");
+/*      */ 
+/*  573 */     String[] beginUserArray = beginUser.split(",");
+/*      */ 
+/*  589 */     for (int i = 0; i < fpArray.length; i++) {
+/*  590 */       String[] jingbanArray = null;
+/*  591 */       jingbanArray = alljingbanArray[i].split(",");
+/*  592 */       String beginByUser = beginUserArray[i];
+/*  593 */       for (int j = 0; j < jingbanArray.length; j++) {
+/*  594 */         fl = new FlowRunPrcs();
+/*      */ 
+/*  596 */         if (com.xoa.util.common.StringUtils.checkNull(beginUser).booleanValue()) {
+/*  597 */           fl.setOpFlag("1");
+/*      */         }
+/*  599 */         else if (beginByUser.equals(jingbanArray[j]))
+/*  600 */           fl.setOpFlag("1");
+/*      */         else {
+/*  602 */           fl.setOpFlag("0");
+/*      */         }
+/*      */ 
+/*  605 */         fl.setTopFlag("0");
+/*  606 */         fl.setRunId(Integer.valueOf(Integer.parseInt(runId)));
+/*  607 */         fl.setPrcsId(Integer.valueOf(Integer.parseInt(prcsId) + 1));
+/*  608 */         fl.setPrcsFlag("1");
+/*  609 */         fl.setFlowPrcs(Integer.valueOf(Integer.parseInt(fpArray[i])));
+/*  610 */         fl.setUserId(jingbanArray[j]);
+/*  611 */         fl.setCreateTime(DateFormat.getStrDate(new Date()));
+/*  612 */         fl.setPrcsTime("0000-00-00 00:00:00");
+/*  613 */         fl.setDeliverTime("0000-00-00 00:00:00");
+/*  614 */         fl.setActiveTime("0000-00-00 00:00:00");
+/*  615 */         fl.setParent(currentPrcsId);
+/*  616 */         Map map = new HashMap();
+/*  617 */         map.put("prcsId", fl.getPrcsId());
+/*  618 */         map.put("runId", Integer.valueOf(Integer.parseInt(runId)));
+/*  619 */         map.put("flowPrcs", fl.getFlowPrcs());
+/*  620 */         map.put("userId", fl.getUserId());
+/*  621 */         List list = this.wfeFlowRunPrcs.selectFind(map);
+/*  622 */         if ((list == null) || (list.size() == 0)) {
+/*  623 */           this.wfeFlowRunPrcs.save(fl);
+/*      */         }
+/*      */       }
+/*      */     }
+/*      */ 
+/*      */     try
+/*      */     {
+/*  630 */       toJson.setMsg("OK");
+/*  631 */       toJson.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  633 */       toJson.setMsg(e.getMessage());
+/*      */     }
+/*  635 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public Map<Integer, String> returnMap()
+/*      */   {
+/*  653 */     Map maps = new HashMap();
+/*  654 */     maps.put(Integer.valueOf(1), "CREATE");
+/*  655 */     maps.put(Integer.valueOf(2), "RECEIVE");
+/*  656 */     maps.put(Integer.valueOf(3), "SAVE");
+/*  657 */     maps.put(Integer.valueOf(4), "TURN");
+/*  658 */     maps.put(Integer.valueOf(5), "INTRUST");
+/*  659 */     maps.put(Integer.valueOf(6), "BACK");
+/*  660 */     return maps;
+/*      */   }
+/*      */ 
+/*      */   public FlowFast conditionSetting(int flowId, String flowPrcs)
+/*      */   {
+/*  665 */     FlowFast flowFast = new FlowFast();
+/*      */ 
+/*  668 */     FlowTypeModel flowTypeModel = (FlowTypeModel)this.wfeFlowType.selectAllFlow(Integer.valueOf(flowId)).getObject();
+/*      */ 
+/*  670 */     FlowFormType flowFormType = this.wfeFormTypeMapper.qureyItemMax(flowTypeModel.getFormId());
+/*  671 */     flowFast.setFlowTypeModel(flowTypeModel);
+/*  672 */     flowFast.setFlowFormType(flowFormType);
+/*      */ 
+/*  674 */     List allFp = this.wfeFlowProcess.findFlowId(flowId);
+/*      */ 
+/*  676 */     Map map = allflowProcessBymap(allFp);
+/*  677 */     FlowProcess flowProcess = (FlowProcess)map.get(flowPrcs);
+/*  678 */     FlowProcess nextfp = null;
+/*  679 */     if ((!flowProcess.getPrcsTo().equals("0,")) && (!flowProcess.getPrcsTo().equals(""))) {
+/*  680 */       String[] a = flowProcess.getPrcsTo().split(",");
+/*  681 */       String b = a[0];
+/*  682 */       nextfp = (FlowProcess)map.get(b);
+/*      */ 
+/*  684 */       String prcsIn = nextfp.getPrcsIn();
+/*      */ 
+/*  686 */       String prcsInSet = nextfp.getPrcsInSet();
+/*  687 */       flowFast.setPrcsIn(prcsIn);
+/*  688 */       flowFast.setPrcsInSet(prcsInSet);
+/*  689 */       flowFast.setConditionDesc(flowProcess.getConditionDesc());
+/*      */     }
+/*      */ 
+/*  692 */     String prcsOut = flowProcess.getPrcsOut();
+/*      */ 
+/*  694 */     String prcsOutSet = flowProcess.getPrcsOutSet();
+/*  695 */     flowFast.setPrcsOut(prcsOut);
+/*  696 */     flowFast.setPrcsOutSet(prcsOutSet);
+/*      */ 
+/*  698 */     flowFast.setPrcsItem(flowProcess.getPrcsItem());
+/*  699 */     flowFast.setRequiredItem(flowProcess.getRequiredItem());
+/*  700 */     flowFast.setHiddenItem(flowProcess.getHiddenItem());
+/*      */ 
+/*  702 */     String signlock = flowProcess.getSignlook();
+/*  703 */     flowFast.setSignlock(signlock);
+/*      */ 
+/*  705 */     String allowBack = flowProcess.getAllowBack();
+/*  706 */     flowFast.setAllowBack(allowBack);
+/*  707 */     flowFast.setListFp(allFp);
+/*  708 */     return flowFast;
+/*      */   }
+/*      */ 
+/*      */   public String attachPriv(FlowProcess flowProcess)
+/*      */   {
+/*  713 */     String[] item = flowProcess.getPrcsItem().split(",");
+/*  714 */     String[] arr$ = item; int len$ = arr$.length; int i$ = 0; if (i$ < len$) { String s = arr$[i$];
+/*  715 */       if (s.equals("[A@]")) {
+/*  716 */         return flowProcess.getAttachPriv();
+/*      */       }
+/*  718 */       return "";
+/*      */     }
+/*      */ 
+/*  721 */     return "";
+/*      */   }
+/*      */ 
+/*      */   private FlowRun getRun(String runName, int flowId, Users users, String beginTime, String viewUser) throws InterruptedException {
+/*  725 */     FlowRun flowRun = new FlowRun();
+/*  726 */     synchronized (this) {
+/*  727 */       int runId = this.wfeFlowRun.getMaxRunId() + 1;
+/*  728 */       flowRun = new FlowRun(runId, runName, flowId, users.getUserId(), beginTime, users.getDeptId().intValue(), "0");
+/*  729 */       flowRun.setViewUser(viewUser);
+/*  730 */       this.wfeFlowRun.save(flowRun);
+/*  731 */       flowRun.setUserName(users.getUserName());
+/*      */     }
+/*  733 */     return flowRun;
+/*      */   }
+/*      */ 
+/*      */   public Map<String, FlowProcess> allflowProcessBymap(List<FlowProcess> allFp)
+/*      */   {
+/*  738 */     Map map = new HashMap();
+/*      */ 
+/*  740 */     for (int i = 0; i < allFp.size(); i++) {
+/*  741 */       FlowProcess flowProcess = (FlowProcess)allFp.get(i);
+/*  742 */       map.put(String.valueOf(flowProcess.getPrcsId()), flowProcess);
+/*      */     }
+/*  744 */     return map;
+/*      */   }
+/*      */ 
+/*      */   public Integer reGatherNodePriv(String runId, Integer flowPrcs, String userId, Integer flowId)
+/*      */   {
+/*  750 */     Map m1 = new HashMap();
+/*  751 */     StringBuffer stringBuffer = new StringBuffer();
+/*  752 */     List listPrcs = new ArrayList();
+/*  753 */     List listFlag = new ArrayList();
+/*      */ 
+/*  755 */     Map map = reAll(m1, flowId, flowPrcs);
+/*  756 */     if (map.size() == 0) {
+/*  757 */       return Integer.valueOf(0);
+/*      */     }
+/*      */ 
+/*  761 */     Set entrySet = map.entrySet();
+/*      */ 
+/*  764 */     Iterator it2 = entrySet.iterator();
+/*      */ 
+/*  766 */     while (it2.hasNext()) {
+/*  767 */       Map.Entry me = (Map.Entry)it2.next();
+/*  768 */       Integer key2 = (Integer)me.getKey();
+/*  769 */       listPrcs.add(key2);
+/*      */     }
+/*  771 */     listFlag.add(Integer.valueOf(1));
+/*  772 */     listFlag.add(Integer.valueOf(2));
+/*      */ 
+/*  774 */     Map m = new HashMap();
+/*  775 */     m.put("runId", runId);
+/*  776 */     m.put("flowPrcs", flowPrcs);
+/*  777 */     m.put("listPrcs", listPrcs);
+/*  778 */     m.put("listFlag", listFlag);
+/*  779 */     m.put("userId", userId);
+/*  780 */     Integer gatherNodePriv = this.wfeFlowRunPrcs.checkGatherNode(m);
+/*  781 */     if (gatherNodePriv == null) {
+/*  782 */       return Integer.valueOf(0);
+/*      */     }
+/*  784 */     return Integer.valueOf(1);
+/*      */   }
+/*      */ 
+/*      */   public Map<Integer, FlowProcess> reAll(Map<Integer, FlowProcess> map, Integer flowId, Integer flowPrcs)
+/*      */   {
+/*  792 */     Map map1 = new HashMap();
+/*  793 */     map1.put("flowId", flowId);
+/*  794 */     map1.put("flowPrcs", flowPrcs);
+/*  795 */     List<FlowProcess> list = this.wfeFlowProcess.findProcseePrcsTo(map1);
+/*  796 */     for (FlowProcess flowProcess : list) {
+/*  797 */       map.put(flowProcess.getPrcsId(), flowProcess);
+/*  798 */       reAll(map, flowId, flowProcess.getPrcsId());
+/*      */     }
+/*  800 */     if (list.size() == 0) {
+/*  801 */       return map;
+/*      */     }
+/*  803 */     return map;
+/*      */   }
+/*      */ 
+/*      */   public String lexicalParse(String str, FlowTypeModel flowTypeModel, Users users, Department department)
+/*      */   {
+/*  808 */     Calendar now = Calendar.getInstance();
+/*  809 */     int autoNum = flowTypeModel.getAutoNum().intValue();
+/*  810 */     int autoLength = flowTypeModel.getAutoLen().intValue();
+/*  811 */     autoNum++;
+/*  812 */     flowTypeModel.setAutoNum(Integer.valueOf(autoNum));
+/*  813 */     this.wfeFlowTypeModelMapper.update(flowTypeModel);
+/*  814 */     str = str.replace("{Y}", now.get(1) + "");
+/*  815 */     str = str.replace("{M}", now.get(2) + 1 + "");
+/*  816 */     str = str.replace("{D}", now.get(5) + "");
+/*  817 */     str = str.replace("{H}", now.get(11) + "");
+/*  818 */     str = str.replace("{I}", now.get(12) + "");
+/*  819 */     str = str.replace("{S}", now.get(13) + "");
+/*  820 */     str = str.replace("{F}", flowTypeModel.getFlowName());
+/*  821 */     str = str.replace("{U}", users.getUserName());
+/*  822 */     str = str.replace("{R}", users.getUserPrivName());
+/*  823 */     str = str.replace("{FS}", users.getUserName());
+/*  824 */     str = str.replace("{SD}", department.getDeptName());
+/*  825 */     str = str.replace("{LD}", this.departmentService.longDepName(department.getDeptId().intValue()));
+/*  826 */     str = str.replace("{N}", org.apache.commons.lang.StringUtils.repeat("0", autoLength - String.valueOf(autoNum).length()) + autoNum);
+/*      */ 
+/*  828 */     return str;
+/*      */   }
+/*      */ 
+/*      */   public String checkViewPriv(int ftViewPriv, int fpViewPriv)
+/*      */   {
+/*  834 */     if ((ftViewPriv == 1) && 
+/*  835 */       (fpViewPriv == 1)) {
+/*  836 */       return "1";
+/*      */     }
+/*      */ 
+/*  839 */     return "0";
+/*      */   }
+/*      */ 
+/*      */   public ToJson notifyNotice(TriggerPlugIn triggerPlugIn)
+/*      */   {
+/*  860 */     ToJson FlowFast = workFastAdd(triggerPlugIn.getUsers(), Integer.parseInt(triggerPlugIn.getFlowId()), Integer.parseInt(triggerPlugIn.getPrcsId()), triggerPlugIn.getFlowPrcs(), triggerPlugIn.getRunId(), triggerPlugIn.getRequest(), triggerPlugIn.getSqlType(), triggerPlugIn.getRunName(), null);
+/*      */ 
+/*  862 */     triggerPlugIn.setFlowFast((FlowFast)FlowFast.getObject());
+/*  863 */     ToJson toJson = new ToJson(1, "error");
+/*      */     try {
+/*  865 */       List list = this.flowTiggerMapper.selectFlowTigger(Integer.valueOf(Integer.parseInt(triggerPlugIn.getFlowId())), Integer.valueOf(Integer.parseInt(triggerPlugIn.getFlowPrcs())));
+/*  866 */       if ((list != null) && (list.size() > 0)) {
+/*  867 */         int i = 0; for (int len = list.size(); i < len; i++)
+/*      */         {
+/*  869 */           if ((triggerPlugIn.getFlag().equals(((FlowTiggerModel)list.get(i)).getPluginType())) && (1 == ((FlowTiggerModel)list.get(i)).getActived().intValue())) {
+/*  870 */             if ((((FlowTiggerModel)list.get(i)).getPlugin().intValue() != 0) && (((FlowTiggerModel)list.get(i)).getBusinessLogicId().intValue() != 0)) {
+/*  871 */               triggerPlugIn.setDistinguish("1");
+/*  872 */               FlowPluginModel flowPluginModel = this.flowPluginMapper.selectList(((FlowTiggerModel)list.get(i)).getPlugin());
+/*  873 */               FlowHookWithBLOBs flowHook = new FlowHookWithBLOBs();
+/*  874 */               flowHook.setHid(((FlowTiggerModel)list.get(i)).getBusinessLogicId());
+/*  875 */               FlowHookWithBLOBs flowHook1 = this.flowHookMapper.selectByhid(flowHook);
+/*  876 */               if (flowHook1 != null) {
+/*  877 */                 triggerPlugIn.setHookId(flowHook1.getHid());
+/*  878 */                 if (document.equals(flowHook1.getHmodule()))
+/*  879 */                   flowHook1.setHmodule("DocumentTrigger");
+/*  880 */                 else if (attend_leave.equals(flowHook1.getHmodule()))
+/*  881 */                   flowHook1.setHmodule("AttendLeaveTrigger");
+/*  882 */                 else if (attend_evection.equals(flowHook1.getHmodule()))
+/*  883 */                   flowHook1.setHmodule("AttendEvectionTrigger");
+/*  884 */                 else if (attend_out.equals(flowHook1.getHmodule())) {
+/*  885 */                   flowHook1.setHmodule("AttendOutTrigger");
+/*      */                 }
+/*  887 */                 Trigger.run("com.xoa.plugin." + flowHook1.getHmodule(), triggerPlugIn.getSqlType(), new Object[] { triggerPlugIn });
+/*      */               }
+/*      */ 
+/*  890 */               inTigger(flowPluginModel.getFlowPluginFlag(), flowPluginModel.getFlowPluginModel(), triggerPlugIn);
+/*      */             }
+/*  892 */             else if (((FlowTiggerModel)list.get(i)).getPlugin().intValue() != 0) {
+/*  893 */               FlowPluginModel flowPluginModel = this.flowPluginMapper.selectList(((FlowTiggerModel)list.get(i)).getPlugin());
+/*  894 */               triggerPlugIn.setDistinguish("1");
+/*  895 */               inTigger(flowPluginModel.getFlowPluginFlag(), flowPluginModel.getFlowPluginModel(), triggerPlugIn);
+/*  896 */             } else if (((FlowTiggerModel)list.get(i)).getBusinessLogicId().intValue() != 0) {
+/*  897 */               FlowHookWithBLOBs flowHook = new FlowHookWithBLOBs();
+/*  898 */               flowHook.setHid(((FlowTiggerModel)list.get(i)).getBusinessLogicId());
+/*  899 */               FlowHookWithBLOBs flowHook1 = this.flowHookMapper.selectByhid(flowHook);
+/*  900 */               if (flowHook1 != null) {
+/*  901 */                 triggerPlugIn.setDistinguish("1");
+/*  902 */                 triggerPlugIn.setHookId(flowHook1.getHid());
+/*  903 */                 if (document.equals(flowHook1.getHmodule()))
+/*  904 */                   flowHook1.setHmodule("DocumentTrigger");
+/*  905 */                 else if (attend_leave.equals(flowHook1.getHmodule()))
+/*  906 */                   flowHook1.setHmodule("AttendLeaveTrigger");
+/*  907 */                 else if (attend_evection.equals(flowHook1.getHmodule()))
+/*  908 */                   flowHook1.setHmodule("AttendEvectionTrigger");
+/*  909 */                 else if (attend_out.equals(flowHook1.getHmodule())) {
+/*  910 */                   flowHook1.setHmodule("AttendOutTrigger");
+/*      */                 }
+/*  912 */                 Trigger.run("com.xoa.plugin." + flowHook1.getHmodule(), triggerPlugIn.getSqlType(), new Object[] { triggerPlugIn });
+/*      */               }
+/*      */             }
+/*      */           } else {
+/*  916 */             toJson.setFlag(0);
+/*  917 */             toJson.setMsg("ok");
+/*      */           }
+/*      */         }
+/*      */       }
+/*  921 */       else if (!com.xoa.util.common.StringUtils.checkNull(triggerPlugIn.getTableName()).booleanValue())
+/*      */       {
+/*  923 */         if ("document".equals(triggerPlugIn.getTableName())) {
+/*  924 */           triggerPlugIn.setDistinguish("1");
+/*  925 */           Trigger.run("com.xoa.plugin.DocumentTrigger", triggerPlugIn.getSqlType(), new Object[] { triggerPlugIn });
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */     catch (Exception e)
+/*      */     {
+/*  934 */       L.e(new Object[] { "workFlowServiceContext.getFlowRunPrcsService()Impl notifyNotice:" + e });
+/*      */     }
+/*  936 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public List<String> createTable(String tableName, String sqlType, List<Map<String, Object>> l)
+/*      */   {
+/*  942 */     Map param = new HashMap();
+/*  943 */     param.put("tableName", tableName);
+/*  944 */     if (com.xoa.util.common.StringUtils.checkNull(sqlType).booleanValue())
+/*  945 */       param.put("tableSchema", "xoa1001");
+/*      */     else {
+/*  947 */       param.put("tableSchema", sqlType);
+/*      */     }
+/*      */ 
+/*      */     try
+/*      */     {
+/*  952 */       List columns = this.workMapper.showColumns(param);
+/*      */ 
+/*  954 */       if (columns.size() == 0) {
+/*  955 */         List key = new ArrayList();
+/*  956 */         for (Map map : l) {
+/*  957 */           key.add((String)map.get("key"));
+/*      */         }
+/*  959 */         Map param1 = new HashMap();
+/*  960 */         param1.put("tableName", tableName);
+/*  961 */         param1.put("keys", key);
+/*      */ 
+/*  963 */         ResourceBundle rb = ResourceBundle.getBundle("jdbc-sql");
+/*  964 */         String databaseId = rb.getString("driverClassName");
+/*  965 */         if (databaseId.contains("oracle")) {
+/*  966 */           this.workMapper.createSequence(param1);
+/*      */         }
+/*  968 */         this.workMapper.createTable(param1);
+/*  969 */         columns = this.workMapper.showColumns(param);
+/*      */       }
+/*  971 */       return columns;
+/*      */     } catch (Exception e) {
+/*  973 */       e.printStackTrace();
+/*  974 */     }return null;
+/*      */   }
+/*      */ 
+/*      */   private void inTigger(Integer flag, String flags, TriggerPlugIn tri)
+/*      */   {
+/*  988 */     ToJson toJson = new ToJson(1, "error");
+/*      */ 
+/*  990 */     switch (flag.intValue()) {
+/*      */     case 0:
+/*  992 */       Trigger.run("com.xoa.plugin." + flags, tri.getSqlType(), new Object[] { tri });
+/*      */     case 1:
+/*      */     case 2:
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public Map<String, Object> fastAdd(String runId, String flowId)
+/*      */   {
+/* 1010 */     Map maps = new HashMap();
+/* 1011 */     maps.put("tableName", "flow_data_" + flowId);
+/* 1012 */     maps.put("runId", runId);
+/* 1013 */     Map m = new HashMap();
+/*      */     try {
+/* 1015 */       Map map = this.workMapper.select(maps);
+/* 1016 */       if ((map != null) && (map.size() != 0)) {
+/* 1017 */         m.put("obj", map);
+/* 1018 */         m.put("flag", Boolean.valueOf(true));
+/* 1019 */         m.put("msg", "OK");
+/*      */       } else {
+/* 1021 */         m.put("flag", Boolean.valueOf(false));
+/* 1022 */         m.put("msg", Boolean.valueOf(false));
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 1025 */       m.put("flag", Boolean.valueOf(false));
+/* 1026 */       m.put("msg", Boolean.valueOf(false));
+/*      */     }
+/* 1028 */     return m;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Attachment> workUpload(MultipartFile[] files, String company, String module, String runId)
+/*      */   {
+/* 1041 */     ToJson json = new ToJson();
+/* 1042 */     Map map = new HashMap();
+/*      */     try {
+/* 1044 */       List list = this.enclosureService.upload(files, company, module);
+/* 1045 */       FlowRun flowRun = this.wfeFlowRun.find(Integer.valueOf(Integer.parseInt(runId)));
+/* 1046 */       String attcahmentId = flowRun.getAttachmentId();
+/* 1047 */       String attachmentName = flowRun.getAttachmentName();
+/* 1048 */       StringBuffer id = new StringBuffer();
+/* 1049 */       StringBuffer name = new StringBuffer();
+/* 1050 */       if ((attcahmentId != "") || (attachmentName != "")) {
+/* 1051 */         id.append(attcahmentId);
+/* 1052 */         name.append(attachmentName);
+/*      */       }
+/*      */ 
+/* 1055 */       Object[] o = FileUploadUtil.reAttachmentAll(list);
+/* 1056 */       map.put("runId", runId);
+/* 1057 */       map.put("attachmentId", flowRun.getAttachmentId() + o[0].toString());
+/* 1058 */       map.put("attachmentName", flowRun.getAttachmentName() + o[1].toString());
+/* 1059 */       this.wfeFlowRun.updateAttachment(map);
+/* 1060 */       json.setObj(list);
+/* 1061 */       json.setMsg("OK");
+/* 1062 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/* 1064 */       json.setMsg(e.getMessage());
+/* 1065 */       json.setFlag(1);
+/*      */     }
+/* 1067 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public AjaxJson createGuide(String flowId, Users users, HttpServletRequest request)
+/*      */   {
+/* 1073 */     AjaxJson ajaxJson = new AjaxJson();
+/* 1074 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */     try
+/*      */     {
+/* 1078 */       List allFp = this.wfeFlowProcess.findFlowId(Integer.parseInt(flowId));
+/*      */ 
+/* 1081 */       Department dep = this.departmentService.getDeptById(users.getDeptId().intValue());
+/* 1082 */       FlowTypeModel flowTypeModel = (FlowTypeModel)this.wfeFlowType.selectAllFlow(Integer.valueOf(Integer.parseInt(flowId))).getObject();
+/* 1083 */       FlowFormType flowFormType = this.wfeFormTypeMapper.qureyItemMax(flowTypeModel.getFormId());
+/* 1084 */       String flowName = flowTypeModel.getFlowName();
+/* 1085 */       String autoName = flowTypeModel.getAutoName();
+/* 1086 */       String beginTime = DateFormat.getStrDate(new Date());
+/* 1087 */       String runName = lexicalParse(autoName, flowTypeModel, users, dep);
+/*      */ 
+/* 1089 */       if (com.xoa.util.common.StringUtils.checkNull(runName.trim()).booleanValue()) {
+/* 1090 */         runName = flowTypeModel.getFlowName() + " " + DateFormat.getStrDate(new Date());
+/*      */       }
+/*      */ 
+/* 1093 */       Map attributes = new HashMap();
+/* 1094 */       attributes.put("AllFlowProcess", allFp);
+/* 1095 */       attributes.put("runName", runName);
+/* 1096 */       attributes.put("flowName", flowName);
+/* 1097 */       attributes.put("formId", flowFormType.getFormId());
+/*      */ 
+/* 1099 */       attributes.put("flowDesc", flowTypeModel.getFlowDesc());
+/* 1100 */       attributes.put("flowType", flowTypeModel);
+/* 1101 */       attributes.put("attachmentId", flowTypeModel.getAttachmentId());
+/* 1102 */       attributes.put("attachmentName", flowTypeModel.getAttachmentName());
+/* 1103 */       attributes.put("attachList", GetAttachmentListUtil.returnAttachment(flowTypeModel.getAttachmentName(), flowTypeModel.getAttachmentId(), sqlType, "workflow"));
+/* 1104 */       ajaxJson.setAttributes(attributes);
+/* 1105 */       ajaxJson.setFlag(true);
+/* 1106 */       ajaxJson.setMsg("OK");
+/* 1107 */       return ajaxJson;
+/*      */     } catch (Exception e) {
+/* 1109 */       L.e(new Object[] { "createGuide" + e.getMessage() });
+/* 1110 */       ajaxJson.setMsg("fasle");
+/* 1111 */       ajaxJson.setFlag(false);
+/* 1112 */     }return ajaxJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Attachment> findworkUpload(String runId, String company)
+/*      */   {
+/* 1127 */     ToJson json = new ToJson();
+/*      */     try
+/*      */     {
+/* 1130 */       List attachmentList = new ArrayList();
+/* 1131 */       FlowRun flowRun = this.wfeFlowRun.find(Integer.valueOf(Integer.parseInt(runId)));
+/* 1132 */       if ((flowRun.getAttachmentId() != "") || (flowRun.getAttachmentName() != "")) {
+/* 1133 */         String[] attachmentId = flowRun.getAttachmentId().split(",");
+/* 1134 */         String[] attachmenName = flowRun.getAttachmentName().split("\\*");
+/*      */ 
+/* 1136 */         for (int i = 0; i < attachmentId.length; i++) {
+/* 1137 */           String aid = attachmentId[i].substring(0, attachmentId[i].indexOf(64));
+/* 1138 */           String ym = attachmentId[i].substring(attachmentId[i].indexOf(64) + 1, attachmentId[i].indexOf(95));
+/* 1139 */           String attachId = attachmentId[i].substring(attachmentId[i].indexOf(95) + 1, attachmentId[i].indexOf(42));
+/* 1140 */           String fileSize = attachmentId[i].substring(attachmentId[i].indexOf(42) + 1, attachmentId[i].indexOf(124));
+/* 1141 */           String time = attachmentId[i].substring(attachmentId[i].indexOf(124) + 1, attachmentId[i].length());
+/* 1142 */           String attachName = attachmenName[i];
+/* 1143 */           Attachment attachment = new Attachment();
+/* 1144 */           String attUrl = "AID=" + aid + "&" + "MODULE=" + ModuleEnum.WORKFLOW.getName() + "&" + "COMPANY=" + company + "&" + "YM=" + ym + "&" + "ATTACHMENT_ID=" + attachId + "&" + "ATTACHMENT_NAME=" + attachName;
+/*      */ 
+/* 1146 */           attachment.setAid(Integer.valueOf(Integer.parseInt(aid)));
+/* 1147 */           attachment.setYm(ym);
+/* 1148 */           attachment.setAttachId(Integer.valueOf(Integer.parseInt(attachId)));
+/* 1149 */           attachment.setAttachName(attachName);
+/* 1150 */           attachment.setAttUrl(attUrl);
+/* 1151 */           attachment.setFileSize(fileSize);
+/* 1152 */           attachment.setTime(time);
+/* 1153 */           attachmentList.add(attachment);
+/*      */         }
+/*      */       }
+/* 1156 */       json.setObj(attachmentList);
+/* 1157 */       json.setFlag(0);
+/* 1158 */       json.setMsg("OK");
+/*      */     }
+/*      */     catch (Exception e) {
+/* 1161 */       L.e(new Object[] { "findworkUpload" + e });
+/* 1162 */       json.setFlag(1);
+/* 1163 */       json.setMsg("false");
+/*      */     }
+/* 1165 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<FlowRunFeedback> workfeedback(String content, String runId, String prcsId, String flowPrcs, String userId)
+/*      */   {
+/* 1184 */     String editTime = DateFormat.getStrDate(new Date());
+/* 1185 */     ToJson toJson = new ToJson();
+/* 1186 */     FlowRunFeedback flowRunFeedback = new FlowRunFeedback();
+/* 1187 */     flowRunFeedback.setContent(content);
+/* 1188 */     flowRunFeedback.setUserId(userId);
+/* 1189 */     flowRunFeedback.setPrcsId(Integer.parseInt(prcsId));
+/* 1190 */     flowRunFeedback.setFlowPrcs(Integer.parseInt(flowPrcs));
+/* 1191 */     flowRunFeedback.setRunId(Integer.parseInt(runId));
+/* 1192 */     flowRunFeedback.setEditTime(editTime);
+/*      */     try
+/*      */     {
+/* 1196 */       this.flowRunFeedbackMapper.insertSelective(flowRunFeedback);
+/* 1197 */       toJson.setObject(flowRunFeedback);
+/* 1198 */       toJson.setFlag(0);
+/* 1199 */       toJson.setMsg("OK");
+/*      */     } catch (Exception e) {
+/* 1201 */       toJson.setMsg("false");
+/* 1202 */       toJson.setFlag(1);
+/* 1203 */       L.e(new Object[] { "workfeedback" + e });
+/*      */     }
+/* 1205 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public AjaxJson findworkfeedback(String runId, String prcsId, String flowPrcs, String userId, String company, String signlock)
+/*      */   {
+/* 1223 */     AjaxJson ajaxJson = new AjaxJson();
+/*      */     try {
+/* 1225 */       Map map = new HashMap();
+/* 1226 */       map.put("prcsId", Integer.valueOf(Integer.parseInt(prcsId)));
+/* 1227 */       map.put("runId", Integer.valueOf(Integer.parseInt(runId)));
+/* 1228 */       map.put("flowPrcs", flowPrcs);
+/* 1229 */       map.put("userId", userId);
+/* 1230 */       FlowTypeModel flowTypeModel = this.wfeFlowType.sfTbyrunId(Integer.valueOf(Integer.parseInt(runId)));
+/* 1231 */       String flowType = flowTypeModel.getFlowType();
+/* 1232 */       Integer flowId = flowTypeModel.getFlowId();
+/*      */ 
+/* 1234 */       List<FlowRunFeedback> modelList = selectFlowFeedBackByRunId(runId);
+/*      */ 
+/* 1236 */       if (flowType.equals("1"))
+/*      */       {
+/* 1238 */         List<FlowProcess> allFp = this.wfeFlowProcess.findFlowId(flowId.intValue());
+/* 1239 */         for (FlowProcess flowProcess : allFp)
+/*      */         {
+/* 1241 */           if (!String.valueOf(flowProcess.getPrcsId()).equals(flowPrcs))
+/*      */           {
+/* 1243 */             if (flowProcess.getSignlook().equals("2")) {
+/* 1244 */               Iterator it = modelList.iterator();
+/* 1245 */               while ((it != null) && (it.hasNext())) {
+/* 1246 */                 FlowRunFeedback fbm = (FlowRunFeedback)it.next();
+/* 1247 */                 if (fbm.getFlowPrcs() == flowProcess.getPrcsId().intValue()) {
+/* 1248 */                   it.remove();
+/*      */                 }
+/*      */               }
+/*      */             }
+/*      */           }
+/* 1253 */           else if (flowProcess.getSignlook().equals("1")) {
+/* 1254 */             Iterator it = modelList.iterator();
+/* 1255 */             while ((it != null) && (it.hasNext())) {
+/* 1256 */               FlowRunFeedback fbm = (FlowRunFeedback)it.next();
+/* 1257 */               if ((fbm.getFlowPrcs() == flowProcess.getPrcsId().intValue()) && (fbm.getUserId() != userId)) {
+/* 1258 */                 it.remove();
+/*      */               }
+/*      */             }
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */ 
+/* 1265 */       for (FlowRunFeedback flowRunFeedback : modelList) {
+/* 1266 */         Users users = this.usersService.findUsersByuserId(flowRunFeedback.getUserId());
+/* 1267 */         String editTime = flowRunFeedback.getEditTime().substring(0, flowRunFeedback.getEditTime().length() - 2);
+/* 1268 */         flowRunFeedback.setEditTime(editTime);
+/* 1269 */         flowRunFeedback.setUsers(users);
+/*      */       }
+/* 1271 */       for (FlowRunFeedback flowRunFeedback : modelList) {
+/* 1272 */         String u = flowRunFeedback.getUserId();
+/* 1273 */         Users users = this.usersService.getUsersByuserId(u);
+/*      */ 
+/* 1280 */         flowRunFeedback.setUsers(users);
+/*      */       }
+/* 1282 */       ajaxJson.setObj(modelList);
+/* 1283 */       ajaxJson.setMsg("OK");
+/* 1284 */       ajaxJson.setFlag(true);
+/*      */     } catch (Exception e) {
+/* 1286 */       ajaxJson.setFlag(false);
+/* 1287 */       ajaxJson.setMsg("false");
+/*      */     }
+/* 1289 */     return ajaxJson;
+/*      */   }
+/*      */ 
+/*      */   public List<FlowRunFeedback> selectFlowFeedBackByRunId(String runId)
+/*      */   {
+/* 1294 */     FlowTypeModel flowTypeModel = this.wfeFlowType.sfTbyrunId(Integer.valueOf(Integer.parseInt(runId)));
+/* 1295 */     String flowType = flowTypeModel.getFlowType();
+/* 1296 */     Integer flowId = flowTypeModel.getFlowId();
+/* 1297 */     List list = new ArrayList();
+/* 1298 */     Map map = new HashMap();
+/* 1299 */     map.put("runId", Integer.valueOf(Integer.parseInt(runId)));
+/*      */ 
+/* 1301 */     if (flowType.equals("2"))
+/* 1302 */       list = this.flowRunFeedbackMapper.selectRunId(map);
+/*      */     else {
+/* 1304 */       list = this.flowRunFeedbackMapper.selectFeedBackByRunId(map);
+/*      */     }
+/* 1306 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public AjaxJson findBranch(String flowId, String runId, String flowPrcs, String currentFlowPrcs, Users users)
+/*      */   {
+/* 1322 */     AjaxJson ajaxJson = new AjaxJson();
+/* 1323 */     Map mAll = new HashMap();
+/*      */     try {
+/* 1325 */       String[] fpArray = flowPrcs.split(",");
+/* 1326 */       for (int j = 0; j < fpArray.length; j++) {
+/* 1327 */         if (fpArray[j].equals("0"))
+/*      */           continue;
+/* 1329 */         List allFp = this.wfeFlowProcess.findFlowId(Integer.parseInt(flowId));
+/*      */ 
+/* 1331 */         Map map = new HashMap();
+/* 1332 */         for (int i = 0; i < allFp.size(); i++) {
+/* 1333 */           FlowProcess flowProcess = (FlowProcess)allFp.get(i);
+/* 1334 */           map.put(String.valueOf(flowProcess.getPrcsId()), flowProcess);
+/*      */         }
+/* 1336 */         FlowProcess flowProcess = (FlowProcess)map.get(fpArray[j]);
+/*      */ 
+/* 1338 */         FlowFast flowFast = new FlowFast();
+/* 1339 */         flowFast.setFlowProcesses(flowProcess);
+/*      */ 
+/* 1341 */         Department dep = this.departmentService.getDeptById(users.getDeptId().intValue());
+/*      */ 
+/* 1343 */         Map mC = new HashMap();
+/* 1344 */         mC.put("runId", runId);
+/* 1345 */         List allFrp = this.wfeFlowRunPrcs.findByRunId(mC);
+/*      */ 
+/* 1349 */         String uF = flowProcess.getUserFilter();
+/*      */ 
+/* 1351 */         List<Users> userFilterlist = new ArrayList();
+/*      */ 
+/* 1353 */         if (flowProcess.getUserFilter().trim() != "") {
+/* 1354 */           Integer userFilter = Integer.valueOf(Integer.parseInt(flowProcess.getUserFilter()));
+/* 1355 */           userFilterlist = userFilterlist(userFilter, users, flowProcess);
+/*      */         }
+/*      */ 
+/* 1358 */         Map map1 = new HashMap();
+/* 1359 */         for (Users u : userFilterlist) {
+/* 1360 */           map1.put(u.getUid(), u);
+/*      */         }
+/*      */ 
+/* 1364 */         String aT = flowProcess.getAutoType();
+/* 1365 */         List autoTypelist = null;
+/* 1366 */         if (aT != "") {
+/* 1367 */           Integer autoType = Integer.valueOf(Integer.parseInt(aT));
+/* 1368 */           autoTypelist = autoTypelist(autoType, dep, users, runId, flowProcess, allFrp);
+/*      */         }
+/*      */ 
+/* 1371 */         flowFast.setUserFilter(uF);
+/* 1372 */         flowFast.setUserFilterlist(userFilterlist);
+/* 1373 */         flowFast.setAutoType(aT);
+/* 1374 */         flowFast.setAutoTypelist(autoTypelist);
+/*      */ 
+/* 1377 */         String prcsUser = flowProcess.getPrcsUser();
+/*      */ 
+/* 1379 */         String prcsDept = flowProcess.getPrcsDept();
+/*      */ 
+/* 1381 */         String prcsPriv = flowProcess.getPrcsPriv();
+/*      */ 
+/* 1383 */         List prcsUserlist = new ArrayList();
+/*      */ 
+/* 1385 */         List prcsDeptlist = new ArrayList();
+/*      */ 
+/* 1387 */         List prcsPrivlist = new ArrayList();
+/*      */ 
+/* 1389 */         List<Users> allUser = new ArrayList();
+/*      */ 
+/* 1391 */         if (!com.xoa.util.common.StringUtils.checkNull(prcsUser).booleanValue())
+/*      */         {
+/* 1393 */           prcsUserlist = this.usersService.getUserByuserId(flowProcess.getPrcsUser());
+/*      */         }
+/* 1395 */         if (!com.xoa.util.common.StringUtils.checkNull(prcsDept).booleanValue()) {
+/* 1396 */           prcsDeptlist = this.usersService.getUserByDeptIds(prcsDept, Integer.valueOf(1));
+/*      */         }
+/* 1398 */         if (!com.xoa.util.common.StringUtils.checkNull(prcsPriv).booleanValue()) {
+/* 1399 */           prcsPrivlist = this.usersService.getUserByDeptIds(prcsPriv, Integer.valueOf(2));
+/*      */         }
+/* 1401 */         allUser.addAll(prcsUserlist);
+/* 1402 */         allUser.addAll(prcsDeptlist);
+/* 1403 */         allUser.addAll(prcsPrivlist);
+/*      */ 
+/* 1405 */         Map m = new HashMap();
+/* 1406 */         for (Users users1 : allUser) {
+/* 1407 */           m.put(users1.getUid(), users1);
+/*      */         }
+/* 1409 */         allUser = new ArrayList(m.values());
+/*      */ 
+/* 1411 */         if ((userFilterlist != null) && (userFilterlist.size() > 0)) {
+/* 1412 */           allUser = new ArrayList();
+/* 1413 */           for (Users u : userFilterlist) {
+/* 1414 */             if (m.containsKey(u.getUid())) {
+/* 1415 */               allUser.add(u);
+/*      */             }
+/*      */           }
+/*      */         }
+/* 1419 */         flowFast.setPrcsUserlist(allUser);
+/*      */ 
+/* 1421 */         if (currentFlowPrcs.equals(fpArray[j]))
+/*      */         {
+/* 1423 */           Iterator it = allUser.iterator();
+/* 1424 */           while (it.hasNext()) {
+/* 1425 */             Users u = (Users)it.next();
+/* 1426 */             if (u.getUid().equals(users.getUid())) {
+/* 1427 */               it.remove();
+/*      */             }
+/*      */           }
+/*      */         }
+/* 1431 */         flowFast.setPrcsUserlist(allUser);
+/*      */ 
+/* 1433 */         if (autoTypelist != null) {
+/* 1434 */           Users autoUserreturn = (Users)autoTypelist.get(0);
+/* 1435 */           List a = new ArrayList();
+/* 1436 */           flowFast.setAutoTypelist(a);
+/* 1437 */           Iterator it = allUser.iterator();
+/* 1438 */           while (it.hasNext()) {
+/* 1439 */             Users u = (Users)it.next();
+/* 1440 */             if (u.getUid().equals(autoUserreturn.getUid())) {
+/* 1441 */               flowFast.setAutoTypelist(autoTypelist);
+/*      */             }
+/*      */           }
+/*      */         }
+/* 1445 */         mAll.put(fpArray[j], flowFast);
+/*      */       }
+/*      */ 
+/* 1448 */       ajaxJson.setObj(mAll);
+/* 1449 */       ajaxJson.setFlag(true);
+/* 1450 */       ajaxJson.setMsg("OK");
+/*      */     } catch (Exception e) {
+/* 1452 */       L.e(new Object[] { "findBranch" + e });
+/* 1453 */       ajaxJson.setFlag(false);
+/* 1454 */       ajaxJson.setMsg("false");
+/* 1455 */       return ajaxJson;
+/*      */     }
+/* 1457 */     return ajaxJson;
+/*      */   }
+/*      */ 
+/*      */   public List<Users> userFilterlist(Integer userFilter, Users users, FlowProcess flowProcess)
+/*      */   {
+/* 1472 */     List userFilterlist = null;
+/* 1473 */     switch (userFilter.intValue()) {
+/*      */     case 1:
+/* 1475 */       userFilterlist = this.usersService.getUsersByDeptId(users.getDeptId());
+/* 1476 */       return userFilterlist;
+/*      */     case 2:
+/* 1478 */       userFilterlist = this.usersService.getUserByDeptIds(String.valueOf(users.getUserPriv()), Integer.valueOf(2));
+/* 1479 */       return userFilterlist;
+/*      */     case 3:
+/* 1481 */       userFilterlist = this.usersService.getPUsersByDeptId(users.getDeptId());
+/* 1482 */       return userFilterlist;
+/*      */     case 4:
+/* 1484 */       userFilterlist = this.usersService.getCUsersByDeptId(users.getDeptId());
+/* 1485 */       return userFilterlist;
+/*      */     case 5:
+/* 1487 */       userFilterlist = this.usersService.getTUsersByDeptId(users.getDeptId());
+/* 1488 */       return userFilterlist;
+/*      */     case 6:
+/* 1490 */       userFilterlist = this.usersService.getUserByDeptIds(flowProcess.getPrcsDept(), Integer.valueOf(1));
+/* 1491 */       return userFilterlist;
+/*      */     case 7:
+/* 1493 */       userFilterlist = this.usersService.getUserByDeptIds(flowProcess.getPrcsPriv(), Integer.valueOf(2));
+/* 1494 */       return userFilterlist;
+/*      */     case 8:
+/* 1496 */       userFilterlist = this.usersService.getUserByDeptIds(users.getDeptIdOther(), Integer.valueOf(1));
+/* 1497 */       return userFilterlist;
+/*      */     case 12:
+/* 1499 */       userFilterlist = this.usersService.getUsersByDeptId(users.getDeptId());
+/* 1500 */       userFilterlist.addAll(this.usersService.getCUsersByDeptId(users.getDeptId()));
+/* 1501 */       return userFilterlist;
+/*      */     case 9:
+/*      */     case 10:
+/* 1503 */     case 11: } return userFilterlist;
+/*      */   }
+/*      */ 
+/*      */   public List<Users> autoTypelist(Integer autoType, Department dep, Users users, String runId, FlowProcess flowProcess, List<FlowRunPrcs> allfrp)
+/*      */   {
+/* 1519 */     List autoTypelist = new ArrayList();
+/*      */ 
+/* 1521 */     Integer autoBaseUser = flowProcess.getAutoBaseUser();
+/*      */     Department department;
+/* 1522 */     switch (autoType.intValue()) {
+/*      */     case 1:
+/* 1524 */       FlowRun flowRun = this.wfeFlowRun.find(Integer.valueOf(Integer.parseInt(runId)));
+/* 1525 */       Users u = this.usersService.findUsersByuserId(flowRun.getBeginUser());
+/* 1526 */       autoTypelist.add(u);
+/* 1527 */       return autoTypelist;
+/*      */     case 2:
+/* 1529 */       department = null;
+/* 1530 */       for (FlowRunPrcs flowRunPrcs : allfrp) {
+/* 1531 */         if (flowRunPrcs.getFlowPrcs().equals(autoBaseUser)) {
+/* 1532 */           Users users1 = this.usersService.findUsersByuserId(flowRunPrcs.getUserId());
+/* 1533 */           department = this.departmentService.getDeptById(users1.getDeptId().intValue());
+/* 1534 */           autoTypelist = this.usersService.getUserByuId(department.getManager());
+/* 1535 */           return autoTypelist;
+/*      */         }
+/*      */       }
+/*      */ 
+/*      */     case 3:
+/* 1540 */       autoTypelist = this.usersService.getUserByuId(dep.getManager());
+/* 1541 */       return autoTypelist;
+/*      */     case 4:
+/* 1543 */       for (FlowRunPrcs flowRunPrcs : allfrp) {
+/* 1544 */         if (flowRunPrcs.getFlowPrcs().equals(autoBaseUser)) {
+/* 1545 */           Users users1 = this.usersService.findUsersByuserId(flowRunPrcs.getUserId());
+/* 1546 */           Department d = this.departmentService.getDeptById(users1.getDeptId().intValue());
+/* 1547 */           Department dparent = this.departmentService.getDeptById(d.getDeptParent().intValue());
+/* 1548 */           if (dparent != null) {
+/* 1549 */             autoTypelist = this.usersService.getUserByuId(dparent.getLeader1());
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */ 
+/* 1554 */       return autoTypelist;
+/*      */     case 5:
+/* 1556 */       autoTypelist = this.usersService.getUserByuId(dep.getManager());
+/* 1557 */       return autoTypelist;
+/*      */     case 6:
+/* 1559 */       for (FlowRunPrcs flowRunPrcs : allfrp) {
+/* 1560 */         if (flowRunPrcs.getFlowPrcs().equals(autoBaseUser)) {
+/* 1561 */           Users users1 = this.usersService.findUsersByuserId(flowRunPrcs.getUserId());
+/* 1562 */           Department d = this.departmentService.getDeptById(users1.getDeptId().intValue());
+/* 1563 */           Department dparent = this.departmentService.getDeptById(d.getDeptParent().intValue());
+/* 1564 */           if (dparent != null) {
+/* 1565 */             autoTypelist = this.usersService.getUserByuId(dparent.getLeader2());
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */ 
+/* 1570 */       return autoTypelist;
+/*      */     case 7:
+/* 1572 */       String autoUser = flowProcess.getAutoUser();
+/* 1573 */       Map map = new HashMap();
+/* 1574 */       map.put("tableName", "flow_data_" + flowProcess.getFlowId());
+/* 1575 */       map.put("runId", runId);
+/* 1576 */       Map maps = this.workMapper.select(map);
+/* 1577 */       if (maps != null) {
+/* 1578 */         String userName = (String)maps.get(autoUser);
+/* 1579 */         Users users1 = this.usersService.getUserByUserName(userName);
+/* 1580 */         if (users1 != null) {
+/* 1581 */           autoTypelist.add(users1);
+/*      */         }
+/*      */       }
+/* 1584 */       return autoTypelist;
+/*      */     case 8:
+/* 1587 */       String step = flowProcess.getAutoUser();
+/* 1588 */       for (FlowRunPrcs flowRunPrcs : allfrp) {
+/* 1589 */         if (step.equals(flowRunPrcs.getFlowPrcs())) {
+/* 1590 */           String userId = flowRunPrcs.getUserId();
+/* 1591 */           Users users1 = this.usersService.findUsersByuserId(userId);
+/* 1592 */           autoTypelist.add(users1);
+/* 1593 */           return autoTypelist;
+/*      */         }
+/*      */       }
+/* 1596 */       return autoTypelist;
+/*      */     case 9:
+/* 1598 */       autoTypelist = this.usersService.getUserByuId(dep.getAssistantId());
+/* 1599 */       return autoTypelist;
+/*      */     case 10:
+/*      */     case 11:
+/*      */     case 12:
+/* 1605 */       return autoTypelist;
+/*      */     case 13:
+/* 1607 */       return autoTypelist;
+/*      */     case 14:
+/* 1609 */       return autoTypelist;
+/*      */     case 15:
+/* 1611 */       return autoTypelist;
+/*      */     }
+/* 1613 */     return autoTypelist;
+/*      */   }
+/*      */ 
+/*      */   public ToJson delete(String runId, @RequestParam("AID") String aid, @RequestParam("MODULE") String module, @RequestParam("YM") String ym, @RequestParam("ATTACHMENT_ID") String attachmentId, @RequestParam("ATTACHMENT_NAME") String attachmentName, @RequestParam("COMPANY") String company, HttpServletResponse response, HttpServletRequest request)
+/*      */   {
+/* 1642 */     ToJson tj = new ToJson();
+/*      */     try {
+/* 1644 */       FlowRun flowRun = this.wfeFlowRun.find(Integer.valueOf(Integer.parseInt(runId)));
+/* 1645 */       StringBuffer id = new StringBuffer();
+/* 1646 */       StringBuffer name = new StringBuffer();
+/* 1647 */       tj = this.enclosureService.delete(aid, module, ym, attachmentId, attachmentName, company, response, request);
+/* 1648 */       if (tj.isFlag()) {
+/* 1649 */         if ((flowRun.getAttachmentId() != "") || (flowRun.getAttachmentName() != "")) {
+/* 1650 */           String[] attachmentIds = flowRun.getAttachmentId().split(",");
+/* 1651 */           String[] attachName = flowRun.getAttachmentName().split("\\*");
+/* 1652 */           List idsList = new ArrayList();
+/* 1653 */           Collections.addAll(idsList, attachmentIds);
+/* 1654 */           List nameList = new ArrayList();
+/* 1655 */           Collections.addAll(nameList, attachName);
+/* 1656 */           for (int i = 0; i < attachmentIds.length; i++) {
+/* 1657 */             String yaid = attachmentIds[i].substring(0, attachmentIds[i].indexOf(64));
+/* 1658 */             if (yaid.equals(aid)) {
+/* 1659 */               idsList.remove(attachmentIds[i]);
+/* 1660 */               attachmentIds = (String[])idsList.toArray(new String[0]);
+/* 1661 */               break;
+/*      */             }
+/*      */           }
+/* 1664 */           for (int j = 0; j < attachName.length; j++) {
+/* 1665 */             String yattachName = attachName[j];
+/* 1666 */             if (yattachName.equals(attachmentName)) {
+/* 1667 */               nameList.remove(attachName[j]);
+/* 1668 */               attachName = (String[])nameList.toArray(new String[0]);
+/* 1669 */               break;
+/*      */             }
+/*      */           }
+/*      */ 
+/* 1673 */           Map map = new HashMap();
+/* 1674 */           map.put("runId", runId);
+/* 1675 */           map.put("attachmentId", org.apache.commons.lang.StringUtils.join(attachmentIds, ","));
+/* 1676 */           map.put("attachmentName", org.apache.commons.lang.StringUtils.join(attachName, "*"));
+/* 1677 */           this.wfeFlowRun.updateAttachment(map);
+/*      */         }
+/* 1679 */         tj.setFlag(0);
+/* 1680 */         tj.setMsg("true");
+/* 1681 */         return tj;
+/*      */       }
+/* 1683 */       tj.setFlag(1);
+/* 1684 */       tj.setMsg("false");
+/* 1685 */       return tj;
+/*      */     } catch (Exception e) {
+/* 1687 */       L.e(new Object[] { "delete" + e });
+/* 1688 */       tj.setFlag(1);
+/* 1689 */       tj.setMsg("false");
+/* 1690 */     }return tj;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<FlowRunPrcs> getflowprcsdata(String allowBack, String runId, String prcsId, String userId)
+/*      */   {
+/* 1707 */     ToJson toJson = new ToJson();
+/* 1708 */     Map m = new HashMap();
+/*      */     try {
+/* 1710 */       switch (Integer.parseInt(allowBack)) {
+/*      */       case 1:
+/* 1712 */         m.put("prcsId", Integer.valueOf(Integer.parseInt(prcsId) - 1));
+/* 1713 */         m.put("runId", runId);
+/* 1714 */         List<FlowRunPrcs> listFloRunPrcs = this.wfeFlowRunPrcs.findByRunId(m);
+/* 1715 */         for (FlowRunPrcs flowRunPrcs : listFloRunPrcs) {
+/* 1716 */           if (flowRunPrcs.getPrcsTime().contains(".")) {
+/* 1717 */             flowRunPrcs.setPrcsTime(flowRunPrcs.getPrcsTime().substring(0, flowRunPrcs.getPrcsTime().length() - 2));
+/*      */           }
+/*      */         }
+/* 1720 */         toJson.setObj(listFloRunPrcs);
+/* 1721 */         toJson.setMsg("true");
+/* 1722 */         toJson.setFlag(0);
+/* 1723 */         return toJson;
+/*      */       case 2:
+/* 1725 */         m.put("prcsId", prcsId);
+/* 1726 */         m.put("runId", runId);
+/* 1727 */         m.put("userId", userId);
+/*      */ 
+/* 1729 */         List list1 = this.wfeFlowRunPrcs.selectFind(m);
+/* 1730 */         FlowRunPrcs frp = (FlowRunPrcs)list1.get(0);
+/* 1731 */         List<FlowRunPrcs> list = this.wfeFlowRunPrcs.findlessRunId(m);
+/* 1732 */         for (FlowRunPrcs flowRunPrcs : list) {
+/* 1733 */           if (flowRunPrcs.getPrcsTime().contains(".")) {
+/* 1734 */             flowRunPrcs.setPrcsTime(flowRunPrcs.getPrcsTime().substring(0, flowRunPrcs.getPrcsTime().length() - 2));
+/*      */           }
+/*      */         }
+/* 1737 */         List relist = new ArrayList();
+/* 1738 */         List reAll = reFrp(list, relist, frp);
+/*      */ 
+/* 1740 */         Collections.sort(reAll, new Comparator<FlowRunPrcs>()
+/*      */         {
+/*      */           public int compare(FlowRunPrcs o1, FlowRunPrcs o2) {
+/* 1743 */             int i = o1.getPrcsId().intValue() - o2.getPrcsId().intValue();
+/* 1744 */             if (i == 0) {
+/* 1745 */               return o1.getFlowPrcs().intValue() - o2.getFlowPrcs().intValue();
+/*      */             }
+/* 1747 */             return i;
+/*      */           }
+/*      */         });
+/* 1750 */         toJson.setObj(reAll);
+/* 1751 */         toJson.setFlag(0);
+/* 1752 */         toJson.setMsg("true");
+/* 1753 */         return toJson;
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 1756 */       L.e(new Object[] { "getflowprcsdate" + e.getMessage() });
+/* 1757 */       toJson.setFlag(1);
+/* 1758 */       toJson.setMsg("false");
+/* 1759 */       return toJson;
+/*      */     }
+/* 1761 */     toJson.setFlag(0);
+/* 1762 */     toJson.setMsg("true");
+/* 1763 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public List<FlowRunPrcs> reFrp(List<FlowRunPrcs> list, List<FlowRunPrcs> relist, FlowRunPrcs flowRunPrcs)
+/*      */   {
+/* 1768 */     for (FlowRunPrcs frp : list) {
+/* 1769 */       if (Integer.parseInt(flowRunPrcs.getParent()) == frp.getFlowPrcs().intValue()) {
+/* 1770 */         relist.add(frp);
+/* 1771 */         if ("0".equals(frp.getParent())) {
+/* 1772 */           return relist;
+/*      */         }
+/* 1774 */         reFrp(list, relist, frp);
+/*      */       }
+/*      */     }
+/* 1777 */     return relist;
+/*      */   }
+/*      */ 
+/*      */   public AjaxJson insertprcsdata(String runId, String flowStep, String prcsId, String flowPrcs, Users users, String feedback)
+/*      */   {
+/* 1795 */     AjaxJson ajaxJson = new AjaxJson();
+/* 1796 */     Map maps = new HashMap();
+/*      */     try {
+/* 1798 */       maps.put("prcsId", flowStep);
+/* 1799 */       maps.put("runId", runId);
+/* 1800 */       maps.put("prcsFlag", "3");
+/* 1801 */       maps.put("deliverTime", DateFormat.getStrDate(new Date()));
+/* 1802 */       this.wfeFlowRunPrcs.updateSql(maps);
+/* 1803 */       List thislistFrp = this.wfeFlowRunPrcs.findByRunId(maps);
+/* 1804 */       maps.put("prcsId", flowPrcs);
+/* 1805 */       List listFloRunPrcs = this.wfeFlowRunPrcs.findByRunId(maps);
+/* 1806 */       FlowRunPrcs fp = (FlowRunPrcs)listFloRunPrcs.get(0);
+/* 1807 */       FlowRun flowRun = this.wfeFlowRun.find(Integer.valueOf(Integer.parseInt(runId)));
+/*      */ 
+/* 1809 */       FlowRunPrcs flowRunPrcs = new FlowRunPrcs();
+/* 1810 */       flowRunPrcs.setRunId(Integer.valueOf(Integer.parseInt(runId)));
+/*      */ 
+/* 1812 */       flowRunPrcs.setPrcsId(Integer.valueOf(Integer.parseInt(flowStep) + 1));
+/* 1813 */       flowRunPrcs.setUserId(fp.getUserId());
+/* 1814 */       flowRunPrcs.setPrcsDept(users.getDeptId());
+/* 1815 */       flowRunPrcs.setPrcsFlag("1");
+/* 1816 */       flowRunPrcs.setFlowPrcs(fp.getFlowPrcs());
+/* 1817 */       flowRunPrcs.setOpFlag("1");
+/* 1818 */       flowRunPrcs.setTopFlag("0");
+/* 1819 */       flowRunPrcs.setCreateTime(DateFormat.getStrDate(new Date()));
+/* 1820 */       flowRunPrcs.setPrcsTime(DateFormat.getStrDate(new Date()));
+/* 1821 */       flowRunPrcs.setDeliverTime("0000-00-00 00:00:00");
+/* 1822 */       flowRunPrcs.setActiveTime("0000-00-00 00:00:00");
+/* 1823 */       flowRunPrcs.setBackFlowPrcs(fp.getFlowPrcs());
+/* 1824 */       flowRunPrcs.setBackPrcsId(fp.getPrcsId());
+/* 1825 */       flowRunPrcs.setParent(String.valueOf(((FlowRunPrcs)thislistFrp.get(0)).getFlowPrcs()));
+/* 1826 */       this.wfeFlowRunPrcs.save(flowRunPrcs);
+/* 1827 */       ToJson json = workfeedback(feedback, runId, flowStep, String.valueOf(fp.getFlowPrcs()), users.getUserId());
+/* 1828 */       HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+/*      */ 
+/* 1832 */       this.workService.todoWorkSmsBoby(fp.getUserId(), String.valueOf(fp.getFlowPrcs()), null, runId, flowRun.getRunName(), String.valueOf(flowRun.getFlowId()), flowStep, null, null, null, "", request, "1", users, null, "", "");
+/*      */ 
+/* 1835 */       String smsUrl = "/workflow/work/workform?opflag=1&flowId=" + Integer.valueOf(flowRun.getFlowId()) + "&flowStep=" + flowStep + "&runId=" + runId + "&prcsId=" + prcsId;
+/* 1836 */       this.smsService.updatequerySmsByType("7", users.getUserId(), smsUrl.trim());
+/*      */ 
+/* 1838 */       ajaxJson.setObj(flowRunPrcs);
+/* 1839 */       ajaxJson.setMsg("true");
+/* 1840 */       ajaxJson.setFlag(true);
+/*      */     } catch (Exception e) {
+/* 1842 */       L.e(new Object[] { "insertprcsDate" + e.getMessage() });
+/* 1843 */       ajaxJson.setMsg("false");
+/* 1844 */       ajaxJson.setFlag(false);
+/*      */     }
+/* 1846 */     return ajaxJson;
+/*      */   }
+/*      */ 
+/*      */   public void exportExcel(Users users, String type, HttpServletResponse response)
+/*      */   {
+/* 1852 */     List resultList = new ArrayList();
+/* 1853 */     if ("1".equals(type))
+/* 1854 */       resultList = getReceivedWorksList(users);
+/* 1855 */     else if ("2".equals(type))
+/* 1856 */       resultList = getHandledWorksList(users);
+/* 1857 */     else if ("3".equals(type))
+/* 1858 */       resultList = getAllWorksList(users);
+/* 1859 */     else if (!"4".equals(type))
+/*      */     {
+/* 1861 */       if (!"5".equals(type));
+/*      */     }
+/*      */ 
+/* 1866 */     Calendar c = Calendar.getInstance();
+/* 1867 */     String time = "" + c.get(1) + (c.get(2) + 1) + c.get(5) + c.get(11) + c.get(12);
+/*      */     try
+/*      */     {
+/* 1872 */       HSSFWorkbook wb = new HSSFWorkbook();
+/*      */ 
+/* 1874 */       HSSFSheet sheet = wb.createSheet("工作查询列表信息");
+/*      */ 
+/* 1876 */       HSSFRow row = sheet.createRow(0);
+/*      */ 
+/* 1878 */       HSSFFont font = wb.createFont();
+/* 1879 */       font.setFontHeightInPoints((short)12);
+/* 1880 */       font.setColor((short)32767);
+/* 1881 */       font.setFontName("宋体");
+/* 1882 */       font.setBoldweight((short)700);
+/* 1883 */       font.setItalic(false);
+/* 1884 */       HSSFCellStyle style = wb.createCellStyle();
+/* 1885 */       style.setAlignment((short)2);
+/* 1886 */       style.setFont(font);
+/*      */ 
+/* 1888 */       HSSFFont font1 = wb.createFont();
+/* 1889 */       font1.setFontHeightInPoints((short)12);
+/* 1890 */       font1.setColor((short)32767);
+/* 1891 */       font1.setFontName("宋体");
+/* 1892 */       font1.setBoldweight((short)400);
+/* 1893 */       font1.setItalic(false);
+/* 1894 */       HSSFCellStyle style1 = wb.createCellStyle();
+/* 1895 */       style1.setAlignment((short)2);
+/* 1896 */       style1.setFont(font1);
+/*      */ 
+/* 1898 */       HSSFCell cell = row.createCell(0);
+/* 1899 */       List head = new ArrayList();
+/*      */ 
+/* 1901 */       StringBuffer stringBuffer = new StringBuffer();
+/*      */ 
+/* 1903 */       String[] d = { "流水号", "流程名称", "我经办的步骤", "发起人", "状态", "到达时间", "已停留" };
+/*      */ 
+/* 1905 */       String[] b = { "流水号", "流程名称", "工作名称/文号", "发起人", "办结时间", "流程状态" };
+/* 1906 */       String[] q = { "流水号", "流程名称", "工作名称/文号", "发起人", "办结时间", "流程状态" };
+/* 1907 */       if ("1".equals(type)) {
+/* 1908 */         for (int i = 0; i < d.length; i++) {
+/* 1909 */           cell.setCellValue(d[i]);
+/* 1910 */           cell.setCellStyle(style);
+/* 1911 */           cell = row.createCell((short)(i + 1));
+/*      */         }
+/*      */ 
+/* 1914 */         Map map = new HashMap();
+/* 1915 */         for (int m = 0; m < resultList.size(); m++) {
+/* 1916 */           HSSFRow r = sheet.createRow(m + 1);
+/*      */ 
+/* 1918 */           FlowRunPrcs flowRunPrcs = (FlowRunPrcs)resultList.get(m);
+/* 1919 */           map.put(Integer.valueOf(0), flowRunPrcs.getRunId());
+/* 1920 */           map.put(Integer.valueOf(1), flowRunPrcs.getFlowRun().getRunName());
+/* 1921 */           map.put(Integer.valueOf(2), "第" + flowRunPrcs.getFlowProcess().getPrcsId() + "步:" + flowRunPrcs.getFlowProcess().getPrcsName());
+/* 1922 */           map.put(Integer.valueOf(3), flowRunPrcs.getUserName());
+/* 1923 */           map.put(Integer.valueOf(4), returnFlag(flowRunPrcs.getPrcsFlag()));
+/* 1924 */           map.put(Integer.valueOf(5), flowRunPrcs.getReceiptTime());
+/* 1925 */           map.put(Integer.valueOf(6), flowRunPrcs.getArriveTime());
+/* 1926 */           for (int n = 0; n < map.size(); n++) {
+/* 1927 */             cell = r.createCell((short)n);
+/* 1928 */             cell.setCellValue(String.valueOf(map.get(Integer.valueOf(n))));
+/* 1929 */             cell.setCellStyle(style1);
+/*      */           }
+/*      */         }
+/* 1932 */         stringBuffer.append("待办工作列表").append(time.toString()).append(".xls");
+/*      */       }
+/* 1934 */       if ("2".equals(type)) {
+/* 1935 */         for (int i = 0; i < b.length; i++) {
+/* 1936 */           cell.setCellValue(b[i]);
+/* 1937 */           cell.setCellStyle(style);
+/* 1938 */           cell = row.createCell((short)(i + 1));
+/*      */         }
+/*      */ 
+/* 1942 */         Map map = new HashMap();
+/* 1943 */         for (int m = 0; m < resultList.size(); m++) {
+/* 1944 */           HSSFRow r = sheet.createRow(m + 1);
+/*      */ 
+/* 1946 */           FlowRunPrcs flowRunPrcs = (FlowRunPrcs)resultList.get(m);
+/* 1947 */           map.put(Integer.valueOf(0), flowRunPrcs.getRunId());
+/* 1948 */           map.put(Integer.valueOf(1), flowRunPrcs.getFlowRun().getRunName());
+/* 1949 */           map.put(Integer.valueOf(2), "第" + flowRunPrcs.getFlowProcess().getPrcsId() + "步:" + flowRunPrcs.getFlowProcess().getPrcsName());
+/* 1950 */           map.put(Integer.valueOf(3), flowRunPrcs.getUserName());
+/* 1951 */           map.put(Integer.valueOf(4), flowRunPrcs.getDeliverTime());
+/* 1952 */           map.put(Integer.valueOf(5), returnFlag(flowRunPrcs.getPrcsFlag()));
+/* 1953 */           for (int n = 0; n < map.size(); n++) {
+/* 1954 */             cell = r.createCell((short)n);
+/* 1955 */             cell.setCellValue(String.valueOf(map.get(Integer.valueOf(n))));
+/* 1956 */             cell.setCellStyle(style1);
+/*      */           }
+/*      */         }
+/* 1959 */         stringBuffer.append("办结工作列表").append(time.toString()).append(".xls");
+/*      */       }
+/* 1961 */       if ("3".equals(type)) {
+/* 1962 */         for (int i = 0; i < b.length; i++) {
+/* 1963 */           cell.setCellValue(b[i]);
+/* 1964 */           cell.setCellStyle(style);
+/* 1965 */           cell = row.createCell((short)(i + 1));
+/*      */         }
+/*      */ 
+/* 1969 */         Map map = new HashMap();
+/* 1970 */         for (int m = 0; m < resultList.size(); m++) {
+/* 1971 */           HSSFRow r = sheet.createRow(m + 1);
+/*      */ 
+/* 1973 */           FlowRunPrcs flowRunPrcs = (FlowRunPrcs)resultList.get(m);
+/* 1974 */           map.put(Integer.valueOf(0), flowRunPrcs.getRunId());
+/* 1975 */           map.put(Integer.valueOf(1), flowRunPrcs.getFlowType().getFlowName());
+/* 1976 */           map.put(Integer.valueOf(2), flowRunPrcs.getFlowRun().getRunName());
+/* 1977 */           map.put(Integer.valueOf(3), flowRunPrcs.getUserName());
+/* 1978 */           map.put(Integer.valueOf(4), "第" + flowRunPrcs.getFlowProcess().getPrcsId() + "步:" + flowRunPrcs.getFlowProcess().getPrcsName());
+/* 1979 */           map.put(Integer.valueOf(5), returnFlag(flowRunPrcs.getPrcsFlag()));
+/* 1980 */           for (int n = 0; n < map.size(); n++) {
+/* 1981 */             cell = r.createCell((short)n);
+/* 1982 */             cell.setCellValue(String.valueOf(map.get(Integer.valueOf(n))));
+/* 1983 */             cell.setCellStyle(style1);
+/*      */           }
+/*      */         }
+/* 1986 */         stringBuffer.append("全部工作列表").append(time.toString()).append(".xls");
+/*      */       }
+/*      */ 
+/* 1990 */       sheet.setDefaultColumnWidth(15);
+/* 1991 */       String fileName = stringBuffer.toString();
+/* 1992 */       response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
+/*      */ 
+/* 1994 */       response.setContentType("application/msexcel;charset=UTF-8");
+/* 1995 */       OutputStream out = response.getOutputStream();
+/* 1996 */       wb.write(out);
+/* 1997 */       out.close();
+/*      */     } catch (Exception e) {
+/* 1999 */       e.printStackTrace();
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public List<FlowRunPrcs> getHandledWorksList(Users users)
+/*      */   {
+/* 2007 */     Map maps = new HashMap();
+/* 2008 */     maps.put("userId", users.getUserId());
+/* 2009 */     ToJson toJson = this.wfeFlowRunPrcs.selectEnd(maps, null, null, false);
+/* 2010 */     List list = toJson.getObj();
+/* 2011 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public List<FlowRunPrcs> getReceivedWorksList(Users users)
+/*      */   {
+/* 2018 */     Map maps = new HashMap();
+/* 2019 */     maps.put("userId", users.getUserId());
+/* 2020 */     ToJson toJson = this.wfeFlowRunPrcs.selectObject(maps, null, null, false);
+/* 2021 */     List list = toJson.getObj();
+/* 2022 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public List<FlowRunPrcs> getAllWorksList(Users users)
+/*      */   {
+/* 2027 */     Map maps = new HashMap();
+/* 2028 */     maps.put("userId", users.getUserId());
+/* 2029 */     ToJson toJson = this.wfeFlowRunPrcs.selectAll(maps, null, null, false);
+/* 2030 */     List list = toJson.getObj();
+/* 2031 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public static String returnFlag(String prcsFlag)
+/*      */   {
+/* 2036 */     if (prcsFlag.equals("1")) {
+/* 2037 */       return "未接收";
+/*      */     }
+/* 2039 */     if (prcsFlag.equals("2")) {
+/* 2040 */       return "办理中";
+/*      */     }
+/* 2042 */     if (prcsFlag.equals("3")) {
+/* 2043 */       return "转交下一步，下一步经办人无人接收";
+/*      */     }
+/* 2045 */     if (prcsFlag.equals("4")) {
+/* 2046 */       return "已办结";
+/*      */     }
+/* 2048 */     if (prcsFlag.equals("5")) {
+/* 2049 */       return "自由流程预设步骤";
+/*      */     }
+/* 2051 */     if (prcsFlag.equals("6")) {
+/* 2052 */       return "已挂起";
+/*      */     }
+/* 2054 */     return "";
+/*      */   }
+/*      */ 
+/*      */   public ToJson<FlowRunPrcs> entrust(String runId, String prcsId, String toId, String flowPrcs, String opFlag, Users users)
+/*      */   {
+/* 2068 */     ToJson json = new ToJson();
+/*      */     try {
+/* 2070 */       Map map = new HashMap();
+/* 2071 */       map.put("runId", runId);
+/* 2072 */       map.put("prcsId", prcsId);
+/* 2073 */       map.put("prcsFlag", Integer.valueOf(4));
+/* 2074 */       map.put("opFlag", Integer.valueOf(0));
+/* 2075 */       this.wfeFlowRunPrcs.updateSql(map);
+/* 2076 */       FlowRunPrcs flowRunPrcs = new FlowRunPrcs();
+/* 2077 */       flowRunPrcs.setRunId(Integer.valueOf(Integer.parseInt(runId)));
+/* 2078 */       flowRunPrcs.setPrcsId(Integer.valueOf(Integer.parseInt(prcsId)));
+/* 2079 */       flowRunPrcs.setFlowPrcs(Integer.valueOf(Integer.parseInt(flowPrcs)));
+/* 2080 */       flowRunPrcs.setUserId(toId);
+/* 2081 */       flowRunPrcs.setPrcsFlag("1");
+/* 2082 */       flowRunPrcs.setOpFlag("1");
+/* 2083 */       flowRunPrcs.setOtherUser(users.getUserId() + ",");
+/* 2084 */       this.wfeFlowRunPrcs.save(flowRunPrcs);
+/* 2085 */       json.setMsg("true");
+/* 2086 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/* 2088 */       e.printStackTrace();
+/* 2089 */       json.setFlag(1);
+/* 2090 */       json.setMsg("error");
+/*      */     }
+/* 2092 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public AjaxJson workAttention(Integer runId, String userId, String status)
+/*      */   {
+/* 2100 */     AjaxJson ajaxJson = new AjaxJson();
+/* 2101 */     FlowRun flowRun = this.wfeFlowRun.find(runId);
+/* 2102 */     String focusUser = flowRun.getFocusUser();
+/* 2103 */     if (status.equals("0"))
+/* 2104 */       focusUser = focusUser.replaceAll(userId, "");
+/*      */     else {
+/* 2106 */       focusUser = focusUser + userId;
+/*      */     }
+/* 2108 */     Map map = new HashMap();
+/* 2109 */     map.put("runId", runId);
+/* 2110 */     map.put("userId", focusUser);
+/* 2111 */     map.put("status", status);
+/*      */     try {
+/* 2113 */       int a = this.wfeFlowRun.updateState(map);
+/* 2114 */       if (a > 0) {
+/* 2115 */         ajaxJson.setFlag(true);
+/* 2116 */         ajaxJson.setMsg("OK");
+/*      */       } else {
+/* 2118 */         ajaxJson.setFlag(false);
+/* 2119 */         ajaxJson.setMsg("false");
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 2122 */       ajaxJson.setFlag(false);
+/* 2123 */       ajaxJson.setMsg(e.getMessage());
+/*      */     }
+/* 2125 */     return ajaxJson;
+/*      */   }
+/*      */ 
+/*      */   public AjaxJson worDelete(Integer runId, String status)
+/*      */   {
+/* 2131 */     AjaxJson ajaxJson = new AjaxJson();
+/* 2132 */     Map map = new HashMap();
+/*      */     try
+/*      */     {
+/* 2135 */       if (status.equals("0")) {
+/* 2136 */         String endTime = DateFormat.getStrDate(new Date());
+/* 2137 */         map.put("runId", runId);
+/* 2138 */         map.put("endTime", endTime);
+/* 2139 */         this.wfeFlowRun.updateState(map);
+/*      */       } else {
+/* 2141 */         map.put("runId", runId);
+/* 2142 */         map.put("delFlag", Integer.valueOf(1));
+/* 2143 */         this.wfeFlowRun.updateState(map);
+/*      */       }
+/* 2145 */       ajaxJson.setMsg("OK");
+/* 2146 */       ajaxJson.setFlag(true);
+/*      */     } catch (Exception e) {
+/* 2148 */       e.printStackTrace();
+/* 2149 */       ajaxJson.setMsg(e.getMessage());
+/* 2150 */       ajaxJson.setFlag(false);
+/*      */     }
+/* 2152 */     return ajaxJson;
+/*      */   }
+/*      */ 
+/*      */   public AjaxJson saveHandle(Integer runId, String prcsId, String flowPrcs, Users users)
+/*      */   {
+/* 2158 */     AjaxJson ajaxJson = new AjaxJson();
+/* 2159 */     Map maps = new HashMap();
+/*      */     try {
+/* 2161 */       maps.put("prcsId", prcsId);
+/* 2162 */       maps.put("runId", runId);
+/* 2163 */       maps.put("prcsFlag", "4");
+/* 2164 */       maps.put("deliverTime", DateFormat.getStrDate(new Date()));
+/* 2165 */       maps.put("userId", users.getUserId());
+/*      */ 
+/* 2167 */       maps.put("flowPrcs", flowPrcs);
+/* 2168 */       this.wfeFlowRunPrcs.updateHandle(maps);
+/* 2169 */       ajaxJson.setFlag(true);
+/* 2170 */       ajaxJson.setMsg("OK");
+/*      */     } catch (Exception e) {
+/* 2172 */       ajaxJson.setFlag(false);
+/* 2173 */       ajaxJson.setMsg("false");
+/*      */     }
+/* 2175 */     return ajaxJson;
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.WFE.WFERunner.WFEFlowRunInfo
+ * JD-Core Version:    0.6.0
+ */

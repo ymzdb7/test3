@@ -1,0 +1,856 @@
+/*     */ package com.xoa.service.edu.eduStudent.impl;
+/*     */ 
+/*     */ import com.xoa.dao.common.SysParaMapper;
+/*     */ import com.xoa.dao.common.SyslogMapper;
+/*     */ import com.xoa.dao.edu.eduDepartment.EduDepartmentMapper;
+/*     */ import com.xoa.dao.edu.eduParent.EduParentMapper;
+/*     */ import com.xoa.dao.edu.eduStudent.EduStudentMapper;
+/*     */ import com.xoa.dao.edu.eduStudentExt.EduStudentExtMapper;
+/*     */ import com.xoa.dao.users.OrgManageMapper;
+/*     */ import com.xoa.model.common.SysPara;
+/*     */ import com.xoa.model.common.Syslog;
+/*     */ import com.xoa.model.edu.eduDepartment.EduDepartmentWithBLOBs;
+/*     */ import com.xoa.model.edu.eduParent.EduParent;
+/*     */ import com.xoa.model.edu.eduStudent.EduStudent;
+/*     */ import com.xoa.model.edu.eduStudentExt.EduStudentExt;
+/*     */ import com.xoa.model.users.OrgManage;
+/*     */ import com.xoa.service.edu.eduStudent.IEduStudentService;
+/*     */ import com.xoa.service.syspara.SysParaService;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ExcelUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import com.xoa.util.ipUtil.IpAddr;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.InputStream;
+/*     */ import java.io.OutputStream;
+/*     */ import java.math.BigDecimal;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.ResourceBundle;
+/*     */ import java.util.UUID;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.apache.poi.ss.usermodel.Cell;
+/*     */ import org.apache.poi.ss.usermodel.CellStyle;
+/*     */ import org.apache.poi.ss.usermodel.DateUtil;
+/*     */ import org.apache.poi.ss.usermodel.Row;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduStudentServiceImpl
+/*     */   implements IEduStudentService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   EduStudentMapper eduStudentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   EduParentMapper eduParentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   EduStudentExtMapper eduStudentExtMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   SysParaService sysParaService;
+/*     */ 
+/*     */   @Resource
+/*     */   EduDepartmentMapper eduDepartmentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   SysParaMapper sysParaMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   OrgManageMapper orgManageMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   SyslogMapper syslogMapper;
+/*     */ 
+/*     */   public ToJson<EduStudent> getGrade(HttpServletRequest request, EduStudent eduStudent)
+/*     */   {
+/*  85 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  87 */       List list = this.eduStudentMapper.getGrade(eduStudent);
+/*  88 */       if (list != null) {
+/*  89 */         toJson.setObj(list);
+/*  90 */         toJson.setMsg("ok");
+/*     */       } else {
+/*  92 */         toJson.setMsg("没数据");
+/*     */       }
+/*  94 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  96 */       e.printStackTrace();
+/*  97 */       toJson.setMsg(e.getMessage());
+/*  98 */       L.e(new Object[] { "EduUserServiceImpl getGrade:" + e });
+/*     */     }
+/* 100 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduStudent> getClassByDeptId(HttpServletRequest request, Integer deptId)
+/*     */   {
+/* 105 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 107 */       List list = this.eduStudentMapper.getClassByDeptId(deptId);
+/* 108 */       if (list != null) {
+/* 109 */         toJson.setObj(list);
+/* 110 */         toJson.setMsg("ok");
+/*     */       } else {
+/* 112 */         toJson.setMsg("没数据");
+/*     */       }
+/* 114 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 116 */       e.printStackTrace();
+/* 117 */       toJson.setMsg(e.getMessage());
+/* 118 */       L.e(new Object[] { "EduUserServiceImpl getClass:" + e });
+/*     */     }
+/* 120 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduStudent> getUserByDeptId(HttpServletRequest request, Integer deptId)
+/*     */   {
+/* 125 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 127 */       List list = this.eduStudentMapper.getUserByDeptId(deptId);
+/* 128 */       if (list != null) {
+/* 129 */         toJson.setObj(list);
+/* 130 */         toJson.setMsg("ok");
+/*     */       } else {
+/* 132 */         toJson.setMsg("没数据");
+/*     */       }
+/* 134 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 136 */       e.printStackTrace();
+/* 137 */       toJson.setMsg(e.getMessage());
+/* 138 */       L.e(new Object[] { "EduUserServiceImpl getUserByDeptId:" + e });
+/*     */     }
+/* 140 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduStudent> getStudentInforByUid(HttpServletRequest request, Integer uid)
+/*     */   {
+/* 153 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 155 */       EduStudent eduStudent1 = this.eduStudentMapper.getStudentInforByUid(uid);
+/*     */ 
+/* 157 */       EduStudentExt eduStudentExt = this.eduStudentExtMapper.getStudentInfor(eduStudent1.getUserId());
+/* 158 */       String a = eduStudent1.getUserId();
+/* 159 */       String userId = "P" + a;
+/* 160 */       EduParent eduParent = this.eduParentMapper.getPersonInforByUid(userId);
+/*     */ 
+/* 162 */       if ((eduStudent1 != null) || (eduParent != null) || (eduStudentExt != null)) {
+/* 163 */         Object[] o = new Object[3];
+/* 164 */         o[0] = eduStudent1;
+/* 165 */         o[1] = eduParent;
+/* 166 */         o[2] = eduStudentExt;
+/* 167 */         toJson.setObject(o);
+/* 168 */         toJson.setMsg("ok");
+/*     */       } else {
+/* 170 */         toJson.setMsg("空数据");
+/*     */       }
+/* 172 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 174 */       e.printStackTrace();
+/* 175 */       toJson.setMsg(e.getMessage());
+/* 176 */       L.e(new Object[] { "EduStudentServiceImpl getStudentInforByUid:" + e });
+/*     */     }
+/* 178 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduStudent> deleteStudentByUid(HttpServletRequest request, String[] uids)
+/*     */   {
+/* 191 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 193 */       if (uids.length > 0) {
+/* 194 */         this.eduStudentMapper.deleteStudentByUid(uids);
+/*     */       }
+/* 196 */       toJson.setMsg("ok");
+/* 197 */       toJson.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e) {
+/* 200 */       e.printStackTrace();
+/* 201 */       toJson.setMsg(e.getMessage());
+/* 202 */       L.e(new Object[] { "EduStudentServiceImpl deleteStudentByUid" + e });
+/*     */     }
+/* 204 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduStudent> clearPasswordByUid(HttpServletRequest request, String uids)
+/*     */   {
+/* 217 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 219 */       if (uids != null) {
+/* 220 */         this.eduStudentMapper.clearPasswordByUid(uids);
+/*     */       }
+/* 222 */       toJson.setMsg("ok");
+/* 223 */       toJson.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e) {
+/* 226 */       e.printStackTrace();
+/* 227 */       toJson.setMsg(e.getMessage());
+/* 228 */       L.e(new Object[] { "EduStudentServiceImpl clearPasswordByUid" + e });
+/*     */     }
+/* 230 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduStudent> getStudentList1(HttpServletRequest request, Integer deptId)
+/*     */   {
+/* 245 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 247 */       List list = this.eduStudentMapper.getStudentList1(deptId);
+/* 248 */       if (list != null) {
+/* 249 */         toJson.setObj(list);
+/* 250 */         toJson.setMsg("ok");
+/*     */       } else {
+/* 252 */         toJson.setMsg("学生信息为空");
+/*     */       }
+/* 254 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 256 */       e.printStackTrace();
+/* 257 */       toJson.setMsg(e.getMessage());
+/* 258 */       L.e(new Object[] { "EduStudentServiceImpl getStudentList1" + e });
+/*     */     }
+/* 260 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduStudent> getStudentList(HttpServletRequest request, EduStudent eduStudent)
+/*     */   {
+/* 273 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 275 */       List list = this.eduStudentMapper.getStudentList(eduStudent);
+/* 276 */       if (list != null) {
+/* 277 */         toJson.setObj(list);
+/* 278 */         toJson.setMsg("ok");
+/*     */       } else {
+/* 280 */         toJson.setMsg("学生信息为空");
+/*     */       }
+/* 282 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 284 */       e.printStackTrace();
+/* 285 */       toJson.setMsg(e.getMessage());
+/* 286 */       L.e(new Object[] { "EduStudentServiceImpl getStudentList" + e });
+/*     */     }
+/* 288 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduStudent> addStudent(HttpServletRequest request, EduStudent eduStudent, EduStudentExt eduStudentExt)
+/*     */   {
+/* 301 */     ToJson toJson = new ToJson(1, "error");
+/* 302 */     EduParent eduParent = new EduParent();
+/*     */     try {
+/* 304 */       if ((eduStudent.getBirthday() == null) || (eduStudent.getBirthday() == "")) {
+/* 305 */         eduStudent.setBirthday(DateFormat.getCurrentTime());
+/*     */       }
+/* 307 */       int a = this.eduStudentMapper.addStudent(eduStudent);
+/* 308 */       eduStudentExt.setUid(eduStudent.getUid());
+/* 309 */       eduStudentExt.setUserId(eduStudent.getUserId());
+/* 310 */       int c = this.eduStudentExtMapper.addStudentExt(eduStudentExt);
+/*     */ 
+/* 312 */       String str = eduStudent.getUserId();
+/* 313 */       StringBuffer pUserId = new StringBuffer("P");
+/* 314 */       pUserId.append(str);
+/* 315 */       eduParent.setUserId(pUserId.toString());
+/* 316 */       eduParent.setUserName(eduStudent.getpUserName());
+/* 317 */       eduParent.setPassword(eduStudent.getpPassword());
+/* 318 */       eduParent.setSex(eduStudent.getpSex());
+/* 319 */       if ((eduParent.getBirthday() == null) || (eduParent.getBirthday() == ""))
+/* 320 */         eduParent.setBirthday(DateFormat.getCurrentTime());
+/*     */       else {
+/* 322 */         eduParent.setBirthday(eduStudent.getpBirthday());
+/*     */       }
+/* 324 */       eduParent.setMobilNo(eduStudent.getMobilNo());
+/* 325 */       eduParent.setEmail(eduStudent.getpEmail());
+/* 326 */       int b = this.eduParentMapper.addParent(eduParent);
+/* 327 */       if ((a > 0) && (b > 0) && (c > 0)) {
+/* 328 */         toJson.setMsg("新建成功");
+/* 329 */         toJson.setFlag(0);
+/*     */       } else {
+/* 331 */         toJson.setMsg("新建失败");
+/* 332 */         toJson.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 335 */       e.printStackTrace();
+/* 336 */       toJson.setMsg(e.getMessage());
+/* 337 */       L.e(new Object[] { "EduStudentServiceImpl addStudent" + e });
+/*     */     }
+/* 339 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<EduStudent> updateStudent(HttpServletRequest request, EduStudent eduStudent, EduParent eduParent, EduStudentExt eduStudentExt)
+/*     */   {
+/* 353 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 355 */       int c = this.eduStudentMapper.updateStudent(eduStudent);
+/* 356 */       eduStudentExt.setUserId(eduStudent.getUserId());
+/* 357 */       int e = this.eduStudentExtMapper.updateStudentExt(eduStudentExt);
+/*     */ 
+/* 359 */       String str = eduStudent.getUserId();
+/* 360 */       StringBuffer pUserId = new StringBuffer("P");
+/* 361 */       pUserId.append(str);
+/* 362 */       eduParent.setUserId(pUserId.toString());
+/*     */ 
+/* 364 */       int d = this.eduParentMapper.updateParent(eduParent);
+/* 365 */       if ((c > 0) || (d > 0) || (e > 0)) {
+/* 366 */         toJson.setMsg("编辑成功");
+/* 367 */         toJson.setFlag(0);
+/*     */       } else {
+/* 369 */         toJson.setMsg("编辑失败");
+/* 370 */         toJson.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 373 */       e.printStackTrace();
+/* 374 */       toJson.setMsg(e.getMessage());
+/* 375 */       L.e(new Object[] { "EduStudentServiceImpl updateStudent" + e });
+/*     */     }
+/* 377 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> StudentAcademicYear(HttpServletRequest request)
+/*     */   {
+/* 382 */     ToJson json = new ToJson(1, "err");
+/*     */ 
+/* 384 */     ToJson status = this.sysParaService.getStatus();
+/*     */ 
+/* 386 */     boolean flag = status.isFlag();
+/* 387 */     if (flag == true)
+/* 388 */       json.setMsg("学生今年已经升过级");
+/*     */     else {
+/*     */       try {
+/* 391 */         List<EduStudent> eduStudents = this.eduStudentMapper.selectAll();
+/* 392 */         for (EduStudent eduStudent : eduStudents)
+/*     */         {
+/* 394 */           if (eduStudent.getGrade().equals("一年级")) {
+/* 395 */             EduStudentExt eduStudentExt = new EduStudentExt();
+/* 396 */             eduStudentExt.setGrade("二年级");
+/* 397 */             eduStudentExt.setUid(eduStudent.getUid());
+/* 398 */             this.eduStudentExtMapper.editStudent(eduStudentExt);
+/*     */           }
+/* 400 */           else if (eduStudent.getGrade().equals("二年级")) {
+/* 401 */             EduStudentExt eduStudentExt = new EduStudentExt();
+/* 402 */             eduStudentExt.setGrade("三年级");
+/* 403 */             eduStudentExt.setUid(eduStudent.getUid());
+/* 404 */             this.eduStudentExtMapper.editStudent(eduStudentExt);
+/*     */           }
+/* 406 */           else if (eduStudent.getGrade().equals("三年级")) {
+/* 407 */             EduStudentExt eduStudentExt = new EduStudentExt();
+/* 408 */             eduStudentExt.setGrade("四年级");
+/* 409 */             eduStudentExt.setUid(eduStudent.getUid());
+/* 410 */             this.eduStudentExtMapper.editStudent(eduStudentExt);
+/*     */           }
+/* 412 */           else if (eduStudent.getGrade().equals("四年级")) {
+/* 413 */             EduStudentExt eduStudentExt = new EduStudentExt();
+/* 414 */             eduStudentExt.setGrade("五年级");
+/* 415 */             eduStudentExt.setUid(eduStudent.getUid());
+/* 416 */             this.eduStudentExtMapper.editStudent(eduStudentExt);
+/*     */           }
+/* 418 */           else if (eduStudent.getGrade().equals("五年级")) {
+/* 419 */             EduStudentExt eduStudentExt = new EduStudentExt();
+/* 420 */             eduStudentExt.setGrade("六年级");
+/* 421 */             eduStudentExt.setUid(eduStudent.getUid());
+/* 422 */             this.eduStudentExtMapper.editStudent(eduStudentExt);
+/*     */           }
+/* 424 */           else if (eduStudent.getGrade().equals("六年级")) {
+/* 425 */             EduStudentExt eduStudentExt = new EduStudentExt();
+/* 426 */             eduStudentExt.setGrade("七年级");
+/* 427 */             eduStudentExt.setUid(eduStudent.getUid());
+/* 428 */             this.eduStudentExtMapper.editStudent(eduStudentExt);
+/* 429 */             EduStudent student = new EduStudent();
+/* 430 */             student.setUid(eduStudent.getUid());
+/* 431 */             List numList = this.eduDepartmentMapper.getdeptIdByDeptName("毕业生");
+/* 432 */             int num = 0;
+/* 433 */             if (numList.size() > 0) {
+/* 434 */               num = ((Integer)numList.get(0)).intValue();
+/*     */             }
+/* 436 */             student.setDeptId(Integer.valueOf(num));
+/* 437 */             this.eduStudentMapper.editDeptId(student);
+/*     */           }
+/* 439 */           else if (eduStudent.getGrade().equals("七年级")) {
+/* 440 */             EduStudentExt eduStudentExt = new EduStudentExt();
+/* 441 */             eduStudentExt.setGrade("八年级");
+/* 442 */             eduStudentExt.setUid(eduStudent.getUid());
+/* 443 */             this.eduStudentExtMapper.editStudent(eduStudentExt);
+/*     */           }
+/* 445 */           else if (eduStudent.getGrade().equals("八年级")) {
+/* 446 */             EduStudentExt eduStudentExt = new EduStudentExt();
+/* 447 */             eduStudentExt.setGrade("九年级");
+/* 448 */             eduStudentExt.setUid(eduStudent.getUid());
+/* 449 */             this.eduStudentExtMapper.editStudent(eduStudentExt);
+/*     */           }
+/* 451 */           else if (eduStudent.getGrade().equals("九年级")) {
+/* 452 */             EduStudentExt eduStudentExt = new EduStudentExt();
+/* 453 */             eduStudentExt.setGrade("高一");
+/* 454 */             eduStudentExt.setUid(eduStudent.getUid());
+/* 455 */             this.eduStudentExtMapper.editStudent(eduStudentExt);
+/* 456 */             EduStudent student = new EduStudent();
+/* 457 */             student.setUid(eduStudent.getUid());
+/* 458 */             List numList = this.eduDepartmentMapper.getdeptIdByDeptName("毕业生");
+/* 459 */             int num = 0;
+/* 460 */             if (numList.size() > 0) {
+/* 461 */               num = ((Integer)numList.get(0)).intValue();
+/*     */             }
+/* 463 */             student.setDeptId(Integer.valueOf(num));
+/* 464 */             this.eduStudentMapper.editDeptId(student);
+/*     */           }
+/* 466 */           else if (eduStudent.getGrade().equals("高一")) {
+/* 467 */             EduStudentExt eduStudentExt = new EduStudentExt();
+/* 468 */             eduStudentExt.setGrade("高二");
+/* 469 */             eduStudentExt.setUid(eduStudent.getUid());
+/* 470 */             this.eduStudentExtMapper.editStudent(eduStudentExt);
+/*     */           }
+/* 472 */           else if (eduStudent.getGrade().equals("高二")) {
+/* 473 */             EduStudentExt eduStudentExt = new EduStudentExt();
+/* 474 */             eduStudentExt.setGrade("高三");
+/* 475 */             eduStudentExt.setUid(eduStudent.getUid());
+/* 476 */             this.eduStudentExtMapper.editStudent(eduStudentExt);
+/*     */           }
+/* 478 */           else if (eduStudent.getGrade().equals("高三")) {
+/* 479 */             EduStudentExt eduStudentExt = new EduStudentExt();
+/* 480 */             eduStudentExt.setGrade("毕业生");
+/* 481 */             eduStudentExt.setUid(eduStudent.getUid());
+/* 482 */             this.eduStudentExtMapper.editStudent(eduStudentExt);
+/* 483 */             EduStudent student = new EduStudent();
+/* 484 */             student.setUid(eduStudent.getUid());
+/* 485 */             List numList = this.eduDepartmentMapper.getdeptIdByDeptName("毕业生");
+/* 486 */             int num = 0;
+/* 487 */             if (numList.size() > 0) {
+/* 488 */               num = ((Integer)numList.get(0)).intValue();
+/*     */             }
+/* 490 */             student.setDeptId(Integer.valueOf(num));
+/* 491 */             this.eduStudentMapper.editDeptId(student);
+/*     */           }
+/*     */         }
+/* 494 */         Date date = new Date();
+/* 495 */         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy");
+/* 496 */         String startTime = simpleDateFormat.format(date);
+/* 497 */         int i = Integer.valueOf(startTime).intValue() + 1;
+/* 498 */         String time = startTime + "-" + i;
+/* 499 */         SysPara sysPara = new SysPara();
+/* 500 */         sysPara.setParaValue(time);
+/* 501 */         sysPara.setParaName("EDU_STUDENT_UPGRADE");
+/* 502 */         this.sysParaService.updateSysPara(sysPara);
+/* 503 */         json.setMsg("ok");
+/* 504 */         json.setFlag(0);
+/*     */       } catch (Exception e) {
+/* 506 */         json.setMsg("学生升级错误");
+/* 507 */         json.setFlag(1);
+/* 508 */         e.printStackTrace();
+/*     */       }
+/*     */     }
+/*     */ 
+/* 512 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Map> studentSelect(String graseClass)
+/*     */   {
+/* 517 */     ToJson json = new ToJson();
+/*     */     try {
+/* 519 */       List mapStudent = this.eduStudentMapper.studentSelect(graseClass);
+/* 520 */       if (mapStudent != null) {
+/* 521 */         json.setObject(mapStudent);
+/* 522 */         json.setFlag(0);
+/* 523 */         json.setMsg("ok");
+/*     */       } else {
+/* 525 */         json.setFlag(1);
+/* 526 */         json.setMsg("err");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 529 */       e.printStackTrace();
+/*     */     }
+/* 531 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson importStudentInfor(MultipartFile file, HttpServletRequest request, HttpServletResponse response, HttpSession session)
+/*     */   {
+/* 547 */     ToJson toJson = new ToJson(1, "error");
+/*     */ 
+/* 549 */     Integer successCount = Integer.valueOf(0);
+/*     */     try
+/*     */     {
+/* 553 */       ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 554 */       String osName = System.getProperty("os.name");
+/* 555 */       StringBuffer path = new StringBuffer();
+/* 556 */       if (osName.toLowerCase().startsWith("win"))
+/* 557 */         path = path.append(rb.getString("upload.win"));
+/*     */       else {
+/* 559 */         path = path.append(rb.getString("upload.linux"));
+/*     */       }
+/*     */ 
+/* 562 */       if (file.isEmpty()) {
+/* 563 */         toJson.setMsg("请上传文件！");
+/* 564 */         toJson.setFlag(1);
+/* 565 */         return toJson;
+/*     */       }
+/* 567 */       String fileName = file.getOriginalFilename();
+/* 568 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 569 */         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+/* 570 */         int pos = fileName.indexOf(".");
+/* 571 */         String extName = fileName.substring(pos);
+/* 572 */         String newFileName = uuid + extName;
+/* 573 */         File dest = new File(path.toString(), newFileName);
+/* 574 */         file.transferTo(dest);
+/*     */ 
+/* 577 */         String readPath = path.append(newFileName).toString();
+/* 578 */         InputStream in = new FileInputStream(readPath);
+/* 579 */         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+/* 580 */         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+/* 581 */         Row row = sheetObj.getRow(0);
+/* 582 */         int colNum = row.getPhysicalNumberOfCells();
+/* 583 */         int lastRowNum = sheetObj.getLastRowNum();
+/* 584 */         List saveList = new ArrayList();
+/* 585 */         List saveList1 = new ArrayList();
+/* 586 */         List saveList2 = new ArrayList();
+/* 587 */         EduStudent eduStudent = null;
+/* 588 */         EduStudentExt eduStudentExt = null;
+/* 589 */         EduParent eduParent = null;
+/* 590 */         for (int i = 1; i <= lastRowNum; i++) {
+/* 591 */           eduStudent = new EduStudent();
+/* 592 */           eduStudentExt = new EduStudentExt();
+/* 593 */           eduParent = new EduParent();
+/* 594 */           row = sheetObj.getRow(i);
+/* 595 */           String value = "";
+/* 596 */           if (row != null) {
+/* 597 */             for (int j = 0; j < colNum; j++)
+/*     */             {
+/* 599 */               Cell cell = row.getCell(j);
+/* 600 */               if (cell != null) {
+/* 601 */                 switch (j)
+/*     */                 {
+/*     */                 case 0:
+/* 604 */                   if (cell.getCellType() == 0) {
+/* 605 */                     BigDecimal big = new BigDecimal(cell.getNumericCellValue());
+/* 606 */                     value = big.toString();
+/*     */ 
+/* 609 */                     if ((null != value) && (!"".equals(value.trim()))) {
+/* 610 */                       String[] item = value.split("[.]");
+/* 611 */                       if ((1 < item.length) && ("0".equals(item[1]))) {
+/* 612 */                         value = item[0];
+/*     */                       }
+/* 614 */                       eduStudent.setUserId(value);
+/* 615 */                       eduStudentExt.setUserId(value);
+/*     */                     }
+/*     */                   } else {
+/* 617 */                     eduStudent.setUserId(cell.getStringCellValue());
+/* 618 */                     eduStudentExt.setUserId(cell.getStringCellValue());
+/* 619 */                   }break;
+/*     */                 case 1:
+/* 622 */                   if (cell.getCellType() == 0) {
+/* 623 */                     BigDecimal bigP = new BigDecimal(cell.getNumericCellValue());
+/* 624 */                     value = bigP.toString();
+/*     */ 
+/* 626 */                     if ((null != value) && (!"".equals(value.trim()))) {
+/* 627 */                       String[] item = value.split("[.]");
+/* 628 */                       if ((1 < item.length) && ("0".equals(item[1]))) {
+/* 629 */                         value = item[0];
+/*     */                       }
+/*     */                     }
+/* 632 */                     eduStudent.setPassword(value);
+/* 633 */                     eduStudentExt.setUserId(value);
+/*     */                   } else {
+/* 635 */                     eduStudent.setPassword(cell.getStringCellValue());
+/* 636 */                     eduStudentExt.setUserId(cell.getStringCellValue());
+/*     */                   }
+/* 638 */                   break;
+/*     */                 case 2:
+/* 641 */                   eduStudent.setUserId(cell.getStringCellValue());
+/* 642 */                   eduStudentExt.setGrade(cell.getStringCellValue());
+/* 643 */                   break;
+/*     */                 case 3:
+/* 646 */                   eduStudentExt.setClazz(cell.getStringCellValue());
+/* 647 */                   break;
+/*     */                 case 4:
+/* 650 */                   eduStudent.setUserName(cell.getStringCellValue());
+/* 651 */                   break;
+/*     */                 case 5:
+/* 654 */                   eduStudent.setSex(cell.getStringCellValue());
+/* 655 */                   break;
+/*     */                 case 6:
+/* 657 */                   String result = null;
+/* 658 */                   if (cell.getCellType() == 0) {
+/* 659 */                     short format = cell.getCellStyle().getDataFormat();
+/* 660 */                     SimpleDateFormat sdf = null;
+/* 661 */                     if ((format == 14) || (format == 31) || (format == 57) || (format == 58))
+/*     */                     {
+/* 663 */                       sdf = new SimpleDateFormat("yyyy-MM-dd");
+/* 664 */                     } else if ((format == 20) || (format == 32))
+/*     */                     {
+/* 666 */                       sdf = new SimpleDateFormat("HH:mm");
+/*     */                     }
+/* 668 */                     double v = cell.getNumericCellValue();
+/* 669 */                     Date date = DateUtil.getJavaDate(v);
+/* 670 */                     result = sdf.format(date);
+/* 671 */                     eduStudent.setBirthday(result);
+/*     */                   }
+/*     */                   else
+/*     */                   {
+/* 675 */                     eduStudent.setBirthday(cell.getStringCellValue());
+/* 676 */                   }break;
+/*     */                 case 7:
+/* 679 */                   BigDecimal bigM = new BigDecimal(cell.getNumericCellValue());
+/* 680 */                   value = bigM.toString();
+/*     */ 
+/* 682 */                   if ((null != value) && (!"".equals(value.trim()))) {
+/* 683 */                     String[] item = value.split("[.]");
+/* 684 */                     if ((1 < item.length) && ("0".equals(item[1]))) {
+/* 685 */                       value = item[0];
+/*     */                     }
+/*     */                   }
+/* 688 */                   eduStudent.setMobilNo(value);
+/* 689 */                   break;
+/*     */                 case 8:
+/* 692 */                   eduStudent.setEmail(cell.getStringCellValue());
+/* 693 */                   break;
+/*     */                 case 9:
+/* 696 */                   eduParent.setUserName(cell.getStringCellValue());
+/* 697 */                   break;
+/*     */                 case 10:
+/* 700 */                   eduParent.setSex(cell.getStringCellValue());
+/* 701 */                   break;
+/*     */                 case 11:
+/* 704 */                   BigDecimal bigPM = new BigDecimal(cell.getNumericCellValue());
+/* 705 */                   value = bigPM.toString();
+/*     */ 
+/* 707 */                   if ((null != value) && (!"".equals(value.trim()))) {
+/* 708 */                     String[] item = value.split("[.]");
+/* 709 */                     if ((1 < item.length) && ("0".equals(item[1]))) {
+/* 710 */                       value = item[0];
+/*     */                     }
+/*     */                   }
+/* 713 */                   eduParent.setMobilNo(value);
+/* 714 */                   break;
+/*     */                 case 12:
+/* 717 */                   eduParent.setEmail(cell.getStringCellValue());
+/* 718 */                   break;
+/*     */                 case 13:
+/* 721 */                   if (cell.getCellType() == 0) {
+/* 722 */                     BigDecimal bigX = new BigDecimal(cell.getNumericCellValue());
+/* 723 */                     value = bigX.toString();
+/*     */ 
+/* 725 */                     if ((null != value) && (!"".equals(value.trim()))) {
+/* 726 */                       String[] item = value.split("[.]");
+/* 727 */                       if ((1 < item.length) && ("0".equals(item[1]))) {
+/* 728 */                         value = item[0];
+/*     */                       }
+/*     */                     }
+/* 731 */                     eduStudentExt.setStudentNumber(value);
+/*     */                   }
+/*     */                   else {
+/* 734 */                     eduStudentExt.setStudentNumber(cell.getStringCellValue());
+/* 735 */                   }break;
+/*     */                 case 14:
+/* 738 */                   if (cell.getCellType() == 0) {
+/* 739 */                     BigDecimal bigN = new BigDecimal(cell.getNumericCellValue());
+/* 740 */                     value = bigN.toString();
+/*     */ 
+/* 742 */                     if ((null != value) && (!"".equals(value.trim()))) {
+/* 743 */                       String[] item = value.split("[.]");
+/* 744 */                       if ((1 < item.length) && ("0".equals(item[1]))) {
+/* 745 */                         value = item[0];
+/*     */                       }
+/*     */                     }
+/* 748 */                     eduStudentExt.setSchoolYear(value);
+/*     */                   }
+/*     */                   else {
+/* 751 */                     eduStudentExt.setSchoolYear(cell.getStringCellValue());
+/* 752 */                   }break;
+/*     */                 case 15:
+/* 755 */                   eduStudentExt.setNativePlace(cell.getStringCellValue());
+/* 756 */                   break;
+/*     */                 case 16:
+/* 759 */                   if (cell.getCellType() == 0) {
+/* 760 */                     BigDecimal big1 = new BigDecimal(cell.getNumericCellValue());
+/* 761 */                     value = big1.toString();
+/*     */                   }
+/*     */ 
+/* 764 */                   if ((null != value) && (!"".equals(value.trim()))) {
+/* 765 */                     String[] item = value.split("[.]");
+/* 766 */                     if ((1 < item.length) && ("0".equals(item[1]))) {
+/* 767 */                       value = item[0];
+/*     */                     }
+/*     */                   }
+/* 770 */                   eduStudentExt.setIdNumber(value);
+/* 771 */                   break;
+/*     */                 default:
+/* 773 */                   toJson.setFlag(0);
+/* 774 */                   toJson.setMsg("err");
+/*     */                 }
+/*     */               }
+/*     */ 
+/*     */             }
+/*     */ 
+/* 780 */             if (!StringUtils.checkNull(eduStudentExt.getGrade()).booleanValue()) {
+/* 781 */               List parentList = this.eduDepartmentMapper.getdeptIdByDeptName(eduStudentExt.getGrade());
+/* 782 */               int depParent = 0;
+/* 783 */               if (parentList.size() > 0) {
+/* 784 */                 depParent = ((Integer)parentList.get(0)).intValue();
+/*     */               }
+/* 786 */               EduDepartmentWithBLOBs selectEduDepartmentWithBLOBs = this.eduDepartmentMapper.selectByDeptParentDeptName(Integer.valueOf(depParent), eduStudentExt.getClazz());
+/* 787 */               eduStudent.setDeptId(selectEduDepartmentWithBLOBs.getDeptId());
+/*     */ 
+/* 789 */               int count = this.eduStudentMapper.addStudent(eduStudent);
+/* 790 */               eduStudentExt.setUid(eduStudent.getUid());
+/* 791 */               eduStudentExt.setUserId(eduStudent.getUserId());
+/* 792 */               int count1 = this.eduStudentExtMapper.addStudentExt(eduStudentExt);
+/*     */ 
+/* 794 */               String str = eduStudent.getUserId();
+/* 795 */               StringBuffer pUserId = new StringBuffer("P");
+/* 796 */               pUserId.append(str);
+/* 797 */               eduParent.setUserId(pUserId.toString());
+/* 798 */               int count2 = this.eduParentMapper.addParent(eduParent);
+/* 799 */               if (count > 0) {
+/* 800 */                 successCount = Integer.valueOf(successCount.intValue() + count);
+/*     */               }
+/*     */             }
+/* 803 */             dest.delete();
+/*     */           }
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 809 */       if (successCount.intValue() > 0) {
+/* 810 */         toJson.setMsg("ok");
+/* 811 */         toJson.setFlag(0);
+/* 812 */         return toJson;
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 816 */       StringBuffer path = getPath();
+/* 817 */       String fileName = file.getOriginalFilename();
+/* 818 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 819 */         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+/* 820 */         String extName = fileName.substring(fileName.lastIndexOf(".") + 1);
+/*     */ 
+/* 822 */         String newFileName = uuid + extName;
+/* 823 */         File dest = new File(path.toString(), newFileName);
+/* 824 */         dest.delete();
+/*     */       }
+/* 826 */       e.getMessage();
+/* 827 */       e.printStackTrace();
+/*     */     }
+/*     */ 
+/* 830 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public StringBuffer getPath()
+/*     */   {
+/* 835 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 836 */     String osName = System.getProperty("os.name");
+/* 837 */     StringBuffer path = new StringBuffer();
+/* 838 */     if (osName.toLowerCase().startsWith("win"))
+/* 839 */       path = path.append(rb.getString("upload.win"));
+/*     */     else {
+/* 841 */       path = path.append(rb.getString("upload.linux"));
+/*     */     }
+/* 843 */     return path;
+/*     */   }
+/*     */ 
+/*     */   public EduStudent findUserByName(String byname, HttpServletRequest req) {
+/* 847 */     EduStudent user = this.eduStudentMapper.findUserByName(byname);
+/* 848 */     if (user != null) {
+/* 849 */       String a = "";
+/*     */       try {
+/* 851 */         a = req.getSession().getAttribute("loginDateSouse").toString();
+/*     */       } catch (NullPointerException e) {
+/* 853 */         a = "1005";
+/*     */       }
+/*     */       try {
+/* 856 */         OrgManage name = this.orgManageMapper.getOrgManageById(Integer.valueOf(Integer.parseInt(a)));
+/* 857 */         if (name != null)
+/* 858 */           user.setCompanyName(name.getName());
+/*     */       }
+/*     */       catch (Exception e) {
+/* 861 */         L.a(new Object[] { e.getMessage() });
+/*     */       }
+/*     */ 
+/* 864 */       if (user.getDeptId() != null) {
+/* 865 */         EduDepartmentWithBLOBs dep = this.eduDepartmentMapper.queryGetObjectByDeptId(String.valueOf(user.getDeptId()));
+/* 866 */         if (dep != null) {
+/* 867 */           user.setDeptName(dep.getDeptName());
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 872 */       Syslog sysLog = new Syslog();
+/* 873 */       sysLog.setLogId(Integer.valueOf(0));
+/* 874 */       sysLog.setUserId(user.getUserId());
+/* 875 */       sysLog.setTime(new Date());
+/* 876 */       String ip = IpAddr.getIpAddress(req);
+/* 877 */       sysLog.setIp(ip);
+/* 878 */       sysLog.setType(Integer.valueOf(1));
+/* 879 */       sysLog.setRemark("");
+/*     */ 
+/* 881 */       SysPara sysPara = this.sysParaMapper.querySysPara("IM_HOST");
+/* 882 */       SysPara sysPara1 = this.sysParaMapper.querySysPara("IM_PORT");
+/* 883 */       String ip1 = sysPara.getParaValue();
+/* 884 */       StringBuffer url = req.getRequestURL();
+/*     */ 
+/* 887 */       String ipCurren = IpAddr.getInternetIp();
+/* 888 */       user.setImRegisterIp(ipCurren);
+/* 889 */       this.syslogMapper.save(sysLog);
+/*     */     }
+/*     */ 
+/* 893 */     return user;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduStudent> getStudentExport(HttpServletRequest request, HttpServletResponse response, EduStudent eduStudent, EduStudentExt eduStudentExt, String userId, String userName, Integer mobilNo, String sex, String grade, String clazz, String export)
+/*     */   {
+/* 900 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 902 */       if (export == null) {
+/* 903 */         export = "0";
+/*     */       }
+/* 905 */       Map map = new HashMap();
+/* 906 */       map.put("userId", userId);
+/* 907 */       map.put("userName", userName);
+/* 908 */       map.put("mobilNo", mobilNo);
+/* 909 */       map.put("sex", sex);
+/* 910 */       map.put("eduStudent", eduStudent);
+/* 911 */       map.put("grade", grade);
+/* 912 */       map.put("clazz", clazz);
+/* 913 */       map.put("eduStudentExt", eduStudentExt);
+/* 914 */       List eduStudents = this.eduStudentMapper.getStudentLists(map);
+/* 915 */       if (eduStudents != null) {
+/* 916 */         toJson.setObj(eduStudents);
+/* 917 */         toJson.setFlag(0);
+/*     */       }
+/*     */ 
+/* 920 */       if (export.equals("1")) {
+/* 921 */         HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("学生信息导出", 6);
+/* 922 */         String[] secondTitles = { "学号", "学生真实姓名", "手机", "性别", "班级" };
+/* 923 */         HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/* 924 */         String[] beanProperty = { "userId", "userName", "mobilNo", "sex", "grade", "clazz" };
+/* 925 */         HSSFWorkbook workbook = null;
+/* 926 */         workbook = ExcelUtil.exportExcelData(workbook2, eduStudents, beanProperty);
+/* 927 */         OutputStream out = response.getOutputStream();
+/* 928 */         String filename = "学生信息记录表.xls";
+/* 929 */         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/* 930 */         response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+/* 931 */         response.setHeader("content-disposition", "attachment;filename=" + filename);
+/* 932 */         workbook.write(out);
+/* 933 */         out.close();
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 936 */       e.printStackTrace();
+/* 937 */       toJson.setMsg(e.getMessage());
+/*     */     }
+/* 939 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduStudent.impl.EduStudentServiceImpl
+ * JD-Core Version:    0.6.0
+ */

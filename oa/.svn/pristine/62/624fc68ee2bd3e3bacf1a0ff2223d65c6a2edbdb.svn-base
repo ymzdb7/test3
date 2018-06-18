@@ -1,0 +1,73 @@
+package com.xoa.controller.workflow;
+
+import com.xoa.model.workflow.FlowTiggerModel;
+import com.xoa.service.flowplugin.FlowPluginService;
+import com.xoa.service.workflow.flowtigger.FlowTiggerService;
+import com.xoa.util.Constant;
+import com.xoa.util.ToJson;
+import com.xoa.util.dataSource.ContextHolder;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@RequestMapping({ "/tigger" })
+public class FlowTiggerControlle {
+
+	@Resource
+	private FlowTiggerService flowTiggerService;
+
+	@Resource
+	private FlowPluginService flowPluginService;
+
+	@RequestMapping(value = { "saveTigger" }, produces = { "application/json;charset=UTF-8" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	@ResponseBody
+	public ToJson<FlowTiggerModel> saveTigger(FlowTiggerModel flowTiggerModel,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return this.flowTiggerService.saveTigger(flowTiggerModel);
+	}
+
+	@RequestMapping(value = { "updateTigger" }, produces = { "application/json;charset=UTF-8" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	@ResponseBody
+	public ToJson<FlowTiggerModel> updateTigger(
+			FlowTiggerModel flowTiggerModel, HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return this.flowTiggerService.updateTigger(flowTiggerModel);
+	}
+
+	@RequestMapping(value = { "deleteTigger" }, produces = { "application/json;charset=UTF-8" })
+	@ResponseBody
+	public ToJson<FlowTiggerModel> deleteTigger(@RequestParam("id") Integer id,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return this.flowTiggerService.deleteTigger(id);
+	}
+
+	@RequestMapping(value = { "showPlugin" }, produces = { "application/json;charset=UTF-8" })
+	@ResponseBody
+	public ToJson showPlugin(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return this.flowPluginService.showPlugin();
+	}
+
+	@RequestMapping({ "/modifyFieldProperties" })
+	@ResponseBody
+	public ToJson<FlowTiggerModel> modifyFieldProperties(String tableName,
+			String id, Integer runId) {
+		return this.flowTiggerService.modifyFieldProperties(tableName, id,
+				runId);
+	}
+}

@@ -1,0 +1,89 @@
+package com.myoa.controller.edu.eduElectivePublish;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.myoa.model.edu.eduElectivePublish.EduElectivePublish;
+import com.myoa.service.edu.eduElectivePublish.IEduElectivePublishService;
+import com.myoa.util.ToJson;
+
+@Controller
+@RequestMapping({ "/eduElectivePublish" })
+public class EduElectivePublishController {
+
+	@Autowired
+	private IEduElectivePublishService eduElectivePublishService;
+
+	@RequestMapping({ "/EduElectIndex" })
+	public String EduElectIndex() {
+		return "app/edu/eduElectiveCourse/index";
+	}
+
+	@RequestMapping({ "/selectEduPublish" })
+	@ResponseBody
+	public ToJson<EduElectivePublish> selectEduPublish(
+			EduElectivePublish eduElectivePublish, HttpServletRequest request,
+			Integer page, Integer pageSize, boolean useFlag) {
+		return this.eduElectivePublishService.selectEduPublish(
+				eduElectivePublish, request, page, pageSize, useFlag);
+	}
+
+	@RequestMapping({ "/insertEduEPublish" })
+	@ResponseBody
+	public ToJson insertEduEPublish(EduElectivePublish eduElectivePublish) {
+		return this.eduElectivePublishService
+				.insertEduEPublish(eduElectivePublish);
+	}
+
+	@RequestMapping({ "/updateEduPublish" })
+	@ResponseBody
+	public ToJson updateEduPublish(EduElectivePublish eduElectivePublish) {
+		return this.eduElectivePublishService
+				.updateEduPublish(eduElectivePublish);
+	}
+
+	@RequestMapping({ "/deleteEduPublish" })
+	@ResponseBody
+	public ToJson deleteEduPublish(HttpServletRequest request) {
+		return this.eduElectivePublishService.deleteEduPublish(request);
+	}
+
+	@RequestMapping({ "/eduManagement" })
+	public String eduManagement() {
+		return "app/edu/eduElectiveCourse/eduManagement";
+	}
+
+	@RequestMapping({ "/eduElectiveAdd" })
+	public String eduElectiveAdd() {
+		return "app/edu/eduElectiveCourse/eduElectiveAdd";
+	}
+
+	@RequestMapping({ "/basicCourse" })
+	public String basicCourse() {
+		return "app/edu/eduElectiveCourse/basicCourse";
+	}
+
+	@RequestMapping({ "/basicCourseAdd" })
+	public String basicCourseAdd() {
+		return "app/edu/eduElectiveCourse/basicCourseAdd";
+	}
+
+	@RequestMapping({ "/eduDetails" })
+	public String eduDetails() {
+		return "app/edu/eduElectiveCourse/eduDetails";
+	}
+
+	@RequestMapping({ "/electiveDetails" })
+	public String electiveDetails() {
+		return "app/edu/eduElectiveCourse/electiveDetails";
+	}
+
+	@RequestMapping({ "/eduElectiveUpdate" })
+	public String eduElectiveUpdate() {
+		return "app/edu/eduElectiveCourse/eduElectiveUpdate";
+	}
+}

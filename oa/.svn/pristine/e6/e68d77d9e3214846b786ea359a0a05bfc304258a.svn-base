@@ -1,0 +1,878 @@
+/*     */ package com.xoa.model.template;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class TemplateModuleExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public TemplateModuleExample()
+/*     */   {
+/*  18 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  23 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  28 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  33 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  38 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  43 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  48 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/*  53 */     Criteria criteria = createCriteriaInternal();
+/*  54 */     this.oredCriteria.add(criteria);
+/*  55 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/*  60 */     Criteria criteria = createCriteriaInternal();
+/*  61 */     if (this.oredCriteria.size() == 0) {
+/*  62 */       this.oredCriteria.add(criteria);
+/*     */     }
+/*  64 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/*  69 */     Criteria criteria = new Criteria();
+/*  70 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/*  75 */     this.oredCriteria.clear();
+/*  76 */     this.orderByClause = null;
+/*  77 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 830 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 834 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 838 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 842 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 846 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 850 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 854 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 858 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 863 */       this.condition = condition;
+/* 864 */       this.typeHandler = null;
+/* 865 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 870 */       this.condition = condition;
+/* 871 */       this.value = value;
+/* 872 */       this.typeHandler = typeHandler;
+/* 873 */       if ((value instanceof List))
+/* 874 */         this.listValue = true;
+/*     */       else
+/* 876 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 881 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 886 */       this.condition = condition;
+/* 887 */       this.value = value;
+/* 888 */       this.secondValue = secondValue;
+/* 889 */       this.typeHandler = typeHandler;
+/* 890 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 894 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends TemplateModuleExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<TemplateModuleExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/*  86 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/*  90 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<TemplateModuleExample.Criterion> getAllCriteria() {
+/*  94 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<TemplateModuleExample.Criterion> getCriteria() {
+/*  98 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 102 */       if (condition == null) {
+/* 103 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 105 */       this.criteria.add(new TemplateModuleExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 109 */       if (value == null) {
+/* 110 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 112 */       this.criteria.add(new TemplateModuleExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 116 */       if ((value1 == null) || (value2 == null)) {
+/* 117 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 119 */       this.criteria.add(new TemplateModuleExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andIdIsNull() {
+/* 123 */       addCriterion("id is null");
+/* 124 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andIdIsNotNull() {
+/* 128 */       addCriterion("id is not null");
+/* 129 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andIdEqualTo(Integer value) {
+/* 133 */       addCriterion("id =", value, "id");
+/* 134 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andIdNotEqualTo(Integer value) {
+/* 138 */       addCriterion("id <>", value, "id");
+/* 139 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andIdGreaterThan(Integer value) {
+/* 143 */       addCriterion("id >", value, "id");
+/* 144 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andIdGreaterThanOrEqualTo(Integer value) {
+/* 148 */       addCriterion("id >=", value, "id");
+/* 149 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andIdLessThan(Integer value) {
+/* 153 */       addCriterion("id <", value, "id");
+/* 154 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andIdLessThanOrEqualTo(Integer value) {
+/* 158 */       addCriterion("id <=", value, "id");
+/* 159 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andIdIn(List<Integer> values) {
+/* 163 */       addCriterion("id in", values, "id");
+/* 164 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andIdNotIn(List<Integer> values) {
+/* 168 */       addCriterion("id not in", values, "id");
+/* 169 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andIdBetween(Integer value1, Integer value2) {
+/* 173 */       addCriterion("id between", value1, value2, "id");
+/* 174 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andIdNotBetween(Integer value1, Integer value2) {
+/* 178 */       addCriterion("id not between", value1, value2, "id");
+/* 179 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andNameIsNull() {
+/* 183 */       addCriterion("name is null");
+/* 184 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andNameIsNotNull() {
+/* 188 */       addCriterion("name is not null");
+/* 189 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andNameEqualTo(String value) {
+/* 193 */       addCriterion("name =", value, "name");
+/* 194 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andNameNotEqualTo(String value) {
+/* 198 */       addCriterion("name <>", value, "name");
+/* 199 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andNameGreaterThan(String value) {
+/* 203 */       addCriterion("name >", value, "name");
+/* 204 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andNameGreaterThanOrEqualTo(String value) {
+/* 208 */       addCriterion("name >=", value, "name");
+/* 209 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andNameLessThan(String value) {
+/* 213 */       addCriterion("name <", value, "name");
+/* 214 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andNameLessThanOrEqualTo(String value) {
+/* 218 */       addCriterion("name <=", value, "name");
+/* 219 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andNameLike(String value) {
+/* 223 */       addCriterion("name like", value, "name");
+/* 224 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andNameNotLike(String value) {
+/* 228 */       addCriterion("name not like", value, "name");
+/* 229 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andNameIn(List<String> values) {
+/* 233 */       addCriterion("name in", values, "name");
+/* 234 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andNameNotIn(List<String> values) {
+/* 238 */       addCriterion("name not in", values, "name");
+/* 239 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andNameBetween(String value1, String value2) {
+/* 243 */       addCriterion("name between", value1, value2, "name");
+/* 244 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andNameNotBetween(String value1, String value2) {
+/* 248 */       addCriterion("name not between", value1, value2, "name");
+/* 249 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andTypeIsNull() {
+/* 253 */       addCriterion("type is null");
+/* 254 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andTypeIsNotNull() {
+/* 258 */       addCriterion("type is not null");
+/* 259 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andTypeEqualTo(String value) {
+/* 263 */       addCriterion("type =", value, "type");
+/* 264 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andTypeNotEqualTo(String value) {
+/* 268 */       addCriterion("type <>", value, "type");
+/* 269 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andTypeGreaterThan(String value) {
+/* 273 */       addCriterion("type >", value, "type");
+/* 274 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andTypeGreaterThanOrEqualTo(String value) {
+/* 278 */       addCriterion("type >=", value, "type");
+/* 279 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andTypeLessThan(String value) {
+/* 283 */       addCriterion("type <", value, "type");
+/* 284 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andTypeLessThanOrEqualTo(String value) {
+/* 288 */       addCriterion("type <=", value, "type");
+/* 289 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andTypeLike(String value) {
+/* 293 */       addCriterion("type like", value, "type");
+/* 294 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andTypeNotLike(String value) {
+/* 298 */       addCriterion("type not like", value, "type");
+/* 299 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andTypeIn(List<String> values) {
+/* 303 */       addCriterion("type in", values, "type");
+/* 304 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andTypeNotIn(List<String> values) {
+/* 308 */       addCriterion("type not in", values, "type");
+/* 309 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andTypeBetween(String value1, String value2) {
+/* 313 */       addCriterion("type between", value1, value2, "type");
+/* 314 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andTypeNotBetween(String value1, String value2) {
+/* 318 */       addCriterion("type not between", value1, value2, "type");
+/* 319 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivUserIsNull() {
+/* 323 */       addCriterion("priv_user is null");
+/* 324 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivUserIsNotNull() {
+/* 328 */       addCriterion("priv_user is not null");
+/* 329 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivUserEqualTo(String value) {
+/* 333 */       addCriterion("priv_user =", value, "privUser");
+/* 334 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivUserNotEqualTo(String value) {
+/* 338 */       addCriterion("priv_user <>", value, "privUser");
+/* 339 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivUserGreaterThan(String value) {
+/* 343 */       addCriterion("priv_user >", value, "privUser");
+/* 344 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivUserGreaterThanOrEqualTo(String value) {
+/* 348 */       addCriterion("priv_user >=", value, "privUser");
+/* 349 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivUserLessThan(String value) {
+/* 353 */       addCriterion("priv_user <", value, "privUser");
+/* 354 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivUserLessThanOrEqualTo(String value) {
+/* 358 */       addCriterion("priv_user <=", value, "privUser");
+/* 359 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivUserLike(String value) {
+/* 363 */       addCriterion("priv_user like", value, "privUser");
+/* 364 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivUserNotLike(String value) {
+/* 368 */       addCriterion("priv_user not like", value, "privUser");
+/* 369 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivUserIn(List<String> values) {
+/* 373 */       addCriterion("priv_user in", values, "privUser");
+/* 374 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivUserNotIn(List<String> values) {
+/* 378 */       addCriterion("priv_user not in", values, "privUser");
+/* 379 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivUserBetween(String value1, String value2) {
+/* 383 */       addCriterion("priv_user between", value1, value2, "privUser");
+/* 384 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivUserNotBetween(String value1, String value2) {
+/* 388 */       addCriterion("priv_user not between", value1, value2, "privUser");
+/* 389 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivOrgIsNull() {
+/* 393 */       addCriterion("priv_org is null");
+/* 394 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivOrgIsNotNull() {
+/* 398 */       addCriterion("priv_org is not null");
+/* 399 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivOrgEqualTo(String value) {
+/* 403 */       addCriterion("priv_org =", value, "privOrg");
+/* 404 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivOrgNotEqualTo(String value) {
+/* 408 */       addCriterion("priv_org <>", value, "privOrg");
+/* 409 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivOrgGreaterThan(String value) {
+/* 413 */       addCriterion("priv_org >", value, "privOrg");
+/* 414 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivOrgGreaterThanOrEqualTo(String value) {
+/* 418 */       addCriterion("priv_org >=", value, "privOrg");
+/* 419 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivOrgLessThan(String value) {
+/* 423 */       addCriterion("priv_org <", value, "privOrg");
+/* 424 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivOrgLessThanOrEqualTo(String value) {
+/* 428 */       addCriterion("priv_org <=", value, "privOrg");
+/* 429 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivOrgLike(String value) {
+/* 433 */       addCriterion("priv_org like", value, "privOrg");
+/* 434 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivOrgNotLike(String value) {
+/* 438 */       addCriterion("priv_org not like", value, "privOrg");
+/* 439 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivOrgIn(List<String> values) {
+/* 443 */       addCriterion("priv_org in", values, "privOrg");
+/* 444 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivOrgNotIn(List<String> values) {
+/* 448 */       addCriterion("priv_org not in", values, "privOrg");
+/* 449 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivOrgBetween(String value1, String value2) {
+/* 453 */       addCriterion("priv_org between", value1, value2, "privOrg");
+/* 454 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivOrgNotBetween(String value1, String value2) {
+/* 458 */       addCriterion("priv_org not between", value1, value2, "privOrg");
+/* 459 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivRoleIsNull() {
+/* 463 */       addCriterion("priv_role is null");
+/* 464 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivRoleIsNotNull() {
+/* 468 */       addCriterion("priv_role is not null");
+/* 469 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivRoleEqualTo(String value) {
+/* 473 */       addCriterion("priv_role =", value, "privRole");
+/* 474 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivRoleNotEqualTo(String value) {
+/* 478 */       addCriterion("priv_role <>", value, "privRole");
+/* 479 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivRoleGreaterThan(String value) {
+/* 483 */       addCriterion("priv_role >", value, "privRole");
+/* 484 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivRoleGreaterThanOrEqualTo(String value) {
+/* 488 */       addCriterion("priv_role >=", value, "privRole");
+/* 489 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivRoleLessThan(String value) {
+/* 493 */       addCriterion("priv_role <", value, "privRole");
+/* 494 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivRoleLessThanOrEqualTo(String value) {
+/* 498 */       addCriterion("priv_role <=", value, "privRole");
+/* 499 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivRoleLike(String value) {
+/* 503 */       addCriterion("priv_role like", value, "privRole");
+/* 504 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivRoleNotLike(String value) {
+/* 508 */       addCriterion("priv_role not like", value, "privRole");
+/* 509 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivRoleIn(List<String> values) {
+/* 513 */       addCriterion("priv_role in", values, "privRole");
+/* 514 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivRoleNotIn(List<String> values) {
+/* 518 */       addCriterion("priv_role not in", values, "privRole");
+/* 519 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivRoleBetween(String value1, String value2) {
+/* 523 */       addCriterion("priv_role between", value1, value2, "privRole");
+/* 524 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andPrivRoleNotBetween(String value1, String value2) {
+/* 528 */       addCriterion("priv_role not between", value1, value2, "privRole");
+/* 529 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCategoryIdIsNull() {
+/* 533 */       addCriterion("category_id is null");
+/* 534 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCategoryIdIsNotNull() {
+/* 538 */       addCriterion("category_id is not null");
+/* 539 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCategoryIdEqualTo(String value) {
+/* 543 */       addCriterion("category_id =", value, "categoryId");
+/* 544 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCategoryIdNotEqualTo(String value) {
+/* 548 */       addCriterion("category_id <>", value, "categoryId");
+/* 549 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCategoryIdGreaterThan(String value) {
+/* 553 */       addCriterion("category_id >", value, "categoryId");
+/* 554 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCategoryIdGreaterThanOrEqualTo(String value) {
+/* 558 */       addCriterion("category_id >=", value, "categoryId");
+/* 559 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCategoryIdLessThan(String value) {
+/* 563 */       addCriterion("category_id <", value, "categoryId");
+/* 564 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCategoryIdLessThanOrEqualTo(String value) {
+/* 568 */       addCriterion("category_id <=", value, "categoryId");
+/* 569 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCategoryIdLike(String value) {
+/* 573 */       addCriterion("category_id like", value, "categoryId");
+/* 574 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCategoryIdNotLike(String value) {
+/* 578 */       addCriterion("category_id not like", value, "categoryId");
+/* 579 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCategoryIdIn(List<String> values) {
+/* 583 */       addCriterion("category_id in", values, "categoryId");
+/* 584 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCategoryIdNotIn(List<String> values) {
+/* 588 */       addCriterion("category_id not in", values, "categoryId");
+/* 589 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCategoryIdBetween(String value1, String value2) {
+/* 593 */       addCriterion("category_id between", value1, value2, "categoryId");
+/* 594 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCategoryIdNotBetween(String value1, String value2) {
+/* 598 */       addCriterion("category_id not between", value1, value2, "categoryId");
+/* 599 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateTimeIsNull() {
+/* 603 */       addCriterion("create_time is null");
+/* 604 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateTimeIsNotNull() {
+/* 608 */       addCriterion("create_time is not null");
+/* 609 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateTimeEqualTo(Integer value) {
+/* 613 */       addCriterion("create_time =", value, "createTime");
+/* 614 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateTimeNotEqualTo(Integer value) {
+/* 618 */       addCriterion("create_time <>", value, "createTime");
+/* 619 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateTimeGreaterThan(Integer value) {
+/* 623 */       addCriterion("create_time >", value, "createTime");
+/* 624 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateTimeGreaterThanOrEqualTo(Integer value) {
+/* 628 */       addCriterion("create_time >=", value, "createTime");
+/* 629 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateTimeLessThan(Integer value) {
+/* 633 */       addCriterion("create_time <", value, "createTime");
+/* 634 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateTimeLessThanOrEqualTo(Integer value) {
+/* 638 */       addCriterion("create_time <=", value, "createTime");
+/* 639 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateTimeIn(List<Integer> values) {
+/* 643 */       addCriterion("create_time in", values, "createTime");
+/* 644 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateTimeNotIn(List<Integer> values) {
+/* 648 */       addCriterion("create_time not in", values, "createTime");
+/* 649 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateTimeBetween(Integer value1, Integer value2) {
+/* 653 */       addCriterion("create_time between", value1, value2, "createTime");
+/* 654 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateTimeNotBetween(Integer value1, Integer value2) {
+/* 658 */       addCriterion("create_time not between", value1, value2, "createTime");
+/* 659 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateUserIsNull() {
+/* 663 */       addCriterion("create_user is null");
+/* 664 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateUserIsNotNull() {
+/* 668 */       addCriterion("create_user is not null");
+/* 669 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateUserEqualTo(Integer value) {
+/* 673 */       addCriterion("create_user =", value, "createUser");
+/* 674 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateUserNotEqualTo(Integer value) {
+/* 678 */       addCriterion("create_user <>", value, "createUser");
+/* 679 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateUserGreaterThan(Integer value) {
+/* 683 */       addCriterion("create_user >", value, "createUser");
+/* 684 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateUserGreaterThanOrEqualTo(Integer value) {
+/* 688 */       addCriterion("create_user >=", value, "createUser");
+/* 689 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateUserLessThan(Integer value) {
+/* 693 */       addCriterion("create_user <", value, "createUser");
+/* 694 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateUserLessThanOrEqualTo(Integer value) {
+/* 698 */       addCriterion("create_user <=", value, "createUser");
+/* 699 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateUserIn(List<Integer> values) {
+/* 703 */       addCriterion("create_user in", values, "createUser");
+/* 704 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateUserNotIn(List<Integer> values) {
+/* 708 */       addCriterion("create_user not in", values, "createUser");
+/* 709 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateUserBetween(Integer value1, Integer value2) {
+/* 713 */       addCriterion("create_user between", value1, value2, "createUser");
+/* 714 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andCreateUserNotBetween(Integer value1, Integer value2) {
+/* 718 */       addCriterion("create_user not between", value1, value2, "createUser");
+/* 719 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andAttUrlIsNull() {
+/* 723 */       addCriterion("att_url is null");
+/* 724 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andAttUrlIsNotNull() {
+/* 728 */       addCriterion("att_url is not null");
+/* 729 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andAttUrlEqualTo(String value) {
+/* 733 */       addCriterion("att_url =", value, "attUrl");
+/* 734 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andAttUrlNotEqualTo(String value) {
+/* 738 */       addCriterion("att_url <>", value, "attUrl");
+/* 739 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andAttUrlGreaterThan(String value) {
+/* 743 */       addCriterion("att_url >", value, "attUrl");
+/* 744 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andAttUrlGreaterThanOrEqualTo(String value) {
+/* 748 */       addCriterion("att_url >=", value, "attUrl");
+/* 749 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andAttUrlLessThan(String value) {
+/* 753 */       addCriterion("att_url <", value, "attUrl");
+/* 754 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andAttUrlLessThanOrEqualTo(String value) {
+/* 758 */       addCriterion("att_url <=", value, "attUrl");
+/* 759 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andAttUrlLike(String value) {
+/* 763 */       addCriterion("att_url like", value, "attUrl");
+/* 764 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andAttUrlNotLike(String value) {
+/* 768 */       addCriterion("att_url not like", value, "attUrl");
+/* 769 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andAttUrlIn(List<String> values) {
+/* 773 */       addCriterion("att_url in", values, "attUrl");
+/* 774 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andAttUrlNotIn(List<String> values) {
+/* 778 */       addCriterion("att_url not in", values, "attUrl");
+/* 779 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andAttUrlBetween(String value1, String value2) {
+/* 783 */       addCriterion("att_url between", value1, value2, "attUrl");
+/* 784 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TemplateModuleExample.Criteria andAttUrlNotBetween(String value1, String value2) {
+/* 788 */       addCriterion("att_url not between", value1, value2, "attUrl");
+/* 789 */       return (TemplateModuleExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.template.TemplateModuleExample
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,87 @@
+/*     */ package com.xoa.controller.notes;
+/*     */ 
+/*     */ import com.xoa.model.notes.Notes;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.notes.NotesService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/Notes"})
+/*     */ public class NotesController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private NotesService notesService;
+/*     */ 
+/*     */   @RequestMapping({"/index"})
+/*     */   public String address()
+/*     */   {
+/*  29 */     return "app/notes/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/insertNotes"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Notes> insertNotes(Notes notes, HttpServletRequest request)
+/*     */   {
+/*  40 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  41 */     return this.notesService.insertNotes(notes, user);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/selectNotes"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Notes> selectNotes(HttpServletRequest request)
+/*     */   {
+/*  52 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  53 */     return this.notesService.selectNotes(user);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/selectNotesPagination"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Notes> selectNotesPagination(HttpServletRequest request, Map<String, Object> maps, @RequestParam(value="page", required=false) Integer page, @RequestParam(value="pageSize", required=false) Integer pageSize, @RequestParam(value="useFlag", required=false) boolean useFlag)
+/*     */   {
+/*  67 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  68 */     return this.notesService.selectNotesPagination(user, maps, page, pageSize, useFlag);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/selectNewNote"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Notes> selectNewNote(HttpServletRequest request)
+/*     */   {
+/*  79 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  80 */     return this.notesService.selectNewNote(user);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/selectNotesByPrimaryKey"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Notes> selectNotesByPrimaryKey(Integer noteId)
+/*     */   {
+/*  91 */     return this.notesService.selectNotesByPrimaryKey(noteId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/deleteByPrimaryKey"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Notes> deleteByPrimaryKey(Integer noteId)
+/*     */   {
+/* 102 */     return this.notesService.deleteByPrimaryKey(noteId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/updateByPrimaryKey"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Notes> updateByPrimaryKey(Notes notes)
+/*     */   {
+/* 113 */     return this.notesService.updateByPrimaryKey(notes);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.notes.NotesController
+ * JD-Core Version:    0.6.0
+ */

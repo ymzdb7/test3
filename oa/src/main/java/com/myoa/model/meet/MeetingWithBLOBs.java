@@ -1,0 +1,164 @@
+ package com.myoa.model.meet;
+ 
+ import com.myoa.model.users.Users;
+
+import java.util.List;
+ 
+ public class MeetingWithBLOBs extends Meeting
+ {
+   private String attendee;
+   private String attendeeName;
+   private String realAttendeeName;
+   private String attendeeNot;
+   private String attendeeOut;
+   private String meetDesc;
+   private String readPeopleId;
+   private String readPeopleNames;
+   private String summary;
+   private String equipments;
+   private String attendeeNotIds;
+   private String attendeeNotNames;
+   private String equipmentIds;
+   private String equipmentNames;
+   private List<Users> usersList;
+   private String myAttend;
+   private Integer myAttendStatus;
+ 
+   public Integer getMyAttendStatus()
+   {
+     return Integer.valueOf(this.myAttendStatus == null ? 0 : this.myAttendStatus.intValue());
+   }
+ 
+   public void setMyAttendStatus(Integer myAttendStatus) {
+     this.myAttendStatus = myAttendStatus;
+   }
+ 
+   public String getMyAttend() {
+     return this.myAttend == null ? "未签到" : this.myAttend;
+   }
+ 
+   public void setMyAttend(String myAttend) {
+     this.myAttend = myAttend;
+   }
+ 
+   public List<Users> getUsersList() {
+     return this.usersList;
+   }
+ 
+   public void setUsersList(List<Users> usersList) {
+     this.usersList = usersList;
+   }
+ 
+   public String getRealAttendeeName() {
+     return this.realAttendeeName == null ? "" : this.realAttendeeName;
+   }
+ 
+   public void setRealAttendeeName(String realAttendeeName) {
+     this.realAttendeeName = realAttendeeName;
+   }
+ 
+   public String getAttendeeName() {
+     return this.attendeeName == null ? "" : this.attendeeName;
+   }
+ 
+   public void setAttendeeName(String attendeeName) {
+     this.attendeeName = attendeeName;
+   }
+ 
+   public String getSummary() {
+     return this.summary == null ? "" : this.summary;
+   }
+ 
+   public String getAttendee() {
+     return this.attendee == null ? "" : this.attendee;
+   }
+ 
+   public void setAttendee(String attendee) {
+     this.attendee = (attendee == null ? null : attendee.trim());
+   }
+ 
+   public String getAttendeeNot() {
+     return this.attendeeNot;
+   }
+ 
+   public void setAttendeeNot(String attendeeNot) {
+     this.attendeeNot = (attendeeNot == null ? null : attendeeNot.trim());
+   }
+ 
+   public String getAttendeeOut() {
+     return this.attendeeOut;
+   }
+ 
+   public void setAttendeeOut(String attendeeOut) {
+     this.attendeeOut = (attendeeOut == null ? null : attendeeOut.trim());
+   }
+ 
+   public String getReadPeopleNames() {
+     return this.readPeopleNames == null ? "" : this.readPeopleNames.trim();
+   }
+ 
+   public void setReadPeopleNames(String readPeopleNames) {
+     this.readPeopleNames = readPeopleNames;
+   }
+ 
+   public String getMeetDesc() {
+     return this.meetDesc == null ? "" : this.meetDesc;
+   }
+ 
+   public void setMeetDesc(String meetDesc) {
+     this.meetDesc = (meetDesc == null ? null : meetDesc.trim());
+   }
+ 
+   public String getReadPeopleId() {
+     return this.readPeopleId;
+   }
+ 
+   public void setReadPeopleId(String readPeopleId) {
+     this.readPeopleId = (readPeopleId == null ? null : readPeopleId.trim());
+   }
+ 
+   public void setSummary(String summary) {
+     this.summary = (summary == null ? null : summary.trim());
+   }
+ 
+   public String getEquipments() {
+     return this.equipments;
+   }
+ 
+   public void setEquipments(String equipments) {
+     this.equipments = (equipments == null ? null : equipments.trim());
+   }
+ 
+   public String getAttendeeNotIds() {
+     return this.attendeeNotIds;
+   }
+ 
+   public void setAttendeeNotIds(String attendeeNotIds) {
+     this.attendeeNotIds = (attendeeNotIds == null ? null : attendeeNotIds.trim());
+   }
+ 
+   public String getAttendeeNotNames() {
+     return this.attendeeNotNames;
+   }
+ 
+   public void setAttendeeNotNames(String attendeeNotNames) {
+     this.attendeeNotNames = (attendeeNotNames == null ? null : attendeeNotNames.trim());
+   }
+ 
+   public String getEquipmentIds() {
+     return this.equipmentIds;
+   }
+ 
+   public void setEquipmentIds(String equipmentIds) {
+     this.equipmentIds = (equipmentIds == null ? null : equipmentIds.trim());
+   }
+ 
+   public String getEquipmentNames() {
+     return this.equipmentNames == null ? "" : this.equipmentNames;
+   }
+ 
+   public void setEquipmentNames(String equipmentNames) {
+     this.equipmentNames = (equipmentNames == null ? null : equipmentNames.trim());
+   }
+ }
+

@@ -1,0 +1,101 @@
+ package com.xoa.util;
+ 
+ import java.util.Map;
+ 
+ public class NewsCheck
+ {
+   public static boolean checkDeptPriv(String DeptId, String deptIdOfuser_Id)
+   {
+     if (("ALL_DEPT".equals(DeptId)) || ("ALL_DEPT" == DeptId)) {
+       return true;
+     }
+ 
+     if ((DeptId != null) && (!"".equals(DeptId))) {
+       String[] deptIds = DeptId.split(",");
+       for (int i = 0; i < deptIds.length; i++) {
+         if (deptIdOfuser_Id.equals(deptIds)) {
+           return true;
+         }
+       }
+     }
+ 
+     return false;
+   }
+ 
+   public static boolean checkUserPriv(String userPriv, String userPrivOfuser_Id)
+   {
+     if ((userPriv != null) && (!"".equals(userPriv))) {
+       String[] deptIds = userPriv.split(",");
+       for (int i = 0; i < deptIds.length; i++) {
+         if (deptIds.equals(userPrivOfuser_Id)) {
+           return true;
+         }
+       }
+     }
+ 
+     return false;
+   }
+ 
+   public static boolean checkUserId(String userId, String userIdOfuser_Id)
+   {
+     if ((userId != null) && (!"".equals(userId))) {
+       String[] deptIds = userId.split(",");
+       for (int i = 0; i < deptIds.length; i++) {
+         if (deptIds[i].equals(userIdOfuser_Id)) {
+           return true;
+         }
+       }
+     }
+ 
+     return false;
+   }
+ 
+   public static boolean checkAll(String depIds, String userIds, String roleIds, Map<String, Object> map) {
+     if (depIds != null) {
+       String[] checkDept = depIds.split(",");
+       for (int j = 0; j < checkDept.length; j++) {
+         if (map.get("deptId") != null) {
+           String depId = map.get("deptId").toString();
+           if (checkDeptPriv(checkDept[j], depId))
+             return true;
+         }
+         else {
+           return false;
+         }
+       }
+     }
+     if (userIds != null) {
+       String[] checkUser = userIds.split(",");
+       for (int i = 0; i < checkUser.length; i++) {
+         if (map.get("userId") != null) {
+           String userId = map.get("userId").toString();
+           if (checkUserId(checkUser[i], userId))
+             return true;
+         }
+         else
+         {
+           return false;
+         }
+       }
+     }
+ 
+     if (roleIds != null) {
+       String[] checkRole = roleIds.split(",");
+       for (int i = 0; i < checkRole.length; i++) {
+         if (map.get("userPriv") != null) {
+           String userPrivId = map.get("userPriv").toString();
+           if (checkUserPriv(checkRole[i], userPrivId))
+             return true;
+         }
+         else {
+           return false;
+         }
+ 
+       }
+ 
+     }
+ 
+     return false;
+   }
+ }
+

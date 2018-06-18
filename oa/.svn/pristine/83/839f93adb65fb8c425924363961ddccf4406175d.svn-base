@@ -1,0 +1,543 @@
+/*     */ package com.xoa.service.workflow.flowtype.impl;
+/*     */ 
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.dao.workflow.FlowProcessMapper;
+/*     */ import com.xoa.dao.workflow.FlowRunMapper;
+/*     */ import com.xoa.dao.workflow.FlowRunPrcsMapper;
+/*     */ import com.xoa.dao.workflow.FlowTypeModelMapper;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.workflow.FlowProcess;
+/*     */ import com.xoa.model.workflow.FlowRun;
+/*     */ import com.xoa.model.workflow.FlowRunPrcs;
+/*     */ import com.xoa.model.workflow.FlowRunPrcsExcted;
+/*     */ import com.xoa.service.users.UsersService;
+/*     */ import com.xoa.service.workflow.flowtype.FlowRunPrcsService;
+/*     */ import com.xoa.util.AjaxJson;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class FlowRunPrcsServiceImpl
+/*     */   implements FlowRunPrcsService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowRunPrcsMapper flowRunPrcsMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersService usersService;
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowTypeModelMapper flowTypeModelMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowProcessMapper flowProcessMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowRunMapper flowRunMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   public void save(FlowRunPrcs flowRunPrcs)
+/*     */   {
+/*  56 */     this.flowRunPrcsMapper.insertSelective(flowRunPrcs);
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowRunPrcs> selectObject(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  71 */     ToJson toJson = new ToJson();
+/*  72 */     PageParams pageParams = new PageParams();
+/*  73 */     pageParams.setPage(page);
+/*  74 */     pageParams.setPageSize(pageSize);
+/*  75 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  76 */     maps.put("page", pageParams);
+/*  77 */     List<FlowRunPrcs> list = this.flowRunPrcsMapper.selectObjcet(maps);
+/*  78 */     List returnList = new ArrayList();
+/*  79 */     int len = list.size();
+/*  80 */     if (len > 0) {
+/*  81 */       toJson.setTotleNum(pageParams.getTotal());
+/*  82 */       Date newDate = new Date();
+/*  83 */       for (FlowRunPrcs flowRunPrcs : list) {
+/*  84 */         flowRunPrcs.getFlowRun().setUserName(this.usersService.getUserNameById(flowRunPrcs.getFlowRun().getBeginUser()));
+/*  85 */         Users users = this.usersMapper.findUsersByuserId(flowRunPrcs.getUserId());
+/*  86 */         flowRunPrcs.setUid(users.getUid());
+/*  87 */         flowRunPrcs.setUserName(this.usersService.getUserNameById(flowRunPrcs.getUserId()));
+/*  88 */         flowRunPrcs.setFlowType(this.flowTypeModelMapper.queryOneObject(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId())));
+/*     */ 
+/*  90 */         FlowProcess flowProcess = this.flowProcessMapper.findProcess(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId()), flowRunPrcs.getFlowPrcs());
+/*  91 */         if (flowProcess != null) {
+/*  92 */           flowRunPrcs.setFlowProcess(flowProcess);
+/*     */         }
+/*     */ 
+/*  95 */         if (DateFormat.getTime(flowRunPrcs.getPrcsTime()).intValue() != -621701856)
+/*     */         {
+/*  98 */           flowRunPrcs.setReceive(DateFormat.getStrTime(DateFormat.getTime(flowRunPrcs.getPrcsTime())));
+/*     */ 
+/* 100 */           flowRunPrcs.setHandleTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(DateFormat.getStrDate(newDate)).intValue() - DateFormat.getTime(flowRunPrcs.getPrcsTime()).intValue())));
+/*     */         }
+/*     */ 
+/* 103 */         String createTime = flowRunPrcs.getCreateTime();
+/*     */ 
+/* 105 */         if (((DateFormat.getTime(flowRunPrcs.getPrcsTime()).intValue() != -621701856) && (flowRunPrcs.getPrcsId().intValue() > 1)) || ((DateFormat.getTime(flowRunPrcs.getPrcsTime()).intValue() == -621701856) && (flowRunPrcs.getPrcsId().intValue() > 1)))
+/*     */         {
+/* 107 */           Integer runId = flowRunPrcs.getRunId();
+/* 108 */           Integer prcsId = Integer.valueOf(flowRunPrcs.getPrcsId().intValue() - 1);
+/* 109 */           String userId = (String)maps.get("userId");
+/* 110 */           maps.put("prcsId", prcsId);
+/* 111 */           maps.put("runId", runId);
+/* 112 */           maps.put("flowPrcs", flowRunPrcs.getFlowPrcs());
+/*     */ 
+/* 114 */           flowRunPrcs.setReceiptTime(DateFormat.getStrTime(DateFormat.getTime(createTime)));
+/*     */ 
+/* 116 */           flowRunPrcs.setArriveTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(DateFormat.getStrDate(newDate)).intValue() - DateFormat.getTime(flowRunPrcs.getReceiptTime()).intValue())));
+/*     */         } else {
+/* 118 */           flowRunPrcs.setReceiptTime(DateFormat.getStrTime(DateFormat.getTime(createTime)));
+/* 119 */           flowRunPrcs.setArriveTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(DateFormat.getStrDate(newDate)).intValue() - DateFormat.getTime(createTime).intValue())));
+/* 120 */           flowRunPrcs.setReceive("");
+/* 121 */           flowRunPrcs.setHandleTime("");
+/*     */         }
+/* 123 */         FlowRun flowRun = this.flowRunMapper.find(flowRunPrcs.getRunId());
+/* 124 */         String userName = this.usersService.getUserNameById(flowRun.getBeginUser());
+/* 125 */         flowRunPrcs.setUserName(userName);
+/* 126 */         returnList.add(flowRunPrcs);
+/*     */       }
+/* 128 */       toJson.setFlag(0);
+/* 129 */       toJson.setMsg("ok");
+/* 130 */       toJson.setObj(returnList);
+/*     */     } else {
+/* 132 */       toJson.setFlag(1);
+/* 133 */       toJson.setMsg("error");
+/*     */     }
+/* 135 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowRunPrcs> selectEnd(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 149 */     ToJson toJson = new ToJson(1, "error");
+/* 150 */     PageParams pageParams = new PageParams();
+/* 151 */     pageParams.setPage(page);
+/* 152 */     pageParams.setPageSize(pageSize);
+/* 153 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 154 */     maps.put("page", pageParams);
+/* 155 */     List<FlowRunPrcs> list = this.flowRunPrcsMapper.selectEnd(maps);
+/* 156 */     List returnList = new ArrayList();
+/* 157 */     int len = list.size();
+/* 158 */     if (len > 0) {
+/* 159 */       toJson.setTotleNum(pageParams.getTotal());
+/* 160 */       for (FlowRunPrcs flowRunPrcs : list) {
+/* 161 */         FlowRun flowRun = this.flowRunMapper.find(flowRunPrcs.getRunId());
+/*     */ 
+/* 164 */         Map map1 = new HashMap();
+/* 165 */         map1.put("prcsId", Integer.valueOf(flowRunPrcs.getPrcsId().intValue() + 1));
+/* 166 */         map1.put("runId", flowRunPrcs.getRunId());
+/* 167 */         List<FlowRunPrcs> nextFlowRunPrcsList = this.flowRunPrcsMapper.findNextFrp(map1);
+/*     */ 
+/* 169 */         List maxFrp = this.flowRunPrcsMapper.findMaxFrp(flowRunPrcs.getRunId());
+/*     */ 
+/* 171 */         if (nextFlowRunPrcsList.size() == 1) {
+/* 172 */           FlowRunPrcs flowRunPrcs1 = (FlowRunPrcs)nextFlowRunPrcsList.get(0);
+/* 173 */           if (flowRunPrcs1.getPrcsFlag().equals("1"))
+/* 174 */             flowRunPrcs.setState1("已转交，下一步未接收");
+/* 175 */           else if (flowRunPrcs1.getPrcsFlag().equals("2"))
+/* 176 */             flowRunPrcs.setState1("已转交，下一步办理中");
+/* 177 */           else if (flowRunPrcs1.getPrcsFlag().equals("3"))
+/* 178 */             flowRunPrcs.setState1("已转交，下一步已办结");
+/* 179 */           else if (flowRunPrcs1.getPrcsFlag().equals("4"))
+/* 180 */             flowRunPrcs.setState1("已办结");
+/*     */         }
+/*     */         else {
+/* 183 */           List list1 = new ArrayList();
+/* 184 */           int one = 0;
+/* 185 */           int two = 0;
+/* 186 */           int three = 0;
+/* 187 */           int four = 0;
+/* 188 */           for (FlowRunPrcs flowRunPrcs1 : nextFlowRunPrcsList) {
+/* 189 */             if (flowRunPrcs1.getPrcsFlag().equals("1"))
+/* 190 */               one++;
+/* 191 */             else if (flowRunPrcs1.getPrcsFlag().equals("2"))
+/* 192 */               two++;
+/* 193 */             else if (flowRunPrcs1.getPrcsFlag().equals("3"))
+/* 194 */               three++;
+/* 195 */             else if (flowRunPrcs1.getPrcsFlag().equals("4")) {
+/* 196 */               four++;
+/*     */             }
+/*     */           }
+/* 199 */           if (one == nextFlowRunPrcsList.size())
+/* 200 */             flowRunPrcs.setState1("已转交，下一步未接收");
+/* 201 */           else if (three == nextFlowRunPrcsList.size())
+/* 202 */             flowRunPrcs.setState1("已转交，下一步已办结");
+/*     */           else {
+/* 204 */             flowRunPrcs.setState1("已转交，下一步办理中");
+/*     */           }
+/*     */         }
+/* 207 */         if (maxFrp.size() > 1) {
+/* 208 */           flowRunPrcs.setState2("1");
+/*     */         } else {
+/* 210 */           FlowRunPrcs flowRunPrcs3 = (FlowRunPrcs)maxFrp.get(0);
+/* 211 */           flowRunPrcs.setState2("0");
+/*     */ 
+/* 213 */           Map map = new HashMap();
+/* 214 */           map.put("runId", flowRunPrcs3.getRunId());
+/* 215 */           map.put("prcsId", flowRunPrcs3.getPrcsId());
+/* 216 */           String prcsName = "第" + flowRunPrcs3.getPrcsId() + "步:" + this.flowProcessMapper.findPrcsName(map);
+/* 217 */           flowRunPrcs.setBz(prcsName);
+/* 218 */           flowRunPrcs.setCurrentPeople(this.usersService.getUserNameById(flowRunPrcs3.getUserId()));
+/*     */         }
+/*     */ 
+/* 221 */         if (StringUtils.checkNull(flowRun.getEndTime()).booleanValue()) {
+/* 222 */           flowRunPrcs.setState("执行中");
+/*     */         } else {
+/* 224 */           flowRunPrcs.setState("已结束");
+/* 225 */           flowRunPrcs.setState1("已办结");
+/*     */         }
+/* 227 */         flowRunPrcs.getFlowRun().setUserName(this.usersService.getUserNameById(flowRunPrcs.getFlowRun().getBeginUser()));
+/* 228 */         flowRunPrcs.setUserName(this.usersService.getUserNameById(flowRunPrcs.getUserId()));
+/* 229 */         flowRunPrcs.setFlowType(this.flowTypeModelMapper.queryOneObject(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId())));
+/*     */ 
+/* 231 */         FlowProcess flowProcess = this.flowProcessMapper.findProcess(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId()), flowRunPrcs.getFlowPrcs());
+/* 232 */         if (flowProcess != null) {
+/* 233 */           flowRunPrcs.setFlowProcess(flowProcess);
+/*     */         }
+/* 235 */         if (!StringUtils.checkNull(flowRunPrcs.getDeliverTime()).booleanValue()) {
+/* 236 */           flowRunPrcs.setDeliverTime(DateFormat.getStrTime(DateFormat.getTime(flowRunPrcs.getDeliverTime())));
+/*     */         }
+/* 238 */         returnList.add(flowRunPrcs);
+/*     */ 
+/* 241 */         flowRunPrcs.setArriveTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(DateFormat.getStrDate(new Date())).intValue() - DateFormat.getTime(flowRunPrcs.getCreateTime()).intValue())));
+/*     */ 
+/* 243 */         flowRunPrcs.setHandleTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(DateFormat.getStrDate(new Date())).intValue() - DateFormat.getTime(flowRunPrcs.getPrcsTime()).intValue())));
+/* 244 */         flowRunPrcs.setCreateTime(flowRunPrcs.getCreateTime().substring(0, flowRunPrcs.getCreateTime().length() - 2));
+/* 245 */         flowRunPrcs.setPrcsTime(flowRunPrcs.getPrcsTime().substring(0, flowRunPrcs.getPrcsTime().length() - 2));
+/* 246 */         flowRunPrcs.setJbbz("第" + flowRunPrcs.getPrcsId() + "步:" + flowRunPrcs.getFlowProcess().getPrcsName());
+/*     */       }
+/* 248 */       toJson.setFlag(0);
+/* 249 */       toJson.setMsg("ok");
+/* 250 */       toJson.setObj(returnList);
+/*     */     } else {
+/* 252 */       toJson.setFlag(1);
+/* 253 */       toJson.setMsg("error");
+/*     */     }
+/* 255 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowRunPrcs> selectHang(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 270 */     ToJson<FlowRunPrcs> toJson = new ToJson<FlowRunPrcs>();
+/* 271 */     PageParams pageParams = new PageParams();
+/* 272 */     pageParams.setPage(page);
+/* 273 */     pageParams.setPageSize(pageSize);
+/* 274 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 275 */     maps.put("page", pageParams);
+/* 276 */     List<FlowRunPrcs> list = this.flowRunPrcsMapper.selectHang(maps);
+/* 277 */     List<FlowRunPrcs> returnList = new ArrayList<FlowRunPrcs>();
+/* 278 */     int len = list.size();
+/* 279 */     if (len > 0) {
+/* 280 */       toJson.setTotleNum(pageParams.getTotal());
+/* 281 */       for (FlowRunPrcs flowRunPrcs : list) {
+/* 282 */         flowRunPrcs.setUserName(this.usersService.getUserNameById(flowRunPrcs.getUserId()));
+/* 283 */         flowRunPrcs.setFlowType(this.flowTypeModelMapper.queryOneObject(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId())));
+/* 284 */         returnList.add(flowRunPrcs);
+/*     */       }
+/* 286 */       toJson.setFlag(0);
+/* 287 */       toJson.setMsg("ok");
+/* 288 */       toJson.setObj(returnList);
+/*     */     } else {
+/* 290 */       toJson.setFlag(1);
+/* 291 */       toJson.setMsg("error");
+/*     */     }
+/* 293 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowRunPrcs> selectAll(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 307 */     ToJson<FlowRunPrcs> toJson = new ToJson<FlowRunPrcs>(1, "error");
+/* 308 */     PageParams pages = new PageParams();
+/* 309 */     pages.setPage(page);
+/* 310 */     pages.setPageSize(pageSize);
+/* 311 */     pages.setUseFlag(Boolean.valueOf(useFlag));
+/* 312 */     maps.put("page", pages);
+/* 313 */     List<FlowRunPrcs> list = this.flowRunPrcsMapper.selectAll(maps);
+/* 314 */     List<FlowRunPrcs> returnList = new ArrayList();
+/* 315 */     int len = list.size();
+/* 316 */     if (len > 0) {
+/* 317 */       toJson.setTotleNum(pages.getTotal());
+/* 318 */       for (FlowRunPrcs flowRunPrcs : list)
+/*     */       {
+/* 320 */         FlowRun flowRun = this.flowRunMapper.find(flowRunPrcs.getRunId());
+/* 321 */         if (StringUtils.checkNull(flowRun.getEndTime()).booleanValue())
+/* 322 */           flowRunPrcs.setState("执行中");
+/*     */         else {
+/* 324 */           flowRunPrcs.setState("已结束");
+/*     */         }
+/* 326 */         flowRunPrcs.getFlowRun().setUserName(this.usersService.getUserNameById(flowRunPrcs.getFlowRun().getBeginUser()));
+/* 327 */         flowRunPrcs.setUserName(this.usersService.getUserNameById(flowRunPrcs.getUserId()));
+/* 328 */         flowRunPrcs.setFlowType(this.flowTypeModelMapper.queryOneObject(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId())));
+/* 329 */         FlowProcess flowProcess = this.flowProcessMapper.findProcess(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId()), flowRunPrcs.getFlowPrcs());
+/* 330 */         if (flowProcess != null) {
+/* 331 */           flowRunPrcs.setFlowProcess(flowProcess);
+/*     */         }
+/* 333 */         returnList.add(flowRunPrcs);
+/* 334 */         flowRunPrcs.setJbbz("第" + flowRunPrcs.getPrcsId() + "步:" + flowRunPrcs.getFlowProcess().getPrcsName());
+/*     */       }
+/*     */ 
+/* 337 */       toJson.setFlag(0);
+/* 338 */       toJson.setMsg("ok");
+/* 339 */       toJson.setObj(returnList);
+/*     */     } else {
+/* 341 */       toJson.setFlag(1);
+/* 342 */       toJson.setMsg("error");
+/*     */     }
+/* 344 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<FlowRunPrcs> deleteRunPrcs(FlowRunPrcs flowRunPrcs)
+/*     */   {
+/* 358 */     ToJson<FlowRunPrcs> toJson = new ToJson<FlowRunPrcs>(1, "error");
+/*     */     try {
+/* 360 */       Integer flag = this.flowRunPrcsMapper.selectPrcs(flowRunPrcs.getId());
+/* 361 */       if (flag.intValue() == 1) {
+/* 362 */         this.flowRunPrcsMapper.deleteWork(flowRunPrcs);
+/* 363 */         toJson.setFlag(0);
+/* 364 */         toJson.setMsg("ok");
+/*     */       }
+/*     */       else {
+/* 367 */         toJson.setMsg("repetition");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 370 */       L.e(new Object[] { "FlowRunPrcsService deleteRunPrcs:" + e });
+/*     */     }
+/* 372 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public List<FlowRunPrcs> findByRunId(Map<String, Object> maps) {
+/* 376 */     List<FlowRunPrcs> l = this.flowRunPrcsMapper.selectfrp(maps);
+/* 377 */     return l;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public void update(FlowRunPrcsExcted flowRunPrcs)
+/*     */   {
+/* 384 */     this.flowRunPrcsMapper.updateByPrimaryKeySelective(flowRunPrcs);
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public int updateSql(Map<String, Object> map)
+/*     */   {
+/* 407 */     int a = this.flowRunPrcsMapper.updateSome(map);
+/* 408 */     return a;
+/*     */   }
+/*     */ 
+/*     */   public List<FlowRunPrcs> findlessRunId(Map<String, Object> maps)
+/*     */   {
+/* 413 */     List list = this.flowRunPrcsMapper.findlessRunId(maps);
+/* 414 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson entrustWork(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 420 */     AjaxJson ajaxJson = new AjaxJson();
+/* 421 */     PageParams pages = new PageParams();
+/* 422 */     pages.setPage(page);
+/* 423 */     pages.setPageSize(pageSize);
+/* 424 */     pages.setUseFlag(Boolean.valueOf(useFlag));
+/* 425 */     maps.put("page", pages);
+/* 426 */     List<FlowRunPrcs> list = this.flowRunPrcsMapper.entrustWork(maps);
+/* 427 */     int len = list.size();
+/* 428 */     if (len > 0) {
+/* 429 */       ajaxJson.setTotleNum(pages.getTotal());
+/* 430 */       for (FlowRunPrcs flowRunPrcs : list) {
+/* 431 */         flowRunPrcs.setUserName(this.usersService.getUserNameById(flowRunPrcs.getUserId()));
+/* 432 */         flowRunPrcs.setFlowType(this.flowTypeModelMapper.queryOneObject(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId())));
+/* 433 */         FlowProcess flowProcess = this.flowProcessMapper.findProcess(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId()), flowRunPrcs.getFlowPrcs());
+/* 434 */         if (flowProcess != null) {
+/* 435 */           flowRunPrcs.setFlowProcess(flowProcess);
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 440 */     return null;
+/*     */   }
+/*     */ 
+/*     */   public Integer checkGatherNode(Map<String, Object> maps)
+/*     */   {
+/* 454 */     return this.flowRunPrcsMapper.checkGatherNode(maps);
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson monitoring(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 461 */     AjaxJson ajaxJson = new AjaxJson();
+/* 462 */     PageParams pages = new PageParams();
+/* 463 */     pages.setPage(page);
+/* 464 */     pages.setPageSize(pageSize);
+/* 465 */     pages.setUseFlag(Boolean.valueOf(useFlag));
+/* 466 */     maps.put("page", pages);
+/*     */     try {
+/* 468 */       List<FlowRunPrcs> list = this.flowRunPrcsMapper.monitoring(maps);
+/* 469 */       for (FlowRunPrcs flowRunPrcs : list) {
+/* 470 */         String time = reTime(flowRunPrcs.getPrcsTime());
+/* 471 */         flowRunPrcs.setHandleTime(time);
+/* 472 */         String prcsName = "第" + flowRunPrcs.getPrcsId() + "步" + ":" + flowRunPrcs.getPrcsName();
+/* 473 */         flowRunPrcs.setPrcsName(prcsName);
+/*     */       }
+/* 475 */       ajaxJson.setTotleNum(pages.getTotal());
+/* 476 */       ajaxJson.setMsg("OK");
+/* 477 */       ajaxJson.setFlag(true);
+/* 478 */       ajaxJson.setObj(list);
+/*     */     } catch (Exception e) {
+/* 480 */       ajaxJson.setMsg("false");
+/* 481 */       ajaxJson.setFlag(false);
+/*     */     }
+/* 483 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public static String reTime(String prcsTime) throws Exception
+/*     */   {
+/* 488 */     String format = "yyyy-MM-dd HH:mm:ss";
+/* 489 */     long aString = System.currentTimeMillis() / 1000L;
+/* 490 */     Integer time = Integer.valueOf(Integer.parseInt(String.valueOf(aString)));
+/*     */ 
+/* 492 */     SimpleDateFormat sdf = new SimpleDateFormat(format);
+/* 493 */     Long aa = Long.valueOf(sdf.parse(prcsTime).getTime() / 1000L);
+/*     */ 
+/* 495 */     Integer end = Integer.valueOf(Integer.parseInt(String.valueOf(aa)));
+/* 496 */     Integer re = Integer.valueOf(time.intValue() - end.intValue());
+/* 497 */     String aString3 = DateFormat.returnTime(re);
+/* 498 */     return aString3;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<FlowRunPrcs> entrust(FlowRunPrcs flowRunPrcs, String entrstUser)
+/*     */   {
+/* 517 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 519 */       FlowRunPrcs temp = this.flowRunPrcsMapper.selectByPrimaryKey(flowRunPrcs.getId());
+/*     */ 
+/* 521 */       if ((temp != null) && (temp.getUserId().equals(entrstUser))) {
+/* 522 */         toJson.setMsg("不能将工作委托给自己");
+/* 523 */         return toJson;
+/*     */       }
+/*     */ 
+/* 526 */       temp.setOpFlag("");
+/* 527 */       List userIds1 = this.flowRunPrcsMapper.selNotRunById(temp);
+/* 528 */       if (userIds1.contains(entrstUser)) {
+/* 529 */         toJson.setMsg("不能将工作委托给正在办理的人");
+/* 530 */         return toJson;
+/*     */       }
+/*     */ 
+/* 533 */       if ((!StringUtils.checkNull(flowRunPrcs.getOpFlag()).booleanValue()) && (flowRunPrcs.getOpFlag().equals("0"))) {
+/* 534 */         temp.setOpFlag("1");
+/* 535 */         temp.setPrcsId(Integer.valueOf(0));
+/* 536 */         temp.setFlowPrcs(Integer.valueOf(0));
+/* 537 */         List userIds2 = this.flowRunPrcsMapper.selNotRunById(temp);
+/* 538 */         if (userIds2.contains(entrstUser)) {
+/* 539 */           toJson.setMsg("不能将经办工作委托给主办人");
+/* 540 */           return toJson;
+/*     */         }
+/*     */       }
+/*     */ 
+/* 544 */       if ((!StringUtils.checkNull(flowRunPrcs.getOpFlag()).booleanValue()) && (flowRunPrcs.getOpFlag().equals("1"))) {
+/* 545 */         temp.setOpFlag("1");
+/* 546 */         temp.setPrcsId(Integer.valueOf(0));
+/* 547 */         temp.setFlowPrcs(Integer.valueOf(0));
+/* 548 */         List userIds2 = this.flowRunPrcsMapper.selNotRunById(temp);
+/* 549 */         if (userIds2.contains(entrstUser)) {
+/* 550 */           toJson.setMsg("不能将主办工作委托给主办人(自己转自己情况)");
+/* 551 */           return toJson;
+/*     */         }
+/*     */       }
+/* 554 */       int count = 0;
+/* 555 */       Map selParam = new HashMap();
+/* 556 */       selParam.put("runId", flowRunPrcs.getRunId());
+/* 557 */       selParam.put("prcsId", flowRunPrcs.getPrcsFlag());
+/* 558 */       selParam.put("opFlag", "0");
+/* 559 */       selParam.put("userId", entrstUser);
+/* 560 */       FlowRunPrcs model = this.flowRunPrcsMapper.selPrcsByNotRun(selParam);
+/* 561 */       if (model != null) {
+/* 562 */         model.setOtherUser(model.getOtherUser() + "," + flowRunPrcs.getUserId());
+/* 563 */         model.setPrcsFlag("1");
+/* 564 */         model.setOpFlag(flowRunPrcs.getOpFlag());
+/* 565 */         count += this.flowRunPrcsMapper.upPrcsById(model);
+/*     */       } else {
+/* 567 */         FlowRunPrcs insertData = new FlowRunPrcs();
+/* 568 */         insertData.setUserId(entrstUser);
+/* 569 */         insertData.setRunId(flowRunPrcs.getRunId());
+/* 570 */         Users users = this.usersMapper.findUsersByuserId(entrstUser);
+/* 571 */         insertData.setPrcsDept(users.getDeptId());
+/* 572 */         insertData.setPrcsId(flowRunPrcs.getPrcsId());
+/* 573 */         insertData.setPrcsFlag("1");
+/* 574 */         insertData.setOpFlag(flowRunPrcs.getOpFlag());
+/* 575 */         insertData.setParent(String.valueOf(Integer.valueOf(flowRunPrcs.getPrcsId().intValue()).intValue() - 1));
+/* 576 */         insertData.setOtherUser(flowRunPrcs.getUserId());
+/* 577 */         insertData.setFlowPrcs(flowRunPrcs.getFlowPrcs());
+/* 578 */         insertData.setTopFlag("0");
+/* 579 */         insertData.setCreateTime(DateFormat.getStrDate(new Date()));
+/* 580 */         insertData.setPrcsTime("0000-00-00 00:00:00");
+/* 581 */         insertData.setDeliverTime("0000-00-00 00:00:00");
+/* 582 */         insertData.setActiveTime("0000-00-00 00:00:00");
+/* 583 */         insertData.setBackFlowPrcs(Integer.valueOf(0));
+/* 584 */         insertData.setBackPrcsId(Integer.valueOf(0));
+/* 585 */         count += this.flowRunPrcsMapper.insertSelective(insertData);
+/*     */       }
+/* 587 */       FlowRunPrcs data = this.flowRunPrcsMapper.selectByPrimaryKey(flowRunPrcs.getId());
+/* 588 */       data.setPrcsFlag("4");
+/* 589 */       data.setOpFlag("0");
+/* 590 */       data.setDeliverTime(DateFormat.getStrDate(new Date()));
+/* 591 */       count += this.flowRunPrcsMapper.upPrcsById(data);
+/* 592 */       if (count > 0) {
+/* 593 */         toJson.setFlag(0);
+/* 594 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 597 */       e.printStackTrace();
+/*     */     }
+/* 599 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson resumeExe(Integer runId, Integer id)
+/*     */   {
+/* 611 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 613 */       FlowRun flowRun = this.flowRunMapper.find(runId);
+/* 614 */       FlowRunPrcs flowRunPrcs = new FlowRunPrcs();
+/* 615 */       int count = 0;
+/* 616 */       if (!StringUtils.checkNull(flowRun.getForceOver()).booleanValue()) {
+/* 617 */         String[] forceOver = flowRun.getForceOver().split("`");
+/* 618 */         flowRunPrcs.setId(id);
+/* 619 */         flowRunPrcs.setPrcsId(Integer.valueOf(forceOver[0]));
+/* 620 */         flowRunPrcs.setPrcsFlag(forceOver[1]);
+/* 621 */         flowRunPrcs.setFlowPrcs(Integer.valueOf(forceOver[2]));
+/* 622 */         flowRunPrcs.setUserId(forceOver[3]);
+/* 623 */         flowRun.setEndTime("0000-00-00 00:00:00");
+/* 624 */         flowRun.setForceOver("");
+/* 625 */         count += this.flowRunPrcsMapper.upPrcsStatusById(flowRunPrcs);
+/* 626 */         count += this.flowRunMapper.upRunByFouAndTime(flowRun);
+/*     */       }
+/* 628 */       if (count > 0) {
+/* 629 */         toJson.setFlag(0);
+/* 630 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 633 */       e.printStackTrace();
+/*     */     }
+/* 635 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.workflow.flowtype.impl.FlowRunPrcsServiceImpl
+ * JD-Core Version:    0.6.0
+ */

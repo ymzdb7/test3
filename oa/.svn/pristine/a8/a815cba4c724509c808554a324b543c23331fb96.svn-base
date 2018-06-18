@@ -1,0 +1,2245 @@
+/*      */ package com.xoa.service.im;
+/*      */ 
+/*      */ import com.tencent.xinge.ClickAction;
+/*      */ import com.tencent.xinge.Message;
+/*      */ import com.tencent.xinge.MessageIOS;
+/*      */ import com.tencent.xinge.Style;
+/*      */ import com.tencent.xinge.XingeApp;
+/*      */ import com.xoa.controller.im.Model.Files;
+/*      */ import com.xoa.controller.im.Model.ImMessageModel;
+/*      */ import com.xoa.controller.im.Model.ImRoomModel;
+/*      */ import com.xoa.controller.im.Model.Status;
+/*      */ import com.xoa.dao.common.SysParaMapper;
+/*      */ import com.xoa.dao.enclosure.AttachmentMapper;
+/*      */ import com.xoa.dao.im.ImChatDataMapper;
+/*      */ import com.xoa.dao.im.ImMessageMapper;
+/*      */ import com.xoa.dao.im.ImRoomMapper;
+/*      */ import com.xoa.dao.users.UsersMapper;
+/*      */ import com.xoa.model.enclosure.Attachment;
+/*      */ import com.xoa.model.im.ImChatData;
+/*      */ import com.xoa.model.im.ImMessage;
+/*      */ import com.xoa.model.im.ImRoom;
+/*      */ import com.xoa.model.users.Users;
+/*      */ import com.xoa.service.users.UsersService;
+import com.xoa.util.Constant;
+/*      */ import com.xoa.util.FileUploadUtil;
+/*      */ import com.xoa.util.ToJson;
+/*      */ import com.xoa.util.common.CheckCallBack;
+/*      */ import com.xoa.util.common.StringUtils;
+/*      */ import com.xoa.util.common.session.SessionUtils;
+/*      */ import com.xoa.util.ipUtil.MachineCode;
+/*      */ import com.xoa.util.netdisk.ReadFile;
+/*      */ import com.xoa.util.page.PageParams;
+/*      */ import java.awt.image.BufferedImage;
+/*      */ import java.io.File;
+/*      */ import java.io.FileInputStream;
+/*      */ import java.io.FileNotFoundException;
+/*      */ import java.io.IOException;
+/*      */ import java.io.PrintStream;
+/*      */ import java.math.BigDecimal;
+/*      */ import java.nio.channels.FileChannel;
+/*      */ import java.text.SimpleDateFormat;
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.Arrays;
+/*      */ import java.util.Calendar;
+/*      */ import java.util.Date;
+/*      */ import java.util.HashMap;
+/*      */ import java.util.HashSet;
+/*      */ import java.util.Iterator;
+/*      */ import java.util.List;
+/*      */ import java.util.Map;
+/*      */ import java.util.ResourceBundle;
+/*      */ import java.util.Set;
+/*      */ import java.util.UUID;
+/*      */ import javax.annotation.Resource;
+/*      */ import javax.imageio.ImageIO;
+/*      */ import javax.servlet.ServletContext;
+/*      */ import javax.servlet.http.HttpServletRequest;
+/*      */ import javax.servlet.http.HttpSession;
+/*      */ import javax.sound.sampled.LineUnavailableException;
+/*      */ import javax.sound.sampled.UnsupportedAudioFileException;
+/*      */ import org.json.JSONObject;
+/*      */ import org.springframework.beans.factory.annotation.Value;
+/*      */ import org.springframework.mock.web.MockMultipartFile;
+/*      */ import org.springframework.stereotype.Service;
+/*      */ import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+/*      */ 
+/*      */ @Service
+/*      */ public class ImChatDataService
+/*      */ {
+/*   58 */   private final String one = "1";
+/*      */ 
+/*      */   @Resource
+/*      */   ImMessageMapper messageDao;
+/*      */ 
+/*      */   @Resource
+/*      */   ImChatDataMapper chatDataDao;
+/*      */ 
+/*      */   @Resource
+/*      */   ImRoomMapper roomDao;
+/*      */ 
+/*      */   @Resource
+/*      */   ImEnclosureService attachService;
+/*      */ 
+/*      */   @Resource
+/*      */   AttachmentMapper attachmentMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   UsersService usersService;
+/*      */ 
+/*      */   @Resource
+/*      */   SysParaMapper sysParaMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   UsersMapper usersMapper;
+/*      */ 
+/*      */   @Value("${xg_push_msg_android_key}")
+/*      */   String androidKey;
+/*      */ 
+/*      */   @Value("${xg_push_msg_android_sercetkey}")
+/*      */   String androidSercetKey;
+/*      */ 
+/*      */   @Value("${xg_push_msg_ios_key}")
+/*      */   String iosKey;
+/*      */ 
+/*      */   @Value("${xg_push_msg_ios_sercetkey}")
+/*      */   String iosSercetKey;
+/*      */ 
+/*  110 */   @Transactional(readOnly=false)
+/*      */   public Object putMessageInfo(final MultipartFile file,final HttpServletRequest request,final Integer flag,final String from_uid,final String to_uid,final String of_from,final String of_to,final String content,final String type,final String time,final String uuid,final String msg_type,final String voice_time, Long atime) { 
+	           Status s = new Status();
+/*  111 */     Files file1 = new Files();
+/*      */ 
+/*  113 */     String fileID = "";
+/*  114 */     String attachName = "";
+/*  115 */     String lastThumbnailUrl = "";
+/*  116 */     String lastTeeurlUrl = "";
+/*      */     try
+/*      */     {
+/*  119 */       String checkResult = StringUtils.checkNullUtils(new CheckCallBack()
+/*      */       {
+/*      */         public boolean isNull(Object obj)
+/*      */         {
+/*  124 */           if ((obj instanceof String)) {
+/*  125 */             String a = (String)obj;
+/*  126 */             if ((a == null) || ("".equals(a)) || (a.length() == 0))
+/*      */             {
+/*  128 */               return true;
+/*      */             }
+/*      */           }
+/*  130 */           if ((obj instanceof Integer)) {
+/*  131 */             Integer a = (Integer)obj;
+/*  132 */             if (a == null)
+/*  133 */               return true;
+/*      */           }
+/*  135 */           return false;
+/*      */         }
+/*      */       }
+/*      */       , new Object[] { flag, "flag不能为空", from_uid, "from_uid不能为空", to_uid, "to_uid不能为空", of_from, "of_from不能为空", of_to, "of_to不能为空", type, "type不能为空", time, "time不能为空" });
+/*      */ 
+/*  140 */       if (checkResult != null) {
+/*  141 */         s.setStatus("error");
+/*  142 */         return s;
+/*      */       }
+/*  144 */       final List<Users> users = new ArrayList<Users>();
+/*  145 */       if ("0".equals(msg_type)) {
+/*  146 */         Users user = this.usersService.getByUid(Integer.parseInt(to_uid));
+/*  147 */         if ((user == null) || (user.getUid() == null)) {
+/*  148 */           s.setStatus("nopeople");
+/*  149 */           return s;
+/*      */         }
+/*  151 */         Map paramss = new HashMap();
+/*  152 */         paramss.put("fromUid", from_uid);
+/*  153 */         paramss.put("toUid", to_uid);
+/*      */ 
+/*  155 */         ImChatData imChatData = this.chatDataDao.getDataSingleByUid(paramss);
+/*      */ 
+/*  157 */         if ((imChatData != null) && (!StringUtils.checkNull(imChatData.getMsg_free()).booleanValue())) {
+/*  158 */           String[] tempUids = imChatData.getMsg_free().split(",");
+/*  159 */           if ((tempUids != null) && (tempUids.length > 0)) {
+/*  160 */             int count = 0;
+/*  161 */             for (String toUiddd : tempUids) {
+/*  162 */               if (to_uid.equals(toUiddd)) {
+/*  163 */                 count++;
+/*  164 */                 break;
+/*      */               }
+/*      */             }
+/*  167 */             if (count == 0)
+/*  168 */               users.add(user);
+/*      */           }
+/*      */         }
+/*      */         else {
+/*  172 */           System.out.println("0==||===========>消息打扰");
+/*  173 */           users.add(user);
+/*      */         }
+/*      */       }
+/*      */       else {
+/*  177 */         Map map = new HashMap();
+/*  178 */         map.put("roomOf", to_uid);
+/*  179 */         ImRoom room = this.roomDao.getRoomByRoomOf(map);
+/*      */ 
+/*  181 */         ImChatData imChatData = this.chatDataDao.getGroupByToUid(to_uid);
+/*  182 */         List<Users> tempUser = new ArrayList();
+/*  183 */         if ((imChatData != null) && (!StringUtils.checkNull(imChatData.getMsg_free()).booleanValue())) {
+/*  184 */           String[] tempUids = imChatData.getMsg_free().split(",");
+/*  185 */           tempUser = this.usersMapper.getUsersByUids(tempUids);
+/*      */         }
+/*  187 */         if (!StringUtils.checkNull(room.getRmemberUid()).booleanValue()) {
+/*  188 */           String[] uids = room.getRmemberUid().split(",");
+/*  189 */           final List<Users> userss = this.usersMapper.getUsersByUids(uids);
+/*  190 */           if (tempUser.size() > 0) {
+/*  191 */             for (Users u1 : userss) {
+/*  192 */               int count = 0;
+/*  193 */               for (Users u2 : tempUser) {
+/*  194 */                 if (u1.getUid().equals(u2.getUid())) {
+/*  195 */                   count++;
+/*  196 */                   break;
+/*      */                 }
+/*      */               }
+/*  199 */               if (count == 0)
+/*  200 */                 users.add(u1);
+/*      */             }
+/*      */           }
+/*      */           else
+/*  204 */             users.addAll(userss);
+/*      */         }
+/*      */         else
+/*      */         {
+/*  208 */           s.setStatus("nopeople");
+/*  209 */           return s;
+/*      */         }
+/*      */       }
+/*  212 */       ImMessage record = new ImMessage();
+/*  213 */       record.setFromUid(from_uid);
+/*  214 */       record.setType(type);
+/*  215 */       record.setOfTo(of_to);
+/*  216 */       record.setOfFrom(of_from);
+/*  217 */       record.setToUid(to_uid);
+/*  218 */       record.setUuid(uuid);
+/*      */ 
+/*  220 */       Attachment attach = null;
+/*  221 */       switch (flag.intValue()) {
+/*      */       case 1:
+/*  223 */         record.setContent(content);
+/*  224 */         break;
+/*      */       case 3:
+/*  226 */         attach = this.attachService.upload(file, type, "im", Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), true);
+/*      */ 
+/*  228 */         if (attach == null) {
+/*  229 */           s.setStatus("error");
+/*  230 */           return s;
+/*      */         }
+/*  232 */         record.setFileId(String.valueOf(attach.getAid()));
+/*  233 */         record.setFileName(attach.getYm());
+/*      */ 
+/*  235 */         fileID = String.valueOf(attach.getAid());
+/*      */ 
+/*  237 */         attachName = attach.getYm();
+/*  238 */         String fileString = attach.getUrl();
+/*  239 */         String path = attach.getPath();
+/*      */ 
+/*  241 */         if ("img".equals(type)) {
+/*  242 */           File picture = new File(fileString);
+/*  243 */           String deskFileName = UUID.randomUUID().toString() + ".png";
+/*  244 */           String deskUlr = path + System.getProperty("file.separator") + deskFileName;
+/*  245 */           FileUploadUtil.saveMinPhoto(fileString, deskUlr, 300.0D, 1.0D);
+/*  246 */           File thmpicture = new File(deskUlr);
+/*  247 */           if (thmpicture.exists()) {
+/*  248 */             FileInputStream thmfis = new FileInputStream(thmpicture);
+/*  249 */             MultipartFile multipartFile = new MockMultipartFile(deskFileName, deskFileName, "img/txt", thmfis);
+/*  250 */             Attachment attachss = this.attachService.upload(multipartFile, type, "im", Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), true);
+/*      */ 
+/*  252 */             if (attachss != null) {
+/*  253 */               file1.setThumbnail_url(attachss.getAttUrl());
+/*  254 */               record.setThumbnailUrl(attachss.getAttUrl());
+/*  255 */               File thmpicture11 = new File(attachss.getUrl());
+/*  256 */               if (thmpicture11.exists()) {
+/*  257 */                 FileInputStream thmfiss = new FileInputStream(thmpicture11);
+/*  258 */                 BufferedImage thmsourceImgs = ImageIO.read(thmfiss);
+/*  259 */                 file1.setThumbnail_width(String.valueOf(thmsourceImgs.getHeight()));
+/*  260 */                 file1.setThumbnail_height(String.valueOf(thmsourceImgs.getWidth()));
+/*      */               }
+/*      */             }
+/*  263 */             thmfis.close();
+/*      */           }
+/*  265 */           FileInputStream fis = new FileInputStream(picture);
+/*      */ 
+/*  267 */           long size = fis.getChannel().size();
+/*  268 */           BufferedImage sourceImg = ImageIO.read(fis);
+/*      */ 
+/*  270 */           file1.setFile_name(attach.getAttachName());
+/*  271 */           file1.setFile_url(attach.getAttUrl());
+/*  272 */           file1.setFile_size(ReadFile.FormetFileSize(size));
+/*  273 */           file1.setFile_width(String.valueOf(sourceImg.getWidth()));
+/*  274 */           file1.setFile_height(String.valueOf(sourceImg.getHeight()));
+/*  275 */           fis.close();
+/*      */ 
+/*  277 */           lastThumbnailUrl = attach.getAttUrl();
+/*  278 */           record.setRealUrl(attach.getAttUrl());
+/*      */         }
+/*      */ 
+/*  281 */         if ("voice".equals(type))
+/*      */         {
+/*  283 */           file1.setFile_url(attach.getAttUrl());
+/*  284 */           file1.setVoice_time(voice_time);
+/*      */ 
+/*  287 */           record.setThumbnailUrl(voice_time);
+/*  288 */           lastThumbnailUrl = voice_time;
+/*      */         }
+/*      */ 
+/*  291 */         if (!"file".equals(type)) break;
+/*  292 */         File picture = new File(fileString);
+/*  293 */         FileInputStream fis = new FileInputStream(picture);
+/*  294 */         long size = fis.getChannel().size();
+/*  295 */         file1.setFile_size(ReadFile.FormetFileSize(size));
+/*  296 */         file1.setFile_url(attach.getAttUrl());
+/*  297 */         file1.setFile_name(attach.getAttachName());
+/*  298 */         file1.setFile_type(attach.getAttachName().substring(attach.getAttachName().lastIndexOf(".") + 1));
+/*  299 */         record.setThumbnailUrl(attach.getAttUrl());
+/*      */ 
+/*  301 */         break;
+/*      */       }
+/*      */ 
+/*  306 */       record.setStime(time);
+/*  307 */       record.setMsgType(msg_type);
+/*  308 */       if (atime == null) {
+/*  309 */         atime = Long.valueOf(new Date().getTime());
+/*      */       }
+/*      */ 
+/*  312 */       record.setAtime(String.valueOf(atime));
+/*  313 */       int meResult = this.messageDao.save(record);
+/*  314 */       Map map = new HashMap();
+/*  315 */       map.put("fromUid", from_uid);
+/*  316 */       map.put("toUid", to_uid);
+/*      */ 
+/*  318 */       ImChatData chatModel = new ImChatData();
+/*  319 */       chatModel.setFromUid(from_uid);
+/*  320 */       chatModel.setToUid(to_uid);
+/*  321 */       chatModel.setOfFrom(of_from);
+/*  322 */       chatModel.setOfTo(of_to);
+/*  323 */       chatModel.setLastTime(time);
+/*  324 */       chatModel.setLastAtime(String.valueOf(atime));
+/*  325 */       if ("img".equals(type))
+/*      */       {
+/*  327 */         chatModel.setLastContent("");
+/*      */ 
+/*  329 */         chatModel.setLastFileId(fileID);
+/*  330 */         chatModel.setLastFileName(attachName);
+/*  331 */         chatModel.setLastThumbnailUrl(lastThumbnailUrl);
+/*  332 */       } else if ("voice".equals(type))
+/*      */       {
+/*  334 */         chatModel.setLastContent("");
+/*      */ 
+/*  336 */         chatModel.setLastFileId(fileID);
+/*  337 */         chatModel.setLastFileName(attachName);
+/*  338 */         chatModel.setLastThumbnailUrl(lastThumbnailUrl);
+/*  339 */       } else if ("file".equals(type))
+/*      */       {
+/*  341 */         chatModel.setLastContent("");
+/*      */ 
+/*  343 */         chatModel.setLastFileId(fileID);
+/*  344 */         chatModel.setLastFileName(attachName);
+/*  345 */         chatModel.setLastThumbnailUrl(lastThumbnailUrl);
+/*      */       } else {
+/*  347 */         chatModel.setLastContent(content);
+/*      */ 
+/*  349 */         chatModel.setLastFileId(fileID);
+/*  350 */         chatModel.setLastFileName(attachName);
+/*  351 */         chatModel.setLastThumbnailUrl(lastThumbnailUrl);
+/*      */       }
+/*  353 */       chatModel.setType(type);
+/*  354 */       chatModel.setUuid(uuid);
+/*  355 */       chatModel.setMsgType(msg_type);
+/*  356 */       int chResult = 0;
+/*  357 */       if ("1".equals(msg_type)) {
+/*  358 */         String listId = this.chatDataDao.getDatagroupObject(chatModel.getToUid());
+/*  359 */         if (StringUtils.checkNull(listId).booleanValue()) {
+/*  360 */           chatModel.setUidIgnore("");
+/*  361 */           chResult = this.chatDataDao.saveChat(chatModel);
+/*      */         } else {
+/*  363 */           chatModel.setListId(listId);
+/*  364 */           chatModel.setUidIgnore("");
+/*  365 */           chResult = this.chatDataDao.updateChatlist(chatModel);
+/*      */         }
+/*      */       } else {
+/*  368 */         int i = this.chatDataDao.getCountSingleObject(map);
+/*  369 */         if (i == 0) {
+/*  370 */           chatModel.setUidIgnore("");
+/*  371 */           chResult = this.chatDataDao.saveChat(chatModel);
+/*      */         } else {
+/*  373 */           List listId = this.chatDataDao.getDataSingleObject(map);
+/*  374 */           chatModel.setListId((String)listId.get(0));
+/*  375 */           chatModel.setUidIgnore("");
+/*  376 */           chResult = this.chatDataDao.updateChatlist(chatModel);
+/*      */         }
+/*      */       }
+/*  379 */       final String sqlType = (String)request.getSession().getAttribute("loginDateSouse");
+/*  380 */       final String jixiema = (String)MachineCode.get16CharMacs().get(0);
+/*  381 */       final Attachment finalAttach = attach;
+/*  382 */       final Users users1 = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  383 */       Runnable runnable = new Runnable()
+/*      */       {
+/*      */         public void run() {
+/*      */           try {
+/*  387 */             String userName = users1.getUserName();
+/*  388 */             String con = users1.getUserName() + ":" + content;
+/*  389 */             if (!"0".equals(msg_type)) {
+/*  390 */               Map paramMap = new HashMap();
+/*  391 */               paramMap.put("uid", users1.getUid());
+/*  392 */               paramMap.put("roomOf", to_uid);
+/*  393 */               ImRoom room = ImChatDataService.this.roomDao.selRoomByRoomOfUid(paramMap);
+/*  394 */               userName = room.getRnamr();
+/*      */             }
+/*  396 */             for (Users user : users)
+/*  397 */               if (!users1.getUserId().equals(user.getUserId())) {
+/*  398 */                 String account = jixiema + user.getUserId() + sqlType;
+/*  399 */                 XingeApp pushIos = new XingeApp(Long.parseLong(ImChatDataService.this.iosKey), ImChatDataService.this.iosSercetKey);
+/*  400 */                 XingeApp pushAndroid = new XingeApp(Long.parseLong(ImChatDataService.this.androidKey), ImChatDataService.this.androidSercetKey);
+/*      */                 JSONObject ret3;
+/*  401 */                 if (flag.intValue() == 1) {
+/*  402 */                   ClickAction clickAction = new ClickAction();
+/*  403 */                   clickAction.setActionType(1);
+/*  404 */                   clickAction.setActivity("123");
+/*  405 */                   Style style = new Style(0, 0, 0, 1, 1, 1, 0, 1);
+/*  406 */                   Message mess = new Message();
+/*  407 */                   mess.setType(1);
+/*  408 */                   mess.setStyle(style);
+/*  409 */                   mess.setTitle(userName);
+/*  410 */                   mess.setContent(con);
+/*  411 */                   mess.setAction(clickAction);
+/*  412 */                   JSONObject ret = pushAndroid.pushSingleAccount(0, account, mess);
+/*      */ 
+/*  415 */                   JSONObject contentTest = new JSONObject();
+/*  416 */                   JSONObject obj = new JSONObject();
+/*  417 */                   JSONObject aps = new JSONObject();
+/*  418 */                   contentTest.put("title", userName);
+/*  419 */                   contentTest.put("body", con);
+/*  420 */                   aps.put("badge", 1);
+/*  421 */                   aps.put("alert", contentTest);
+/*  422 */                   obj.put("aps", aps);
+/*  423 */                   MessageIOS messageIOS = new MessageIOS();
+/*  424 */                   messageIOS.setRaw(obj.toString());
+/*  425 */                   ret3 = pushIos.pushSingleAccount(0, account, messageIOS, 1);
+/*  426 */                 } else if (flag.intValue() == 3) {
+/*  427 */                   String confile = "";
+/*  428 */                   if ("img".equals(type))
+/*  429 */                     confile = users1.getUserName() + ":[图片]";
+/*      */                   else {
+/*  431 */                     confile = users1.getUserName() + ":[" + finalAttach.getAttachName() + "]";
+/*      */                   }
+/*  433 */                   Style style = new Style(0, 0, 0, 1, -1, 1, 0, 1);
+/*  434 */                   ClickAction clickAction = new ClickAction();
+/*  435 */                   clickAction.setActionType(1);
+/*  436 */                   clickAction.setActivity("123");
+/*  437 */                   Message mess = new Message();
+/*  438 */                   mess.setType(1);
+/*  439 */                   mess.setStyle(style);
+/*  440 */                   mess.setTitle(userName);
+/*  441 */                   mess.setContent(confile);
+/*  442 */                   mess.setAction(clickAction);
+/*  443 */                   JSONObject ret = pushAndroid.pushSingleAccount(0, account, mess);
+/*  444 */                   System.out.println("0==||===========>ret" + ret);
+/*      */ 
+/*  446 */                   JSONObject contentTest = new JSONObject();
+/*  447 */                   JSONObject obj = new JSONObject();
+/*  448 */                   JSONObject aps = new JSONObject();
+/*  449 */                   contentTest.put("title", userName);
+/*  450 */                   contentTest.put("body", confile);
+/*  451 */                   aps.put("badge", 1);
+/*  452 */                   aps.put("alert", contentTest);
+/*  453 */                   obj.put("aps", aps);
+/*  454 */                   MessageIOS messageIOS = new MessageIOS();
+/*  455 */                   messageIOS.setRaw(obj.toString());
+/*  456 */                   ret3 = pushIos.pushSingleAccount(0, account, messageIOS, 1);
+/*      */                 }
+/*      */               }
+/*      */           }
+/*      */           catch (Exception e)
+/*      */           {
+/*      */             String userName;
+/*      */             String con;
+/*      */             JSONObject ret3;
+/*  461 */             e.printStackTrace();
+/*      */           }
+/*      */         }
+/*      */       };
+/*  465 */       runnable.run();
+/*  466 */       if (chResult == 1)
+/*  467 */         s.setStatus("ok");
+/*      */       else {
+/*  469 */         s.setStatus("error");
+/*      */       }
+/*  471 */       if (flag.intValue() == 3) {
+/*  472 */         file1.setStatus("ok");
+/*  473 */         return file1;
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  476 */       e.printStackTrace();
+/*  477 */       s.setStatus("error");
+/*      */     }
+/*  479 */     return s;
+/*      */   }
+/*      */ 
+/*      */   @Transactional(readOnly=false)
+/*      */   public List<ImMessageModel> getImChatList(HttpServletRequest request, String ofFrom)
+/*      */     throws FileNotFoundException, IOException, LineUnavailableException, UnsupportedAudioFileException
+/*      */   {
+/*  498 */     List datas = null;
+/*      */ 
+/*  500 */     String company = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  502 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/*      */ 
+/*  504 */     String osName = System.getProperty("os.name");
+/*  505 */     StringBuffer sb = new StringBuffer();
+/*  506 */     if (osName.toLowerCase().startsWith("win"))
+/*  507 */       sb = sb.append(rb.getString("upload.win"));
+/*      */     else {
+/*  509 */       sb = sb.append(rb.getString("upload.linux"));
+/*      */     }
+/*      */ 
+/*  513 */     List list = new ArrayList();
+/*  514 */     list.add(ofFrom);
+/*      */ 
+/*  516 */     Map map = new HashMap();
+/*  517 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  518 */     map.put("ofFrom", ofFrom);
+/*  519 */     map.put("uid", user.getUid());
+/*  520 */     datas = this.chatDataDao.getChatListByFrom(map);
+/*  521 */     List icm = new ArrayList();
+/*  522 */     List iclmList = new ArrayList();
+/*  523 */     for (int i = 0; i < datas.size(); i++) {
+/*  524 */       ImChatData icmSingle = (ImChatData)datas.get(i);
+/*  525 */       List imlist = new ArrayList();
+/*  526 */       if (icmSingle.getMsgType().equals("1")) {
+/*  527 */         Map paramMap = new HashMap();
+/*  528 */         paramMap.put("uid", user.getUid());
+/*  529 */         paramMap.put("roomOf", icmSingle.getToUid());
+/*  530 */         ImRoom room = this.roomDao.selRoomByRoomOfUid(paramMap);
+/*  531 */         if (room == null) {
+/*  532 */           datas.remove(i);
+/*  533 */           i--;
+/*  534 */           continue;
+/*      */         }
+/*  536 */         icmSingle.setToUserName(room.getRnamr());
+/*      */       }
+/*      */       else {
+/*  539 */         Users toUser = this.usersMapper.getUserByUid(Integer.valueOf(icmSingle.getToUid()).intValue());
+/*  540 */         if (toUser != null) {
+/*  541 */           icmSingle.setToUserName(toUser.getUserName());
+/*      */         }
+/*      */       }
+/*      */ 
+/*  545 */       Map mapLastMessage = new HashMap();
+/*  546 */       mapLastMessage.put("uuid", icmSingle.getUuid());
+/*  547 */       ImMessage im = this.messageDao.getMessageByLast(mapLastMessage);
+/*  548 */       if (im != null) {
+/*  549 */         ImMessageModel iclm = new ImMessageModel();
+/*  550 */         if (icmSingle.getMsgType().equals("1")) {
+/*  551 */           iclm.setPhoto("/img/im/groupchat.png");
+/*  552 */           iclm.setGroupMessage(this.messageDao.getAllGroupMessage(icmSingle.getOfTo()));
+/*      */         }
+/*  554 */         iclm.setContent(icmSingle.getLastContent());
+/*  555 */         iclm.setFrom_uid(icmSingle.getFromUid());
+/*  556 */         iclm.setTo_uid(icmSingle.getToUid());
+/*  557 */         iclm.setOf_from(icmSingle.getOfFrom());
+/*  558 */         iclm.setOf_to(icmSingle.getOfTo());
+/*  559 */         iclm.setTime(icmSingle.getLastTime());
+/*  560 */         iclm.setUuid(im.getUuid());
+/*  561 */         iclm.setType(icmSingle.getType());
+/*  562 */         iclm.setList_id(icmSingle.getListId());
+/*  563 */         iclm.setMsg_type(icmSingle.getMsgType());
+/*  564 */         iclm.setFormUserName(icmSingle.getFromUserName());
+/*  565 */         iclm.setToUserName(icmSingle.getToUserName());
+/*  566 */         String severpath = request.getRealPath("");
+/*      */ 
+/*  568 */         Files file1 = new Files();
+/*  569 */         int fileid = -1;
+/*  570 */         if (!StringUtils.checkNull(im.getFileId()).booleanValue()) {
+/*  571 */           fileid = Integer.parseInt(im.getFileId());
+/*      */         }
+/*  573 */         Attachment tee = this.attachmentMapper.selectByPrimaryKey(Integer.valueOf(fileid));
+/*  574 */         if (tee != null) {
+/*      */           try {
+/*  576 */             String path = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + company + System.getProperty("file.separator") + "im" + System.getProperty("file.separator") + tee.getYm() + System.getProperty("file.separator") + tee.getAttachId() + "." + tee.getAttachName();
+/*      */ 
+/*  578 */             String fileStr = "AID=" + tee.getAid() + "&" + "MODULE=" + "im" + "&" + "COMPANY=" + company + "&" + "YM=" + tee.getYm() + "&" + "ATTACHMENT_ID=" + tee.getAttachId() + "&" + "ATTACHMENT_NAME=" + tee.getAttachName();
+/*      */ 
+/*  580 */             if ("img".equals(im.getType())) {
+/*  581 */               String port = String.valueOf(request.getServerPort());
+/*      */ 
+/*  583 */               File picture = new File(path);
+/*  584 */               File thmpicture = new File(path);
+/*  585 */               FileInputStream fis = new FileInputStream(picture);
+/*  586 */               FileInputStream thmfis = new FileInputStream(thmpicture);
+/*      */ 
+/*  588 */               long size = fis.getChannel().size();
+/*  589 */               long thmsize = thmfis.getChannel().size();
+/*  590 */               BufferedImage sourceImg = ImageIO.read(fis);
+/*  591 */               BufferedImage thmsourceImg = ImageIO.read(thmfis);
+/*  592 */               file1.setFile_url(fileStr);
+/*  593 */               double size_k = size / 1024L;
+/*  594 */               BigDecimal l = new BigDecimal(Double.toString(size_k));
+/*  595 */               double res = l.setScale(2, 4).doubleValue();
+/*  596 */               long ress = 0L;
+/*  597 */               if ((size_k < 1024.0D) && (size_k > 0.0D)) {
+/*  598 */                 if (Math.round(res) - res == 0.0D) {
+/*  599 */                   ress = (long)res;
+/*      */                 }
+/*  601 */                 file1.setFile_size(String.valueOf(ress) + "KB");
+/*  602 */               } else if (size_k >= 1024.0D) {
+/*  603 */                 double size_m = size_k / 1024.0D;
+/*  604 */                 BigDecimal lm = new BigDecimal(Double.toString(size_k));
+/*  605 */                 double res_m = l.setScale(2, 4).doubleValue();
+/*  606 */                 long resss = 0L;
+/*  607 */                 if (Math.round(res_m) - res_m == 0.0D) {
+/*  608 */                   resss = (long) res_m;
+/*      */                 }
+/*  610 */                 file1.setFile_size(String.valueOf(resss) + "MB");
+/*      */               }
+/*  612 */               file1.setFile_width(String.valueOf(sourceImg.getWidth()));
+/*  613 */               file1.setFile_height(String.valueOf(sourceImg.getHeight()));
+/*  614 */               file1.setThumbnail_url(fileStr);
+/*  615 */               if ((size_k < 1024.0D) && (size_k > 0.0D)) {
+/*  616 */                 if (Math.round(res) - res == 0.0D) {
+/*  617 */                   ress = (long)res;
+/*      */                 }
+/*  619 */                 file1.setThumbnail_size(String.valueOf(ress) + "KB");
+/*  620 */               } else if (size_k >= 1024.0D) {
+/*  621 */                 double size_m = size_k / 1024.0D;
+/*  622 */                 BigDecimal lm = new BigDecimal(Double.toString(size_k));
+/*  623 */                 double res_m = l.setScale(2, 4).doubleValue();
+/*  624 */                 long resss = 0L;
+/*  625 */                 if (Math.round(res_m) - res_m == 0.0D) {
+/*  626 */                   resss = (long)res_m;
+/*      */                 }
+/*  628 */                 file1.setThumbnail_size(String.valueOf(resss) + "MB");
+/*      */               }
+/*  630 */               file1.setThumbnail_width(String.valueOf(thmsourceImg.getHeight()));
+/*  631 */               file1.setThumbnail_height(String.valueOf(thmsourceImg.getWidth()));
+/*      */             }
+/*      */ 
+/*  634 */             if ("voice".equals(im.getType())) {
+/*  635 */               String port = String.valueOf(request.getServerPort());
+/*      */ 
+/*  637 */               file1.setFile_url(fileStr);
+/*  638 */               file1.setVoice_time(im.getThumbnailUrl());
+/*      */             }
+/*      */ 
+/*  641 */             if ("file".equals(im.getType()))
+/*      */             {
+/*  643 */               String port = String.valueOf(request.getServerPort());
+/*      */ 
+/*  645 */               file1.setFile_url(fileStr);
+/*  646 */               file1.setFile_name(im.getFileName());
+/*  647 */               file1.setFile_type(tee.getAttachName().substring(tee.getAttachName().lastIndexOf(".") + 1));
+/*  648 */               File picture = new File(path);
+/*  649 */               FileInputStream fis = new FileInputStream(picture);
+/*  650 */               long size = fis.getChannel().size();
+/*  651 */               double size_k = size / 1024L;
+/*  652 */               BigDecimal l = new BigDecimal(Double.toString(size_k));
+/*  653 */               double res = l.setScale(2, 4).doubleValue();
+/*  654 */               long ress = 0L;
+/*  655 */               if ((size_k < 1024.0D) && (size_k > 0.0D)) {
+/*  656 */                 if (Math.round(res) - res == 0.0D) {
+/*  657 */                   ress = (long)res;
+/*      */                 }
+/*  659 */                 file1.setFile_size(String.valueOf(ress) + "KB");
+/*  660 */               } else if (size_k >= 1024.0D) {
+/*  661 */                 double size_m = size_k / 1024.0D;
+/*  662 */                 BigDecimal lm = new BigDecimal(Double.toString(size_k));
+/*  663 */                 double res_m = l.setScale(2, 4).doubleValue();
+/*  664 */                 long resss = 0L;
+/*  665 */                 if (Math.round(res_m) - res_m == 0.0D) {
+/*  666 */                   resss = (long)res_m;
+/*      */                 }
+/*  668 */                 file1.setFile_size(String.valueOf(resss) + "MB");
+/*      */               }
+/*      */             }
+/*      */           } catch (Exception e) {
+/*  672 */             e.printStackTrace();
+/*      */           }
+/*      */         }
+/*  675 */         iclm.setFile(file1);
+/*  676 */         iclmList.add(iclm);
+/*      */       }
+/*      */     }
+/*      */ 
+/*  680 */     return iclmList;
+/*      */   }
+/*      */ 
+/*      */   @Transactional(readOnly=false)
+/*      */   public List<ImMessageModel> getImChatList1(HttpServletRequest request, String ofFrom) throws FileNotFoundException, IOException, LineUnavailableException, UnsupportedAudioFileException {
+/*  686 */     List datas = null;
+/*      */ 
+/*  688 */     String company = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  690 */     String sqlType = (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  692 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  693 */     int str = users.getUid().intValue();
+/*  694 */     ImMessageModel messageModel = new ImMessageModel();
+/*  695 */     messageModel.setSqlType(sqlType);
+/*  696 */     messageModel.setStr(str);
+/*  697 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/*      */ 
+/*  699 */     String osName = System.getProperty("os.name");
+/*  700 */     StringBuffer sb = new StringBuffer();
+/*  701 */     if (osName.toLowerCase().startsWith("win"))
+/*  702 */       sb = sb.append(rb.getString("upload.win"));
+/*      */     else {
+/*  704 */       sb = sb.append(rb.getString("upload.linux"));
+/*      */     }
+/*      */ 
+/*  708 */     List list = new ArrayList();
+/*  709 */     list.add(ofFrom);
+/*      */ 
+/*  711 */     Map map = new HashMap();
+/*  712 */     map.put("ofFrom", ofFrom);
+/*  713 */     datas = this.chatDataDao.getChatList(map);
+/*  714 */     List icm = new ArrayList();
+/*  715 */     List iclmList = new ArrayList();
+/*  716 */     for (int i = 0; i < datas.size(); i++) {
+/*  717 */       ImChatData icmSingle = (ImChatData)datas.get(i);
+/*  718 */       List imlist = new ArrayList();
+/*      */ 
+/*  720 */       Map mapLastMessage = new HashMap();
+/*  721 */       mapLastMessage.put("uuid", icmSingle.getUuid());
+/*  722 */       ImMessage im = this.messageDao.getLastMessage(mapLastMessage);
+/*  723 */       ImMessageModel iclm = new ImMessageModel();
+/*  724 */       iclm.setContent(icmSingle.getLastContent());
+/*  725 */       iclm.setFrom_uid(icmSingle.getFromUid());
+/*  726 */       iclm.setTo_uid(icmSingle.getToUid());
+/*  727 */       iclm.setOf_from(icmSingle.getOfFrom());
+/*  728 */       iclm.setOf_to(icmSingle.getOfTo());
+/*  729 */       iclm.setTime(icmSingle.getLastTime());
+/*  730 */       if (im != null) {
+/*  731 */         iclm.setUuid(im.getUuid());
+/*      */       }
+/*  733 */       iclm.setType(icmSingle.getType());
+/*  734 */       iclm.setList_id(icmSingle.getListId());
+/*  735 */       iclm.setMsg_type(icmSingle.getMsgType());
+/*  736 */       iclm.setFormUserName(icmSingle.getFromUserName());
+/*  737 */       iclm.setToUserName(icmSingle.getToUserName());
+/*  738 */       iclm.setSqlType(messageModel.getSqlType());
+/*  739 */       iclm.setStr(messageModel.getStr());
+/*  740 */       String severpath = request.getRealPath("");
+/*      */ 
+/*  742 */       Files file1 = new Files();
+/*  743 */       int fileid = -1;
+/*  744 */       if ((im != null) && (!StringUtils.checkNull(im.getFileId()).booleanValue())) {
+/*  745 */         fileid = Integer.parseInt(im.getFileId());
+/*      */       }
+/*  747 */       Attachment tee = this.attachmentMapper.selectByPrimaryKey(Integer.valueOf(fileid));
+/*  748 */       if (tee != null) {
+/*  749 */         String path = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + company + System.getProperty("file.separator") + "im" + System.getProperty("file.separator") + tee.getYm() + System.getProperty("file.separator") + tee.getAttachId() + "." + tee.getAttachName();
+/*      */ 
+/*  751 */         String fileStr = "AID=" + tee.getAid() + "&" + "MODULE=" + "im" + "&" + "COMPANY=" + company + "&" + "YM=" + tee.getYm() + "&" + "ATTACHMENT_ID=" + tee.getAttachId() + "&" + "ATTACHMENT_NAME=" + tee.getAttachName();
+/*      */ 
+/*  766 */         if (im != null) {
+/*  767 */           if ("img".equals(im.getType()))
+/*      */           {
+/*  769 */             String port = String.valueOf(request.getServerPort());
+/*      */ 
+/*  771 */             File picture = new File(path);
+/*  772 */             File thmpicture = new File(path);
+/*  773 */             FileInputStream fis = new FileInputStream(picture);
+/*  774 */             FileInputStream thmfis = new FileInputStream(thmpicture);
+/*      */ 
+/*  776 */             long size = fis.getChannel().size();
+/*  777 */             long thmsize = thmfis.getChannel().size();
+/*  778 */             BufferedImage sourceImg = ImageIO.read(fis);
+/*  779 */             BufferedImage thmsourceImg = ImageIO.read(thmfis);
+/*  780 */             file1.setFile_url(fileStr);
+/*  781 */             double size_k = size / 1024L;
+/*  782 */             BigDecimal l = new BigDecimal(Double.toString(size_k));
+/*  783 */             double res = l.setScale(2, 4).doubleValue();
+/*  784 */             long ress = 0L;
+/*  785 */             if ((size_k < 1024.0D) && (size_k > 0.0D)) {
+/*  786 */               if (Math.round(res) - res == 0.0D) {
+/*  787 */                 ress = (long)res;
+/*      */               }
+/*  789 */               file1.setFile_size(String.valueOf(ress) + "KB");
+/*  790 */             } else if (size_k >= 1024.0D) {
+/*  791 */               double size_m = size_k / 1024.0D;
+/*  792 */               BigDecimal lm = new BigDecimal(Double.toString(size_k));
+/*  793 */               double res_m = l.setScale(2, 4).doubleValue();
+/*  794 */               long resss = 0L;
+/*  795 */               if (Math.round(res_m) - res_m == 0.0D) {
+/*  796 */                 resss = (long)res_m;
+/*      */               }
+/*  798 */               file1.setFile_size(String.valueOf(resss) + "MB");
+/*      */             }
+/*  800 */             file1.setFile_width(String.valueOf(sourceImg.getWidth()));
+/*  801 */             file1.setFile_height(String.valueOf(sourceImg.getHeight()));
+/*  802 */             file1.setThumbnail_url(fileStr);
+/*  803 */             if ((size_k < 1024.0D) && (size_k > 0.0D)) {
+/*  804 */               if (Math.round(res) - res == 0.0D) {
+/*  805 */                 ress = (long)res;
+/*      */               }
+/*  807 */               file1.setThumbnail_size(String.valueOf(ress) + "KB");
+/*  808 */             } else if (size_k >= 1024.0D) {
+/*  809 */               double size_m = size_k / 1024.0D;
+/*  810 */               BigDecimal lm = new BigDecimal(Double.toString(size_k));
+/*  811 */               double res_m = l.setScale(2, 4).doubleValue();
+/*  812 */               long resss = 0L;
+/*  813 */               if (Math.round(res_m) - res_m == 0.0D) {
+/*  814 */                 resss = (long)res_m;
+/*      */               }
+/*  816 */               file1.setThumbnail_size(String.valueOf(resss) + "MB");
+/*      */             }
+/*  818 */             file1.setThumbnail_width(String.valueOf(thmsourceImg.getHeight()));
+/*  819 */             file1.setThumbnail_height(String.valueOf(thmsourceImg.getWidth()));
+/*      */           }
+/*      */ 
+/*  822 */           if ("voice".equals(im.getType()))
+/*      */           {
+/*  824 */             String port = String.valueOf(request.getServerPort());
+/*      */ 
+/*  826 */             file1.setFile_url(fileStr);
+/*  827 */             file1.setVoice_time(im.getThumbnailUrl());
+/*      */           }
+/*      */ 
+/*  830 */           if ("file".equals(im.getType()))
+/*      */           {
+/*  832 */             String port = String.valueOf(request.getServerPort());
+/*      */ 
+/*  834 */             file1.setFile_url(fileStr);
+/*  835 */             file1.setFile_name(im.getFileName());
+/*  836 */             file1.setFile_type(tee.getAttachName().substring(tee.getAttachName().lastIndexOf(".") + 1));
+/*  837 */             File picture = new File(path);
+/*  838 */             FileInputStream fis = new FileInputStream(picture);
+/*  839 */             long size = fis.getChannel().size();
+/*  840 */             double size_k = size / 1024L;
+/*  841 */             BigDecimal l = new BigDecimal(Double.toString(size_k));
+/*  842 */             double res = l.setScale(2, 4).doubleValue();
+/*  843 */             long ress = 0L;
+/*  844 */             if ((size_k < 1024.0D) && (size_k > 0.0D)) {
+/*  845 */               if (Math.round(res) - res == 0.0D) {
+/*  846 */                 ress = (long)res;
+/*      */               }
+/*  848 */               file1.setFile_size(String.valueOf(ress) + "KB");
+/*  849 */             } else if (size_k >= 1024.0D) {
+/*  850 */               double size_m = size_k / 1024.0D;
+/*  851 */               BigDecimal lm = new BigDecimal(Double.toString(size_k));
+/*  852 */               double res_m = l.setScale(2, 4).doubleValue();
+/*  853 */               long resss = 0L;
+/*  854 */               if (Math.round(res_m) - res_m == 0.0D) {
+/*  855 */                 resss = (long)res_m;
+/*      */               }
+/*  857 */               file1.setFile_size(String.valueOf(resss) + "MB");
+/*      */             }
+/*      */           }
+/*      */         }
+/*      */       }
+/*  862 */       iclm.setFile(file1);
+/*  863 */       iclmList.add(iclm);
+/*      */     }
+/*      */ 
+/*  867 */     return iclmList;
+/*      */   }
+/*      */ 
+/*      */   @Transactional(readOnly=false)
+/*      */   public ToJson<ImMessage> rollBackMessage(String uuid)
+/*      */   {
+/*  881 */     ToJson json = new ToJson(1, "error");
+/*  882 */     if (StringUtils.checkNull(uuid).booleanValue()) {
+/*  883 */       json.setMsg("缺少必要参数uuid");
+/*  884 */       return json;
+/*      */     }
+/*      */     try {
+/*  887 */       Map map = new HashMap();
+/*  888 */       map.put("uuid", uuid);
+/*  889 */       map.put("type", "withdraw");
+/*  890 */       int count = this.messageDao.upMessageByType(map);
+/*  891 */       if (count > 0) {
+/*  892 */         json.setFlag(0);
+/*  893 */         json.setMsg("ok");
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  896 */       e.printStackTrace();
+/*      */     }
+/*  898 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @Transactional(readOnly=false)
+/*      */   public ToJson<ImMessageModel> showMessageList(HttpServletRequest request, String from_uid, String to_uid, String last_time, String msg_type, Integer pagenum)
+/*      */     throws FileNotFoundException, IOException, LineUnavailableException, UnsupportedAudioFileException
+/*      */   {
+/*  919 */     ToJson toJson = new ToJson();
+/*  920 */     List list = new ArrayList();
+/*      */ 
+/*  941 */     String checkResult = StringUtils.checkNullUtils(new CheckCallBack()
+/*      */     {
+/*      */       public boolean isNull(Object obj)
+/*      */       {
+/*  946 */         if ((obj instanceof String)) {
+/*  947 */           String a = (String)obj;
+/*  948 */           if ((a == null) || ("".equals(a)) || (a.length() == 0))
+/*      */           {
+/*  950 */             return true;
+/*      */           }
+/*      */         }
+/*  952 */         if ((obj instanceof Integer)) {
+/*  953 */           Integer a = (Integer)obj;
+/*  954 */           if (a == null)
+/*  955 */             return true;
+/*      */         }
+/*  957 */         return false;
+/*      */       }
+/*      */     }
+/*      */     , new Object[] { to_uid, "to_uid不能为空", last_time, "last_time不能为空" });
+/*      */ 
+/*  961 */     if (checkResult != null) {
+/*  962 */       toJson.setMsg(checkResult);
+/*  963 */       return toJson;
+/*      */     }
+/*  965 */     List<ImMessage> datas = null;
+/*  966 */     Map map = new HashMap();
+/*  967 */     map.put("fromId", from_uid);
+/*  968 */     map.put("lastTime", Double.valueOf(Double.parseDouble(last_time)));
+/*  969 */     map.put("toId", to_uid);
+/*      */ 
+/*  972 */     PageParams pageParams = new PageParams();
+/*  973 */     pageParams.setUseFlag(Boolean.valueOf(true));
+/*  974 */     pageParams.setPage(pagenum);
+/*  975 */     pageParams.setPageSize(Integer.valueOf(30));
+/*  976 */     map.put("page", pageParams);
+/*  977 */     if ("0".equals(msg_type))
+/*  978 */       datas = this.messageDao.selectMessageByPage(map);
+/*      */     else {
+/*  980 */       datas = this.messageDao.getGroupMessage(map);
+/*      */     }
+/*      */ 
+/*  984 */     String company = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  986 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/*      */ 
+/*  988 */     String osName = System.getProperty("os.name");
+/*  989 */     StringBuffer sb = new StringBuffer();
+/*  990 */     if (osName.toLowerCase().startsWith("win"))
+/*  991 */       sb = sb.append(rb.getString("upload.win"));
+/*      */     else {
+/*  993 */       sb = sb.append(rb.getString("upload.linux"));
+/*      */     }
+/*  995 */     for (ImMessage im : datas) {
+/*  996 */       Files file1 = new Files();
+/*  997 */       Attachment tee = null;
+/*  998 */       if ((im.getFileId() != null) && (!"".equals(im.getFileId()))) {
+/*  999 */         tee = this.attachmentMapper.selectByPrimaryKey(Integer.valueOf(Integer.parseInt(im.getFileId())));
+/*      */       }
+/* 1001 */       if (tee != null) {
+/* 1002 */         String path = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + company + System.getProperty("file.separator") + "im" + System.getProperty("file.separator") + tee.getYm() + System.getProperty("file.separator") + tee.getAttachId() + "." + tee.getAttachName();
+/*      */ 
+/* 1004 */         String fileStr = "AID=" + tee.getAid() + "&" + "MODULE=" + "im" + "&" + "COMPANY=" + company + "&" + "YM=" + tee.getYm() + "&" + "ATTACHMENT_ID=" + tee.getAttachId() + "&" + "ATTACHMENT_NAME=" + tee.getAttachName();
+/* 1005 */         String size1 = im.getThumbnailUrl();
+/* 1006 */         String size = "";
+/* 1007 */         String[] aStrings = size1.split("&");
+/* 1008 */         for (int i = 0; i < aStrings.length; i++) {
+/* 1009 */           if (aStrings[i].contains("FILESIZE")) {
+/* 1010 */             String[] s = aStrings[i].split("=");
+/* 1011 */             size = s[1];
+/* 1012 */             break;
+/*      */           }
+/*      */         }
+/* 1015 */         if ("img".equals(im.getType())) {
+/*      */           try {
+/* 1017 */             String port = String.valueOf(request.getServerPort());
+/* 1018 */             File picture = new File(path);
+/* 1019 */             File thmpicture = new File(path);
+/* 1020 */             FileInputStream fis = new FileInputStream(picture);
+/* 1021 */             FileInputStream thmfis = new FileInputStream(thmpicture);
+/*      */ 
+/* 1024 */             long thmsize = thmfis.getChannel().size();
+/* 1025 */             BufferedImage sourceImg = ImageIO.read(fis);
+/* 1026 */             BufferedImage thmsourceImg = ImageIO.read(thmfis);
+/* 1027 */             file1.setFile_url(fileStr);
+/* 1028 */             file1.setFile_size(size);
+/* 1029 */             file1.setFile_name(tee.getAttachName());
+/* 1030 */             file1.setFile_width(String.valueOf(sourceImg.getWidth()));
+/* 1031 */             file1.setFile_height(String.valueOf(sourceImg.getHeight()));
+/* 1032 */             file1.setThumbnail_url(fileStr);
+/* 1033 */             file1.setThumbnail_size(size);
+/* 1034 */             file1.setThumbnail_width(String.valueOf(thmsourceImg.getHeight()));
+/* 1035 */             file1.setThumbnail_height(String.valueOf(thmsourceImg.getWidth()));
+/* 1036 */             fis.close();
+/*      */           }
+/*      */           catch (Exception e)
+/*      */           {
+/*      */           }
+/*      */ 
+/*      */         }
+/*      */ 
+/* 1045 */         if ("voice".equals(im.getType()))
+/*      */         {
+/* 1047 */           String port = String.valueOf(request.getServerPort());
+/* 1048 */           file1.setFile_url(fileStr);
+/* 1049 */           file1.setVoice_time(im.getThumbnailUrl());
+/*      */         }
+/*      */ 
+/* 1052 */         if ("file".equals(im.getType())) {
+/*      */           try {
+/* 1054 */             String port = String.valueOf(request.getServerPort());
+/* 1055 */             file1.setFile_url(fileStr);
+/* 1056 */             file1.setFile_name(tee.getAttachName());
+/* 1057 */             file1.setFile_type(tee.getAttachName().substring(tee.getAttachName().lastIndexOf(".") + 1));
+/* 1058 */             File picture = new File(path);
+/* 1059 */             FileInputStream fis = new FileInputStream(picture);
+/* 1060 */             file1.setFile_size(size);
+/* 1061 */             fis.close();
+/*      */           }
+/*      */           catch (Exception e)
+/*      */           {
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */ 
+/* 1069 */       String fromUserName = this.usersService.findUserByuid(Integer.parseInt(im.getFromUid())).getUserName();
+/* 1070 */       String toUserName = "";
+/* 1071 */       if ("0".equals(msg_type)) {
+/* 1072 */         toUserName = this.usersService.findUserByuid(Integer.parseInt(im.getToUid())).getUserName();
+/*      */       } else {
+/* 1074 */         Map room = new HashMap();
+/* 1075 */         room.put("roomOf", im.getToUid());
+/* 1076 */         if (this.roomDao.getRoomByRoomOf(room) != null) {
+/* 1077 */           toUserName = this.roomDao.getRoomByRoomOf(room).getRnamr();
+/*      */         }
+/*      */       }
+/* 1080 */       ImMessageModel imm = new ImMessageModel(im.getFromUid(), im.getToUid(), im.getOfFrom(), im.getContent(), im.getOfTo(), im.getUuid(), im.getType(), file1, im.getStime());
+/*      */ 
+/* 1089 */       imm.setFormUserName(fromUserName);
+/* 1090 */       imm.setToUserName(toUserName);
+/* 1091 */       imm.setMsg_type(im.getMsgType());
+/* 1092 */       list.add(imm);
+/*      */     }
+/*      */ 
+/* 1095 */     toJson.setTotleNum(pageParams.getTotal());
+/* 1096 */     toJson.setFlag(0);
+/* 1097 */     toJson.setObj(list);
+/* 1098 */     toJson.setMsg("ok");
+/*      */ 
+/* 1100 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   @Transactional(readOnly=false)
+/*      */   public ToJson<ImMessageModel> showMessageListRiLeGou(HttpServletRequest request, String from_uid, String to_uid, String last_time, String msg_type, Integer pagenum, String type, String fileName, String searchMsg) throws FileNotFoundException, IOException, LineUnavailableException, UnsupportedAudioFileException {
+/* 1106 */     ToJson toJson = new ToJson();
+/* 1107 */     List list = new ArrayList();
+/* 1108 */     String checkResult = StringUtils.checkNullUtils(new CheckCallBack()
+/*      */     {
+/*      */       public boolean isNull(Object obj)
+/*      */       {
+/* 1113 */         if ((obj instanceof String)) {
+/* 1114 */           String a = (String)obj;
+/* 1115 */           if ((a == null) || ("".equals(a)) || (a.length() == 0))
+/*      */           {
+/* 1117 */             return true;
+/*      */           }
+/*      */         }
+/* 1119 */         if ((obj instanceof Integer)) {
+/* 1120 */           Integer a = (Integer)obj;
+/* 1121 */           if (a == null)
+/* 1122 */             return true;
+/*      */         }
+/* 1124 */         return false;
+/*      */       }
+/*      */     }
+/*      */     , new Object[] { to_uid, "to_uid不能为空", last_time, "last_time不能为空" });
+/*      */ 
+/* 1128 */     if (checkResult != null) {
+/* 1129 */       return null;
+/*      */     }
+/*      */ 
+/* 1142 */     List<ImMessage> datas = null;
+/* 1143 */     Map map = new HashMap();
+/* 1144 */     map.put("fromId", from_uid);
+/* 1145 */     map.put("lastTime", last_time);
+/* 1146 */     map.put("toId", to_uid);
+/* 1147 */     map.put("type", type);
+/* 1148 */     map.put("fileName", fileName);
+/* 1149 */     map.put("searchMsg", searchMsg);
+/*      */ 
+/* 1152 */     PageParams pageParams = new PageParams();
+/* 1153 */     pageParams.setUseFlag(Boolean.valueOf(true));
+/* 1154 */     pageParams.setPage(pagenum);
+/* 1155 */     pageParams.setPageSize(Integer.valueOf(30));
+/* 1156 */     map.put("page", pageParams);
+/*      */ 
+/* 1158 */     if ("0".equals(msg_type))
+/* 1159 */       datas = this.messageDao.selectMessageByPage(map);
+/*      */     else {
+/* 1161 */       datas = this.messageDao.getGroupMessage(map);
+/*      */     }
+/*      */ 
+/* 1165 */     String company = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/* 1167 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/*      */ 
+/* 1169 */     String osName = System.getProperty("os.name");
+/* 1170 */     StringBuffer sb = new StringBuffer();
+/* 1171 */     if (osName.toLowerCase().startsWith("win"))
+/* 1172 */       sb = sb.append(rb.getString("upload.win"));
+/*      */     else {
+/* 1174 */       sb = sb.append(rb.getString("upload.linux"));
+/*      */     }
+/* 1176 */     for (ImMessage im : datas)
+/*      */     {
+/* 1180 */       Files file1 = new Files();
+/*      */ 
+/* 1186 */       Attachment realTee = null;
+/* 1187 */       Attachment thumBanllTee = null;
+/*      */ 
+/* 1192 */       if ((!StringUtils.checkNull(im.getRealUrl()).booleanValue()) && (im.getRealUrl().contains("&"))) {
+/* 1193 */         String[] aidStr = im.getRealUrl().split("&");
+/* 1194 */         if ((aidStr.length > 1) && (aidStr[0].contains("="))) {
+/* 1195 */           String[] aidArr = aidStr[0].split("=");
+/* 1196 */           if (aidArr.length > 0) {
+/* 1197 */             realTee = this.attachmentMapper.selectByPrimaryKey(Integer.valueOf(Integer.parseInt(aidArr[1])));
+/*      */           }
+/*      */         }
+/*      */       }
+/* 1201 */       if ((!StringUtils.checkNull(im.getThumbnailUrl()).booleanValue()) && (im.getThumbnailUrl().contains("&"))) {
+/* 1202 */         String[] aidStr = im.getThumbnailUrl().split("&");
+/* 1203 */         if ((aidStr.length > 1) && (aidStr[0].contains("="))) {
+/* 1204 */           String[] aidArr = aidStr[0].split("=");
+/* 1205 */           if (aidArr.length > 0) {
+/* 1206 */             thumBanllTee = this.attachmentMapper.selectByPrimaryKey(Integer.valueOf(Integer.parseInt(aidArr[1])));
+/*      */           }
+/*      */         }
+/*      */       }
+/* 1210 */       if (!"img".equals(im.getType())) {
+/* 1211 */         String[] aidStr = im.getThumbnailUrl().split("&");
+/* 1212 */         if ((aidStr.length > 1) && (aidStr[0].contains("="))) {
+/* 1213 */           String[] aidArr = aidStr[0].split("=");
+/* 1214 */           if (aidArr.length > 0) {
+/* 1215 */             realTee = this.attachmentMapper.selectByPrimaryKey(Integer.valueOf(Integer.parseInt(aidArr[1])));
+/*      */           }
+/*      */         }
+/*      */       }
+/* 1219 */       if (realTee != null) {
+/* 1220 */         String realPath = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + company + System.getProperty("file.separator") + "im" + System.getProperty("file.separator") + realTee.getYm() + System.getProperty("file.separator") + realTee.getAttachId() + "." + realTee.getAttachName();
+/*      */ 
+/* 1222 */         String realFileStr = "AID=" + realTee.getAid() + "&" + "MODULE=" + "im" + "&" + "COMPANY=" + company + "&" + "YM=" + realTee.getYm() + "&" + "ATTACHMENT_ID=" + realTee.getAttachId() + "&" + "ATTACHMENT_NAME=" + realTee.getAttachName();
+/*      */ 
+/* 1224 */         String thumbnailSize = im.getThumbnailUrl();
+/* 1225 */         String[] thumbnailSizeArr = thumbnailSize.split("&");
+/* 1226 */         for (int i = 0; i < thumbnailSizeArr.length; i++) {
+/* 1227 */           if (thumbnailSizeArr[i].contains("FILESIZE")) {
+/* 1228 */             String[] s = thumbnailSizeArr[i].split("=");
+/* 1229 */             thumbnailSize = s[1];
+/* 1230 */             break;
+/*      */           }
+/*      */         }
+/*      */ 
+/* 1234 */         String realSize = im.getRealUrl();
+/* 1235 */         String[] realSizeArr = realSize.split("&");
+/* 1236 */         for (int i = 0; i < realSizeArr.length; i++) {
+/* 1237 */           if (realSizeArr[i].contains("FILESIZE")) {
+/* 1238 */             String[] s = realSizeArr[i].split("=");
+/* 1239 */             realSize = s[1];
+/* 1240 */             break;
+/*      */           }
+/*      */         }
+/*      */ 
+/* 1244 */         if ("img".equals(im.getType())) {
+/*      */           try {
+/* 1246 */             String port = String.valueOf(request.getServerPort());
+/* 1247 */             File picture = new File(realPath);
+/* 1248 */             FileInputStream fis = new FileInputStream(picture);
+/*      */ 
+/* 1250 */             BufferedImage sourceImg = ImageIO.read(fis);
+/* 1251 */             file1.setFile_url(realFileStr);
+/* 1252 */             file1.setFile_size(realSize);
+/* 1253 */             file1.setFile_name(realTee.getAttachName());
+/* 1254 */             file1.setFile_width(String.valueOf(sourceImg.getWidth()));
+/* 1255 */             file1.setFile_height(String.valueOf(sourceImg.getHeight()));
+/* 1256 */             if (thumBanllTee != null) {
+/* 1257 */               String thumBanllPath = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + company + System.getProperty("file.separator") + "im" + System.getProperty("file.separator") + thumBanllTee.getYm() + System.getProperty("file.separator") + thumBanllTee.getAttachId() + "." + thumBanllTee.getAttachName();
+/*      */ 
+/* 1259 */               String thumBanllFileStr = "AID=" + thumBanllTee.getAid() + "&" + "MODULE=" + "im" + "&" + "COMPANY=" + company + "&" + "YM=" + thumBanllTee.getYm() + "&" + "ATTACHMENT_ID=" + thumBanllTee.getAttachId() + "&" + "ATTACHMENT_NAME=" + thumBanllTee.getAttachName();
+/* 1260 */               File thmpicture = new File(thumBanllPath);
+/* 1261 */               FileInputStream thmfis = new FileInputStream(thmpicture);
+/*      */ 
+/* 1263 */               BufferedImage thmsourceImg = ImageIO.read(thmfis);
+/* 1264 */               file1.setThumbnail_url(thumBanllFileStr);
+/* 1265 */               file1.setThumbnail_size(thumbnailSize);
+/* 1266 */               file1.setThumbnail_width(String.valueOf(thmsourceImg.getHeight()));
+/* 1267 */               file1.setThumbnail_height(String.valueOf(thmsourceImg.getWidth()));
+/*      */             }
+/* 1269 */             fis.close();
+/*      */           }
+/*      */           catch (Exception e) {
+/* 1272 */             e.printStackTrace();
+/*      */           }
+/*      */ 
+/*      */         }
+/*      */ 
+/* 1278 */         if ("voice".equals(im.getType()))
+/*      */         {
+/* 1280 */           String port = String.valueOf(request.getServerPort());
+/* 1281 */           file1.setFile_url(realFileStr);
+/* 1282 */           file1.setVoice_time(im.getThumbnailUrl());
+/*      */         }
+/*      */ 
+/* 1285 */         if ("file".equals(im.getType()))
+/*      */         {
+/* 1287 */           realSize = im.getThumbnailUrl();
+/* 1288 */           String[] realSizeArr2 = realSize.split("&");
+/* 1289 */           for (int i = 0; i < realSizeArr2.length; i++) {
+/* 1290 */             if (realSizeArr2[i].contains("FILESIZE")) {
+/* 1291 */               String[] s = realSizeArr2[i].split("=");
+/* 1292 */               realSize = s[1];
+/* 1293 */               break;
+/*      */             }
+/*      */           }
+/*      */           try
+/*      */           {
+/* 1298 */             String port = String.valueOf(request.getServerPort());
+/* 1299 */             file1.setFile_url(realFileStr);
+/* 1300 */             file1.setFile_name(realTee.getAttachName());
+/* 1301 */             file1.setFile_type(realTee.getAttachName().substring(realTee.getAttachName().lastIndexOf(".") + 1));
+/* 1302 */             File picture = new File(realPath);
+/* 1303 */             FileInputStream fis = new FileInputStream(picture);
+/* 1304 */             file1.setFile_size(realSize);
+/* 1305 */             fis.close();
+/*      */           }
+/*      */           catch (Exception e)
+/*      */           {
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */ 
+/* 1313 */       String fromUserName = this.usersService.findUserByuid(Integer.parseInt(im.getFromUid())).getUserName();
+/* 1314 */       String toUserName = "";
+/* 1315 */       if ("0".equals(msg_type)) {
+/* 1316 */         toUserName = this.usersService.findUserByuid(Integer.parseInt(im.getToUid())).getUserName();
+/*      */       } else {
+/* 1318 */         Map room = new HashMap();
+/* 1319 */         room.put("roomOf", im.getToUid());
+/* 1320 */         if (this.roomDao.getRoomByRoomOf(room) != null) {
+/* 1321 */           toUserName = this.roomDao.getRoomByRoomOf(room).getRnamr();
+/*      */         }
+/*      */       }
+/* 1324 */       ImMessageModel imm = new ImMessageModel(im.getFromUid(), im.getToUid(), im.getOfFrom(), im.getContent(), im.getOfTo(), im.getUuid(), im.getType(), file1, im.getStime());
+/*      */ 
+/* 1333 */       imm.setFormUserName(fromUserName);
+/* 1334 */       imm.setToUserName(toUserName);
+/* 1335 */       list.add(imm);
+/*      */     }
+/*      */     try {
+/* 1338 */       if ((type != null) && (type.trim().equals("img"))) {
+/* 1339 */         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+/* 1340 */         Map dataMap = new HashMap();
+/* 1341 */         Set data = null;
+/* 1342 */         List dateStrList = new ArrayList();
+/* 1343 */         List list2 = list;
+/* 1344 */         Iterator it = list.iterator();
+/* 1345 */         while (it.hasNext()) {
+/* 1346 */           data = new HashSet();
+/* 1347 */           ImMessageModel imMessageModel = (ImMessageModel)it.next();
+/*      */           long l;
+/*      */           //long l;
+/* 1349 */           if (imMessageModel.getTime().indexOf(".") > 0)
+/* 1350 */             l = Long.parseLong(imMessageModel.getTime().substring(0, imMessageModel.getTime().indexOf("."))) * 1000L;
+/*      */           else {
+/* 1352 */             l = Long.parseLong(imMessageModel.getTime()) * 1000L;
+/*      */           }
+/* 1354 */           Date parse = format.parse(format.format(Long.valueOf(l)));
+/* 1355 */           Calendar ca0 = Calendar.getInstance();
+/* 1356 */           ca0.setTime(parse);
+/* 1357 */           for (int j = 0; j < list2.size(); j++) {
+/* 1358 */             ImMessageModel imMessageModel1 = (ImMessageModel)list2.get(j);
+/*      */             long l2;
+/*      */             //long l2;
+/* 1360 */             if (imMessageModel.getTime().indexOf(".") > 0)
+/* 1361 */               l2 = Long.parseLong(imMessageModel.getTime().substring(0, imMessageModel.getTime().indexOf("."))) * 1000L;
+/*      */             else {
+/* 1363 */               l2 = Long.parseLong(imMessageModel.getTime()) * 1000L;
+/*      */             }
+/* 1365 */             Date date2 = format.parse(format.format(Long.valueOf(l2)));
+/* 1366 */             Calendar ca1 = Calendar.getInstance();
+/* 1367 */             ca1.setTime(date2);
+/*      */ 
+/* 1369 */             if ((ca0.get(1) == ca1.get(1)) && (ca0.get(2) == ca1.get(2)) && (ca0.get(5) == ca1.get(5)))
+/*      */             {
+/* 1372 */               data.add(imMessageModel);
+/* 1373 */               data.add(imMessageModel1);
+/*      */             } else {
+/* 1375 */               data.add(imMessageModel);
+/*      */             }
+/*      */           }
+/* 1378 */           String dateStr = ca0.get(1) + "-" + (ca0.get(2) + 1) + "-" + ca0.get(5);
+/* 1379 */           if (dataMap.get(dateStr) == null) {
+/* 1380 */             dateStrList.add(dateStr);
+/* 1381 */             dataMap.put(dateStr, data);
+/*      */           }
+/*      */         }
+/* 1384 */         toJson.setObj1(dateStrList);
+/* 1385 */         toJson.setObject(dataMap);
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 1388 */       e.printStackTrace();
+/*      */     }
+/*      */ 
+/* 1392 */     toJson.setTotleNum(pageParams.getTotal());
+/* 1393 */     toJson.setFlag(0);
+/* 1394 */     toJson.setObj(list);
+/* 1395 */     toJson.setMsg("ok");
+/*      */ 
+/* 1397 */     return toJson;
+/*      */   }
+/*      */   @Transactional(readOnly=false)
+/*      */   public List<ImRoomModel> getAllRoom(String of_from) {
+/* 1402 */     List<ImRoomModel> alist = new ArrayList();
+/* 1403 */     if ((of_from == null) || ("".equals(of_from))) {
+/* 1404 */       return null;
+/*      */     }
+/* 1406 */     Map map = new HashMap();
+/* 1407 */     map.put("roomOf", of_from);
+/* 1408 */     List<ImRoom> list = this.roomDao.getAllRoom(map);
+/*      */ 
+/* 1411 */     for (ImRoom ir : list)
+/*      */     {
+/* 1415 */       String[] rmemberUid = ir.getRmemberUid().split(",");
+/* 1416 */       List rmemberUidString = Arrays.asList(rmemberUid);
+/* 1417 */       ImRoomModel irm = new ImRoomModel(ir.getRnamr(), ir.getRsetOfid(), ir.getRmemberUid(), ir.getRoutUid(), ir.getRsetUid(), ir.getRsetOfid(), ir.getRtime(), rmemberUidString.contains(of_from) ? "1" : "0", ir.getRchange(), ir.getRinvite(), ir.getRoomOf(), ir.getRoomStatus());
+/*      */ 
+/* 1429 */       alist.add(irm);
+/*      */     }
+/* 1431 */     for (ImRoomModel imRoomModel : alist) {
+/* 1432 */       String name = this.usersService.findUsersByuidReturn(imRoomModel.getRmember_uid());
+/* 1433 */       String name1 = this.usersService.findUsersByuidReturn(imRoomModel.getRset_uid());
+/* 1434 */       imRoomModel.setRmemberUidName(name);
+/* 1435 */       imRoomModel.setRsetUidName(name1);
+/*      */     }
+/*      */ 
+/* 1438 */     return alist;
+/*      */   }
+/*      */ 
+/*      */   @Transactional(readOnly=false)
+/*      */   public ImRoomModel getSingleRoom(String room_id)
+/*      */   {
+/* 1452 */     Map map = new HashMap();
+/* 1453 */     map.put("roomOf", room_id);
+/* 1454 */     ImRoom irm = this.roomDao.getRoomByRoomOf(map);
+/* 1455 */     ImRoomModel ir = new ImRoomModel();
+/* 1456 */     if (irm != null) {
+/* 1457 */       ir = new ImRoomModel(irm.getRnamr(), irm.getRoomOf(), irm.getRmemberUid(), irm.getRoutUid(), irm.getRsetUid(), irm.getRsetOfid(), irm.getRtime(), "1", irm.getRchange(), irm.getRinvite(), irm.getRoomOf(), irm.getRoomStatus());
+/*      */     }
+/*      */ 
+/* 1460 */     return ir;
+/*      */   }
+/*      */   @Transactional(readOnly=false)
+/*      */   public Status openInvite(String room_id, String check) {
+/* 1465 */     Status s = new Status();
+/*      */     try {
+/* 1467 */       Map map = new HashMap();
+/* 1468 */       map.put("roomOf", room_id);
+/* 1469 */       map.put("check", check);
+/* 1470 */       int i = this.roomDao.roomUpdateInvite(map);
+/* 1471 */       if (i == 1)
+/* 1472 */         s.setStatus("ok");
+/*      */     }
+/*      */     catch (Exception e) {
+/* 1475 */       e.printStackTrace();
+/* 1476 */       s.setStatus("error");
+/*      */     }
+/* 1478 */     return s;
+/*      */   }
+/*      */ 
+/*      */   @Transactional(readOnly=false)
+/*      */   public Status insertRoom(String name, String set_uid, String set_of, String member_uid, String stime, String room_of)
+/*      */   {
+/* 1498 */     Status s = new Status();
+/*      */     try {
+/* 1500 */       ImRoom ir = new ImRoom();
+/* 1501 */       ir.setRnamr(name == null ? "" : name);
+/* 1502 */       ir.setRsetUid(set_uid == null ? "" : set_uid);
+/* 1503 */       ir.setRinvite("1");
+/* 1504 */       ir.setRsetOfid(set_of == null ? "" : set_of);
+/* 1505 */       ir.setRmemberUid(member_uid == null ? "" : member_uid);
+/* 1506 */       ir.setRtime(stime == null ? "" : stime);
+/* 1507 */       ir.setRoomOf(room_of == null ? "" : room_of);
+/* 1508 */       ir.setRchange("1");
+/* 1509 */       System.out.print(name.length());
+/* 1510 */       int i = this.roomDao.saveRoom(ir);
+/* 1511 */       if (i == 1)
+/* 1512 */         s.setStatus("ok");
+/*      */     }
+/*      */     catch (Exception e) {
+/* 1515 */       e.printStackTrace();
+/* 1516 */       s.setStatus("error");
+/* 1517 */       return s;
+/*      */     }
+/* 1519 */     return s;
+/*      */   }
+/*      */   @Transactional(readOnly=false)
+/*      */   public Status deleteMessage(String deleteuuid, String uid) {
+/* 1524 */     Status s = new Status();
+/*      */     try {
+/* 1526 */       Map map = new HashMap();
+/* 1527 */       map.put("uuid", deleteuuid);
+/* 1528 */       map.put("uid", uid);
+/* 1529 */       int i = this.messageDao.deleteByUuid(map);
+/* 1530 */       s.setStatus("ok");
+/*      */     } catch (Exception e) {
+/* 1532 */       e.printStackTrace();
+/* 1533 */       s.setStatus("error");
+/*      */     }
+/* 1535 */     return s;
+/*      */   }
+/*      */ 
+/*      */   @Transactional(readOnly=false)
+/*      */   public Status getOutPerson(String room_id, String delete_uid, String opt)
+/*      */   {
+/* 1551 */     Status s = new Status();
+/*      */     try
+/*      */     {
+/* 1554 */       Map map = new HashMap();
+/* 1555 */       map.put("roomOf", room_id);
+/* 1556 */       ImRoom irm = this.roomDao.getRoomByRoomOf(map);
+/* 1557 */       if (irm == null) {
+/* 1558 */         s.setStatus("error");
+/* 1559 */         return s;
+/*      */       }
+/*      */ 
+/* 1563 */       if (("1".equals(opt)) && (delete_uid != null)) {
+/* 1564 */         String memberUid = transfor(delete_uid, irm.getRmemberUid());
+/* 1565 */         memberUid = memberUid.substring(0, memberUid.length() - 1);
+/* 1566 */         String outUid = irm.getRoutUid() + "," + delete_uid;
+/* 1567 */         irm.setRmemberUid(memberUid);
+/* 1568 */         irm.setRoutUid(outUid);
+/*      */       }
+/*      */       else
+/*      */       {
+/* 1572 */         irm.setRoomStatus(Integer.valueOf(-1));
+/*      */       }
+/* 1574 */       int i = this.roomDao.roomUpdateByroomOf(irm);
+/* 1575 */       if (i == 1)
+/* 1576 */         s.setStatus("ok");
+/*      */     }
+/*      */     catch (Exception e) {
+/* 1579 */       s.setStatus("error");
+/* 1580 */       e.printStackTrace();
+/*      */     }
+/* 1582 */     return s;
+/*      */   }
+/*      */ 
+/*      */   @Transactional(readOnly=false)
+/*      */   public ToJson<ImRoom> roomRever(String room_id)
+/*      */   {
+/* 1594 */     ToJson json = new ToJson(1, "error");
+/*      */     try {
+/* 1596 */       if (StringUtils.checkNull(room_id).booleanValue()) {
+/* 1597 */         json.setMsg("roomId不能为空");
+/* 1598 */         return json;
+/*      */       }
+/* 1600 */       ImRoom room = new ImRoom();
+/* 1601 */       room.setRoomOf(room_id);
+/* 1602 */       room.setRoomStatus(Integer.valueOf(0));
+/* 1603 */       int i = this.roomDao.roomUpdateByroomOf(room);
+/* 1604 */       if (i > 0) {
+/* 1605 */         json.setMsg("ok");
+/* 1606 */         json.setFlag(0);
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 1609 */       e.printStackTrace();
+/*      */     }
+/* 1611 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @Transactional(readOnly=false)
+/*      */   public Status getPersonToRoom(String room_id, String invite_uid)
+/*      */   {
+/* 1627 */     Status s = new Status();
+/*      */     try
+/*      */     {
+/* 1630 */       Map map = new HashMap();
+/* 1631 */       map.put("roomOf", room_id);
+/* 1632 */       ImRoom irm = this.roomDao.getRoomByRoomOf(map);
+/* 1633 */       if (irm == null) {
+/* 1634 */         s.setStatus("error");
+/* 1635 */         return s;
+/*      */       }
+/*      */ 
+/* 1638 */       String newString = irm.getRmemberUid() + "," + invite_uid + ",";
+/* 1639 */       irm.setRmemberUid(newString);
+/* 1640 */       String outIds = transfor(invite_uid, irm.getRoutUid());
+/* 1641 */       irm.setRoutUid(outIds.substring(0, outIds.length() < 1 ? outIds.length() : outIds.length() - 1));
+/* 1642 */       int i = this.roomDao.updatePersonToRoom(irm);
+/* 1643 */       if (i == 1)
+/* 1644 */         s.setStatus("ok");
+/*      */       else
+/* 1646 */         s.setStatus("error");
+/*      */     }
+/*      */     catch (Exception e) {
+/* 1649 */       e.printStackTrace();
+/* 1650 */       s.setStatus("error");
+/*      */     }
+/* 1652 */     return s;
+/*      */   }
+/*      */ 
+/*      */   public static String transfor(String uid, String outId) {
+/* 1656 */     if (outId == null) {
+/* 1657 */       outId = "";
+/*      */     }
+/* 1659 */     if (uid == null) {
+/* 1660 */       uid = "";
+/*      */     }
+/* 1662 */     String[] outIds = outId.split(",");
+/* 1663 */     List<String> outIdList = Arrays.asList(outIds);
+/* 1664 */     String[] uids = uid.split(",");
+/* 1665 */     List<String> uidsList = Arrays.asList(uids);
+/* 1666 */     StringBuffer sb = new StringBuffer("");
+/* 1667 */     for (String s : outIdList) {
+/* 1668 */       boolean flag = false;
+/* 1669 */       for (String s2 : uidsList) {
+/* 1670 */         if (s2.equals(s)) {
+/* 1671 */           flag = true;
+/*      */         }
+/*      */       }
+/* 1674 */       if (!flag) {
+/* 1675 */         sb.append(s);
+/* 1676 */         sb.append(",");
+/*      */       }
+/*      */     }
+/* 1679 */     return sb.toString();
+/*      */   }
+/*      */ 
+/*      */   @Transactional(readOnly=false)
+/*      */   public Status updateRoomName(String room_id, String room_name)
+/*      */   {
+/* 1694 */     Status s = new Status();
+/*      */     try
+/*      */     {
+/* 1697 */       Map map = new HashMap();
+/* 1698 */       map.put("roomOf", room_id);
+/* 1699 */       ImRoom irm = this.roomDao.getRoomByRoomOf(map);
+/* 1700 */       if (irm == null) {
+/* 1701 */         s.setStatus("error");
+/* 1702 */         return s;
+/*      */       }
+/* 1704 */       irm.setRnamr(room_name);
+/* 1705 */       int i = this.roomDao.updateRoomName(irm);
+/* 1706 */       if (i == 1)
+/* 1707 */         s.setStatus("ok");
+/*      */     }
+/*      */     catch (Exception e) {
+/* 1710 */       s.setStatus("error");
+/*      */     }
+/* 1712 */     return s;
+/*      */   }
+/*      */ 
+/*      */   public List<ImMessageModel> getAttchments(String other_id, String my_uid, HttpServletRequest req)
+/*      */     throws IOException
+/*      */   {
+/* 1727 */     Map map = new HashMap();
+/* 1728 */     map.put("my_uid", my_uid);
+/* 1729 */     map.put("other_id", other_id);
+/* 1730 */     List<ImMessage> attMessageList = this.messageDao.getAttchments(map);
+/* 1731 */     List messageList = new ArrayList();
+/* 1732 */     for (ImMessage im : attMessageList) {
+/* 1733 */       ImMessageModel imm = getMessage(im, req);
+/* 1734 */       messageList.add(imm);
+/*      */     }
+/* 1736 */     return messageList;
+/*      */   }
+/*      */ 
+/*      */   public ImMessageModel getMessage(ImMessage im, HttpServletRequest request)
+/*      */     throws IOException
+/*      */   {
+/* 1742 */     String company = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/* 1744 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/*      */ 
+/* 1746 */     String osName = System.getProperty("os.name");
+/* 1747 */     StringBuffer sb = new StringBuffer();
+/* 1748 */     if (osName.toLowerCase().startsWith("win"))
+/* 1749 */       sb = sb.append(rb.getString("upload.win"));
+/*      */     else {
+/* 1751 */       sb = sb.append(rb.getString("upload.linux"));
+/*      */     }
+/*      */ 
+/* 1757 */     Files file1 = new Files();
+/*      */ 
+/* 1759 */     int fileid = -1;
+/* 1760 */     if (!StringUtils.checkNull(im.getFileId()).booleanValue()) {
+/* 1761 */       fileid = Integer.parseInt(im.getFileId());
+/*      */     }
+/* 1763 */     Attachment tee = this.attachmentMapper.selectByPrimaryKey(Integer.valueOf(fileid));
+/* 1764 */     if (tee != null) {
+/* 1765 */       String path = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + company + System.getProperty("file.separator") + "im" + System.getProperty("file.separator") + tee.getYm() + System.getProperty("file.separator") + tee.getAttachId() + "." + tee.getAttachName();
+/*      */ 
+/* 1767 */       String fileStr = "AID=" + tee.getAid() + "&" + "MODULE=" + "im" + "&" + "COMPANY=" + company + "&" + "YM=" + tee.getYm() + "&" + "ATTACHMENT_ID=" + tee.getAttachId() + "&" + "ATTACHMENT_NAME=" + tee.getAttachName();
+/*      */ 
+/* 1782 */       if ("img".equals(im.getType()))
+/*      */       {
+/* 1784 */         String port = String.valueOf(request.getServerPort());
+/*      */ 
+/* 1786 */         File picture = new File(path);
+/* 1787 */         File thmpicture = new File(path);
+/* 1788 */         FileInputStream fis = new FileInputStream(picture);
+/* 1789 */         FileInputStream thmfis = new FileInputStream(thmpicture);
+/*      */ 
+/* 1791 */         long size = fis.getChannel().size();
+/* 1792 */         long thmsize = thmfis.getChannel().size();
+/* 1793 */         BufferedImage sourceImg = ImageIO.read(fis);
+/* 1794 */         BufferedImage thmsourceImg = ImageIO.read(thmfis);
+/* 1795 */         file1.setFile_url(fileStr);
+/* 1796 */         double size_k = size / 1024L;
+/* 1797 */         BigDecimal l = new BigDecimal(Double.toString(size_k));
+/* 1798 */         double res = l.setScale(2, 4).doubleValue();
+/* 1799 */         long ress = 0L;
+/* 1800 */         if ((size_k < 1024.0D) && (size_k > 0.0D)) {
+/* 1801 */           if (Math.round(res) - res == 0.0D) {
+/* 1802 */             ress = (long)res;
+/*      */           }
+/* 1804 */           file1.setFile_size(String.valueOf(ress) + "KB");
+/* 1805 */         } else if (size_k >= 1024.0D) {
+/* 1806 */           double size_m = size_k / 1024.0D;
+/* 1807 */           BigDecimal lm = new BigDecimal(Double.toString(size_k));
+/* 1808 */           double res_m = l.setScale(2, 4).doubleValue();
+/* 1809 */           long resss = 0L;
+/* 1810 */           if (Math.round(res_m) - res_m == 0.0D) {
+/* 1811 */             resss = (long)res_m;
+/*      */           }
+/* 1813 */           file1.setFile_size(String.valueOf(resss) + "MB");
+/*      */         }
+/* 1815 */         file1.setFile_width(String.valueOf(sourceImg.getWidth()));
+/* 1816 */         file1.setFile_height(String.valueOf(sourceImg.getHeight()));
+/* 1817 */         file1.setThumbnail_url(fileStr);
+/* 1818 */         if ((size_k < 1024.0D) && (size_k > 0.0D)) {
+/* 1819 */           if (Math.round(res) - res == 0.0D) {
+/* 1820 */             ress = (long)res;
+/*      */           }
+/* 1822 */           file1.setThumbnail_size(String.valueOf(ress) + "KB");
+/* 1823 */         } else if (size_k >= 1024.0D) {
+/* 1824 */           double size_m = size_k / 1024.0D;
+/* 1825 */           BigDecimal lm = new BigDecimal(Double.toString(size_k));
+/* 1826 */           double res_m = l.setScale(2, 4).doubleValue();
+/* 1827 */           long resss = 0L;
+/* 1828 */           if (Math.round(res_m) - res_m == 0.0D) {
+/* 1829 */             resss = (long)res_m;
+/*      */           }
+/* 1831 */           file1.setThumbnail_size(String.valueOf(resss) + "MB");
+/*      */         }
+/* 1833 */         file1.setThumbnail_width(String.valueOf(thmsourceImg.getHeight()));
+/* 1834 */         file1.setThumbnail_height(String.valueOf(thmsourceImg.getWidth()));
+/*      */       }
+/*      */ 
+/* 1837 */       if ("voice".equals(im.getType()))
+/*      */       {
+/* 1839 */         String port = String.valueOf(request.getServerPort());
+/* 1840 */         file1.setFile_url(fileStr);
+/* 1841 */         file1.setVoice_time(im.getThumbnailUrl());
+/*      */       }
+/*      */ 
+/* 1844 */       if ("file".equals(im.getType()))
+/*      */       {
+/* 1847 */         String port = String.valueOf(request.getServerPort());
+/* 1848 */         file1.setFile_url(fileStr);
+/* 1849 */         file1.setFile_name(im.getFileName());
+/* 1850 */         file1.setFile_type(tee.getAttachName().substring(tee.getAttachName().lastIndexOf(".") + 1));
+/* 1851 */         File picture = new File(path);
+/* 1852 */         FileInputStream fis = new FileInputStream(picture);
+/* 1853 */         long size = fis.getChannel().size();
+/* 1854 */         double size_k = size / 1024L;
+/* 1855 */         BigDecimal l = new BigDecimal(Double.toString(size_k));
+/* 1856 */         double res = l.setScale(2, 4).doubleValue();
+/* 1857 */         long ress = 0L;
+/* 1858 */         if ((size_k < 1024.0D) && (size_k > 0.0D)) {
+/* 1859 */           if (Math.round(res) - res == 0.0D) {
+/* 1860 */             ress = (long)res;
+/*      */           }
+/* 1862 */           file1.setFile_size(String.valueOf(ress) + "KB");
+/* 1863 */         } else if (size_k >= 1024.0D) {
+/* 1864 */           double size_m = size_k / 1024.0D;
+/* 1865 */           BigDecimal lm = new BigDecimal(Double.toString(size_k));
+/* 1866 */           double res_m = l.setScale(2, 4).doubleValue();
+/* 1867 */           long resss = 0L;
+/* 1868 */           if (Math.round(res_m) - res_m == 0.0D) {
+/* 1869 */             resss = (long)res_m;
+/*      */           }
+/* 1871 */           file1.setFile_size(String.valueOf(resss) + "MB");
+/*      */         }
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/* 1877 */     ImMessageModel imm = new ImMessageModel(im.getFromUid(), im.getToUid(), im.getOfFrom(), im.getContent(), im.getOfTo(), im.getUuid(), im.getType(), file1, im.getStime());
+/*      */ 
+/* 1886 */     return imm;
+/*      */   }
+/*      */ 
+/*      */   public List<ImMessageModel> selectMessage(Map<String, Object> mapq)
+/*      */     throws IOException
+/*      */   {
+/* 1900 */     HttpServletRequest req = (HttpServletRequest)mapq.get("req");
+/* 1901 */     Map map = new HashMap();
+/* 1902 */     map.put("other_id1", mapq.get("other_id"));
+/* 1903 */     map.put("my_uid1", mapq.get("my_uid"));
+/* 1904 */     map.put("keyword1", mapq.get("keyword"));
+/* 1905 */     map.put("msg_type1", mapq.get("msg_type"));
+/* 1906 */     List<ImMessage> attMessageList = this.messageDao.selectMessage(map);
+/* 1907 */     List messageList = new ArrayList();
+/* 1908 */     for (ImMessage im : attMessageList) {
+/* 1909 */       ImMessageModel imm = getMessage(im, req);
+/* 1910 */       messageList.add(imm);
+/*      */     }
+/* 1912 */     return messageList;
+/*      */   }
+/*      */ 
+/*      */   public Status updateMsgFree(Map<String, Object> map)
+/*      */   {
+/* 1928 */     Status status = new Status();
+/* 1929 */     String list_id = (String)map.get("list_id");
+/* 1930 */     String type = (String)map.get("type");
+/* 1931 */     String set_uid = (String)map.get("set_uid");
+/*      */ 
+/* 1933 */     Map para = new HashMap();
+/* 1934 */     para.put("list_id", list_id);
+/* 1935 */     ImChatData chat = this.chatDataDao.getSingleByListId(para);
+/* 1936 */     List set_uids = new ArrayList();
+/* 1937 */     if ((chat != null) && (!StringUtils.checkNull(chat.getMsg_free()).booleanValue()))
+/* 1938 */       set_uids = Arrays.asList(chat.getMsg_free().split(","));
+/* 1939 */     else if (chat != null) {
+/* 1940 */       chat.setMsg_free("");
+/*      */     }
+/* 1942 */     if ("1".equals(type)) {
+/* 1943 */       if (!set_uids.contains(set_uid)) {
+/* 1944 */         String oldStr = chat.getMsg_free();
+/*      */         String uidSingle;
+/*      */         //String uidSingle;
+/* 1945 */         if (StringUtils.checkNull(oldStr).booleanValue())
+/* 1946 */           uidSingle = oldStr + set_uid + ",";
+/*      */         else {
+/* 1948 */           uidSingle = set_uid + ",";
+/*      */         }
+/*      */ 
+/* 1951 */         ImChatData chat1 = new ImChatData();
+/* 1952 */         chat1.setListId(list_id);
+/* 1953 */         chat1.setMsg_free(uidSingle);
+/* 1954 */         int result = this.chatDataDao.updateChatlist(chat1);
+/* 1955 */         if (result == 1)
+/* 1956 */           status.setStatus("ok");
+/*      */         else
+/* 1958 */           status.setStatus("error");
+/*      */       }
+/*      */       else {
+/* 1961 */         status.setStatus("error");
+/*      */       }
+/*      */     }
+/* 1964 */     StringBuffer sb = null;
+/* 1965 */     if ("0".equals(type)) {
+/* 1966 */       if (set_uids.contains(set_uid)) {
+/* 1967 */         sb = new StringBuffer();
+/* 1968 */         int length = set_uids.size();
+/* 1969 */         for (int i = 0; i < length; i++) {
+/* 1970 */           if (!((String)set_uids.get(i)).equals(set_uid)) {
+/* 1971 */             sb.append((String)set_uids.get(i) + ",");
+/*      */           }
+/*      */         }
+/* 1974 */         ImChatData chat0 = new ImChatData();
+/* 1975 */         chat0.setListId(list_id);
+/* 1976 */         chat0.setMsg_free(sb.toString());
+/* 1977 */         int result = this.chatDataDao.updateChatlist(chat0);
+/* 1978 */         if (result == 1)
+/* 1979 */           status.setStatus("ok");
+/*      */         else
+/* 1981 */           status.setStatus("error");
+/*      */       }
+/*      */       else {
+/* 1984 */         status.setStatus("error");
+/*      */       }
+/*      */     }
+/* 1987 */     return status;
+/*      */   }
+/*      */ 
+/*      */   public ImMessageModel getPriv(String of_from, String of_to, String msg_type)
+/*      */   {
+/* 2002 */     ImMessageModel messageModel = new ImMessageModel();
+/* 2003 */     String checkResult = StringUtils.checkNullUtils(new CheckCallBack()
+/*      */     {
+/*      */       public boolean isNull(Object obj)
+/*      */       {
+/* 2008 */         if ((obj instanceof String)) {
+/* 2009 */           String a = (String)obj;
+/* 2010 */           if ((a == null) || ("".equals(a)) || (a.length() == 0))
+/*      */           {
+/* 2012 */             return true;
+/*      */           }
+/*      */         }
+/* 2014 */         return false;
+/*      */       }
+/*      */     }
+/*      */     , new Object[] { of_from, "of_from不能为空", of_to, "of_to不能为空", msg_type, "msg_type不能为空" });
+/*      */ 
+/* 2018 */     if (checkResult != null) {
+/* 2019 */       return messageModel;
+/*      */     }
+/* 2021 */     Map map = new HashMap();
+/* 2022 */     map.put("of_from", of_from);
+/* 2023 */     map.put("of_to", of_to);
+/* 2024 */     map.put("msg_type", msg_type);
+/* 2025 */     ImChatData priv = this.chatDataDao.getPriv(map);
+/*      */ 
+/* 2027 */     if (priv != null) {
+/* 2028 */       messageModel.setMsg_free(priv.getMsg_free());
+/* 2029 */       messageModel.setList_id(priv.getListId());
+/* 2030 */       if ((msg_type != null) && ("1".equals(String.valueOf(map.get("msg_type"))))) {
+/* 2031 */         Map param = new HashMap();
+/* 2032 */         param.put("roomOf", of_to);
+/* 2033 */         ImRoom room = this.roomDao.getRoomByRoomOf(param);
+/* 2034 */         messageModel.setRinvite(room.getRinvite());
+/*      */       }
+/*      */     } else {
+/* 2037 */       messageModel.setMsg_free("");
+/* 2038 */       messageModel.setList_id("");
+/* 2039 */       messageModel.setRinvite("");
+/*      */     }
+/* 2041 */     return messageModel;
+/*      */   }
+/*      */ 
+/*      */   public Object putMessageInfoPc(MultipartFile[] files, HttpServletRequest request,final Integer flag,final String from_uid,final String to_uid,final String of_from,final String of_to,final String content,final String type,final String time,final String uuid,final String msg_type,final String voice_time)
+/*      */   {
+/* 2067 */     Status s = new Status();
+/* 2068 */     Files file1 = new Files();
+/*      */ 
+/* 2070 */     String fileID = "";
+/* 2071 */     String attachName = "";
+/* 2072 */     String lastThumbnailUrl = "";
+/*      */     try
+/*      */     {
+/* 2076 */       String checkResult = StringUtils.checkNullUtils(new CheckCallBack()
+/*      */       {
+/*      */         public boolean isNull(Object obj)
+/*      */         {
+/* 2081 */           if ((obj instanceof String)) {
+/* 2082 */             String a = (String)obj;
+/* 2083 */             if ((a == null) || ("".equals(a)) || (a.length() == 0))
+/*      */             {
+/* 2085 */               return true;
+/*      */             }
+/*      */           }
+/* 2087 */           if ((obj instanceof Integer)) {
+/* 2088 */             Integer a = (Integer)obj;
+/* 2089 */             if (a == null)
+/* 2090 */               return true;
+/*      */           }
+/* 2092 */           return false;
+/*      */         }
+/*      */       }
+/*      */       , new Object[] { flag, "flag不能为空", from_uid, "from_uid不能为空", to_uid, "to_uid不能为空", of_from, "of_from不能为空", of_to, "of_to不能为空", type, "type不能为空", time, "time不能为空" });
+/*      */ 
+/* 2097 */       if (checkResult != null) {
+/* 2098 */         s.setStatus("error");
+/* 2099 */         return s;
+/*      */       }
+/* 2101 */       final List<Users> users = new ArrayList<Users>();
+/* 2102 */       if ("0".equals(msg_type)) {
+/* 2103 */         Users user = this.usersService.getByUid(Integer.parseInt(to_uid));
+/* 2104 */         if ((user == null) || (user.getUid() == null)) {
+/* 2105 */           s.setStatus("nopeople");
+/* 2106 */           return s;
+/*      */         }
+/* 2108 */         Map paramss = new HashMap();
+/* 2109 */         paramss.put("fromUid", from_uid);
+/* 2110 */         paramss.put("toUid", to_uid);
+/*      */ 
+/* 2112 */         ImChatData imChatData = this.chatDataDao.getDataSingleByUid(paramss);
+/*      */ 
+/* 2114 */         if ((imChatData != null) && (!StringUtils.checkNull(imChatData.getMsg_free()).booleanValue())) {
+/* 2115 */           String[] tempUids = imChatData.getMsg_free().split(",");
+/* 2116 */           if ((tempUids != null) && (tempUids.length > 0)) {
+/* 2117 */             int count = 0;
+/* 2118 */             for (String toUiddd : tempUids) {
+/* 2119 */               if (to_uid.equals(toUiddd)) {
+/* 2120 */                 count++;
+/* 2121 */                 break;
+/*      */               }
+/*      */             }
+/* 2124 */             if (count == 0)
+/* 2125 */               users.add(user);
+/*      */           }
+/*      */         }
+/*      */         else {
+/* 2129 */           System.out.println("0==||===========>消息打扰");
+/* 2130 */           users.add(user);
+/*      */         }
+/*      */       }
+/*      */       else {
+/* 2134 */         Map map = new HashMap();
+/* 2135 */         map.put("roomOf", to_uid);
+/* 2136 */         ImRoom room = this.roomDao.getRoomByRoomOf(map);
+/*      */ 
+/* 2138 */         ImChatData imChatData = this.chatDataDao.getGroupByToUid(to_uid);
+/* 2139 */         List<Users> tempUser = new ArrayList();
+/* 2140 */         if ((imChatData != null) && (!StringUtils.checkNull(imChatData.getMsg_free()).booleanValue())) {
+/* 2141 */           String[] tempUids = imChatData.getMsg_free().split(",");
+/* 2142 */           tempUser = this.usersMapper.getUsersByUids(tempUids);
+/*      */         }
+/* 2144 */         if (!StringUtils.checkNull(room.getRmemberUid()).booleanValue()) {
+/* 2145 */           String[] uids = room.getRmemberUid().split(",");
+/* 2146 */           List<Users> userss = this.usersMapper.getUsersByUids(uids);
+/* 2147 */           if (tempUser.size() > 0) {
+/* 2148 */             for (Users u1 : userss) {
+/* 2149 */               int count = 0;
+/* 2150 */               for (Users u2 : tempUser) {
+/* 2151 */                 if (u1.getUid().equals(u2.getUid())) {
+/* 2152 */                   count++;
+/* 2153 */                   break;
+/*      */                 }
+/*      */               }
+/* 2156 */               if (count == 0)
+/* 2157 */                 users.add(u1);
+/*      */             }
+/*      */           }
+/*      */           else
+/* 2161 */             users.addAll(userss);
+/*      */         }
+/*      */         else
+/*      */         {
+/* 2165 */           s.setStatus("nopeople");
+/* 2166 */           return s;
+/*      */         }
+/*      */       }
+/*      */ 
+/* 2170 */       ImMessage record = new ImMessage();
+/* 2171 */       record.setFromUid(from_uid);
+/* 2172 */       record.setType(type);
+/* 2173 */       record.setOfTo(of_to);
+/* 2174 */       record.setOfFrom(of_from);
+/* 2175 */       record.setToUid(to_uid);
+/* 2176 */       record.setUuid(uuid);
+/*      */ 
+/* 2178 */       Attachment attach = null;
+/* 2179 */       switch (flag.intValue())
+/*      */       {
+/*      */       case 1:
+/* 2182 */         record.setContent(content);
+/* 2183 */         break;
+/*      */       case 3:
+/* 2186 */         List<Attachment> attachs = this.attachService.upload(files, type, "im", Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), false);
+/* 2187 */         if (attachs == null) {
+/* 2188 */           s.setStatus("error");
+/* 2189 */           return s;
+/*      */         }
+/* 2191 */         for (Attachment tee : attachs) {
+/* 2192 */           record.setFileId(String.valueOf(tee.getAid()));
+/* 2193 */           record.setFileName(tee.getYm());
+/*      */ 
+/* 2195 */           fileID = String.valueOf(tee.getAid());
+/*      */ 
+/* 2197 */           attachName = tee.getYm();
+/*      */ 
+/* 2199 */           String fileString = tee.getUrl();
+/*      */ 
+/* 2201 */           String path = tee.getPath();
+/*      */ 
+/* 2203 */           if ("img".equals(type))
+/*      */           {
+/* 2205 */             File picture = new File(fileString);
+/* 2206 */             String deskFileName = UUID.randomUUID().toString() + ".png";
+/* 2207 */             String deskUlr = path + System.getProperty("file.separator") + deskFileName;
+/* 2208 */             FileUploadUtil.saveMinPhoto(fileString, deskUlr, 300.0D, 1.0D);
+/* 2209 */             File thmpicture = new File(deskUlr);
+/*      */ 
+/* 2211 */             if (thmpicture.exists()) {
+/* 2212 */               FileInputStream thmfis = new FileInputStream(thmpicture);
+/* 2213 */               MultipartFile multipartFile = new MockMultipartFile(deskFileName, deskFileName, "img/txt", thmfis);
+/* 2214 */               MultipartFile[] multipartFiles = { multipartFile };
+/* 2215 */               List attachss = this.attachService.upload(multipartFiles, type, "im", Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), true);
+/*      */ 
+/* 2217 */               if ((attachss != null) && (attachss.size() > 0)) {
+/* 2218 */                 Attachment themp = (Attachment)attachss.get(0);
+/* 2219 */                 file1.setThumbnail_url(themp.getAttUrl());
+/* 2220 */                 record.setThumbnailUrl(themp.getAttUrl());
+/* 2221 */                 File thmpicture11 = new File(themp.getUrl());
+/* 2222 */                 if (thmpicture11.exists()) {
+/* 2223 */                   FileInputStream thmfiss = new FileInputStream(thmpicture11);
+/* 2224 */                   BufferedImage thmsourceImgs = ImageIO.read(thmfiss);
+/* 2225 */                   file1.setThumbnail_width(String.valueOf(thmsourceImgs.getHeight()));
+/* 2226 */                   file1.setThumbnail_height(String.valueOf(thmsourceImgs.getWidth()));
+/*      */                 }
+/*      */               }
+/* 2229 */               thmfis.close();
+/*      */             }
+/* 2231 */             FileInputStream fis = new FileInputStream(picture);
+/*      */ 
+/* 2233 */             long size = fis.getChannel().size();
+/* 2234 */             BufferedImage sourceImg = ImageIO.read(fis);
+/*      */ 
+/* 2236 */             file1.setFile_name(tee.getAttachName());
+/* 2237 */             file1.setFile_url(tee.getAttUrl());
+/* 2238 */             file1.setFile_size(ReadFile.FormetFileSize(size));
+/* 2239 */             file1.setFile_width(String.valueOf(sourceImg.getWidth()));
+/* 2240 */             file1.setFile_height(String.valueOf(sourceImg.getHeight()));
+/* 2241 */             fis.close();
+/*      */ 
+/* 2244 */             lastThumbnailUrl = tee.getAttUrl();
+/* 2245 */             record.setRealUrl(tee.getAttUrl());
+/*      */           }
+/*      */ 
+/* 2248 */           if ("voice".equals(type))
+/*      */           {
+/* 2251 */             file1.setFile_url(tee.getAttUrl());
+/* 2252 */             file1.setVoice_time(voice_time);
+/*      */ 
+/* 2255 */             record.setThumbnailUrl(voice_time);
+/* 2256 */             lastThumbnailUrl = voice_time;
+/*      */           }
+/*      */ 
+/* 2259 */           if ("file".equals(type))
+/*      */           {
+/* 2262 */             File picture = new File(fileString);
+/* 2263 */             FileInputStream fis = new FileInputStream(picture);
+/* 2264 */             long size = fis.getChannel().size();
+/* 2265 */             file1.setFile_size(ReadFile.FormetFileSize(size));
+/*      */ 
+/* 2287 */             file1.setFile_url(tee.getAttUrl());
+/* 2288 */             file1.setFile_name(tee.getAttachName());
+/* 2289 */             file1.setFile_type(tee.getAttachName().substring(tee.getAttachName().lastIndexOf(".") + 1));
+/* 2290 */             record.setThumbnailUrl(tee.getAttUrl());
+/*      */           }
+/*      */ 
+/*      */         }
+/*      */ 
+/* 2295 */         break;
+/*      */       }
+/*      */ 
+/* 2299 */       record.setStime(time);
+/* 2300 */       record.setMsgType(msg_type);
+/* 2301 */       Long atime = Long.valueOf(new Date().getTime());
+/* 2302 */       record.setAtime(String.valueOf(atime));
+/* 2303 */       int meResult = this.messageDao.save(record);
+/* 2304 */       Map map = new HashMap();
+/* 2305 */       map.put("fromUid", from_uid);
+/* 2306 */       map.put("toUid", to_uid);
+/*      */ 
+/* 2308 */       ImChatData chatModel = new ImChatData();
+/* 2309 */       chatModel.setFromUid(from_uid);
+/* 2310 */       chatModel.setToUid(to_uid);
+/* 2311 */       chatModel.setOfFrom(of_from);
+/* 2312 */       chatModel.setOfTo(of_to);
+/* 2313 */       chatModel.setLastTime(time);
+/* 2314 */       chatModel.setLastAtime(String.valueOf(atime));
+/* 2315 */       if ("img".equals(type))
+/*      */       {
+/* 2317 */         chatModel.setLastContent("");
+/*      */ 
+/* 2319 */         chatModel.setLastFileId(fileID);
+/* 2320 */         chatModel.setLastFileName(attachName);
+/* 2321 */         chatModel.setLastThumbnailUrl(lastThumbnailUrl);
+/* 2322 */       } else if ("voice".equals(type))
+/*      */       {
+/* 2324 */         chatModel.setLastContent("");
+/*      */ 
+/* 2326 */         chatModel.setLastFileId(fileID);
+/* 2327 */         chatModel.setLastFileName(attachName);
+/* 2328 */         chatModel.setLastThumbnailUrl(lastThumbnailUrl);
+/* 2329 */       } else if ("file".equals(type))
+/*      */       {
+/* 2331 */         chatModel.setLastContent("");
+/*      */ 
+/* 2333 */         chatModel.setLastFileId(fileID);
+/* 2334 */         chatModel.setLastFileName(attachName);
+/* 2335 */         chatModel.setLastThumbnailUrl(lastThumbnailUrl);
+/*      */       } else {
+/* 2337 */         chatModel.setLastContent(content);
+/*      */ 
+/* 2339 */         chatModel.setLastFileId(fileID);
+/* 2340 */         chatModel.setLastFileName(attachName);
+/* 2341 */         chatModel.setLastThumbnailUrl(lastThumbnailUrl);
+/*      */       }
+/* 2343 */       chatModel.setType(type);
+/* 2344 */       chatModel.setUuid(uuid);
+/* 2345 */       chatModel.setMsgType(msg_type);
+/*      */ 
+/* 2347 */       int chResult = 0;
+/* 2348 */       if ("1".equals(msg_type)) {
+/* 2349 */         String listId = this.chatDataDao.getDatagroupObject(chatModel.getToUid());
+/* 2350 */         if (StringUtils.checkNull(listId).booleanValue()) {
+/* 2351 */           chatModel.setUidIgnore("");
+/* 2352 */           chResult = this.chatDataDao.saveChat(chatModel);
+/*      */         } else {
+/* 2354 */           chatModel.setListId(listId);
+/* 2355 */           chatModel.setUidIgnore("");
+/* 2356 */           chResult = this.chatDataDao.updateChatlist(chatModel);
+/*      */         }
+/*      */       } else {
+/* 2359 */         int i = this.chatDataDao.getCountSingleObject(map);
+/* 2360 */         if (i == 0) {
+/* 2361 */           chatModel.setUidIgnore("");
+/* 2362 */           chResult = this.chatDataDao.saveChat(chatModel);
+/*      */         } else {
+/* 2364 */           List listId = this.chatDataDao.getDataSingleObject(map);
+/* 2365 */           chatModel.setListId((String)listId.get(0));
+/* 2366 */           chatModel.setUidIgnore("");
+/* 2367 */           chResult = this.chatDataDao.updateChatlist(chatModel);
+/*      */         }
+/*      */       }
+/*      */ 
+/* 2371 */       final String sqlType = (String)request.getSession().getAttribute("loginDateSouse");
+/* 2372 */       final String jixiema = (String)MachineCode.get16CharMacs().get(0);
+/* 2373 */       final Attachment finalAttach = attach;
+/* 2374 */       final Users users1 = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 2375 */       Runnable runnable = new Runnable()
+/*      */       {
+/*      */         public void run() {
+/*      */           try {
+/* 2379 */             String userName = users1.getUserName();
+/* 2380 */             String con = users1.getUserName() + ":" + content;
+/* 2381 */             if (!"0".equals(msg_type)) {
+/* 2382 */               Map paramMap = new HashMap();
+/* 2383 */               paramMap.put("uid", users1.getUid());
+/* 2384 */               paramMap.put("roomOf", to_uid);
+/* 2385 */               ImRoom room = ImChatDataService.this.roomDao.selRoomByRoomOfUid(paramMap);
+/* 2386 */               userName = room.getRnamr();
+/*      */             }
+/* 2388 */             for (Users user : users)
+/* 2389 */               if (!users1.getUserId().equals(user.getUserId())) {
+/* 2390 */                 String account = jixiema + user.getUserId() + sqlType;
+/* 2391 */                 XingeApp pushIos = new XingeApp(Long.parseLong(ImChatDataService.this.iosKey), ImChatDataService.this.iosSercetKey);
+/* 2392 */                 XingeApp pushAndroid = new XingeApp(Long.parseLong(ImChatDataService.this.androidKey), ImChatDataService.this.androidSercetKey);
+/*      */                 JSONObject ret3;
+/* 2393 */                 if (flag.intValue() == 1) {
+/* 2394 */                   ClickAction clickAction = new ClickAction();
+/* 2395 */                   clickAction.setActionType(1);
+/* 2396 */                   clickAction.setActivity("123");
+/* 2397 */                   Style style = new Style(0, 0, 0, 1, 1, 1, 0, 1);
+/* 2398 */                   Message mess = new Message();
+/* 2399 */                   mess.setType(1);
+/* 2400 */                   mess.setStyle(style);
+/* 2401 */                   mess.setTitle(userName);
+/* 2402 */                   mess.setContent(con);
+/* 2403 */                   mess.setAction(clickAction);
+/* 2404 */                   JSONObject ret = pushAndroid.pushSingleAccount(0, account, mess);
+/*      */ 
+/* 2407 */                   JSONObject contentTest = new JSONObject();
+/* 2408 */                   JSONObject obj = new JSONObject();
+/* 2409 */                   JSONObject aps = new JSONObject();
+/* 2410 */                   contentTest.put("title", userName);
+/* 2411 */                   contentTest.put("body", con);
+/* 2412 */                   aps.put("badge", 1);
+/* 2413 */                   aps.put("alert", contentTest);
+/* 2414 */                   obj.put("aps", aps);
+/* 2415 */                   MessageIOS messageIOS = new MessageIOS();
+/* 2416 */                   messageIOS.setRaw(obj.toString());
+/* 2417 */                   ret3 = pushIos.pushSingleAccount(0, account, messageIOS, 1);
+/* 2418 */                 } else if (flag.intValue() == 3) {
+/* 2419 */                   String confile = "";
+/* 2420 */                   if ("img".equals(type))
+/* 2421 */                     confile = users1.getUserName() + ":[图片]";
+/*      */                   else {
+/* 2423 */                     confile = users1.getUserName() + ":[" + finalAttach.getAttachName() + "]";
+/*      */                   }
+/* 2425 */                   Style style = new Style(0, 0, 0, 1, -1, 1, 0, 1);
+/* 2426 */                   ClickAction clickAction = new ClickAction();
+/* 2427 */                   clickAction.setActionType(1);
+/* 2428 */                   clickAction.setActivity("123");
+/* 2429 */                   Message mess = new Message();
+/* 2430 */                   mess.setType(1);
+/* 2431 */                   mess.setStyle(style);
+/* 2432 */                   mess.setTitle(userName);
+/* 2433 */                   mess.setContent(confile);
+/* 2434 */                   mess.setAction(clickAction);
+/* 2435 */                   JSONObject ret = pushAndroid.pushSingleAccount(0, account, mess);
+/* 2436 */                   System.out.println("0==||===========>ret" + ret);
+/*      */ 
+/* 2438 */                   JSONObject contentTest = new JSONObject();
+/* 2439 */                   JSONObject obj = new JSONObject();
+/* 2440 */                   JSONObject aps = new JSONObject();
+/* 2441 */                   contentTest.put("title", userName);
+/* 2442 */                   contentTest.put("body", confile);
+/* 2443 */                   aps.put("badge", 1);
+/* 2444 */                   aps.put("alert", contentTest);
+/* 2445 */                   obj.put("aps", aps);
+/* 2446 */                   MessageIOS messageIOS = new MessageIOS();
+/* 2447 */                   messageIOS.setRaw(obj.toString());
+/* 2448 */                   ret3 = pushIos.pushSingleAccount(0, account, messageIOS, 1);
+/*      */                 }
+/*      */               }
+/*      */           }
+/*      */           catch (Exception e)
+/*      */           {
+/*      */             String userName;
+/*      */             String con;
+/*      */             JSONObject ret3;
+/* 2453 */             e.printStackTrace();
+/*      */           }
+/*      */         }
+/*      */       };
+/* 2457 */       runnable.run();
+/* 2458 */       if (chResult == 1)
+/* 2459 */         s.setStatus("ok");
+/*      */       else {
+/* 2461 */         s.setStatus("error");
+/*      */       }
+/* 2463 */       if (flag.intValue() == 3) {
+/* 2464 */         file1.setStatus("ok");
+/* 2465 */         return file1;
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 2468 */       e.printStackTrace();
+/* 2469 */       s.setStatus("error");
+/*      */     }
+/* 2471 */     return s;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Users> getRoomPerson(HttpServletRequest request, String roomOf)
+/*      */   {
+/* 2484 */     ToJson toJson = new ToJson(1, "error");
+/*      */     try {
+/* 2486 */       List<Users> list = new ArrayList<Users>();
+/* 2487 */       Map map = new HashMap();
+/* 2488 */       map.put("roomOf", roomOf);
+/* 2489 */       ImRoom imRoom = this.roomDao.getRoomByRoomOf(map);
+/*      */       String realPath;
+/* 2490 */       if ((imRoom != null) && (!StringUtils.checkNull(imRoom.getRmemberUid()).booleanValue())) {
+/* 2491 */         String[] arr = imRoom.getRmemberUid().split(",");
+/* 2492 */         list = this.usersMapper.selUserOrder(arr);
+/* 2493 */         realPath = request.getSession().getServletContext().getRealPath("/");
+/* 2494 */         for (Users users : list) {
+/* 2495 */           File file = new File(realPath + "ui/img/user/" + users.getAvatar());
+/* 2496 */           if (!file.exists()) {
+/* 2497 */             users.setAvatar(users.getSex());
+/* 2498 */             users.setAvatar128(users.getSex());
+/*      */           }
+/*      */         }
+/*      */       }
+/* 2502 */       toJson.setObj(list);
+/* 2503 */       toJson.setMsg("ok");
+/* 2504 */       toJson.setFlag(0);
+/*      */     } catch (Exception e) {
+/* 2506 */       e.printStackTrace();
+/*      */     }
+/* 2508 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<ImChatData> delChatList(HttpServletRequest request, int listId)
+/*      */   {
+/* 2520 */     ToJson toJson = new ToJson(1, "error");
+/*      */     try {
+/* 2522 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 2523 */       ImChatData chatData = this.chatDataDao.selChatByListId(listId);
+/* 2524 */       String uid = chatData.getUidIgnore() + user.getUid() + ",";
+/* 2525 */       Map map = new HashMap();
+/* 2526 */       map.put("listId", Integer.valueOf(listId));
+/* 2527 */       map.put("uidIgnore", uid);
+/* 2528 */       int count = this.chatDataDao.upChatByIgnore(map);
+/* 2529 */       if (count > 0) {
+/* 2530 */         toJson.setMsg("ok");
+/* 2531 */         toJson.setFlag(0);
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 2534 */       e.printStackTrace();
+/*      */     }
+/* 2536 */     return toJson;
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.im.ImChatDataService
+ * JD-Core Version:    0.6.0
+ */

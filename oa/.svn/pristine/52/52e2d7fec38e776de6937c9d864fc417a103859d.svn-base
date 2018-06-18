@@ -1,0 +1,71 @@
+package com.myoa.dao.book;
+
+import com.myoa.model.book.BookInfo;
+import com.myoa.model.book.BookInfoExample;
+import com.myoa.model.book.BookInfoWithBLOBs;
+
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface BookInfoMapper {
+	public abstract int countByExample(BookInfoExample paramBookInfoExample);
+
+	public abstract int deleteByExample(BookInfoExample paramBookInfoExample);
+
+	public abstract int deleteByPrimaryKey(Integer paramInteger);
+
+	public abstract int insert(BookInfoWithBLOBs paramBookInfoWithBLOBs);
+
+	public abstract int insertSelective(BookInfoWithBLOBs paramBookInfoWithBLOBs);
+
+	public abstract List<BookInfoWithBLOBs> selectByExampleWithBLOBs(
+			BookInfoExample paramBookInfoExample);
+
+	public abstract List<BookInfo> selectByExample(
+			BookInfoExample paramBookInfoExample);
+
+	public abstract BookInfoWithBLOBs selectByPrimaryKey(Integer paramInteger);
+
+	public abstract int updateByExampleSelective(
+			@Param("record") BookInfoWithBLOBs paramBookInfoWithBLOBs,
+			@Param("example") BookInfoExample paramBookInfoExample);
+
+	public abstract int updateByExampleWithBLOBs(
+			@Param("record") BookInfoWithBLOBs paramBookInfoWithBLOBs,
+			@Param("example") BookInfoExample paramBookInfoExample);
+
+	public abstract int updateByExample(
+			@Param("record") BookInfo paramBookInfo,
+			@Param("example") BookInfoExample paramBookInfoExample);
+
+	public abstract int updateByPrimaryKeySelective(
+			BookInfoWithBLOBs paramBookInfoWithBLOBs);
+
+	public abstract int updateByPrimaryKeyWithBLOBs(
+			BookInfoWithBLOBs paramBookInfoWithBLOBs);
+
+	public abstract int updateByPrimaryKey(BookInfo paramBookInfo);
+
+	public abstract int insertBookInfo(BookInfoWithBLOBs paramBookInfoWithBLOBs);
+
+	public abstract int upBookInfoById(BookInfoWithBLOBs paramBookInfoWithBLOBs);
+
+	public abstract int delBookInfoById(Integer paramInteger);
+
+	public abstract BookInfoWithBLOBs selBookInfoById(Integer paramInteger);
+
+	public abstract List<BookInfoWithBLOBs> selBookInfoByCond(
+			Map<String, Object> paramMap);
+
+	public abstract int selBookInfoCountByCond(
+			BookInfoWithBLOBs paramBookInfoWithBLOBs);
+
+	public abstract int delBookInfoByIds(
+			@Param("bookIds") String[] paramArrayOfString);
+
+	public abstract BookInfoWithBLOBs selInfoByBookNo(String paramString);
+
+	public abstract BookInfoWithBLOBs selInfoByUser(
+			BookInfoWithBLOBs paramBookInfoWithBLOBs);
+}

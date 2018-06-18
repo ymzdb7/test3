@@ -1,0 +1,374 @@
+/*     */ package com.xoa.service.book;
+/*     */ 
+/*     */ import com.xoa.dao.book.BookInfoMapper;
+/*     */ import com.xoa.dao.book.BookManageMapper;
+/*     */ import com.xoa.dao.book.BookManagerMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.book.BookInfoWithBLOBs;
+/*     */ import com.xoa.model.book.BookManage;
+/*     */ import com.xoa.model.book.BookManager;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Calendar;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class BookManageService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private BookManageMapper bookManageMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private BookManagerMapper bookManagerMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private BookInfoMapper bookInfoMapper;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<BookManage> insertManage(BookManage bookManage, HttpServletRequest request)
+/*     */   {
+/*  57 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  59 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  60 */       BookInfoWithBLOBs bookInfo = this.bookInfoMapper.selInfoByBookNo(bookManage.getBookNo());
+/*  61 */       if (bookInfo != null) {
+/*  62 */         if (bookInfo.getAmt().intValue() <= 0) {
+/*  63 */           json.setMsg("notEnoughNum");
+/*  64 */           return json;
+/*     */         }
+/*  66 */         if (!StringUtils.checkNull(bookInfo.getOpen()).booleanValue()) {
+/*  67 */           String[] openArr = bookInfo.getOpen().split(";");
+/*  68 */           if (openArr.length == 1) {
+/*  69 */             bookInfo.setOpenDept(openArr[0].toString());
+/*  70 */           } else if (openArr.length == 2) {
+/*  71 */             bookInfo.setOpenDept(openArr[0].toString());
+/*  72 */             bookInfo.setOpenUser(openArr[1].toString());
+/*  73 */           } else if (openArr.length == 3) {
+/*  74 */             bookInfo.setOpenDept(openArr[0].toString());
+/*  75 */             bookInfo.setOpenUser(openArr[1].toString());
+/*  76 */             bookInfo.setOpenUserPriv(openArr[2].toString());
+/*     */           }
+/*  78 */           bookInfo.setCurrentUser(user.getUserId());
+/*  79 */           if (this.bookInfoMapper.selInfoByUser(bookInfo) == null) {
+/*  80 */             json.setMsg("notEnoughPriv");
+/*  81 */             return json;
+/*     */           }
+/*     */         }
+/*     */       }
+/*  85 */       if ((!StringUtils.checkNull(bookManage.getBuserId()).booleanValue()) && (bookManage.getBuserId().contains(","))) {
+/*  86 */         bookManage.getBuserId().substring(0, bookManage.getBuserId().length() - 1);
+/*     */       }
+/*  88 */       if (bookManage.getBorrowDate() != null) {
+/*  89 */         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+/*  90 */         bookManage.setBorrowDate(sdf.parse(sdf.format(new Date())));
+/*     */       }
+/*  92 */       if (bookManage.getReturnDate() != null) {
+/*  93 */         Calendar c = Calendar.getInstance();
+/*  94 */         c.setTime(bookManage.getBorrowDate());
+/*  95 */         c.add(5, 30);
+/*  96 */         bookManage.setReturnDate(c.getTime());
+/*     */       }
+/*  98 */       if (bookManage.getRegFlag().equals("1")) {
+/*  99 */         bookManage.setRuserId(user.getUserId());
+/* 100 */         bookManage.setStatus("0");
+/* 101 */         bookManage.setBookStatus("1");
+/*     */       } else {
+/* 103 */         bookManage.setStatus("1");
+/* 104 */         bookManage.setBookStatus("0");
+/*     */       }
+/* 106 */       bookManage.setDeleteFlag("0");
+/* 107 */       bookManage.setRenewFlag("0");
+/* 108 */       int count = this.bookManageMapper.insertManage(bookManage);
+/*     */ 
+/* 110 */       BookInfoWithBLOBs book = new BookInfoWithBLOBs();
+/* 111 */       book.setBookId(bookInfo.getBookId());
+/* 112 */       book.setAmt(Integer.valueOf(bookInfo.getAmt().intValue() - 1));
+/* 113 */       this.bookInfoMapper.upBookInfoById(book);
+/* 114 */       if (count > 0) {
+/* 115 */         json.setMsg("ok");
+/* 116 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 119 */       json.setMsg(e.getMessage());
+/* 120 */       L.e(new Object[] { "BookManageService insertManage:" + e });
+/* 121 */       e.printStackTrace();
+/*     */     }
+/* 123 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<BookManage> upManageById(BookManage bookManage, HttpServletRequest request)
+/*     */   {
+/* 137 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 139 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/* 141 */       if ((!StringUtils.checkNull(bookManage.getDeleteFlag()).booleanValue()) && (bookManage.getDeleteFlag().equals("3"))) {
+/* 142 */         bookManage.setDeleteFlag(null);
+/*     */       }
+/* 144 */       if ((!StringUtils.checkNull(bookManage.getBookStatus()).booleanValue()) && (bookManage.getBookStatus().equals("3"))) {
+/* 145 */         bookManage.setBookStatus(null);
+/*     */       }
+/* 147 */       if ((!StringUtils.checkNull(bookManage.getStatus()).booleanValue()) && (bookManage.getStatus().equals("3"))) {
+/* 148 */         bookManage.setStatus(null);
+/*     */       }
+/* 150 */       if ((!StringUtils.checkNull(bookManage.getRenewFlag()).booleanValue()) && (bookManage.getRenewFlag().equals("3"))) {
+/* 151 */         bookManage.setRenewFlag("0");
+/*     */       }
+/*     */ 
+/* 154 */       if ((!StringUtils.checkNull(bookManage.getBookStatus()).booleanValue()) && (bookManage.getBookStatus().equals("1"))) {
+/* 155 */         bookManage.setRuserId(user.getUserId());
+/* 156 */         bookManage.setStatus("0");
+/* 157 */       } else if ((!StringUtils.checkNull(bookManage.getStatus()).booleanValue()) && (bookManage.getStatus().equals("1"))) {
+/* 158 */         bookManage.setBookStatus("1");
+/* 159 */         bookManage.setRealReturnTime(new Date());
+/*     */ 
+/* 161 */         BookManage manage = this.bookManageMapper.selManageById(bookManage.getBorrowId());
+/* 162 */         if (manage != null) {
+/* 163 */           BookInfoWithBLOBs book = this.bookInfoMapper.selInfoByBookNo(manage.getBookNo());
+/*     */ 
+/* 165 */           book.setAmt(Integer.valueOf(book.getAmt().intValue() + 1));
+/* 166 */           this.bookInfoMapper.upBookInfoById(book);
+/*     */         }
+/* 168 */       } else if ((!StringUtils.checkNull(bookManage.getStatus()).booleanValue()) && (bookManage.getStatus().equals("0"))) {
+/* 169 */         bookManage.setBookStatus("0");
+/* 170 */       } else if ((!StringUtils.checkNull(bookManage.getRenewFlag()).booleanValue()) && (bookManage.getRenewFlag().equals("1"))) {
+/* 171 */         BookManage temp = this.bookManageMapper.selManageById(bookManage.getBorrowId());
+/* 172 */         if ((temp != null) && 
+/* 173 */           (temp.getReturnDate() != null)) {
+/* 174 */           Calendar c = Calendar.getInstance();
+/* 175 */           c.setTime(temp.getReturnDate());
+/* 176 */           c.add(5, 30);
+/* 177 */           bookManage.setReturnDate(c.getTime());
+/*     */         }
+/*     */       }
+/* 180 */       else if ((!StringUtils.checkNull(bookManage.getBookStatus()).booleanValue()) && (!StringUtils.checkNull(bookManage.getDeleteFlag()).booleanValue())) {
+/* 181 */         if ((bookManage.getBookStatus().equals("0")) && (bookManage.getDeleteFlag().equals("1")))
+/*     */         {
+/* 183 */           BookManage manage = this.bookManageMapper.selManageById(bookManage.getBorrowId());
+/* 184 */           if (manage != null) {
+/* 185 */             BookInfoWithBLOBs book = this.bookInfoMapper.selInfoByBookNo(manage.getBookNo());
+/*     */ 
+/* 187 */             book.setAmt(Integer.valueOf(book.getAmt().intValue() + 1));
+/* 188 */             this.bookInfoMapper.upBookInfoById(book);
+/*     */           }
+/*     */         }
+/* 191 */       } else if ((!StringUtils.checkNull(bookManage.getBookStatus()).booleanValue()) && (bookManage.getBookStatus().equals("2")))
+/*     */       {
+/* 193 */         BookManage manage = this.bookManageMapper.selManageById(bookManage.getBorrowId());
+/* 194 */         if (manage != null) {
+/* 195 */           BookInfoWithBLOBs book = this.bookInfoMapper.selInfoByBookNo(manage.getBookNo());
+/*     */ 
+/* 197 */           book.setAmt(Integer.valueOf(book.getAmt().intValue() + 1));
+/* 198 */           this.bookInfoMapper.upBookInfoById(book);
+/*     */         }
+/*     */       }
+/* 201 */       int count = this.bookManageMapper.upManageById(bookManage);
+/* 202 */       if (count > 0) {
+/* 203 */         json.setMsg("ok");
+/* 204 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 207 */       json.setMsg(e.getMessage());
+/* 208 */       L.e(new Object[] { "BookManageService upManageById:" + e });
+/* 209 */       e.printStackTrace();
+/*     */     }
+/* 211 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<BookManage> delManageById(Integer borrowId)
+/*     */   {
+/* 223 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 225 */       int count = this.bookManageMapper.delManageById(borrowId);
+/* 226 */       if (count > 0) {
+/* 227 */         json.setMsg("ok");
+/* 228 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 231 */       json.setMsg(e.getMessage());
+/* 232 */       L.e(new Object[] { "BookManageService delManageById:" + e });
+/* 233 */       e.printStackTrace();
+/*     */     }
+/* 235 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookManage> selManageById(Integer borrowId)
+/*     */   {
+/* 246 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 248 */       BookManage bookManage = this.bookManageMapper.selManageById(borrowId);
+/* 249 */       json.setObject(bookManage);
+/* 250 */       json.setMsg("ok");
+/* 251 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 253 */       json.setMsg(e.getMessage());
+/* 254 */       L.e(new Object[] { "BookManageService selManageById:" + e });
+/* 255 */       e.printStackTrace();
+/*     */     }
+/* 257 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookManage> selManageByBookStatus(BookManage bookManage, HttpServletRequest request)
+/*     */   {
+/* 268 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 270 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 271 */       bookManage.setBuserId(user.getUserId());
+/* 272 */       List<BookManage> list = this.bookManageMapper.selManageByBookStatus(bookManage);
+/* 273 */       for (BookManage bookManage1 : list) {
+/* 274 */         if (bookManage1.getRegFlag().equals("0")) {
+/* 275 */           bookManage1.setRuserName(bookManage1.getRuserName());
+/*     */         }
+/*     */       }
+/* 278 */       json.setObj(list);
+/* 279 */       json.setMsg("ok");
+/* 280 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 282 */       json.setMsg(e.getMessage());
+/* 283 */       L.e(new Object[] { "BookManageService selManageByBookStatus:" + e });
+/* 284 */       e.printStackTrace();
+/*     */     }
+/* 286 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookManage> selByRegFlag(HttpServletRequest request)
+/*     */   {
+/* 296 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 298 */       List list = this.bookManageMapper.selByRegFlag();
+/* 299 */       List resultList = manageByStatus(list, request);
+/* 300 */       json.setObj(list);
+/* 301 */       json.setMsg("ok");
+/* 302 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 304 */       json.setMsg(e.getMessage());
+/* 305 */       L.e(new Object[] { "BookManageService selByRegFlag:" + e });
+/* 306 */       e.printStackTrace();
+/*     */     }
+/* 308 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookManage> selByRegFlagAndBookStatus(HttpServletRequest request)
+/*     */   {
+/* 318 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 320 */       List list = this.bookManageMapper.selByRegFlagAndBookStatus();
+/* 321 */       List resultList = manageByStatus(list, request);
+/* 322 */       json.setObj(resultList);
+/* 323 */       json.setMsg("ok");
+/* 324 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 326 */       json.setMsg(e.getMessage());
+/* 327 */       L.e(new Object[] { "BookManageService selByRegFlagAndBookStatus:" + e });
+/* 328 */       e.printStackTrace();
+/*     */     }
+/* 330 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookManage> selByStatusQuire(HttpServletRequest request)
+/*     */   {
+/* 341 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 343 */       List list = this.bookManageMapper.selByStatusQuire();
+/* 344 */       List resultList = manageByStatus(list, request);
+/* 345 */       json.setObj(resultList);
+/* 346 */       json.setMsg("ok");
+/* 347 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 349 */       json.setMsg(e.getMessage());
+/* 350 */       L.e(new Object[] { "BookManageService selByStatus:" + e });
+/* 351 */       e.printStackTrace();
+/*     */     }
+/* 353 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookManage> selByStatusManage(HttpServletRequest request)
+/*     */   {
+/* 363 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 365 */       List list = this.bookManageMapper.selByStatusManage();
+/* 366 */       List resultList = manageByStatus(list, request);
+/* 367 */       json.setObj(resultList);
+/* 368 */       json.setMsg("ok");
+/* 369 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 371 */       json.setMsg(e.getMessage());
+/* 372 */       L.e(new Object[] { "BookManageService selByStatusManage:" + e });
+/* 373 */       e.printStackTrace();
+/*     */     }
+/* 375 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookManage> selDelFlag(HttpServletRequest request)
+/*     */   {
+/* 385 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 387 */       List list = this.bookManageMapper.selDelFlag();
+/* 388 */       List resultList = manageByStatus(list, request);
+/* 389 */       json.setObj(resultList);
+/* 390 */       json.setMsg("ok");
+/* 391 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 393 */       json.setMsg(e.getMessage());
+/* 394 */       L.e(new Object[] { "BookManageService selDelFlag:" + e });
+/* 395 */       e.printStackTrace();
+/*     */     }
+/* 397 */     return json;
+/*     */   }
+/*     */ 
+/*     */   List<BookManage> manageByStatus(List<BookManage> list, HttpServletRequest request)
+/*     */   {
+/* 407 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 408 */     List<BookManage> resultList = new ArrayList<BookManage>();
+/* 409 */     List<BookManager> managerList = this.bookManagerMapper.selManagerByManager(user.getUserId());
+/* 410 */     int flag = 0;
+/* 411 */     if (managerList.size() > 0) {
+/* 412 */       for (BookManage bookManage : list) {
+/* 413 */         List<BookManager> deptList = this.bookManagerMapper.selManagerByDept(bookManage.getDept().intValue());
+/* 414 */         if (deptList.size() > 0) {
+/* 415 */           for (BookManager manager1 : managerList) {
+/* 416 */             for (BookManager manager2 : deptList) {
+/* 417 */               if (manager1.getAutoId() == manager2.getAutoId()) {
+/* 418 */                 flag = 1;
+/* 419 */                 break;
+/*     */               }
+/*     */             }
+/* 422 */             if (flag == 1) {
+/*     */               break;
+/*     */             }
+/*     */           }
+/* 426 */           if (flag == 1) {
+/* 427 */             resultList.add(bookManage);
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */     }
+/* 432 */     for (BookManage bookManage1 : resultList) {
+/* 433 */       if (bookManage1.getRegFlag().equals("0")) {
+/* 434 */         bookManage1.setRuserName(bookManage1.getRuserName());
+/*     */       }
+/*     */     }
+/* 437 */     return resultList;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.book.BookManageService
+ * JD-Core Version:    0.6.0
+ */

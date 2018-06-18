@@ -1,0 +1,45 @@
+package com.xoa.service.edu.voteTitle;
+
+import com.baomidou.mybatisplus.service.IService;
+import com.xoa.model.edu.voteTitle.VoteTitle;
+import com.xoa.model.users.Users;
+import com.xoa.util.AjaxJson;
+import com.xoa.util.ToJson;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+
+public abstract interface IVoteTitleService extends IService<VoteTitle>
+{
+  public abstract ToJson<VoteTitle> getVoteTitleList(HttpServletRequest paramHttpServletRequest, VoteTitle paramVoteTitle, Map<String, Object> paramMap, Integer paramInteger1, Integer paramInteger2, boolean paramBoolean);
+
+  public abstract ToJson<VoteTitle> newVoteTitle(HttpServletRequest paramHttpServletRequest, VoteTitle paramVoteTitle);
+
+  public abstract ToJson<VoteTitle> updateVoteTitle(HttpServletRequest paramHttpServletRequest, VoteTitle paramVoteTitle);
+
+  public abstract ToJson<VoteTitle> getChildVoteList(HttpServletRequest paramHttpServletRequest, VoteTitle paramVoteTitle, Integer paramInteger);
+
+  public abstract ToJson<VoteTitle> addChildVoteTitle(HttpServletRequest paramHttpServletRequest, VoteTitle paramVoteTitle);
+
+  public abstract ToJson<VoteTitle> getChilddetail(HttpServletRequest paramHttpServletRequest, Integer paramInteger);
+
+  public abstract ToJson<VoteTitle> deleteByVoteId(HttpServletRequest paramHttpServletRequest, String[] paramArrayOfString);
+
+  public abstract ToJson<VoteTitle> getVoteDataByVoteId(HttpServletRequest paramHttpServletRequest, Integer paramInteger);
+
+  public abstract ToJson<VoteTitle> searchVoteTitleList(HttpServletRequest paramHttpServletRequest, VoteTitle paramVoteTitle, Map<String, Object> paramMap, Integer paramInteger1, Integer paramInteger2, boolean paramBoolean);
+
+  public abstract ToJson<VoteTitle> getVoteTitleCount(HttpServletRequest paramHttpServletRequest, VoteTitle paramVoteTitle, Map<String, Object> paramMap, Integer paramInteger1, Integer paramInteger2, boolean paramBoolean);
+
+  public abstract boolean isVotite(String paramString, Users paramUsers);
+
+  public abstract AjaxJson addVoteTitle(HttpServletRequest paramHttpServletRequest, VoteTitle paramVoteTitle, String paramString, Integer paramInteger);
+
+  public abstract AjaxJson statusUpdate(HttpServletRequest paramHttpServletRequest, Integer paramInteger);
+
+  public abstract ToJson<VoteTitle> getOptionVoteList(HttpServletRequest paramHttpServletRequest, VoteTitle paramVoteTitle, Integer paramInteger);
+
+  public abstract ToJson<VoteTitle> getPublishVoteTitleList(HttpServletRequest paramHttpServletRequest, VoteTitle paramVoteTitle, Map<String, Object> paramMap, Integer paramInteger1, Integer paramInteger2, boolean paramBoolean);
+
+  public abstract ToJson<VoteTitle> getPublishVoteTitleCount(HttpServletRequest paramHttpServletRequest, VoteTitle paramVoteTitle, Map<String, Object> paramMap, Integer paramInteger1, Integer paramInteger2, boolean paramBoolean);
+}
+

@@ -1,0 +1,356 @@
+/*     */ package com.xoa.service.edu.eduExam.impl;
+/*     */ 
+/*     */ import com.xoa.dao.edu.EduExamMapper;
+/*     */ import com.xoa.model.edu.eduExam.EduExam;
+/*     */ import com.xoa.model.edu.eduExam.EduExamWithBLOBs;
+/*     */ import com.xoa.service.edu.eduExam.EduExamService;
+/*     */ import com.xoa.service.enclosure.EnclosureService;
+/*     */ import com.xoa.util.AjaxJson;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.LG;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.InputStream;
+/*     */ import java.math.BigDecimal;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.ResourceBundle;
+/*     */ import java.util.UUID;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.apache.poi.ss.usermodel.Cell;
+/*     */ import org.apache.poi.ss.usermodel.Row;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduExamServiceImpl
+/*     */   implements EduExamService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private EduExamMapper eduExamMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private EnclosureService enclosureService;
+/*     */ 
+/*     */   public AjaxJson getAllExam(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  42 */     AjaxJson ajaxJson = new AjaxJson();
+/*  43 */     PageParams pageParams = new PageParams();
+/*  44 */     pageParams.setPage(page);
+/*  45 */     pageParams.setPageSize(pageSize);
+/*  46 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  47 */     maps.put("page", pageParams);
+/*     */     try {
+/*  49 */       List list = this.eduExamMapper.selectByExample(maps);
+/*  50 */       ajaxJson.setTotleNum(pageParams.getTotal());
+/*  51 */       ajaxJson.setObj(list);
+/*  52 */       ajaxJson.setMsg("true");
+/*  53 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/*  55 */       e.printStackTrace();
+/*  56 */       ajaxJson.setMsg("false");
+/*  57 */       ajaxJson.setFlag(false);
+/*     */     }
+/*  59 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getOneExam(Integer Id)
+/*     */   {
+/*  64 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try {
+/*  66 */       EduExam eduExam = this.eduExamMapper.selectByPrimaryKey(Id);
+/*  67 */       ajaxJson.setObj(eduExam);
+/*  68 */       ajaxJson.setMsg("true");
+/*  69 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/*  71 */       e.printStackTrace();
+/*  72 */       ajaxJson.setMsg("false");
+/*  73 */       ajaxJson.setFlag(false);
+/*     */     }
+/*  75 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson updateExam(EduExamWithBLOBs eduExamWithBLOBs, HttpServletRequest request)
+/*     */   {
+/* 128 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try {
+/* 130 */       if (eduExamWithBLOBs.getGradeId() == null) {
+/* 131 */         eduExamWithBLOBs.setGradeId("");
+/*     */       }
+/* 133 */       if (eduExamWithBLOBs.getClassId() == null) {
+/* 134 */         eduExamWithBLOBs.setClassId("");
+/*     */       }
+/* 136 */       if (eduExamWithBLOBs.getExamUserId() == null) {
+/* 137 */         eduExamWithBLOBs.setExamUserId("");
+/*     */       }
+/* 139 */       if (eduExamWithBLOBs.getReleaseTime() == null) {
+/* 140 */         eduExamWithBLOBs.setReleaseTime(DateFormat.getCurrentTime());
+/*     */       }
+/* 142 */       if (eduExamWithBLOBs.getAttachmentId() == null) {
+/* 143 */         eduExamWithBLOBs.setAttachmentId("");
+/*     */       }
+/* 145 */       if (eduExamWithBLOBs.getAttachmentName() == null) {
+/* 146 */         eduExamWithBLOBs.setAttachmentName("");
+/*     */       }
+/* 148 */       EduExam OldEduExam = this.eduExamMapper.queryExamByExamName(eduExamWithBLOBs.getExamName());
+/* 149 */       if (OldEduExam == null) {
+/* 150 */         this.eduExamMapper.insertSelective(eduExamWithBLOBs);
+/* 151 */         ajaxJson.setFlag(true);
+/* 152 */         ajaxJson.setMsg("ok");
+/*     */       } else {
+/* 154 */         ajaxJson.setFlag(false);
+/* 155 */         ajaxJson.setMsg("考试名称重复");
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 166 */       e.printStackTrace();
+/* 167 */       ajaxJson.setMsg("false");
+/* 168 */       ajaxJson.setFlag(false);
+/*     */     }
+/* 170 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson editExam(EduExamWithBLOBs eduExamWithBLOB, HttpServletRequest request)
+/*     */   {
+/* 175 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try {
+/* 177 */       if (eduExamWithBLOB.getGradeId() == null) {
+/* 178 */         eduExamWithBLOB.setGradeId("");
+/*     */       }
+/* 180 */       if (eduExamWithBLOB.getClassId() == null) {
+/* 181 */         eduExamWithBLOB.setClassId("");
+/*     */       }
+/* 183 */       if (eduExamWithBLOB.getExamUserId() == null) {
+/* 184 */         eduExamWithBLOB.setExamUserId("");
+/*     */       }
+/* 186 */       if (eduExamWithBLOB.getReleaseTime() == null) {
+/* 187 */         eduExamWithBLOB.setReleaseTime(DateFormat.getCurrentTime());
+/*     */       }
+/* 189 */       if (eduExamWithBLOB.getAttachmentId() == null) {
+/* 190 */         eduExamWithBLOB.setAttachmentId("");
+/*     */       }
+/* 192 */       if (eduExamWithBLOB.getAttachmentName() == null) {
+/* 193 */         eduExamWithBLOB.setAttachmentName("");
+/*     */       }
+/* 195 */       EduExam OldEduExam = this.eduExamMapper.queryExamByExamName(eduExamWithBLOB.getExamName());
+/* 196 */       if (OldEduExam == null) {
+/* 197 */         this.eduExamMapper.updateByPrimaryKeySelective(eduExamWithBLOB);
+/* 198 */         ajaxJson.setFlag(true);
+/* 199 */         ajaxJson.setMsg("ok");
+/* 200 */       } else if (OldEduExam.getId() == eduExamWithBLOB.getId()) {
+/* 201 */         this.eduExamMapper.updateByPrimaryKeySelective(eduExamWithBLOB);
+/* 202 */         ajaxJson.setFlag(true);
+/* 203 */         ajaxJson.setMsg("ok");
+/*     */       } else {
+/* 205 */         ajaxJson.setFlag(false);
+/* 206 */         ajaxJson.setMsg("考试名称重复");
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 217 */       e.printStackTrace();
+/* 218 */       ajaxJson.setMsg("false");
+/* 219 */       ajaxJson.setFlag(false);
+/*     */     }
+/* 221 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson deleteExam(Integer Id)
+/*     */   {
+/* 226 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try {
+/* 228 */       this.eduExamMapper.deleteByPrimaryKey(Id);
+/* 229 */       ajaxJson.setMsg("true");
+/* 230 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 232 */       e.printStackTrace();
+/* 233 */       ajaxJson.setMsg("false");
+/* 234 */       ajaxJson.setFlag(false);
+/*     */     }
+/* 236 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson deleteManyExam(String ids)
+/*     */   {
+/* 241 */     AjaxJson ajaxJson = new AjaxJson();
+/* 242 */     if (StringUtils.checkNull(ids).booleanValue()) {
+/* 243 */       ajaxJson.setMsg("The incoming parameter is null");
+/* 244 */       ajaxJson.setFlag(false);
+/* 245 */       return ajaxJson;
+/*     */     }
+/*     */     try {
+/* 248 */       String[] idArray = ids.split(",");
+/* 249 */       Integer length = Integer.valueOf(idArray.length);
+/* 250 */       for (int i = 0; i < length.intValue(); i++) {
+/* 251 */         this.eduExamMapper.deleteByPrimaryKey(Integer.valueOf(Integer.parseInt(idArray[i])));
+/* 252 */         ajaxJson.setMsg("true");
+/* 253 */         ajaxJson.setFlag(true);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 257 */       LG.e(new Object[] { e.getMessage() });
+/* 258 */       ajaxJson.setMsg("false");
+/* 259 */       ajaxJson.setFlag(false);
+/*     */     }
+/* 261 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson selectEduExam(String schoolYear, String semester, String examType, String examArrange, Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 275 */     AjaxJson ajaxJson = new AjaxJson();
+/* 276 */     PageParams pageParams = new PageParams();
+/* 277 */     pageParams.setPage(page);
+/* 278 */     pageParams.setPageSize(pageSize);
+/* 279 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 280 */     maps.put("page", pageParams);
+/* 281 */     EduExamWithBLOBs eduExamWithBLOBs = new EduExamWithBLOBs();
+/* 282 */     eduExamWithBLOBs.setSchoolYear(schoolYear);
+/* 283 */     eduExamWithBLOBs.setSemester(semester);
+/* 284 */     eduExamWithBLOBs.setExamType(examType);
+/* 285 */     eduExamWithBLOBs.setExamArrange(examArrange);
+/* 286 */     maps.put("eduExamWithBLOBs", eduExamWithBLOBs);
+/*     */     try
+/*     */     {
+/* 289 */       List list = this.eduExamMapper.selectEduExam(maps);
+/* 290 */       ajaxJson.setTotleNum(pageParams.getTotal());
+/* 291 */       ajaxJson.setObj(list);
+/* 292 */       ajaxJson.setMsg("true");
+/* 293 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 295 */       e.printStackTrace();
+/* 296 */       ajaxJson.setMsg("false");
+/* 297 */       ajaxJson.setFlag(false);
+/*     */     }
+/* 299 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduExamWithBLOBs> importEduExam(MultipartFile file, HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/* 310 */     ToJson json = new ToJson();
+/*     */ 
+/* 312 */     Integer successCount = Integer.valueOf(0);
+/*     */     try
+/*     */     {
+/* 316 */       ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 317 */       String osName = System.getProperty("os.name");
+/* 318 */       StringBuffer path = new StringBuffer();
+/* 319 */       if (osName.toLowerCase().startsWith("win"))
+/* 320 */         path = path.append(rb.getString("upload.win"));
+/*     */       else {
+/* 322 */         path = path.append(rb.getString("upload.linux"));
+/*     */       }
+/*     */ 
+/* 325 */       if (file.isEmpty()) {
+/* 326 */         json.setMsg("请上传文件！");
+/* 327 */         json.setFlag(1);
+/* 328 */         return json;
+/*     */       }
+/* 330 */       String fileName = file.getOriginalFilename();
+/* 331 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 332 */         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+/* 333 */         int pos = fileName.indexOf(".");
+/* 334 */         String extName = fileName.substring(pos);
+/* 335 */         String newFileName = uuid + extName;
+/* 336 */         File dest = new File(path.toString(), newFileName);
+/* 337 */         file.transferTo(dest);
+/*     */ 
+/* 340 */         String readPath = path.append(System.getProperty("file.separator")).append(newFileName).toString();
+/* 341 */         InputStream in = new FileInputStream(readPath);
+/* 342 */         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+/* 343 */         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+/* 344 */         Row row = sheetObj.getRow(0);
+/* 345 */         int colNum = row.getPhysicalNumberOfCells();
+/* 346 */         int lastRowNum = sheetObj.getLastRowNum();
+/* 347 */         List EduExamWithBLOBsList = new ArrayList();
+/* 348 */         EduExamWithBLOBs eduExamWithBLOBs = null;
+/* 349 */         for (int i = 1; i <= lastRowNum; i++) {
+/* 350 */           eduExamWithBLOBs = new EduExamWithBLOBs();
+/* 351 */           row = sheetObj.getRow(i);
+/* 352 */           if (row != null) {
+/* 353 */             for (int j = 0; j < colNum; j++) {
+/* 354 */               Cell cell = row.getCell(j);
+/* 355 */               String value = "";
+/* 356 */               if (cell != null) {
+/* 357 */                 switch (j)
+/*     */                 {
+/*     */                 case 0:
+/* 360 */                   BigDecimal big = new BigDecimal(cell.getNumericCellValue());
+/* 361 */                   value = big.toString();
+/*     */ 
+/* 363 */                   if ((null != value) && (!"".equals(value.trim()))) {
+/* 364 */                     String[] item = value.split("[.]");
+/* 365 */                     if ((1 < item.length) && ("0".equals(item[1]))) {
+/* 366 */                       value = item[0];
+/*     */                     }
+/*     */                   }
+/* 369 */                   eduExamWithBLOBs.setSchoolYear(value);
+/* 370 */                   break;
+/*     */                 case 1:
+/* 373 */                   eduExamWithBLOBs.setSemester(cell.getStringCellValue());
+/* 374 */                   break;
+/*     */                 case 2:
+/* 377 */                   eduExamWithBLOBs.setGradeName(cell.getStringCellValue());
+/* 378 */                   break;
+/*     */                 case 3:
+/* 381 */                   eduExamWithBLOBs.setExamName(cell.getStringCellValue());
+/* 382 */                   break;
+/*     */                 case 4:
+/* 385 */                   BigDecimal bigType = new BigDecimal(cell.getNumericCellValue());
+/* 386 */                   String valueType = bigType.toString();
+/*     */ 
+/* 388 */                   if ((null != valueType) && (!"".equals(valueType.trim()))) {
+/* 389 */                     String[] item = valueType.split("[.]");
+/* 390 */                     if ((1 < item.length) && ("0".equals(item[1]))) {
+/* 391 */                       valueType = item[0];
+/*     */                     }
+/*     */                   }
+/* 394 */                   String examType = 0 + valueType;
+/* 395 */                   eduExamWithBLOBs.setExamType(examType);
+/* 396 */                   break;
+/*     */                 case 5:
+/* 399 */                   eduExamWithBLOBs.setExamArrange(cell.getStringCellValue());
+/*     */                 }
+/*     */               }
+/*     */             }
+/*     */ 
+/* 404 */             eduExamWithBLOBs.setReleaseTime(DateFormat.getCurrentTime());
+/* 405 */             if (!eduExamWithBLOBs.getExamName().equals("测试数据")) {
+/* 406 */               int count = this.eduExamMapper.insertEduExam(eduExamWithBLOBs);
+/* 407 */               if (count > 0) {
+/* 408 */                 successCount = Integer.valueOf(successCount.intValue() + count);
+/*     */               }
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 416 */       if (successCount.intValue() > 0) {
+/* 417 */         json.setMsg(successCount + "");
+/* 418 */         json.setFlag(0);
+/* 419 */         return json;
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 422 */       e.printStackTrace();
+/* 423 */       json.setMsg("err");
+/*     */     }
+/* 425 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduExam.impl.EduExamServiceImpl
+ * JD-Core Version:    0.6.0
+ */

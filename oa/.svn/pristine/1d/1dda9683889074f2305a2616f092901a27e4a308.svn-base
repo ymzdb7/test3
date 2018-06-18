@@ -1,0 +1,146 @@
+/*     */ package com.xoa.service.seal;
+/*     */ 
+/*     */ import com.xoa.dao.seal.SealJingeKeyMapper;
+/*     */ import com.xoa.dao.seal.SealJingeMapper;
+/*     */ import com.xoa.model.seal.SealJinge;
+/*     */ import com.xoa.model.seal.SealJingeExample;
+/*     */ import com.xoa.model.seal.SealJingeKey;
+/*     */ import com.xoa.model.seal.SealJingeKeyExample;
+/*     */ import com.xoa.model.seal.SealJingeKeyExample.Criteria;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class SealJingeSevice
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   SealJingeMapper sealJingeMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   SealJingeKeyMapper sealJingeKeyMapper;
+/*     */ 
+/*     */   public ToJson<SealJinge> addSealJinge(HttpServletRequest request, SealJinge sealJinge)
+/*     */   {
+/*  35 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  37 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  38 */       String userId = users.getUserId();
+/*  39 */       sealJinge.setCreateUser(userId);
+/*  40 */       sealJinge.setCreateTime(new Date());
+/*  41 */       int a = this.sealJingeMapper.insertSelective(sealJinge);
+/*  42 */       if (a > 0) {
+/*  43 */         toJson.setObject(sealJinge);
+/*  44 */         toJson.setMsg("ok");
+/*  45 */         toJson.setFlag(0);
+/*     */       } else {
+/*  47 */         toJson.setMsg("err");
+/*  48 */         throw new Exception();
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  51 */       e.printStackTrace();
+/*  52 */       toJson.setMsg(e.getMessage());
+/*  53 */       toJson.setFlag(1);
+/*     */     }
+/*  55 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SealJinge> getSealJingeList() {
+/*  59 */     ToJson toJson = new ToJson();
+/*     */ 
+/*  61 */     SealJingeExample example = new SealJingeExample();
+/*  62 */     List<SealJinge> sealJingeList = this.sealJingeMapper.selectByExample(example);
+/*     */ 
+/*  64 */     for (SealJinge sealJinge : sealJingeList) {
+/*  65 */       String keyNos = "";
+/*  66 */       SealJingeKeyExample sealJingeKeyExample = new SealJingeKeyExample();
+/*  67 */       sealJingeKeyExample.or().andSealIdEqualTo(sealJinge.getSealId());
+/*  68 */       List<SealJingeKey> sealJingeKeyList = this.sealJingeKeyMapper.selectByExample(sealJingeKeyExample);
+/*  69 */       for (SealJingeKey sealJingeKey : sealJingeKeyList) {
+/*  70 */         if (sealJingeKey.getKeyNo() != null) {
+/*  71 */           keyNos = keyNos + "," + sealJingeKey.getKeyNo();
+/*     */         }
+/*     */       }
+/*  74 */       keyNos = keyNos.replaceFirst(",", "");
+/*  75 */       sealJinge.setKeyNos(keyNos);
+/*     */     }
+/*  77 */     if (sealJingeList != null) {
+/*  78 */       toJson.setFlag(0);
+/*  79 */       toJson.setMsg("查询成功!");
+/*  80 */       toJson.setObj(sealJingeList);
+/*     */     } else {
+/*  82 */       toJson.setFlag(1);
+/*  83 */       toJson.setMsg("查询失败!");
+/*     */     }
+/*  85 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SealJinge> getSealJinge(Integer sealId)
+/*     */   {
+/*  90 */     ToJson toJson = new ToJson();
+/*  91 */     SealJinge sealJinge = this.sealJingeMapper.selectByPrimaryKey(sealId);
+/*     */ 
+/*  93 */     if (sealJinge != null) {
+/*  94 */       toJson.setFlag(0);
+/*  95 */       toJson.setMsg("查询成功!");
+/*  96 */       toJson.setObject(sealJinge);
+/*     */     } else {
+/*  98 */       toJson.setFlag(1);
+/*  99 */       toJson.setMsg("查询失败!");
+/*     */     }
+/* 101 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional(rollbackFor={RuntimeException.class})
+/*     */   public ToJson<SealJinge> updateSealJinge(SealJinge sealJinge) {
+/* 107 */     ToJson toJson = new ToJson();
+/*     */     try
+/*     */     {
+/* 110 */       int result = this.sealJingeMapper.updateByPrimaryKeySelective(sealJinge);
+/* 111 */       if (result > 0) {
+/* 112 */         toJson.setFlag(0);
+/* 113 */         toJson.setMsg("更新成功!");
+/*     */       } else {
+/* 115 */         toJson.setFlag(1);
+/* 116 */         toJson.setMsg("更新失败!");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 119 */       e.printStackTrace();
+/* 120 */       throw new RuntimeException("更新失败！");
+/*     */     }
+/* 122 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SealJinge> deleteSealJinge(Integer sealId)
+/*     */   {
+/* 127 */     ToJson toJson = new ToJson();
+/*     */     try
+/*     */     {
+/* 130 */       int result = this.sealJingeMapper.deleteByPrimaryKey(sealId);
+/* 131 */       int result2 = this.sealJingeKeyMapper.deleteBySealId(sealId);
+/* 132 */       if ((result > 0) && (result2 > 0)) {
+/* 133 */         toJson.setFlag(0);
+/* 134 */         toJson.setMsg("删除成功!");
+/*     */       } else {
+/* 136 */         toJson.setFlag(1);
+/* 137 */         toJson.setMsg("删除失败!");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 140 */       e.printStackTrace();
+/*     */     }
+/* 142 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.seal.SealJingeSevice
+ * JD-Core Version:    0.6.0
+ */

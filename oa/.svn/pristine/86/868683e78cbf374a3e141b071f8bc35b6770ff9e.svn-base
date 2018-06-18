@@ -1,0 +1,118 @@
+/*     */ package com.xoa.service.attend;
+/*     */ 
+/*     */ import com.xoa.dao.attend.AttendanceOvertimeMapper;
+/*     */ import com.xoa.dao.common.SysCodeMapper;
+/*     */ import com.xoa.model.attend.AttendEvection;
+/*     */ import com.xoa.model.attend.AttendanceOvertime;
+/*     */ import com.xoa.model.common.SysCode;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.workflow.FlowFast;
+/*     */ import com.xoa.model.workflow.FlowRun;
+/*     */ import com.xoa.model.workflow.FlowTypeModel;
+/*     */ import com.xoa.service.WFE.WFERunner.WFEFlowRunInfo;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.DateCompute;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.ipUtil.IpAddr;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.List;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class AttendanceOvertimeService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private SysCodeMapper sysCodeMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private WFEFlowRunInfo wfeFlowRunInfo;
+/*     */ 
+/*     */   @Autowired
+/*     */   private AttendanceOvertimeMapper attendanceOvertimeMapper;
+/*     */ 
+/*     */   public ToJson<AttendanceOvertime> queryAttendanceOvertimeByUserId(String beginDate, String endDate, HttpServletRequest req)
+/*     */   {
+/*  45 */     ToJson json = new ToJson();
+/*     */     try {
+/*  47 */       String userId = ((Users)SessionUtils.getSessionInfo(req.getSession(), Users.class, new Users())).getUserId();
+/*  48 */       List<Date> dates = DateCompute.getBetweenDates(DateFormat.DateToStr(beginDate), DateFormat.DateToStr(endDate));
+/*  49 */       List attendanceOvertimeList = this.attendanceOvertimeMapper.queryAttendanceOvertimeByUserId(userId);
+/*  50 */       List newAttendanceOvertimeList = new ArrayList();
+/*  51 */       if (attendanceOvertimeList.size() > 0) {
+/*  52 */         for (Iterator i$ = attendanceOvertimeList.iterator(); i$.hasNext(); ) {
+	                AttendanceOvertime attendanceOvertime = (AttendanceOvertime)i$.next();
+/*  53 */           for (Date nowDate : dates) {
+/*  54 */             String aTime = DateFormat.getDatestrTime(attendanceOvertime.getRecordTime()).substring(0, 10);
+/*  55 */             String nTime = DateFormat.getDatestr(nowDate);
+/*  56 */             if (aTime.equals(nTime))
+/*  57 */               newAttendanceOvertimeList.add(attendanceOvertime);
+/*     */           }
+/*     */         }
+/*     */         AttendanceOvertime attendanceOvertime;
+/*  62 */         json.setObj(newAttendanceOvertimeList);
+/*  63 */         json.setFlag(0);
+/*  64 */         json.setMsg("err");
+/*     */       }
+/*     */       else {
+/*  67 */         json.setMsg("err");
+/*  68 */         json.setFlag(1);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/*  72 */       e.printStackTrace();
+/*  73 */       json.setFlag(1);
+/*  74 */       json.setMsg("err");
+/*     */     }
+/*  76 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper addAttendanceOvertime(String createDate, HttpServletRequest request) {
+/*  80 */     BaseWrapper baseWrapper = new BaseWrapper();
+/*  81 */     AttendanceOvertime attendanceOvertime = new AttendanceOvertime();
+/*  82 */     AttendEvection attendEvection = new AttendEvection();
+/*  83 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/*  85 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  86 */     List<SysCode> SysCode = this.sysCodeMapper.getSysCode("KQQJTYPE");
+/*  87 */     for (SysCode sysCode : SysCode) {
+/*  88 */       if (sysCode.getCodeName().equals("加班申请")) {
+/*  89 */         ToJson flowFastToJson = this.wfeFlowRunInfo.workFastAdd(users, Integer.parseInt(sysCode.getCodeNo()), 1, "1", "", request, sqlType, "", null);
+/*  90 */         if (flowFastToJson.isFlag()) {
+/*  91 */           FlowFast flowFast = (FlowFast)flowFastToJson.getObject();
+/*  92 */           attendanceOvertime.setUserId(users.getUserId());
+/*  93 */           attendanceOvertime.setRegisterIp(IpAddr.getIpAddress(request));
+/*  94 */           attendanceOvertime.setRecordTime(DateFormat.getDate(createDate));
+/*  95 */           attendanceOvertime.setRunId(Integer.valueOf(flowFast.getFlowRun().getRunId()));
+/*  96 */           attendanceOvertime.setStatus("1");
+/*  97 */           attendanceOvertime.setTableName("attendance_overtime");
+/*  98 */           attendanceOvertime.setAllow("0");
+/*  99 */           int amount = this.attendanceOvertimeMapper.insertSelective(attendanceOvertime);
+/* 100 */           if (amount > 0) {
+/* 101 */             attendanceOvertime.setFlowId(flowFast.getFlowTypeModel().getFlowId().toString());
+/* 102 */             attendanceOvertime.setFlowName(flowFast.getFlowTypeModel().getFlowName());
+/* 103 */             baseWrapper.setFlag(true);
+/* 104 */             baseWrapper.setStatus(true);
+/* 105 */             baseWrapper.setData(attendanceOvertime);
+/* 106 */             baseWrapper.setMsg("更新成功");
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 112 */     return baseWrapper;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.attend.AttendanceOvertimeService
+ * JD-Core Version:    0.6.0
+ */

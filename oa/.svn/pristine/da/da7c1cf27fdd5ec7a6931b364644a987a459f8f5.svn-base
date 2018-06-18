@@ -1,0 +1,270 @@
+/*     */ package com.xoa.service.workflow.flowformtype;
+/*     */ 
+/*     */ import com.xoa.dao.workflow.FlowFormTypeMapper;
+/*     */ import com.xoa.model.workflow.FlowFormType;
+/*     */ import com.xoa.model.workflow.FlowFormTypeExtends;
+/*     */ import com.xoa.model.workflow.FlowFormTypeParentModel;
+/*     */ import com.xoa.service.workflow.wrapper.FlowFormWrappers;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Comparator;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.Map.Entry;
+/*     */ import java.util.TreeMap;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class FlowFormService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   FlowFormTypeMapper flowFormTypeMapper;
+/*     */ 
+/*     */   public FlowFormWrappers getFormBySortId(Integer sortId)
+/*     */   {
+/*  34 */     FlowFormWrappers wrappers = new FlowFormWrappers();
+/*  35 */     List datas = this.flowFormTypeMapper.selectFormBySort(sortId);
+/*  36 */     if ((datas != null) && (datas.size() > 0)) {
+/*  37 */       wrappers.setDatas(datas);
+/*  38 */       wrappers.setStatus(true);
+/*  39 */       wrappers.setFlag(true);
+/*  40 */       wrappers.setMsg("数据请求成功");
+/*     */     } else {
+/*  42 */       wrappers.setStatus(true);
+/*  43 */       wrappers.setFlag(false);
+/*  44 */       wrappers.setMsg("没有数据了，请新建...");
+/*     */     }
+/*     */ 
+/*  47 */     return wrappers;
+/*     */   }
+/*     */ 
+/*     */   public FlowFormWrappers seachForm(String searchValue, Integer sortId)
+/*     */   {
+/*  60 */     FlowFormWrappers wrapper = new FlowFormWrappers();
+/*     */ 
+/*  62 */     if (StringUtils.checkNull(searchValue).booleanValue()) {
+/*  63 */       wrapper.setMsg("搜素字段不能为空");
+/*  64 */       wrapper.setFlag(false);
+/*  65 */       wrapper.setStatus(true);
+/*  66 */       return wrapper;
+/*     */     }
+/*  68 */     List datas = this.flowFormTypeMapper.queryBySearchValue(searchValue, sortId);
+/*  69 */     if ((datas != null) && (datas.size() > 0)) {
+/*  70 */       wrapper.setDatas(datas);
+/*  71 */       wrapper.setStatus(true);
+/*  72 */       wrapper.setFlag(true);
+/*  73 */       wrapper.setMsg("数据请求成功");
+/*     */     } else {
+/*  75 */       wrapper.setStatus(true);
+/*  76 */       wrapper.setFlag(false);
+/*  77 */       wrapper.setMsg("没有数据了，请新建...");
+/*     */     }
+/*  79 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper newForm(String formName, Integer deptId, Integer formSort, String otherinfo)
+/*     */   {
+/*  93 */     BaseWrapper wrapper = new BaseWrapper();
+/*  94 */     if (StringUtils.checkNull(formName).booleanValue()) {
+/*  95 */       wrapper.setFlag(false);
+/*  96 */       wrapper.setStatus(true);
+/*  97 */       wrapper.setMsg("表单名称不能为空");
+/*  98 */       return wrapper;
+/*     */     }
+/* 100 */     FlowFormType flowFormType = new FlowFormType();
+/* 101 */     flowFormType.setFormName(formName);
+/* 102 */     flowFormType.setDeptId(deptId);
+/* 103 */     flowFormType.setFormSort(formSort);
+/* 104 */     flowFormType.setPrintModel(otherinfo);
+/* 105 */     int res = this.flowFormTypeMapper.insertSelectParam(flowFormType);
+/* 106 */     if (res > 0) {
+/* 107 */       wrapper.setFlag(true);
+/* 108 */       wrapper.setStatus(true);
+/* 109 */       wrapper.setMsg("新建表单成功");
+/*     */     } else {
+/* 111 */       wrapper.setFlag(false);
+/* 112 */       wrapper.setStatus(true);
+/* 113 */       wrapper.setMsg("新建表单失败");
+/*     */     }
+/*     */ 
+/* 116 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper updateForm(Integer formId, String formName, Integer deptId, Integer formSort, String otherinfo)
+/*     */   {
+/* 131 */     BaseWrapper wrapper = new BaseWrapper();
+/* 132 */     if (StringUtils.checkNull(formName).booleanValue()) {
+/* 133 */       wrapper.setFlag(false);
+/* 134 */       wrapper.setStatus(true);
+/* 135 */       wrapper.setMsg("表单名称不能为空");
+/* 136 */       return wrapper;
+/*     */     }
+/* 138 */     if (formId == null) {
+/* 139 */       wrapper.setFlag(false);
+/* 140 */       wrapper.setStatus(true);
+/* 141 */       wrapper.setMsg("表单Id不能为空");
+/* 142 */       return wrapper;
+/*     */     }
+/* 144 */     FlowFormTypeExtends flowFormType = new FlowFormTypeExtends();
+/* 145 */     flowFormType.setFormName(formName);
+/* 146 */     flowFormType.setDeptId(deptId);
+/* 147 */     flowFormType.setFormSort(formSort);
+/* 148 */     flowFormType.setFormId(formId);
+/*     */ 
+/* 150 */     int res = this.flowFormTypeMapper.updateSelectParam(flowFormType);
+/* 151 */     if (res > 0) {
+/* 152 */       wrapper.setFlag(true);
+/* 153 */       wrapper.setStatus(true);
+/* 154 */       wrapper.setMsg("更新表单成功");
+/*     */     } else {
+/* 156 */       wrapper.setFlag(false);
+/* 157 */       wrapper.setStatus(true);
+/* 158 */       wrapper.setMsg("更新表单失败");
+/*     */     }
+/*     */ 
+/* 161 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper deleteForm(Integer formId)
+/*     */   {
+/* 172 */     BaseWrapper wrapper = new BaseWrapper();
+/* 173 */     if (formId == null) {
+/* 174 */       wrapper.setFlag(false);
+/* 175 */       wrapper.setStatus(true);
+/* 176 */       wrapper.setMsg("表单Id不能为空");
+/* 177 */       return wrapper;
+/*     */     }
+/*     */ 
+/* 180 */     int useNumber = this.flowFormTypeMapper.checkFormUserNumber(formId);
+/* 181 */     if (useNumber > 0) {
+/* 182 */       wrapper.setFlag(false);
+/* 183 */       wrapper.setStatus(true);
+/* 184 */       wrapper.setMsg("表单被占用，请先解除关联或删除对应流程");
+/* 185 */       return wrapper;
+/*     */     }
+/*     */ 
+/* 189 */     int res = this.flowFormTypeMapper.deleteForm(formId);
+/*     */ 
+/* 191 */     if (res > 0) {
+/* 192 */       wrapper.setFlag(true);
+/* 193 */       wrapper.setStatus(true);
+/* 194 */       wrapper.setMsg("删除成功");
+/*     */     } else {
+/* 196 */       wrapper.setFlag(false);
+/* 197 */       wrapper.setStatus(true);
+/* 198 */       wrapper.setMsg("操作失败");
+/*     */     }
+/* 200 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper updateFormType(Integer formId, String formName, Integer deptId, Integer formSort, String printModel, Integer itemMax, String script, String css) {
+/* 204 */     BaseWrapper wrapper = new BaseWrapper();
+/*     */ 
+/* 206 */     if (formId == null) {
+/* 207 */       wrapper.setFlag(false);
+/* 208 */       wrapper.setStatus(true);
+/* 209 */       wrapper.setMsg("表单Id不能为空");
+/* 210 */       return wrapper;
+/*     */     }
+/*     */ 
+/* 214 */     FlowFormTypeExtends flowFormType = new FlowFormTypeExtends();
+/* 215 */     flowFormType.setFormId(formId);
+/* 216 */     if (!StringUtils.checkNull(printModel).booleanValue()) {
+/* 217 */       flowFormType.setPrintModel(printModel);
+/* 218 */       flowFormType.setPrintModelShort(printModel);
+/* 219 */       flowFormType.setItemMax(itemMax);
+/*     */     }
+/* 221 */     if (!StringUtils.checkNull(script).booleanValue()) {
+/* 222 */       flowFormType.setScript(script);
+/*     */     }
+/* 224 */     if (!StringUtils.checkNull(css).booleanValue()) {
+/* 225 */       flowFormType.setCss(css);
+/*     */     }
+/*     */ 
+/* 229 */     int res = this.flowFormTypeMapper.updateSelectParam(flowFormType);
+/* 230 */     if (res > 0) {
+/* 231 */       wrapper.setFlag(true);
+/* 232 */       wrapper.setStatus(true);
+/* 233 */       wrapper.setMsg("更新表单成功");
+/*     */     } else {
+/* 235 */       wrapper.setFlag(false);
+/* 236 */       wrapper.setStatus(true);
+/* 237 */       wrapper.setMsg("更新表单失败");
+/*     */     }
+/*     */ 
+/* 240 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public FlowFormWrappers getFormByAll()
+/*     */   {
+/* 245 */     FlowFormWrappers wrappers = new FlowFormWrappers();
+/* 246 */     List redatas = this.flowFormTypeMapper.selectAllForm();
+/*     */ 
+/* 248 */     List datas = formatForm(redatas);
+/* 249 */     if ((datas != null) && (datas.size() > 0)) {
+/* 250 */       wrappers.setDatas(datas);
+/* 251 */       wrappers.setStatus(true);
+/* 252 */       wrappers.setFlag(true);
+/* 253 */       wrappers.setMsg("数据请求成功");
+/*     */     } else {
+/* 255 */       wrappers.setStatus(true);
+/* 256 */       wrappers.setFlag(false);
+/* 257 */       wrappers.setMsg("没有数据了，请新建...");
+/*     */     }
+/* 259 */     return wrappers;
+/*     */   }
+/*     */ 
+/*     */   private List<FlowFormTypeParentModel> formatForm(List<FlowFormType> redatas) {
+/* 263 */     List ret = new ArrayList();
+/* 264 */     Map<Object,Object> map = new TreeMap(
+		      new Comparator()
+/*     */     { 
+				@Override
+				public int compare(Object o1, Object o2) {
+					 return  o1.toString().compareTo(o2.toString());
+				}
+		      }
+/*     */
+ );
+/* 270 */     List flist = new ArrayList();
+/* 271 */     for (FlowFormType form : redatas) {
+/* 272 */       Integer sortId = form.getFormSort();
+/* 273 */       if ((sortId == null) || (sortId.intValue() == 0)) {
+/* 274 */         sortId = Integer.valueOf(-1);
+/*     */       }
+/* 276 */       String keyId = String.valueOf(sortId);
+/* 277 */       flist = (List)map.get(keyId);
+/* 278 */       if (flist == null) {
+/* 279 */         flist = new ArrayList();
+/*     */       }
+/* 281 */       flist.add(form);
+/* 282 */       map.put(keyId, flist);
+/*     */     }
+/* 284 */     for (Map.Entry entry : map.entrySet()) {
+/* 285 */       FlowFormTypeParentModel model = new FlowFormTypeParentModel();
+/* 286 */       if ("-1".equals(entry.getKey())) {
+/* 287 */         model.setSortName("未分类");
+/* 288 */         model.setForm((List)entry.getValue());
+/* 289 */         ret.add(model);
+/*     */       } else {
+/* 291 */         List child = (List)entry.getValue();
+/* 292 */         String name = "未知类型";
+/* 293 */         if ((child != null) && (child.size() > 0)) {
+/* 294 */           name = ((FlowFormType)child.get(0)).getSortName();
+/*     */         }
+/* 296 */         model.setSortName(name);
+/* 297 */         model.setForm((List)entry.getValue());
+/* 298 */         ret.add(model);
+/*     */       }
+/*     */     }
+/* 301 */     return ret;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.workflow.flowformtype.FlowFormService
+ * JD-Core Version:    0.6.0
+ */

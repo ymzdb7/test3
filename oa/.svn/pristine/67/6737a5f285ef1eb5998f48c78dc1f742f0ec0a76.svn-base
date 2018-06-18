@@ -1,0 +1,228 @@
+/*     */ package com.xoa.service.portalColumn.impl;
+/*     */ 
+/*     */ import com.xoa.dao.portalColumn.PortalColumnMapper;
+/*     */ import com.xoa.dao.site.SiteMapper;
+/*     */ import com.xoa.model.portalColumn.PortalColumn;
+/*     */ import com.xoa.model.portalColumn.TeeZTreeModel;
+/*     */ import com.xoa.model.site.Site;
+/*     */ import com.xoa.service.portalColumn.PortalColumnService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class PortalColumnServiceImpl
+/*     */   implements PortalColumnService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private PortalColumnMapper portalColumnMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SiteMapper siteMapper;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<PortalColumn> selectPortalColumn()
+/*     */   {
+/*  33 */     ToJson json = new ToJson();
+/*     */     try {
+/*  35 */       List list = this.portalColumnMapper.selectPortalColumn();
+/*  36 */       if (list.size() > 0) {
+/*  37 */         json.setObj(list);
+/*  38 */         json.setMsg("ok");
+/*  39 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  42 */       json.setFlag(1);
+/*  43 */       json.setMsg(e.getMessage());
+/*  44 */       e.printStackTrace();
+/*     */     }
+/*  46 */     return json;
+/*     */   }
+/*     */   @Transactional
+/*     */   public ToJson selectPortalColumnById(Integer columnId) {
+/*  51 */     ToJson json = new ToJson();
+/*     */     try {
+/*  53 */       PortalColumn portalColumn = this.portalColumnMapper.selectByPrimaryKey(columnId);
+/*  54 */       json.setObject(portalColumn);
+/*  55 */       json.setMsg("ok");
+/*  56 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  58 */       json.setFlag(1);
+/*  59 */       json.setMsg(e.getMessage());
+/*  60 */       e.printStackTrace();
+/*     */     }
+/*  62 */     return json;
+/*     */   }
+/*     */   @Transactional
+/*     */   public ToJson<PortalColumn> insertPortalColumn(PortalColumn PortalColumn) {
+/*  67 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/*  70 */       int temp = this.portalColumnMapper.insertSelective(PortalColumn);
+/*  71 */       if (temp > 0) {
+/*  72 */         toJson.setFlag(0);
+/*  73 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  76 */       toJson.setFlag(1);
+/*  77 */       toJson.setMsg(e.getMessage());
+/*  78 */       e.printStackTrace();
+/*     */     }
+/*  80 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<PortalColumn> upPortalColumn(PortalColumn PortalColumn) {
+/*  86 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/*  89 */       int temp = this.portalColumnMapper.updateByPrimaryKeySelective(PortalColumn);
+/*  90 */       if (temp > 0) {
+/*  91 */         toJson.setFlag(0);
+/*  92 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  95 */       toJson.setFlag(1);
+/*  96 */       toJson.setMsg(e.getMessage());
+/*  97 */       e.printStackTrace();
+/*     */     }
+/*  99 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<PortalColumn> delPortalColumn(Integer[] ids)
+/*     */   {
+/* 104 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 107 */       int temp = this.portalColumnMapper.delPortalColumn(ids);
+/* 108 */       if (temp > 0) {
+/* 109 */         toJson.setFlag(0);
+/* 110 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 113 */       toJson.setFlag(1);
+/* 114 */       toJson.setMsg(e.getMessage());
+/* 115 */       e.printStackTrace();
+/*     */     }
+/* 117 */     return toJson;
+/*     */   }
+/*     */   @Transactional
+/*     */   public ToJson<Site> selectSite() {
+/* 122 */     ToJson json = new ToJson();
+/* 123 */     List list = this.siteMapper.selectSite();
+/*     */     try
+/*     */     {
+/* 126 */       if (list.size() > 0) {
+/* 127 */         json.setObj(list);
+/* 128 */         json.setMsg("ok");
+/* 129 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 132 */       json.setFlag(1);
+/* 133 */       json.setMsg(e.getMessage());
+/* 134 */       e.printStackTrace();
+/*     */     }
+/* 136 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<TeeZTreeModel> ColumnTree(String id, Integer[] portalIds, Integer[] colIds) {
+/* 142 */     ToJson json = new ToJson();
+/* 143 */     List list = new ArrayList();
+/* 144 */     Integer childCount = Integer.valueOf(0);
+/* 145 */     if ((id == null) && (portalIds.length > 0)) {
+/* 146 */       List<Site> siteList = this.siteMapper.selectSiteSids(portalIds);
+/* 147 */       for (Site si : siteList) {
+/* 148 */         TeeZTreeModel model = new TeeZTreeModel();
+/* 149 */         model.setOpen(true);
+/* 150 */         model.setName(si.getPortalName());
+/* 151 */         model.setTitle(si.getPortalName());
+/* 152 */         model.setIconSkin("site");
+/* 153 */         model.setId(si.getPortalId() + ";site");
+/* 154 */         model.setExtend1(si.getPortalId() + "");
+/*     */ 
+/* 156 */         childCount = Integer.valueOf(this.portalColumnMapper.count(si.getPortalId()));
+/* 157 */         if (childCount.intValue() != 0)
+/* 158 */           model.setParent(true);
+/*     */         else {
+/* 160 */           model.setParent(false);
+/*     */         }
+/* 162 */         list.add(model);
+/*     */       }
+/*     */     }
+/* 165 */     else if ((id != null) && (id.equals("0"))) {
+/* 166 */       List<Site> sites = this.siteMapper.selectSite();
+/* 167 */       for (Site site : sites) {
+/* 168 */         TeeZTreeModel model = new TeeZTreeModel();
+/* 169 */         model.setOpen(true);
+/* 170 */         model.setName(site.getPortalName());
+/* 171 */         model.setTitle(site.getPortalName());
+/* 172 */         model.setIconSkin("site");
+/* 173 */         model.setId(site.getPortalId() + ";site");
+/* 174 */         model.setExtend1(site.getPortalId() + "");
+/*     */ 
+/* 176 */         childCount = Integer.valueOf(this.portalColumnMapper.count(site.getPortalId()));
+/* 177 */         if (childCount.intValue() != 0)
+/* 178 */           model.setParent(true);
+/*     */         else {
+/* 180 */           model.setParent(false);
+/*     */         }
+/* 182 */         list.add(model);
+/*     */       }
+/*     */     }
+/*     */     else {
+/* 186 */       String[] sp = id.split(";");
+/* 187 */       Integer sid = Integer.valueOf(sp[0]);
+/* 188 */       String type = sp[1];
+/* 189 */       List<PortalColumn> columnsList = null;
+/* 190 */       if (type.equals("site"))
+/* 191 */         columnsList = this.portalColumnMapper.siteExpandColumn(sid, colIds);
+/* 192 */       else if (type.equals("chnl")) {
+/* 193 */         columnsList = this.portalColumnMapper.columnExpandColumn(sid, colIds);
+/*     */       }
+/* 195 */       for (PortalColumn portalColumn : columnsList) {
+/* 196 */         TeeZTreeModel model = new TeeZTreeModel();
+/* 197 */         model.setOpen(true);
+/* 198 */         model.setParent(true);
+/* 199 */         model.setName(portalColumn.getColumnName());
+/* 200 */         model.setTitle(portalColumn.getColumnName());
+/* 201 */         model.setIconSkin("channel");
+/* 202 */         model.setId(portalColumn.getColumnId() + ";chnl");
+/* 203 */         model.setExtend1(portalColumn.getColumnId() + "");
+/*     */ 
+/* 205 */         childCount = Integer.valueOf(this.portalColumnMapper.columnCount(portalColumn.getPortalId(), portalColumn.getColumnId()));
+/* 206 */         if (childCount.intValue() != 0)
+/* 207 */           model.setParent(true);
+/*     */         else {
+/* 209 */           model.setParent(false);
+/*     */         }
+/* 211 */         list.add(model);
+/*     */       }
+/*     */     }
+/*     */     try
+/*     */     {
+/* 216 */       if (list.size() > 0)
+/*     */       {
+/* 218 */         json.setObj(list);
+/* 219 */         json.setFlag(0);
+/* 220 */         json.setMsg("ok");
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 224 */       json.setFlag(1);
+/* 225 */       json.setMsg(e.getMessage());
+/* 226 */       e.printStackTrace();
+/*     */     }
+/*     */ 
+/* 230 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.portalColumn.impl.PortalColumnServiceImpl
+ * JD-Core Version:    0.6.0
+ */

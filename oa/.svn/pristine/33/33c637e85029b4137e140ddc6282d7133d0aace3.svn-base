@@ -1,0 +1,222 @@
+/*     */ package com.xoa.controller.book;
+/*     */ 
+/*     */ import com.xoa.model.book.BookManager;
+/*     */ import com.xoa.service.book.BookManagerService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/bookManager"})
+/*     */ public class BookManagerController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private BookManagerService bookManagerService;
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/insertManager"})
+/*     */   public ToJson<BookManager> insertManager(BookManager bookManager)
+/*     */   {
+/*  40 */     return this.bookManagerService.insertManager(bookManager);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/upManagerById"})
+/*     */   public ToJson<BookManager> upManagerById(BookManager bookManager)
+/*     */   {
+/*  53 */     return this.bookManagerService.upManagerById(bookManager);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/delManagerById"})
+/*     */   public ToJson<BookManager> delManagerById(Integer autoId)
+/*     */   {
+/*  66 */     return this.bookManagerService.delManagerById(autoId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selManagerById"})
+/*     */   public ToJson<BookManager> selManagerById(Integer autoId)
+/*     */   {
+/*  79 */     return this.bookManagerService.selManagerById(autoId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selAllManager"})
+/*     */   public ToJson<BookManager> selAllManager()
+/*     */   {
+/*  91 */     return this.bookManagerService.selAllManager();
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/inputIndex"})
+/*     */   public String inputIndex(HttpServletRequest request)
+/*     */   {
+/* 102 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 104 */     return "app/book/bookInput/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/bookManage"})
+/*     */   public String bookManage(HttpServletRequest request)
+/*     */   {
+/* 115 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 117 */     return "app/book/bookInput/bookManage";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/editBook"})
+/*     */   public String editBook(HttpServletRequest request)
+/*     */   {
+/* 128 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 130 */     return "app/book/bookInput/editBook";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/addBook"})
+/*     */   public String addBook(HttpServletRequest request)
+/*     */   {
+/* 141 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 143 */     return "app/book/bookInput/addBook";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/inputBook"})
+/*     */   public String inputBook(HttpServletRequest request)
+/*     */   {
+/* 154 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 156 */     return "app/book/bookInput/inputBook";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/bookQuery"})
+/*     */   public String bookQuery(HttpServletRequest request)
+/*     */   {
+/* 167 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 169 */     return "app/book/bookInput/bookQuery";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/query"})
+/*     */   public String query(HttpServletRequest request)
+/*     */   {
+/* 181 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 183 */     return "app/book/bookQuery/query";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/queryIndex"})
+/*     */   public String queryIndex(HttpServletRequest request)
+/*     */   {
+/* 194 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 196 */     return "app/book/bookQuery/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/bookDetail"})
+/*     */   public String bookDetail(HttpServletRequest request)
+/*     */   {
+/* 207 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 209 */     return "app/book/bookQuery/bookDetail";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/Pending"})
+/*     */   public String Pending(HttpServletRequest request)
+/*     */   {
+/* 220 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 222 */     return "app/book/bookQuery/Pending";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/approval"})
+/*     */   public String approval(HttpServletRequest request)
+/*     */   {
+/* 233 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 235 */     return "app/book/bookQuery/approval";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/Noapproved"})
+/*     */   public String Noapproved(HttpServletRequest request)
+/*     */   {
+/* 246 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 248 */     return "app/book/bookQuery/Noapproved";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/selectBook"})
+/*     */   public String selectBook(HttpServletRequest request)
+/*     */   {
+/* 259 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 261 */     return "app/book/bookQuery/selectBook";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/setIndex"})
+/*     */   public String setIndex(HttpServletRequest request)
+/*     */   {
+/* 273 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 275 */     return "app/book/bookSetting/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/bookType"})
+/*     */   public String bookType(HttpServletRequest request)
+/*     */   {
+/* 286 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 288 */     return "app/book/bookSetting/bookType";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/managerSetting"})
+/*     */   public String managerSetting(HttpServletRequest request)
+/*     */   {
+/* 299 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 301 */     return "app/book/bookSetting/managerSetting";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/replayIndex"})
+/*     */   public String replayIndex(HttpServletRequest request)
+/*     */   {
+/* 312 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 314 */     return "app/book/bookReplay/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/borrowManage"})
+/*     */   public String borrowManage(HttpServletRequest request)
+/*     */   {
+/* 325 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 327 */     return "app/book/bookReplay/borrowManage";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/bookReturn"})
+/*     */   public String bookReturn(HttpServletRequest request)
+/*     */   {
+/* 338 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 340 */     return "app/book/bookReplay/bookReturn";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/bookRecord"})
+/*     */   public String bookRecord(HttpServletRequest request)
+/*     */   {
+/* 351 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 353 */     return "app/book/bookReplay/bookRecord";
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.book.BookManagerController
+ * JD-Core Version:    0.6.0
+ */

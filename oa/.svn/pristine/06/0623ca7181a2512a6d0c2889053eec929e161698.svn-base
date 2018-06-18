@@ -1,0 +1,341 @@
+ package com.myoa.service.edu.teacher;
+ 
+ import com.myoa.dao.department.DepartmentMapper;
+import com.myoa.dao.edu.teacher.TeacheringInfoMapper;
+import com.myoa.model.edu.teacher.TeacheringInfo;
+import com.myoa.util.DateFormat;
+import com.myoa.util.ExcelUtil;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.L;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.common.log.FileUtils;
+import com.myoa.util.page.PageParams;
+
+ import java.io.File;
+ import java.io.FileInputStream;
+ import java.io.InputStream;
+ import java.util.Date;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.ResourceBundle;
+ import java.util.UUID;
+ import javax.servlet.ServletOutputStream;
+ import javax.servlet.http.HttpServletRequest;
+ import javax.servlet.http.HttpServletResponse;
+ import org.apache.poi.hssf.usermodel.HSSFSheet;
+ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+ import org.apache.poi.ss.usermodel.Row;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+ 
+ @Service
+ public class TeachingService
+ {
+ 
+   @Autowired
+   private TeacheringInfoMapper teacherInfoMapper;
+ 
+   @Autowired
+   private DepartmentMapper departmentMapper;
+ 
+   public ToJson<Object> insertObject(TeacheringInfo teacherInfo)
+   {
+     ToJson json = new ToJson(1, "err");
+     try {
+       int i = this.teacherInfoMapper.insertSelective(teacherInfo);
+       if (i > 0) {
+         json.setFlag(0);
+         json.setMsg("ok");
+       }
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+   public ToJson<Object> editInfo(TeacheringInfo teacherInfo) {
+     ToJson json = new ToJson(1, "err");
+     try {
+       int i = this.teacherInfoMapper.updateByPrimaryKeySelective(teacherInfo);
+       if (i > 0) {
+         json.setFlag(0);
+         json.setMsg("ok");
+       }
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+   public ToJson<Object> deleteInfo(Integer id) {
+     ToJson json = new ToJson(1, "err");
+     try {
+       this.teacherInfoMapper.deleteByPrimaryKey(id);
+       json.setFlag(0);
+       json.setMsg("ok");
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<TeacheringInfo> selectObjectById(Integer id) {
+     ToJson json = new ToJson(1, "err");
+     try {
+       TeacheringInfo teacherInfo = this.teacherInfoMapper.selectByPrimaryKey(id);
+       if (!StringUtils.checkNull(teacherInfo.getSsxxNo()).booleanValue()) {
+         teacherInfo.setSchoolName(this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(teacherInfo.getSsxxNo())));
+       }
+       json.setFlag(0);
+       json.setMsg("ok");
+       json.setObject(teacherInfo);
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+   public ToJson<TeacheringInfo> selectObject(TeacheringInfo teacheringInfo, Integer page, Integer pageSize, boolean useFlag) {
+     ToJson json = new ToJson(1, "err");
+     try
+     {
+       PageParams pageParams = new PageParams();
+       pageParams.setPage(page);
+       pageParams.setPageSize(pageSize);
+       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+       Map map = new HashMap();
+       map.put("page", pageParams);
+       List teacherInfo = this.teacherInfoMapper.selectObject(map);
+       json.setFlag(0);
+       json.setMsg("ok");
+       json.setTotleNum(pageParams.getTotal());
+       json.setObject(teacherInfo);
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<TeacheringInfo> importTeacherInfo(HttpServletRequest request, HttpServletResponse response, MultipartFile file)
+   {
+     ToJson json = new ToJson(1, "error");
+     try
+     {
+       ResourceBundle rb = ResourceBundle.getBundle("upload");
+       String osName = System.getProperty("os.name");
+       StringBuffer path = new StringBuffer();
+       if (osName.toLowerCase().startsWith("win"))
+         path = path.append(rb.getString("upload.win"));
+       else {
+         path = path.append(rb.getString("upload.linux"));
+       }
+       int success = 0;
+ 
+       if (file.isEmpty()) {
+         json.setMsg("请上传文件！");
+         json.setFlag(1);
+         return json;
+       }
+       String fileName = file.getOriginalFilename();
+       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+         int pos = fileName.indexOf(".");
+         String extName = fileName.substring(pos);
+         String newFileName = uuid + extName;
+         File dest = new File(path.toString(), newFileName);
+         file.transferTo(dest);
+ 
+         String readPath = path.append(System.getProperty("file.separator")).append(newFileName).toString();
+         InputStream in = new FileInputStream(readPath);
+         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+         Row row = sheetObj.getRow(0);
+         int colNum = row.getPhysicalNumberOfCells();
+         int lastRowNum = sheetObj.getLastRowNum();
+         Map map = new HashMap();
+         map.put("name", Integer.valueOf(0));
+         map.put("preName", Integer.valueOf(1));
+         map.put("nation", Integer.valueOf(2));
+         map.put("sex", Integer.valueOf(3));
+         map.put("idCardType", Integer.valueOf(4));
+         map.put("idCard", Integer.valueOf(5));
+         map.put("ssxx", Integer.valueOf(6));
+         map.put("ssxxNo", Integer.valueOf(7));
+         map.put("jobStartime", Integer.valueOf(8));
+         map.put("political", Integer.valueOf(9));
+         map.put("pohne", Integer.valueOf(10));
+         map.put("postCate", Integer.valueOf(11));
+         map.put("post", Integer.valueOf(12));
+         map.put("birth", Integer.valueOf(13));
+         map.put("origin", Integer.valueOf(14));
+         map.put("address", Integer.valueOf(15));
+         map.put("postalAddress", Integer.valueOf(16));
+         map.put("email", Integer.valueOf(17));
+         map.put("isInseries", Integer.valueOf(18));
+         map.put("isInpost", Integer.valueOf(19));
+         map.put("heighestDegree", Integer.valueOf(20));
+         map.put("heighestDegreeName", Integer.valueOf(21));
+         map.put("heighestEdu", Integer.valueOf(22));
+         map.put("heighestEduMajor", Integer.valueOf(23));
+         map.put("majorDate", Integer.valueOf(24));
+         map.put("majorEduSchool", Integer.valueOf(25));
+         map.put("firstEdu", Integer.valueOf(26));
+         map.put("firstEduMajor", Integer.valueOf(27));
+         map.put("firstEduDate", Integer.valueOf(28));
+         map.put("firstEduSchool", Integer.valueOf(29));
+         map.put("teacherBookType", Integer.valueOf(30));
+         map.put("teacherBookNo", Integer.valueOf(31));
+         map.put("getHskbookGrade", Integer.valueOf(32));
+         map.put("hskbookDate", Integer.valueOf(33));
+         map.put("getMhkbookGrade", Integer.valueOf(34));
+         map.put("mhkbookDate", Integer.valueOf(35));
+         map.put("putonghuaLevel", Integer.valueOf(36));
+         map.put("putonghuaDate", Integer.valueOf(37));
+         map.put("startTeachingDate", Integer.valueOf(38));
+         map.put("postEmeployTechnical", Integer.valueOf(39));
+         map.put("professionalPost", Integer.valueOf(40));
+         map.put("teachingSection", Integer.valueOf(41));
+         map.put("teachingGrade", Integer.valueOf(42));
+         map.put("teachingSubject", Integer.valueOf(43));
+         map.put("noteachReasion", Integer.valueOf(44));
+         map.put("teachLanguage", Integer.valueOf(45));
+         map.put("isNationteacher", Integer.valueOf(46));
+         map.put("isChineseteacher", Integer.valueOf(47));
+         map.put("isDoubleteacher", Integer.valueOf(48));
+         map.put("doubleTeachModel", Integer.valueOf(49));
+         map.put("isAbility", Integer.valueOf(50));
+         map.put("isEthnicTeacher", Integer.valueOf(51));
+         map.put("isSpeciallevelTeacher", Integer.valueOf(52));
+         map.put("isSpecialTrain", Integer.valueOf(53));
+         map.put("situation", Integer.valueOf(54));
+         map.put("isBackoneTeacher", Integer.valueOf(55));
+         map.put("staffIncrease", Integer.valueOf(56));
+         map.put("staffDecrease", Integer.valueOf(57));
+         map.put("personCode", Integer.valueOf(58));
+         map.put("staffNumber", Integer.valueOf(59));
+         map.put("nationArea", Integer.valueOf(60));
+         map.put("birthArea", Integer.valueOf(61));
+         map.put("maritalStatus", Integer.valueOf(62));
+         map.put("health", Integer.valueOf(63));
+         map.put("joinSchoolTime", Integer.valueOf(64));
+         map.put("staffSource", Integer.valueOf(65));
+         map.put("staffType", Integer.valueOf(66));
+         map.put("humanForm", Integer.valueOf(67));
+         map.put("contractSign", Integer.valueOf(68));
+         map.put("nowPostLevel", Integer.valueOf(69));
+         map.put("isFulltimeGrd", Integer.valueOf(70));
+         map.put("isSpecialEduBook", Integer.valueOf(71));
+         map.put("applicationAbility", Integer.valueOf(72));
+         map.put("isFreeStudent", Integer.valueOf(73));
+         map.put("isPartEdu", Integer.valueOf(74));
+         map.put("partEduStartime", Integer.valueOf(75));
+         map.put("partEduEndtime", Integer.valueOf(76));
+         map.put("isSpecialpostTeacher", Integer.valueOf(77));
+         map.put("isHeartHealthTeach", Integer.valueOf(78));
+         map.put("personStatus", Integer.valueOf(79));
+         map.put("nowBusiness", Integer.valueOf(80));
+         for (int i = 2; i <= lastRowNum; i++) {
+           row = sheetObj.getRow(i);
+           TeacheringInfo teacheringInfo = (TeacheringInfo)ExcelUtil.setCellInfoToModel(row, TeacheringInfo.class, new TeacheringInfo(), map);
+           if (teacheringInfo != null) {
+             teacheringInfo.setCreateTime(new Date());
+             success += this.teacherInfoMapper.insertSelective(teacheringInfo);
+           }
+         }
+       }
+ 
+       TeacheringInfo temp = new TeacheringInfo();
+       temp.setSuccessCount(Integer.valueOf(success));
+       json.setFlag(0);
+       json.setMsg("ok");
+       json.setObject(temp);
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setMsg("数据保存异常");
+       json.setFlag(1);
+     }
+     return json;
+   }
+ 
+   public ToJson<TeacheringInfo> outputTeacherInfo(HttpServletRequest request, HttpServletResponse response)
+     throws Exception
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("教师信息导出", 9);
+       String[] secondTitles = { "姓名", "曾用名", "名族", "性别", "身份证件类型", "身份证号", "所属学校", "学校标识码", "参加工作时间", "政治面貌", "联系电话", "岗位分类", "岗位学段", "出生日期", "户口所在地", "家庭地址", "通讯地址", "电子邮件", "是否在编（0-是，1-否）", "是否在岗（0-是，1-否）", "最高学位", "最高学位名称", "最高学历", "最高学历专业", "最高学历获得时间", "最高学历毕业院校", "第一学历", "第一学历专业", "第一学历获得日期", "第一学历毕业院校", "教师资格证书类型", "教师资格证书编号", "取得HSK证书等级", "HSK证书获得日期", "取得MHK证书等级", "MHK证书获得日期", "普通话证书水平等级", "普通话证书获得日期", "开始任教日期", "岗位聘任技术职务", "岗位专业技术职务", "现任主要教学段", "现任主要年级", "现任主要教学科", "专任教师不任课原因", "现任教语言", "是否为民语普通班授课教师（0是1否）", "是否汉语普通班授课教师（0是1否）", "是否双语教师", "双语授课模式", "是否具备国家通用语言授课能力", "是否为少数民族母语教师", "是否为特岗教师", "是否受过特教专业培训", "港澳台情况", "是否是县级及以上骨干教师", "教职工变动（增加）", "教职工变动（减少)", "个人标识码", "教职工号", "国籍/地区", "出生地", "婚姻状态", "健康状况", "进入学校时间", "教职工来源", "教职工类别", "用人形式", "签订合同情况", "现任岗位等级", "是否全日制毕业", "是否有特殊教育从业证书", "信息技术应用能力", "是否是免费（公费）师范生", "是否参加基层教育", "参加基层服务项目起始时间", "参加基层服务项目结束时间", "是否是特级教师", "是否是心里健康教师", "人员状态", "当前业务" };
+ 
+       HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+       Map map = new HashMap();
+       TeacheringInfo teacheringInfo = new TeacheringInfo();
+       map.put("teacheringInfo", teacheringInfo);
+       List<TeacheringInfo> infoList = this.teacherInfoMapper.selectObject(map);
+       for (TeacheringInfo info : infoList) {
+         if (info.getJobStartime() != null) {
+           info.setJobStartTimeStr(DateFormat.getDatestr(info.getJobStartime()));
+         }
+         if (info.getBirth() != null) {
+           info.setBirthStr(DateFormat.getDatestr(info.getBirth()));
+         }
+         if (info.getMajorDate() != null) {
+           info.setMajorDateStr(DateFormat.getDatestr(info.getMajorDate()));
+         }
+         if (info.getFirstEduDate() != null) {
+           info.setFirstEduDateStr(DateFormat.getDatestr(info.getFirstEduDate()));
+         }
+         if (info.getHskbookDate() != null) {
+           info.setHskbookDateStr(DateFormat.getDatestr(info.getHskbookDate()));
+         }
+         if (info.getMhkbookDate() != null) {
+           info.setMhkbookDateStr(DateFormat.getDatestr(info.getMhkbookDate()));
+         }
+         if (info.getPutonghuaDate() != null) {
+           info.setPutonghuaDateStr(DateFormat.getDatestr(info.getPutonghuaDate()));
+         }
+         if (info.getStartTeachingDate() != null) {
+           info.setStartTeachingDateStr(DateFormat.getDatestr(info.getStartTeachingDate()));
+         }
+         if (info.getJoinSchoolTime() != null) {
+           info.setJoinSchoolTimeStr(DateFormat.getDatestr(info.getJoinSchoolTime()));
+         }
+         if (info.getPartEduStartime() != null) {
+           info.setPartEduStartimeStr(DateFormat.getDatestr(info.getPartEduStartime()));
+         }
+         if (info.getPartEduEndtime() != null) {
+           info.setPartEduEndtimeStr(DateFormat.getDatestr(info.getPartEduEndtime()));
+         }
+       }
+ 
+       String[] beanProperty = { "name", "preName", "nation", "sex", "idCardType", "idCard", "ssxx", "ssxxNo", "jobStartTimeStr", "political", "pohne", "postCate", "post", "birthStr", "origin", "address", "postalAddress", "email", "isInseries", "isInpost", "heighestDegree", "heighestDegreeName", "heighestEdu", "heighestEduMajor", "majorDateStr", "majorEduSchool", "firstEdu", "firstEduMajor", "firstEduDateStr", "firstEduSchool", "teacherBookType", "teacherBookNo", "getHskbookGrade", "hskbookDateStr", "getMhkbookGrade", "mhkbookDateStr", "putonghuaLevel", "putonghuaDateStr", "startTeachingDateStr", "postEmeployTechnical", "professionalPost", "teachingSection", "teachingGrade", "teachingSubject", "noteachReasion", "teachLanguage", "isNationteacher", "isChineseteacher", "isDoubleteacher", "doubleTeachModel", "isAbility", "isEthnicTeacher", "isSpeciallevelTeacher", "isSpecialTrain", "situation", "isBackoneTeacher", "staffIncrease", "staffDecrease", "personCode", "staffNumber", "nationArea", "birthArea", "maritalStatus", "health", "joinSchoolTimeStr", "staffSource", "staffType", "humanForm", "contractSign", "nowPostLevel", "isFulltimeGrd", "isSpecialEduBook", "applicationAbility", "isFreeStudent", "isPartEdu", "partEduStartimeStr", "partEduEndtimeStr", "isSpecialpostTeacher", "isHeartHealthTeach", "personStatus", "nowBusiness" };
+ 
+       HSSFWorkbook workbook = ExcelUtil.exportExcelData(workbook2, infoList, beanProperty);
+       ServletOutputStream out = response.getOutputStream();
+ 
+       String filename = "教师信息导出.xls";
+       filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+ 
+       response.setContentType("application/vnd.ms-excel");
+       response.setHeader("content-disposition", "attachment;filename=" + filename);
+ 
+       workbook.write(out);
+       out.close();
+       json.setMsg("OK");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+ 
+       L.e(new Object[] { "TeachingService outputTeacherInfo:" + e });
+     }
+     return json;
+   }
+ }
+

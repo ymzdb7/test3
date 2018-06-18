@@ -1,0 +1,204 @@
+/*     */ package com.xoa.service.workflow.flowtype.impl;
+/*     */ 
+/*     */ import com.xoa.dao.workflow.FlowPrivMapper;
+/*     */ import com.xoa.dao.workflow.FlowRunMapper;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.workflow.FlowRun;
+/*     */ import com.xoa.model.workflow.FlowRunModelPrcs;
+/*     */ import com.xoa.model.workflow.FlowRunModelPrcsCount;
+/*     */ import com.xoa.service.workflow.flowtype.FlowRunService;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ExcelUtil;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.OutputStream;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class FlowRunServiceImpl
+/*     */   implements FlowRunService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowRunMapper flowRunMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowPrivMapper flowPrivMapper;
+/*     */ 
+/*     */   public int getMaxRunId()
+/*     */   {
+/*  40 */     String runId = this.flowRunMapper.getMaxRunId();
+/*  41 */     if (StringUtils.checkNull(runId).booleanValue()) {
+/*  42 */       return 0;
+/*     */     }
+/*  44 */     return Integer.parseInt(runId);
+/*     */   }
+/*     */ 
+/*     */   public void save(FlowRun flowRun)
+/*     */   {
+/*  50 */     this.flowRunMapper.insert(flowRun);
+/*     */   }
+/*     */ 
+/*     */   public FlowRun find(Integer runId)
+/*     */   {
+/*  55 */     FlowRun f = this.flowRunMapper.find(runId);
+/*  56 */     if (!StringUtils.checkNull(f.getBeginTime()).booleanValue()) {
+/*  57 */       f.setBeginTime(DateFormat.getStrTime(DateFormat.getTime(f.getBeginTime())));
+/*     */     }
+/*  59 */     return f;
+/*     */   }
+/*     */ 
+/*     */   public int update(FlowRun flowRun)
+/*     */   {
+/*  64 */     int a = this.flowRunMapper.updateByPrimaryKey(flowRun);
+/*  65 */     return a;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public int updateTime(Map<String, Object> map) {
+/*  71 */     int a = this.flowRunMapper.updateTime(map);
+/*  72 */     return a;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public int updateAttachment(Map<String, Object> map) {
+/*  78 */     int a = this.flowRunMapper.updateAttachment(map);
+/*  79 */     return a;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrappers queryFlowRun(Integer state, Integer runId, Integer flowId, String runName, String beginDate, String endDate, String workLevel, String status, String userId, Integer page, Integer pageSize, boolean useFlag, Users users, String output, HttpServletResponse response, HttpServletRequest request)
+/*     */   {
+/* 101 */     BaseWrappers baseWrapper = new BaseWrappers();
+/* 102 */     Map map = new HashMap();
+/* 103 */     PageParams pageParams = new PageParams();
+/* 104 */     if (!"1".equals(output)) {
+/* 105 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 106 */       pageParams.setPage(page);
+/* 107 */       pageParams.setPageSize(pageSize);
+/* 108 */       map.put("pageParams", pageParams);
+/*     */     }
+/* 110 */     map.put("runId", runId);
+/* 111 */     map.put("flowId", flowId);
+/* 112 */     map.put("runName", runName);
+/* 113 */     map.put("beginDate", beginDate);
+/* 114 */     map.put("endDate", endDate);
+/* 115 */     map.put("workLevel", workLevel);
+/* 116 */     map.put("state", state);
+/* 117 */     map.put("status", status);
+/* 118 */     if ((!StringUtils.checkNull(userId).booleanValue()) && (userId.indexOf(",") > 0)) {
+/* 119 */       userId = userId.substring(0, userId.length() - 1);
+/*     */     }
+/* 121 */     map.put("userId", userId);
+/* 122 */     map.put("currentUserId", users.getUserId());
+/* 123 */     map.put("currentUid", users.getUid());
+/* 124 */     List<FlowRunModelPrcs> flowRuns = new ArrayList();
+/*     */     try {
+/* 126 */       flowRuns = this.flowRunMapper.queryFlowRunBycy(map);
+/* 127 */       Map paramMap = new HashMap();
+/* 128 */       for (FlowRunModelPrcs flowRunModelPrcs : flowRuns) {
+/* 129 */         paramMap.put("flowId", Integer.valueOf(flowRunModelPrcs.getFlowId()));
+/* 130 */         paramMap.put("userId", users.getUid());
+/* 131 */         paramMap.put("deptId", users.getDeptId());
+/* 132 */         paramMap.put("roleId", users.getUserPriv());
+/* 133 */         List typeList = this.flowPrivMapper.selPrivByUser(paramMap);
+/* 134 */         if (typeList.size() == 5) {
+/* 135 */           flowRunModelPrcs.setAll("1");
+/*     */         }
+/* 137 */         if (typeList.contains(Integer.valueOf(1))) {
+/* 138 */           flowRunModelPrcs.setManage("1");
+/*     */         }
+/* 140 */         if (typeList.contains(Integer.valueOf(2))) {
+/* 141 */           flowRunModelPrcs.setMonitor("1");
+/*     */         }
+/* 143 */         if (typeList.contains(Integer.valueOf(3))) {
+/* 144 */           flowRunModelPrcs.setQuery("1");
+/*     */         }
+/* 146 */         if (typeList.contains(Integer.valueOf(4))) {
+/* 147 */           flowRunModelPrcs.setEdit("1");
+/*     */         }
+/* 149 */         if (typeList.contains(Integer.valueOf(5))) {
+/* 150 */           flowRunModelPrcs.setComment("1");
+/*     */         }
+/* 152 */         if (!StringUtils.checkNull(flowRunModelPrcs.getEndTime()).booleanValue())
+/* 153 */           flowRunModelPrcs.setStatus("已结束");
+/*     */         else {
+/* 155 */           flowRunModelPrcs.setStatus("执行中");
+/*     */         }
+/*     */       }
+/* 158 */       if ("1".equals(output)) {
+/* 159 */         HSSFWorkbook tableWork = ExcelUtil.makeExcelHead("工作流工作查询", 15);
+/* 160 */         String[] secondTitles = { "流水号", "流程类型", "工作名称/文号", "流程发起人", "开始时间", "公共附件", "状态" };
+/* 161 */         HSSFWorkbook excelWork = ExcelUtil.makeSecondHead(tableWork, secondTitles);
+/* 162 */         String[] beanProperty = { "runId", "flowName", "runName", "userName", "beginTime", "attachmentName", "status" };
+/* 163 */         HSSFWorkbook workbook = ExcelUtil.exportExcelData(excelWork, flowRuns, beanProperty);
+/* 164 */         response.setContentType("text/html;charset=UTF-8");
+/* 165 */         OutputStream out = response.getOutputStream();
+/*     */ 
+/* 167 */         String filename = "工作流工作查询.xls";
+/* 168 */         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/*     */ 
+/* 170 */         response.setContentType("application/vnd.ms-excel");
+/* 171 */         response.setHeader("content-disposition", "attachment;filename=" + filename);
+/*     */ 
+/* 173 */         workbook.write(out);
+/* 174 */         out.flush();
+/* 175 */         out.close();
+/*     */       }
+/*     */ 
+/* 178 */       baseWrapper.setFlag(true);
+/* 179 */       baseWrapper.setStatus(true);
+/* 180 */       baseWrapper.setDatas(flowRuns);
+/* 181 */       baseWrapper.setTotal(pageParams.getTotal());
+/*     */     } catch (Exception e) {
+/* 183 */       e.printStackTrace();
+/* 184 */       baseWrapper.setFlag(false);
+/* 185 */       baseWrapper.setStatus(false);
+/* 186 */       baseWrapper.setMsg(e.getMessage());
+/*     */     }
+/* 188 */     return baseWrapper;
+/*     */   }
+/*     */ 
+/*     */   public int updateFocusUser(Map<String, Object> map)
+/*     */   {
+/* 193 */     int a = this.flowRunMapper.updateFocusUser(map);
+/* 194 */     return a;
+/*     */   }
+/*     */ 
+/*     */   public int updateEnd(Map<String, Object> map) {
+/* 198 */     int a = this.flowRunMapper.updateEnd(map);
+/* 199 */     return a;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrappers queryFlowRunCount(HttpServletRequest request)
+/*     */   {
+/* 204 */     BaseWrappers baseWrapper = new BaseWrappers();
+/* 205 */     Map map = new HashMap();
+/* 206 */     List flowRunModelPrcsCounts = new ArrayList();
+/* 207 */     FlowRunModelPrcsCount queryFlowRunPerformCount = this.flowRunMapper.queryFlowRunPerformCount(map);
+/* 208 */     FlowRunModelPrcsCount queryFlowRunEndCount = this.flowRunMapper.queryFlowRunEndCount(map);
+/* 209 */     FlowRunModelPrcsCount queryFlowRunArchiveCount = this.flowRunMapper.queryFlowRunArchiveCount(map);
+/* 210 */     flowRunModelPrcsCounts.add(queryFlowRunPerformCount);
+/* 211 */     flowRunModelPrcsCounts.add(queryFlowRunEndCount);
+/* 212 */     flowRunModelPrcsCounts.add(queryFlowRunArchiveCount);
+/* 213 */     baseWrapper.setFlag(true);
+/* 214 */     baseWrapper.setStatus(true);
+/* 215 */     baseWrapper.setDatas(flowRunModelPrcsCounts);
+/* 216 */     return baseWrapper;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.workflow.flowtype.impl.FlowRunServiceImpl
+ * JD-Core Version:    0.6.0
+ */

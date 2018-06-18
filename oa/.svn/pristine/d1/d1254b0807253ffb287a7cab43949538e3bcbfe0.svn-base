@@ -1,0 +1,1574 @@
+/*      */ package com.xoa.service.email.impl;
+/*      */ 
+/*      */ import com.xoa.dao.common.SysCodeMapper;
+/*      */ import com.xoa.dao.email.EmailBodyMapper;
+/*      */ import com.xoa.dao.email.EmailBoxMapper;
+/*      */ import com.xoa.dao.email.EmailMapper;
+/*      */ import com.xoa.dao.email.WebmailMapper;
+/*      */ import com.xoa.dao.users.UsersMapper;
+/*      */ import com.xoa.model.common.SysCode;
+/*      */ import com.xoa.model.email.EmailBodyModel;
+/*      */ import com.xoa.model.email.EmailBoxModel;
+/*      */ import com.xoa.model.email.EmailModel;
+/*      */ import com.xoa.model.email.Webmail;
+/*      */ import com.xoa.model.enclosure.Attachment;
+/*      */ import com.xoa.model.sms.SmsBody;
+/*      */ import com.xoa.model.sms2.Sms2Priv;
+/*      */ import com.xoa.model.users.Users;
+/*      */ import com.xoa.service.ThreadSerivice.ThreadService;
+/*      */ import com.xoa.service.email.EmailService;
+/*      */ import com.xoa.service.sms.SmsService;
+/*      */ import com.xoa.service.smsDelivery.Sms2PrivService;
+/*      */ import com.xoa.service.users.UsersService;
+import com.xoa.util.Constant;
+/*      */ import com.xoa.util.DateFormat;
+/*      */ import com.xoa.util.GetAttachmentListUtil;
+/*      */ import com.xoa.util.ToJson;
+/*      */ import com.xoa.util.common.L;
+/*      */ import com.xoa.util.common.StringUtils;
+/*      */ import com.xoa.util.common.session.SessionUtils;
+/*      */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*      */ import com.xoa.util.dataSource.ContextHolder;
+/*      */ import com.xoa.util.email.EmailUtil;
+/*      */ import com.xoa.util.page.PageParams;
+/*      */ import java.io.PrintStream;
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.Date;
+/*      */ import java.util.HashMap;
+/*      */ import java.util.HashSet;
+/*      */ import java.util.Iterator;
+/*      */ import java.util.List;
+/*      */ import java.util.Map;
+/*      */ import java.util.ResourceBundle;
+/*      */ import java.util.Set;
+/*      */ import javax.annotation.Resource;
+/*      */ import javax.servlet.http.HttpServletRequest;
+/*      */ import javax.servlet.http.HttpSession;
+/*      */ import org.apache.commons.collections.map.HashedMap;
+/*      */ import org.apache.log4j.Logger;
+/*      */ import org.springframework.scheduling.annotation.Async;
+/*      */ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+/*      */ import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+/*      */ 
+/*      */ @Service
+/*      */ public class EmailServiceImpl
+/*      */   implements EmailService
+/*      */ {
+/*   62 */   private Logger logger = Logger.getLogger(EmailServiceImpl.class);
+/*   63 */   private final Integer TO_USER_INFO = Integer.valueOf(17);
+/*   64 */   private final Integer COPY_USER_FINO = Integer.valueOf(18);
+/*   65 */   private final Integer SERC_USER_FINO = Integer.valueOf(19);
+/*      */ 
+/*      */   @Resource
+/*      */   private EmailBodyMapper emailBodyMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private EmailMapper emailMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private EmailBoxMapper emailBoxMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersService usersService;
+/*      */ 
+/*      */   @Resource
+/*      */   private WebmailMapper webmailMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersMapper usersMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private SysCodeMapper sysCodeMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private SmsService smsService;
+/*      */ 
+/*      */   @Resource
+/*      */   ThreadService threadService;
+/*      */ 
+/*      */   @Resource
+/*      */   ThreadPoolTaskExecutor threadPoolTaskExecutor;
+/*      */ 
+/*      */   @Resource
+/*      */   private Sms2PrivService sms2PrivService;
+/*      */ 
+/*  112 */   @Transactional
+/*      */   public ToJson<EmailBodyModel> sendEmail(EmailBodyModel emailBody, EmailModel email, String sqlType, String remind, HttpServletRequest request) { ToJson toJson = new ToJson();
+/*      */     try {
+/*  114 */       emailBody.setSendTime(DateFormat.getTime(DateFormat.getStrDate(new Date())));
+/*  115 */       emailBody.setSendFlag("1");
+/*  116 */       if (!StringUtils.checkNull(emailBody.getFromWebmail()).booleanValue())
+/*      */       {
+/*  118 */         toJson = returnSendWebEmail(emailBody, email, sqlType, request);
+/*      */       }
+/*      */       else {
+/*  121 */         this.emailBodyMapper.save(emailBody);
+/*  122 */         toJson = returnEmail(emailBody, email, remind, request);
+/*      */       }
+/*      */     }
+/*      */     catch (Exception e) {
+/*  126 */       toJson.setFlag(1);
+/*  127 */       toJson.setMsg("errorSendEmail");
+/*  128 */       L.e(new Object[] { "email sendEmail:" + e });
+/*      */     }
+/*  130 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<EmailBodyModel> saveEmail(EmailBodyModel emailBody)
+/*      */   {
+/*  145 */     ToJson toJson = new ToJson();
+/*      */     try {
+/*  147 */       emailBody.setSendTime(DateFormat.getTime(DateFormat.getStrDate(new Date())));
+/*  148 */       emailBody.setSendFlag("0");
+/*  149 */       if (!StringUtils.checkNull(emailBody.getFromWebmail()).booleanValue()) {
+/*  150 */         toJson = returnSaveWebEmail(emailBody);
+/*      */       } else {
+/*  152 */         this.emailBodyMapper.save(emailBody);
+/*  153 */         toJson.setFlag(0);
+/*  154 */         toJson.setMsg("ok");
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  157 */       toJson.setFlag(1);
+/*  158 */       toJson.setMsg("errorSendEmail");
+/*  159 */       L.e(new Object[] { "email saveEmail:" + e });
+/*      */     }
+/*  161 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> selectEmail(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String sqlType)
+/*      */     throws Exception
+/*      */   {
+/*  183 */     ToJson tojson = new ToJson();
+/*  184 */     PageParams pageParams = new PageParams();
+/*  185 */     pageParams.setPage(page);
+/*  186 */     pageParams.setPageSize(pageSize);
+/*  187 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  188 */     maps.put("page", pageParams);
+/*  189 */     List list = new ArrayList();
+/*  190 */     List<EmailBodyModel> listEmai = this.emailBodyMapper.selectObjcet(maps);
+/*  191 */     for (EmailBodyModel emailBody : listEmai)
+/*      */     {
+/*  193 */       Map ToMap = getEmailUserName(emailBody.getToId2());
+/*  194 */       if (!ToMap.isEmpty()) {
+/*  195 */         emailBody.setToId2((String)ToMap.keySet().iterator().next());
+/*  196 */         emailBody.setToName((String)ToMap.get(emailBody.getToId2()));
+/*      */       }
+/*      */ 
+/*  200 */       Map copyMap = getEmailUserName(emailBody.getCopyToId());
+/*      */ 
+/*  202 */       Map secretMap = getEmailUserName(emailBody.getSecretToId());
+/*  203 */       if (!copyMap.isEmpty()) {
+/*  204 */         emailBody.setCopyToId((String)copyMap.keySet().iterator().next());
+/*  205 */         emailBody.setCopyName((String)copyMap.get(emailBody.getCopyToId()));
+/*      */       } else {
+/*  207 */         emailBody.setCopyName("");
+/*      */       }
+/*  209 */       if (!secretMap.isEmpty()) {
+/*  210 */         emailBody.setSecretToId((String)secretMap.keySet().iterator().next());
+/*  211 */         emailBody.setSecretToName((String)secretMap.get(emailBody.getSecretToId()));
+/*      */       } else {
+/*  213 */         emailBody.setSecretToName("");
+/*      */       }
+/*  215 */       emailBody.setEmailList(returnEmail(emailBody.getEmailList()));
+/*  216 */       emailBody.setProbablyDate(DateFormat.getProbablyDate(emailBody.getSendTime()));
+/*  217 */       if ((emailBody.getAttachmentName() != null) && (emailBody.getAttachmentId() != null)) {
+/*  218 */         emailBody.setAttachment(GetAttachmentListUtil.returnAttachment(emailBody.getAttachmentName(), emailBody.getAttachmentId(), sqlType, "email"));
+/*      */       } else {
+/*  220 */         emailBody.setAttachmentName("");
+/*  221 */         emailBody.setAttachmentId("");
+/*      */       }
+/*  223 */       list.add(emailBody);
+/*      */     }
+/*  225 */     tojson.setObj(list);
+/*  226 */     tojson.setTotleNum(pageParams.getTotal());
+/*  227 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   public void deleteByID(Integer bodyId)
+/*      */   {
+/*  241 */     this.emailBodyMapper.deleteDrafts(bodyId);
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> listDrafts(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String sqlType)
+/*      */   {
+/*  262 */     ToJson tojson = new ToJson();
+/*  263 */     PageParams pageParams = new PageParams();
+/*  264 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  265 */     pageParams.setPage(page);
+/*  266 */     pageParams.setPageSize(pageSize);
+/*  267 */     maps.put("page", pageParams);
+/*  268 */     List list = new ArrayList();
+/*  269 */     List<EmailBodyModel> listEmai = this.emailBodyMapper.listDrafts(maps);
+/*      */ 
+/*  271 */     Map map2 = new HashedMap();
+/*  272 */     map2.put("fromId", maps.get("fromId"));
+/*  273 */     Map map3 = new HashedMap();
+/*  274 */     map3.put("fromId", maps.get("fromId"));
+/*  275 */     List inboxs = this.emailBodyMapper.selectInbox(map2);
+/*  276 */     List outemails = this.emailBodyMapper.listSendEmail(map3);
+/*      */ 
+/*  278 */     for (EmailBodyModel emailBody : listEmai) {
+/*  279 */       emailBody.setToName(this.usersService.getUserNameById(emailBody.getToId2()));
+/*  280 */       if (this.usersService.getUserNameById(emailBody.getCopyToId()) != null)
+/*  281 */         emailBody.setCopyName(this.usersService.getUserNameById(emailBody.getCopyToId()));
+/*      */       else {
+/*  283 */         emailBody.setCopyName("");
+/*      */       }
+/*  285 */       if (this.usersService.getUserNameById(emailBody.getSecretToId()) != null)
+/*  286 */         emailBody.setSecretToName(this.usersService.getUserNameById(emailBody.getSecretToId()));
+/*      */       else {
+/*  288 */         emailBody.setSecretToName("");
+/*      */       }
+/*  290 */       emailBody.setEmailList(returnEmail(emailBody.getEmailList()));
+/*  291 */       emailBody.setProbablyDate(DateFormat.getProbablyDate(emailBody.getSendTime()));
+/*  292 */       if ((emailBody.getAttachmentName() != null) && (emailBody.getAttachmentId() != null)) {
+/*  293 */         emailBody.setAttachment(GetAttachmentListUtil.returnAttachment(emailBody.getAttachmentName(), emailBody.getAttachmentId(), sqlType, "email"));
+/*      */       } else {
+/*  295 */         emailBody.setAttachmentName("");
+/*  296 */         emailBody.setAttachmentId("");
+/*      */       }
+/*      */ 
+/*  299 */       list.add(emailBody);
+/*      */     }
+/*  301 */     tojson.setDraftsCount(pageParams.getTotal());
+/*  302 */     tojson.setHairboxCount(Integer.valueOf(outemails.size()));
+/*  303 */     tojson.setInboxCount(Integer.valueOf(inboxs.size()));
+/*  304 */     tojson.setObj(list);
+/*  305 */     tojson.setTotleNum(pageParams.getTotal());
+/*  306 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> listSendEmail(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String sqlType)
+/*      */     throws Exception
+/*      */   {
+/*  327 */     ToJson tojson = new ToJson();
+/*  328 */     PageParams pageParams = new PageParams();
+/*  329 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  330 */     pageParams.setPage(page);
+/*  331 */     pageParams.setPageSize(pageSize);
+/*  332 */     maps.put("page", pageParams);
+/*      */ 
+/*  334 */     Map map2 = new HashedMap();
+/*  335 */     map2.put("fromId", maps.get("fromId"));
+/*  336 */     Map map3 = new HashedMap();
+/*  337 */     map3.put("fromId", maps.get("fromId"));
+/*  338 */     List inboxs = this.emailBodyMapper.selectInbox(map2);
+/*  339 */     List drafts = this.emailBodyMapper.listDrafts(map2);
+/*      */ 
+/*  341 */     List list = new ArrayList();
+/*  342 */     List<EmailBodyModel> listEmai = this.emailBodyMapper.listSendEmail(maps);
+/*  343 */     for (EmailBodyModel emailBody : listEmai)
+/*      */     {
+/*  345 */       Map ToMap = getEmailUserName(emailBody.getToId2());
+/*  346 */       if (ToMap.size() != 0) {
+/*  347 */         emailBody.setToId2((String)ToMap.keySet().iterator().next());
+/*  348 */         emailBody.setToName((String)ToMap.get(emailBody.getToId2()));
+/*      */       } else {
+/*  350 */         emailBody.setToId2("");
+/*  351 */         emailBody.setToName("");
+/*      */       }
+/*      */ 
+/*  356 */       Map copyMap = getEmailUserName(emailBody.getCopyToId());
+/*      */ 
+/*  358 */       Map secretMap = getEmailUserName(emailBody.getSecretToId());
+/*  359 */       if (!copyMap.isEmpty()) {
+/*  360 */         emailBody.setCopyToId((String)copyMap.keySet().iterator().next());
+/*  361 */         emailBody.setCopyName((String)copyMap.get(emailBody.getCopyToId()));
+/*      */       } else {
+/*  363 */         emailBody.setCopyName("");
+/*      */       }
+/*  365 */       if (!secretMap.isEmpty()) {
+/*  366 */         emailBody.setSecretToId((String)secretMap.keySet().iterator().next());
+/*  367 */         emailBody.setSecretToName((String)secretMap.get(emailBody.getSecretToId()));
+/*      */       } else {
+/*  369 */         emailBody.setSecretToName("");
+/*      */       }
+/*  371 */       emailBody.setEmailList(returnEmail(emailBody.getEmailList()));
+/*  372 */       emailBody.setProbablyDate(DateFormat.getProbablyDate(emailBody.getSendTime()));
+/*  373 */       if ((emailBody.getAttachmentName() != null) && (emailBody.getAttachmentId() != null)) {
+/*  374 */         emailBody.setAttachment(GetAttachmentListUtil.returnAttachment(emailBody.getAttachmentName(), emailBody.getAttachmentId(), sqlType, "email"));
+/*      */       } else {
+/*  376 */         emailBody.setAttachmentName("");
+/*  377 */         emailBody.setAttachmentId("");
+/*      */       }
+/*  379 */       list.add(emailBody);
+/*      */     }
+/*  381 */     tojson.setDraftsCount(Integer.valueOf(drafts.size()));
+/*  382 */     tojson.setHairboxCount(pageParams.getTotal());
+/*  383 */     tojson.setInboxCount(Integer.valueOf(inboxs.size()));
+/*  384 */     tojson.setObj(list);
+/*  385 */     tojson.setTotleNum(pageParams.getTotal());
+/*  386 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> listWastePaperbasket(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String sqlType)
+/*      */     throws Exception
+/*      */   {
+/*  407 */     ToJson tojson = new ToJson();
+/*  408 */     PageParams pageParams = new PageParams();
+/*  409 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  410 */     pageParams.setPage(page);
+/*  411 */     pageParams.setPageSize(pageSize);
+/*  412 */     maps.put("page", pageParams);
+/*  413 */     List list = new ArrayList();
+/*  414 */     List<EmailBodyModel> listEmai = this.emailBodyMapper.listWastePaperbasket(maps);
+/*  415 */     for (EmailBodyModel emailBody : listEmai)
+/*      */     {
+/*  417 */       Map ToMap = getEmailUserName(emailBody.getToId2());
+/*  418 */       emailBody.setToId2((String)ToMap.keySet().iterator().next());
+/*  419 */       emailBody.setToName((String)ToMap.get(emailBody.getToId2()));
+/*      */ 
+/*  421 */       Map copyMap = getEmailUserName(emailBody.getCopyToId());
+/*      */ 
+/*  423 */       Map secretMap = getEmailUserName(emailBody.getSecretToId());
+/*  424 */       if (!copyMap.isEmpty()) {
+/*  425 */         emailBody.setCopyToId((String)copyMap.keySet().iterator().next());
+/*  426 */         emailBody.setCopyName((String)copyMap.get(emailBody.getCopyToId()));
+/*      */       } else {
+/*  428 */         emailBody.setCopyName("");
+/*      */       }
+/*  430 */       if (!secretMap.isEmpty()) {
+/*  431 */         emailBody.setSecretToId((String)secretMap.keySet().iterator().next());
+/*  432 */         emailBody.setSecretToName((String)secretMap.get(emailBody.getSecretToId()));
+/*      */       } else {
+/*  434 */         emailBody.setSecretToName("");
+/*      */       }
+/*  436 */       emailBody.setEmailList(returnEmail(emailBody.getEmailList()));
+/*  437 */       emailBody.setProbablyDate(DateFormat.getProbablyDate(emailBody.getSendTime()));
+/*  438 */       if ((emailBody.getAttachmentName() != null) && (emailBody.getAttachmentId() != null)) {
+/*  439 */         emailBody.setAttachment(GetAttachmentListUtil.returnAttachment(emailBody.getAttachmentName(), emailBody.getAttachmentId(), sqlType, "email"));
+/*      */       } else {
+/*  441 */         emailBody.setAttachmentName("");
+/*  442 */         emailBody.setAttachmentId("");
+/*      */       }
+/*  444 */       list.add(emailBody);
+/*      */     }
+/*  446 */     tojson.setObj(list);
+/*  447 */     tojson.setTotleNum(pageParams.getTotal());
+/*  448 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> selectEmailBody(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String sqlType)
+/*      */     throws Exception
+/*      */   {
+/*  470 */     ToJson tojson = new ToJson();
+/*  471 */     PageParams pageParams = new PageParams();
+/*  472 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  473 */     pageParams.setPage(page);
+/*  474 */     pageParams.setPageSize(pageSize);
+/*  475 */     maps.put("page", pageParams);
+/*  476 */     List list = new ArrayList();
+/*  477 */     List<EmailBodyModel> listEmai = this.emailBodyMapper.listqueryEmailBody(maps);
+/*  478 */     for (EmailBodyModel emailBody : listEmai)
+/*      */     {
+/*  480 */       Map ToMap = getEmailUserName(emailBody.getToId2());
+/*  481 */       emailBody.setToId2((String)ToMap.keySet().iterator().next());
+/*  482 */       emailBody.setToName((String)ToMap.get(emailBody.getToId2()));
+/*      */ 
+/*  484 */       Map copyMap = getEmailUserName(emailBody.getCopyToId());
+/*      */ 
+/*  486 */       Map secretMap = getEmailUserName(emailBody.getSecretToId());
+/*  487 */       if (!copyMap.isEmpty()) {
+/*  488 */         emailBody.setCopyToId((String)copyMap.keySet().iterator().next());
+/*  489 */         emailBody.setCopyName((String)copyMap.get(emailBody.getCopyToId()));
+/*      */       } else {
+/*  491 */         emailBody.setCopyName("");
+/*      */       }
+/*  493 */       if (!secretMap.isEmpty()) {
+/*  494 */         emailBody.setSecretToId((String)secretMap.keySet().iterator().next());
+/*  495 */         emailBody.setSecretToName((String)secretMap.get(emailBody.getSecretToId()));
+/*      */       } else {
+/*  497 */         emailBody.setSecretToName("");
+/*      */       }
+/*  499 */       emailBody.setEmailList(returnEmail(emailBody.getEmailList()));
+/*  500 */       emailBody.setProbablyDate(DateFormat.getProbablyDate(emailBody.getSendTime()));
+/*  501 */       if ((emailBody.getAttachmentName() != null) && (emailBody.getAttachmentId() != null)) {
+/*  502 */         emailBody.setAttachment(GetAttachmentListUtil.returnAttachment(emailBody.getAttachmentName(), emailBody.getAttachmentId(), sqlType, "email"));
+/*      */       } else {
+/*  504 */         emailBody.setAttachmentName("");
+/*  505 */         emailBody.setAttachmentId("");
+/*      */       }
+/*  507 */       list.add(emailBody);
+/*      */     }
+/*  509 */     tojson.setObj(list);
+/*  510 */     tojson.setTotleNum(pageParams.getTotal());
+/*  511 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   public EmailBodyModel queryById(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String sqlType)
+/*      */   {
+/*  528 */     if (maps.get("emailId") != null) {
+/*  529 */       maps.remove("bodyId");
+/*      */     }
+/*  531 */     PageParams pageParams = new PageParams();
+/*  532 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  533 */     pageParams.setPage(page);
+/*  534 */     pageParams.setPageSize(pageSize);
+/*  535 */     maps.put("page", pageParams);
+/*  536 */     EmailBodyModel emailBody = this.emailBodyMapper.queryById(maps);
+/*      */ 
+/*  538 */     Map ToMap = getEmailUserName(emailBody.getToId2());
+/*  539 */     if (!ToMap.isEmpty()) {
+/*  540 */       emailBody.setToId2((String)ToMap.keySet().iterator().next());
+/*  541 */       emailBody.setToName((String)ToMap.get(emailBody.getToId2()));
+/*      */     }
+/*      */ 
+/*  544 */     putInfoWithFlag(emailBody, this.TO_USER_INFO, emailBody.getToId2());
+/*      */ 
+/*  547 */     Map copyMap = getEmailUserName(emailBody.getCopyToId());
+/*      */ 
+/*  550 */     putInfoWithFlag(emailBody, this.COPY_USER_FINO, emailBody.getCopyToId());
+/*      */ 
+/*  552 */     Map secretMap = getEmailUserName(emailBody.getSecretToId());
+/*      */ 
+/*  554 */     putInfoWithFlag(emailBody, this.SERC_USER_FINO, emailBody.getSecretToId());
+/*      */ 
+/*  557 */     if (!copyMap.isEmpty()) {
+/*  558 */       emailBody.setCopyToId((String)copyMap.keySet().iterator().next());
+/*  559 */       emailBody.setCopyName((String)copyMap.get(emailBody.getCopyToId()));
+/*      */     } else {
+/*  561 */       emailBody.setCopyName("");
+/*      */     }
+/*  563 */     if (!secretMap.isEmpty()) {
+/*  564 */       emailBody.setSecretToId((String)secretMap.keySet().iterator().next());
+/*  565 */       emailBody.setSecretToName((String)secretMap.get(emailBody.getSecretToId()));
+/*      */     } else {
+/*  567 */       emailBody.setSecretToName("");
+/*      */     }
+/*      */ 
+/*  570 */     emailBody.setEmailList(returnEmail(emailBody.getEmailList()));
+/*  571 */     emailBody.setProbablyDate(DateFormat.getProbablyDate(emailBody.getSendTime()));
+/*  572 */     if ((emailBody.getAttachmentName() != null) && (emailBody.getAttachmentId() != null)) {
+/*  573 */       emailBody.setAttachment(GetAttachmentListUtil.returnAttachment(emailBody.getAttachmentName(), emailBody.getAttachmentId(), sqlType, "email"));
+/*      */     } else {
+/*  575 */       emailBody.setAttachmentName("");
+/*  576 */       emailBody.setAttachmentId("");
+/*      */     }
+/*  578 */     return emailBody;
+/*      */   }
+/*      */ 
+/*      */   private void putInfoWithFlag(EmailBodyModel emailBody, Integer type, String userIds) {
+/*  582 */     if ((emailBody != null) && 
+/*  583 */       (!StringUtils.checkNull(userIds).booleanValue())) {
+/*  584 */       String[] temp = userIds.split(",");
+/*  585 */       Map param = new HashMap();
+/*  586 */       param.put("userIds", temp);
+/*  587 */       param.put("bodyId", emailBody.getBodyId());
+/*  588 */       List datas = this.emailMapper.selectUserReadFlag(param);
+/*  589 */       if (type == this.TO_USER_INFO) {
+/*  590 */         emailBody.setToUserEmailInfo(datas);
+/*      */       }
+/*  592 */       if (type == this.COPY_USER_FINO) {
+/*  593 */         emailBody.setCopyUserEmailInfo(datas);
+/*      */       }
+/*  595 */       if (type == this.SERC_USER_FINO)
+/*  596 */         emailBody.setSercUserEmailInfo(datas);
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> selectInbox(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String sqlType)
+/*      */     throws Exception
+/*      */   {
+/*  621 */     ToJson tojson = new ToJson();
+/*  622 */     PageParams pageParams = new PageParams();
+/*  623 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  624 */     pageParams.setPage(page);
+/*  625 */     pageParams.setPageSize(pageSize);
+/*  626 */     maps.put("page", pageParams);
+/*  627 */     List list = new ArrayList();
+/*  628 */     List<EmailBodyModel> listEmai = this.emailBodyMapper.selectInbox(maps);
+/*  629 */     Map map2 = new HashedMap();
+/*  630 */     map2.put("fromId", maps.get("fromId"));
+/*  631 */     Map map3 = new HashedMap();
+/*  632 */     map3.put("fromId", maps.get("fromId"));
+/*  633 */     List drafts = this.emailBodyMapper.listDrafts(map2);
+/*  634 */     List outemails = this.emailBodyMapper.listSendEmail(map3);
+/*  635 */     EmailBodyModel emailBodyModel = new EmailBodyModel();
+/*  636 */     if (drafts != null) {
+/*  637 */       emailBodyModel.setDraftsCount(Integer.valueOf(drafts.size()));
+/*      */     }
+/*  639 */     if (outemails != null) {
+/*  640 */       emailBodyModel.setHairboxCount(Integer.valueOf(outemails.size()));
+/*      */     }
+/*  642 */     for (EmailBodyModel emailBody : listEmai)
+/*      */     {
+/*  644 */       Map ToMap = getEmailUserName(emailBody.getToId2());
+/*  645 */       emailBody.setToId2((String)ToMap.keySet().iterator().next());
+/*  646 */       emailBody.setToName((String)ToMap.get(emailBody.getToId2()));
+/*      */ 
+/*  648 */       Map copyMap = getEmailUserName(emailBody.getCopyToId());
+/*      */ 
+/*  650 */       Map secretMap = getEmailUserName(emailBody.getSecretToId());
+/*  651 */       if (!copyMap.isEmpty()) {
+/*  652 */         emailBody.setCopyToId((String)copyMap.keySet().iterator().next());
+/*  653 */         emailBody.setCopyName((String)copyMap.get(emailBody.getCopyToId()));
+/*      */       } else {
+/*  655 */         emailBody.setCopyName("");
+/*      */       }
+/*  657 */       if (!secretMap.isEmpty()) {
+/*  658 */         emailBody.setSecretToId((String)secretMap.keySet().iterator().next());
+/*  659 */         emailBody.setSecretToName((String)secretMap.get(emailBody.getSecretToId()));
+/*      */       } else {
+/*  661 */         emailBody.setSecretToName("");
+/*      */       }
+/*  663 */       emailBody.setEmailList(returnEmail(emailBody.getEmailList()));
+/*  664 */       emailBody.setProbablyDate(DateFormat.getProbablyDate(emailBody.getSendTime()));
+/*  665 */       if ((!StringUtils.checkNull(emailBody.getAttachmentName()).booleanValue()) && (!StringUtils.checkNull(emailBody.getAttachmentId()).booleanValue())) {
+/*  666 */         emailBody.setAttachment(GetAttachmentListUtil.returnAttachment(emailBody.getAttachmentName(), emailBody.getAttachmentId(), sqlType, "email"));
+/*      */       } else {
+/*  668 */         emailBody.setAttachmentName("");
+/*  669 */         emailBody.setAttachmentId("");
+/*      */       }
+/*      */     }
+/*      */ 
+/*  673 */     tojson.setDraftsCount(Integer.valueOf(drafts.size()));
+/*  674 */     tojson.setHairboxCount(Integer.valueOf(outemails.size()));
+/*  675 */     tojson.setInboxCount(pageParams.getTotal());
+/*  676 */     tojson.setObj(listEmai);
+/*  677 */     tojson.setTotleNum(pageParams.getTotal());
+/*  678 */     tojson.setObject(emailBodyModel);
+/*  679 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> selectIsRead(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String sqlType)
+/*      */     throws Exception
+/*      */   {
+/*  700 */     ToJson tojson = new ToJson();
+/*  701 */     PageParams pageParams = new PageParams();
+/*  702 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  703 */     pageParams.setPage(page);
+/*  704 */     pageParams.setPageSize(pageSize);
+/*  705 */     maps.put("page", pageParams);
+/*  706 */     List list = new ArrayList();
+/*  707 */     List<EmailBodyModel> listEmai = this.emailBodyMapper.selectIsRead(maps);
+/*  708 */     for (EmailBodyModel emailBody : listEmai)
+/*      */     {
+/*  710 */       Map ToMap = getEmailUserName(emailBody.getToId2());
+/*  711 */       emailBody.setToId2((String)ToMap.keySet().iterator().next());
+/*  712 */       emailBody.setToName((String)ToMap.get(emailBody.getToId2()));
+/*      */ 
+/*  714 */       Map copyMap = getEmailUserName(emailBody.getCopyToId());
+/*      */ 
+/*  716 */       Map secretMap = getEmailUserName(emailBody.getSecretToId());
+/*  717 */       if (!copyMap.isEmpty()) {
+/*  718 */         emailBody.setCopyToId((String)copyMap.keySet().iterator().next());
+/*  719 */         emailBody.setCopyName((String)copyMap.get(emailBody.getCopyToId()));
+/*      */       } else {
+/*  721 */         emailBody.setCopyName("");
+/*      */       }
+/*  723 */       if (!secretMap.isEmpty()) {
+/*  724 */         emailBody.setSecretToId((String)secretMap.keySet().iterator().next());
+/*  725 */         emailBody.setSecretToName((String)secretMap.get(emailBody.getSecretToId()));
+/*      */       } else {
+/*  727 */         emailBody.setSecretToName("");
+/*      */       }
+/*  729 */       emailBody.setEmailList(returnEmail(emailBody.getEmailList()));
+/*  730 */       if ((emailBody.getAttachmentName() != null) && (emailBody.getAttachmentId() != null)) {
+/*  731 */         emailBody.setAttachment(GetAttachmentListUtil.returnAttachment(emailBody.getAttachmentName(), emailBody.getAttachmentId(), sqlType, "email"));
+/*      */       } else {
+/*  733 */         emailBody.setAttachmentName("");
+/*  734 */         emailBody.setAttachmentId("");
+/*      */       }
+/*  736 */       emailBody.setProbablyDate(DateFormat.getProbablyDate(emailBody.getSendTime()));
+/*  737 */       list.add(emailBody);
+/*      */     }
+/*  739 */     tojson.setObj(list);
+/*  740 */     tojson.setTotleNum(pageParams.getTotal());
+/*  741 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   public void updateIsRead(EmailModel email)
+/*      */   {
+/*  754 */     Map maps = new HashMap();
+/*  755 */     maps.put("emailId", email.getEmailId());
+/*  756 */     EmailModel email1 = this.emailMapper.queryByEmailOne(email.getEmailId());
+/*  757 */     this.smsService.updatequerySmsByType("2", email1.getToId(), String.valueOf(email1.getEmailId()));
+/*  758 */     this.emailMapper.updateIsRead(email);
+/*      */   }
+/*      */ 
+/*      */   public String deleteOutEmail(Integer emailId, String flag)
+/*      */   {
+/*  771 */     String returnRes = "0";
+/*      */     try {
+/*  773 */       if ((flag.trim().equals("0")) || (flag.trim().equals("")))
+/*  774 */         this.emailBodyMapper.updateOutbox(emailId);
+/*  775 */       else if (flag.trim().equals("3"))
+/*  776 */         this.emailBodyMapper.updateOutboxs(emailId);
+/*      */       else
+/*  778 */         this.emailBodyMapper.deleteOutbox(emailId);
+/*      */     }
+/*      */     catch (Exception e)
+/*      */     {
+/*  782 */       returnRes = "1";
+/*  783 */       L.e(new Object[] { "email deleteOutEmail:" + e });
+/*      */     }
+/*  785 */     return returnRes;
+/*      */   }
+/*      */ 
+/*      */   public String deleteInEmail(Integer emailId, String flag)
+/*      */   {
+/*  798 */     String returnRes = "0";
+/*      */     try {
+/*  800 */       if ((flag.trim().equals("0")) || (flag.trim().equals("")))
+/*  801 */         this.emailBodyMapper.updateInbox(emailId);
+/*      */       else
+/*  803 */         this.emailBodyMapper.updateInboxs(emailId);
+/*      */     }
+/*      */     catch (Exception e)
+/*      */     {
+/*  807 */       returnRes = "1";
+/*  808 */       L.e(new Object[] { "email deleteInEmail:" + e });
+/*      */     }
+/*  810 */     return returnRes;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public String deleteRecycleEmail(Integer emailId, String flag)
+/*      */   {
+/*  824 */     String returnRes = "0";
+/*      */     try {
+/*  826 */       if (flag.trim().equals("3"))
+/*  827 */         this.emailBodyMapper.updateRecycle(emailId);
+/*      */       else
+/*  829 */         this.emailBodyMapper.deleteRecycle(emailId);
+/*      */     }
+/*      */     catch (Exception e) {
+/*  832 */       returnRes = "1";
+/*  833 */       L.e(new Object[] { "email deleteRecycleEmail:" + e });
+/*      */     }
+/*  835 */     return returnRes;
+/*      */   }
+/*      */ 
+/*      */   public String queryByIdCss(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String sqlType, HttpServletRequest request)
+/*      */   {
+/*  850 */     Object locale = request.getSession().getAttribute("LOCALE_SESSION_ATTRIBUTE_NAME");
+/*  851 */     String shoujianren = "收件人";
+/*  852 */     String fajianren = "发件人";
+/*  853 */     String chaosongren = "抄送人";
+/*  854 */     String misongren = "密送人";
+/*  855 */     String fasongshijian = "发送时间";
+/*  856 */     String zhuti = "主题";
+/*  857 */     if (locale != null)
+/*      */     {
+/*  859 */       if ("en_US".equals(locale.toString())) {
+/*  860 */         fajianren = "The sender";
+/*  861 */         shoujianren = "The recipient";
+/*  862 */         chaosongren = "Cc people";
+/*  863 */         misongren = "Close send people";
+/*  864 */         fasongshijian = "Send time";
+/*  865 */         zhuti = "The theme";
+/*  866 */       } else if ("zh_tw".equals(locale.toString())) {
+/*  867 */         fajianren = "發件人";
+/*  868 */         shoujianren = "收件人";
+/*  869 */         chaosongren = "抄送人";
+/*  870 */         misongren = "密送人";
+/*  871 */         fasongshijian = "發送時間";
+/*  872 */         zhuti = "主題";
+/*      */       }
+/*      */     }
+/*  875 */     EmailBodyModel emailBodyModel = queryById(maps, page, pageSize, useFlag, sqlType);
+/*  876 */     StringBuffer fwReEmail = new StringBuffer();
+/*  877 */     fwReEmail.append("&nbsp;");
+/*  878 */     fwReEmail.append("<div style=\"margin: 5px auto; height: 0px; border-bottom-color: rgb(192, 194, 207); border-bottom-width: 1px; border-bottom-style: solid;\">&nbsp;</div>\n");
+/*  879 */     fwReEmail.append("<div style=\"background: rgb(237, 246, 219); padding: 5px 15px; font-size: 12px; border-bottom-color: rgb(204, 204, 204); border-bottom-width: 1px; border-bottom-style: solid;\"><span style=\"line-height: 16px;\"><b><div class=\"emailInternationalization\"  style=\"float:left\">" + fajianren + "</div>：</b>&nbsp;");
+/*  880 */     fwReEmail.append(emailBodyModel.getUsers().getUserName());
+/*  881 */     fwReEmail.append("</span><br />");
+/*  882 */     fwReEmail.append("<span style=\"line-height: 16px;\"><b><div class=\"emailInternationalization\" style=\"float:left\">" + shoujianren + "</div>：</b>&nbsp;");
+/*      */ 
+/*  884 */     fwReEmail.append(emailBodyModel.getToName());
+/*  885 */     fwReEmail.append("</span><br />");
+/*  886 */     if (emailBodyModel.getCopyName() != "") {
+/*  887 */       fwReEmail.append("<span style=\"line-height: 16px;\"><b><div class=\"emailInternationalization\" style=\"float:left\">" + chaosongren + "</div>：</b>&nbsp;");
+/*  888 */       fwReEmail.append(emailBodyModel.getCopyName());
+/*  889 */       fwReEmail.append("</span><br />");
+/*      */     }
+/*  891 */     if (emailBodyModel.getSecretToName() != "") {
+/*  892 */       fwReEmail.append("<span style=\"line-height: 16px;\"><b><div class=\"emailInternationalization\" style=\"float:left\">" + misongren + "</div>：</b>&nbsp;");
+/*  893 */       fwReEmail.append(emailBodyModel.getSecretToName());
+/*  894 */       fwReEmail.append("</span><br />");
+/*      */     }
+/*  896 */     fwReEmail.append("<span style=\"line-height: 16px;\"><b><div class=\"emailInternationalization\" style=\"float:left\">" + fasongshijian + "</div>：</b>&nbsp;");
+/*  897 */     fwReEmail.append(DateFormat.getStrTime(emailBodyModel.getSendTime()));
+/*  898 */     fwReEmail.append("</span><br />");
+/*  899 */     fwReEmail.append("<span style=\"line-height: 16px;\"><b><div class=\"emailInternationalization\" style=\"float:left\">" + zhuti + "</div>：</b>&nbsp;");
+/*  900 */     fwReEmail.append(emailBodyModel.getSubject());
+/*  901 */     fwReEmail.append("</span></div>");
+/*  902 */     fwReEmail.append(emailBodyModel.getContent());
+/*  903 */     String names = fwReEmail.toString();
+/*  904 */     System.out.println(names);
+/*  905 */     return fwReEmail.toString();
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<EmailBodyModel> draftsSendEmail(EmailBodyModel emailBody, EmailModel email, String sqlType, HttpServletRequest request)
+/*      */   {
+/*  920 */     ToJson toJson = new ToJson();
+/*      */     try {
+/*  922 */       emailBody.setSendTime(DateFormat.getTime(DateFormat.getStrDate(new Date())));
+/*  923 */       if ("1".equals(emailBody.getSendFlag())) {
+/*  924 */         if (!StringUtils.checkNull(emailBody.getFromWebmail()).booleanValue())
+/*      */         {
+/*  927 */           toJson = returnUpdateDEmail(emailBody, email, sqlType, request);
+/*      */         } else {
+/*  929 */           this.emailBodyMapper.update(emailBody);
+/*  930 */           toJson = returnEmail(emailBody, email, "2", request);
+/*      */         }
+/*      */ 
+/*      */       }
+/*  934 */       else if (!StringUtils.checkNull(emailBody.getFromWebmail()).booleanValue()) {
+/*  935 */         emailBody.setWebmailFlag("0");
+/*  936 */         toJson = returnUpdateD(emailBody);
+/*      */       } else {
+/*  938 */         this.emailBodyMapper.update(emailBody);
+/*  939 */         toJson.setFlag(0);
+/*  940 */         toJson.setMsg("ok");
+/*      */       }
+/*      */     }
+/*      */     catch (Exception e) {
+/*  944 */       e.printStackTrace();
+/*  945 */       toJson.setFlag(1);
+/*  946 */       toJson.setMsg("errorSendEmail");
+/*  947 */       L.e(new Object[] { "email draftsSendEmail:" + e });
+/*      */     }
+/*  949 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public List<EmailModel> returnEmail(List<EmailModel> listEmail)
+/*      */   {
+/*  962 */     List list = new ArrayList();
+/*  963 */     for (EmailModel emailModel : listEmail) {
+/*  964 */       Map returnEmailMap = getEmailUserName(emailModel.getToId());
+/*  965 */       if (!returnEmailMap.isEmpty()) {
+/*  966 */         emailModel.setToId((String)returnEmailMap.keySet().iterator().next());
+/*      */ 
+/*  968 */         emailModel.setToName((String)returnEmailMap.get(emailModel.getToId()));
+/*      */       }
+/*  970 */       list.add(emailModel);
+/*      */     }
+/*  972 */     return list;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<EmailBoxModel> saveEmailBox(EmailBoxModel emailBoxModel)
+/*      */   {
+/*  987 */     ToJson toJson = new ToJson();
+/*      */     try {
+/*  989 */       Integer name = this.emailBoxMapper.selectNameCount(emailBoxModel.getBoxName(), emailBoxModel.getUserId());
+/*  990 */       Integer boxId = this.emailBoxMapper.selectBoxIdCount(emailBoxModel.getBoxNo(), emailBoxModel.getUserId());
+/*  991 */       if ((name.intValue() == 0) && (boxId.intValue() == 0)) {
+/*  992 */         this.emailBoxMapper.save(returnBoxModel(emailBoxModel));
+/*  993 */         toJson.setFlag(0);
+/*  994 */         toJson.setMsg("ok");
+/*      */       } else {
+/*  996 */         toJson.setFlag(1);
+/*  997 */         toJson.setMsg("repeat");
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 1000 */       toJson.setFlag(1);
+/* 1001 */       toJson.setMsg("error");
+/* 1002 */       L.e(new Object[] { "email saveEmailBox:" + e });
+/*      */     }
+/* 1004 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<EmailModel> updateEmailBox(EmailModel emailModel)
+/*      */   {
+/* 1018 */     ToJson toJson = new ToJson();
+/*      */     try {
+/* 1020 */       this.emailMapper.updateEmailBox(emailModel);
+/* 1021 */       toJson.setFlag(0);
+/* 1022 */       toJson.setMsg("ok");
+/*      */     } catch (Exception e) {
+/* 1024 */       toJson.setFlag(1);
+/* 1025 */       toJson.setMsg("error");
+/* 1026 */       L.e(new Object[] { "email updateEmailBox:" + e });
+/*      */     }
+/* 1028 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBoxModel> showEmailBox(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*      */   {
+/* 1043 */     ToJson toJson = new ToJson();
+/* 1044 */     PageParams pageParams = new PageParams();
+/* 1045 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 1046 */     pageParams.setPage(page);
+/* 1047 */     pageParams.setPageSize(pageSize);
+/* 1048 */     maps.put("page", pageParams);
+/* 1049 */     List list = this.emailBoxMapper.selectObjcet(maps);
+/* 1050 */     int len = list.size();
+/* 1051 */     if (len < 0) {
+/* 1052 */       toJson.setFlag(1);
+/* 1053 */       toJson.setMsg("error");
+/*      */     } else {
+/* 1055 */       toJson.setFlag(0);
+/* 1056 */       toJson.setMsg("ok");
+/* 1057 */       toJson.setObj(list);
+/*      */     }
+/* 1059 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> selectBoxEmail(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String sqlType)
+/*      */   {
+/* 1073 */     ToJson tojson = new ToJson();
+/* 1074 */     PageParams pageParams = new PageParams();
+/* 1075 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 1076 */     pageParams.setPage(page);
+/* 1077 */     pageParams.setPageSize(pageSize);
+/* 1078 */     maps.put("page", pageParams);
+/* 1079 */     List list = new ArrayList();
+/* 1080 */     List<EmailBodyModel> listEmai = this.emailBodyMapper.selectBoxEmail(maps);
+/* 1081 */     Integer len = Integer.valueOf(listEmai.size());
+/* 1082 */     if (len.intValue() > 0) {
+/* 1083 */       for (EmailBodyModel emailBody : listEmai)
+/*      */       {
+/* 1085 */         Map ToMap = getEmailUserName(emailBody.getToId2());
+/* 1086 */         emailBody.setToId2((String)ToMap.keySet().iterator().next());
+/* 1087 */         emailBody.setToName((String)ToMap.get(emailBody.getToId2()));
+/*      */ 
+/* 1089 */         Map copyMap = getEmailUserName(emailBody.getCopyToId());
+/*      */ 
+/* 1091 */         Map secretMap = getEmailUserName(emailBody.getSecretToId());
+/* 1092 */         if (!copyMap.isEmpty()) {
+/* 1093 */           emailBody.setCopyToId((String)copyMap.keySet().iterator().next());
+/* 1094 */           emailBody.setCopyName((String)copyMap.get(emailBody.getCopyToId()));
+/*      */         } else {
+/* 1096 */           emailBody.setCopyName("");
+/*      */         }
+/* 1098 */         if (!secretMap.isEmpty()) {
+/* 1099 */           emailBody.setSecretToId((String)secretMap.keySet().iterator().next());
+/* 1100 */           emailBody.setSecretToName((String)secretMap.get(emailBody.getSecretToId()));
+/*      */         } else {
+/* 1102 */           emailBody.setSecretToName("");
+/*      */         }
+/* 1104 */         emailBody.setEmailList(returnEmail(emailBody.getEmailList()));
+/* 1105 */         emailBody.setProbablyDate(DateFormat.getProbablyDate(emailBody.getSendTime()));
+/* 1106 */         if ((emailBody.getAttachmentName() != null) && (emailBody.getAttachmentId() != null)) {
+/* 1107 */           emailBody.setAttachment(GetAttachmentListUtil.returnAttachment(emailBody.getAttachmentName(), emailBody.getAttachmentId(), sqlType, "email"));
+/*      */         } else {
+/* 1109 */           emailBody.setAttachmentName("");
+/* 1110 */           emailBody.setAttachmentId("");
+/*      */         }
+/* 1112 */         list.add(emailBody);
+/*      */       }
+/* 1114 */       tojson.setFlag(0);
+/* 1115 */       tojson.setMsg("ok");
+/* 1116 */       tojson.setObj(list);
+/* 1117 */       tojson.setTotleNum(pageParams.getTotal());
+/*      */     } else {
+/* 1119 */       tojson.setFlag(1);
+/* 1120 */       tojson.setMsg("error");
+/*      */     }
+/* 1122 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> deleteBoxEmail(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*      */   {
+/* 1136 */     ToJson tojson = new ToJson();
+/* 1137 */     PageParams pageParams = new PageParams();
+/* 1138 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 1139 */     pageParams.setPage(page);
+/* 1140 */     pageParams.setPageSize(pageSize);
+/* 1141 */     maps.put("page", pageParams);
+/*      */ 
+/* 1144 */     boolean flags = true;
+/* 1145 */     List list = this.emailBodyMapper.selectIsBoxEmail(maps);
+/* 1146 */     int len = list.size();
+/* 1147 */     System.out.println(len);
+/* 1148 */     if (len > 0)
+/* 1149 */       flags = false;
+/*      */     else {
+/*      */       try
+/*      */       {
+/* 1153 */         this.emailBoxMapper.deleteBox((Integer)maps.get("boxId"));
+/*      */       } catch (Exception e) {
+/* 1155 */         flags = false;
+/*      */       }
+/*      */     }
+/* 1158 */     if (flags) {
+/* 1159 */       tojson.setFlag(0);
+/* 1160 */       tojson.setMsg("ok");
+/*      */     } else {
+/* 1162 */       tojson.setFlag(1);
+/* 1163 */       tojson.setMsg("error");
+/*      */     }
+/* 1165 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<EmailBoxModel> updeateEmailBoxName(EmailBoxModel emailBoxModel)
+/*      */   {
+/* 1179 */     ToJson toJson = new ToJson();
+/*      */     try
+/*      */     {
+/* 1182 */       Integer box = this.emailBoxMapper.selectBoxUpdate(emailBoxModel.getBoxNo(), emailBoxModel.getBoxName(), emailBoxModel.getUserId());
+/* 1183 */       if (box.intValue() == 0) {
+/* 1184 */         this.emailBoxMapper.update(emailBoxModel);
+/* 1185 */         toJson.setFlag(0);
+/* 1186 */         toJson.setMsg("ok");
+/*      */       } else {
+/* 1188 */         toJson.setFlag(1);
+/* 1189 */         toJson.setMsg("repeat");
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 1192 */       toJson.setFlag(1);
+/* 1193 */       toJson.setMsg("error");
+/* 1194 */       L.e(new Object[] { "email updeateEmailBoxName:" + e });
+/*      */     }
+/* 1196 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> selectInboxIsRead(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String sqlType)
+/*      */   {
+/* 1210 */     ToJson tojson = new ToJson();
+/* 1211 */     PageParams pageParams = new PageParams();
+/* 1212 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 1213 */     pageParams.setPage(page);
+/* 1214 */     pageParams.setPageSize(pageSize);
+/* 1215 */     maps.put("page", pageParams);
+/* 1216 */     List list = new ArrayList();
+/* 1217 */     List<EmailBodyModel> listEmai = this.emailBodyMapper.selectInboxIsRead(maps);
+/* 1218 */     for (EmailBodyModel emailBody : listEmai)
+/*      */     {
+/* 1220 */       Map ToMap = getEmailUserName(emailBody.getToId2());
+/* 1221 */       emailBody.setToId2((String)ToMap.keySet().iterator().next());
+/* 1222 */       emailBody.setToName((String)ToMap.get(emailBody.getToId2()));
+/*      */ 
+/* 1224 */       Map copyMap = getEmailUserName(emailBody.getCopyToId());
+/*      */ 
+/* 1226 */       Map secretMap = getEmailUserName(emailBody.getSecretToId());
+/* 1227 */       if (!copyMap.isEmpty()) {
+/* 1228 */         emailBody.setCopyToId((String)copyMap.keySet().iterator().next());
+/* 1229 */         emailBody.setCopyName((String)copyMap.get(emailBody.getCopyToId()));
+/*      */       } else {
+/* 1231 */         emailBody.setCopyName("");
+/*      */       }
+/* 1233 */       if (!secretMap.isEmpty()) {
+/* 1234 */         emailBody.setSecretToId((String)secretMap.keySet().iterator().next());
+/* 1235 */         emailBody.setSecretToName((String)secretMap.get(emailBody.getSecretToId()));
+/*      */       } else {
+/* 1237 */         emailBody.setSecretToName("");
+/*      */       }
+/* 1239 */       emailBody.setEmailList(returnEmail(emailBody.getEmailList()));
+/* 1240 */       if ((emailBody.getAttachmentName() != null) && (emailBody.getAttachmentId() != null)) {
+/* 1241 */         emailBody.setAttachment(GetAttachmentListUtil.returnAttachment(emailBody.getAttachmentName(), emailBody.getAttachmentId(), sqlType, "email"));
+/*      */       } else {
+/* 1243 */         emailBody.setAttachmentName("");
+/* 1244 */         emailBody.setAttachmentId("");
+/*      */       }
+/* 1246 */       emailBody.setProbablyDate(DateFormat.getProbablyDate(emailBody.getSendTime()));
+/* 1247 */       list.add(emailBody);
+/*      */     }
+/* 1249 */     tojson.setObj(list);
+/* 1250 */     tojson.setTotleNum(pageParams.getTotal());
+/* 1251 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> selectInboxIsReadList(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String sqlType)
+/*      */   {
+/* 1256 */     ToJson tojson = new ToJson();
+/* 1257 */     PageParams pageParams = new PageParams();
+/* 1258 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 1259 */     pageParams.setPage(page);
+/* 1260 */     pageParams.setPageSize(pageSize);
+/* 1261 */     maps.put("page", pageParams);
+/* 1262 */     List list = new ArrayList();
+/* 1263 */     List<EmailBodyModel> listEmai = this.emailBodyMapper.selectInboxIsRead(maps);
+/* 1264 */     for (EmailBodyModel emailBody : listEmai)
+/*      */     {
+/* 1266 */       Map ToMap = getEmailUserName(emailBody.getToId2());
+/* 1267 */       emailBody.setToId2((String)ToMap.keySet().iterator().next());
+/* 1268 */       emailBody.setToName((String)ToMap.get(emailBody.getToId2()));
+/*      */ 
+/* 1270 */       Map copyMap = getEmailUserName(emailBody.getCopyToId());
+/*      */ 
+/* 1272 */       Map secretMap = getEmailUserName(emailBody.getSecretToId());
+/* 1273 */       if (!copyMap.isEmpty()) {
+/* 1274 */         emailBody.setCopyToId((String)copyMap.keySet().iterator().next());
+/* 1275 */         emailBody.setCopyName((String)copyMap.get(emailBody.getCopyToId()));
+/*      */       } else {
+/* 1277 */         emailBody.setCopyName("");
+/*      */       }
+/* 1279 */       if (!secretMap.isEmpty()) {
+/* 1280 */         emailBody.setSecretToId((String)secretMap.keySet().iterator().next());
+/* 1281 */         emailBody.setSecretToName((String)secretMap.get(emailBody.getSecretToId()));
+/*      */       } else {
+/* 1283 */         emailBody.setSecretToName("");
+/*      */       }
+/* 1285 */       emailBody.setEmailList(returnEmail(emailBody.getEmailList()));
+/* 1286 */       if ((emailBody.getAttachmentName() != null) && (emailBody.getAttachmentId() != null)) {
+/* 1287 */         emailBody.setAttachment(GetAttachmentListUtil.returnAttachment(emailBody.getAttachmentName(), emailBody.getAttachmentId(), sqlType, "email"));
+/*      */       } else {
+/* 1289 */         emailBody.setAttachmentName("");
+/* 1290 */         emailBody.setAttachmentId("");
+/*      */       }
+/* 1292 */       emailBody.setProbablyDate(DateFormat.getProbablyDate(emailBody.getSendTime()));
+/* 1293 */       list.add(emailBody);
+/*      */     }
+/* 1295 */     tojson.setObj(list);
+/* 1296 */     tojson.setTotleNum(pageParams.getTotal());
+/* 1297 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   public EmailBoxModel returnBoxModel(EmailBoxModel emailBoxModel) {
+/* 1301 */     if (StringUtils.checkNull(emailBoxModel.getDefaultCount()).booleanValue()) {
+/* 1302 */       emailBoxModel.setDefaultCount("");
+/*      */     }
+/* 1304 */     return emailBoxModel;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<Webmail> saveWebMail(Webmail webmail)
+/*      */   {
+/* 1318 */     ToJson toJson = new ToJson();
+/*      */     try {
+/* 1320 */       this.webmailMapper.save(webmail);
+/* 1321 */       toJson.setFlag(0);
+/* 1322 */       toJson.setMsg("ok");
+/*      */     } catch (Exception e) {
+/* 1324 */       toJson.setFlag(1);
+/* 1325 */       toJson.setMsg("error");
+/* 1326 */       L.e(new Object[] { "email saveWebMail:" + e });
+/*      */     }
+/* 1328 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<Webmail> updateWebMail(Webmail webmail)
+/*      */   {
+/* 1342 */     ToJson toJson = new ToJson();
+/*      */     try {
+/* 1344 */       this.webmailMapper.update(webmail);
+/* 1345 */       toJson.setFlag(0);
+/* 1346 */       toJson.setMsg("ok");
+/*      */     } catch (Exception e) {
+/* 1348 */       toJson.setFlag(1);
+/* 1349 */       toJson.setMsg("error");
+/*      */     }
+/* 1351 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<Webmail> deleteWebMail(Integer mailId)
+/*      */   {
+/* 1365 */     ToJson toJson = new ToJson();
+/*      */     try {
+/* 1367 */       this.webmailMapper.deleteWebMail(mailId);
+/* 1368 */       toJson.setFlag(0);
+/* 1369 */       toJson.setMsg("ok");
+/*      */     } catch (Exception e) {
+/* 1371 */       toJson.setFlag(1);
+/* 1372 */       toJson.setMsg("error");
+/*      */     }
+/* 1374 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> returnUpdateD(EmailBodyModel emailBodyModel)
+/*      */   {
+/* 1386 */     ToJson toJson = new ToJson();
+/*      */     try {
+/* 1388 */       Webmail webmails = this.webmailMapper.selectWebMail(emailBodyModel.getFromWebmail());
+/* 1389 */       if (webmails != null) {
+/* 1390 */         emailBodyModel.setWebmailFlag("0");
+/* 1391 */         emailBodyModel.setFromWebmailId(webmails.getMailId());
+/* 1392 */         this.emailBodyMapper.update(emailBodyModel);
+/* 1393 */         toJson.setFlag(0);
+/* 1394 */         toJson.setMsg("ok");
+/*      */       } else {
+/* 1396 */         toJson.setFlag(1);
+/* 1397 */         toJson.setMsg("error");
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 1400 */       toJson.setFlag(1);
+/* 1401 */       toJson.setMsg("error");
+/* 1402 */       L.e(new Object[] { "email returnSendWebEmail:" + e });
+/*      */     }
+/* 1404 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> returnSendWebEmail(EmailBodyModel emailBodyModel, EmailModel email, String sqlType, HttpServletRequest request)
+/*      */   {
+/* 1417 */     ToJson toJson = new ToJson();
+/*      */     try
+/*      */     {
+/* 1420 */       Webmail webmails = this.webmailMapper.selectWebMail(emailBodyModel.getFromWebmail());
+/* 1421 */       if (webmails != null)
+/*      */       {
+/*      */         boolean flag;
+/* 1423 */         if (!StringUtils.checkNull(emailBodyModel.getAttachmentName()).booleanValue())
+/*      */         {
+/* 1425 */           List attachment = GetAttachmentListUtil.returnAttachment(emailBodyModel.getAttachmentName(), emailBodyModel.getAttachmentId(), sqlType, "email");
+/* 1426 */           String[] files = returnFiles(attachment, sqlType);
+/* 1427 */           flag = EmailUtil.sendWEmail(webmails, emailBodyModel, files);
+/*      */         } else {
+/* 1429 */           flag = EmailUtil.sendWEmail(webmails, emailBodyModel, new String[0]);
+/*      */         }
+/* 1431 */         if (flag) {
+/* 1432 */           emailBodyModel.setWebmailFlag("2");
+/* 1433 */           emailBodyModel.setFromWebmailId(webmails.getMailId());
+/* 1434 */           this.emailBodyMapper.save(emailBodyModel);
+/* 1435 */           toJson = returnEmail(emailBodyModel, email, "2", request);
+/* 1436 */           String toWebId = emailBodyModel.getToWebmail().trim() + emailBodyModel.getSecretToWebmail().trim() + emailBodyModel.getCopyToWebmail().trim();
+/*      */ 
+/* 1439 */           if (!StringUtils.checkNull(toWebId).booleanValue()) {
+/* 1440 */             email.setToId("__WEBMAIL__" + emailBodyModel.getBodyId());
+/* 1441 */             email.setBoxId(Integer.valueOf(0));
+/* 1442 */             email.setBodyId(emailBodyModel.getBodyId());
+/* 1443 */             this.emailMapper.save(email);
+/*      */           }
+/* 1445 */           if (toJson.getMsg().equals("error")) {
+/* 1446 */             toJson.setFlag(0);
+/* 1447 */             toJson.setMsg("ok_w");
+/*      */           }
+/*      */         } else {
+/* 1450 */           emailBodyModel.setWebmailFlag("3");
+/* 1451 */           emailBodyModel.setFromWebmailId(webmails.getMailId());
+/* 1452 */           this.emailBodyMapper.save(emailBodyModel);
+/* 1453 */           toJson = returnEmail(emailBodyModel, email, "2", request);
+/* 1454 */           if (toJson.isFlag()) {
+/* 1455 */             toJson.setFlag(1);
+/* 1456 */             toJson.setMsg("error_ws");
+/*      */           }
+/*      */         }
+/*      */       } else {
+/* 1460 */         toJson.setFlag(1);
+/* 1461 */         toJson.setMsg("error_w");
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 1464 */       toJson.setFlag(1);
+/* 1465 */       toJson.setMsg("error");
+/* 1466 */       L.e(new Object[] { "email returnSendWebEmail:" + e });
+/*      */     }
+/* 1468 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> returnUpdateDEmail(EmailBodyModel emailBodyModel, EmailModel email, String sqlType, HttpServletRequest request)
+/*      */   {
+/* 1481 */     ToJson toJson = new ToJson();
+/*      */     try {
+/* 1483 */       toJson = returnEmail(emailBodyModel, email, "2", request);
+/* 1484 */       Webmail webmails = this.webmailMapper.selectWebMail(emailBodyModel.getFromWebmail());
+/* 1485 */       if (webmails != null)
+/*      */       {
+/*      */         boolean flag;
+/* 1487 */         if (!StringUtils.checkNull(emailBodyModel.getAttachmentName()).booleanValue())
+/*      */         {
+/* 1489 */           List attachment = GetAttachmentListUtil.returnAttachment(emailBodyModel.getAttachmentName(), emailBodyModel.getAttachmentId(), sqlType, "email");
+/* 1490 */           String[] files = returnFiles(attachment, sqlType);
+/* 1491 */           flag = EmailUtil.sendWEmail(webmails, emailBodyModel, files);
+/*      */         } else {
+/* 1493 */           flag = EmailUtil.sendWEmail(webmails, emailBodyModel, new String[0]);
+/*      */         }
+/* 1495 */         if (flag) {
+/* 1496 */           emailBodyModel.setWebmailFlag("2");
+/* 1497 */           emailBodyModel.setFromWebmailId(webmails.getMailId());
+/* 1498 */           this.emailBodyMapper.update(emailBodyModel);
+/* 1499 */           toJson = returnEmail(emailBodyModel, email, "2", request);
+/* 1500 */           String toWebId = emailBodyModel.getToWebmail().trim() + emailBodyModel.getSecretToWebmail().trim() + emailBodyModel.getCopyToWebmail().trim();
+/*      */ 
+/* 1503 */           if (!StringUtils.checkNull(toWebId).booleanValue()) {
+/* 1504 */             email.setToId("__WEBMAIL__" + emailBodyModel.getBodyId());
+/* 1505 */             email.setBoxId(Integer.valueOf(0));
+/* 1506 */             email.setBodyId(emailBodyModel.getBodyId());
+/* 1507 */             this.emailMapper.save(email);
+/*      */           }
+/* 1509 */           if (toJson.getMsg().equals("error")) {
+/* 1510 */             toJson.setFlag(0);
+/* 1511 */             toJson.setMsg("ok_w");
+/*      */           }
+/*      */         } else {
+/* 1514 */           emailBodyModel.setWebmailFlag("3");
+/* 1515 */           emailBodyModel.setFromWebmailId(webmails.getMailId());
+/* 1516 */           this.emailBodyMapper.update(emailBodyModel);
+/* 1517 */           toJson = returnEmail(emailBodyModel, email, "2", request);
+/* 1518 */           toJson = returnEmail(emailBodyModel, email, "2", request);
+/*      */         }
+/*      */       } else {
+/* 1521 */         toJson.setFlag(1);
+/* 1522 */         toJson.setMsg("error");
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 1525 */       toJson.setFlag(1);
+/* 1526 */       toJson.setMsg("error");
+/* 1527 */       L.e(new Object[] { "email returnUpdateDEmail:" + e });
+/*      */     }
+/* 1529 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> returnSaveWebEmail(EmailBodyModel emailBodyModel)
+/*      */   {
+/* 1541 */     ToJson toJson = new ToJson();
+/*      */     try {
+/* 1543 */       Webmail webmails = this.webmailMapper.selectWebMail(emailBodyModel.getFromWebmail());
+/* 1544 */       if (webmails != null) {
+/* 1545 */         emailBodyModel.setWebmailFlag("0");
+/* 1546 */         emailBodyModel.setFromWebmailId(webmails.getMailId());
+/* 1547 */         this.emailBodyMapper.save(emailBodyModel);
+/* 1548 */         toJson.setFlag(0);
+/* 1549 */         toJson.setMsg("ok");
+/*      */       } else {
+/* 1551 */         toJson.setFlag(1);
+/* 1552 */         toJson.setMsg("error");
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 1555 */       toJson.setFlag(1);
+/* 1556 */       toJson.setMsg("error");
+/* 1557 */       L.e(new Object[] { "email returnSendWebEmail:" + e });
+/*      */     }
+/* 1559 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> returnEmail(EmailBodyModel emailBody, EmailModel email, String remind, HttpServletRequest request)
+/*      */   {
+/* 1572 */     ToJson toJson = new ToJson();
+/*      */     try {
+/* 1574 */       String toID = emailBody.getCopyToId().trim() + emailBody.getToId2().trim() + emailBody.getSecretToId().trim();
+/*      */ 
+/* 1578 */       String toId = emailBody.getToId2().trim();
+/* 1579 */       String copyId = emailBody.getCopyToId().trim();
+/* 1580 */       String secrteId = emailBody.getSecretToId().trim();
+/* 1581 */       Set<String> toIdSet = new HashSet();
+/*      */ 
+/* 1583 */       if (!StringUtils.checkNull(toID).booleanValue()) {
+/* 1584 */         String[] toID2 = toID.split(",");
+/* 1585 */         int i = 0; for (int len = toID2.length; i < len; i++) {
+/* 1586 */           toIdSet.add(toID2[i]);
+/*      */         }
+/* 1588 */         for (String string : toIdSet) {
+/* 1589 */           email.setToId(string);
+/* 1590 */           email.setBoxId(Integer.valueOf(0));
+/* 1591 */           email.setBodyId(emailBody.getBodyId());
+/* 1592 */           this.emailMapper.save(email);
+/* 1593 */           addAffairs(emailBody, email.getEmailId(), email.getToId(), request);
+/*      */         }
+/* 1595 */         if (("0".equals(emailBody.getSmsDefault())) && (!"".equals(emailBody.getSubject()))) {
+/* 1596 */           Sms2Priv sms2Priv = new Sms2Priv();
+/* 1597 */           sms2Priv.setUserId(toID);
+/* 1598 */           StringBuffer contextString = new StringBuffer(emailBody.getSubject());
+/* 1599 */           this.sms2PrivService.selSenderMobile(emailBody.getSmsDefault(), sms2Priv, contextString, request);
+/*      */         }
+/* 1601 */         toJson.setFlag(0);
+/* 1602 */         toJson.setMsg("ok");
+/*      */       } else {
+/* 1604 */         toJson.setFlag(1);
+/* 1605 */         toJson.setMsg("error");
+/*      */       }
+/*      */     }
+/*      */     catch (Exception e)
+/*      */     {
+/* 1610 */       e.printStackTrace();
+/* 1611 */       toJson.setFlag(1);
+/* 1612 */       toJson.setMsg("error");
+/* 1613 */       L.e(new Object[] { "email returnEmail:" + e });
+/*      */     }
+/* 1615 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public Map<String, String> getEmailUserName(String userIds)
+/*      */   {
+/* 1628 */     if (StringUtils.checkNull(userIds).booleanValue()) {
+/* 1629 */       return new HashMap();
+/*      */     }
+/* 1631 */     Map maps = new HashMap();
+/*      */ 
+/* 1633 */     StringBuffer sb = new StringBuffer();
+/*      */ 
+/* 1635 */     StringBuffer sName = new StringBuffer();
+/* 1636 */     String[] temp = userIds.split(",");
+/* 1637 */     for (int i = 0; i < temp.length; i++) {
+/* 1638 */       if (!StringUtils.checkNull(temp[i]).booleanValue()) {
+/* 1639 */         String userName = this.usersMapper.getUsernameByUserId(temp[i]);
+/* 1640 */         if (!StringUtils.checkNull(userName).booleanValue()) {
+/* 1641 */           if (i < temp.length - 1) {
+/* 1642 */             sb.append(userName).append(",");
+/* 1643 */             sName.append(temp[i]).append(",");
+/*      */           } else {
+/* 1645 */             sb.append(userName);
+/* 1646 */             sName.append(temp[i]);
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */     }
+/* 1651 */     maps.put(sName.toString(), sb.toString());
+/* 1652 */     return maps;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Webmail> selectUserWebMail(String userId)
+/*      */   {
+/* 1665 */     ToJson toJson = new ToJson(1, "error");
+/*      */     try {
+/* 1667 */       toJson.setObj(this.webmailMapper.selectUserWebMail(userId));
+/* 1668 */       toJson.setFlag(0);
+/* 1669 */       toJson.setMsg("ok");
+/*      */     } catch (Exception e) {
+/* 1671 */       L.e(new Object[] { "EmailServiceImpl selectUserWebMail:" + e });
+/*      */     }
+/* 1673 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public String[] returnFiles(List<Attachment> list, String sqlType)
+/*      */   {
+/* 1686 */     String[] files = new String[0];
+/*      */ 
+/* 1688 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 1689 */     String osName = System.getProperty("os.name");
+/* 1690 */     StringBuffer stringBuffer = new StringBuffer();
+/* 1691 */     if (osName.toLowerCase().startsWith("win"))
+/* 1692 */       stringBuffer = stringBuffer.append(rb.getString("upload.win"));
+/*      */     else {
+/* 1694 */       stringBuffer = stringBuffer.append(rb.getString("upload.linux"));
+/*      */     }
+/*      */ 
+/* 1697 */     stringBuffer.append(System.getProperty("file.separator"));
+/* 1698 */     stringBuffer.append("attach");
+/* 1699 */     stringBuffer.append(System.getProperty("file.separator"));
+/* 1700 */     stringBuffer.append(sqlType);
+/* 1701 */     stringBuffer.append(System.getProperty("file.separator"));
+/* 1702 */     int i = 0; for (int len = list.size(); i < len; i++) {
+/* 1703 */       StringBuffer sb = new StringBuffer(stringBuffer.toString());
+/* 1704 */       sb.append(((Attachment)list.get(i)).getModule());
+/* 1705 */       sb.append(System.getProperty("file.separator"));
+/* 1706 */       sb.append(((Attachment)list.get(i)).getYm());
+/* 1707 */       sb.append(System.getProperty("file.separator"));
+/* 1708 */       sb.append(((Attachment)list.get(i)).getAttachId());
+/* 1709 */       sb.append(".");
+/* 1710 */       sb.append(((Attachment)list.get(i)).getAttachName());
+/* 1711 */       files[i] = sb.toString();
+/*      */     }
+/* 1713 */     return files;
+/*      */   }
+/*      */ 
+/*      */   @Transactional(readOnly=true)
+/*      */   public ToJson<Webmail> selectOneWebMail(String userId, Integer mailId)
+/*      */   {
+/* 1727 */     ToJson toJson = new ToJson(1, "error");
+/*      */     try {
+/* 1729 */       toJson.setObject(this.webmailMapper.selectOneWebMail(userId, mailId));
+/* 1730 */       toJson.setFlag(0);
+/* 1731 */       toJson.setMsg("ok");
+/*      */     } catch (Exception e) {
+/* 1733 */       L.e(new Object[] { "EmailServiceImpl selectOneWebMail:" + e });
+/*      */     }
+/* 1735 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public BaseWrappers getEmailReadDetail(Integer bodyId, String userIds)
+/*      */   {
+/* 1740 */     BaseWrappers baseWrappers = new BaseWrappers();
+/* 1741 */     if (!StringUtils.checkNull(userIds).booleanValue()) {
+/* 1742 */       String[] temp = userIds.split(",");
+/* 1743 */       Map param = new HashMap();
+/* 1744 */       param.put("userIds", temp);
+/* 1745 */       param.put("bodyId", bodyId);
+/* 1746 */       List datas = this.emailMapper.selectUserReadFlag(param);
+/* 1747 */       baseWrappers.setFlag(true);
+/* 1748 */       baseWrappers.setDatas(datas);
+/*      */     } else {
+/* 1750 */       baseWrappers.setFlag(false);
+/* 1751 */       baseWrappers.setDatas(null);
+/* 1752 */       baseWrappers.setMsg("用户ID为空");
+/*      */     }
+/* 1754 */     return baseWrappers;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> selectCount(HttpServletRequest request, String sendTime, Integer toId)
+/*      */   {
+/* 1759 */     ToJson toJson = new ToJson(1, "error");
+/* 1760 */     Map map = new HashMap();
+/* 1761 */     map.put("sendTime", sendTime);
+/* 1762 */     map.put("toId", toId);
+/* 1763 */     List list = this.emailBodyMapper.selectCount(map);
+/*      */     try
+/*      */     {
+/* 1782 */       if (list != null) {
+/* 1783 */         toJson.setObj(list);
+/* 1784 */         toJson.setMsg("数据获取成功");
+/* 1785 */         toJson.setFlag(0);
+/*      */       }
+/*      */     } catch (Exception e1) {
+/* 1788 */       e1.printStackTrace();
+/* 1789 */       toJson.setMsg(e1.getMessage());
+/*      */     }
+/* 1791 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> selectListByMoths(HttpServletRequest request, String sendTime)
+/*      */   {
+/* 1796 */     String year = request.getParameter("year");
+/* 1797 */     String userId = request.getParameter("userId");
+/* 1798 */     ToJson toJson = new ToJson(1, "error");
+/*      */     try {
+/* 1800 */       List<EmailBodyModel> list = this.emailBodyMapper.selectListByMoths(sendTime, year, userId);
+/* 1801 */       for (EmailBodyModel em : list) {
+/* 1802 */         if (!StringUtils.checkNull(String.valueOf(em.getSendTime())).booleanValue()) {
+/* 1803 */           em.setSendTimes(DateFormat.getDate(DateFormat.getDateStrTime(em.getSendTime())));
+/*      */         }
+/*      */ 
+/* 1806 */         List attachmentList = new ArrayList();
+/* 1807 */         if ((em.getAttachmentName() != null) && (!"".equals(em.getAttachmentName()))) {
+/* 1808 */           attachmentList = GetAttachmentListUtil.returnAttachment(em.getAttachmentName(), em.getAttachmentId(), Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "email");
+/*      */         }
+/* 1810 */         em.setAttachmentList(attachmentList);
+/*      */       }
+/*      */ 
+/* 1813 */       if (list != null) {
+/* 1814 */         toJson.setObj(list);
+/* 1815 */         toJson.setMsg("详情列表获取成功");
+/* 1816 */         toJson.setFlag(0);
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 1819 */       e.printStackTrace();
+/* 1820 */       toJson.setMsg(e.getMessage());
+/*      */     }
+/* 1822 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> selectDetailById(HttpServletRequest request, Integer bodyId)
+/*      */   {
+/* 1827 */     ToJson toJson = new ToJson(1, "error");
+/* 1828 */     Map maps = new HashMap();
+/* 1829 */     maps.put("bodyId", bodyId);
+/*      */     try {
+/* 1831 */       EmailBodyModel emailBodyModel = this.emailBodyMapper.queryByBodyId(maps);
+/* 1832 */       emailBodyModel.setSendTimes(DateFormat.getDate(DateFormat.getDateStrTime(emailBodyModel.getSendTime())));
+/*      */ 
+/* 1834 */       Map ToMap = getEmailUserName(emailBodyModel.getToId2());
+/* 1835 */       if (!ToMap.isEmpty()) {
+/* 1836 */         emailBodyModel.setToId2((String)ToMap.keySet().iterator().next());
+/* 1837 */         emailBodyModel.setToName((String)ToMap.get(emailBodyModel.getToId2()));
+/*      */       }
+/*      */ 
+/* 1841 */       Map copyMap = getEmailUserName(emailBodyModel.getCopyToId());
+/*      */ 
+/* 1843 */       if (!copyMap.isEmpty()) {
+/* 1844 */         emailBodyModel.setCopyToId((String)copyMap.keySet().iterator().next());
+/* 1845 */         emailBodyModel.setCopyName((String)copyMap.get(emailBodyModel.getCopyToId()));
+/*      */       } else {
+/* 1847 */         emailBodyModel.setCopyName("");
+/*      */       }
+/*      */ 
+/* 1850 */       List attachmentList = new ArrayList();
+/* 1851 */       if ((emailBodyModel.getAttachmentName() != null) && (!"".equals(emailBodyModel.getAttachmentName()))) {
+/* 1852 */         attachmentList = GetAttachmentListUtil.returnAttachment(emailBodyModel.getAttachmentName(), emailBodyModel.getAttachmentId(), Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "emailCount");
+/*      */       }
+/* 1854 */       emailBodyModel.setAttachmentList(attachmentList);
+/* 1855 */       if (emailBodyModel != null) {
+/* 1856 */         toJson.setObject(emailBodyModel);
+/* 1857 */         toJson.setMsg("详情信息获取成功");
+/* 1858 */         toJson.setFlag(0);
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 1861 */       e.printStackTrace();
+/* 1862 */       toJson.setMsg(e.getMessage());
+/*      */     }
+/* 1864 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailModel> updateEmailWithdraw(Integer bodyId)
+/*      */   {
+/* 1874 */     ToJson json = new ToJson();
+/*      */     try {
+/* 1876 */       Map map = new HashMap();
+/* 1877 */       map.put("bodyId", bodyId);
+/* 1878 */       List<EmailModel> emailModels = this.emailMapper.selectByBodyId(map);
+/* 1879 */       List toIds = new ArrayList();
+/* 1880 */       if ((emailModels != null) && (emailModels.size() > 0))
+/*      */       {
+/* 1882 */         for (EmailModel emailModel : emailModels)
+/*      */         {
+/* 1884 */           if (emailModel.getReadFlag().equals("0")) {
+/* 1885 */             toIds.add(emailModel.getToId());
+/*      */           }
+/*      */         }
+/*      */ 
+/* 1889 */         if (toIds.size() > 0) {
+/* 1890 */           map.put("userIds", toIds);
+/* 1891 */           this.emailMapper.updateEmailWithdraw(map);
+/*      */         }
+/*      */       }
+/* 1894 */       json.setObj(emailModels);
+/* 1895 */       json.setFlag(0);
+/* 1896 */       json.setMsg("ok");
+/*      */     } catch (Exception e) {
+/* 1898 */       e.printStackTrace();
+/* 1899 */       json.setFlag(1);
+/* 1900 */       json.setMsg("err");
+/*      */     }
+/* 1902 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @Async
+/*      */   public void addAffairs(EmailBodyModel emailBodyModel,final Integer emailId,final String todoId, HttpServletRequest request)
+/*      */   {
+/* 1913 */     final String sqlType = (String)request.getSession().getAttribute("loginDateSouse");
+/* 1914 */     final String userName = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserName();
+/* 1915 */     final EmailBodyModel emailBodyModelf = emailBodyModel;
+/* 1916 */     this.threadPoolTaskExecutor.execute(new Runnable()
+/*      */     {
+/*      */       public void run() {
+/* 1919 */         ContextHolder.setConsumerType(Constant.MYOA + sqlType);
+/* 1920 */         SmsBody smsBody = new SmsBody();
+/* 1921 */         smsBody.setFromId(emailBodyModelf.getFromId());
+/* 1922 */         smsBody.setContent("请查收我的邮件！主题：" + emailBodyModelf.getSubject());
+/* 1923 */         smsBody.setSendTime(emailBodyModelf.getSendTime());
+/* 1924 */         SysCode sysCode = new SysCode();
+/* 1925 */         sysCode.setCodeName("电子邮件");
+/* 1926 */         sysCode.setParentNo("SMS_REMIND");
+/* 1927 */         if (EmailServiceImpl.this.sysCodeMapper.getCodeNoByNameAndParentNo(sysCode) != null) {
+/* 1928 */           smsBody.setSmsType(EmailServiceImpl.this.sysCodeMapper.getCodeNoByNameAndParentNo(sysCode).getCodeNo());
+/*      */         }
+/* 1930 */         if ((!StringUtils.checkNull(emailBodyModelf.getAttachmentId()).booleanValue()) && (!StringUtils.checkNull(emailBodyModelf.getAttachmentName()).booleanValue())) {
+/* 1931 */           smsBody.setIsAttach("1");
+/*      */         }
+/* 1933 */         smsBody.setRemindUrl("email/details?id=" + emailId);
+/* 1934 */         String title = userName + "：请查收我的邮件！";
+/* 1935 */         String context = "主题:" + emailBodyModelf.getSubject();
+/* 1936 */         EmailServiceImpl.this.smsService.saveSms(smsBody, todoId, "1", "1", title, context, sqlType);
+/*      */       }
+/*      */     });
+/*      */   }
+/*      */ 
+/*      */   public ToJson<EmailBodyModel> queryEmailBySubject(String trim)
+/*      */   {
+/* 1944 */     ToJson tojson = new ToJson();
+/* 1945 */     List<EmailBodyModel> listEmai = this.emailBodyMapper.queryEmailBySubject(trim);
+/*      */ 
+/* 1947 */     EmailBodyModel emailBodyModel = new EmailBodyModel();
+/*      */ 
+/* 1949 */     for (EmailBodyModel emailBody : listEmai)
+/*      */     {
+/* 1951 */       Map ToMap = getEmailUserName(emailBody.getToId2());
+/* 1952 */       emailBody.setToId2((String)ToMap.keySet().iterator().next());
+/* 1953 */       emailBody.setToName((String)ToMap.get(emailBody.getToId2()));
+/*      */ 
+/* 1955 */       Map copyMap = getEmailUserName(emailBody.getCopyToId());
+/*      */ 
+/* 1957 */       Map secretMap = getEmailUserName(emailBody.getSecretToId());
+/* 1958 */       if (!copyMap.isEmpty()) {
+/* 1959 */         emailBody.setCopyToId((String)copyMap.keySet().iterator().next());
+/* 1960 */         emailBody.setCopyName((String)copyMap.get(emailBody.getCopyToId()));
+/*      */       } else {
+/* 1962 */         emailBody.setCopyName("");
+/*      */       }
+/* 1964 */       if (!secretMap.isEmpty()) {
+/* 1965 */         emailBody.setSecretToId((String)secretMap.keySet().iterator().next());
+/* 1966 */         emailBody.setSecretToName((String)secretMap.get(emailBody.getSecretToId()));
+/*      */       } else {
+/* 1968 */         emailBody.setSecretToName("");
+/*      */       }
+/* 1970 */       emailBody.setEmailList(returnEmail(emailBody.getEmailList()));
+/* 1971 */       emailBody.setProbablyDate(DateFormat.getProbablyDate(emailBody.getSendTime()));
+/*      */     }
+/*      */ 
+/* 1975 */     tojson.setObj(listEmai);
+/* 1976 */     tojson.setObject(emailBodyModel);
+/* 1977 */     return tojson;
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.email.impl.EmailServiceImpl
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,559 @@
+/*     */ package com.xoa.model.edu.voteTitle;
+/*     */ 
+/*     */ import com.baomidou.mybatisplus.activerecord.Model;
+/*     */ import com.baomidou.mybatisplus.annotations.TableField;
+/*     */ import com.baomidou.mybatisplus.annotations.TableId;
+/*     */ import com.baomidou.mybatisplus.annotations.TableName;
+/*     */ import com.baomidou.mybatisplus.enums.IdType;
+/*     */ import com.xoa.model.edu.voteItem.VoteItem;
+/*     */ import java.io.Serializable;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ @TableName("vote_title")
+/*     */ public class VoteTitle extends Model<VoteTitle>
+/*     */ {
+/*     */   private static final long serialVersionUID = 1L;
+/*     */ 
+/*     */   @TableId(value="VOTE_ID", type=IdType.AUTO)
+/*     */   private Integer voteId;
+/*     */   private Integer countNum;
+/*     */ 
+/*     */   @TableField("PARENT_ID")
+/*     */   private Integer parentId;
+/*     */ 
+/*     */   @TableField("FROM_ID")
+/*     */   private String fromId;
+/*     */ 
+/*     */   @TableField("TO_ID")
+/*     */   private String toId;
+/*     */ 
+/*     */   @TableField("PRIV_ID")
+/*     */   private String privId;
+/*     */ 
+/*     */   @TableField("USER_ID")
+/*     */   private String userId;
+/*     */ 
+/*     */   @TableField("SUBJECT")
+/*     */   private String subject;
+/*     */ 
+/*     */   @TableField("CONTENT")
+/*     */   private String content;
+/*     */ 
+/*     */   @TableField("TYPE")
+/*     */   private String type;
+/*     */ 
+/*     */   @TableField("MAX_NUM")
+/*     */   private Integer maxNum;
+/*     */ 
+/*     */   @TableField("MIN_NUM")
+/*     */   private Integer minNum;
+/*     */ 
+/*     */   @TableField("ANONYMITY")
+/*     */   private String anonymity;
+/*     */ 
+/*     */   @TableField("VIEW_PRIV")
+/*     */   private String viewPriv;
+/*     */ 
+/*     */   @TableField("SEND_TIME")
+/*     */   private String sendTime;
+/*     */ 
+/*     */   @TableField("BEGIN_DATE")
+/*     */   private String beginDate;
+/*     */ 
+/*     */   @TableField("END_DATE")
+/*     */   private String endDate;
+/*     */ 
+/*     */   @TableField("PUBLISH")
+/*     */   private String publish;
+/*     */ 
+/*     */   @TableField("READERS")
+/*     */   private String readers;
+/*     */ 
+/*     */   @TableField("VOTE_NO")
+/*     */   private String voteNo;
+/*     */ 
+/*     */   @TableField("ATTACHMENT_ID")
+/*     */   private String attachmentId;
+/*     */ 
+/*     */   @TableField("ATTACHMENT_NAME")
+/*     */   private String attachmentName;
+/*     */ 
+/*     */   @TableField("TOP")
+/*     */   private String top;
+/*     */ 
+/*     */   @TableField("VIEW_RESULT_PRIV_ID")
+/*     */   private String viewResultPrivId;
+/*     */ 
+/*     */   @TableField("VIEW_RESULT_USER_ID")
+/*     */   private String viewResultUserId;
+/*     */   private String toUserName;
+/*     */   private String toPrivName;
+/*     */   private String toDeptName;
+/*     */   private Integer sum;
+/*     */   private Integer getCount;
+/* 167 */   private boolean isRight = false;
+/*     */   private Integer uid;
+/*     */   private String avatar;
+/*     */   private String userName;
+/*     */   private String photo;
+/*     */   private String deptName;
+/*     */   private String itemName;
+/*     */   private Integer itemId;
+/*     */   private String voteUser;
+/*     */   private Integer voteCount;
+/*     */   private Integer count;
+/*     */   private String A;
+/*     */   private String B;
+/*     */   private String C;
+/*     */   private String D;
+/*     */   private String E;
+/*     */   private List<VoteItem> voteItemList;
+/*     */   private List<VoteTitle> voteTitleList;
+/*     */   private String userPrivName;
+/*     */   private boolean isHave;
+/*     */   private String toIdName;
+/*     */   private String privIdName;
+/*     */ 
+/*     */   public boolean isRight()
+/*     */   {
+/* 170 */     return this.isRight;
+/*     */   }
+/*     */ 
+/*     */   public void setRight(boolean right) {
+/* 174 */     this.isRight = right;
+/*     */   }
+/*     */ 
+/*     */   public Integer getUid()
+/*     */   {
+/* 188 */     return this.uid;
+/*     */   }
+/*     */ 
+/*     */   public String getAvatar() {
+/* 192 */     return this.avatar;
+/*     */   }
+/*     */ 
+/*     */   public void setUid(Integer uid) {
+/* 196 */     this.uid = uid;
+/*     */   }
+/*     */ 
+/*     */   public void setAvatar(String avatar) {
+/* 200 */     this.avatar = avatar;
+/*     */   }
+/*     */ 
+/*     */   public String getPhoto()
+/*     */   {
+/* 210 */     return this.photo;
+/*     */   }
+/*     */ 
+/*     */   public void setPhoto(String photo) {
+/* 214 */     this.photo = photo;
+/*     */   }
+/*     */ 
+/*     */   public String getA() {
+/* 218 */     return this.A;
+/*     */   }
+/*     */ 
+/*     */   public String getB() {
+/* 222 */     return this.B;
+/*     */   }
+/*     */ 
+/*     */   public String getC() {
+/* 226 */     return this.C;
+/*     */   }
+/*     */ 
+/*     */   public String getD() {
+/* 230 */     return this.D;
+/*     */   }
+/*     */ 
+/*     */   public String getE() {
+/* 234 */     return this.E;
+/*     */   }
+/*     */ 
+/*     */   public void setA(String a) {
+/* 238 */     this.A = a;
+/*     */   }
+/*     */ 
+/*     */   public void setB(String b) {
+/* 242 */     this.B = b;
+/*     */   }
+/*     */ 
+/*     */   public void setC(String c) {
+/* 246 */     this.C = c;
+/*     */   }
+/*     */ 
+/*     */   public void setD(String d) {
+/* 250 */     this.D = d;
+/*     */   }
+/*     */ 
+/*     */   public void setE(String e) {
+/* 254 */     this.E = e;
+/*     */   }
+/*     */ 
+/*     */   public List<VoteItem> getVoteItemList()
+/*     */   {
+/* 261 */     return this.voteItemList == null ? new ArrayList() : this.voteItemList;
+/*     */   }
+/*     */ 
+/*     */   public void setVoteItemList(List<VoteItem> voteItemList) {
+/* 265 */     this.voteItemList = voteItemList;
+/*     */   }
+/*     */ 
+/*     */   public List<VoteTitle> getVoteTitleList()
+/*     */   {
+/* 271 */     return this.voteTitleList == null ? new ArrayList() : this.voteTitleList;
+/*     */   }
+/*     */ 
+/*     */   public void setVoteTitleList(List<VoteTitle> voteTitleList) {
+/* 275 */     this.voteTitleList = voteTitleList;
+/*     */   }
+/*     */ 
+/*     */   public String getUserPrivName() {
+/* 279 */     return this.userPrivName;
+/*     */   }
+/*     */ 
+/*     */   public void setUserPrivName(String userPrivName) {
+/* 283 */     this.userPrivName = userPrivName;
+/*     */   }
+/*     */ 
+/*     */   public Integer getSum()
+/*     */   {
+/* 295 */     return Integer.valueOf(this.sum == null ? 0 : this.sum.intValue());
+/*     */   }
+/*     */ 
+/*     */   public void setSum(Integer sum) {
+/* 299 */     this.sum = sum;
+/*     */   }
+/*     */ 
+/*     */   public Integer getGetCount() {
+/* 303 */     return Integer.valueOf(this.getCount == null ? 0 : this.getCount.intValue());
+/*     */   }
+/*     */ 
+/*     */   public void setGetCount(Integer getCount) {
+/* 307 */     this.getCount = getCount;
+/*     */   }
+/*     */ 
+/*     */   public Integer getCountNum() {
+/* 311 */     return this.countNum;
+/*     */   }
+/*     */ 
+/*     */   public void setCountNum(Integer countNum) {
+/* 315 */     this.countNum = countNum;
+/*     */   }
+/*     */ 
+/*     */   public String getPrivIdName() {
+/* 319 */     return this.privIdName;
+/*     */   }
+/*     */ 
+/*     */   public void setPrivIdName(String privIdName) {
+/* 323 */     this.privIdName = privIdName;
+/*     */   }
+/*     */ 
+/*     */   public String getToIdName() {
+/* 327 */     return this.toIdName;
+/*     */   }
+/*     */ 
+/*     */   public void setToIdName(String toIdName) {
+/* 331 */     this.toIdName = toIdName;
+/*     */   }
+/*     */ 
+/*     */   public boolean isHave() {
+/* 335 */     return this.isHave;
+/*     */   }
+/*     */ 
+/*     */   public void setHave(boolean have) {
+/* 339 */     this.isHave = have;
+/*     */   }
+/*     */ 
+/*     */   public Integer getCount() {
+/* 343 */     return this.count;
+/*     */   }
+/*     */ 
+/*     */   public void setCount(Integer count) {
+/* 347 */     this.count = count;
+/*     */   }
+/*     */ 
+/*     */   public Integer getItemId() {
+/* 351 */     return this.itemId;
+/*     */   }
+/*     */ 
+/*     */   public void setItemId(Integer itemId) {
+/* 355 */     this.itemId = itemId;
+/*     */   }
+/*     */ 
+/*     */   public String getDeptName() {
+/* 359 */     return this.deptName;
+/*     */   }
+/*     */ 
+/*     */   public void setDeptName(String deptName) {
+/* 363 */     this.deptName = deptName;
+/*     */   }
+/*     */ 
+/*     */   public String getItemName() {
+/* 367 */     return this.itemName;
+/*     */   }
+/*     */ 
+/*     */   public String getVoteUser() {
+/* 371 */     return this.voteUser;
+/*     */   }
+/*     */ 
+/*     */   public Integer getVoteCount() {
+/* 375 */     return this.voteCount;
+/*     */   }
+/*     */ 
+/*     */   public String getUserName() {
+/* 379 */     return this.userName;
+/*     */   }
+/*     */ 
+/*     */   public void setItemName(String itemName) {
+/* 383 */     this.itemName = itemName;
+/*     */   }
+/*     */ 
+/*     */   public void setVoteUser(String voteUser) {
+/* 387 */     this.voteUser = voteUser;
+/*     */   }
+/*     */ 
+/*     */   public void setVoteCount(Integer voteCount) {
+/* 391 */     this.voteCount = voteCount;
+/*     */   }
+/*     */ 
+/*     */   public void setUserName(String userName) {
+/* 395 */     this.userName = userName;
+/*     */   }
+/*     */ 
+/*     */   public Integer getVoteId() {
+/* 399 */     return this.voteId;
+/*     */   }
+/*     */ 
+/*     */   public void setVoteId(Integer voteId) {
+/* 403 */     this.voteId = voteId;
+/*     */   }
+/*     */ 
+/*     */   public Integer getParentId() {
+/* 407 */     return this.parentId;
+/*     */   }
+/*     */ 
+/*     */   public void setParentId(Integer parentId) {
+/* 411 */     this.parentId = parentId;
+/*     */   }
+/*     */ 
+/*     */   public String getFromId() {
+/* 415 */     return this.fromId;
+/*     */   }
+/*     */ 
+/*     */   public void setFromId(String fromId) {
+/* 419 */     this.fromId = fromId;
+/*     */   }
+/*     */ 
+/*     */   public String getToId() {
+/* 423 */     return this.toId;
+/*     */   }
+/*     */ 
+/*     */   public void setToId(String toId) {
+/* 427 */     this.toId = toId;
+/*     */   }
+/*     */ 
+/*     */   public String getPrivId() {
+/* 431 */     return this.privId;
+/*     */   }
+/*     */ 
+/*     */   public void setPrivId(String privId) {
+/* 435 */     this.privId = privId;
+/*     */   }
+/*     */ 
+/*     */   public String getUserId() {
+/* 439 */     return this.userId;
+/*     */   }
+/*     */ 
+/*     */   public void setUserId(String userId) {
+/* 443 */     this.userId = userId;
+/*     */   }
+/*     */ 
+/*     */   public String getSubject() {
+/* 447 */     return this.subject;
+/*     */   }
+/*     */ 
+/*     */   public void setSubject(String subject) {
+/* 451 */     this.subject = subject;
+/*     */   }
+/*     */ 
+/*     */   public String getContent() {
+/* 455 */     return this.content;
+/*     */   }
+/*     */ 
+/*     */   public void setContent(String content) {
+/* 459 */     this.content = content;
+/*     */   }
+/*     */ 
+/*     */   public String getType() {
+/* 463 */     return this.type;
+/*     */   }
+/*     */ 
+/*     */   public void setType(String type) {
+/* 467 */     this.type = type;
+/*     */   }
+/*     */ 
+/*     */   public Integer getMaxNum() {
+/* 471 */     return this.maxNum;
+/*     */   }
+/*     */ 
+/*     */   public void setMaxNum(Integer maxNum) {
+/* 475 */     this.maxNum = maxNum;
+/*     */   }
+/*     */ 
+/*     */   public Integer getMinNum() {
+/* 479 */     return this.minNum;
+/*     */   }
+/*     */ 
+/*     */   public void setMinNum(Integer minNum) {
+/* 483 */     this.minNum = minNum;
+/*     */   }
+/*     */ 
+/*     */   public String getAnonymity() {
+/* 487 */     return this.anonymity;
+/*     */   }
+/*     */ 
+/*     */   public void setAnonymity(String anonymity) {
+/* 491 */     this.anonymity = anonymity;
+/*     */   }
+/*     */ 
+/*     */   public String getViewPriv() {
+/* 495 */     return this.viewPriv;
+/*     */   }
+/*     */ 
+/*     */   public void setViewPriv(String viewPriv) {
+/* 499 */     this.viewPriv = viewPriv;
+/*     */   }
+/*     */ 
+/*     */   public String getSendTime() {
+/* 503 */     return this.sendTime;
+/*     */   }
+/*     */ 
+/*     */   public void setSendTime(String sendTime) {
+/* 507 */     this.sendTime = sendTime;
+/*     */   }
+/*     */ 
+/*     */   public String getBeginDate() {
+/* 511 */     return this.beginDate;
+/*     */   }
+/*     */ 
+/*     */   public void setBeginDate(String beginDate) {
+/* 515 */     this.beginDate = beginDate;
+/*     */   }
+/*     */ 
+/*     */   public String getEndDate() {
+/* 519 */     return this.endDate;
+/*     */   }
+/*     */ 
+/*     */   public void setEndDate(String endDate) {
+/* 523 */     this.endDate = endDate;
+/*     */   }
+/*     */ 
+/*     */   public String getPublish() {
+/* 527 */     return this.publish;
+/*     */   }
+/*     */ 
+/*     */   public void setPublish(String publish) {
+/* 531 */     this.publish = publish;
+/*     */   }
+/*     */ 
+/*     */   public String getReaders() {
+/* 535 */     return this.readers;
+/*     */   }
+/*     */ 
+/*     */   public void setReaders(String readers) {
+/* 539 */     this.readers = readers;
+/*     */   }
+/*     */ 
+/*     */   public String getVoteNo() {
+/* 543 */     return this.voteNo;
+/*     */   }
+/*     */ 
+/*     */   public void setVoteNo(String voteNo) {
+/* 547 */     this.voteNo = voteNo;
+/*     */   }
+/*     */ 
+/*     */   public String getAttachmentId() {
+/* 551 */     return this.attachmentId;
+/*     */   }
+/*     */ 
+/*     */   public void setAttachmentId(String attachmentId) {
+/* 555 */     this.attachmentId = attachmentId;
+/*     */   }
+/*     */ 
+/*     */   public String getAttachmentName() {
+/* 559 */     return this.attachmentName;
+/*     */   }
+/*     */ 
+/*     */   public void setAttachmentName(String attachmentName) {
+/* 563 */     this.attachmentName = attachmentName;
+/*     */   }
+/*     */ 
+/*     */   public String getTop() {
+/* 567 */     return this.top;
+/*     */   }
+/*     */ 
+/*     */   public void setTop(String top) {
+/* 571 */     this.top = top;
+/*     */   }
+/*     */ 
+/*     */   public String getViewResultPrivId() {
+/* 575 */     return this.viewResultPrivId;
+/*     */   }
+/*     */ 
+/*     */   public void setViewResultPrivId(String viewResultPrivId) {
+/* 579 */     this.viewResultPrivId = viewResultPrivId;
+/*     */   }
+/*     */ 
+/*     */   public String getViewResultUserId() {
+/* 583 */     return this.viewResultUserId;
+/*     */   }
+/*     */ 
+/*     */   public void setViewResultUserId(String viewResultUserId) {
+/* 587 */     this.viewResultUserId = viewResultUserId;
+/*     */   }
+/*     */ 
+/*     */   protected Serializable pkVal()
+/*     */   {
+/* 592 */     return this.voteId;
+/*     */   }
+/*     */ 
+/*     */   public String toString()
+/*     */   {
+/* 597 */     return "VoteTitle{voteId=" + this.voteId + ", parentId=" + this.parentId + ", fromId=" + this.fromId + ", toId=" + this.toId + ", privId=" + this.privId + ", userId=" + this.userId + ", subject=" + this.subject + ", content=" + this.content + ", type=" + this.type + ", maxNum=" + this.maxNum + ", minNum=" + this.minNum + ", anonymity=" + this.anonymity + ", viewPriv=" + this.viewPriv + ", sendTime=" + this.sendTime + ", beginDate=" + this.beginDate + ", endDate=" + this.endDate + ", publish=" + this.publish + ", readers=" + this.readers + ", voteNo=" + this.voteNo + ", attachmentId=" + this.attachmentId + ", attachmentName=" + this.attachmentName + ", top=" + this.top + ", viewResultPrivId=" + this.viewResultPrivId + ", viewResultUserId=" + this.viewResultUserId + "}";
+/*     */   }
+/*     */ 
+/*     */   public static long getSerialVersionUID()
+/*     */   {
+/* 626 */     return 1L;
+/*     */   }
+/*     */ 
+/*     */   public String getToUserName() {
+/* 630 */     return this.toUserName == null ? "" : this.toUserName;
+/*     */   }
+/*     */ 
+/*     */   public void setToUserName(String toUserName) {
+/* 634 */     this.toUserName = toUserName;
+/*     */   }
+/*     */ 
+/*     */   public String getToPrivName() {
+/* 638 */     return this.toPrivName == null ? "" : this.toPrivName;
+/*     */   }
+/*     */ 
+/*     */   public void setToPrivName(String toPrivName) {
+/* 642 */     this.toPrivName = toPrivName;
+/*     */   }
+/*     */ 
+/*     */   public String getToDeptName() {
+/* 646 */     return this.toDeptName == null ? "" : this.toDeptName;
+/*     */   }
+/*     */ 
+/*     */   public void setToDeptName(String toDeptName) {
+/* 650 */     this.toDeptName = toDeptName;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.edu.voteTitle.VoteTitle
+ * JD-Core Version:    0.6.0
+ */

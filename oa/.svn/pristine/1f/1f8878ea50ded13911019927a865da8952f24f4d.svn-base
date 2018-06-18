@@ -1,0 +1,364 @@
+/*     */ package com.xoa.service.supervision.impl;
+/*     */ 
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.supervision.SupervisionMapper;
+/*     */ import com.xoa.dao.supervision.SupervisionTypeMapper;
+/*     */ import com.xoa.dao.users.UserPrivMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.supervision.SupervisionType;
+/*     */ import com.xoa.service.supervision.SupervisionTypeService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.treeUtil.CheckTree;
+/*     */ import com.xoa.util.treeUtil.SuperviseTreeUtil;
+/*     */ import com.xoa.util.treeUtil.TreeGirdNode;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.LinkedList;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class SupervisionTypeServiceImpl
+/*     */   implements SupervisionTypeService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   SupervisionTypeMapper supervisionTypeMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   UsersMapper usersMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   SupervisionMapper supervisionMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   UserPrivMapper userPrivMapper;
+/*     */ 
+/*     */   public ToJson<SupervisionType> getSupervisionTypeDetail(HttpServletRequest request, Integer sid)
+/*     */   {
+/*  47 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  49 */       SupervisionType supervisionType = this.supervisionTypeMapper.getSupervisionTypeDetail(sid);
+/*  50 */       if (supervisionType != null) {
+/*  51 */         String range = checkAll(supervisionType.getUserId());
+/*  52 */         String[] checkStrings = range.split("\\|");
+/*  53 */         String[] checkStringOr = (supervisionType.getUserId() == null ? "" : supervisionType.getUserId()).split("\\|");
+/*     */ 
+/*  55 */         if ((checkStrings.length == 1) && 
+/*  56 */           (checkStringOr.length > 0)) {
+/*  57 */           supervisionType.setDeptName(checkStrings[0]);
+/*  58 */           supervisionType.setDeptId(checkStringOr[0]);
+/*  59 */           supervisionType.setUserPrivName("");
+/*  60 */           supervisionType.setUserPrivId("");
+/*  61 */           supervisionType.setUserName("");
+/*  62 */           supervisionType.setUserId("");
+/*     */         }
+/*     */ 
+/*  68 */         if ((checkStrings.length == 2) && 
+/*  69 */           (checkStringOr.length > 0)) {
+/*  70 */           supervisionType.setDeptName(checkStrings[0]);
+/*  71 */           supervisionType.setDeptId(checkStringOr[0]);
+/*  72 */           supervisionType.setUserPrivName(checkStrings[1]);
+/*  73 */           supervisionType.setUserPrivId(checkStringOr[1]);
+/*  74 */           supervisionType.setUserName("");
+/*  75 */           supervisionType.setUserId("");
+/*     */         }
+/*     */ 
+/*  79 */         if ((checkStrings.length == 3) && 
+/*  80 */           (checkStringOr.length > 0)) {
+/*  81 */           supervisionType.setDeptName(checkStrings[0]);
+/*  82 */           supervisionType.setDeptId(checkStringOr[0]);
+/*  83 */           supervisionType.setUserPrivName(checkStrings[1]);
+/*  84 */           supervisionType.setUserPrivId(checkStringOr[1]);
+/*  85 */           supervisionType.setUserName(checkStrings[2]);
+/*  86 */           supervisionType.setUserId(checkStringOr[2]);
+/*     */         }
+/*     */ 
+/*  89 */         toJson.setObject(supervisionType);
+/*  90 */         toJson.setMsg("ok");
+/*  91 */         toJson.setFlag(0);
+/*     */       } else {
+/*  93 */         toJson.setMsg("没有详细信息");
+/*  94 */         toJson.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  97 */       e.printStackTrace();
+/*  98 */       toJson.setMsg(e.getMessage());
+/*  99 */       toJson.setFlag(1);
+/*     */     }
+/* 101 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SupervisionType> updateSupervisionType(HttpServletRequest request, SupervisionType supervisionType)
+/*     */   {
+/* 106 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 114 */       if (supervisionType.getParentId().intValue() == -1) {
+/* 115 */         supervisionType.setParentId(Integer.valueOf(0));
+/*     */       }
+/* 117 */       int a = this.supervisionTypeMapper.updateSupervisionType(supervisionType);
+/*     */ 
+/* 119 */       toJson.setObject(supervisionType);
+/* 120 */       toJson.setMsg("ok");
+/* 121 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 123 */       e.printStackTrace();
+/* 124 */       toJson.setMsg(e.getMessage());
+/* 125 */       toJson.setFlag(1);
+/*     */     }
+/* 127 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SupervisionType> addSupervisionType(HttpServletRequest request, SupervisionType supervisionType)
+/*     */   {
+/* 132 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 134 */       int a = this.supervisionTypeMapper.addSupervisionType(supervisionType);
+/* 135 */       if (a > 0) {
+/* 136 */         toJson.setObject(supervisionType);
+/* 137 */         toJson.setMsg("ok");
+/* 138 */         toJson.setFlag(0);
+/*     */       } else {
+/* 140 */         toJson.setMsg("保存失败");
+/* 141 */         throw new Exception();
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 144 */       e.printStackTrace();
+/* 145 */       toJson.setMsg(e.getMessage());
+/* 146 */       toJson.setFlag(1);
+/*     */     }
+/* 148 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SupervisionType> deleteSupervisionTypeBySid(Integer sid)
+/*     */   {
+/* 153 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 155 */       this.supervisionTypeMapper.deleteSupervisionTypeBySid(sid);
+/* 156 */       if (sid.intValue() != 0)
+/* 157 */         toJson.setMsg("ok");
+/*     */       else {
+/* 159 */         toJson.setMsg("err");
+/*     */       }
+/* 161 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 163 */       e.printStackTrace();
+/* 164 */       toJson.setMsg(e.getMessage());
+/* 165 */       toJson.setFlag(1);
+/*     */     }
+/* 167 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SupervisionType> getSupervisionTypeList(SupervisionType supervisionType, HttpServletRequest request)
+/*     */   {
+/* 172 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 174 */       List<SupervisionType> list = this.supervisionTypeMapper.getSupervisionTypeList(supervisionType);
+/* 175 */       for (SupervisionType type : list) {
+/* 176 */         String nameStrings = checkAll(type.getUserId());
+/* 177 */         String[] checkStrings = nameStrings.split("\\|");
+/*     */ 
+/* 179 */         if (checkStrings.length == 1) {
+/* 180 */           type.setDeptName(checkStrings[0]);
+/* 181 */           type.setUserPrivName("");
+/* 182 */           type.setUserName("");
+/*     */         }
+/*     */ 
+/* 185 */         if (checkStrings.length == 2) {
+/* 186 */           type.setDeptName(checkStrings[0]);
+/* 187 */           type.setUserPrivName(checkStrings[1]);
+/* 188 */           type.setUserName("");
+/*     */         }
+/*     */ 
+/* 191 */         if (checkStrings.length == 3) {
+/* 192 */           type.setDeptName(checkStrings[0]);
+/* 193 */           type.setUserPrivName(checkStrings[1]);
+/* 194 */           type.setUserName(checkStrings[2]);
+/*     */         }
+/*     */       }
+/* 197 */       if (list.size() > 0) {
+/* 198 */         toJson.setObj(list);
+/* 199 */         toJson.setMsg("ok");
+/*     */       } else {
+/* 201 */         toJson.setMsg("err");
+/*     */       }
+/* 203 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 205 */       e.printStackTrace();
+/* 206 */       toJson.setMsg(e.getMessage());
+/*     */     }
+/* 208 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TreeGirdNode> getSupTypeList(HttpServletRequest request)
+/*     */   {
+/* 214 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 216 */       Map map = new HashMap();
+/* 217 */       map.put("userId", request.getSession().getAttribute("userId"));
+/* 218 */       map.put("userPriv", request.getSession().getAttribute("userPriv"));
+/* 219 */       map.put("deptId", request.getSession().getAttribute("deptId"));
+/* 220 */       String userId = (String)map.get("userId");
+/* 221 */       List list = new LinkedList();
+/* 222 */       list = this.supervisionTypeMapper.getSupManageMenu(null);
+/* 223 */       List rootList = new ArrayList();
+/* 224 */       Iterator total = list.iterator();
+/* 225 */       while (total.hasNext()) {
+/* 226 */         SupervisionType type = (SupervisionType)total.next();
+/* 227 */         String useriD = checkAll(type.getUserId());
+/* 228 */         type.setUserName(useriD);
+/* 229 */         if (((type.getParentId().intValue() == 0) || (type.getParentId() == null)) && 
+/* 230 */           (type.getUserId() != null)) {
+/* 231 */           if ("admin".equals(userId)) {
+/* 232 */             rootList.add(type);
+/* 233 */             total.remove();
+/* 234 */             continue;
+/*     */           }
+/* 236 */           boolean flag = CheckTree.checkAll(type.getUserId(), map);
+/* 237 */           if (flag) {
+/* 238 */             rootList.add(type);
+/* 239 */             total.remove();
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 244 */       SuperviseTreeUtil sup = new SuperviseTreeUtil(rootList, list, map);
+/* 245 */       List totalListAdmin = new LinkedList();
+/* 246 */       totalListAdmin = sup.getTreeGirdNode();
+/* 247 */       toJson.setObj(totalListAdmin);
+/* 248 */       toJson.setMsg("ok");
+/* 249 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 251 */       e.printStackTrace();
+/* 252 */       toJson.setMsg(e.getMessage());
+/* 253 */       toJson.setFlag(1);
+/*     */     }
+/* 255 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public String checkAll(String checkString)
+/*     */   {
+/* 269 */     StringBuffer sb = new StringBuffer("");
+/* 270 */     Map mapParam = new HashMap();
+/*     */ 
+/* 272 */     String[] checkStrings = checkString.split("\\|");
+/* 273 */     if (checkStrings.length == 0) {
+/* 274 */       return sb.toString();
+/*     */     }
+/*     */ 
+/* 277 */     if (checkStrings.length == 1) {
+/* 278 */       String checkDept = checkStrings[0].substring(0, checkStrings[0].length() == 0 ? 0 : checkStrings[0].length() - 1);
+/* 279 */       if ((checkDept != null) && (!"".equals(checkDept))) {
+/* 280 */         checkDept = "'" + checkDept.replace(",", "','") + "'";
+/* 281 */         mapParam.put("checkDept", checkDept);
+/* 282 */         List listd = this.departmentMapper.getDeptNames(mapParam);
+/* 283 */         sb.append(getString(listd)).append("|");
+/*     */       } else {
+/* 285 */         sb.append("").append("|").append("").append("|");
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 290 */     if (checkStrings.length == 2) {
+/* 291 */       String checkDept = checkStrings[0].substring(0, checkStrings[0].length() == 0 ? 0 : checkStrings[0].length() - 1);
+/* 292 */       if ((checkDept != null) && (!"".equals(checkDept))) {
+/* 293 */         checkDept = "'" + checkDept.replace(",", "','") + "'";
+/* 294 */         mapParam.put("checkDept", checkDept);
+/* 295 */         List listd = this.departmentMapper.getDeptNames(mapParam);
+/* 296 */         sb.append(getString(listd)).append("|");
+/*     */       } else {
+/* 298 */         sb.append("").append("|");
+/*     */       }
+/* 300 */       String checkUserPriv = checkStrings[1].substring(0, checkStrings[1].length() == 0 ? 0 : checkStrings[1].length() - 1);
+/* 301 */       if ((checkUserPriv != null) && (!"".equals(checkUserPriv))) {
+/* 302 */         checkUserPriv = "'" + checkUserPriv.replace(",", "','") + "'";
+/* 303 */         mapParam.put("checkUserPriv", checkUserPriv);
+/* 304 */         List listup = this.userPrivMapper.getUserPNames(mapParam);
+/*     */ 
+/* 306 */         sb.append(getString(listup)).append("|");
+/*     */       } else {
+/* 308 */         sb.append("").append("|");
+/*     */       }
+/*     */     }
+/*     */ 
+/* 312 */     if (checkStrings.length == 3) {
+/* 313 */       String checkDept = checkStrings[0].substring(0, checkStrings[0].length() == 0 ? 0 : checkStrings[0].length() - 1);
+/* 314 */       if ((checkDept != null) && (!"".equals(checkDept))) {
+/* 315 */         checkDept = "'" + checkDept.replace(",", "','") + "'";
+/* 316 */         mapParam.put("checkDept", checkDept);
+/* 317 */         List listd = this.departmentMapper.getDeptNames(mapParam);
+/* 318 */         sb.append(getString(listd)).append("|");
+/*     */       } else {
+/* 320 */         sb.append("").append("|");
+/*     */       }
+/* 322 */       String checkUserPriv = checkStrings[1].substring(0, checkStrings[1].length() == 0 ? 0 : checkStrings[1].length() - 1);
+/* 323 */       if ((checkUserPriv != null) && (!"".equals(checkUserPriv)))
+/*     */       {
+/* 325 */         mapParam.put("checkUserPriv", checkUserPriv);
+/* 326 */         List<String> listup = this.userPrivMapper.getUserPNames(mapParam);
+/* 327 */         for (String s : listup)
+/* 328 */           sb.append(s).append(",");
+/*     */       }
+/*     */       else
+/*     */       {
+/* 332 */         sb.append("").append("|");
+/*     */       }
+/* 334 */       String checkUserId = checkStrings[2].substring(0, checkStrings[2].length() == 0 ? 0 : checkStrings[2].length() - 1);
+/* 335 */       if ((checkUserId != null) && (!"".equals(checkUserId))) {
+/* 336 */         checkUserId = "'" + checkUserId.replace(",", "','") + "'";
+/* 337 */         mapParam.put("checkUserId", checkUserId);
+/* 338 */         List listCheckUserId = this.usersMapper.getUserNames(mapParam);
+/* 339 */         sb.append("|");
+/* 340 */         sb.append(getString(listCheckUserId));
+/*     */       } else {
+/* 342 */         sb.append("");
+/*     */       }
+/*     */     }
+/* 345 */     return sb.toString();
+/*     */   }
+/*     */ 
+/*     */   public String getString(List<String> Strings) {
+/* 349 */     StringBuffer sb = new StringBuffer("");
+/* 350 */     if (Strings == null) {
+/* 351 */       return "";
+/*     */     }
+/* 353 */     for (String s : Strings) {
+/* 354 */       sb.append(s);
+/* 355 */       sb.append(",");
+/*     */     }
+/* 357 */     return sb.toString();
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SupervisionType> getSupNameSelect(HttpServletRequest request, SupervisionType supervisionType)
+/*     */   {
+/* 362 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 364 */       List list = this.supervisionTypeMapper.getSupNameSelect(supervisionType);
+/* 365 */       if (list.size() > 0) {
+/* 366 */         toJson.setObj(list);
+/* 367 */         toJson.setMsg("ok");
+/*     */       } else {
+/* 369 */         toJson.setMsg("空");
+/*     */       }
+/* 371 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 373 */       e.printStackTrace();
+/* 374 */       toJson.setMsg(e.getMessage());
+/*     */     }
+/* 376 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.supervision.impl.SupervisionTypeServiceImpl
+ * JD-Core Version:    0.6.0
+ */

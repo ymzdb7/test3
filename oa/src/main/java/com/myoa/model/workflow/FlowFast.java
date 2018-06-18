@@ -1,0 +1,311 @@
+ package com.myoa.model.workflow;
+ 
+ import com.myoa.model.users.Users;
+
+ import java.util.ArrayList;
+ import java.util.LinkedList;
+import java.util.List;
+ 
+ public class FlowFast
+ {
+   private FlowProcess flowProcesses;
+   private FlowTypeModel flowTypeModel;
+   private FlowFormType flowFormType;
+   private FlowRun flowRun;
+   private FlowRunPrcs flowRunPrcs;
+   private List<FlowProcess> listFp;
+   private String prcsOut;
+   private String prcsIn;
+   private String prcsOutSet;
+   private String prcsInSet;
+   private String conditionDesc;
+   private String prcsUser;
+   private List<Users> prcsUserlist;
+   private String prcsDept;
+   private List<Users> prcsDeptlist;
+   private String prcsPriv;
+   private List<Users> prcsPrivlist;
+   private String prcsItem;
+   private String requiredItem;
+   private String hiddenItem;
+   private String userFilter;
+   private List<Users> userFilterlist;
+   private String autoType;
+   private String feedback;
+   private String attachPriv;
+   private String allowBack;
+   private String signlock;
+   private String isViewPriv;
+   private List<Users> listView;
+   private String gatherNodePriv;
+   private String userName;
+   private List<Users> autoTypelist;
+   private List<Users> allUser;
+ 
+   public String getUserName()
+   {
+     return this.userName;
+   }
+ 
+   public void setUserName(String userName) {
+     this.userName = userName;
+   }
+ 
+   public String getGatherNodePriv() {
+     return this.gatherNodePriv;
+   }
+ 
+   public void setGatherNodePriv(String gatherNodePriv) {
+     this.gatherNodePriv = gatherNodePriv;
+   }
+ 
+   public List<Users> getListView() {
+     return this.listView;
+   }
+ 
+   public void setListView(List<Users> listView) {
+     this.listView = listView;
+   }
+ 
+   public String getIsViewPriv() {
+     return this.isViewPriv;
+   }
+ 
+   public void setIsViewPriv(String isViewPriv) {
+     this.isViewPriv = isViewPriv;
+   }
+ 
+   public String getConditionDesc() {
+     return this.conditionDesc == null ? "" : this.conditionDesc;
+   }
+ 
+   public void setConditionDesc(String conditionDesc) {
+     this.conditionDesc = conditionDesc;
+   }
+ 
+   public String getSignlock() {
+     return this.signlock;
+   }
+ 
+   public void setSignlock(String signlock) {
+     this.signlock = signlock;
+   }
+ 
+   public String getAllowBack() {
+     return this.allowBack;
+   }
+ 
+   public void setAllowBack(String allowBack) {
+     this.allowBack = allowBack;
+   }
+ 
+   public String getAttachPriv() {
+     return this.attachPriv == null ? "" : this.attachPriv;
+   }
+ 
+   public void setAttachPriv(String attachPriv) {
+     this.attachPriv = attachPriv;
+   }
+ 
+   public String getFeedback()
+   {
+     return this.feedback == null ? "" : this.feedback;
+   }
+ 
+   public void setFeedback(String feedback) {
+     this.feedback = feedback;
+   }
+ 
+   public List<Users> getAllUser() {
+     return this.allUser;
+   }
+ 
+   public void setAllUser(List<Users> allUser) {
+     this.allUser = allUser;
+   }
+ 
+   public String getUserFilter() {
+     return this.userFilter == null ? "" : this.userFilter;
+   }
+ 
+   public void setUserFilter(String userFilter) {
+     this.userFilter = userFilter;
+   }
+ 
+   public List<Users> getUserFilterlist() {
+     return this.userFilterlist == null ? new ArrayList() : this.userFilterlist;
+   }
+ 
+   public void setUserFilterlist(List<Users> userFilterlist) {
+     this.userFilterlist = userFilterlist;
+   }
+ 
+   public String getAutoType() {
+     return this.autoType == null ? "" : this.autoType;
+   }
+ 
+   public void setAutoType(String autoType) {
+     this.autoType = autoType;
+   }
+ 
+   public List<Users> getAutoTypelist() {
+     return this.autoTypelist == null ? new ArrayList() : this.autoTypelist;
+   }
+ 
+   public void setAutoTypelist(List<Users> autoTypelist) {
+     this.autoTypelist = autoTypelist;
+   }
+ 
+   public String getHiddenItem() {
+     return this.hiddenItem == null ? "" : this.hiddenItem;
+   }
+ 
+   public void setHiddenItem(String hiddenItem) {
+     this.hiddenItem = hiddenItem;
+   }
+ 
+   public String getPrcsItem() {
+     return this.prcsItem == null ? "" : this.prcsItem;
+   }
+ 
+   public void setPrcsItem(String prcsItem) {
+     this.prcsItem = prcsItem;
+   }
+ 
+   public String getRequiredItem() {
+     return this.requiredItem == null ? "" : this.requiredItem;
+   }
+ 
+   public void setRequiredItem(String requiredItem) {
+     this.requiredItem = requiredItem;
+   }
+ 
+   public String getPrcsUser() {
+     return this.prcsUser == null ? "" : this.prcsUser;
+   }
+ 
+   public void setPrcsUser(String prcsUser) {
+     this.prcsUser = prcsUser;
+   }
+ 
+   public List<Users> getPrcsUserlist() {
+     return this.prcsUserlist == null ? new LinkedList() : this.prcsUserlist;
+   }
+ 
+   public void setPrcsUserlist(List<Users> prcsUserlist) {
+     this.prcsUserlist = prcsUserlist;
+   }
+ 
+   public String getPrcsDept() {
+     return this.prcsDept;
+   }
+ 
+   public void setPrcsDept(String prcsDept) {
+     this.prcsDept = prcsDept;
+   }
+ 
+   public List<Users> getPrcsDeptlist() {
+     return this.prcsDeptlist == null ? new LinkedList() : this.prcsDeptlist;
+   }
+ 
+   public void setPrcsDeptlist(List<Users> prcsDeptlist) {
+     this.prcsDeptlist = prcsDeptlist;
+   }
+ 
+   public String getPrcsPriv() {
+     return this.prcsPriv;
+   }
+ 
+   public void setPrcsPriv(String prcsPriv) {
+     this.prcsPriv = prcsPriv;
+   }
+ 
+   public List<Users> getPrcsPrivlist() {
+     return this.prcsPrivlist == null ? new LinkedList() : this.prcsPrivlist;
+   }
+ 
+   public void setPrcsPrivlist(List<Users> prcsPrivlist) {
+     this.prcsPrivlist = prcsPrivlist;
+   }
+ 
+   public String getPrcsOutSet() {
+     return this.prcsOutSet;
+   }
+ 
+   public void setPrcsOutSet(String prcsOutSet) {
+     this.prcsOutSet = prcsOutSet;
+   }
+ 
+   public String getPrcsInSet() {
+     return this.prcsInSet;
+   }
+ 
+   public void setPrcsInSet(String prcsInSet) {
+     this.prcsInSet = prcsInSet;
+   }
+ 
+   public String getPrcsIn() {
+     return this.prcsIn;
+   }
+ 
+   public void setPrcsIn(String prcsIn) {
+     this.prcsIn = prcsIn;
+   }
+ 
+   public String getPrcsOut() {
+     return this.prcsOut;
+   }
+ 
+   public void setPrcsOut(String prcsOut) {
+     this.prcsOut = prcsOut;
+   }
+ 
+   public List<FlowProcess> getListFp() {
+     return this.listFp;
+   }
+ 
+   public void setListFp(List<FlowProcess> listFp) {
+     this.listFp = listFp;
+   }
+ 
+   public FlowRunPrcs getFlowRunPrcs() {
+     return this.flowRunPrcs;
+   }
+ 
+   public void setFlowRunPrcs(FlowRunPrcs flowRunPrcs) {
+     this.flowRunPrcs = flowRunPrcs;
+   }
+ 
+   public FlowRun getFlowRun() {
+     return this.flowRun;
+   }
+ 
+   public void setFlowRun(FlowRun flowRun) {
+     this.flowRun = flowRun;
+   }
+ 
+   public FlowFormType getFlowFormType() {
+     return this.flowFormType;
+   }
+ 
+   public void setFlowFormType(FlowFormType flowFormType) {
+     this.flowFormType = flowFormType;
+   }
+ 
+   public FlowProcess getFlowProcesses() {
+     return this.flowProcesses;
+   }
+ 
+   public void setFlowProcesses(FlowProcess flowProcesses) {
+     this.flowProcesses = flowProcesses;
+   }
+ 
+   public FlowTypeModel getFlowTypeModel() {
+     return this.flowTypeModel;
+   }
+ 
+   public void setFlowTypeModel(FlowTypeModel flowTypeModel) {
+     this.flowTypeModel = flowTypeModel;
+   }
+ }
+

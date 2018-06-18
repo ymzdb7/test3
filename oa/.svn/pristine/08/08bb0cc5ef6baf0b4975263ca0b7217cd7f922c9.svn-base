@@ -1,0 +1,24 @@
+package com.myoa.service.url;
+
+import com.myoa.model.url.Url;
+
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+
+public abstract interface UrlService
+{
+  public abstract void insertUrl(Url paramUrl);
+
+  public abstract List<Url> selectData(Url paramUrl);
+
+  public abstract Url selectByUrlId(HttpServletRequest paramHttpServletRequest, Integer paramInteger);
+
+  public abstract void deleteData(Integer paramInteger);
+
+  public abstract void deleteAll();
+
+  public abstract void updateUrl(Url paramUrl);
+
+  public abstract void addUrl(Url paramUrl, HttpServletRequest paramHttpServletRequest);
+}
+

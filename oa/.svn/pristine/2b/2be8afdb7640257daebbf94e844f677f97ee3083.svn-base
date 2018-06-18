@@ -1,0 +1,1009 @@
+/*      */ package com.xoa.model.supervision;
+/*      */ 
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.Date;
+/*      */ import java.util.List;
+/*      */ 
+/*      */ public class SupervisionExample
+/*      */ {
+/*      */   protected String orderByClause;
+/*      */   protected boolean distinct;
+/*      */   protected List<Criteria> oredCriteria;
+/*      */ 
+/*      */   public SupervisionExample()
+/*      */   {
+/*   39 */     this.oredCriteria = new ArrayList();
+/*      */   }
+/*      */ 
+/*      */   public void setOrderByClause(String orderByClause)
+/*      */   {
+/*   49 */     this.orderByClause = orderByClause;
+/*      */   }
+/*      */ 
+/*      */   public String getOrderByClause()
+/*      */   {
+/*   59 */     return this.orderByClause;
+/*      */   }
+/*      */ 
+/*      */   public void setDistinct(boolean distinct)
+/*      */   {
+/*   69 */     this.distinct = distinct;
+/*      */   }
+/*      */ 
+/*      */   public boolean isDistinct()
+/*      */   {
+/*   79 */     return this.distinct;
+/*      */   }
+/*      */ 
+/*      */   public List<Criteria> getOredCriteria()
+/*      */   {
+/*   89 */     return this.oredCriteria;
+/*      */   }
+/*      */ 
+/*      */   public void or(Criteria criteria)
+/*      */   {
+/*   99 */     this.oredCriteria.add(criteria);
+/*      */   }
+/*      */ 
+/*      */   public Criteria or()
+/*      */   {
+/*  109 */     Criteria criteria = createCriteriaInternal();
+/*  110 */     this.oredCriteria.add(criteria);
+/*  111 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   public Criteria createCriteria()
+/*      */   {
+/*  121 */     Criteria criteria = createCriteriaInternal();
+/*  122 */     if (this.oredCriteria.size() == 0) {
+/*  123 */       this.oredCriteria.add(criteria);
+/*      */     }
+/*  125 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   protected Criteria createCriteriaInternal()
+/*      */   {
+/*  135 */     Criteria criteria = new Criteria();
+/*  136 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   public void clear()
+/*      */   {
+/*  146 */     this.oredCriteria.clear();
+/*  147 */     this.orderByClause = null;
+/*  148 */     this.distinct = false;
+/*      */   }
+/*      */ 
+/*      */   public static class Criterion
+/*      */   {
+/*      */     private String condition;
+/*      */     private Object value;
+/*      */     private Object secondValue;
+/*      */     private boolean noValue;
+/*      */     private boolean singleValue;
+/*      */     private boolean betweenValue;
+/*      */     private boolean listValue;
+/*      */     private String typeHandler;
+/*      */ 
+/*      */     public String getCondition()
+/*      */     {
+/* 1036 */       return this.condition;
+/*      */     }
+/*      */ 
+/*      */     public Object getValue() {
+/* 1040 */       return this.value;
+/*      */     }
+/*      */ 
+/*      */     public Object getSecondValue() {
+/* 1044 */       return this.secondValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isNoValue() {
+/* 1048 */       return this.noValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isSingleValue() {
+/* 1052 */       return this.singleValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isBetweenValue() {
+/* 1056 */       return this.betweenValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isListValue() {
+/* 1060 */       return this.listValue;
+/*      */     }
+/*      */ 
+/*      */     public String getTypeHandler() {
+/* 1064 */       return this.typeHandler;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition)
+/*      */     {
+/* 1069 */       this.condition = condition;
+/* 1070 */       this.typeHandler = null;
+/* 1071 */       this.noValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, String typeHandler)
+/*      */     {
+/* 1076 */       this.condition = condition;
+/* 1077 */       this.value = value;
+/* 1078 */       this.typeHandler = typeHandler;
+/* 1079 */       if ((value instanceof List))
+/* 1080 */         this.listValue = true;
+/*      */       else
+/* 1082 */         this.singleValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value)
+/*      */     {
+/* 1087 */       this(condition, value, null);
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*      */     {
+/* 1092 */       this.condition = condition;
+/* 1093 */       this.value = value;
+/* 1094 */       this.secondValue = secondValue;
+/* 1095 */       this.typeHandler = typeHandler;
+/* 1096 */       this.betweenValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 1100 */       this(condition, value, secondValue, null);
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public static class Criteria extends SupervisionExample.GeneratedCriteria
+/*      */   {
+/*      */   }
+/*      */ 
+/*      */   protected static abstract class GeneratedCriteria
+/*      */   {
+/*      */     protected List<SupervisionExample.Criterion> criteria;
+/*      */ 
+/*      */     protected GeneratedCriteria()
+/*      */     {
+/*  162 */       this.criteria = new ArrayList();
+/*      */     }
+/*      */ 
+/*      */     public boolean isValid() {
+/*  166 */       return this.criteria.size() > 0;
+/*      */     }
+/*      */ 
+/*      */     public List<SupervisionExample.Criterion> getAllCriteria() {
+/*  170 */       return this.criteria;
+/*      */     }
+/*      */ 
+/*      */     public List<SupervisionExample.Criterion> getCriteria() {
+/*  174 */       return this.criteria;
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition) {
+/*  178 */       if (condition == null) {
+/*  179 */         throw new RuntimeException("Value for condition cannot be null");
+/*      */       }
+/*  181 */       this.criteria.add(new SupervisionExample.Criterion(condition));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition, Object value, String property) {
+/*  185 */       if (value == null) {
+/*  186 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*      */       }
+/*  188 */       this.criteria.add(new SupervisionExample.Criterion(condition, value));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/*  192 */       if ((value1 == null) || (value2 == null)) {
+/*  193 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*      */       }
+/*  195 */       this.criteria.add(new SupervisionExample.Criterion(condition, value1, value2));
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSidIsNull() {
+/*  199 */       addCriterion("sid is null");
+/*  200 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSidIsNotNull() {
+/*  204 */       addCriterion("sid is not null");
+/*  205 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSidEqualTo(Integer value) {
+/*  209 */       addCriterion("sid =", value, "sid");
+/*  210 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSidNotEqualTo(Integer value) {
+/*  214 */       addCriterion("sid <>", value, "sid");
+/*  215 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSidGreaterThan(Integer value) {
+/*  219 */       addCriterion("sid >", value, "sid");
+/*  220 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSidGreaterThanOrEqualTo(Integer value) {
+/*  224 */       addCriterion("sid >=", value, "sid");
+/*  225 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSidLessThan(Integer value) {
+/*  229 */       addCriterion("sid <", value, "sid");
+/*  230 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSidLessThanOrEqualTo(Integer value) {
+/*  234 */       addCriterion("sid <=", value, "sid");
+/*  235 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSidIn(List<Integer> values) {
+/*  239 */       addCriterion("sid in", values, "sid");
+/*  240 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSidNotIn(List<Integer> values) {
+/*  244 */       addCriterion("sid not in", values, "sid");
+/*  245 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSidBetween(Integer value1, Integer value2) {
+/*  249 */       addCriterion("sid between", value1, value2, "sid");
+/*  250 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSidNotBetween(Integer value1, Integer value2) {
+/*  254 */       addCriterion("sid not between", value1, value2, "sid");
+/*  255 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSupNameIsNull() {
+/*  259 */       addCriterion("sup_name is null");
+/*  260 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSupNameIsNotNull() {
+/*  264 */       addCriterion("sup_name is not null");
+/*  265 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSupNameEqualTo(String value) {
+/*  269 */       addCriterion("sup_name =", value, "supName");
+/*  270 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSupNameNotEqualTo(String value) {
+/*  274 */       addCriterion("sup_name <>", value, "supName");
+/*  275 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSupNameGreaterThan(String value) {
+/*  279 */       addCriterion("sup_name >", value, "supName");
+/*  280 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSupNameGreaterThanOrEqualTo(String value) {
+/*  284 */       addCriterion("sup_name >=", value, "supName");
+/*  285 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSupNameLessThan(String value) {
+/*  289 */       addCriterion("sup_name <", value, "supName");
+/*  290 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSupNameLessThanOrEqualTo(String value) {
+/*  294 */       addCriterion("sup_name <=", value, "supName");
+/*  295 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSupNameLike(String value) {
+/*  299 */       addCriterion("sup_name like", value, "supName");
+/*  300 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSupNameNotLike(String value) {
+/*  304 */       addCriterion("sup_name not like", value, "supName");
+/*  305 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSupNameIn(List<String> values) {
+/*  309 */       addCriterion("sup_name in", values, "supName");
+/*  310 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSupNameNotIn(List<String> values) {
+/*  314 */       addCriterion("sup_name not in", values, "supName");
+/*  315 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSupNameBetween(String value1, String value2) {
+/*  319 */       addCriterion("sup_name between", value1, value2, "supName");
+/*  320 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andSupNameNotBetween(String value1, String value2) {
+/*  324 */       addCriterion("sup_name not between", value1, value2, "supName");
+/*  325 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andTypeIdIsNull() {
+/*  329 */       addCriterion("type_id is null");
+/*  330 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andTypeIdIsNotNull() {
+/*  334 */       addCriterion("type_id is not null");
+/*  335 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andTypeIdEqualTo(Integer value) {
+/*  339 */       addCriterion("type_id =", value, "typeId");
+/*  340 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andTypeIdNotEqualTo(Integer value) {
+/*  344 */       addCriterion("type_id <>", value, "typeId");
+/*  345 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andTypeIdGreaterThan(Integer value) {
+/*  349 */       addCriterion("type_id >", value, "typeId");
+/*  350 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andTypeIdGreaterThanOrEqualTo(Integer value) {
+/*  354 */       addCriterion("type_id >=", value, "typeId");
+/*  355 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andTypeIdLessThan(Integer value) {
+/*  359 */       addCriterion("type_id <", value, "typeId");
+/*  360 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andTypeIdLessThanOrEqualTo(Integer value) {
+/*  364 */       addCriterion("type_id <=", value, "typeId");
+/*  365 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andTypeIdIn(List<Integer> values) {
+/*  369 */       addCriterion("type_id in", values, "typeId");
+/*  370 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andTypeIdNotIn(List<Integer> values) {
+/*  374 */       addCriterion("type_id not in", values, "typeId");
+/*  375 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andTypeIdBetween(Integer value1, Integer value2) {
+/*  379 */       addCriterion("type_id between", value1, value2, "typeId");
+/*  380 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andTypeIdNotBetween(Integer value1, Integer value2) {
+/*  384 */       addCriterion("type_id not between", value1, value2, "typeId");
+/*  385 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andLeaderIdIsNull() {
+/*  389 */       addCriterion("leader_id is null");
+/*  390 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andLeaderIdIsNotNull() {
+/*  394 */       addCriterion("leader_id is not null");
+/*  395 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andLeaderIdEqualTo(Integer value) {
+/*  399 */       addCriterion("leader_id =", value, "leaderId");
+/*  400 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andLeaderIdNotEqualTo(Integer value) {
+/*  404 */       addCriterion("leader_id <>", value, "leaderId");
+/*  405 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andLeaderIdGreaterThan(Integer value) {
+/*  409 */       addCriterion("leader_id >", value, "leaderId");
+/*  410 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andLeaderIdGreaterThanOrEqualTo(Integer value) {
+/*  414 */       addCriterion("leader_id >=", value, "leaderId");
+/*  415 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andLeaderIdLessThan(Integer value) {
+/*  419 */       addCriterion("leader_id <", value, "leaderId");
+/*  420 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andLeaderIdLessThanOrEqualTo(Integer value) {
+/*  424 */       addCriterion("leader_id <=", value, "leaderId");
+/*  425 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andLeaderIdIn(List<Integer> values) {
+/*  429 */       addCriterion("leader_id in", values, "leaderId");
+/*  430 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andLeaderIdNotIn(List<Integer> values) {
+/*  434 */       addCriterion("leader_id not in", values, "leaderId");
+/*  435 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andLeaderIdBetween(Integer value1, Integer value2) {
+/*  439 */       addCriterion("leader_id between", value1, value2, "leaderId");
+/*  440 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andLeaderIdNotBetween(Integer value1, Integer value2) {
+/*  444 */       addCriterion("leader_id not between", value1, value2, "leaderId");
+/*  445 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andManagerIdIsNull() {
+/*  449 */       addCriterion("manager_id is null");
+/*  450 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andManagerIdIsNotNull() {
+/*  454 */       addCriterion("manager_id is not null");
+/*  455 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andManagerIdEqualTo(Integer value) {
+/*  459 */       addCriterion("manager_id =", value, "managerId");
+/*  460 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andManagerIdNotEqualTo(Integer value) {
+/*  464 */       addCriterion("manager_id <>", value, "managerId");
+/*  465 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andManagerIdGreaterThan(Integer value) {
+/*  469 */       addCriterion("manager_id >", value, "managerId");
+/*  470 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andManagerIdGreaterThanOrEqualTo(Integer value) {
+/*  474 */       addCriterion("manager_id >=", value, "managerId");
+/*  475 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andManagerIdLessThan(Integer value) {
+/*  479 */       addCriterion("manager_id <", value, "managerId");
+/*  480 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andManagerIdLessThanOrEqualTo(Integer value) {
+/*  484 */       addCriterion("manager_id <=", value, "managerId");
+/*  485 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andManagerIdIn(List<Integer> values) {
+/*  489 */       addCriterion("manager_id in", values, "managerId");
+/*  490 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andManagerIdNotIn(List<Integer> values) {
+/*  494 */       addCriterion("manager_id not in", values, "managerId");
+/*  495 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andManagerIdBetween(Integer value1, Integer value2) {
+/*  499 */       addCriterion("manager_id between", value1, value2, "managerId");
+/*  500 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andManagerIdNotBetween(Integer value1, Integer value2) {
+/*  504 */       addCriterion("manager_id not between", value1, value2, "managerId");
+/*  505 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andEndTimeIsNull() {
+/*  509 */       addCriterion("end_time is null");
+/*  510 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andEndTimeIsNotNull() {
+/*  514 */       addCriterion("end_time is not null");
+/*  515 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andEndTimeEqualTo(Date value) {
+/*  519 */       addCriterion("end_time =", value, "endTime");
+/*  520 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andEndTimeNotEqualTo(Date value) {
+/*  524 */       addCriterion("end_time <>", value, "endTime");
+/*  525 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andEndTimeGreaterThan(Date value) {
+/*  529 */       addCriterion("end_time >", value, "endTime");
+/*  530 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andEndTimeGreaterThanOrEqualTo(Date value) {
+/*  534 */       addCriterion("end_time >=", value, "endTime");
+/*  535 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andEndTimeLessThan(Date value) {
+/*  539 */       addCriterion("end_time <", value, "endTime");
+/*  540 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andEndTimeLessThanOrEqualTo(Date value) {
+/*  544 */       addCriterion("end_time <=", value, "endTime");
+/*  545 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andEndTimeIn(List<Date> values) {
+/*  549 */       addCriterion("end_time in", values, "endTime");
+/*  550 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andEndTimeNotIn(List<Date> values) {
+/*  554 */       addCriterion("end_time not in", values, "endTime");
+/*  555 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andEndTimeBetween(Date value1, Date value2) {
+/*  559 */       addCriterion("end_time between", value1, value2, "endTime");
+/*  560 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andEndTimeNotBetween(Date value1, Date value2) {
+/*  564 */       addCriterion("end_time not between", value1, value2, "endTime");
+/*  565 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andBeginTimeIsNull() {
+/*  569 */       addCriterion("begin_time is null");
+/*  570 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andBeginTimeIsNotNull() {
+/*  574 */       addCriterion("begin_time is not null");
+/*  575 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andBeginTimeEqualTo(Date value) {
+/*  579 */       addCriterion("begin_time =", value, "beginTime");
+/*  580 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andBeginTimeNotEqualTo(Date value) {
+/*  584 */       addCriterion("begin_time <>", value, "beginTime");
+/*  585 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andBeginTimeGreaterThan(Date value) {
+/*  589 */       addCriterion("begin_time >", value, "beginTime");
+/*  590 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andBeginTimeGreaterThanOrEqualTo(Date value) {
+/*  594 */       addCriterion("begin_time >=", value, "beginTime");
+/*  595 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andBeginTimeLessThan(Date value) {
+/*  599 */       addCriterion("begin_time <", value, "beginTime");
+/*  600 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andBeginTimeLessThanOrEqualTo(Date value) {
+/*  604 */       addCriterion("begin_time <=", value, "beginTime");
+/*  605 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andBeginTimeIn(List<Date> values) {
+/*  609 */       addCriterion("begin_time in", values, "beginTime");
+/*  610 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andBeginTimeNotIn(List<Date> values) {
+/*  614 */       addCriterion("begin_time not in", values, "beginTime");
+/*  615 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andBeginTimeBetween(Date value1, Date value2) {
+/*  619 */       addCriterion("begin_time between", value1, value2, "beginTime");
+/*  620 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andBeginTimeNotBetween(Date value1, Date value2) {
+/*  624 */       addCriterion("begin_time not between", value1, value2, "beginTime");
+/*  625 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andContentIsNull() {
+/*  629 */       addCriterion("content is null");
+/*  630 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andContentIsNotNull() {
+/*  634 */       addCriterion("content is not null");
+/*  635 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andContentEqualTo(String value) {
+/*  639 */       addCriterion("content =", value, "content");
+/*  640 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andContentNotEqualTo(String value) {
+/*  644 */       addCriterion("content <>", value, "content");
+/*  645 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andContentGreaterThan(String value) {
+/*  649 */       addCriterion("content >", value, "content");
+/*  650 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andContentGreaterThanOrEqualTo(String value) {
+/*  654 */       addCriterion("content >=", value, "content");
+/*  655 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andContentLessThan(String value) {
+/*  659 */       addCriterion("content <", value, "content");
+/*  660 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andContentLessThanOrEqualTo(String value) {
+/*  664 */       addCriterion("content <=", value, "content");
+/*  665 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andContentLike(String value) {
+/*  669 */       addCriterion("content like", value, "content");
+/*  670 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andContentNotLike(String value) {
+/*  674 */       addCriterion("content not like", value, "content");
+/*  675 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andContentIn(List<String> values) {
+/*  679 */       addCriterion("content in", values, "content");
+/*  680 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andContentNotIn(List<String> values) {
+/*  684 */       addCriterion("content not in", values, "content");
+/*  685 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andContentBetween(String value1, String value2) {
+/*  689 */       addCriterion("content between", value1, value2, "content");
+/*  690 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andContentNotBetween(String value1, String value2) {
+/*  694 */       addCriterion("content not between", value1, value2, "content");
+/*  695 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterIdIsNull() {
+/*  699 */       addCriterion("creater_id is null");
+/*  700 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterIdIsNotNull() {
+/*  704 */       addCriterion("creater_id is not null");
+/*  705 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterIdEqualTo(Integer value) {
+/*  709 */       addCriterion("creater_id =", value, "createrId");
+/*  710 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterIdNotEqualTo(Integer value) {
+/*  714 */       addCriterion("creater_id <>", value, "createrId");
+/*  715 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterIdGreaterThan(Integer value) {
+/*  719 */       addCriterion("creater_id >", value, "createrId");
+/*  720 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterIdGreaterThanOrEqualTo(Integer value) {
+/*  724 */       addCriterion("creater_id >=", value, "createrId");
+/*  725 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterIdLessThan(Integer value) {
+/*  729 */       addCriterion("creater_id <", value, "createrId");
+/*  730 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterIdLessThanOrEqualTo(Integer value) {
+/*  734 */       addCriterion("creater_id <=", value, "createrId");
+/*  735 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterIdIn(List<Integer> values) {
+/*  739 */       addCriterion("creater_id in", values, "createrId");
+/*  740 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterIdNotIn(List<Integer> values) {
+/*  744 */       addCriterion("creater_id not in", values, "createrId");
+/*  745 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterIdBetween(Integer value1, Integer value2) {
+/*  749 */       addCriterion("creater_id between", value1, value2, "createrId");
+/*  750 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterIdNotBetween(Integer value1, Integer value2) {
+/*  754 */       addCriterion("creater_id not between", value1, value2, "createrId");
+/*  755 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterTimeIsNull() {
+/*  759 */       addCriterion("creater_time is null");
+/*  760 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterTimeIsNotNull() {
+/*  764 */       addCriterion("creater_time is not null");
+/*  765 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterTimeEqualTo(Date value) {
+/*  769 */       addCriterion("creater_time =", value, "createrTime");
+/*  770 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterTimeNotEqualTo(Date value) {
+/*  774 */       addCriterion("creater_time <>", value, "createrTime");
+/*  775 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterTimeGreaterThan(Date value) {
+/*  779 */       addCriterion("creater_time >", value, "createrTime");
+/*  780 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterTimeGreaterThanOrEqualTo(Date value) {
+/*  784 */       addCriterion("creater_time >=", value, "createrTime");
+/*  785 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterTimeLessThan(Date value) {
+/*  789 */       addCriterion("creater_time <", value, "createrTime");
+/*  790 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterTimeLessThanOrEqualTo(Date value) {
+/*  794 */       addCriterion("creater_time <=", value, "createrTime");
+/*  795 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterTimeIn(List<Date> values) {
+/*  799 */       addCriterion("creater_time in", values, "createrTime");
+/*  800 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterTimeNotIn(List<Date> values) {
+/*  804 */       addCriterion("creater_time not in", values, "createrTime");
+/*  805 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterTimeBetween(Date value1, Date value2) {
+/*  809 */       addCriterion("creater_time between", value1, value2, "createrTime");
+/*  810 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andCreaterTimeNotBetween(Date value1, Date value2) {
+/*  814 */       addCriterion("creater_time not between", value1, value2, "createrTime");
+/*  815 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andStatusIsNull() {
+/*  819 */       addCriterion("status is null");
+/*  820 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andStatusIsNotNull() {
+/*  824 */       addCriterion("status is not null");
+/*  825 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andStatusEqualTo(Integer value) {
+/*  829 */       addCriterion("status =", value, "status");
+/*  830 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andStatusNotEqualTo(Integer value) {
+/*  834 */       addCriterion("status <>", value, "status");
+/*  835 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andStatusGreaterThan(Integer value) {
+/*  839 */       addCriterion("status >", value, "status");
+/*  840 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andStatusGreaterThanOrEqualTo(Integer value) {
+/*  844 */       addCriterion("status >=", value, "status");
+/*  845 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andStatusLessThan(Integer value) {
+/*  849 */       addCriterion("status <", value, "status");
+/*  850 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andStatusLessThanOrEqualTo(Integer value) {
+/*  854 */       addCriterion("status <=", value, "status");
+/*  855 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andStatusIn(List<Integer> values) {
+/*  859 */       addCriterion("status in", values, "status");
+/*  860 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andStatusNotIn(List<Integer> values) {
+/*  864 */       addCriterion("status not in", values, "status");
+/*  865 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andStatusBetween(Integer value1, Integer value2) {
+/*  869 */       addCriterion("status between", value1, value2, "status");
+/*  870 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andStatusNotBetween(Integer value1, Integer value2) {
+/*  874 */       addCriterion("status not between", value1, value2, "status");
+/*  875 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andParentIdIsNull() {
+/*  879 */       addCriterion("parent_id is null");
+/*  880 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andParentIdIsNotNull() {
+/*  884 */       addCriterion("parent_id is not null");
+/*  885 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andParentIdEqualTo(Integer value) {
+/*  889 */       addCriterion("parent_id =", value, "parentId");
+/*  890 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andParentIdNotEqualTo(Integer value) {
+/*  894 */       addCriterion("parent_id <>", value, "parentId");
+/*  895 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andParentIdGreaterThan(Integer value) {
+/*  899 */       addCriterion("parent_id >", value, "parentId");
+/*  900 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andParentIdGreaterThanOrEqualTo(Integer value) {
+/*  904 */       addCriterion("parent_id >=", value, "parentId");
+/*  905 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andParentIdLessThan(Integer value) {
+/*  909 */       addCriterion("parent_id <", value, "parentId");
+/*  910 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andParentIdLessThanOrEqualTo(Integer value) {
+/*  914 */       addCriterion("parent_id <=", value, "parentId");
+/*  915 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andParentIdIn(List<Integer> values) {
+/*  919 */       addCriterion("parent_id in", values, "parentId");
+/*  920 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andParentIdNotIn(List<Integer> values) {
+/*  924 */       addCriterion("parent_id not in", values, "parentId");
+/*  925 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andParentIdBetween(Integer value1, Integer value2) {
+/*  929 */       addCriterion("parent_id between", value1, value2, "parentId");
+/*  930 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andParentIdNotBetween(Integer value1, Integer value2) {
+/*  934 */       addCriterion("parent_id not between", value1, value2, "parentId");
+/*  935 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andRealEndTimeIsNull() {
+/*  939 */       addCriterion("real_end_time is null");
+/*  940 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andRealEndTimeIsNotNull() {
+/*  944 */       addCriterion("real_end_time is not null");
+/*  945 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andRealEndTimeEqualTo(Date value) {
+/*  949 */       addCriterion("real_end_time =", value, "realEndTime");
+/*  950 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andRealEndTimeNotEqualTo(Date value) {
+/*  954 */       addCriterion("real_end_time <>", value, "realEndTime");
+/*  955 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andRealEndTimeGreaterThan(Date value) {
+/*  959 */       addCriterion("real_end_time >", value, "realEndTime");
+/*  960 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andRealEndTimeGreaterThanOrEqualTo(Date value) {
+/*  964 */       addCriterion("real_end_time >=", value, "realEndTime");
+/*  965 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andRealEndTimeLessThan(Date value) {
+/*  969 */       addCriterion("real_end_time <", value, "realEndTime");
+/*  970 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andRealEndTimeLessThanOrEqualTo(Date value) {
+/*  974 */       addCriterion("real_end_time <=", value, "realEndTime");
+/*  975 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andRealEndTimeIn(List<Date> values) {
+/*  979 */       addCriterion("real_end_time in", values, "realEndTime");
+/*  980 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andRealEndTimeNotIn(List<Date> values) {
+/*  984 */       addCriterion("real_end_time not in", values, "realEndTime");
+/*  985 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andRealEndTimeBetween(Date value1, Date value2) {
+/*  989 */       addCriterion("real_end_time between", value1, value2, "realEndTime");
+/*  990 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public SupervisionExample.Criteria andRealEndTimeNotBetween(Date value1, Date value2) {
+/*  994 */       addCriterion("real_end_time not between", value1, value2, "realEndTime");
+/*  995 */       return (SupervisionExample.Criteria)this;
+/*      */     }
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.supervision.SupervisionExample
+ * JD-Core Version:    0.6.0
+ */

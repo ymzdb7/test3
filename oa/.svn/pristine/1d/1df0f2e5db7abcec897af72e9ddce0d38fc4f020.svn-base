@@ -1,0 +1,158 @@
+/*     */ package com.xoa.util.systeminfo;
+/*     */ 
+/*     */ import java.io.PrintStream;
+/*     */ import java.net.InetAddress;
+/*     */ import java.net.NetworkInterface;
+/*     */ import java.net.SocketException;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Enumeration;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class MachineUtil
+/*     */ {
+/*     */   public static final String MY_KEY = "gaosuboisnumber1";
+/*     */ 
+/*     */   public static void main(String[] args)
+/*     */     throws Exception
+/*     */   {
+/*  15 */     String macId = getMacId();
+/*  16 */     System.out.println(macId);
+/*  17 */     System.out.println("获得服务器的MAC地址:" + getMacId());
+/*  18 */     System.out.println("获得服务器的MAC地址(多网卡):" + getMacIds());
+/*  19 */     System.out.println("处理后的的MAC地址（未加密）：" + get16CharMacs());
+/*  20 */     System.out.println("处理后的的MAC地址（加密）：" + getEncryptMacCode());
+/*     */   }
+/*     */ 
+/*     */   public static String getMacId()
+/*     */   {
+/*  32 */     String macId = "";
+/*  33 */     InetAddress ip = null;
+/*  34 */     NetworkInterface ni = null;
+/*     */     try {
+/*  36 */       boolean bFindIP = false;
+/*  37 */       Enumeration netInterfaces = NetworkInterface.getNetworkInterfaces();
+/*     */ 
+/*  39 */       while ((netInterfaces.hasMoreElements()) && 
+/*  40 */         (!bFindIP))
+/*     */       {
+/*  43 */         ni = (NetworkInterface)netInterfaces.nextElement();
+/*     */ 
+/*  47 */         Enumeration ips = ni.getInetAddresses();
+/*  48 */         while (ips.hasMoreElements()) {
+/*  49 */           ip = (InetAddress)ips.nextElement();
+/*  50 */           if ((ip.isLoopbackAddress()) || (!ip.getHostAddress().matches("(\\d{1,3}\\.){3}\\d{1,3}"))) {
+/*     */             continue;
+/*     */           }
+/*  53 */           bFindIP = true;
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/*     */     }
+/*     */ 
+/*  61 */     if (null != ip)
+/*     */       try {
+/*  63 */         macId = getMacFromBytes(ni.getHardwareAddress());
+/*     */       }
+/*     */       catch (SocketException e)
+/*     */       {
+/*     */       }
+/*  68 */     return macId;
+/*     */   }
+/*     */ 
+/*     */   public static List<String> getMacIds()
+/*     */   {
+/*  78 */     InetAddress ip = null;
+/*  79 */     NetworkInterface ni = null;
+/*  80 */     List macList = new ArrayList();
+/*     */     try {
+/*  82 */       Enumeration netInterfaces = NetworkInterface.getNetworkInterfaces();
+/*     */ 
+/*  84 */       while (netInterfaces.hasMoreElements()) {
+/*  85 */         ni = (NetworkInterface)netInterfaces.nextElement();
+/*     */ 
+/*  89 */         Enumeration ips = ni.getInetAddresses();
+/*  90 */         while (ips.hasMoreElements()) {
+/*  91 */           ip = (InetAddress)ips.nextElement();
+/*  92 */           if ((ip.isLoopbackAddress()) || (!ip.getHostAddress().matches("(\\d{1,3}\\.){3}\\d{1,3}"))) {
+/*     */             continue;
+/*     */           }
+/*  95 */           macList.add(getMacFromBytes(ni.getHardwareAddress()));
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/*     */     }
+/* 102 */     return macList;
+/*     */   }
+/*     */ 
+/*     */   private static String getMacFromBytes(byte[] bytes) {
+/* 106 */     StringBuffer mac = new StringBuffer();
+/*     */ 
+/* 108 */     boolean first = false;
+/* 109 */     for (byte b : bytes) {
+/* 110 */       if (first) {
+/* 111 */         mac.append("-");
+/*     */       }
+/* 113 */       byte currentByte = (byte)((b & 0xF0) >> 4);
+/* 114 */       mac.append(Integer.toHexString(currentByte));
+/* 115 */       currentByte = (byte)(b & 0xF);
+/* 116 */       mac.append(Integer.toHexString(currentByte));
+/* 117 */       first = true;
+/*     */     }
+/* 119 */     return mac.toString().toUpperCase();
+/*     */   }
+/*     */ 
+/*     */   public static List<String> get16CharMacs() {
+/* 123 */     List list16Macs = new ArrayList();
+/*     */ 
+/* 125 */     List<String> macIds = getMacIds();
+/* 126 */     for (String macId : macIds) {
+/* 127 */       StringBuffer sb = new StringBuffer();
+/* 128 */       char[] chars = macId.toCharArray();
+/*     */ 
+/* 130 */       for (char aChar : chars) {
+/* 131 */         if ((('0' > aChar) || (aChar > '9')) && (('A' > aChar) || (aChar > 'Z')) && (('a' > aChar) || (aChar > 'z'))) {
+/*     */           continue;
+/*     */         }
+/* 134 */         sb.append(aChar);
+/*     */       }
+/*     */ 
+/* 138 */       while (sb.length() < 16) {
+/* 139 */         String a1 = sb.substring(0, 1);
+/* 140 */         String a2 = sb.substring(2, 3);
+/* 141 */         String a3 = sb.substring(4, 5);
+/* 142 */         String a4 = sb.substring(6, 7);
+/* 143 */         sb.append(a1);
+/* 144 */         sb.append(a2);
+/* 145 */         sb.append(a3);
+/* 146 */         sb.append(a4);
+/*     */       }
+/* 148 */       if (sb.length() > 16) {
+/* 149 */         sb.substring(0, 16);
+/*     */       }
+/* 151 */       list16Macs.add(sb.toString());
+/*     */     }
+/*     */ 
+/* 155 */     return list16Macs;
+/*     */   }
+/*     */ 
+/*     */   public static List<String> getEncryptMacCode() throws Exception {
+/* 159 */     List<String> charMacs = get16CharMacs();
+/* 160 */     List<String> macCodeEncryptList = new ArrayList<String>();
+/* 161 */     for (String charMac : charMacs) {
+/* 162 */       String encrypt = DESUtils.encrypt(charMac, DESUtils.MY_KEY);
+/*     */ 
+/* 164 */       macCodeEncryptList.add(encrypt);
+/*     */     }
+/*     */ 
+/* 167 */     return macCodeEncryptList;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.systeminfo.MachineUtil
+ * JD-Core Version:    0.6.0
+ */

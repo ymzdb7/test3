@@ -1,0 +1,413 @@
+/*     */ package com.xoa.service.file.impl;
+/*     */ 
+/*     */ import com.xoa.dao.auth.AuthMapper;
+/*     */ import com.xoa.dao.file.FileSortMapper;
+/*     */ import com.xoa.model.file.FileAuthBaseModel;
+/*     */ import com.xoa.model.file.FileAuthBaseModel.FileAuthChildModel;
+/*     */ import com.xoa.model.file.FileAuthBaseModel.FileAuthGrandChildModel;
+/*     */ import com.xoa.model.file.FileAuthWrapper;
+/*     */ import com.xoa.model.file.FileSortModel;
+/*     */ import com.xoa.service.file.FileSortResetAuth;
+/*     */ import com.xoa.service.file.FileSortService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.netdisk.CheckAll;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Hashtable;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class FileSortServiceImpl
+/*     */   implements FileSortService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   FileSortMapper file_SortMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   AuthMapper authMapper;
+/*     */   private static final String STATUS_EXTENDS_TURE = "1";
+/*     */   private static final String STATUS_EXTENDS_FALSE = "0";
+/*     */ 
+/*     */   public ToJson<FileSortModel> getFileSortJson(FileSortModel file)
+/*     */   {
+/*  57 */     ToJson toJson = new ToJson(0, "显示结果");
+/*  58 */     List list = this.file_SortMapper.getFileSort(file);
+/*  59 */     toJson.setObj(list);
+/*  60 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public List<FileSortModel> getFileSortList(FileSortModel file)
+/*     */   {
+/*  74 */     return this.file_SortMapper.getFileSort(file);
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FileSortModel> getFileSortBySortId(FileSortModel file)
+/*     */   {
+/*  88 */     ToJson toJson = new ToJson(0, "显示结果");
+/*  89 */     List list = this.file_SortMapper.getFileSort(file);
+/*  90 */     toJson.setObj(list);
+/*  91 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public int saveFileSort(FileSortModel file)
+/*     */   {
+/* 105 */     return this.file_SortMapper.saveFileSortChr(file);
+/*     */   }
+/*     */ 
+/*     */   public int updateFileSort(FileSortModel file)
+/*     */   {
+/* 119 */     return this.file_SortMapper.updateFileSort(file);
+/*     */   }
+/*     */ 
+/*     */   public int deleteBySortId(Map<String, Object> fileParent)
+/*     */   {
+/* 133 */     return this.file_SortMapper.deleteBySortId(fileParent);
+/*     */   }
+/*     */ 
+/*     */   public List<FileSortModel> getSortChrildren(int tempNo)
+/*     */   {
+/* 147 */     return this.file_SortMapper.getSortChrildren(tempNo);
+/*     */   }
+/*     */ 
+/*     */   public List<FileSortModel> getRootTree(Map<String, Object> rootMap)
+/*     */   {
+/* 162 */     return this.file_SortMapper.getRootTree(rootMap);
+/*     */   }
+/*     */ 
+/*     */   public List<FileSortModel> getChildTree(List<String> sortidList)
+/*     */   {
+/* 176 */     return this.file_SortMapper.getChildTree(sortidList);
+/*     */   }
+/*     */ 
+/*     */   public int saveFileSortChr(FileSortModel file)
+/*     */   {
+/* 189 */     return this.file_SortMapper.saveFileSortChr(file);
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper setFileSortAuth(Map<String, Object> mmp)
+/*     */   {
+/* 194 */     BaseWrapper wrapper = new BaseWrapper();
+/* 195 */     wrapper.setStatus(true);
+/* 196 */     wrapper.setFlag(false);
+/* 197 */     wrapper.setMsg("操作失败");
+/* 198 */     if (mmp == null)
+/*     */     {
+/* 200 */       return wrapper;
+/*     */     }
+/* 202 */     Integer sortId = (Integer)mmp.get("sortId");
+/* 203 */     if (sortId == null) {
+/* 204 */       return wrapper;
+/*     */     }
+/* 206 */     FileSortResetAuth resetAuth = new FileSortResetAuth();
+/*     */ 
+/* 208 */     Map param = resetAuth.reset("userId", (Map)mmp.get("userId")).reset("manageUser", (Map)mmp.get("manageUser")).reset("delUser", (Map)mmp.get("delUser")).reset("downUser", (Map)mmp.get("downUser")).reset("shareUser", (Map)mmp.get("shareUser")).reset("owner", (Map)mmp.get("owner")).reset("signUser", (Map)mmp.get("signUser")).reset("review", (Map)mmp.get("review")).reset("description", (Map)mmp.get("description")).reset("newUser", (Map)mmp.get("newUser")).getParam();
+/*     */ 
+/* 219 */     param.put("sortId", sortId.toString());
+/* 220 */     Integer userIdRestTimes = Integer.valueOf(checkUpdateChild(resetAuth.reset("userId", (Map)mmp.get("userId")).getParam(), sortId.toString()));
+/*     */ 
+/* 222 */     Integer manageUserRestTimes = Integer.valueOf(checkUpdateChild(resetAuth.reset("manageUser", (Map)mmp.get("manageUser")).getParam(), sortId.toString()));
+/*     */ 
+/* 224 */     Integer delUserRestTimes = Integer.valueOf(checkUpdateChild(resetAuth.reset("delUser", (Map)mmp.get("delUser")).getParam(), sortId.toString()));
+/*     */ 
+/* 226 */     Integer downUserRestTimes = Integer.valueOf(checkUpdateChild(resetAuth.reset("downUser", (Map)mmp.get("downUser")).getParam(), sortId.toString()));
+/*     */ 
+/* 228 */     Integer shareUserRestTimes = Integer.valueOf(checkUpdateChild(resetAuth.reset("shareUser", (Map)mmp.get("shareUser")).getParam(), sortId.toString()));
+/*     */ 
+/* 230 */     Integer ownerRestTimes = Integer.valueOf(checkUpdateChild(resetAuth.reset("owner", (Map)mmp.get("owner")).getParam(), sortId.toString()));
+/*     */ 
+/* 232 */     Integer signUserRestTimes = Integer.valueOf(checkUpdateChild(resetAuth.reset("signUser", (Map)mmp.get("signUser")).getParam(), sortId.toString()));
+/*     */ 
+/* 234 */     Integer reviewRestTimes = Integer.valueOf(checkUpdateChild(resetAuth.reset("review", (Map)mmp.get("review")).getParam(), sortId.toString()));
+/*     */ 
+/* 236 */     Integer descriptionRestTimes = Integer.valueOf(checkUpdateChild(resetAuth.reset("description", (Map)mmp.get("description")).getParam(), sortId.toString()));
+/*     */ 
+/* 238 */     Integer newUserRestTimes = Integer.valueOf(checkUpdateChild(resetAuth.reset("newUser", (Map)mmp.get("newUser")).getParam(), sortId.toString()));
+/*     */ 
+/* 240 */     int res = this.file_SortMapper.updateSortAuth(param);
+/* 241 */     if (res > 0) {
+/* 242 */       wrapper.setStatus(true);
+/* 243 */       wrapper.setFlag(true);
+/* 244 */       wrapper.setMsg("操作成功");
+/*     */     } else {
+/* 246 */       wrapper.setStatus(true);
+/* 247 */       wrapper.setFlag(false);
+/* 248 */       wrapper.setMsg("操作失败");
+/*     */     }
+/* 250 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   private int checkUpdateChild(Map<String, String> mmp, String sortId)
+/*     */   {
+/* 256 */     if (mmp == null) {
+/* 257 */       return -1;
+/*     */     }
+/* 259 */     if (mmp.containsKey("isExtends")) {
+/* 260 */       if ("1".equals(((String)mmp.get("isExtends")).trim())) {
+/*     */         try
+/*     */         {
+/* 263 */           List<FileSortModel> childSort = this.file_SortMapper.getSortChrildren(Integer.parseInt(sortId));
+/* 264 */           List childSortId = null;
+/* 265 */           if ((childSort != null) && (childSort.size() > 0)) {
+/* 266 */             childSortId = new ArrayList();
+/* 267 */             for (FileSortModel model : childSort) {
+/* 268 */               childSortId.add(model.getSortId());
+/*     */             }
+/*     */           }
+/* 271 */           if ((childSortId != null) && (childSortId.size() > 0)) {
+/* 272 */             Map map = new HashMap();
+/* 273 */             map.putAll(mmp);
+/* 274 */             map.put("sortIds", childSortId);
+/* 275 */             return this.file_SortMapper.updateSortAuthByChildSort(map);
+/*     */           }
+/* 277 */           return -1;
+/*     */         }
+/*     */         catch (Exception e) {
+/* 280 */           e.printStackTrace();
+/* 281 */           return -2;
+/*     */         }
+/*     */       }
+/* 284 */       return 0;
+/*     */     }
+/*     */ 
+/* 287 */     return -1;
+/*     */   }
+/*     */ 
+/*     */   public FileAuthWrapper getAuthBySortId(Integer sortId)
+/*     */   {
+/* 293 */     FileAuthWrapper wrapper = new FileAuthWrapper();
+/*     */ 
+/* 296 */     List list = this.file_SortMapper.queryFileSortAndChildBySortId(sortId);
+/* 297 */     wrapper.setFileSorts(list);
+/*     */ 
+/* 299 */     FileSortModel model = this.file_SortMapper.getNowFileSortAuth(sortId);
+/* 300 */     FileAuthBaseModel auth = new FileAuthBaseModel();
+/* 301 */     List useds = new ArrayList();
+/* 302 */     if (model != null) {
+/* 303 */       String[] userIds = FileSortResetAuth.getAuthBase(model.getUserId());
+/* 304 */       String[] newUsers = FileSortResetAuth.getAuthBase(model.getNewUser());
+/* 305 */       String[] managerUsers = FileSortResetAuth.getAuthBase(model.getManagerUser());
+/* 306 */       String[] delUsers = FileSortResetAuth.getAuthBase(model.getDelUser());
+/* 307 */       String[] downUsers = FileSortResetAuth.getAuthBase(model.getDownUser());
+/* 308 */       String[] owners = FileSortResetAuth.getAuthBase(model.getOwner());
+/* 309 */       String[] sharUsers = FileSortResetAuth.getAuthBase(model.getSharUser());
+/* 310 */       String[] signUsers = FileSortResetAuth.getAuthBase(model.getSignUser());
+/* 311 */       String[] review = FileSortResetAuth.getAuthBase(model.getReview());
+/*     */ 
+/* 313 */       auth.setUserId(getName(userIds));
+/* 314 */       auth.setReview(getName(review));
+/* 315 */       auth.setDelUser(getName(delUsers));
+/* 316 */       auth.setNewUser(getName(newUsers));
+/* 317 */       auth.setManageUser(getName(managerUsers));
+/* 318 */       auth.setDownUser(getName(downUsers));
+/* 319 */       auth.setOwner(getName(owners));
+/* 320 */       auth.setShareUser(getName(sharUsers));
+/* 321 */       auth.setSignUser(getName(signUsers));
+/* 322 */       wrapper.setData(auth);
+/* 323 */       wrapper.setNowFileSortName(model.getSortName());
+/*     */ 
+/* 325 */       if (userIds != null) {
+/* 326 */         useds.add("visit");
+/*     */       }
+/* 328 */       if (newUsers != null) {
+/* 329 */         useds.add("add");
+/*     */       }
+/* 331 */       if (managerUsers != null)
+/* 332 */         useds.add("edit");
+/* 333 */       if (delUsers != null) {
+/* 334 */         useds.add("delete");
+/*     */       }
+/* 336 */       if (downUsers != null) {
+/* 337 */         useds.add("download");
+/*     */       }
+/* 339 */       if (owners != null) {
+/* 340 */         useds.add("all");
+/*     */       }
+/* 342 */       if (review != null) {
+/* 343 */         useds.add("comment");
+/*     */       }
+/* 345 */       if (signUsers != null) {
+/* 346 */         useds.add("sign");
+/*     */       }
+/* 348 */       wrapper.setUsed(useds);
+/* 349 */       wrapper.setFlag(true);
+/*     */     } else {
+/* 351 */       wrapper.setFlag(false);
+/* 352 */       wrapper.setMsg("还未设置权限");
+/*     */     }
+/*     */ 
+/* 356 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper getFileAuthBySortId(Integer sortId, HttpServletRequest request)
+/*     */   {
+/* 361 */     BaseWrapper baseWrapper = new BaseWrapper();
+/* 362 */     FileSortModel model = this.file_SortMapper.getNowFileSortAuth(sortId);
+/* 363 */     Map map = new Hashtable();
+/* 364 */     String userId = String.valueOf(request.getSession().getAttribute("userId"));
+/* 365 */     String userPriv = String.valueOf(request.getSession().getAttribute("userPriv"));
+/* 366 */     String deptId = String.valueOf(request.getSession().getAttribute("deptId"));
+/*     */ 
+/* 368 */     FileSortModel file = new FileSortModel();
+/* 369 */     if (file.getUserId() == null) {
+/* 370 */       file.setUserId(userId);
+/*     */     }
+/* 372 */     map.put("userId", file.getUserId() == null ? userId : file.getUserId());
+/* 373 */     map.put("userPriv", userPriv == null ? "" : userPriv);
+/* 374 */     map.put("deptId", deptId == null ? "" : deptId);
+/* 375 */     model.setDelPriv(CheckAll.checkAll(model.getDelUser(), map));
+/* 376 */     model.setMakePriv(CheckAll.checkAll(model.getNewUser(), map));
+/* 377 */     model.setDownloadPriv(CheckAll.checkAll(model.getDownUser(), map));
+/* 378 */     model.setUpdatePriv(CheckAll.checkAll(model.getManagerUser(), map));
+/* 379 */     baseWrapper.setData(model);
+/* 380 */     baseWrapper.setFlag(true);
+/* 381 */     baseWrapper.setStatus(true);
+/* 382 */     baseWrapper.setMsg("成功");
+/* 383 */     return baseWrapper;
+/*     */   }
+/*     */ 
+/*     */   public FileAuthBaseModel.FileAuthChildModel getName(String[] ids)
+/*     */   {
+/*     */      FileAuthBaseModel tmp11_8 = new FileAuthBaseModel(); 
+               tmp11_8.getClass();
+               FileAuthBaseModel.FileAuthChildModel child = tmp11_8.new FileAuthChildModel();
+/*     */      FileAuthBaseModel  tmp31_28 = new FileAuthBaseModel(); 
+               tmp31_28.getClass(); 
+               FileAuthBaseModel.FileAuthGrandChildModel grandChild = tmp31_28.new  FileAuthGrandChildModel();
+/*     */ 
+/* 390 */     child.setDept("");
+/* 391 */     grandChild.setDeptStr("");
+/* 392 */     child.setUser("");
+/* 393 */     grandChild.setUserStr("");
+/* 394 */     child.setRole("");
+/* 395 */     grandChild.setRoleStr("");
+/* 396 */     child.setData(grandChild);
+/* 397 */     if (ids == null)
+/* 398 */       return child;
+/*     */     String dept;
+/*     */     String role;
+/*     */     String user;
+/* 403 */     switch (ids.length) {
+/*     */     case 0:
+/* 405 */       return child;
+/*     */     case 1:
+/* 407 */       dept = ids[0];
+/* 408 */       role = null;
+/* 409 */       user = null;
+/* 410 */       break;
+/*     */     case 2:
+/* 412 */       dept = ids[0];
+/* 413 */       role = ids[1];
+/* 414 */       user = null;
+/* 415 */       break;
+/*     */     case 3:
+/* 417 */       dept = ids[0];
+/* 418 */       role = ids[1];
+/* 419 */       user = ids[2];
+/* 420 */       break;
+/*     */     default:
+/* 422 */       return child;
+/*     */     }
+/*     */ 
+/* 425 */     if (!StringUtils.checkNull(dept).booleanValue()) {
+/* 426 */       String ret = "";
+/* 427 */       if ("ALL_DEPT".equals(dept)) {
+/* 428 */         ret = "全部部门";
+/*     */       } else {
+/* 430 */         List<String> depts = this.authMapper.getDeptName(dept);
+/* 431 */         StringBuffer sb = new StringBuffer();
+/* 432 */         for (String dep : depts) {
+/* 433 */           sb.append(dep);
+/* 434 */           sb.append(",");
+/*     */         }
+/* 436 */         ret = sb.toString();
+/*     */       }
+/* 438 */       child.setDept(dept);
+/* 439 */       grandChild.setDeptStr(ret);
+/*     */     } else {
+/* 441 */       child.setDept("");
+/* 442 */       grandChild.setDeptStr("");
+/*     */     }
+/* 444 */     if (!StringUtils.checkNull(role).booleanValue()) {
+/* 445 */       List<String> roles = this.authMapper.getRoleName(role);
+/* 446 */       StringBuffer sb = new StringBuffer();
+/* 447 */       for (String rol : roles) {
+/* 448 */         sb.append(rol);
+/* 449 */         sb.append(",");
+/*     */       }
+/* 451 */       child.setRole(role);
+/* 452 */       grandChild.setRoleStr(sb.toString());
+/*     */     }
+/*     */     else {
+/* 455 */       child.setRole("");
+/* 456 */       grandChild.setRoleStr("");
+/*     */     }
+/* 458 */     if (!StringUtils.checkNull(user).booleanValue()) {
+/* 459 */       List<String> users = this.authMapper.getUserName(user);
+/* 460 */       StringBuffer sb = new StringBuffer();
+/* 461 */       for (String us : users) {
+/* 462 */         sb.append(us);
+/* 463 */         sb.append(",");
+/*     */       }
+/* 465 */       child.setUser(user);
+/* 466 */       grandChild.setUserStr(sb.toString());
+/*     */     }
+/*     */     else {
+/* 469 */       child.setUser("");
+/* 470 */       grandChild.setUserStr("");
+/*     */     }
+/* 472 */     child.setData(grandChild);
+/* 473 */     return child;
+/*     */   }
+/*     */ 
+/*     */   public List<FileSortModel> getChrildrenSort(FileSortModel file)
+/*     */   {
+/* 478 */     return null;
+/*     */   }
+/*     */ 
+/*     */   public FileSortModel getFileSortBySortIds(FileSortModel file) {
+/* 482 */     return this.file_SortMapper.getOne(file);
+/*     */   }
+/*     */ 
+/*     */   public int getFileCheck(FileSortModel file) {
+/* 486 */     return this.file_SortMapper.getFileCheck(file);
+/*     */   }
+/*     */ 
+/*     */   public FileSortModel singleBySortNo(String sortNo)
+/*     */   {
+/* 491 */     return this.file_SortMapper.singleBySortNo(sortNo);
+/*     */   }
+/*     */ 
+/*     */   public FileSortModel singleBySortName(String sortName)
+/*     */   {
+/* 496 */     return this.file_SortMapper.singleBySortName(sortName);
+/*     */   }
+/*     */ 
+/*     */   public List<FileSortModel> getChildTreeList(String sortId)
+/*     */   {
+/* 501 */     List<FileSortModel> fileSortModels1 = this.file_SortMapper.getChildTreeList();
+/* 502 */     List sortModels = new ArrayList();
+/* 503 */     FileSortModel fileSortModelss = this.file_SortMapper.getNowFileSortAuth(Integer.valueOf(Integer.parseInt(sortId)));
+/* 504 */     sortModels.add(fileSortModelss);
+/* 505 */     for (FileSortModel fileSortModel : fileSortModels1) {
+/* 506 */       if (fileSortModel.getSortNo().equals(sortId)) {
+/* 507 */         sortModels.add(fileSortModel);
+/* 508 */         getChildTreeList(String.valueOf(fileSortModel.getSortId()));
+/*     */       }
+/*     */     }
+/* 511 */     return sortModels;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.file.impl.FileSortServiceImpl
+ * JD-Core Version:    0.6.0
+ */

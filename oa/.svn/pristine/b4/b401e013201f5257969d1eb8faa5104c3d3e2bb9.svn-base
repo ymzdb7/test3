@@ -1,0 +1,178 @@
+/*     */ package com.xoa.service.meeting.impl;
+/*     */ 
+/*     */ import com.xoa.dao.meet.MeetingMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.meet.MeetingWithBLOBs;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.meeting.MeetSummaryService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.GetAttachmentListUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class MeetSummaryServiceImpl
+/*     */   implements MeetSummaryService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private MeetingMapper meetingMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   public ToJson<MeetingWithBLOBs> getAllInfo(Integer page, Integer pageSize, boolean useFlag, HttpServletRequest request)
+/*     */   {
+/*  41 */     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  42 */     ToJson json = new ToJson();
+/*     */ 
+/*  44 */     Map map = new HashMap();
+/*  45 */     PageParams pageParams = new PageParams();
+/*  46 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  47 */     pageParams.setPage(page);
+/*  48 */     pageParams.setPageSize(pageSize);
+/*  49 */     map.put("page", pageParams);
+/*     */ 
+/*  51 */     Users sessionInfo = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/*  53 */     Integer uid = sessionInfo.getUid();
+/*  54 */     map.put("id", uid);
+/*     */     try {
+/*  56 */       List<MeetingWithBLOBs> meetSummary = this.meetingMapper.getMeetSummary(map);
+/*  57 */       if (meetSummary != null)
+/*     */       {
+/*  59 */         for (MeetingWithBLOBs meetingWithBLOBs : meetSummary)
+/*     */         {
+/*  61 */           String readPeopleId = meetingWithBLOBs.getReadPeopleId();
+/*     */ 
+/*  63 */           if ((readPeopleId != "") && (readPeopleId != null)) {
+/*  64 */             String[] split = readPeopleId.split(",");
+/*  65 */             StringBuffer sb = new StringBuffer();
+/*  66 */             for (String s : split) {
+/*  67 */               String usernameById = this.usersMapper.getUsernameById(s);
+/*  68 */               if ((usernameById != null) && (usernameById != "")) {
+/*  69 */                 sb.append(usernameById + ",");
+/*     */               }
+/*     */ 
+/*     */             }
+/*     */ 
+/*  74 */             meetingWithBLOBs.setReadPeopleNames(sb.toString());
+/*     */           }
+/*     */ 
+/*  77 */           if (!StringUtils.checkNull(meetingWithBLOBs.getStartTime()).booleanValue()) {
+/*  78 */             meetingWithBLOBs.setStartTime(meetingWithBLOBs.getStartTime().substring(0, meetingWithBLOBs.getStartTime().length() - 2));
+/*     */           }
+/*  80 */           if (!StringUtils.checkNull(meetingWithBLOBs.getEndTime()).booleanValue()) {
+/*  81 */             meetingWithBLOBs.setEndTime(meetingWithBLOBs.getEndTime().substring(0, meetingWithBLOBs.getEndTime().length() - 2));
+/*     */           }
+/*  83 */           if (meetingWithBLOBs.getUid() != null) {
+/*  84 */             String usernameById = this.usersMapper.getUsernameById(meetingWithBLOBs.getUid().intValue());
+/*  85 */             meetingWithBLOBs.setUserName(usernameById);
+/*     */           }
+/*  87 */           if ((meetingWithBLOBs.getSummaryAttachmentId() != null) && (meetingWithBLOBs.getSummaryAttachmentId() != ""))
+/*  88 */             meetingWithBLOBs.setIsuploadsummary("已上传");
+/*     */           else {
+/*  90 */             meetingWithBLOBs.setIsuploadsummary("未上传");
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/*  95 */       json.setObj(meetSummary);
+/*  96 */       json.setFlag(0);
+/*  97 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/*  99 */       json.setObj(null);
+/* 100 */       json.setFlag(1);
+/* 101 */       json.setMsg("err");
+/* 102 */       e.printStackTrace();
+/*     */     }
+/* 104 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<MeetingWithBLOBs> getMeetSummarydetail(HttpServletRequest request, String sid)
+/*     */   {
+/* 109 */     ToJson json = new ToJson();
+/*     */     try
+/*     */     {
+/* 112 */       if (sid != null) {
+/* 113 */         MeetingWithBLOBs meetingWithBLOBs = this.meetingMapper.queryMeetingById(sid);
+/*     */ 
+/* 115 */         List attachmentList = new ArrayList();
+/* 116 */         if ((meetingWithBLOBs.getSummaryAttachmentName() != null) && (!"".equals(meetingWithBLOBs.getSummaryAttachmentName()))) {
+/* 117 */           attachmentList = GetAttachmentListUtil.returnAttachment(meetingWithBLOBs.getSummaryAttachmentName(), meetingWithBLOBs.getSummaryAttachmentId(), Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "summary_meet");
+/*     */         }
+/* 119 */         meetingWithBLOBs.setAttachmentList(attachmentList);
+/*     */ 
+/* 121 */         String readPeopleId = meetingWithBLOBs.getReadPeopleId();
+/*     */ 
+/* 123 */         if ((readPeopleId != "") && (readPeopleId != null)) {
+/* 124 */           String[] split = readPeopleId.split(",");
+/* 125 */           StringBuffer sb = new StringBuffer();
+/* 126 */           for (String s : split) {
+/* 127 */             String usernameById = this.usersMapper.getUsernameById(s);
+/* 128 */             if ((usernameById != null) && (usernameById != "")) {
+/* 129 */               sb.append(usernameById + ",");
+/*     */             }
+/*     */           }
+/*     */ 
+/* 133 */           meetingWithBLOBs.setReadPeopleNames(sb.toString());
+/*     */         } else {
+/* 135 */           meetingWithBLOBs.setReadPeopleId("");
+/*     */         }
+/* 137 */         json.setFlag(0);
+/* 138 */         json.setMsg("ok");
+/* 139 */         json.setObject(meetingWithBLOBs);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 142 */       json.setFlag(1);
+/* 143 */       json.setMsg("err");
+/* 144 */       e.printStackTrace();
+/*     */     }
+/* 146 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> editMeetSummarydetail(HttpServletRequest request, MeetingWithBLOBs meetingWithBLOBs)
+/*     */   {
+/* 152 */     if (meetingWithBLOBs.getResendHour() == null) {
+/* 153 */       meetingWithBLOBs.setResendHour(Integer.valueOf(0));
+/*     */     }
+/* 155 */     if (meetingWithBLOBs.getResendMinute() == null) {
+/* 156 */       meetingWithBLOBs.setResendMinute(Integer.valueOf(0));
+/*     */     }
+/* 158 */     if (meetingWithBLOBs.getResendSeveral() == null) {
+/* 159 */       meetingWithBLOBs.setResendSeveral(Integer.valueOf(0));
+/*     */     }
+/* 161 */     if (meetingWithBLOBs.getStatus() == null) {
+/* 162 */       meetingWithBLOBs.setStatus(Integer.valueOf(0));
+/*     */     }
+/* 164 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 166 */       int i = this.meetingMapper.editMeetSummary(meetingWithBLOBs);
+/* 167 */       if (i > 0) {
+/* 168 */         json.setMsg("ok");
+/* 169 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 172 */       json.setMsg("err");
+/* 173 */       json.setFlag(1);
+/* 174 */       e.printStackTrace();
+/*     */     }
+/* 176 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.meeting.impl.MeetSummaryServiceImpl
+ * JD-Core Version:    0.6.0
+ */

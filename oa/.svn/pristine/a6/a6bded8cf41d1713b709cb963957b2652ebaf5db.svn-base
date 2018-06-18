@@ -1,0 +1,924 @@
+ package com.myoa.service.document.Impl;
+ 
+ import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.myoa.dao.document.DocumentModelMapper;
+import com.myoa.dao.document.SysRuleModelMapper;
+import com.myoa.dao.users.UsersMapper;
+import com.myoa.dao.workflow.FlowFormTypeMapper;
+import com.myoa.dao.workflow.FlowProcessMapper;
+import com.myoa.dao.workflow.FlowRunMapper;
+import com.myoa.dao.workflow.FlowRunPrcsMapper;
+import com.myoa.dao.workflow.FlowTypeModelMapper;
+import com.myoa.model.document.DocumentModel;
+import com.myoa.model.document.DocumentModelFlowRunPrcs;
+import com.myoa.model.document.DocumentModelOverRun;
+import com.myoa.model.document.DocumentModelWithBLOBs;
+import com.myoa.model.document.SysRuleModel;
+import com.myoa.model.enclosure.Attachment;
+import com.myoa.model.sms.SmsBody;
+import com.myoa.model.sys.SealWithBLOBs;
+import com.myoa.model.users.Users;
+import com.myoa.model.workflow.FlowFast;
+import com.myoa.model.workflow.FlowProcess;
+import com.myoa.model.workflow.FlowRunPrcs;
+import com.myoa.service.WFE.WFERunner.WFEFlowRunInfo;
+import com.myoa.service.department.impl.DepartmentServiceImpl;
+import com.myoa.service.document.DocumentSerivce;
+import com.myoa.service.sms.SmsService;
+import com.myoa.service.sys.SealService;
+import com.myoa.service.users.UsersService;
+import com.myoa.service.work.WorkService;
+import com.myoa.util.Constant;
+import com.myoa.util.DateFormat;
+import com.myoa.util.GetAttachmentListUtil;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.common.session.SessionUtils;
+import com.myoa.util.common.wrapper.BaseWrappers;
+import com.myoa.util.page.PageParams;
+ 
+ @Service
+ public class DocumentSerivceImpl
+   implements DocumentSerivce
+ {
+ 
+   @Resource
+   DocumentModelMapper documentModelMapper;
+ 
+   @Resource
+   SysRuleModelMapper sysRuleModelMapper;
+ 
+   @Resource
+   FlowRunMapper flowRunMapper;
+ 
+   @Resource
+   FlowTypeModelMapper flowTypeModelMapper;
+ 
+   @Resource
+   FlowFormTypeMapper flowFormTypeMapper;
+ 
+   @Resource
+   FlowRunPrcsMapper flowRunPrcsMapper;
+ 
+   @Resource
+   WorkService workService;
+ 
+   @Resource
+   FlowProcessMapper flowProcessMapper;
+ 
+   @Resource
+   DepartmentServiceImpl departmentServiceImpl;
+ 
+   @Resource
+   UsersService usersService;
+ 
+   @Autowired
+   SmsService smsService;
+ 
+   @Resource
+   private SealService sealService;
+ 
+   @Resource
+   UsersMapper usersMapper;
+ 
+   @Resource
+   private WFEFlowRunInfo wfeFlowRunInfo;
+   public final String numberZero = "0";
+   public final String numberOne = "1";
+   public final String numberTwo = "2";
+ 
+   private final String SHOT_YEAR = "YY";
+ 
+   private final String All_YEAR = "ALL_YY";
+ 
+   private final String DATE = "DATE";
+ 
+   private final String DATE_TIME = "DATE_TIME";
+ 
+   private final String H_MOS = "H_MOS";
+ 
+   private final String H_MO = "H_MO";
+ 
+   private final String MONTHS = "MONTHS";
+ 
+   private final String MONTH = "MONTH";
+ 
+   private final String COUNTER = "COUNTER";
+ 
+   private final String One_Week = "oneWeek";
+   private final String Second_Week = "secondWeek";
+   private final String Third_Week = "thirdWeek";
+   private final String One_Month = "oneMonth";
+   private final String Second_Month = "secondMonth";
+   private final String Third_Month = "thirdMonth";
+ 
+   public int saveSysRule(SysRuleModel sysRule)
+   {
+     return this.sysRuleModelMapper.saveSysRule(sysRule);
+   }
+ 
+   public int deleteSysRule(SysRuleModel sysRule) {
+     return this.sysRuleModelMapper.deleteSysRule(sysRule);
+   }
+ 
+   public int updateRuleById(SysRuleModel sysRule) {
+     return this.sysRuleModelMapper.updateRuleById(sysRule);
+   }
+ 
+   public SysRuleModel getRuleById(SysRuleModel sysRule, HttpServletRequest request)
+   {
+     SysRuleModel sys = this.sysRuleModelMapper.getRuleById(sysRule);
+     String expression = sys.getExpression();
+     String transforedExpression = transfor(expression, request, sys);
+     List<String> titleList = new ArrayList<String>();
+     List<String> expressionList = new ArrayList<String>();
+     sys.setExpressionStr(expression);
+     String expressionStr = sys.getExpressionStr();
+ 
+     Pattern pattern = Pattern.compile("(?<=\\[)(.+?)(?=\\])");
+     Matcher matcher = pattern.matcher(expression);
+     Calendar now = Calendar.getInstance();
+ 
+     String str = null;
+ 
+     while (matcher.find()) {
+       switch (matcher.group())
+       {
+       case "YY":
+         str = String.valueOf(now.get(1));
+         titleList.add("短年份");
+         expressionList.add(str.substring(str.length() - 2));
+         expressionStr = expressionStr.replace("[YY]", " " + str.substring(str.length() - 2) + " ");
+ 
+         break;
+       case "ALL_YY":
+         str = String.valueOf(now.get(1));
+         titleList.add("全年份");
+         expressionList.add(str);
+         expressionStr = expressionStr.replace("[ALL_YY]", " " + str + " ");
+ 
+         break;
+       case "DATE":
+         str = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+ 
+         titleList.add("日期");
+         expressionList.add(str);
+         expressionStr = expressionStr.replace("[DATE]", " " + str + " ");
+ 
+         break;
+       case "DATE_TIME":
+         str = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+ 
+         titleList.add("日期时间");
+         expressionList.add(str);
+         expressionStr = expressionStr.replace("[DATE_TIME]", " " + str + " ");
+ 
+         break;
+       case "H_MOS":
+         int day = now.get(5);
+         if (day < 10)
+           str = "0" + day;
+         else {
+           str = String.valueOf(day);
+         }
+         titleList.add("长日期");
+         expressionList.add(str);
+         expressionStr = expressionStr.replace("[H_MOS]", " " + str + " ");
+ 
+         break;
+       case "H_MO":
+         str = String.valueOf(now.get(5));
+         titleList.add("短日期");
+         expressionList.add(str);
+         expressionStr = expressionStr.replace("[H_MO]", " " + str + " ");
+ 
+         break;
+       case "MONTHS":
+         int month = now.get(2) + 1;
+         if (month < 10)
+           str = "0" + month;
+         else {
+           str = String.valueOf(month);
+         }
+         titleList.add("长月份");
+         expressionList.add(str);
+         expressionStr = expressionStr.replace("[MONTHS]", " " + str + " ");
+ 
+         break;
+       case "MONTH":
+         str = String.valueOf(now.get(2) + 1);
+         titleList.add("短月份");
+         expressionList.add(str);
+         expressionStr = expressionStr.replace("[MONTH]", " " + str + " ");
+ 
+         break;
+       case "COUNTER":
+         int number = sys.getCounter().intValue();
+         String str1 = String.format("%0" + sys.getDigit() + "d", new Object[] { Integer.valueOf(number) });
+         str = String.valueOf(sys.getCounter());
+         expressionStr = expressionStr.replace("[COUNTER]", " " + str1 + " ");
+       }
+ 
+     }
+ 
+     str = String.valueOf(sys.getCounter());
+     titleList.add("计数器");
+     expressionList.add(str);
+     sys.setExpressionStr(expressionStr);
+     sys.setRuleTitles(titleList);
+     sys.setRuleExps(expressionList);
+     return sys;
+   }
+ 
+   private String transfor(String expression, HttpServletRequest request, SysRuleModel sys)
+   {
+     String date2 = DateFormat.getCurrentTime();
+     Date date = DateFormat.getDate(date2);
+     Calendar c = Calendar.getInstance();
+     int datenum = c.get(5);
+     String userName = String.valueOf(request.getSession().getAttribute("userName"));
+ 
+     String expression2 = expression.replace("{Y}", String.valueOf(date.getYear() + 1900)).replace("{M}", String.valueOf(date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : Integer.valueOf(date.getMonth() + 1))).replace("{D}", String.valueOf(datenum)).replace("{H}", String.valueOf(date.getHours())).replace("{I}", String.valueOf(date.getMinutes())).replace("{S}", String.valueOf(date.getSeconds())).replace("{U}", userName).replace("{F}", "流程名").replace("{FS}", "流程分类名称 公文").replace("{LD}", "长部门名").replace("{SD}", "短部门名").replace("{RUN}", "流水号").replace("{N}", "编号").replace("{NM}", "重新按月编号").replace("{NY}", "重新编号按年");
+ 
+     return expression2;
+   }
+ 
+   public List<SysRuleModel> getRuleAll(SysRuleModel sysRule) {
+     List<SysRuleModel> ruleAll = this.sysRuleModelMapper.getRuleAll(sysRule);
+     for (SysRuleModel s : ruleAll) {
+       String expression = s.getExpression();
+       s.setExpressionStr(expression);
+       String expressionStr = s.getExpressionStr();
+ 
+       Pattern pattern = Pattern.compile("(?<=\\[)(.+?)(?=\\])");
+       Matcher matcher = pattern.matcher(expression);
+       Calendar now = Calendar.getInstance();
+ 
+       String str = null;
+ 
+       while (matcher.find()) {
+         switch (matcher.group())
+         {
+         case "YY":
+           str = String.valueOf(now.get(1));
+           expressionStr = expressionStr.replace("[YY]", " " + str.substring(str.length() - 2) + " ");
+ 
+           break;
+         case "ALL_YY":
+           str = String.valueOf(now.get(1));
+           expressionStr = expressionStr.replace("[ALL_YY]", " " + str + " ");
+ 
+           break;
+         case "DATE":
+           str = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+ 
+           expressionStr = expressionStr.replace("[DATE]", " " + str + " ");
+ 
+           break;
+         case "DATE_TIME":
+           str = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+ 
+           expressionStr = expressionStr.replace("[DATE_TIME]", " " + str + " ");
+ 
+           break;
+         case "H_MOS":
+           int day = now.get(5);
+           if (day < 10)
+             str = "0" + day;
+           else {
+             str = String.valueOf(day);
+           }
+           expressionStr = expressionStr.replace("[H_MOS]", " " + str + " ");
+ 
+           break;
+         case "H_MO":
+           str = String.valueOf(now.get(5));
+           expressionStr = expressionStr.replace("[H_MO]", " " + str + " ");
+ 
+           break;
+         case "MONTHS":
+           int month = now.get(2) + 1;
+           if (month < 10)
+             str = "0" + month;
+           else {
+             str = String.valueOf(month);
+           }
+           expressionStr = expressionStr.replace("[MONTHS]", " " + str + " ");
+ 
+           break;
+         case "MONTH":
+           str = String.valueOf(now.get(2) + 1);
+           expressionStr = expressionStr.replace("[MONTH]", " " + str + " ");
+ 
+           break;
+         case "COUNTER":
+           int number = s.getCounter().intValue();
+           String str1 = String.format("%0" + s.getDigit() + "d", new Object[] { Integer.valueOf(number) });
+           str = String.valueOf(s.getCounter());
+           expressionStr = expressionStr.replace("[COUNTER]", " " + str1 + " ");
+         }
+ 
+       }
+ 
+       s.setExpressionStr(expressionStr);
+     }
+     return ruleAll;
+   }
+ 
+   public SysRuleModel getRuleByCode(SysRuleModel sysRule)
+   {
+     return this.sysRuleModelMapper.getRuleByCode(sysRule);
+   }
+ 
+   public ToJson<Object> saveDocument(Users user, Integer fflowId, Integer fflowStep, String fprcsId, String frunName, DocumentModelWithBLOBs document, HttpServletRequest request)
+   {
+     ToJson<Object> toJson = new ToJson<Object>();
+     try {
+       String cureTime = DateFormat.getCurrentTime2();
+       document.setPrintDate(cureTime);
+ 
+       String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+ 
+       ToJson<FlowFast> fastToJson = this.workService.workFastAdd(user, fflowId.intValue(), fflowStep.intValue(), fprcsId, "", request, sqlType, frunName, null);
+ 
+       if (fastToJson.isFlag()) {
+         FlowFast fast = (FlowFast)fastToJson.getObject();
+         Integer runId = Integer.valueOf(fast.getFlowRun().getRunId());
+         document.setRunId(runId);
+         int result = this.documentModelMapper.insertSelective(document);
+         DocumentModelWithBLOBs newDoc = this.documentModelMapper.selectByPrimaryKey(document);
+ 
+         newDoc.setTableName("document");
+         toJson.setObject(newDoc);
+         toJson.setMsg("document");
+         toJson.setFlag(0);
+       } else {
+         toJson.setMsg("document");
+         toJson.setFlag(1);
+       }
+     }
+     catch (Exception e)
+     {
+       e.printStackTrace();
+       toJson.setFlag(1);
+     }
+     return toJson;
+   }
+ 
+   public int deleteDocument(DocumentModelWithBLOBs document) {
+     int result = this.documentModelMapper.deleteByPrimaryKey(document);
+     return result;
+   }
+ 
+   public int updateDocument(DocumentModelWithBLOBs document) {
+     int result = this.documentModelMapper.updateByPrimaryKeySelective(document);
+     return result;
+   }
+ 
+   public DocumentModelWithBLOBs selectDocumentById(HttpServletRequest request, DocumentModelWithBLOBs document)
+   {
+     List<SealWithBLOBs> sealByUser = this.sealService.getSealByUser(request);
+     DocumentModelWithBLOBs resultDocument = this.documentModelMapper.selectByPrimaryKey(document);
+     DocumentModel documentEditPriv = this.documentModelMapper.getDocumentEditPriv(document.getId());
+     resultDocument.setDocumentEditPriv(documentEditPriv.getDocumentEditPriv());
+     resultDocument.setDocumentEditPrivDetail(documentEditPriv.getDocumentEditPrivDetail() == null ? "" : documentEditPriv.getDocumentEditPrivDetail());
+     resultDocument.setSealWithBLOBs(sealByUser);
+     String company = "";
+     if ((!StringUtils.checkNull((String)request.getSession().getAttribute("loginDateSouse")).booleanValue()) && (!"null".equals((String)request.getSession().getAttribute("loginDateSouse"))) && (request.getSession().getAttribute("loginDateSouse") != null))
+       company = (String)request.getSession().getAttribute("loginDateSouse");
+     else {
+       company = "1001";
+     }
+ 
+     if ((!StringUtils.checkNull(resultDocument.getMainFileName()).booleanValue()) && (!StringUtils.checkNull(resultDocument.getMainFile()).booleanValue())) {
+       List<Attachment> attachments = GetAttachmentListUtil.returnAttachment(resultDocument.getMainFileName(), resultDocument.getMainFile(), Constant.MYOA + company, "document");
+       if ((attachments != null) && (attachments.size() > 0))
+         resultDocument.setWordAttUrl(((Attachment)attachments.get(0)).getAttUrl());
+       else {
+         resultDocument.setWordAttUrl("");
+       }
+     }
+ 
+     if ((!StringUtils.checkNull(resultDocument.getMainAipFile()).booleanValue()) && (!StringUtils.checkNull(resultDocument.getMainAipFileName()).booleanValue())) {
+       List<Attachment> attachments = GetAttachmentListUtil.returnAttachment(resultDocument.getMainAipFileName(), resultDocument.getMainAipFile(), Constant.MYOA + company, "document");
+       if ((attachments != null) && (attachments.size() > 0))
+         resultDocument.setAipAttUrl(((Attachment)attachments.get(0)).getAttUrl());
+       else {
+         resultDocument.setAipAttUrl("");
+       }
+     }
+ 
+     return resultDocument;
+   }
+ 
+   public List<DocumentModelWithBLOBs> selectDocAll(DocumentModelWithBLOBs document)
+   {
+     return this.documentModelMapper.selectDocAll(document);
+   }
+ 
+   public ToJson<DocumentModelWithBLOBs> seleDocSendReceive(String documentType, String curUserID, String allUserID, String dispatchType, String printDate, HttpServletRequest request, Integer page, Integer pageSize, Boolean useFlag)
+   {
+     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+ 
+     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+ 
+     ToJson<DocumentModelWithBLOBs> documentModelWithBLOBsToJson = new ToJson<DocumentModelWithBLOBs>();
+     if (StringUtils.checkNull(documentType).booleanValue()) {
+       documentModelWithBLOBsToJson.setFlag(1);
+       documentModelWithBLOBsToJson.setMsg("缺少必要参数");
+     }
+     Map<String,Object> objectMap = new HashMap<String,Object>();
+     PageParams pageParams = new PageParams();
+     pageParams.setUseFlag(useFlag);
+     pageParams.setPage(page);
+     pageParams.setPageSize(pageSize);
+ 
+     objectMap.put("dispatchType", dispatchType);
+     objectMap.put("printDate", printDate);
+ 
+     objectMap.put("page", pageParams);
+     objectMap.put("documentType", documentType);
+     if ("0".equals(curUserID)) {
+       objectMap.put("flowStatus", "0");
+       objectMap.put("curUserID", users.getUserId());
+     } else if ("1".equals(curUserID)) {
+       objectMap.put("flowStatus", "1");
+       objectMap.put("allUserID", users.getUserId());
+     } else if ("2".equals(curUserID)) {
+       objectMap.put("creater", users.getUserId());
+     }
+ 
+     List<DocumentModelWithBLOBs> documentModelWithBLOBs = this.documentModelMapper.seleDocSendReceive(objectMap);
+ 
+     if ((documentModelWithBLOBs != null) && (documentModelWithBLOBs.size() > 0)) {
+       Iterator<DocumentModelWithBLOBs> iterator = documentModelWithBLOBs.iterator();
+ 
+       while (iterator.hasNext())
+       {
+         DocumentModelWithBLOBs modelWithBLOBs = (DocumentModelWithBLOBs)iterator.next();
+         modelWithBLOBs.setUserName(this.usersMapper.getUsernameByUserId(modelWithBLOBs.getCreater()));
+ 
+         FlowRunPrcs flowRunPrcs = this.flowRunPrcsMapper.selectqueryByRunId(modelWithBLOBs.getFlowPrcs(), modelWithBLOBs.getRunId());
+ 
+         FlowProcess flowProcess = this.flowProcessMapper.findPrcessName(modelWithBLOBs.getFlowId(), Integer.valueOf(Integer.parseInt(modelWithBLOBs.getFlowPrcs())));
+ 
+         modelWithBLOBs.setPrcsName(flowProcess.getPrcsName());
+         modelWithBLOBs.setPrcsId(flowRunPrcs.getPrcsId().toString());
+         FlowRunPrcs flowRunPrcsOne = this.flowRunPrcsMapper.selectqueryByRunId("2", modelWithBLOBs.getRunId());
+ 
+         if (flowRunPrcsOne != null)
+           modelWithBLOBs.setDraftType("1");
+         else {
+           modelWithBLOBs.setDraftType("0");
+         }
+       }
+ 
+       documentModelWithBLOBsToJson.setFlag(0);
+       documentModelWithBLOBsToJson.setMsg("ok");
+       documentModelWithBLOBsToJson.setObj(documentModelWithBLOBs);
+       documentModelWithBLOBsToJson.setTotleNum(pageParams.getTotal());
+     }
+ 
+     return documentModelWithBLOBsToJson;
+   }
+ 
+   public BaseWrappers<DocumentModelFlowRunPrcs>  selectDocSelective(Integer documentType, String title, Integer flowId, String dispatchType, String urgency, String secrecy, String userId, String deptId, String createTime, Integer status, PageParams pageParams, HttpServletRequest request)
+   {
+     BaseWrappers<DocumentModelFlowRunPrcs>  baseWrappers = new BaseWrappers<DocumentModelFlowRunPrcs>();
+     Map<String,Object> param = new HashMap<String,Object>();
+     param.put("documentType", documentType);
+     param.put("title", title);
+     param.put("flowId", flowId);
+     param.put("dispatchType", dispatchType);
+     param.put("urgency", urgency);
+     param.put("secrecy", secrecy);
+     param.put("userId", userId);
+     param.put("deptId", deptId);
+     param.put("createTime", createTime);
+     param.put("status", status);
+     param.put("page", pageParams);
+     List<DocumentModelFlowRunPrcs>  selectiveDoc = this.documentModelMapper.querySelectDoc(param);
+     baseWrappers.setDatas(selectiveDoc);
+     baseWrappers.setFlag(true);
+     return baseWrappers;
+   }
+ 
+   public BaseWrappers<DocumentModelFlowRunPrcs> selWillDocSendOrReceive(HttpServletRequest request, String documentType, String dispatchType, String printDate, String title, Integer docStatus, Integer page, Integer pageSize, Integer prcsFlag)
+   {
+     BaseWrappers<DocumentModelFlowRunPrcs> wrappers = new BaseWrappers<DocumentModelFlowRunPrcs>();
+     wrappers.setStatus(true);
+     wrappers.setFlag(false);
+     if (StringUtils.checkNull(documentType).booleanValue()) {
+       wrappers.setMsg("获取公文类型失败");
+       return wrappers;
+     }
+     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+     if (StringUtils.checkNull(users.getUserId()).booleanValue()) {
+       wrappers.setMsg("用户信息过期");
+       return wrappers;
+     }
+     if (StringUtils.checkNull(dispatchType).booleanValue()) {
+       dispatchType = null;
+     }
+     if (StringUtils.checkNull(printDate).booleanValue()) {
+       printDate = null;
+     }
+     if (StringUtils.checkNull(title).booleanValue()) {
+       title = null;
+     }
+ 
+     page = Integer.valueOf((page.intValue() - 1) * pageSize.intValue());
+     Map<String,Object> param = new HashMap<String,Object>();
+     param.put("userId", users.getUserId());
+     param.put("documentType", documentType);
+     param.put("printDate", printDate);
+     param.put("dispatchType", dispatchType);
+     param.put("page", page);
+     param.put("pageSize", pageSize);
+     param.put("prcsFlag", prcsFlag);
+     param.put("title", title);
+     param.put("docStatus", docStatus);
+     List<DocumentModelFlowRunPrcs> datas = this.documentModelMapper.selWillDocSendOrReceive(param);
+ 
+     for (DocumentModelFlowRunPrcs d : datas)
+     {
+       if ("0".equals(d.getTimeOutType()))
+       {
+         if (d.getPrFlag().equals(Integer.valueOf(2))) {
+           if (!StringUtils.checkNull(d.getPrcsTime()).booleanValue())
+             setTimeOutStr(d, DateFormat.getTime(d.getPrcsTime()));
+         }
+         else if ((d.getPrFlag().equals(Integer.valueOf(1))) && 
+           (!StringUtils.checkNull(d.getTimeOut()).booleanValue())) {
+           d.setIfOutTime(Boolean.valueOf(true));
+           d.setTimeOutStr("计时未开始");
+         }
+       }
+       else if (("1".equals(d.getTimeOutType())) && 
+         (!d.getRealPrcsId().equals(Integer.valueOf(1)))) {
+         if ((!d.getPrFlag().equals(Integer.valueOf(3))) && (!d.getPrFlag().equals(Integer.valueOf(4)))) {
+           if (!StringUtils.checkNull(d.getCreateTime()).booleanValue())
+             setTimeOutStr(d, DateFormat.getTime(d.getCreateTime()));
+         }
+         else if (d.getPrFlag().equals(Integer.valueOf(3))) {
+           d.setTimeOutStr("计时已结束");
+           d.setIfOutTime(Boolean.valueOf(true));
+         } else if (d.getPrFlag().equals(Integer.valueOf(4))) {
+           d.setTimeOutStr("计时已结束");
+           d.setIfOutTime(Boolean.valueOf(true));
+         }
+       }
+ 
+       if (d.getPrintDate().length() > 10) {
+         d.setPrintDate(d.getPrintDate().substring(0, 10));
+       }
+     }
+     Integer total = this.documentModelMapper.selWillDocSendOrReceiveCounts(param);
+     wrappers.setTotal(total);
+     wrappers.setFlag(true);
+     wrappers.setDatas(datas);
+     return wrappers;
+   }
+ 
+   private void setTimeOutStr(DocumentModelFlowRunPrcs d, Integer time)
+   {
+     if (!StringUtils.checkNull(d.getTimeOut()).booleanValue())
+     {
+       String[] split = d.getTimeOut().split(",");
+       if (split.length == 2) {
+         String timeCount = split[0];
+         String timeType = split[1];
+ 
+         if (timeType.equals("hour"))
+         {
+           int i = Integer.valueOf(timeCount).intValue() * 60 * 60;
+ 
+           int outTimeEnd = time.intValue() + i;
+ 
+           int currentTime = (int)(System.currentTimeMillis() / 1000L);
+ 
+           d.setTimeOutStr("时限" + timeCount + "小时，" + getTimeOutStr(outTimeEnd, currentTime, d));
+         } else if (timeType.equals("day"))
+         {
+           int i = Integer.valueOf(timeCount).intValue() * 24 * 60 * 60;
+ 
+           int outTimeEnd = time.intValue() + i;
+ 
+           int currentTime = (int)(System.currentTimeMillis() / 1000L);
+ 
+           d.setTimeOutStr("时限" + timeCount + "天，" + getTimeOutStr(outTimeEnd, currentTime, d));
+         }
+       }
+     }
+   }
+ 
+   private String getTimeOutStr(int outTimeEnd, int currentTime, DocumentModelFlowRunPrcs d)
+   {
+     String s;
+     if (outTimeEnd > currentTime) {
+       int times = outTimeEnd - currentTime;
+       s = "剩余" + DateFormat.returnTime(Integer.valueOf(times));
+       d.setIfOutTime(Boolean.valueOf(false));
+     } else {
+       int times = currentTime - outTimeEnd;
+       s = "超时" + DateFormat.returnTime(Integer.valueOf(times));
+       d.setIfOutTime(Boolean.valueOf(true));
+     }
+     return s;
+   }
+ 
+   public BaseWrappers<DocumentModelOverRun> selOverDocSendOrReceive(HttpServletRequest request, String documentType, String dispatchType, String printDate, String title, Integer docStatus, Integer page, Integer pageSize, Integer prcsFlag)
+   {
+     BaseWrappers<DocumentModelOverRun> wrappers = new BaseWrappers<DocumentModelOverRun>();
+     wrappers.setStatus(true);
+     wrappers.setFlag(false);
+     if (StringUtils.checkNull(documentType).booleanValue()) {
+       wrappers.setMsg("获取公文类型失败");
+       return wrappers;
+     }
+     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+     if (StringUtils.checkNull(users.getUserId()).booleanValue()) {
+       wrappers.setMsg("用户信息过期");
+       return wrappers;
+     }
+     if (StringUtils.checkNull(dispatchType).booleanValue()) {
+       dispatchType = null;
+     }
+     if (StringUtils.checkNull(printDate).booleanValue()) {
+       printDate = null;
+     }
+     page = Integer.valueOf((page.intValue() - 1) * pageSize.intValue());
+     Map<String,Object> param = new HashMap<String,Object>();
+     param.put("userId", users.getUserId());
+     param.put("documentType", documentType);
+     param.put("printDate", printDate);
+     param.put("dispatchType", dispatchType);
+     param.put("page", page);
+     param.put("pageSize", pageSize);
+     param.put("prcsFlag", prcsFlag);
+     List<DocumentModelOverRun>  datas = this.documentModelMapper.selOverDocSendOrReceive(param);
+     Integer total = this.documentModelMapper.selOverDocSendOrReceiveCounts(param);
+     wrappers.setTotal(total);
+     wrappers.setFlag(true);
+     wrappers.setDatas(datas);
+     return wrappers;
+   }
+ 
+   public BaseWrappers<DocumentModelFlowRunPrcs> selMyDocSendOrReceive(HttpServletRequest request, String documentType, String dispatchType, String printDate, String title, Integer docStatus, Integer page, Integer pageSize)
+   {
+     BaseWrappers<DocumentModelFlowRunPrcs> wrappers = new BaseWrappers<DocumentModelFlowRunPrcs>();
+     wrappers.setStatus(true);
+     wrappers.setFlag(false);
+     if (StringUtils.checkNull(documentType).booleanValue()) {
+       wrappers.setMsg("获取公文类型失败");
+       return wrappers;
+     }
+     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+     if (StringUtils.checkNull(users.getUserId()).booleanValue()) {
+       wrappers.setMsg("用户信息过期");
+       return wrappers;
+     }
+     if (StringUtils.checkNull(dispatchType).booleanValue()) {
+       dispatchType = null;
+     }
+     if (StringUtils.checkNull(printDate).booleanValue()) {
+       printDate = null;
+     }
+     if (StringUtils.checkNull(title).booleanValue()) {
+       title = null;
+     }
+ 
+     page = Integer.valueOf((page.intValue() - 1) * pageSize.intValue());
+     Map<String,Object> param = new HashMap<String,Object>();
+     param.put("userId", users.getUserId());
+     param.put("documentType", documentType);
+     param.put("printDate", printDate);
+     param.put("dispatchType", dispatchType);
+     param.put("page", page);
+     param.put("pageSize", pageSize);
+     param.put("title", title);
+     param.put("docStatus", docStatus);
+     List<DocumentModelFlowRunPrcs> datas = this.documentModelMapper.selMyDocSendOrReceive(param);
+     for (DocumentModelFlowRunPrcs d : datas) {
+       if (d.getPrintDate().length() > 10) {
+         d.setPrintDate(d.getPrintDate().substring(0, 10));
+       }
+     }
+     Integer total = this.documentModelMapper.selMyDocSendOrReceiveCounts(param);
+     wrappers.setTotal(total);
+     wrappers.setFlag(true);
+     wrappers.setDatas(datas);
+     return wrappers;
+   }
+ 
+   public BaseWrappers<DocumentModelFlowRunPrcs> selOverseeTheOfficialDocument(HttpServletRequest request, String documentType, String dispatchType, String computationNumber, Integer page, Integer pageSize, Boolean useFlag)
+   {
+     BaseWrappers<DocumentModelFlowRunPrcs> wrappers = new BaseWrappers<DocumentModelFlowRunPrcs>();
+     wrappers.setStatus(true);
+     wrappers.setFlag(false);
+     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+     if (StringUtils.checkNull(users.getUserId()).booleanValue()) {
+       wrappers.setMsg("用户信息过期");
+       return wrappers;
+     }
+     if (StringUtils.checkNull(dispatchType).booleanValue()) {
+       dispatchType = null;
+     }
+     if (StringUtils.checkNull(documentType).booleanValue()) {
+       documentType = null;
+     }
+     String date = "";
+     if (!StringUtils.checkNull(computationNumber).booleanValue())
+       date = computationTime(computationNumber);
+     else {
+       date = null;
+     }
+     Map<String,Object> objectMap = new HashMap<String,Object>();
+     PageParams pageParams = new PageParams();
+     pageParams.setUseFlag(useFlag);
+     pageParams.setPage(page);
+     pageParams.setPageSize(pageSize);
+     objectMap.put("page", pageParams);
+     objectMap.put("dispatchType", dispatchType);
+     objectMap.put("documentType", documentType);
+     objectMap.put("date", date);
+     List<DocumentModelFlowRunPrcs> datas = this.documentModelMapper.selOverseeTheOfficialDocument(objectMap);
+     for (DocumentModelFlowRunPrcs data : datas) {
+       data.setCurUserIdName(this.usersMapper.getUsernameByUserId(data.getCurUserId()));
+       data.setAllUserIdName(this.usersService.getUserNameById(data.getAllUserId()));
+     }
+     wrappers.setTotal(pageParams.getTotal());
+     wrappers.setFlag(true);
+     wrappers.setDatas(datas);
+ 
+     return wrappers;
+   }
+ 
+   public BaseWrappers addDocSendSms(HttpServletRequest req, String cuName, String allName, String title, String classify, String flowId, String prcsId, String flowStep, String runId)
+   {
+     BaseWrappers wrappers = new BaseWrappers();
+     Users users = (Users)SessionUtils.getSessionInfo(req.getSession(), Users.class, new Users());
+     if (StringUtils.checkNull(users.getUserId()).booleanValue()) {
+       wrappers.setMsg("用户信息过期");
+       return wrappers;
+     }
+     SmsBody smsBody = new SmsBody();
+     smsBody.setFromId(users.getUserId());
+     smsBody.setSmsType("70");
+     smsBody.setContent(title);
+     smsBody.setSendTime(Integer.valueOf((int)(System.currentTimeMillis() / 1000L)));
+     smsBody.setRemindUrl("work/workform?flowId=" + flowId + "&prcsId=" + prcsId + "&flowStep=" + flowStep + "&runId=" + runId);
+     String toId = "";
+     if ("0".equals(classify)) {
+       toId = cuName;
+     } else if ("1".equals(classify)) {
+       toId = allName;
+     } else if ("2".equals(classify)) {
+       String[] all = allName.split(",");
+       StringBuffer str = new StringBuffer();
+       for (int i = 0; i < all.length; i++) {
+         if (!all[i].equals(cuName)) {
+           str.append(all[i]);
+           str.append(",");
+         }
+       }
+       toId = cuName + "," + str.toString();
+     }
+ 
+     wrappers.setFlag(true);
+     wrappers.setStatus(true);
+     return wrappers;
+   }
+ 
+   public ToJson<DocumentModel> getDocumentEditPriv(Integer id)
+   {
+     ToJson<DocumentModel> json = new ToJson<DocumentModel>();
+     try {
+       if (id != null) {
+         DocumentModel documentEditPriv = this.documentModelMapper.getDocumentEditPriv(id);
+         json.setObject(documentEditPriv);
+         json.setFlag(0);
+         json.setMsg("ok");
+       }
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setFlag(1);
+       json.setMsg("err");
+     }
+     return json;
+   }
+ 
+   public BaseWrappers<DocumentModelFlowRunPrcs> selectTimeOutDoc(HttpServletRequest request)
+   {
+     BaseWrappers<DocumentModelFlowRunPrcs> wrappers = new BaseWrappers<DocumentModelFlowRunPrcs>();
+ 
+     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+     if (StringUtils.checkNull(users.getUserId()).booleanValue()) {
+       wrappers.setMsg("用户信息过期");
+       return wrappers;
+     }
+ 
+     Map<String,Object> param = new HashMap<String,Object>();
+ 
+     param.put("userId", users.getUserId());
+     param.put("page", Integer.valueOf(0));
+     param.put("pageSize", Integer.valueOf(5));
+ 
+     List<DocumentModelFlowRunPrcs> datas = this.documentModelMapper.selectTimeOutDoc(param);
+ 
+     for (DocumentModelFlowRunPrcs d : datas)
+     {
+       if (d.getTimeOutType().equals("0"))
+       {
+         if (d.getPrFlag().equals(Integer.valueOf(2))) {
+           if (!StringUtils.checkNull(d.getPrcsTime()).booleanValue())
+             setTimeOutStr(d, DateFormat.getTime(d.getPrcsTime()));
+         }
+         else if ((d.getPrFlag().equals(Integer.valueOf(1))) && 
+           (!StringUtils.checkNull(d.getTimeOut()).booleanValue())) {
+           d.setTimeOutStr("计时未开始");
+           d.setIfOutTime(Boolean.valueOf(true));
+         }
+       }
+       else if ((d.getTimeOutType().equals("1")) && 
+         (!d.getRealPrcsId().equals(Integer.valueOf(1)))) {
+         if ((!d.getPrFlag().equals(Integer.valueOf(3))) && (!d.getPrFlag().equals(Integer.valueOf(4)))) {
+           if (!StringUtils.checkNull(d.getCreateTime()).booleanValue())
+             setTimeOutStr(d, DateFormat.getTime(d.getCreateTime()));
+         }
+         else if (d.getPrFlag().equals(Integer.valueOf(3))) {
+           d.setTimeOutStr("计时已结束,下一步经办人未接收");
+           d.setIfOutTime(Boolean.valueOf(true));
+         } else if (d.getPrFlag().equals(Integer.valueOf(4))) {
+           d.setTimeOutStr("计时已结束,已结束");
+           d.setIfOutTime(Boolean.valueOf(true));
+         }
+       }
+     }
+ 
+     wrappers.setFlag(true);
+     wrappers.setDatas(datas);
+     return wrappers;
+   }
+ 
+   public String computationTime(String computationNumber)
+   {
+     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+     Calendar c = Calendar.getInstance();
+     String day = "";
+     if ("oneWeek".equals(computationNumber)) {
+       c.setTime(new Date());
+       c.add(5, 7);
+       Date d = c.getTime();
+       day = format.format(d);
+     } else if ("secondWeek".equals(computationNumber)) {
+       c.setTime(new Date());
+       c.add(5, 14);
+       Date d1 = c.getTime();
+       day = format.format(d1);
+     }
+     else if ("thirdWeek".equals(computationNumber)) {
+       c.setTime(new Date());
+       c.add(5, 21);
+       Date d2 = c.getTime();
+       day = format.format(d2);
+     }
+     else if ("oneMonth".equals(computationNumber)) {
+       c.setTime(new Date());
+       c.add(2, 1);
+       Date m = c.getTime();
+       day = format.format(m);
+     }
+     else if ("secondMonth".equals(computationNumber)) {
+       c.setTime(new Date());
+       c.add(2, 2);
+       Date m2 = c.getTime();
+       day = format.format(m2);
+     }
+     else if ("thirdMonth".equals(computationNumber)) {
+       c.setTime(new Date());
+       c.add(2, 3);
+       Date m3 = c.getTime();
+       day = format.format(m3);
+     }
+ 
+     return day;
+   }
+ }
+

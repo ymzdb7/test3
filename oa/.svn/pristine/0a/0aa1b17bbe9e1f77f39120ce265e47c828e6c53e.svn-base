@@ -1,0 +1,196 @@
+/*     */ package com.xoa.service.users.impl;
+/*     */ 
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.menu.SysFunctionMapper;
+/*     */ import com.xoa.dao.users.UserExtMapper;
+/*     */ import com.xoa.dao.users.UserFunctionMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.menu.SysFunction;
+/*     */ import com.xoa.model.users.UserFunction;
+/*     */ import com.xoa.service.users.UserFunctionService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.io.PrintStream;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class UserFunctionServiceImpl
+/*     */   implements UserFunctionService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private UserFunctionMapper userFunctionMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SysFunctionMapper sysFunctionMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UserExtMapper userExtMapper;
+/*     */ 
+/*     */   public ToJson<SysFunction> getMenu(int uid)
+/*     */   {
+/*  36 */     ToJson toJson = new ToJson(0, "显示结果");
+/*  37 */     String[] strArray = null;
+/*  38 */     List sFunList = this.sysFunctionMapper.getAll();
+/*  39 */     UserFunction uFun = this.userFunctionMapper.getMenuByUserId(uid);
+/*  40 */     strArray = uFun.getUserFunCidStr().split(",");
+/*  41 */     List list1 = new ArrayList();
+/*  42 */     System.out.println(strArray.length);
+/*  43 */     for (int j = 0; j < strArray.length; j++) {
+/*  44 */       for (int i = j; i < sFunList.size(); i++) {
+/*  45 */         System.out.println(((SysFunction)sFunList.get(j)).getId());
+/*  46 */         if (!((SysFunction)sFunList.get(i)).getId().toString().equals(strArray[j]))
+/*     */           continue;
+/*  48 */         list1.add(sFunList.get(i));
+/*  49 */         break;
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/*  54 */     toJson.setObj(list1);
+/*  55 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public List<String> getUserNameByFuncId(String fid)
+/*     */   {
+/*  68 */     List userNameList = null;
+/*  69 */     List <String> uidList = this.usersMapper.getUserByFuncId(fid);
+/*  70 */     if ((uidList != null) && (uidList.size() > 0))
+/*     */     {
+/*  72 */       List list = new ArrayList();
+/*  73 */       for (String uid : uidList) {
+/*  74 */         list.add(uid);
+/*     */       }
+/*     */ 
+/*  77 */       Map map = new HashMap();
+/*  78 */       map.put("ids", list);
+/*  79 */       userNameList = this.usersMapper.findUsersByIds(map);
+/*     */     }
+/*     */ 
+/*  82 */     return userNameList;
+/*     */   }
+/*     */ 
+/*     */   public void updateAuthUser(String fid, String uids)
+/*     */   {
+/*  97 */     String[] uidArr = null;
+/*  98 */     if (uids != null) {
+/*  99 */       uidArr = uids.split(",");
+/*     */     }
+/*     */ 
+/* 102 */     if ((uidArr != null) && (fid != null)) {
+/* 103 */       for (String userId : uidArr) {
+/* 104 */         String userFuncIdStr = this.userExtMapper.getUserFuncIdStr(userId);
+/* 105 */         if ((userFuncIdStr != null) && ("".equals(userFuncIdStr))) {
+/* 106 */           userFuncIdStr = fid.concat(",");
+/*     */         }
+/* 108 */         else if (userFuncIdStr != null) {
+/* 109 */           if ((!userFuncIdStr.contains(",".concat(fid).concat(","))) && (!userFuncIdStr.contains("".concat(fid).concat(","))))
+/* 110 */             userFuncIdStr = userFuncIdStr.concat(fid).concat(",");
+/*     */         }
+/*     */         else {
+/* 113 */           userFuncIdStr = "".concat(fid).concat(",");
+/*     */         }
+/*     */ 
+/* 117 */         if (userFuncIdStr != null) {
+/* 118 */           Map map = new HashMap();
+/* 119 */           map.put("userId", userId);
+/* 120 */           map.put("userFuncIdStr", userFuncIdStr);
+/* 121 */           this.userExtMapper.updateUserFuncIdStr(map);
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 129 */     if ((uidArr != null) && (fid != null))
+/* 130 */       for (String userId : uidArr) {
+/* 131 */         String userFuncIdStr = this.userFunctionMapper.getUserFuncIdStr(userId);
+/* 132 */         if ((userFuncIdStr != null) && ("".equals(userFuncIdStr))) {
+/* 133 */           userFuncIdStr = fid.concat(",");
+/*     */         }
+/* 135 */         else if (userFuncIdStr != null) {
+/* 136 */           if ((!userFuncIdStr.contains(",".concat(fid).concat(","))) && (!userFuncIdStr.contains("".concat(fid).concat(","))))
+/* 137 */             userFuncIdStr = userFuncIdStr.concat(fid).concat(",");
+/*     */           else {
+/* 139 */             userFuncIdStr = userFuncIdStr.concat(fid).concat(",");
+/*     */           }
+/*     */ 
+/*     */         }
+/*     */ 
+/* 144 */         Map map = new HashMap();
+/* 145 */         map.put("userId", userId);
+/* 146 */         map.put("userFuncIdStr", userFuncIdStr);
+/* 147 */         this.userFunctionMapper.updateUserFuncIdStr(map);
+/*     */       }
+/*     */   }
+/*     */ 
+/*     */   public void deleteAuthUser(String fid, String uids)
+/*     */   {
+/* 165 */     String[] uidArr = null;
+/* 166 */     if (uids != null) {
+/* 167 */       uidArr = uids.split(",");
+/*     */     }
+/*     */ 
+/* 170 */     if ((uidArr != null) && (fid != null)) {
+/* 171 */       for (String userId : uidArr) {
+/* 172 */         String userFuncIdStr = this.userFunctionMapper.getUserFuncIdStr(userId);
+/* 173 */         if ((userFuncIdStr != null) && ((userFuncIdStr.contains(",".concat(fid).concat(","))) || (userFuncIdStr.contains(fid.concat(","))))) {
+/* 174 */           userFuncIdStr = userFuncIdStr.replace(fid.concat(","), "");
+/* 175 */           Map map = new HashMap();
+/* 176 */           map.put("userId", userId);
+/* 177 */           map.put("userFuncIdStr", userFuncIdStr);
+/* 178 */           this.userFunctionMapper.updateUserFuncIdStr(map);
+/*     */         }
+/*     */       }
+/*     */ 
+/* 182 */       for (String userId : uidArr)
+/*     */       {
+/* 184 */         String userFuncIdStr = this.userExtMapper.getUserFuncIdStr(userId);
+/* 185 */         if ((userFuncIdStr != null) && ((userFuncIdStr.contains(",".concat(fid).concat(","))) || (userFuncIdStr.contains(fid.concat(","))))) {
+/* 186 */           Map map = new HashMap();
+/* 187 */           map.put("userId", userId);
+/*     */ 
+/* 189 */           userFuncIdStr = userFuncIdStr.replace(",", "");
+/* 190 */           map.put("userFuncIdStr", userFuncIdStr);
+/* 191 */           this.userExtMapper.updateUserFuncIdStr(map);
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public UserFunction getMenuByUserId(int uid)
+/*     */   {
+/* 201 */     return this.userFunctionMapper.getMenuByUserId(uid);
+/*     */   }
+/*     */ 
+/*     */   public String getUserFunctionStr(String userId)
+/*     */   {
+/* 215 */     return this.userFunctionMapper.getUserFuncIdStr(String.valueOf(userId));
+/*     */   }
+/*     */ 
+/*     */   public String getUserFunctionStrById(Integer uid)
+/*     */   {
+/* 228 */     if (uid != null) {
+/* 229 */       UserFunction userFunction = this.userFunctionMapper.getMenuByUserId(uid.intValue());
+/* 230 */       if ((userFunction != null) && (userFunction.getUserFunCidStr() != null)) {
+/* 231 */         return userFunction.getUserFunCidStr();
+/*     */       }
+/*     */     }
+/* 234 */     return "";
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.users.impl.UserFunctionServiceImpl
+ * JD-Core Version:    0.6.0
+ */

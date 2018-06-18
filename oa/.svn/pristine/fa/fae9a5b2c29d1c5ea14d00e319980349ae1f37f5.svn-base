@@ -1,0 +1,70 @@
+/*    */ package com.xoa.util.http;
+/*    */ 
+/*    */ import java.io.BufferedReader;
+/*    */ import java.io.IOException;
+/*    */ import java.io.InputStream;
+/*    */ import java.io.InputStreamReader;
+/*    */ import java.security.cert.CertificateException;
+/*    */ import java.security.cert.X509Certificate;
+/*    */ import javax.net.ssl.SSLContext;
+/*    */ import javax.net.ssl.TrustManager;
+/*    */ import javax.net.ssl.X509TrustManager;
+/*    */ import org.apache.http.conn.ClientConnectionManager;
+/*    */ import org.apache.http.conn.scheme.Scheme;
+/*    */ import org.apache.http.conn.scheme.SchemeRegistry;
+/*    */ import org.apache.http.conn.ssl.SSLSocketFactory;
+/*    */ import org.apache.http.impl.client.DefaultHttpClient;
+/*    */ 
+/*    */ public class SSLClient extends DefaultHttpClient
+/*    */ {
+/*    */   public SSLClient()
+/*    */     throws Exception
+/*    */   {
+/* 21 */     SSLContext ctx = SSLContext.getInstance("TLS");
+/* 22 */     X509TrustManager tm = new X509TrustManager()
+/*    */     {
+/*    */       public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException
+/*    */       {
+/*    */       }
+/*    */ 
+/*    */       public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException
+/*    */       {
+/*    */       }
+/*    */ 
+/*    */       public X509Certificate[] getAcceptedIssuers() {
+/* 33 */         return null;
+/*    */       }
+/*    */     };
+/* 36 */     ctx.init(null, new TrustManager[] { tm }, null);
+/* 37 */     SSLSocketFactory ssf = new SSLSocketFactory(ctx, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+/* 38 */     ClientConnectionManager ccm = getConnectionManager();
+/* 39 */     SchemeRegistry sr = ccm.getSchemeRegistry();
+/* 40 */     sr.register(new Scheme("https", 443, ssf));
+/*    */   }
+/*    */ 
+/*    */   public static String convertStreamToString(InputStream is) {
+/* 44 */     BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+/* 45 */     StringBuilder sb = new StringBuilder();
+/*    */ 
+/* 47 */     String line = null;
+/*    */     try {
+/* 49 */       while ((line = reader.readLine()) != null)
+/* 50 */         sb.append(new StringBuilder().append(line).append("\n").toString());
+/*    */     }
+/*    */     catch (IOException e) {
+/* 53 */       e.printStackTrace();
+/*    */     } finally {
+/*    */       try {
+/* 56 */         is.close();
+/*    */       } catch (IOException e) {
+/* 58 */         e.printStackTrace();
+/*    */       }
+/*    */     }
+/* 61 */     return sb.toString();
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.http.SSLClient
+ * JD-Core Version:    0.6.0
+ */

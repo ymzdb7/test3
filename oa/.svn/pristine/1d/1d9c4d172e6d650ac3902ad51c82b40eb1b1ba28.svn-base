@@ -1,0 +1,56 @@
+/*    */ package com.xoa.util.treeUtil;
+/*    */ 
+/*    */ import com.xoa.util.common.StringUtils;
+/*    */ import java.io.IOException;
+/*    */ import java.io.PrintWriter;
+/*    */ import javax.servlet.http.HttpServletResponse;
+/*    */ import org.json.JSONException;
+/*    */ 
+/*    */ public class HtmlUtil
+/*    */ {
+/*    */   public static void writerJson(HttpServletResponse response, String jsonStr)
+/*    */   {
+/* 24 */     writer(response, jsonStr);
+/*    */   }
+/*    */ 
+/*    */   public static void writerJson(HttpServletResponse response, Object object) {
+/*    */     try {
+/* 29 */       response.setCharacterEncoding("UTF-8");
+/* 30 */       response.setContentType("application/json");
+/* 31 */       writer(response, JSONUtil.toJSONString(object));
+/*    */     } catch (JSONException e) {
+/* 33 */       e.printStackTrace();
+/*    */     }
+/*    */   }
+/*    */ 
+/*    */   public static void writerHtml(HttpServletResponse response, String htmlStr)
+/*    */   {
+/* 46 */     writer(response, htmlStr);
+/*    */   }
+/*    */ 
+/*    */   private static void writer(HttpServletResponse response, String str) {
+/*    */     try {
+/* 51 */       StringBuffer result = new StringBuffer();
+/*    */ 
+/* 53 */       response.setHeader("Pragma", "No-cache");
+/* 54 */       response.setHeader("Cache-Control", "no-cache");
+/* 55 */       response.setContentType("text/html; charset=utf-8");
+/* 56 */       PrintWriter out = null;
+/* 57 */       out = response.getWriter();
+/*    */ 
+/* 59 */       if (StringUtils.checkNull(str).booleanValue()) {
+/* 60 */         str = "0";
+/*    */       }
+/* 62 */       out.print(str);
+/* 63 */       out.flush();
+/* 64 */       out.close();
+/*    */     } catch (IOException e) {
+/* 66 */       e.printStackTrace();
+/*    */     }
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.treeUtil.HtmlUtil
+ * JD-Core Version:    0.6.0
+ */

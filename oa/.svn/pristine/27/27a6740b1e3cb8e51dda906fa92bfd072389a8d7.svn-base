@@ -1,0 +1,35 @@
+/*    */ package com.xoa.controller.supervision;
+/*    */ 
+/*    */ import com.xoa.model.supervision.SupFeedBackReply;
+/*    */ import com.xoa.service.supervision.SupFeedBackReplyService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.beans.factory.annotation.Autowired;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.RestController;
+/*    */ 
+/*    */ @RestController
+/*    */ @RequestMapping({"/supFeedBackReply"})
+/*    */ public class SupFeedBackReplyController
+/*    */ {
+/*    */ 
+/*    */   @Autowired
+/*    */   private SupFeedBackReplyService supFeedBackReplyService;
+/*    */ 
+/*    */   @RequestMapping({"/insertsupFeedBackReply"})
+/*    */   public BaseWrapper insertsupFeedBackReply(SupFeedBackReply supFeedBackReply, HttpServletRequest request)
+/*    */   {
+/* 25 */     return this.supFeedBackReplyService.insetrtSupFeedBackReply(supFeedBackReply, request);
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/deleteByPrimaryKey"})
+/*    */   public ToJson<SupFeedBackReply> deleteByPrimaryKey(HttpServletRequest request, Integer sid) {
+/* 31 */     return this.supFeedBackReplyService.deleteByPrimaryKeySupFeedBackReply(request, sid);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.supervision.SupFeedBackReplyController
+ * JD-Core Version:    0.6.0
+ */

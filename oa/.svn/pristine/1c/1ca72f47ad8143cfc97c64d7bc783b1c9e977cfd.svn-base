@@ -1,0 +1,468 @@
+/*     */ package com.xoa.kg.model;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class KgSignatureExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public KgSignatureExample()
+/*     */   {
+/*  38 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  48 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  58 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  68 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  78 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  88 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  98 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 108 */     Criteria criteria = createCriteriaInternal();
+/* 109 */     this.oredCriteria.add(criteria);
+/* 110 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 120 */     Criteria criteria = createCriteriaInternal();
+/* 121 */     if (this.oredCriteria.size() == 0) {
+/* 122 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 124 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 134 */     Criteria criteria = new Criteria();
+/* 135 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 145 */     this.oredCriteria.clear();
+/* 146 */     this.orderByClause = null;
+/* 147 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 495 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 499 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 503 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 507 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 511 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 515 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 519 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 523 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 528 */       this.condition = condition;
+/* 529 */       this.typeHandler = null;
+/* 530 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 535 */       this.condition = condition;
+/* 536 */       this.value = value;
+/* 537 */       this.typeHandler = typeHandler;
+/* 538 */       if ((value instanceof List))
+/* 539 */         this.listValue = true;
+/*     */       else
+/* 541 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 546 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 551 */       this.condition = condition;
+/* 552 */       this.value = value;
+/* 553 */       this.secondValue = secondValue;
+/* 554 */       this.typeHandler = typeHandler;
+/* 555 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 559 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends KgSignatureExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<KgSignatureExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 161 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 165 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<KgSignatureExample.Criterion> getAllCriteria() {
+/* 169 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<KgSignatureExample.Criterion> getCriteria() {
+/* 173 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 177 */       if (condition == null) {
+/* 178 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 180 */       this.criteria.add(new KgSignatureExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 184 */       if (value == null) {
+/* 185 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 187 */       this.criteria.add(new KgSignatureExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 191 */       if ((value1 == null) || (value2 == null)) {
+/* 192 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 194 */       this.criteria.add(new KgSignatureExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureIdIsNull() {
+/* 198 */       addCriterion("SIGNATURE_ID is null");
+/* 199 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureIdIsNotNull() {
+/* 203 */       addCriterion("SIGNATURE_ID is not null");
+/* 204 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureIdEqualTo(Integer value) {
+/* 208 */       addCriterion("SIGNATURE_ID =", value, "signatureId");
+/* 209 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureIdNotEqualTo(Integer value) {
+/* 213 */       addCriterion("SIGNATURE_ID <>", value, "signatureId");
+/* 214 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureIdGreaterThan(Integer value) {
+/* 218 */       addCriterion("SIGNATURE_ID >", value, "signatureId");
+/* 219 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureIdGreaterThanOrEqualTo(Integer value) {
+/* 223 */       addCriterion("SIGNATURE_ID >=", value, "signatureId");
+/* 224 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureIdLessThan(Integer value) {
+/* 228 */       addCriterion("SIGNATURE_ID <", value, "signatureId");
+/* 229 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureIdLessThanOrEqualTo(Integer value) {
+/* 233 */       addCriterion("SIGNATURE_ID <=", value, "signatureId");
+/* 234 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureIdIn(List<Integer> values) {
+/* 238 */       addCriterion("SIGNATURE_ID in", values, "signatureId");
+/* 239 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureIdNotIn(List<Integer> values) {
+/* 243 */       addCriterion("SIGNATURE_ID not in", values, "signatureId");
+/* 244 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureIdBetween(Integer value1, Integer value2) {
+/* 248 */       addCriterion("SIGNATURE_ID between", value1, value2, "signatureId");
+/* 249 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureIdNotBetween(Integer value1, Integer value2) {
+/* 253 */       addCriterion("SIGNATURE_ID not between", value1, value2, "signatureId");
+/* 254 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureNameIsNull() {
+/* 258 */       addCriterion("SIGNATURE_NAME is null");
+/* 259 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureNameIsNotNull() {
+/* 263 */       addCriterion("SIGNATURE_NAME is not null");
+/* 264 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureNameEqualTo(String value) {
+/* 268 */       addCriterion("SIGNATURE_NAME =", value, "signatureName");
+/* 269 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureNameNotEqualTo(String value) {
+/* 273 */       addCriterion("SIGNATURE_NAME <>", value, "signatureName");
+/* 274 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureNameGreaterThan(String value) {
+/* 278 */       addCriterion("SIGNATURE_NAME >", value, "signatureName");
+/* 279 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureNameGreaterThanOrEqualTo(String value) {
+/* 283 */       addCriterion("SIGNATURE_NAME >=", value, "signatureName");
+/* 284 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureNameLessThan(String value) {
+/* 288 */       addCriterion("SIGNATURE_NAME <", value, "signatureName");
+/* 289 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureNameLessThanOrEqualTo(String value) {
+/* 293 */       addCriterion("SIGNATURE_NAME <=", value, "signatureName");
+/* 294 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureNameLike(String value) {
+/* 298 */       addCriterion("SIGNATURE_NAME like", value, "signatureName");
+/* 299 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureNameNotLike(String value) {
+/* 303 */       addCriterion("SIGNATURE_NAME not like", value, "signatureName");
+/* 304 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureNameIn(List<String> values) {
+/* 308 */       addCriterion("SIGNATURE_NAME in", values, "signatureName");
+/* 309 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureNameNotIn(List<String> values) {
+/* 313 */       addCriterion("SIGNATURE_NAME not in", values, "signatureName");
+/* 314 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureNameBetween(String value1, String value2) {
+/* 318 */       addCriterion("SIGNATURE_NAME between", value1, value2, "signatureName");
+/* 319 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureNameNotBetween(String value1, String value2) {
+/* 323 */       addCriterion("SIGNATURE_NAME not between", value1, value2, "signatureName");
+/* 324 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureKgidIsNull() {
+/* 328 */       addCriterion("SIGNATURE_KGID is null");
+/* 329 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureKgidIsNotNull() {
+/* 333 */       addCriterion("SIGNATURE_KGID is not null");
+/* 334 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureKgidEqualTo(String value) {
+/* 338 */       addCriterion("SIGNATURE_KGID =", value, "signatureKgid");
+/* 339 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureKgidNotEqualTo(String value) {
+/* 343 */       addCriterion("SIGNATURE_KGID <>", value, "signatureKgid");
+/* 344 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureKgidGreaterThan(String value) {
+/* 348 */       addCriterion("SIGNATURE_KGID >", value, "signatureKgid");
+/* 349 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureKgidGreaterThanOrEqualTo(String value) {
+/* 353 */       addCriterion("SIGNATURE_KGID >=", value, "signatureKgid");
+/* 354 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureKgidLessThan(String value) {
+/* 358 */       addCriterion("SIGNATURE_KGID <", value, "signatureKgid");
+/* 359 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureKgidLessThanOrEqualTo(String value) {
+/* 363 */       addCriterion("SIGNATURE_KGID <=", value, "signatureKgid");
+/* 364 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureKgidLike(String value) {
+/* 368 */       addCriterion("SIGNATURE_KGID like", value, "signatureKgid");
+/* 369 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureKgidNotLike(String value) {
+/* 373 */       addCriterion("SIGNATURE_KGID not like", value, "signatureKgid");
+/* 374 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureKgidIn(List<String> values) {
+/* 378 */       addCriterion("SIGNATURE_KGID in", values, "signatureKgid");
+/* 379 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureKgidNotIn(List<String> values) {
+/* 383 */       addCriterion("SIGNATURE_KGID not in", values, "signatureKgid");
+/* 384 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureKgidBetween(String value1, String value2) {
+/* 388 */       addCriterion("SIGNATURE_KGID between", value1, value2, "signatureKgid");
+/* 389 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureKgidNotBetween(String value1, String value2) {
+/* 393 */       addCriterion("SIGNATURE_KGID not between", value1, value2, "signatureKgid");
+/* 394 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureStatusIsNull() {
+/* 398 */       addCriterion("SIGNATURE_STATUS is null");
+/* 399 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureStatusIsNotNull() {
+/* 403 */       addCriterion("SIGNATURE_STATUS is not null");
+/* 404 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureStatusEqualTo(Integer value) {
+/* 408 */       addCriterion("SIGNATURE_STATUS =", value, "signatureStatus");
+/* 409 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureStatusNotEqualTo(Integer value) {
+/* 413 */       addCriterion("SIGNATURE_STATUS <>", value, "signatureStatus");
+/* 414 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureStatusGreaterThan(Integer value) {
+/* 418 */       addCriterion("SIGNATURE_STATUS >", value, "signatureStatus");
+/* 419 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureStatusGreaterThanOrEqualTo(Integer value) {
+/* 423 */       addCriterion("SIGNATURE_STATUS >=", value, "signatureStatus");
+/* 424 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureStatusLessThan(Integer value) {
+/* 428 */       addCriterion("SIGNATURE_STATUS <", value, "signatureStatus");
+/* 429 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureStatusLessThanOrEqualTo(Integer value) {
+/* 433 */       addCriterion("SIGNATURE_STATUS <=", value, "signatureStatus");
+/* 434 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureStatusIn(List<Integer> values) {
+/* 438 */       addCriterion("SIGNATURE_STATUS in", values, "signatureStatus");
+/* 439 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureStatusNotIn(List<Integer> values) {
+/* 443 */       addCriterion("SIGNATURE_STATUS not in", values, "signatureStatus");
+/* 444 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureStatusBetween(Integer value1, Integer value2) {
+/* 448 */       addCriterion("SIGNATURE_STATUS between", value1, value2, "signatureStatus");
+/* 449 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public KgSignatureExample.Criteria andSignatureStatusNotBetween(Integer value1, Integer value2) {
+/* 453 */       addCriterion("SIGNATURE_STATUS not between", value1, value2, "signatureStatus");
+/* 454 */       return (KgSignatureExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.kg.model.KgSignatureExample
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,138 @@
+ package com.myoa.service.portalTemplate.impl;
+ 
+ import com.myoa.dao.portalTemplate.PortalTemplateMapper;
+import com.myoa.model.portalTemplate.PortalTemplateExample;
+import com.myoa.model.portalTemplate.PortalTemplateWithBLOBs;
+import com.myoa.model.portalTemplate.PortalTemplateExample.Criteria;
+import com.myoa.service.portalTemplate.PortalTemplateService;
+import com.myoa.util.ToJson;
+
+ import java.io.File;
+ import java.util.List;
+ import javax.annotation.Resource;
+ import javax.servlet.ServletContext;
+ import javax.servlet.http.HttpServletRequest;
+ import javax.servlet.http.HttpSession;
+ import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+ 
+ @Service
+ public class PortalTemplateServiceImpl
+   implements PortalTemplateService
+ {
+ 
+   @Resource
+   private PortalTemplateMapper portalTemplateMapper;
+ 
+   @Transactional
+   public ToJson<PortalTemplateWithBLOBs> selectPortalTemplate(Integer portalId)
+   {
+     ToJson json = new ToJson();
+     try {
+       List list = this.portalTemplateMapper.selectPortalTemplate(portalId);
+       if (list.size() > 0) {
+         json.setObj(list);
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+   @Transactional
+   public ToJson<PortalTemplateWithBLOBs> selectPortalTemplateById(Integer templateId) {
+     ToJson json = new ToJson();
+     try {
+       PortalTemplateWithBLOBs portalTemplate = this.portalTemplateMapper.selectByPrimaryKey(templateId);
+ 
+       json.setObject(portalTemplate);
+       json.setMsg("ok");
+       json.setFlag(0);
+     }
+     catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   @Transactional
+   public ToJson<PortalTemplateWithBLOBs> insertPortalTemplate(HttpServletRequest request, PortalTemplateWithBLOBs portalTemplateWithBLOBs)
+   {
+     ToJson toJson = new ToJson(1, "error");
+ 
+     PortalTemplateExample example = new PortalTemplateExample();
+     PortalTemplateExample.Criteria criteria = example.createCriteria();
+     criteria.andTemplateFileEqualTo(portalTemplateWithBLOBs.getTemplateFile());
+     int a = this.portalTemplateMapper.countByExample(example);
+     if (a > 0) {
+       toJson.setFlag(1);
+       toJson.setMsg("存在相同的文件名称");
+       return toJson;
+     }
+     try
+     {
+       int temp = this.portalTemplateMapper.insertSelective(portalTemplateWithBLOBs);
+       if (temp > 0) {
+         toJson.setFlag(0);
+         toJson.setMsg("ok");
+       }
+     } catch (Exception e) {
+       toJson.setFlag(1);
+       toJson.setMsg(e.getMessage());
+       e.printStackTrace();
+       return toJson;
+     }
+ 
+     String rootPath = request.getSession().getServletContext().getRealPath("/") + File.separator + "cmsTmp" + File.separator + portalTemplateWithBLOBs.getPortalId();
+     File path = new File(rootPath);
+     if (!path.exists()) {
+       path.mkdirs();
+     }
+ 
+     File temp = new File(path, portalTemplateWithBLOBs.getTemplateFile());
+ 
+     return toJson;
+   }
+ 
+   @Transactional
+   public ToJson<PortalTemplateWithBLOBs> upPortalTemplate(PortalTemplateWithBLOBs portalTemplateWithBLOBs) {
+     ToJson toJson = new ToJson(1, "error");
+     try
+     {
+       int temp = this.portalTemplateMapper.updateByPrimaryKeySelective(portalTemplateWithBLOBs);
+       if (temp > 0) {
+         toJson.setFlag(0);
+         toJson.setMsg("ok");
+       }
+     } catch (Exception e) {
+       toJson.setFlag(1);
+       toJson.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return toJson;
+   }
+ 
+   public ToJson<PortalTemplateWithBLOBs> delPortalTemplate(PortalTemplateWithBLOBs portalTemplateWithBLOBs)
+   {
+     ToJson toJson = new ToJson(1, "error");
+     try
+     {
+       int temp = this.portalTemplateMapper.delPortalTemplate(portalTemplateWithBLOBs);
+       if (temp > 0) {
+         toJson.setFlag(0);
+         toJson.setMsg("ok");
+       }
+     } catch (Exception e) {
+       toJson.setFlag(1);
+       toJson.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return toJson;
+   }
+ }
+

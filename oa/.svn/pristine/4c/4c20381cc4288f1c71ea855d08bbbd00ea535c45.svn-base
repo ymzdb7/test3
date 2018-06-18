@@ -1,0 +1,347 @@
+/*     */ package com.xoa.util.page;
+/*     */ 
+/*     */ import com.xoa.util.common.L;
+/*     */ import java.beans.PropertyDescriptor;
+/*     */ import java.lang.reflect.Field;
+/*     */ import java.lang.reflect.Method;
+/*     */ import java.sql.Connection;
+/*     */ import java.sql.ParameterMetaData;
+/*     */ import java.sql.PreparedStatement;
+/*     */ import java.sql.ResultSet;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.Map;
+/*     */ import java.util.Properties;
+/*     */ import java.util.ResourceBundle;
+/*     */ import java.util.Set;
+/*     */ import javax.transaction.NotSupportedException;
+/*     */ import org.apache.ibatis.executor.parameter.ParameterHandler;
+/*     */ import org.apache.ibatis.executor.statement.StatementHandler;
+/*     */ import org.apache.ibatis.mapping.BoundSql;
+/*     */ import org.apache.ibatis.mapping.MappedStatement;
+/*     */ import org.apache.ibatis.plugin.Interceptor;
+/*     */ import org.apache.ibatis.plugin.Intercepts;
+/*     */ import org.apache.ibatis.plugin.Invocation;
+/*     */ import org.apache.ibatis.plugin.Plugin;
+/*     */ import org.apache.ibatis.reflection.MetaObject;
+/*     */ import org.apache.ibatis.reflection.SystemMetaObject;
+/*     */ import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
+/*     */ import org.apache.ibatis.session.Configuration;
+/*     */ 
+/*     */ @Intercepts({@org.apache.ibatis.plugin.Signature(type=StatementHandler.class, method="prepare", args={Connection.class})})
+/*     */ public class PagingPlugin
+/*     */   implements Interceptor
+/*     */ {
+/*  48 */   public static final String[] TABLE_NAME_STR = { "ADDRESS", "ADDRESS_GROUP", "AFFAIR", "ATTACHMENT", "ATTACHMENT_EDIT", "ATTACHMENT_MODULE", "ATTACHMENT_POSITION", "ATTEND_ASK_DUTY", "ATTEND_CONFIG", "ATTEND_DUTY", "ATTEND_DUTY_SHIFT", "ATTEND_EVECTION", "ATTEND_HOLIDAY", "ATTEND_LEAVE", "ATTEND_LEAVE_MANAGER", "ATTEND_MACHINE", "ATTEND_MANAGER", "ATTEND_MOBILE", "ATTEND_OUT", "ATTENDANCE_OVERTIME", "CALENDAR", "DATA_SRC", "DEPARTMENT", "DEPT_MAP", "DIARY", "DIARY_COMMENT", "DIARY_COMMENT_REPLY", "DIARY_SHARE", "DIARY_TOP", "EMAIL", "EMAIL_BODY", "EMAIL_BOX", "EMAIL_BOXGROUP", "EMAIL_KEYWORD", "EMAIL_NAME", "EMAIL_TAG", "EXT_DEPT", "EXT_USER", "FIELD_DATE", "FIELDSETTING", "FILE_COMMENT", "FILE_CONTENT", "FILE_SCORE", "FILE_SORT", "FLOW_CONTROLS", "FLOW_DATA_1", "FLOW_DATA_27", "FLOW_FEEDBACK_COMMON", "FLOW_FORM_TYPE", "FLOW_FORM_VERSION", "FLOW_HOOK", "FLOW_MANAGE_LOG", "FLOW_PRINT_TPL", "FLOW_PRIV", "FLOW_PROCESS", "FLOW_QUERY_TPL", "FLOW_REPORT", "FLOW_REPORT_PRIV", "FLOW_RULE", "FLOW_RUN", "FLOW_RUN_ATTACH", "FLOW_RUN_DATA", "FLOW_RUN_FEEDBACK", "FLOW_RUN_HOOK", "FLOW_RUN_LOG", "FLOW_RUN_PRCS", "FLOW_SORT", "FLOW_TIMER", "FLOW_TRIGGER", "FLOW_TYPE", "FLOW_VERSION", "FORM_SORT", "GBT_CONF", "HELP_QUESTION", "HELP_SORT", "IM_CHAT_LIST", "IM_MESSAGE", "IM_ROOM", "INTERFACE", "IP_RULE", "LOGIN_APP", "MEETING", "MEETING_COMMENT", "MEETING_EQUIPMENT", "MEETING_ROOM", "MEETING_RULE", "MOBILE_APP", "MODULE_MANAGE", "MODULE_PRIV", "MYTABLE", "NETCHAT", "NETDISK", "NEWS", "NEWS_COMMENT", "NOTES", "NOTIFY", "OA_CYCLESOURCE_USED", "OA_SOURCE", "OA_SOURCE_USED", "OFFICE_DEPOSITORY", "OFFICE_LOG", "OFFICE_PRODUCTS", "OFFICE_TASK", "OFFICE_TRANSHISTORY", "OFFICE_TYPE", "ORG_MANAGE", "PICTURE", "PLAN_TYPE", "PORTAL_TEMPLATES", "PORTALS", "REMINDERS", "SAL_DATA", "SAL_FLOW", "SAL_ITEM", "SD_FILE", "SD_SORT", "SEAL", "SEAL_LOG", "SESSION", "SMS", "SMS2", "SMS2_PRIV", "SMS_BODY", "SYS_CODE", "SYS_FUNCTION", "SYS_LOG", "SYS_MENU", "SYS_PARA", "TASK", "TASKCENTER", "TERP_SERVER", "TRAFFIC_RESTRICTION", "UNIT", "URL", "USER_", "USER_EXT", "USER_FUNCTION", "USER_GROUP", "USER_JPUSH", "USER_MAP", "USER_MOBILE_DEVICES", "USER_ONLINE", "USER_PRIV", "USER_WEIXINQY", "VEHICLE", "VEHICLE_MAINTENANCE", "VEHICLE_OIL_CARD", "VEHICLE_OIL_USE", "VEHICLE_OPERATOR", "VEHICLE_USAGE", "VERSION", "VI_FLOW_RUN", "VOTE_DATA", "VOTE_ITEM", "VOTE_TITLE", "WEBMAIL", "WEBMAIL_BODY", "WEIXUN_SHARE", "WEIXUN_SHARE_FOLLOW", "WEIXUN_SHARE_TOPIC", "WINEXE", "WORK_DETAIL", "WORK_PERSON", "WORK_PLAN", "document" };
+/*     */   private Integer defaultPage;
+/*     */   private Integer defaultPageSize;
+/*     */   private Boolean defaultUseFlag;
+/*     */   private Boolean defaultCheckFlag;
+/*     */   private Boolean defaultCleanOrderBy;
+/*     */   private static final String DB_TYPE_MYSQL = "mysql";
+/*     */   private static final String DB_TYPE_ORACLE = "oracle";
+/*     */   private static final String DB_TYPE_SQLSERVER = "sqlserver";
+/*     */   private static final String DB_TYPE_DMSQL = "dmsql";
+/*     */ 
+/*     */   public Object intercept(Invocation invocation)
+/*     */     throws Throwable
+/*     */   {
+/* 250 */     StatementHandler stmtHandler = (StatementHandler)getUnProxyObject(invocation.getTarget());
+/*     */ 
+/* 252 */     MetaObject metaStatementHandler = SystemMetaObject.forObject(stmtHandler);
+/* 253 */     String sql = (String)metaStatementHandler.getValue("delegate.boundSql.sql");
+/*     */ 
+/* 255 */     MappedStatement mappedStatement = (MappedStatement)metaStatementHandler.getValue("delegate.mappedStatement");
+/*     */ 
+/* 260 */     String dbType = returnSqlType();
+/*     */ 
+/* 264 */     BoundSql boundSql = (BoundSql)metaStatementHandler.getValue("delegate.boundSql");
+/*     */ 
+/* 267 */     if (!checkSelect(sql)) {
+/* 268 */       L.d(new Object[] { "you sql is not select ,pleasecheck" });
+/* 269 */       if ("dmsql".equals(dbType)) {
+/* 270 */         return preDmSQL(invocation, metaStatementHandler, boundSql);
+/*     */       }
+/* 272 */       return invocation.proceed();
+/*     */     }
+/*     */ 
+/* 275 */     Object parameterObject = boundSql.getParameterObject();
+/* 276 */     PageParams pageParams = getPageParamsForParamObj(parameterObject);
+/* 277 */     if (pageParams == null)
+/*     */     {
+/* 279 */       if ("dmsql".equals(dbType)) {
+/* 280 */         return preDmSQL(invocation, metaStatementHandler, boundSql);
+/*     */       }
+/* 282 */       return invocation.proceed();
+/*     */     }
+/*     */ 
+/* 286 */     Boolean useFlag = pageParams.getUseFlag() == null ? this.defaultUseFlag : pageParams.getUseFlag();
+/* 287 */     if (!useFlag.booleanValue()) {
+/* 288 */       L.d(new Object[] { new StringBuilder().append("useFlag").append(useFlag).toString() });
+/* 289 */       if ("dmsql".equals(dbType)) {
+/* 290 */         return preDmSQL(invocation, metaStatementHandler, boundSql);
+/*     */       }
+/* 292 */       return invocation.proceed();
+/*     */     }
+/*     */ 
+/* 295 */     Integer pageNum = pageParams.getPage() == null ? this.defaultPage : pageParams.getPage();
+/* 296 */     Integer pageSize = pageParams.getPageSize() == null ? this.defaultPageSize : pageParams.getPageSize();
+/* 297 */     Boolean checkFlag = pageParams.getCheckFlag() == null ? this.defaultCheckFlag : pageParams.getCheckFlag();
+/* 298 */     Boolean cleanOrderBy = pageParams.getCleanOrderBy() == null ? this.defaultCleanOrderBy : pageParams.getCleanOrderBy();
+/*     */ 
+/* 300 */     int total = getTotal(invocation, metaStatementHandler, boundSql, cleanOrderBy, dbType);
+/*     */ 
+/* 302 */     pageParams.setTotal(Integer.valueOf(total));
+/*     */ 
+/* 304 */     int totalPage = total % pageSize.intValue() == 0 ? total / pageSize.intValue() : total / pageSize.intValue() + 1;
+/*     */ 
+/* 306 */     pageParams.setTotalPage(Integer.valueOf(totalPage));
+/*     */ 
+/* 308 */     checkPage(checkFlag, pageNum, Integer.valueOf(totalPage));
+/*     */ 
+/* 312 */     return preparedSQL(invocation, metaStatementHandler, boundSql, pageNum.intValue(), pageSize.intValue(), dbType);
+/*     */   }
+/*     */ 
+/*     */   public PageParams getPageParamsForParamObj(Object parameterObject)
+/*     */     throws Exception
+/*     */   {
+/* 327 */     PageParams pageParams = null;
+/* 328 */     if (parameterObject == null) {
+/* 329 */       return null;
+/*     */     }
+/*     */ 
+/* 332 */     if ((parameterObject instanceof Map))
+/*     */     {
+/* 334 */       Map paramMap = (Map)parameterObject;
+/* 335 */       Set keySet = paramMap.keySet();
+/* 336 */       Iterator iterator = keySet.iterator();
+/* 337 */       while (iterator.hasNext()) {
+/* 338 */         String key = (String)iterator.next();
+/* 339 */         Object value = paramMap.get(key);
+/* 340 */         if ((value instanceof PageParams))
+/* 341 */           return (PageParams)value;
+/*     */       }
+/*     */     } else {
+/* 344 */       if ((parameterObject instanceof PageParams)) {
+/* 345 */         return (PageParams)parameterObject;
+/*     */       }
+/* 347 */       Field[] fields = parameterObject.getClass().getDeclaredFields();
+/*     */ 
+/* 349 */       for (Field field : fields) {
+/* 350 */         if (field.getType() == PageParams.class) {
+/* 351 */           PropertyDescriptor pd = new PropertyDescriptor(field.getName(), parameterObject.getClass());
+/* 352 */           Method method = pd.getReadMethod();
+/* 353 */           return (PageParams)method.invoke(parameterObject, new Object[0]);
+/*     */         }
+/*     */       }
+/*     */     }
+/* 357 */     return pageParams;
+/*     */   }
+/*     */ 
+/*     */   private boolean checkSelect(String sql)
+/*     */   {
+/* 371 */     String trimSql = sql.trim();
+/* 372 */     int idx = trimSql.toLowerCase().indexOf("select");
+/* 373 */     return idx == 0;
+/*     */   }
+/*     */ 
+/*     */   private void checkPage(Boolean checkFlag, Integer pageNum, Integer pageTotal)
+/*     */     throws Throwable
+/*     */   {
+/* 388 */     if (checkFlag.booleanValue())
+/*     */     {
+/* 390 */       if (pageNum.intValue() > pageTotal.intValue())
+/* 391 */         throw new Exception(new StringBuilder().append("查询失败，查询页码【").append(pageNum).append("】大于总页数【").append(pageTotal).append("】！！").toString());
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   private Object preparedSQL(Invocation invocation, MetaObject metaStatementHandler, BoundSql boundSql, int pageNum, int pageSize, String dbType)
+/*     */     throws Exception
+/*     */   {
+/* 415 */     String sql = boundSql.getSql();
+/* 416 */     String newSql = getPageDataSQL(sql, dbType);
+/*     */ 
+/* 418 */     metaStatementHandler.setValue("delegate.boundSql.sql", newSql);
+/*     */ 
+/* 420 */     Object statementObj = invocation.proceed();
+/*     */ 
+/* 422 */     preparePageDataParams((PreparedStatement)statementObj, pageNum, pageSize, dbType);
+/* 423 */     return statementObj;
+/*     */   }
+/*     */ 
+/*     */   private String preDmStrSql(String sql) {
+/* 427 */     String currSql = sql;
+/* 428 */     currSql = currSql.toUpperCase();
+/* 429 */     currSql = currSql.replaceAll("`", "");
+/* 430 */     currSql = currSql.replaceAll("USER ", "USER_ ");
+/* 431 */     for (String a : TABLE_NAME_STR) {
+/* 432 */       currSql = currSql.replaceAll(new StringBuilder().append(" ").append(a).append(" ").toString(), new StringBuilder().append(" XOA1004.").append(a).append(" ").toString());
+/* 433 */       currSql = currSql.replaceAll(new StringBuilder().append(",").append(a).append(" ").toString(), new StringBuilder().append(",XOA1004.").append(a).append(" ").toString());
+/* 434 */       currSql = currSql.replaceAll(new StringBuilder().append(" ").append(a).append(".").toString(), new StringBuilder().append(" XOA1004.").append(a).append(".").toString());
+/*     */     }
+/* 436 */     L.s(new Object[] { "renderSql:", currSql });
+/* 437 */     return currSql;
+/*     */   }
+/*     */   private Object preDmSQL(Invocation invocation, MetaObject metaStatementHandler, BoundSql boundSql) throws Exception {
+/* 440 */     String sql = boundSql.getSql();
+/*     */ 
+/* 453 */     metaStatementHandler.setValue("delegate.boundSql.sql", preDmStrSql(sql));
+/*     */ 
+/* 455 */     Object statementObj = invocation.proceed();
+/* 456 */     return statementObj;
+/*     */   }
+/*     */ 
+/*     */   private int getTotal(Invocation ivt, MetaObject metaStatementHandler, BoundSql boundSql, Boolean cleanOrderBy, String dbType)
+/*     */     throws Throwable
+/*     */   {
+/* 479 */     MappedStatement mappedStatement = (MappedStatement)metaStatementHandler.getValue("delegate.mappedStatement");
+/*     */ 
+/* 481 */     Configuration cfg = mappedStatement.getConfiguration();
+/*     */ 
+/* 483 */     String sql = (String)metaStatementHandler.getValue("delegate.boundSql.sql");
+/*     */ 
+/* 485 */     if (cleanOrderBy.booleanValue()) {
+/* 486 */       sql = cleanOrderByForSql(sql);
+/*     */     }
+/* 488 */     String countSql = getTotalSQL(sql, dbType);
+/*     */ 
+/* 490 */     Connection connection = (Connection)ivt.getArgs()[0];
+/* 491 */     PreparedStatement ps = null;
+/* 492 */     int total = 0;
+/*     */     try
+/*     */     {
+/* 495 */       ps = connection.prepareStatement(countSql);
+/*     */ 
+/* 497 */       BoundSql countBoundSql = new BoundSql(cfg, countSql, boundSql.getParameterMappings(), boundSql.getParameterObject());
+/*     */ 
+/* 499 */       ParameterHandler handler = new DefaultParameterHandler(mappedStatement, boundSql.getParameterObject(), countBoundSql);
+/*     */ 
+/* 501 */       handler.setParameters(ps);
+/*     */ 
+/* 503 */       ResultSet rs = ps.executeQuery();
+/* 504 */       while (rs.next())
+/* 505 */         total = rs.getInt("total");
+/*     */     }
+/*     */     finally
+/*     */     {
+/* 509 */       if (ps != null) {
+/* 510 */         ps.close();
+/*     */       }
+/*     */     }
+/* 513 */     return total;
+/*     */   }
+/*     */ 
+/*     */   private String cleanOrderByForSql(String sql) {
+/* 517 */     StringBuilder sb = new StringBuilder(sql);
+/* 518 */     String newSql = sql.toLowerCase();
+/*     */ 
+/* 520 */     if (newSql.indexOf("order") == -1) {
+/* 521 */       return sql;
+/*     */     }
+/* 523 */     int idx = newSql.lastIndexOf("order");
+/* 524 */     return sb.substring(0, idx).toString();
+/*     */   }
+/*     */ 
+/*     */   private Object getUnProxyObject(Object target)
+/*     */   {
+/* 537 */     MetaObject metaStatementHandler = SystemMetaObject.forObject(target);
+/*     */ 
+/* 539 */     Object object = null;
+/* 540 */     while (metaStatementHandler.hasGetter("h")) {
+/* 541 */       object = metaStatementHandler.getValue("h");
+/*     */     }
+/* 543 */     if (object == null) {
+/* 544 */       return target;
+/*     */     }
+/* 546 */     return object;
+/*     */   }
+/*     */ 
+/*     */   public Object plugin(Object statementHandler)
+/*     */   {
+/* 556 */     return Plugin.wrap(statementHandler, this);
+/*     */   }
+/*     */ 
+/*     */   public void setProperties(Properties props)
+/*     */   {
+/* 565 */     String strDefaultPage = props.getProperty("default.page", "1");
+/* 566 */     String strDefaultPageSize = props.getProperty("default.pageSize", "10");
+/* 567 */     String strDefaultUseFlag = props.getProperty("default.useFlag", "false");
+/* 568 */     String strDefaultCheckFlag = props.getProperty("default.checkFlag", "false");
+/* 569 */     String StringDefaultCleanOrderBy = props.getProperty("default.cleanOrderBy", "false");
+/*     */ 
+/* 571 */     this.defaultPage = Integer.valueOf(Integer.parseInt(strDefaultPage));
+/* 572 */     this.defaultPageSize = Integer.valueOf(Integer.parseInt(strDefaultPageSize));
+/* 573 */     this.defaultUseFlag = Boolean.valueOf(Boolean.parseBoolean(strDefaultUseFlag));
+/* 574 */     this.defaultCheckFlag = Boolean.valueOf(Boolean.parseBoolean(strDefaultCheckFlag));
+/* 575 */     this.defaultCleanOrderBy = Boolean.valueOf(Boolean.parseBoolean(StringDefaultCleanOrderBy));
+/*     */   }
+/*     */ 
+/*     */   private String getTotalSQL(String currSql, String dbType)
+/*     */     throws NotSupportedException
+/*     */   {
+/* 591 */     if ("mysql".equals(dbType))
+/* 592 */       return new StringBuilder().append("select count(*) as total from (").append(currSql).append(") $_paging").toString();
+/* 593 */     if ("oracle".equals(dbType))
+/* 594 */       return new StringBuilder().append("select count(*) as total from (").append(currSql).append(")").toString();
+/* 595 */     if ("dmsql".equals(dbType)) {
+/* 596 */       currSql = preDmStrSql(currSql);
+/* 597 */       return new StringBuilder().append("select count(*) as total from (").append(currSql).append(")").toString().toUpperCase();
+/*     */     }
+/* 599 */     throw new NotSupportedException("当前插件未支持此类型数据库");
+/*     */   }
+/*     */ 
+/*     */   private String getPageDataSQL(String currSql, String dbType)
+/*     */     throws NotSupportedException
+/*     */   {
+/* 616 */     if ("mysql".equals(dbType))
+/*     */     {
+/* 623 */       return new StringBuilder().append("select * from (").append(currSql).append(") $_paging_table limit ?, ?").toString();
+/* 624 */     }if ("oracle".equals(dbType))
+/* 625 */       return new StringBuilder().append(" select * from (select cur_sql_result.*, rownum rn from (").append(currSql).append(") cur_sql_result  where rownum <= ?) where rn > ?").toString();
+/* 626 */     if ("dmsql".equals(dbType)) {
+/* 627 */       currSql = preDmStrSql(currSql);
+/* 628 */       return new StringBuilder().append(" select * from (select cur_sql_result.*, rownum rn from (").append(currSql).append(") cur_sql_result  where rownum <= ?) where rn > ?").toString().toUpperCase();
+/*     */     }
+/* 630 */     throw new NotSupportedException("当前插件未支持此类型数据库");
+/*     */   }
+/*     */ 
+/*     */   private void preparePageDataParams(PreparedStatement ps, int pageNum, int pageSize, String dbType)
+/*     */     throws Exception
+/*     */   {
+/* 650 */     int idx = ps.getParameterMetaData().getParameterCount();
+/* 651 */     if ("mysql".equals(dbType))
+/*     */     {
+/* 653 */       ps.setInt(idx - 1, (pageNum - 1) * pageSize);
+/* 654 */       ps.setInt(idx, pageSize);
+/* 655 */     } else if ("oracle".equals(dbType)) {
+/* 656 */       ps.setInt(idx - 1, pageNum * pageSize);
+/* 657 */       ps.setInt(idx, (pageNum - 1) * pageSize);
+/* 658 */     } else if ("dmsql".equals(dbType)) {
+/* 659 */       ps.setInt(idx - 1, pageNum * pageSize);
+/* 660 */       ps.setInt(idx, (pageNum - 1) * pageSize);
+/*     */     } else {
+/* 662 */       throw new NotSupportedException("当前插件未支持此类型数据库");
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public String returnSqlType()
+/*     */   {
+/* 708 */     String retrunSql = "";
+/*     */ 
+/* 710 */     String name = ResourceBundle.getBundle("jdbc-sql").getString("driverClassName");
+/* 711 */     if ("com.mysql.jdbc.Driver".equals(name.trim()))
+/* 712 */       retrunSql = "mysql";
+/* 713 */     else if ("oracle.jdbc.driver.OracleDriver".equals(name.trim()))
+/* 714 */       retrunSql = "oracle";
+/* 715 */     else if ("com.microsoft.sqlserver.jdbc.SQLServerDriver".equals(name.trim()))
+/* 716 */       retrunSql = "sqlserver";
+/* 717 */     else if ("dm.jdbc.driver.DmDriver".equals(name.trim())) {
+/* 718 */       retrunSql = "dmsql";
+/*     */     }
+/* 720 */     return retrunSql;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.page.PagingPlugin
+ * JD-Core Version:    0.6.0
+ */

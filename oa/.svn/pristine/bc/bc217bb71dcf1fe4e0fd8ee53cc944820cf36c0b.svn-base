@@ -1,0 +1,160 @@
+/*     */ package com.xoa.service.modulePriv.impl;
+/*     */ 
+/*     */ import com.xoa.dao.modulePriv.ModulePrivMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.modulePriv.ModulePriv;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.modulePriv.ModulePrivService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class ModulePrivServiceImpl
+/*     */   implements ModulePrivService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private ModulePrivMapper modulePrivMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<ModulePriv> saveModulePriv(ModulePriv modulePriv, String applyModules, String applyDepts, String applyPrivs)
+/*     */   {
+/*  41 */     ToJson json = new ToJson();
+/*     */     try
+/*     */     {
+/*  44 */       if ((modulePriv.getDeptId() == null) || (modulePriv.getPrivId() == null)) {
+/*  45 */         this.modulePrivMapper.deleteModulePriv(modulePriv);
+/*     */ 
+/*  47 */         if (!StringUtils.checkNull(applyModules).booleanValue()) {
+/*  48 */           String[] moduleIds = applyModules.split(",");
+/*  49 */           for (String moduleId : moduleIds) {
+/*  50 */             modulePriv.setModuleId(Integer.valueOf(moduleId));
+/*  51 */             this.modulePrivMapper.deleteModulePriv(modulePriv);
+/*     */           }
+/*     */         }
+/*     */ 
+/*  55 */         if ((!StringUtils.checkNull(applyDepts).booleanValue()) && (!StringUtils.checkNull(applyPrivs).booleanValue())) {
+/*  56 */           String[] deptIds = applyDepts.split(",");
+/*  57 */           String[] privIds = applyPrivs.split(",");
+/*  58 */           List<Users> usersByDeptAndPriv = this.usersMapper.getUsersByDeptAndPriv(deptIds, privIds);
+/*  59 */           if ((usersByDeptAndPriv != null) && (usersByDeptAndPriv.size() > 0)) {
+/*  60 */             StringBuffer sb = new StringBuffer();
+/*  61 */             for (Users entity : usersByDeptAndPriv) {
+/*  62 */               sb.append(entity.getUid() + ",");
+/*     */             }
+/*  64 */             this.modulePrivMapper.deleteModulePrivs(sb.toString().split(","), modulePriv.getModuleId());
+/*     */           }
+/*     */         }
+/*     */       } else {
+/*  68 */         ModulePriv modulePrivSingle = this.modulePrivMapper.getModulePrivSingle(modulePriv);
+/*  69 */         if (modulePrivSingle != null)
+/*  70 */           this.modulePrivMapper.updateModulePriv(modulePriv);
+/*     */         else {
+/*  72 */           this.modulePrivMapper.addModulePriv(modulePriv);
+/*     */         }
+/*     */ 
+/*  75 */         if (!StringUtils.checkNull(applyModules).booleanValue()) {
+/*  76 */           String[] moduleIds = applyModules.split(",");
+/*  77 */           for (String moduleId : moduleIds) {
+/*  78 */             modulePriv.setModuleId(Integer.valueOf(moduleId));
+/*  79 */             ModulePriv modulePrivSingle2 = this.modulePrivMapper.getModulePrivSingle(modulePriv);
+/*  80 */             if (modulePrivSingle2 != null)
+/*  81 */               this.modulePrivMapper.updateModulePriv(modulePriv);
+/*     */             else {
+/*  83 */               this.modulePrivMapper.addModulePriv(modulePriv);
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */ 
+/*  88 */         if ((!StringUtils.checkNull(applyDepts).booleanValue()) && (!StringUtils.checkNull(applyPrivs).booleanValue())) {
+/*  89 */           String[] deptIds = applyDepts.split(",");
+/*  90 */           String[] privIds = applyPrivs.split(",");
+/*  91 */           List<Users> usersByDeptAndPriv = this.usersMapper.getUsersByDeptAndPriv(deptIds, privIds);
+/*  92 */           for (Users entity : usersByDeptAndPriv) {
+/*  93 */             modulePriv.setUid(entity.getUid());
+/*  94 */             ModulePriv modulePrivSingle3 = this.modulePrivMapper.getModulePrivSingle(modulePriv);
+/*  95 */             if (modulePrivSingle3 != null)
+/*  96 */               this.modulePrivMapper.updateModulePriv(modulePriv);
+/*     */             else {
+/*  98 */               this.modulePrivMapper.addModulePriv(modulePriv);
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/* 103 */       json.setMsg("ok");
+/* 104 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 106 */       e.printStackTrace();
+/* 107 */       json.setMsg("err");
+/* 108 */       json.setFlag(1);
+/*     */     }
+/* 110 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<ModulePriv> updateModulePriv(ModulePriv modulePriv)
+/*     */   {
+/* 123 */     ToJson json = new ToJson();
+/*     */     try {
+/* 125 */       if ((modulePriv.getDeptId() == null) || (modulePriv.getPrivId() == null)) {
+/* 126 */         this.modulePrivMapper.deleteModulePriv(modulePriv);
+/* 127 */         json.setMsg("ok");
+/* 128 */         json.setFlag(0);
+/*     */       } else {
+/* 130 */         this.modulePrivMapper.updateModulePriv(modulePriv);
+/* 131 */         json.setMsg("ok");
+/* 132 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 135 */       e.printStackTrace();
+/* 136 */       json.setMsg("err");
+/* 137 */       json.setFlag(1);
+/* 138 */       L.e(new Object[] { "ModulePrivServiceImpl updateModulePriv:" + e });
+/*     */     }
+/* 140 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<ModulePriv> deleteModulePriv(ModulePriv modulePriv)
+/*     */   {
+/* 152 */     ToJson json = new ToJson();
+/*     */     try {
+/* 154 */       this.modulePrivMapper.deleteModulePriv(modulePriv);
+/* 155 */       json.setMsg("ok");
+/* 156 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 158 */       e.printStackTrace();
+/* 159 */       json.setMsg("err");
+/* 160 */       json.setFlag(1);
+/*     */     }
+/* 162 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<ModulePriv> getModulePrivSingle(ModulePriv modulePriv)
+/*     */   {
+/* 174 */     ToJson json = new ToJson();
+/*     */     try {
+/* 176 */       ModulePriv modulePrivByUid = this.modulePrivMapper.getModulePrivSingle(modulePriv);
+/* 177 */       json.setObject(modulePrivByUid);
+/* 178 */       json.setFlag(0);
+/* 179 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 181 */       e.printStackTrace();
+/* 182 */       json.setFlag(1);
+/* 183 */       json.setMsg("err");
+/*     */     }
+/* 185 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.modulePriv.impl.ModulePrivServiceImpl
+ * JD-Core Version:    0.6.0
+ */

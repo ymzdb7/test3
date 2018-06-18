@@ -1,0 +1,74 @@
+/*     */ package com.xoa.controller.sys;
+/*     */ 
+/*     */ import com.xoa.model.sys.SealWithBLOBs;
+/*     */ import com.xoa.service.sys.SealService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/seal"})
+/*     */ public class SealController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private SealService sealService;
+/*     */ 
+/*     */   @RequestMapping({"/addSealObject"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> addSealObject(HttpServletRequest request, SealWithBLOBs seal)
+/*     */   {
+/*  35 */     return this.sealService.addSealObject(request, seal);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/editSealObject"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> editSealObject(HttpServletRequest request, SealWithBLOBs seal)
+/*     */   {
+/*  47 */     return this.sealService.editSealObject(request, seal);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getAllSealInfo"})
+/*     */   @ResponseBody
+/*     */   public ToJson<SealWithBLOBs> getAllSealInfo(SealWithBLOBs sealWithBLOBs, String startTime, String endTime)
+/*     */   {
+/*  60 */     return this.sealService.getAllSealInfo(sealWithBLOBs, startTime, endTime);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getSealById"})
+/*     */   @ResponseBody
+/*     */   public ToJson<SealWithBLOBs> getSealById(String id)
+/*     */   {
+/*  72 */     return this.sealService.getSealById(id);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/deleteSeal"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> deleteSeal(HttpServletRequest request, @RequestParam("ids[]") String[] ids)
+/*     */   {
+/*  85 */     return this.sealService.deleteSeal(request, ids);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getSealIdById"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> getSealIdById(HttpServletRequest request, String id)
+/*     */   {
+/*  97 */     return this.sealService.getSealIdById(request, id);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getSealLogBySealId"})
+/*     */   @ResponseBody
+/*     */   public ToJson<SealWithBLOBs> getSealBySealId(HttpServletRequest request, String sealId)
+/*     */   {
+/* 110 */     return this.sealService.getSealBySealId(request, sealId);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.sys.SealController
+ * JD-Core Version:    0.6.0
+ */

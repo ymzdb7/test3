@@ -1,0 +1,124 @@
+package com.myoa.model.event;
+
+import com.alibaba.fastjson.annotation.JSONField;
+import com.myoa.util.common.StringUtils;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
+public class TimelineEvent {
+	private String uuid;
+
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JSONField(format = "yyyy-MM-dd hh:mm:ss")
+	private String crTime;
+
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JSONField(format = "yyyy-MM-dd hh:mm:ss")
+	private String endTime;
+
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JSONField(format = "yyyy-MM-dd hh:mm:ss")
+	private String lastEditTime;
+
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JSONField(format = "yyyy-MM-dd hh:mm:ss")
+	private String startTime;
+	private String title;
+	private Integer crUserId;
+	private Integer updateUserId;
+	private String timelineUuid;
+	private String content;
+
+	public String getUuid() {
+		return this.uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = (uuid == null ? null : uuid.trim());
+	}
+
+	public String getCrTime() {
+		if (!StringUtils.checkNull(this.crTime).booleanValue()) {
+			return this.crTime.substring(0, this.crTime.length() - 2);
+		}
+		return this.crTime;
+	}
+
+	public void setCrTime(String crTime) {
+		this.crTime = crTime;
+	}
+
+	public String getEndTime() {
+		if (!StringUtils.checkNull(this.endTime).booleanValue()) {
+			return this.endTime.substring(0, this.endTime.length() - 2);
+		}
+		return this.endTime;
+	}
+
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
+	}
+
+	public String getLastEditTime() {
+		if (!StringUtils.checkNull(this.lastEditTime).booleanValue()) {
+			return this.lastEditTime.substring(0,
+					this.lastEditTime.length() - 2);
+		}
+		return this.lastEditTime;
+	}
+
+	public void setLastEditTime(String lastEditTime) {
+		this.lastEditTime = lastEditTime;
+	}
+
+	public String getStartTime() {
+		if (!StringUtils.checkNull(this.startTime).booleanValue()) {
+			return this.startTime.substring(0, this.startTime.length() - 2);
+		}
+		return this.startTime;
+	}
+
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
+	}
+
+	public String getTitle() {
+		return this.title;
+	}
+
+	public void setTitle(String title) {
+		this.title = (title == null ? null : title.trim());
+	}
+
+	public Integer getCrUserId() {
+		return this.crUserId;
+	}
+
+	public void setCrUserId(Integer crUserId) {
+		this.crUserId = crUserId;
+	}
+
+	public Integer getUpdateUserId() {
+		return this.updateUserId;
+	}
+
+	public void setUpdateUserId(Integer updateUserId) {
+		this.updateUserId = updateUserId;
+	}
+
+	public String getTimelineUuid() {
+		return this.timelineUuid;
+	}
+
+	public void setTimelineUuid(String timelineUuid) {
+		this.timelineUuid = (timelineUuid == null ? null : timelineUuid.trim());
+	}
+
+	public String getContent() {
+		return this.content;
+	}
+
+	public void setContent(String content) {
+		this.content = (content == null ? null : content.trim());
+	}
+}

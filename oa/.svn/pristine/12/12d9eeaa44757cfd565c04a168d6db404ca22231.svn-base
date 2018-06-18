@@ -1,0 +1,200 @@
+ package com.myoa.service.officesupplies;
+ 
+ import com.myoa.dao.officesupplies.OfficeDepositoryMapper;
+import com.myoa.model.officesupplies.OfficeDepositoryWithBLOBs;
+import com.myoa.model.users.Users;
+import com.myoa.service.department.DepartmentService;
+import com.myoa.service.edu.eduUser.IEduUserService;
+import com.myoa.service.users.UsersPrivService;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.L;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.common.session.SessionUtils;
+
+ import java.util.List;
+ import javax.annotation.Resource;
+ import javax.servlet.http.HttpServletRequest;
+ import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+ 
+ @Service
+ public class OfficeDepositoryService
+ {
+ 
+   @Resource
+   private OfficeDepositoryMapper officeDepositoryMapper;
+ 
+   @Resource
+   private DepartmentService departmentService;
+ 
+   @Resource
+   private IEduUserService eduUserService;
+ 
+   @Resource
+   private UsersPrivService usersPrivService;
+ 
+   @Resource
+   private OfficeTypeService officeTypeService;
+ 
+   @Transactional
+   public ToJson<OfficeDepositoryWithBLOBs> insertDepository(OfficeDepositoryWithBLOBs depositoryWithBLOBs)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       int count = this.officeDepositoryMapper.insertDepository(depositoryWithBLOBs);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "OfficeDepositoryService insertDepository:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   @Transactional
+   public ToJson<OfficeDepositoryWithBLOBs> updateDepositoryById(OfficeDepositoryWithBLOBs depositoryWithBLOBs)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       int count = this.officeDepositoryMapper.updateDepositoryById(depositoryWithBLOBs);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "OfficeDepositoryService updateDepositoryById:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   @Transactional
+   public ToJson<OfficeDepositoryWithBLOBs> delDepositoryById(Integer id)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       int count = this.officeDepositoryMapper.delDepositoryById(id);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "OfficeDepositoryService delDepositoryById:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<OfficeDepositoryWithBLOBs> selDepositoryById(Integer id)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       OfficeDepositoryWithBLOBs officeDepositoryWithBLOBs = this.officeDepositoryMapper.selDepositoryById(id);
+       if ((officeDepositoryWithBLOBs != null) && 
+         (!StringUtils.checkNull(officeDepositoryWithBLOBs.getDeptId()).booleanValue())) {
+         if (officeDepositoryWithBLOBs.getDeptId().equals("ALL_DEPT"))
+           officeDepositoryWithBLOBs.setDeptName("全体部门");
+         else {
+           officeDepositoryWithBLOBs.setDeptName(this.departmentService.getDeptNameByDeptId(officeDepositoryWithBLOBs.getDeptId(), ","));
+         }
+       }
+ 
+       if (!StringUtils.checkNull(officeDepositoryWithBLOBs.getManager()).booleanValue()) {
+         officeDepositoryWithBLOBs.setManagerName(this.eduUserService.getUserNameByUserIds(officeDepositoryWithBLOBs.getManager()));
+       }
+       if (!StringUtils.checkNull(officeDepositoryWithBLOBs.getProKeeper()).booleanValue()) {
+         officeDepositoryWithBLOBs.setProKeeperName(this.eduUserService.getUserNameByUserIds(officeDepositoryWithBLOBs.getProKeeper()));
+       }
+       if (!StringUtils.checkNull(officeDepositoryWithBLOBs.getPrivId()).booleanValue()) {
+         officeDepositoryWithBLOBs.setPrivName(this.usersPrivService.getPrivNameByPrivId(officeDepositoryWithBLOBs.getPrivId(), ","));
+       }
+       if (!StringUtils.checkNull(officeDepositoryWithBLOBs.getOfficeTypeId()).booleanValue()) {
+         officeDepositoryWithBLOBs.setOfficeTypeName(this.officeTypeService.getTypeNameByTypeIds(officeDepositoryWithBLOBs.getOfficeTypeId()));
+       }
+       json.setObject(officeDepositoryWithBLOBs);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "OfficeDepositoryService selDepositoryById:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<OfficeDepositoryWithBLOBs> selAllDepository()
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       List<OfficeDepositoryWithBLOBs> officeDepositoryWithBLOBs = this.officeDepositoryMapper.selAllDepository();
+       for (OfficeDepositoryWithBLOBs depository : officeDepositoryWithBLOBs) {
+         if (!StringUtils.checkNull(depository.getDeptId()).booleanValue()) {
+           if (depository.getDeptId().equals("ALL_DEPT"))
+             depository.setDeptName("全体部门");
+           else {
+             depository.setDeptName(this.departmentService.getDeptNameByDeptId(depository.getDeptId(), ","));
+           }
+         }
+         if (!StringUtils.checkNull(depository.getManager()).booleanValue()) {
+           depository.setManagerName(this.eduUserService.getUserNameByUserIds(depository.getManager()));
+         }
+         if (!StringUtils.checkNull(depository.getProKeeper()).booleanValue()) {
+           depository.setProKeeperName(this.eduUserService.getUserNameByUserIds(depository.getProKeeper()));
+         }
+         if (!StringUtils.checkNull(depository.getPrivId()).booleanValue()) {
+           depository.setPrivName(this.usersPrivService.getPrivNameByPrivId(depository.getPrivId(), ","));
+         }
+         if (!StringUtils.checkNull(depository.getOfficeTypeId()).booleanValue()) {
+           depository.setOfficeTypeName(this.officeTypeService.getTypeNameByTypeIds(depository.getOfficeTypeId()));
+         }
+       }
+       json.setObj(officeDepositoryWithBLOBs);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "OfficeDepositoryService selAllDepository:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<OfficeDepositoryWithBLOBs> selDepositoryByDept(HttpServletRequest request)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       List list = this.officeDepositoryMapper.selDepositoryByDept(users.getUserId());
+       json.setObj(list);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "OfficeDepositoryService getDeposttoryByDept:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<OfficeDepositoryWithBLOBs> getAllDeposttoryTree(HttpServletRequest request)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       List list = this.officeDepositoryMapper.getAllDeposttoryTree();
+       json.setObj(list);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "OfficeDepositoryService getDeposttoryByDept:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ }
+

@@ -1,0 +1,22 @@
+ package com.myoa.util;
+ 
+ public class Convert
+ {
+   public static String convertFileSize(long size)
+   {
+     long kb = 1024L;
+     long mb = kb * 1024L;
+     long gb = mb * 1024L;
+ 
+     if (size >= gb)
+       return String.format("%.1f GB", new Object[] { Float.valueOf((float)size / (float)gb) });
+     if (size >= mb) {
+       float f = (float)size / (float)mb;
+       return String.format(f > 100.0F ? "%.0f MB" : "%.1f MB", new Object[] { Float.valueOf(f) });
+     }if (size >= kb) {
+       float f = (float)size / (float)kb;
+       return String.format(f > 100.0F ? "%.0f KB" : "%.1f KB", new Object[] { Float.valueOf(f) });
+     }
+     return String.format("%d B", new Object[] { Long.valueOf(size) });
+   }
+ }

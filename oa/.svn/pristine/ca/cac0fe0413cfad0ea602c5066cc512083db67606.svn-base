@@ -1,0 +1,83 @@
+ package com.myoa.model.role;
+ 
+ import com.myoa.model.users.Users;
+
+import java.util.List;
+ 
+ public class Role
+ {
+   private Integer userPriv;
+   private String privName;
+   private Short privNo;
+   private String funcIdStr;
+   private Integer privDeptId;
+   private Byte privType;
+   private Byte isGlobal;
+   private List<Users> users;
+ 
+   public List<Users> getUsers()
+   {
+     return this.users;
+   }
+ 
+   public void setUsers(List<Users> users) {
+     this.users = users;
+   }
+ 
+   public Integer getUserPriv() {
+     return this.userPriv;
+   }
+ 
+   public void setUserPriv(Integer userPriv) {
+     this.userPriv = userPriv;
+   }
+ 
+   public String getPrivName() {
+     return this.privName;
+   }
+ 
+   public void setPrivName(String privName) {
+     this.privName = (privName == null ? null : privName.trim());
+   }
+ 
+   public Short getPrivNo() {
+     return this.privNo;
+   }
+ 
+   public void setPrivNo(Short privNo) {
+     this.privNo = privNo;
+   }
+ 
+   public String getFuncIdStr() {
+     return this.funcIdStr;
+   }
+ 
+   public void setFuncIdStr(String funcIdStr) {
+     this.funcIdStr = (funcIdStr == null ? null : funcIdStr.trim());
+   }
+ 
+   public Integer getPrivDeptId() {
+     return this.privDeptId;
+   }
+ 
+   public void setPrivDeptId(Integer privDeptId) {
+     this.privDeptId = privDeptId;
+   }
+ 
+   public Byte getPrivType() {
+     return this.privType;
+   }
+ 
+   public void setPrivType(Byte privType) {
+     this.privType = privType;
+   }
+ 
+   public Byte getIsGlobal() {
+     return this.isGlobal;
+   }
+ 
+   public void setIsGlobal(Byte isGlobal) {
+     this.isGlobal = isGlobal;
+   }
+ }
+

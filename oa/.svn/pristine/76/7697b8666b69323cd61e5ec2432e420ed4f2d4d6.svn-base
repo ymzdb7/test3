@@ -1,0 +1,29 @@
+/*    */ package com.xoa.global.intercptor;
+/*    */ 
+/*    */ import com.xoa.service.common.SysCodeService;
+/*    */ import com.xoa.service.common.UpdateProperty;
+/*    */ import org.springframework.beans.factory.InitializingBean;
+/*    */ import org.springframework.beans.factory.annotation.Autowired;
+/*    */ 
+/*    */ public class CommonDatase
+/*    */   implements InitializingBean
+/*    */ {
+/*    */ 
+/*    */   @Autowired
+/*    */   SysCodeService sysCodeService;
+/*    */ 
+/*    */   @Autowired
+/*    */   UpdateProperty updateProperty;
+/*    */ 
+/*    */   public void afterPropertiesSet()
+/*    */     throws Exception
+/*    */   {
+/* 22 */     this.sysCodeService.updateResource();
+/* 23 */     this.updateProperty.updatePro();
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.global.intercptor.CommonDatase
+ * JD-Core Version:    0.6.0
+ */

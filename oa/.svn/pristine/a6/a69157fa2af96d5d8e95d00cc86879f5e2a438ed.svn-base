@@ -1,0 +1,750 @@
+/*     */ package com.xoa.service.dingdingManage;
+/*     */ 
+/*     */ import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+
+import org.json.JSONException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.xoa.controller.login.loginController;
+import com.xoa.dao.common.SysParaMapper;
+import com.xoa.dao.department.DepartmentMapper;
+import com.xoa.dao.dingdingManage.UserDDMapMapper;
+import com.xoa.dao.users.UsersMapper;
+import com.xoa.model.common.SysPara;
+import com.xoa.model.department.Department;
+import com.xoa.model.dingdingManage.DingdingApp;
+import com.xoa.model.dingdingManage.DingdingBindUser;
+import com.xoa.model.dingdingManage.DingdingCreateDept;
+import com.xoa.model.dingdingManage.DingdingUpdateDept;
+import com.xoa.model.dingdingManage.DingdingUser;
+import com.xoa.model.dingdingManage.UserDDMap;
+import com.xoa.model.dingdingManage.UserDDMapExample;
+import com.xoa.model.users.Users;
+import com.xoa.util.ToJson;
+import com.xoa.util.common.session.SessionUtils;
+import com.xoa.util.common.wrapper.BaseWrapper;
+import com.xoa.util.dingding.DingDingTool;
+import com.xoa.util.dingding.DingDingUrl;
+/*     */ 
+/*     */ @Service
+/*     */ public class DingdingManageService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   SysParaMapper sysParaMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   UsersMapper usersMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   UserDDMapMapper userDDMapMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   loginController login;
+/*     */   String accessToken;
+/*  64 */   List<DingdingUpdateDept> dingdingUpdateDepts = new ArrayList<DingdingUpdateDept>();
+/*     */ 
+/*  66 */   List<DingdingUpdateDept> dingdingUpdateDepts1 = new ArrayList<DingdingUpdateDept>();
+/*     */ 
+/*  68 */   Integer n = Integer.valueOf(0);
+/*     */ 
+/*     */   public BaseWrapper baseDingDingSetting(String oaUrl, String corpId, String corpSecret)
+/*     */   {
+/*  72 */     BaseWrapper wrapper = new BaseWrapper();
+/*  73 */     SysPara webSite = this.sysParaMapper.querySysPara("DINGDINGQY_OAURL");
+/*  74 */     SysPara id = this.sysParaMapper.querySysPara("DINGDINGQY_CORPID");
+/*  75 */     SysPara secret = this.sysParaMapper.querySysPara("DINGDINGQY_SECRET");
+/*     */     try
+/*     */     {
+/*  78 */       if (webSite != null) {
+/*  79 */         webSite.setParaValue(oaUrl);
+/*  80 */         this.sysParaMapper.updateSysPara(webSite);
+/*     */       } else {
+/*  82 */         webSite = new SysPara();
+/*  83 */         webSite.setParaName("DINGDINGQY_OAURL");
+/*  84 */         webSite.setParaValue(oaUrl);
+/*  85 */         this.sysParaMapper.insertSysPara(webSite);
+/*     */       }
+/*     */ 
+/*  88 */       if (id != null) {
+/*  89 */         id.setParaValue(corpId);
+/*  90 */         this.sysParaMapper.updateSysPara(id);
+/*     */       } else {
+/*  92 */         id = new SysPara();
+/*  93 */         id.setParaName("DINGDINGQY_CORPID");
+/*  94 */         id.setParaValue(corpId);
+/*  95 */         this.sysParaMapper.insertSysPara(id);
+/*     */       }
+/*     */ 
+/*  98 */       if (secret != null) {
+/*  99 */         secret.setParaValue(corpSecret);
+/* 100 */         this.sysParaMapper.updateSysPara(secret);
+/*     */       } else {
+/* 102 */         secret = new SysPara();
+/* 103 */         secret.setParaName("DINGDINGQY_SECRET");
+/* 104 */         secret.setParaValue(corpSecret);
+/* 105 */         this.sysParaMapper.insertSysPara(secret);
+/*     */       }
+/*     */ 
+/* 108 */       wrapper.setMsg("保存成功！");
+/* 109 */       wrapper.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 111 */       e.printStackTrace();
+/* 112 */       wrapper.setMsg(e.getMessage());
+/* 113 */       wrapper.setFlag(false);
+/* 114 */       throw new RuntimeException("保存出错！");
+/*     */     }
+/* 116 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper baseDingDingGet()
+/*     */   {
+/* 121 */     BaseWrapper wrapper = new BaseWrapper();
+/* 122 */     List<String> item = new ArrayList<String>();
+/* 123 */     item.add("DINGDINGQY_OAURL");
+/* 124 */     item.add("DINGDINGQY_CORPID");
+/* 125 */     item.add("DINGDINGQY_SECRET");
+/*     */ 
+/* 127 */     List<SysPara> sysParaList = this.sysParaMapper.getSysParaList(item);
+/* 128 */     if (sysParaList != null) {
+/* 129 */       wrapper.setMsg("查询成功！");
+/* 130 */       wrapper.setFlag(true);
+/* 131 */       wrapper.setData(sysParaList);
+/*     */     }
+/*     */     else {
+/* 134 */       wrapper.setMsg("查询失败！");
+/*     */     }
+/* 136 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public void dingdingConnect(HttpServletResponse response, String dingUrl, String dingRequest) throws JSONException
+/*     */   {
+/* 141 */     String result = DingDingTool.dingdingRequestGet(dingUrl, dingRequest);
+/* 142 */     org.json.JSONObject resultJSON = new org.json.JSONObject(result);
+/* 143 */     if (resultJSON.getString("errmsg").equals("ok"))
+/* 144 */       this.accessToken = ("?access_token=" + resultJSON.getString("access_token"));
+/*     */     try
+/*     */     {
+/* 147 */       ServletOutputStream out = response.getOutputStream();
+/* 148 */       OutputStreamWriter ow = new OutputStreamWriter(out);
+/* 149 */       ow.write(result);
+/* 150 */       ow.flush();
+/* 151 */       ow.close();
+/*     */     } catch (IOException e) {
+/* 153 */       e.printStackTrace();
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper dingdingGetDeptList(Integer deptId)
+/*     */   {
+/* 159 */     BaseWrapper wrapper = new BaseWrapper();
+/*     */ 
+/* 161 */     List<Department> dingdingDeptList = this.departmentMapper.getChDept(deptId.intValue());
+/* 162 */     if (dingdingDeptList != null) {
+/* 163 */       wrapper.setFlag(true);
+/* 164 */       wrapper.setMsg("查询成功！");
+/* 165 */       wrapper.setData(dingdingDeptList);
+/*     */     } else {
+/* 167 */       wrapper.setMsg("查询失败！");
+/*     */     }
+/* 169 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Department> dingdingGetUserList(Integer deptId)
+/*     */   {
+/* 174 */     ToJson<Department> toJson = new ToJson<Department>();
+/*     */     try {
+/* 176 */       List<Department> deptList = this.departmentMapper.getChDept(deptId.intValue());
+/* 177 */       List<Users> usersList = this.usersMapper.getUsersByDeptId(deptId);
+/* 178 */       toJson.setObj(deptList);
+/* 179 */       toJson.setObject(usersList);
+/*     */ 
+/* 181 */       toJson.setMsg("OK");
+/* 182 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 184 */       e.printStackTrace();
+/* 185 */       toJson.setMsg(e.getMessage());
+/*     */     }
+/* 187 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper dingdingDeptSynchro() throws JSONException
+/*     */   {
+/* 192 */     BaseWrapper wrapper = new BaseWrapper();
+/* 193 */     List<DingdingUpdateDept> updateDept = new ArrayList<DingdingUpdateDept>();
+/* 194 */     List<Long> deleteDept = new ArrayList<Long>();
+/*     */ 
+/* 199 */     String updateResult = "ok";
+/* 200 */     String deleteResult = "ok";
+/*     */ 
+/* 202 */     List<Department> deptList = this.departmentMapper.getDatagrid();
+/*     */ 
+/* 204 */     String dingdingResult = DingDingTool.dingdingRequestGet(DingDingUrl.DINGDING_DEPT_LIST, this.accessToken);
+/* 205 */     if (!getErrmsg(dingdingResult).equals("ok")) {
+/* 206 */       wrapper.setMsg(getErrmsg(dingdingResult));
+/* 207 */       return wrapper;
+/*     */     }
+/* 209 */     org.json.JSONObject jsonObject = new org.json.JSONObject(dingdingResult);
+/* 210 */     org.json.JSONArray jsonArray = jsonObject.getJSONArray("department");
+/*     */ 
+/* 213 */     for (Department department : deptList) {
+/* 214 */       boolean create = true;
+/* 215 */       boolean update = true;
+/* 216 */       DingdingCreateDept dingdingCreateDept = new DingdingCreateDept();
+/* 217 */       DingdingUpdateDept dingdingUpdateDept = new DingdingUpdateDept();
+/* 218 */       Integer parentid = this.departmentMapper.getParentDingdingId(department.getDeptId());
+/* 219 */       for (int i = 1; i < jsonArray.length(); i++) {
+/* 220 */         if (jsonArray.getJSONObject(i).getInt("id") == department.getDingdingDeptId().intValue()) {
+/* 221 */           create = false;
+/* 222 */           if (((parentid != null) && (jsonArray.getJSONObject(i).getInt("parentid") != parentid.intValue())) || (!jsonArray.getJSONObject(i).getString("name").equals(department.getDeptName())))
+/*     */             continue;
+/* 224 */           update = false;
+/* 225 */           break;
+/*     */         }
+/* 227 */         if (jsonArray.getJSONObject(i).getString("name").equals(department.getDeptName())) {
+/* 228 */           department.setDingdingDeptId(Integer.valueOf(jsonArray.getJSONObject(i).getInt("id")));
+/* 229 */           this.departmentMapper.editDept(department);
+/* 230 */           create = false;
+/*     */         }
+/*     */       }
+/* 233 */       if (create) {
+/* 234 */         dingdingCreateDept.setName(department.getDeptName());
+/* 235 */         if (department.getDeptParent().intValue() == 0)
+/* 236 */           dingdingCreateDept.setParentid("1");
+/*     */         else {
+/* 238 */           dingdingCreateDept.setParentid(parentid + "");
+/*     */         }
+/*     */ 
+/* 241 */         net.sf.json.JSONObject jsonObj = net.sf.json.JSONObject.fromObject(dingdingCreateDept);
+/* 242 */         String postData = jsonObj.toString();
+/*     */ 
+/* 244 */         String result = DingDingTool.dingdingRequestPost(DingDingUrl.DINGDING_CREATE_DEPT, this.accessToken, postData);
+/* 245 */         if (!getErrmsg(dingdingResult).equals("ok")) {
+/* 246 */           wrapper.setMsg(getErrmsg(dingdingResult));
+/* 247 */           return wrapper;
+/*     */         }
+/* 249 */         org.json.JSONObject resultJSON = new org.json.JSONObject(result);
+/* 250 */         Integer dingdingDeptId = Integer.valueOf(resultJSON.getInt("id"));
+/*     */ 
+/* 252 */         department.setDingdingDeptId(dingdingDeptId);
+/* 253 */         this.departmentMapper.editDept(department);
+/* 254 */       } else if (update) {
+/* 255 */         dingdingUpdateDept.setName(department.getDeptName());
+/* 256 */         dingdingUpdateDept.setId(department.getDingdingDeptId().intValue());
+/* 257 */         dingdingUpdateDept.setParentid(parentid + "");
+/* 258 */         updateDept.add(dingdingUpdateDept);
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 263 */     for (int i = 1; i < jsonArray.length(); i++) {
+/* 264 */       boolean delete = true;
+/* 265 */       for (Department department : deptList) {
+/* 266 */         if (jsonArray.getJSONObject(i).getInt("id") == department.getDingdingDeptId().intValue()) {
+/* 267 */           delete = false;
+/* 268 */           break;
+/*     */         }
+/*     */       }
+/* 271 */       if (delete) {
+/* 272 */         deleteDept.add(Long.valueOf(jsonArray.getJSONObject(i).getLong("id")));
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 277 */     for (DingdingUpdateDept sendUpdateDept : updateDept)
+/*     */     {
+/* 279 */       net.sf.json.JSONObject jsonObj = net.sf.json.JSONObject.fromObject(sendUpdateDept);
+/* 280 */       String postData = jsonObj.toString();
+/*     */ 
+/* 282 */       String result = DingDingTool.dingdingRequestPost(DingDingUrl.DINGDING_UPDATE_DEPT, this.accessToken, postData);
+/* 283 */       updateResult = getErrmsg(result);
+/* 284 */       if (!updateResult.equals("ok"))
+/*     */       {
+/*     */         break;
+/*     */       }
+/*     */     }
+/*     */ 
+/* 290 */     for (Long id : deleteDept) {
+/* 291 */       String deleteRequest = this.accessToken + "&id=" + id;
+/* 292 */       String result = DingDingTool.dingdingRequestGet(DingDingUrl.DINGDING_DELETE_DEPT, deleteRequest);
+/* 293 */       deleteResult = getErrmsg(result);
+/* 294 */       if (!deleteResult.equals("ok"))
+/*     */       {
+/*     */         break;
+/*     */       }
+/*     */     }
+/* 299 */     if ((updateResult.equals("ok")) && (deleteResult.equals("ok"))) {
+/* 300 */       wrapper.setFlag(true);
+/* 301 */       wrapper.setMsg("同步成功！");
+/*     */     } else {
+/* 303 */       wrapper.setMsg("更新操作结果：" + updateResult + "！<br>删除操作结果：" + deleteResult + "！");
+/*     */     }
+/* 305 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper dingdingUserSynchro(String synchroUsers) throws JSONException
+/*     */   {
+/* 310 */     BaseWrapper wrapper = new BaseWrapper();
+/*     */ 
+/* 313 */     String createResult = "ok";
+/* 314 */     String updateResult = "ok";
+/* 315 */     Integer successNum = Integer.valueOf(0);
+/* 316 */     Integer failedNum = Integer.valueOf(0);
+/* 317 */     String failedReason = "";
+/*     */ 
+/* 321 */     synchroUsers = dealUserSynchroStr(synchroUsers);
+/*     */ 
+/* 324 */     for (String deptUsers : synchroUsers.split(";"))
+/*     */     {
+/* 327 */       String dept = deptUsers.split(":")[0];
+/* 328 */       String users = deptUsers.split(":")[1];
+/*     */ 
+/* 330 */       Integer dingdingDeptId = this.departmentMapper.getDingdingIdByDeptId(Integer.valueOf(Integer.parseInt(dept)));
+/*     */ 
+/* 332 */       if (dingdingDeptId.intValue() == 0) {
+/* 333 */         wrapper.setMsg("选中人员所在部门未同步到钉钉，请先同步组织结构！");
+/* 334 */         return wrapper;
+/*     */       }
+/*     */ 
+/* 337 */       String dingRequest = this.accessToken + "&department_id=" + dingdingDeptId;
+/* 338 */       String dingUrl = DingDingUrl.DINGDING_USER_LIST;
+/*     */ 
+/* 340 */       String dingdingResponse = DingDingTool.dingdingRequestGet(dingUrl, dingRequest);
+/* 341 */       if (!getErrmsg(dingdingResponse).equals("ok")) {
+/* 342 */         wrapper.setMsg(getErrmsg(dingdingResponse));
+/* 343 */         return wrapper;
+/*     */       }
+/*     */ 
+/* 346 */       org.json.JSONObject jsonObject = new org.json.JSONObject(dingdingResponse);
+/* 347 */       org.json.JSONArray jsonArray = jsonObject.getJSONArray("userlist");
+/*     */ 
+/* 350 */       for (String user : users.split(",")) {
+/* 351 */         Users theUser = this.usersMapper.getUserByUid(Integer.parseInt(user));
+/* 352 */         DingdingUser dingdingUser = new DingdingUser();
+/* 353 */         List<Integer> dingdingDeptList = new ArrayList<Integer>();
+/* 354 */         String result = "";
+/* 355 */         UserDDMap userDDMap = new UserDDMap();
+/* 356 */         userDDMap.setOaUid(theUser.getUid() + "");
+/*     */ 
+/* 359 */         dingdingDeptList.add(dingdingDeptId);
+/* 360 */         dingdingUser.setUserid(theUser.getByname());
+/* 361 */         dingdingUser.setDepartment(dingdingDeptList);
+/* 362 */         dingdingUser.setEmail(theUser.getEmail());
+/* 363 */         dingdingUser.setMobile(theUser.getMobilNo());
+/* 364 */         dingdingUser.setName(theUser.getUserName());
+/* 365 */         dingdingUser.setPosition(theUser.getPost());
+/* 366 */         net.sf.json.JSONObject sendJSONObject = net.sf.json.JSONObject.fromObject(dingdingUser);
+/* 367 */         String sendMsg = sendJSONObject.toString();
+/*     */ 
+/* 369 */         if ((dingdingUser.getName() == null) || ("".equals(dingdingUser.getName())) || (dingdingUser.getMobile() == null) || ("".equals(dingdingUser.getMobile())))
+/*     */         {
+/* 371 */           Integer localInteger1 = failedNum; Integer localInteger2 = failedNum = Integer.valueOf(failedNum.intValue() + 1);
+/* 372 */           if (!failedReason.contains("、人员未设置电话号码"))
+/* 373 */             failedReason = failedReason + "、人员未设置电话号码";
+/*     */         }
+/*     */         else
+/*     */         {
+/*     */           org.json.JSONObject jsonObject1;
+/*     */            org.json.JSONObject jsonObject2;
+/* 378 */           if (jsonArray.length() > 0) {
+/* 379 */             for (int i = 0; i < jsonArray.length(); i++) {
+/* 380 */               jsonObject1 = jsonArray.getJSONObject(i);
+/*     */ 
+/* 382 */               if (theUser.getUserId().equals(((org.json.JSONObject)jsonObject1).getString("userid")))
+/*     */               {
+/* 384 */                 if ((!theUser.getUserName().equals(((org.json.JSONObject)jsonObject1).getString("name"))) || (!theUser.getMobilNo().equals(((org.json.JSONObject)jsonObject1).getString("mobile"))) || (!theUser.getPost().equals(((org.json.JSONObject)jsonObject1).getString("position"))) || (!theUser.getEmail().equals(((org.json.JSONObject)jsonObject1).getString("email"))) || (dingdingDeptId.intValue() != ((org.json.JSONObject)jsonObject1).getJSONArray("department").getInt(0)))
+/*     */                 {
+/* 390 */                   dingUrl = DingDingUrl.DINGDING_UPDATE_USER;
+/* 391 */                   result = DingDingTool.dingdingRequestPost(dingUrl, this.accessToken, sendMsg);
+/* 392 */                   updateResult = getErrmsg(result);
+/*     */                 }
+/* 394 */                 userDDMap.setDdUid(dingdingUser.getUserid());
+/*     */               } else {
+/* 396 */                 dingUrl = DingDingUrl.DINGDING_CREATE_USER;
+/* 397 */                 result = DingDingTool.dingdingRequestPost(dingUrl, this.accessToken, sendMsg);
+/* 398 */                 createResult = getErrmsg(result);
+/* 399 */                 jsonObject2 = new org.json.JSONObject(result);
+/* 400 */                 userDDMap.setDdUid(jsonObject2.getString("userid"));
+/*     */               }
+/*     */             }
+/*     */           } else {
+/* 404 */             dingUrl = DingDingUrl.DINGDING_CREATE_USER;
+/* 405 */             result = DingDingTool.dingdingRequestPost(dingUrl, this.accessToken, sendMsg);
+/* 406 */             createResult = getErrmsg(result);
+/* 407 */             jsonObject2 = new org.json.JSONObject(result);
+/* 408 */             userDDMap.setDdUid(((org.json.JSONObject)jsonObject2).getString("userid"));
+/*     */           }
+/* 410 */           if ((!createResult.equals("ok")) || (!updateResult.equals("ok"))) {
+/* 411 */                failedNum = Integer.valueOf(failedNum.intValue() + 1); 
+/* 412 */             if (!failedReason.contains("、" + getErrmsg(result)))
+/* 413 */               failedReason = failedReason + "、" + getErrmsg(result);
+/*     */           }
+/*     */           else {
+/* 416 */               successNum = Integer.valueOf(successNum.intValue() + 1);
+/* 417 */             if (this.userDDMapMapper.getBindBoolean(theUser.getUid()).intValue() == 0) {
+/* 418 */               this.userDDMapMapper.insert(userDDMap);
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */     }
+/* 424 */     if (failedReason.contains("、")) {
+/* 425 */       failedReason = failedReason.replaceFirst("、", "");
+/* 426 */       failedReason = failedReason + "。";
+/*     */     }
+/* 428 */     String result = "成功：" + successNum + "个，失败：" + failedNum + "个";
+/* 429 */     if (failedNum.intValue() > 0) {
+/* 430 */       result = result + "，失败原因：" + failedReason;
+/*     */     }
+/* 432 */     wrapper.setMsg(result);
+/* 433 */     wrapper.setFlag(true);
+/* 434 */     return (BaseWrapper)(BaseWrapper)wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper getDingdingUserList() throws JSONException
+/*     */   {
+/* 439 */     BaseWrapper wrapper = new BaseWrapper();
+/* 440 */     List<DingdingBindUser> dingdingBindUserList = new ArrayList<DingdingBindUser>();
+/*     */ 
+/* 443 */     String dingUrl = DingDingUrl.DINGDING_DEPT_LIST;
+/* 444 */     String dingdingDepts = DingDingTool.dingdingRequestGet(dingUrl, this.accessToken);
+/* 445 */     if (!getErrmsg(dingdingDepts).equals("ok")) {
+/* 446 */       wrapper.setMsg(getErrmsg(dingdingDepts));
+/* 447 */       return wrapper;
+/*     */     }
+/* 449 */     org.json.JSONObject jsonObject = new org.json.JSONObject(dingdingDepts);
+/* 450 */     org.json.JSONArray jsonArray = jsonObject.getJSONArray("department");
+/*     */ 
+/* 452 */     for (int i = 0; i < jsonArray.length(); i++) {
+/* 453 */       Integer deptId = Integer.valueOf(jsonArray.getJSONObject(i).getInt("id"));
+/*     */ 
+/* 456 */       dingUrl = DingDingUrl.DINGDING_USER_SIMPLE_LIST;
+/* 457 */       String dingRequest = this.accessToken + "&department_id=" + deptId;
+/* 458 */       org.json.JSONObject theDeptsUsers = new org.json.JSONObject(DingDingTool.dingdingRequestGet(dingUrl, dingRequest));
+/*     */ 
+/* 460 */       if (!theDeptsUsers.getString("errmsg").equals("ok")) {
+/* 461 */         wrapper.setMsg(theDeptsUsers.getString("errmsg"));
+/* 462 */         return wrapper;
+/*     */       }
+/* 464 */       org.json.JSONArray userList = theDeptsUsers.getJSONArray("userlist");
+/*     */ 
+/* 466 */       if (userList.length() > 0) {
+/* 467 */         for (int j = 0; j < userList.length(); j++) {
+/* 468 */           org.json.JSONObject jsonObject1 = userList.getJSONObject(j);
+/* 469 */           DingdingBindUser dingdingBindUser = new DingdingBindUser();
+/* 470 */           dingdingBindUser.setName(jsonObject1.getString("name"));
+/* 471 */           dingdingBindUser.setUserid(jsonObject1.getString("userid"));
+/*     */ 
+/* 473 */           UserDDMap userDDMap = this.userDDMapMapper.getUserDDMapByUserId(dingdingBindUser.getUserid());
+/* 474 */           if (userDDMap != null) {
+/* 475 */             dingdingBindUser.setBind(true);
+/*     */           }
+/* 477 */           dingdingBindUserList.add(dingdingBindUser);
+/*     */         }
+/*     */       }
+/*     */     }
+/* 481 */     wrapper.setFlag(true);
+/* 482 */     wrapper.setMsg("查询成功");
+/* 483 */     wrapper.setData(dingdingBindUserList);
+/* 484 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   @Transactional(rollbackFor={RuntimeException.class})
+/*     */   public BaseWrapper bindDingdingAndOA(String dingdingId, String uid, Integer type) {
+/* 490 */     BaseWrapper wrapper = new BaseWrapper();
+/* 491 */     UserDDMap userDDMap = new UserDDMap();
+/* 492 */     UserDDMapExample example = new UserDDMapExample();
+/*     */     try
+/*     */     {
+/*     */       Integer result;
+/* 495 */       if (type.intValue() == 0) {
+/* 496 */         Integer uuid = Integer.valueOf(Integer.parseInt(uid.split(",")[0]));
+/* 497 */         Users users = this.usersMapper.getUsersByUid(uuid);
+/* 498 */         if ((users.getMobilNo() == null) || ("".equals(users.getMobilNo()))) {
+/* 499 */           wrapper.setMsg("选中人员无电话号码，无法绑定！");
+/* 500 */           return wrapper;
+/*     */         }
+/* 502 */         if (this.userDDMapMapper.getBindBoolean(uuid).intValue() == 0) {
+/* 503 */           userDDMap.setDdUid(dingdingId);
+/* 504 */           userDDMap.setOaUid(uuid + "");
+/* 505 */           result = Integer.valueOf(this.userDDMapMapper.insertSelective(userDDMap));
+/*     */         } else {
+/* 507 */           wrapper.setMsg("该人员已绑定其他钉钉账号，请重新选择！");
+/* 508 */           return wrapper;
+/*     */         }
+/*     */       }
+/*     */       else {
+/* 512 */         example.or().andDdUidEqualTo(dingdingId);
+/* 513 */         result = Integer.valueOf(this.userDDMapMapper.deleteByExample(example));
+/*     */       }
+/*     */ 
+/* 516 */       if (result.intValue() > 0) {
+/* 517 */         wrapper.setFlag(true);
+/* 518 */         wrapper.setMsg("操作成功！");
+/*     */       } else {
+/* 520 */         wrapper.setMsg("操作失败！");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 523 */       e.printStackTrace();
+/* 524 */       wrapper.setMsg(e.getMessage());
+/* 525 */       throw new RuntimeException(e.getMessage());
+/*     */     }
+/* 527 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper getDingdingApp(String appName)
+/*     */   {
+/* 532 */     BaseWrapper wrapper = new BaseWrapper();
+/* 533 */     String appUrl = "";
+/* 534 */     SysPara sysPara = this.sysParaMapper.querySysPara(appName);
+/* 535 */     DingdingApp dingdingApp = new DingdingApp();
+/*     */ 
+/* 537 */     String str1 = appName; int i = -1; switch (str1.hashCode()) { case -495685167:
+/* 537 */       if (!str1.equals("DINGDINGQY_APP_XOA")) break; i = 0; } switch (i) { case 0:
+/* 538 */       appUrl = DingDingUrl.DINGDINGQY_APP_XOA;
+/*     */     }
+/*     */ 
+/* 541 */     dingdingApp.setDingdingAppId(sysPara.getParaValue());
+/* 542 */     dingdingApp.setDingdingAppUrl(appUrl);
+/*     */ 
+/* 544 */     if (dingdingApp != null) {
+/* 545 */       wrapper.setFlag(true);
+/* 546 */       wrapper.setMsg("查询成功！");
+/* 547 */       wrapper.setData(dingdingApp);
+/*     */     } else {
+/* 549 */       wrapper.setMsg("查询失败！");
+/*     */     }
+/* 551 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   @Transactional(rollbackFor={RuntimeException.class})
+/*     */   public BaseWrapper dingdingAppSetting(String appName, String appId) {
+/* 557 */     BaseWrapper wrapper = new BaseWrapper();
+/*     */ 
+/* 559 */     SysPara sysPara = new SysPara();
+/* 560 */     sysPara.setParaName(appName);
+/* 561 */     sysPara.setParaValue(appId);
+/*     */     try {
+/* 563 */       this.sysParaMapper.updateSysPara(sysPara);
+/* 564 */       wrapper.setFlag(true);
+/* 565 */       wrapper.setMsg("保存成功！");
+/*     */     } catch (Exception e) {
+/* 567 */       e.printStackTrace();
+/* 568 */       wrapper.setMsg(e.getMessage());
+/* 569 */       throw new RuntimeException("保存出错！");
+/*     */     }
+/* 571 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public void dingdingDepSettingGet(HttpServletResponse response, Integer deptId)
+/*     */   {
+/* 576 */     String dingRequest = this.accessToken + "&fetch_child=false" + "&id=" + deptId;
+/* 577 */     String result = DingDingTool.dingdingRequestGet(DingDingUrl.DINGDING_DEPT_LIST, dingRequest);
+/*     */     try {
+/* 579 */       ServletOutputStream out = response.getOutputStream();
+/* 580 */       OutputStreamWriter ow = new OutputStreamWriter(out, "utf-8");
+/* 581 */       ow.getEncoding();
+/* 582 */       ow.write(result);
+/* 583 */       ow.flush();
+/* 584 */       ow.close();
+/*     */     } catch (IOException e) {
+/* 586 */       e.printStackTrace();
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper dingdingDepSettingMenu()
+/*     */   {
+/* 592 */     BaseWrapper wrapper = new BaseWrapper();
+/* 593 */     this.dingdingUpdateDepts = new ArrayList<DingdingUpdateDept>();
+/* 594 */     this.dingdingUpdateDepts1 = new ArrayList<DingdingUpdateDept>();
+/*     */ 
+/* 596 */     String result = DingDingTool.dingdingRequestGet(DingDingUrl.DINGDING_DEPT_LIST, this.accessToken);
+/*     */     try {
+/* 598 */       if (!getErrmsg(result).equals("ok")) {
+/* 599 */         wrapper.setMsg(getErrmsg(result));
+/* 600 */         return wrapper;
+/*     */       }
+/*     */     } catch (JSONException e) {
+/* 603 */       e.printStackTrace();
+/*     */     }
+/* 605 */     net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject.fromObject(result);
+/* 606 */     net.sf.json.JSONArray jsonArray = jsonObject.getJSONArray("department");
+/*     */ 
+/* 608 */     DingdingUpdateDept dingdingUpdateDept = (DingdingUpdateDept)net.sf.json.JSONObject.toBean(jsonArray.getJSONObject(0), DingdingUpdateDept.class);
+/* 609 */     dingdingUpdateDept.setParentid("0");
+/* 610 */     this.dingdingUpdateDepts1.add(dingdingUpdateDept);
+/* 611 */     getMenu(1L);
+/*     */ 
+/* 613 */     if (this.dingdingUpdateDepts1.size() != 0) {
+/* 614 */       wrapper.setFlag(true);
+/* 615 */       wrapper.setMsg("获取成功！");
+/* 616 */       wrapper.setData(this.dingdingUpdateDepts1);
+/*     */     }
+/* 618 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper dingdingDepSettingEdit(DingdingUpdateDept dingdingUpdateDept)
+/*     */   {
+/* 623 */     BaseWrapper wrapper = new BaseWrapper();
+/* 624 */     net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject.fromObject(dingdingUpdateDept);
+/* 625 */     String postData = jsonObject.toString();
+/* 626 */     String result = DingDingTool.dingdingRequestPost(DingDingUrl.DINGDING_UPDATE_DEPT, this.accessToken, postData);
+/*     */     try {
+/* 628 */       if (getErrmsg(result).equals("ok")) {
+/* 629 */         wrapper.setFlag(true);
+/* 630 */         wrapper.setMsg("更新成功！");
+/*     */       } else {
+/* 632 */         wrapper.setMsg(getErrmsg(result));
+/*     */       }
+/*     */     } catch (JSONException e) {
+/* 635 */       e.printStackTrace();
+/* 636 */       wrapper.setMsg(e.getMessage());
+/*     */     }
+/* 638 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper dingdingDepSettingDelete(Integer deptId)
+/*     */   {
+/* 643 */     BaseWrapper wrapper = new BaseWrapper();
+/* 644 */     String dingRequest = this.accessToken + "&id=" + deptId;
+/* 645 */     String result = DingDingTool.dingdingRequestGet(DingDingUrl.DINGDING_DELETE_DEPT, dingRequest);
+/*     */     try {
+/* 647 */       if (getErrmsg(result).equals("ok")) {
+/* 648 */         wrapper.setFlag(true);
+/* 649 */         wrapper.setMsg("删除成功！");
+/*     */       } else {
+/* 651 */         wrapper.setMsg(getErrmsg(result));
+/*     */       }
+/*     */     } catch (JSONException e) {
+/* 654 */       e.printStackTrace();
+/* 655 */       wrapper.setMsg(e.getMessage());
+/*     */     }
+/* 657 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper dingdingCodeGetUser(HttpServletRequest request, HttpServletResponse response, String corpId, String corpSecret, String code, String oId)
+/*     */     throws JSONException
+/*     */   {
+/* 663 */     BaseWrapper wrapper = new BaseWrapper();
+/* 664 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/* 666 */     if (user.getUserId() == null) {
+/* 667 */       String dingRequest = "?corpid=" + corpId + "&corpsecret=" + corpSecret;
+/*     */ 
+/* 670 */       String result = DingDingTool.dingdingRequestGet(DingDingUrl.DINGDING_CONNECT_TEST, dingRequest);
+/* 671 */       org.json.JSONObject jsonObject = new org.json.JSONObject(result);
+/* 672 */       String access = jsonObject.getString("access_token");
+/*     */ 
+/* 675 */       dingRequest = "?access_token=" + access + "&code=" + code;
+/* 676 */       result = DingDingTool.dingdingRequestGet(DingDingUrl.DINGDING_CODE_GETUSER, dingRequest);
+/* 677 */       jsonObject = new org.json.JSONObject(result);
+/* 678 */       String userid = jsonObject.getString("userid");
+/*     */ 
+/* 680 */       String oaId = this.userDDMapMapper.getUserDDMapByUserId(userid).getOaUid();
+/* 681 */       if (("".equals(oaId)) || (oaId == null)) {
+/* 682 */         wrapper.setMsg("用户" + userid + "未绑定OA账号！");
+/* 683 */         return wrapper;
+/*     */       }
+/*     */ 
+/* 686 */       user = this.usersMapper.getUserByUid(Integer.parseInt(oaId));
+/* 687 */       if (user != null) {
+/*     */         try {
+/* 689 */           ToJson<Users> toJson = this.login.loginEnter(user.getByname(), "", oId, "mobile", null, request, response);
+/* 690 */           if (!toJson.isFlag()) {
+/* 691 */             wrapper.setMsg("登录失败！");
+/* 692 */             return wrapper;
+/*     */           }
+/*     */         } catch (Exception e) {
+/* 695 */           e.printStackTrace();
+/* 696 */           wrapper.setMsg(e.getMessage());
+/*     */         }
+/* 698 */         wrapper.setData(SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users()));
+/* 699 */         wrapper.setFlag(true);
+/* 700 */         wrapper.setMsg("success!");
+/*     */       } else {
+/* 702 */         wrapper.setMsg("用户" + oaId + "不存在！");
+/*     */       }
+/*     */     } else {
+/* 705 */       wrapper.setMsg("已有用户信息！");
+/* 706 */       wrapper.setFlag(true);
+/*     */     }
+/* 708 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public String getErrmsg(String result)
+/*     */     throws JSONException
+/*     */   {
+/* 716 */     org.json.JSONObject jsonObject = new org.json.JSONObject(result);
+/* 717 */     return jsonObject.getString("errmsg");
+/*     */   }
+/*     */ 
+/*     */   public String dealUserSynchroStr(String synchroUsers)
+/*     */   {
+/* 722 */     String result = ",";
+/* 723 */     Integer deptId = Integer.valueOf(0);
+/*     */ 
+/* 725 */     for (String one : synchroUsers.split(";")) {
+/* 726 */       Integer nowDeptId = Integer.valueOf(Integer.parseInt(one.split(",")[0]));
+/* 727 */       String uid = one.split(",")[1];
+/*     */ 
+/* 729 */       if (deptId == nowDeptId) {
+/* 730 */         result = result + uid + ",";
+/*     */       } else {
+/* 732 */         result = result.substring(0, result.length() - 1);
+/* 733 */         result = result + ";" + nowDeptId + ":" + uid + ",";
+/* 734 */         deptId = nowDeptId;
+/*     */       }
+/*     */     }
+/* 737 */     result = result.replaceFirst(";", "");
+/* 738 */     result = result.substring(0, result.length() - 1);
+/* 739 */     return result;
+/*     */   }
+/*     */ 
+/*     */   public void getMenu(long id)
+/*     */   {
+/* 744 */     String dingRequest = this.accessToken + "&fetch_child=false" + "&id=" + id;
+/* 745 */     String result = DingDingTool.dingdingRequestGet(DingDingUrl.DINGDING_DEPT_LIST, dingRequest);
+/* 746 */     Integer localInteger1 = this.n; Integer localInteger2 = this.n = Integer.valueOf(this.n.intValue() + 1);
+/*     */     try {
+/* 748 */       if (getErrmsg(result).equals("ok")) {
+/* 749 */         JSONObject jsonObject = net.sf.json.JSONObject.fromObject(result);
+/* 750 */         JSONArray jsonArray = ((net.sf.json.JSONObject)jsonObject).getJSONArray("department");
+/* 751 */         if (!((net.sf.json.JSONArray)jsonArray).isEmpty()) {
+/* 752 */           this.dingdingUpdateDepts = net.sf.json.JSONArray.toList((net.sf.json.JSONArray)jsonArray, new DingdingUpdateDept(), new JsonConfig());
+/* 753 */           for (DingdingUpdateDept dingdingUpdateDept : this.dingdingUpdateDepts) {
+/* 754 */             dingdingUpdateDept.setParentid(this.n + "");
+/* 755 */             this.dingdingUpdateDepts1.add(dingdingUpdateDept);
+/* 756 */             getMenu(dingdingUpdateDept.getId());
+/*     */           }
+/*     */         }
+/*     */       } 
+                Object jsonArray =   Integer.valueOf(this.n.intValue() - 1);
+/*     */     }
+/*     */     catch (JSONException e)
+/*     */     {
+/*     */       Object jsonObject;
+/* 762 */       e.printStackTrace();
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.dingdingManage.DingdingManageService
+ * JD-Core Version:    0.6.0
+ */

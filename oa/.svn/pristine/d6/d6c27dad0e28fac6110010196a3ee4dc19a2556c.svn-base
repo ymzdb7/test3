@@ -1,0 +1,26 @@
+/*    */ package com.xoa.controller.duties.dutiesjsp;
+/*    */ 
+/*    */ import com.xoa.util.Constant;
+import com.xoa.util.dataSource.ContextHolder;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import javax.servlet.http.HttpSession;
+/*    */ import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"/duties"})
+/*    */ public class DutiesJspController
+/*    */ {
+/*    */   @RequestMapping({"/dutiesjsp"})
+/*    */   public String companyInfo(HttpServletRequest request)
+/*    */   {
+/* 19 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 21 */     return "app/sys/duties";
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.duties.dutiesjsp.DutiesJspController
+ * JD-Core Version:    0.6.0
+ */

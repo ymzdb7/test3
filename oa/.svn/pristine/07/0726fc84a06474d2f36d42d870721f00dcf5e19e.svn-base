@@ -1,0 +1,105 @@
+/*     */ package com.xoa.service.workPlan;
+/*     */ 
+/*     */ import com.xoa.dao.workPlan.PlanTypeMapper;
+/*     */ import com.xoa.model.workPlan.PlanType;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class PlanTypeService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private PlanTypeMapper planTypeMapper;
+/*     */ 
+/*     */   public ToJson<PlanType> insertPlanType(PlanType planType)
+/*     */   {
+/*  32 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  34 */       int count = this.planTypeMapper.insertPlanType(planType);
+/*  35 */       if (count > 0) {
+/*  36 */         json.setMsg("ok");
+/*  37 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  40 */       json.setMsg(e.getMessage());
+/*  41 */       L.e(new Object[] { "PlanTypeService insertPlanType:" + e });
+/*  42 */       e.printStackTrace();
+/*     */     }
+/*  44 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<PlanType> updatePlanTypeById(PlanType planType)
+/*     */   {
+/*  55 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  57 */       int count = this.planTypeMapper.updatePlanTypeById(planType);
+/*  58 */       if (count > 0) {
+/*  59 */         json.setMsg("ok");
+/*  60 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  63 */       json.setMsg(e.getMessage());
+/*  64 */       L.e(new Object[] { "PlanTypeService updatePlanTypeById:" + e });
+/*  65 */       e.printStackTrace();
+/*     */     }
+/*  67 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<PlanType> deletePlanTypeById(int typeId)
+/*     */   {
+/*  78 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  80 */       int count = this.planTypeMapper.deletePlanTypeById(typeId);
+/*  81 */       if (count > 0) {
+/*  82 */         json.setMsg("ok");
+/*  83 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  86 */       json.setMsg(e.getMessage());
+/*  87 */       L.e(new Object[] { "PlanTypeService deletePlanTypeById:" + e });
+/*  88 */       e.printStackTrace();
+/*     */     }
+/*  90 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<PlanType> selectPlanTypeById(int typeId)
+/*     */   {
+/* 101 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 103 */       PlanType planType = this.planTypeMapper.selectPlanTypeById(typeId);
+/* 104 */       json.setObject(planType);
+/* 105 */       json.setMsg("ok");
+/* 106 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 108 */       json.setMsg(e.getMessage());
+/* 109 */       L.e(new Object[] { "PlanTypeService selectPlanTypeById:" + e });
+/* 110 */       e.printStackTrace();
+/*     */     }
+/* 112 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<PlanType> selAllPlanType()
+/*     */   {
+/* 123 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 125 */       List planTypeList = this.planTypeMapper.selAllPlanType();
+/* 126 */       json.setObj(planTypeList);
+/* 127 */       json.setMsg("ok");
+/* 128 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 130 */       json.setMsg(e.getMessage());
+/* 131 */       L.e(new Object[] { "PlanTypeService selAllPlanType:" + e });
+/* 132 */       e.printStackTrace();
+/*     */     }
+/* 134 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.workPlan.PlanTypeService
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,156 @@
+/*     */ package com.xoa.service.supervision.impl;
+/*     */ 
+/*     */ import com.xoa.dao.supervision.SupFeedBackMapper;
+/*     */ import com.xoa.dao.supervision.SupFeedBackReplyMapper;
+/*     */ import com.xoa.model.supervision.SupFeedBack;
+/*     */ import com.xoa.model.supervision.SupFeedBackReply;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.supervision.SupFeedBackServise;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class SupFeedServiseImpl
+/*     */   implements SupFeedBackServise
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   SupFeedBackMapper supFeedBackMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   SupFeedBackReplyMapper supFeedBackReplyMapper;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<Object> getSupDetail(HttpServletRequest request, SupFeedBack supFeedBack, SupFeedBackReply supFeedBackReply)
+/*     */   {
+/*  38 */     ToJson toJson = new ToJson(1, "error");
+/*  39 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  40 */     supFeedBack.setCreaterId(users.getUserId());
+/*  41 */     supFeedBack.setCreateTime(DateFormat.getCurrentTime());
+/*     */     try {
+/*  43 */       supFeedBack = this.supFeedBackMapper.getSupDetails(supFeedBack);
+/*  44 */       List list = this.supFeedBackReplyMapper.selectContent(supFeedBack.getSid());
+/*  45 */       if ((supFeedBack != null) && 
+/*  46 */         (!StringUtils.checkNull(supFeedBack.getCreateTime()).booleanValue())) {
+/*  47 */         supFeedBack.setCreateTime(supFeedBack.getCreateTime().substring(0, supFeedBack.getCreateTime().length() - 2));
+/*     */       }
+/*     */ 
+/*  50 */       if (list.size() > 0) {
+/*  51 */         toJson.setMsg("ok");
+/*  52 */         toJson.setObj(list);
+/*     */       }
+/*  54 */       if (supFeedBack != null) {
+/*  55 */         toJson.setObject(supFeedBack);
+/*  56 */         toJson.setMsg("ok");
+/*     */       } else {
+/*  58 */         toJson.setMsg("没有详情信息");
+/*     */       }
+/*  60 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  62 */       e.printStackTrace();
+/*  63 */       toJson.setMsg(e.getMessage());
+/*     */     }
+/*  65 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SupFeedBack> deleteSupFeedBack(HttpServletRequest request, Integer sid)
+/*     */   {
+/*  71 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  73 */       this.supFeedBackMapper.deleteSupFeedBack(sid);
+/*  74 */       if (sid != null) {
+/*  75 */         toJson.setMsg("ok");
+/*  76 */         toJson.setFlag(0);
+/*     */       } else {
+/*  78 */         toJson.setMsg("删除失败");
+/*  79 */         toJson.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  82 */       e.printStackTrace();
+/*  83 */       toJson.setMsg(e.getMessage());
+/*     */     }
+/*  85 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SupFeedBack> updateSupFeedBack(HttpServletRequest request, SupFeedBack supFeedBack)
+/*     */   {
+/*  90 */     ToJson toJson = new ToJson(1, "error");
+/*  91 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  92 */     supFeedBack.setCreaterId(users.getUserId());
+/*     */     try {
+/*  94 */       int a = this.supFeedBackMapper.updateSupFeedBack(supFeedBack);
+/*  95 */       if (a > 0) {
+/*  96 */         toJson.setMsg("ok");
+/*  97 */         toJson.setFlag(0);
+/*     */       } else {
+/*  99 */         toJson.setMsg("更新失败");
+/* 100 */         toJson.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 103 */       e.printStackTrace();
+/* 104 */       toJson.setMsg(e.getMessage());
+/*     */     }
+/* 106 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SupFeedBack> addSupFeedBack(HttpServletRequest request, SupFeedBack supFeedBack)
+/*     */   {
+/* 112 */     ToJson toJson = new ToJson(1, "error");
+/* 113 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 114 */     supFeedBack.setCreaterId(users.getUserId());
+/* 115 */     supFeedBack.setCreateTime(DateFormat.getCurrentTime());
+/*     */     try {
+/* 117 */       int a = this.supFeedBackMapper.addSupFeedBack(supFeedBack);
+/* 118 */       if (a > 0) {
+/* 119 */         toJson.setMsg("ok");
+/* 120 */         toJson.setFlag(0);
+/*     */       } else {
+/* 122 */         toJson.setMsg("发表失败");
+/* 123 */         toJson.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 126 */       e.printStackTrace();
+/* 127 */       toJson.setMsg(e.getMessage());
+/*     */     }
+/* 129 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SupFeedBack> getSupFeedBackList(HttpServletRequest request, SupFeedBack supFeedBack)
+/*     */   {
+/* 134 */     ToJson toJson = new ToJson(1, "error");
+/* 135 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 136 */     if ((supFeedBack.getCreateTime() == null) && (supFeedBack.getCreateTime() == "0000-00-00")) {
+/* 137 */       supFeedBack.setCreateTime(DateFormat.getCurrentTime());
+/*     */     }
+/* 139 */     if (supFeedBack.getCreaterId() == null)
+/* 140 */       supFeedBack.setCreaterId(users.getUserId());
+/*     */     try
+/*     */     {
+/* 143 */       List list = this.supFeedBackMapper.getSupFeedBackList(supFeedBack);
+/*     */ 
+/* 145 */       if (list.size() > 0) {
+/* 146 */         toJson.setObj(list);
+/* 147 */         toJson.setMsg("ok");
+/*     */       } else {
+/* 149 */         toJson.setMsg("空");
+/*     */       }
+/* 151 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 153 */       e.printStackTrace();
+/* 154 */       toJson.setFlag(1);
+/*     */     }
+/* 156 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.supervision.impl.SupFeedServiseImpl
+ * JD-Core Version:    0.6.0
+ */

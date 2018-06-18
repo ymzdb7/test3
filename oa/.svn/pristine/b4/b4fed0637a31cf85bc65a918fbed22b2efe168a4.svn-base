@@ -1,0 +1,617 @@
+ package com.myoa.model.workflow;
+ 
+ import java.sql.Time;
+ import java.util.ArrayList;
+ import java.util.Date;
+ import java.util.Iterator;
+ import java.util.List;
+ 
+ public class FlowTimerExample
+ {
+   protected String orderByClause;
+   protected boolean distinct;
+   protected List<Criteria> oredCriteria;
+ 
+   public FlowTimerExample()
+   {
+     this.oredCriteria = new ArrayList();
+   }
+ 
+   public void setOrderByClause(String orderByClause) {
+     this.orderByClause = orderByClause;
+   }
+ 
+   public String getOrderByClause() {
+     return this.orderByClause;
+   }
+ 
+   public void setDistinct(boolean distinct) {
+     this.distinct = distinct;
+   }
+ 
+   public boolean isDistinct() {
+     return this.distinct;
+   }
+ 
+   public List<Criteria> getOredCriteria() {
+     return this.oredCriteria;
+   }
+ 
+   public void or(Criteria criteria) {
+     this.oredCriteria.add(criteria);
+   }
+ 
+   public Criteria or() {
+     Criteria criteria = createCriteriaInternal();
+     this.oredCriteria.add(criteria);
+     return criteria;
+   }
+ 
+   public Criteria createCriteria() {
+     Criteria criteria = createCriteriaInternal();
+     if (this.oredCriteria.size() == 0) {
+       this.oredCriteria.add(criteria);
+     }
+     return criteria;
+   }
+ 
+   protected Criteria createCriteriaInternal() {
+     Criteria criteria = new Criteria();
+     return criteria;
+   }
+ 
+   public void clear() {
+     this.oredCriteria.clear();
+     this.orderByClause = null;
+     this.distinct = false;
+   }
+ 
+   public static class Criterion
+   {
+     private String condition;
+     private Object value;
+     private Object secondValue;
+     private boolean noValue;
+     private boolean singleValue;
+     private boolean betweenValue;
+     private boolean listValue;
+     private String typeHandler;
+ 
+     public String getCondition()
+     {
+       return this.condition;
+     }
+ 
+     public Object getValue() {
+       return this.value;
+     }
+ 
+     public Object getSecondValue() {
+       return this.secondValue;
+     }
+ 
+     public boolean isNoValue() {
+       return this.noValue;
+     }
+ 
+     public boolean isSingleValue() {
+       return this.singleValue;
+     }
+ 
+     public boolean isBetweenValue() {
+       return this.betweenValue;
+     }
+ 
+     public boolean isListValue() {
+       return this.listValue;
+     }
+ 
+     public String getTypeHandler() {
+       return this.typeHandler;
+     }
+ 
+     protected Criterion(String condition)
+     {
+       this.condition = condition;
+       this.typeHandler = null;
+       this.noValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value, String typeHandler)
+     {
+       this.condition = condition;
+       this.value = value;
+       this.typeHandler = typeHandler;
+       if ((value instanceof List))
+         this.listValue = true;
+       else
+         this.singleValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value)
+     {
+       this(condition, value, null);
+     }
+ 
+     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+     {
+       this.condition = condition;
+       this.value = value;
+       this.secondValue = secondValue;
+       this.typeHandler = typeHandler;
+       this.betweenValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value, Object secondValue) {
+       this(condition, value, secondValue, null);
+     }
+   }
+ 
+   public static class Criteria extends FlowTimerExample.GeneratedCriteria
+   {
+   }
+ 
+   protected static abstract class GeneratedCriteria
+   {
+     protected List<FlowTimerExample.Criterion> criteria;
+ 
+     protected GeneratedCriteria()
+     {
+       this.criteria = new ArrayList();
+     }
+ 
+     public boolean isValid() {
+       return this.criteria.size() > 0;
+     }
+ 
+     public List<FlowTimerExample.Criterion> getAllCriteria() {
+       return this.criteria;
+     }
+ 
+     public List<FlowTimerExample.Criterion> getCriteria() {
+       return this.criteria;
+     }
+ 
+     protected void addCriterion(String condition) {
+       if (condition == null) {
+         throw new RuntimeException("Value for condition cannot be null");
+       }
+       this.criteria.add(new FlowTimerExample.Criterion(condition));
+     }
+ 
+     protected void addCriterion(String condition, Object value, String property)
+     {
+       if (value == null) {
+         throw new RuntimeException("Value for " + property + " cannot be null");
+       }
+ 
+       this.criteria.add(new FlowTimerExample.Criterion(condition, value));
+     }
+ 
+     protected void addCriterion(String condition, Object value1, Object value2, String property)
+     {
+       if ((value1 == null) || (value2 == null)) {
+         throw new RuntimeException("Between values for " + property + " cannot be null");
+       }
+ 
+       this.criteria.add(new FlowTimerExample.Criterion(condition, value1, value2));
+     }
+ 
+     protected void addCriterionForJDBCTime(String condition, Date value, String property)
+     {
+       if (value == null) {
+         throw new RuntimeException("Value for " + property + " cannot be null");
+       }
+ 
+       addCriterion(condition, new Time(value.getTime()), property);
+     }
+ 
+     protected void addCriterionForJDBCTime(String condition, List<Date> values, String property)
+     {
+       if ((values == null) || (values.size() == 0)) {
+         throw new RuntimeException("Value list for " + property + " cannot be null or empty");
+       }
+ 
+       List timeList = new ArrayList();
+       Iterator iter = values.iterator();
+       while (iter.hasNext()) {
+         timeList.add(new Time(((Date)iter.next()).getTime()));
+       }
+       addCriterion(condition, timeList, property);
+     }
+ 
+     protected void addCriterionForJDBCTime(String condition, Date value1, Date value2, String property)
+     {
+       if ((value1 == null) || (value2 == null)) {
+         throw new RuntimeException("Between values for " + property + " cannot be null");
+       }
+ 
+       addCriterion(condition, new Time(value1.getTime()), new Time(value2.getTime()), property);
+     }
+ 
+     public FlowTimerExample.Criteria andTidIsNull()
+     {
+       addCriterion("TID is null");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTidIsNotNull() {
+       addCriterion("TID is not null");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTidEqualTo(Integer value) {
+       addCriterion("TID =", value, "tid");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTidNotEqualTo(Integer value) {
+       addCriterion("TID <>", value, "tid");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTidGreaterThan(Integer value) {
+       addCriterion("TID >", value, "tid");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTidGreaterThanOrEqualTo(Integer value) {
+       addCriterion("TID >=", value, "tid");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTidLessThan(Integer value) {
+       addCriterion("TID <", value, "tid");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTidLessThanOrEqualTo(Integer value) {
+       addCriterion("TID <=", value, "tid");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTidIn(List<Integer> values) {
+       addCriterion("TID in", values, "tid");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTidNotIn(List<Integer> values) {
+       addCriterion("TID not in", values, "tid");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTidBetween(Integer value1, Integer value2) {
+       addCriterion("TID between", value1, value2, "tid");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTidNotBetween(Integer value1, Integer value2) {
+       addCriterion("TID not between", value1, value2, "tid");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andFlowIdIsNull() {
+       addCriterion("FLOW_ID is null");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andFlowIdIsNotNull() {
+       addCriterion("FLOW_ID is not null");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andFlowIdEqualTo(Integer value) {
+       addCriterion("FLOW_ID =", value, "flowId");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andFlowIdNotEqualTo(Integer value) {
+       addCriterion("FLOW_ID <>", value, "flowId");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andFlowIdGreaterThan(Integer value) {
+       addCriterion("FLOW_ID >", value, "flowId");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andFlowIdGreaterThanOrEqualTo(Integer value) {
+       addCriterion("FLOW_ID >=", value, "flowId");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andFlowIdLessThan(Integer value) {
+       addCriterion("FLOW_ID <", value, "flowId");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andFlowIdLessThanOrEqualTo(Integer value) {
+       addCriterion("FLOW_ID <=", value, "flowId");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andFlowIdIn(List<Integer> values) {
+       addCriterion("FLOW_ID in", values, "flowId");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andFlowIdNotIn(List<Integer> values) {
+       addCriterion("FLOW_ID not in", values, "flowId");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andFlowIdBetween(Integer value1, Integer value2) {
+       addCriterion("FLOW_ID between", value1, value2, "flowId");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andFlowIdNotBetween(Integer value1, Integer value2) {
+       addCriterion("FLOW_ID not between", value1, value2, "flowId");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTypeIsNull() {
+       addCriterion("TYPE is null");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTypeIsNotNull() {
+       addCriterion("TYPE is not null");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTypeEqualTo(String value) {
+       addCriterion("TYPE =", value, "type");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTypeNotEqualTo(String value) {
+       addCriterion("TYPE <>", value, "type");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTypeGreaterThan(String value) {
+       addCriterion("TYPE >", value, "type");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTypeGreaterThanOrEqualTo(String value) {
+       addCriterion("TYPE >=", value, "type");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTypeLessThan(String value) {
+       addCriterion("TYPE <", value, "type");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTypeLessThanOrEqualTo(String value) {
+       addCriterion("TYPE <=", value, "type");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTypeLike(String value) {
+       addCriterion("TYPE like", value, "type");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTypeNotLike(String value) {
+       addCriterion("TYPE not like", value, "type");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTypeIn(List<String> values) {
+       addCriterion("TYPE in", values, "type");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTypeNotIn(List<String> values) {
+       addCriterion("TYPE not in", values, "type");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTypeBetween(String value1, String value2) {
+       addCriterion("TYPE between", value1, value2, "type");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andTypeNotBetween(String value1, String value2) {
+       addCriterion("TYPE not between", value1, value2, "type");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindDateIsNull() {
+       addCriterion("REMIND_DATE is null");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindDateIsNotNull() {
+       addCriterion("REMIND_DATE is not null");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindDateEqualTo(String value) {
+       addCriterion("REMIND_DATE =", value, "remindDate");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindDateNotEqualTo(String value) {
+       addCriterion("REMIND_DATE <>", value, "remindDate");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindDateGreaterThan(String value) {
+       addCriterion("REMIND_DATE >", value, "remindDate");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindDateGreaterThanOrEqualTo(String value) {
+       addCriterion("REMIND_DATE >=", value, "remindDate");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindDateLessThan(String value) {
+       addCriterion("REMIND_DATE <", value, "remindDate");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindDateLessThanOrEqualTo(String value) {
+       addCriterion("REMIND_DATE <=", value, "remindDate");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindDateLike(String value) {
+       addCriterion("REMIND_DATE like", value, "remindDate");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindDateNotLike(String value) {
+       addCriterion("REMIND_DATE not like", value, "remindDate");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindDateIn(List<String> values) {
+       addCriterion("REMIND_DATE in", values, "remindDate");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindDateNotIn(List<String> values) {
+       addCriterion("REMIND_DATE not in", values, "remindDate");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindDateBetween(String value1, String value2) {
+       addCriterion("REMIND_DATE between", value1, value2, "remindDate");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindDateNotBetween(String value1, String value2) {
+       addCriterion("REMIND_DATE not between", value1, value2, "remindDate");
+ 
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindTimeIsNull() {
+       addCriterion("REMIND_TIME is null");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindTimeIsNotNull() {
+       addCriterion("REMIND_TIME is not null");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindTimeEqualTo(Date value) {
+       addCriterionForJDBCTime("REMIND_TIME =", value, "remindTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindTimeNotEqualTo(Date value) {
+       addCriterionForJDBCTime("REMIND_TIME <>", value, "remindTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindTimeGreaterThan(Date value) {
+       addCriterionForJDBCTime("REMIND_TIME >", value, "remindTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindTimeGreaterThanOrEqualTo(Date value) {
+       addCriterionForJDBCTime("REMIND_TIME >=", value, "remindTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindTimeLessThan(Date value) {
+       addCriterionForJDBCTime("REMIND_TIME <", value, "remindTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindTimeLessThanOrEqualTo(Date value) {
+       addCriterionForJDBCTime("REMIND_TIME <=", value, "remindTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindTimeIn(List<Date> values) {
+       addCriterionForJDBCTime("REMIND_TIME in", values, "remindTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindTimeNotIn(List<Date> values) {
+       addCriterionForJDBCTime("REMIND_TIME not in", values, "remindTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindTimeBetween(Date value1, Date value2) {
+       addCriterionForJDBCTime("REMIND_TIME between", value1, value2, "remindTime");
+ 
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andRemindTimeNotBetween(Date value1, Date value2) {
+       addCriterionForJDBCTime("REMIND_TIME not between", value1, value2, "remindTime");
+ 
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andLastTimeIsNull() {
+       addCriterion("LAST_TIME is null");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andLastTimeIsNotNull() {
+       addCriterion("LAST_TIME is not null");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andLastTimeEqualTo(Date value) {
+       addCriterion("LAST_TIME =", value, "lastTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andLastTimeNotEqualTo(Date value) {
+       addCriterion("LAST_TIME <>", value, "lastTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andLastTimeGreaterThan(Date value) {
+       addCriterion("LAST_TIME >", value, "lastTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andLastTimeGreaterThanOrEqualTo(Date value) {
+       addCriterion("LAST_TIME >=", value, "lastTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andLastTimeLessThan(Date value) {
+       addCriterion("LAST_TIME <", value, "lastTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andLastTimeLessThanOrEqualTo(Date value) {
+       addCriterion("LAST_TIME <=", value, "lastTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andLastTimeIn(List<Date> values) {
+       addCriterion("LAST_TIME in", values, "lastTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andLastTimeNotIn(List<Date> values) {
+       addCriterion("LAST_TIME not in", values, "lastTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andLastTimeBetween(Date value1, Date value2) {
+       addCriterion("LAST_TIME between", value1, value2, "lastTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+ 
+     public FlowTimerExample.Criteria andLastTimeNotBetween(Date value1, Date value2) {
+       addCriterion("LAST_TIME not between", value1, value2, "lastTime");
+       return (FlowTimerExample.Criteria)this;
+     }
+   }
+ }
+

@@ -1,0 +1,36 @@
+/*    */ package com.xoa.util.encrypt;
+/*    */ 
+/*    */ import java.util.Random;
+/*    */ 
+/*    */ public class EncryptSalt
+/*    */ {
+/*    */   static final String B64T = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+/*    */ 
+/*    */   static void b64from24bit(byte b2, byte b1, byte b0, int outLen, StringBuilder buffer)
+/*    */   {
+/* 17 */     int w = b2 << 16 & 0xFFFFFF | b1 << 8 & 0xFFFF | b0 & 0xFF;
+/*    */ 
+/* 19 */     for (int var6 = outLen; var6-- > 0; w >>= 6)
+/* 20 */       buffer.append("./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".charAt(w & 0x3F));
+/*    */   }
+/*    */ 
+/*    */   public static String getRandomSalt(int num)
+/*    */   {
+/* 26 */     StringBuilder saltString = new StringBuilder();
+/*    */ 
+/* 28 */     for (int i = 1; i <= num; i++) {
+/* 29 */       saltString.append("./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".charAt(new Random().nextInt("./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".length())));
+/*    */     }
+/*    */ 
+/* 32 */     return saltString.toString();
+/*    */   }
+/*    */ 
+/*    */   public static void b64from24bit(int b2, int b1, byte b0, int outLen, StringBuilder passwd)
+/*    */   {
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.encrypt.EncryptSalt
+ * JD-Core Version:    0.6.0
+ */

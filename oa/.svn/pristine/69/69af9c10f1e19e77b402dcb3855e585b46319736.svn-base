@@ -1,0 +1,71 @@
+/*    */ package com.xoa.util.cms.directive;
+/*    */ 
+/*    */ import com.xoa.dao.site.SiteMapper;
+/*    */ import com.xoa.model.site.Site;
+/*    */ import com.xoa.model.site.SiteExample;
+/*    */ import com.xoa.model.site.SiteExample.Criteria;
+/*    */ import com.xoa.util.common.StringUtils;
+/*    */ import freemarker.core.Environment;
+/*    */ import freemarker.template.TemplateDirectiveBody;
+/*    */ import freemarker.template.TemplateDirectiveModel;
+/*    */ import freemarker.template.TemplateException;
+/*    */ import freemarker.template.TemplateModel;
+/*    */ import java.io.IOException;
+/*    */ import java.io.Writer;
+/*    */ import java.util.HashMap;
+/*    */ import java.util.List;
+/*    */ import java.util.Map;
+/*    */ 
+/*    */ public class CMSSiteDirective
+/*    */   implements TemplateDirectiveModel
+/*    */ {
+/*    */   public void execute(Environment environment, Map map, TemplateModel[] templateModels, TemplateDirectiveBody templateDirectiveBody)
+/*    */     throws TemplateException, IOException
+/*    */   {
+/* 29 */     String siteIdFromParam = StringUtils.getString(map.get("id"));
+/*    */ 
+/* 31 */     int siteId = StringUtils.getInteger(environment.getCustomAttribute("SITE_ID"), 0);
+/*    */ 
+/* 33 */     int curChannelId = StringUtils.getInteger(environment.getCustomAttribute("CHANNEL_ID"), 0);
+/*    */ 
+/* 36 */     SiteMapper siteMapper = (SiteMapper)environment.getCustomAttribute("siteMapper");
+/*    */ 
+/* 39 */     Object loopObj = environment.getCustomAttribute("loopObj");
+/*    */ 
+/* 41 */     Writer w = environment.getOut();
+/*    */ 
+/* 43 */     Site site = null;
+/* 44 */     if (!"".equals(siteIdFromParam)) {
+/* 45 */       SiteExample example = new SiteExample();
+/* 46 */       SiteExample.Criteria criteria = example.createCriteria();
+/* 47 */       criteria.andPortalMarkEqualTo(siteIdFromParam);
+/* 48 */       List sites = siteMapper.selectByExample(example);
+/* 49 */       if ((sites != null) && (sites.size() > 0))
+/* 50 */         site = (Site)sites.get(0);
+/*    */     }
+/*    */     else {
+/* 53 */       site = siteMapper.selectByPrimaryKey(Integer.valueOf(siteId));
+/*    */     }
+/* 55 */     if (site == null) {
+/* 56 */       return;
+/*    */     }
+/* 58 */     Map param = new HashMap();
+/* 59 */     param.put("siteId", site.getPortalId());
+/* 60 */     param.put("siteMark", site.getPortalMark());
+/* 61 */     param.put("siteName", site.getPortalName());
+/* 62 */     param.put("siteNo", site.getSortNo());
+/* 63 */     param.put("sitePath", site.getPath());
+/*    */ 
+/* 68 */     environment.setCustomAttribute("loopObj", param);
+/* 69 */     if (templateDirectiveBody != null) {
+/* 70 */       templateDirectiveBody.render(w);
+/*    */     }
+/*    */ 
+/* 74 */     environment.setCustomAttribute("loopObj", loopObj);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.cms.directive.CMSSiteDirective
+ * JD-Core Version:    0.6.0
+ */

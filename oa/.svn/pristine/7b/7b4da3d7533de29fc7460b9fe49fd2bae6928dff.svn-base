@@ -1,0 +1,388 @@
+/*     */ package com.xoa.service.vehicle;
+/*     */ 
+/*     */ import com.xoa.dao.common.SysCodeMapper;
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.vehicle.VehicleMaintenanceMapper;
+/*     */ import com.xoa.dao.vehicle.VehicleMapper;
+/*     */ import com.xoa.model.common.SysCode;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.vehicle.VehicleMaintenanceWithBLOBs;
+/*     */ import com.xoa.model.vehicle.VehicleUsageWithBLOBs;
+/*     */ import com.xoa.model.vehicle.VehicleWithBLOBs;
+/*     */ import com.xoa.service.edu.eduUser.IEduUserService;
+/*     */ import com.xoa.util.AjaxJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class VeHicleService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private VehicleMapper vehicleMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private SysCodeMapper sysCodeMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private VehicleMaintenanceMapper vehicleMaintenanceMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   IEduUserService eduUserService;
+/*     */ 
+/*     */   public AjaxJson addVeHicle(HttpServletRequest request, VehicleWithBLOBs vehicleWithBLOBs)
+/*     */   {
+/*  59 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  60 */     String userId = users.getUserId();
+/*  61 */     vehicleWithBLOBs.setvManage(userId);
+/*  62 */     AjaxJson ajaxJson = new AjaxJson();
+/*  63 */     ajaxJson.setSuccess(true);
+/*  64 */     ajaxJson.setFlag(false);
+/*     */     try {
+/*  66 */       int i = this.vehicleMapper.insertSelective(vehicleWithBLOBs);
+/*  67 */       if (i > 0) {
+/*  68 */         ajaxJson.setMsg("ok");
+/*  69 */         ajaxJson.setFlag(true);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  72 */       ajaxJson.setFlag(false);
+/*  73 */       ajaxJson.setMsg(e.getMessage());
+/*  74 */       e.printStackTrace();
+/*     */     }
+/*  76 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson editVeHicle(VehicleWithBLOBs vehicleWithBLOBs) {
+/*  80 */     AjaxJson ajaxJson = new AjaxJson();
+/*  81 */     ajaxJson.setSuccess(true);
+/*  82 */     ajaxJson.setFlag(false);
+/*     */     try {
+/*  84 */       this.vehicleMapper.updateByPrimaryKeySelective(vehicleWithBLOBs);
+/*  85 */       ajaxJson.setMsg("ok");
+/*  86 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/*  88 */       ajaxJson.setFlag(false);
+/*  89 */       ajaxJson.setMsg(e.getMessage());
+/*  90 */       e.printStackTrace();
+/*     */     }
+/*  92 */     return ajaxJson;
+/*     */   }
+/*     */   public AjaxJson deleteVeHicleByVid(Integer vId) {
+/*  95 */     AjaxJson ajaxJson = new AjaxJson();
+/*  96 */     ajaxJson.setSuccess(true);
+/*  97 */     ajaxJson.setFlag(false);
+/*     */     try {
+/*  99 */       int i = this.vehicleMapper.deleteByPrimaryKey(vId);
+/* 100 */       if (i > 0) {
+/* 101 */         ajaxJson.setMsg("ok");
+/* 102 */         ajaxJson.setFlag(true);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 105 */       ajaxJson.setFlag(false);
+/* 106 */       ajaxJson.setMsg(e.getMessage());
+/* 107 */       e.printStackTrace();
+/*     */     }
+/* 109 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson deleteVeHiclesByVids(String[] vIds)
+/*     */   {
+/* 119 */     AjaxJson ajaxJson = new AjaxJson();
+/* 120 */     ajaxJson.setSuccess(true);
+/* 121 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 123 */       this.vehicleMapper.deleteVeHiclesByVids(vIds);
+/* 124 */       ajaxJson.setFlag(true);
+/* 125 */       ajaxJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 127 */       ajaxJson.setFlag(false);
+/* 128 */       ajaxJson.setMsg(e.getMessage());
+/* 129 */       e.printStackTrace();
+/*     */     }
+/* 131 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getDetailVeHicle(Integer vId)
+/*     */   {
+/* 140 */     AjaxJson ajaxJson = new AjaxJson();
+/* 141 */     ajaxJson.setSuccess(true);
+/* 142 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 144 */       VehicleWithBLOBs vehicleWithBLOBs = this.vehicleMapper.selectByPrimaryKey(vId);
+/* 145 */       if (vehicleWithBLOBs.getvDepart() != null) {
+/* 146 */         String depart = vehicleWithBLOBs.getvDepart();
+/* 147 */         if (!StringUtils.checkNull(depart).booleanValue()) {
+/* 148 */           String depart1 = depart.substring(0, depart.length() - 1);
+/* 149 */           vehicleWithBLOBs.setvDepartName(this.departmentMapper.getDeptNameById(Integer.valueOf(depart1).intValue()));
+/*     */         }
+/*     */       }
+/* 152 */       if (vehicleWithBLOBs.getvOnwer() != null) {
+/* 153 */         String owner = vehicleWithBLOBs.getvOnwer();
+/* 154 */         vehicleWithBLOBs.setoOnwerName(this.eduUserService.getUserNameByUserIds(owner));
+/*     */       }
+/* 156 */       if (vehicleWithBLOBs.getvCaruser() != null) {
+/* 157 */         String carUser = vehicleWithBLOBs.getvCaruser();
+/* 158 */         vehicleWithBLOBs.setvCaruserName(this.eduUserService.getUserNameByUserIds(carUser));
+/*     */       }
+/* 160 */       if (vehicleWithBLOBs.getvDriver() != null) {
+/* 161 */         String driver = vehicleWithBLOBs.getvDriver();
+/* 162 */         vehicleWithBLOBs.setvDriverName(this.eduUserService.getUserNameByUserIds(driver));
+/*     */       }
+/* 164 */       if (!StringUtils.checkNull(vehicleWithBLOBs.getDeptRange()).booleanValue()) {
+/* 165 */         String depart = vehicleWithBLOBs.getDeptRange();
+/* 166 */         String[] de = depart.split(",");
+/* 167 */         StringBuffer sb = new StringBuffer();
+/* 168 */         for (String s : de) {
+/* 169 */           String deptNameByDeptId = this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(s));
+/* 170 */           sb.append(deptNameByDeptId + ",");
+/*     */         }
+/* 172 */         vehicleWithBLOBs.setDeptRangeName(sb.toString());
+/*     */       }
+/* 174 */       if (!StringUtils.checkNull(vehicleWithBLOBs.getUserRange()).booleanValue()) {
+/* 175 */         String driver = vehicleWithBLOBs.getUserRange();
+/* 176 */         vehicleWithBLOBs.setUserRangeName(this.eduUserService.getUserNameByUserIds(driver));
+/*     */       }
+/*     */ 
+/* 179 */       if ((vehicleWithBLOBs.getvType() != null) && (vehicleWithBLOBs.getvType() != "")) {
+/* 180 */         SysCode sysCode = this.sysCodeMapper.getSingleCode("VEHICLETYPE", vehicleWithBLOBs.getvType());
+/* 181 */         if (sysCode != null)
+/* 182 */           vehicleWithBLOBs.setvTypeName(sysCode.getCodeName());
+/*     */       }
+/*     */       else {
+/* 185 */         vehicleWithBLOBs.setvTypeName("");
+/*     */       }
+/*     */ 
+/* 189 */       if ((vehicleWithBLOBs.getvStatus() != null) && (vehicleWithBLOBs.getvStatus() != "")) {
+/* 190 */         SysCode sysCode1 = this.sysCodeMapper.getSingleCode("VEHICLESTATE", vehicleWithBLOBs.getvStatus());
+/* 191 */         if (sysCode1 != null)
+/* 192 */           vehicleWithBLOBs.setvStatusName(sysCode1.getCodeName());
+/*     */       }
+/*     */       else {
+/* 195 */         vehicleWithBLOBs.setvStatusName("");
+/*     */       }
+/*     */ 
+/* 198 */       ajaxJson.setObj(vehicleWithBLOBs);
+/* 199 */       ajaxJson.setMsg("ok");
+/* 200 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 202 */       ajaxJson.setFlag(false);
+/* 203 */       ajaxJson.setMsg(e.getMessage());
+/* 204 */       e.printStackTrace();
+/*     */     }
+/* 206 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getAllVeHicle(HttpServletRequest request)
+/*     */   {
+/* 215 */     AjaxJson ajaxJson = new AjaxJson();
+/* 216 */     ajaxJson.setSuccess(true);
+/* 217 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 219 */       List <VehicleWithBLOBs> vehicleWithBLOBs = this.vehicleMapper.selectAllVeHicles();
+/* 220 */       for (VehicleWithBLOBs vehicleWithBLOBs1 : vehicleWithBLOBs) {
+/* 221 */         if (!StringUtils.checkNull(vehicleWithBLOBs1.getvDepart()).booleanValue()) {
+/* 222 */           String depart = vehicleWithBLOBs1.getvDepart();
+/* 223 */           if (!StringUtils.checkNull(depart).booleanValue()) {
+/* 224 */             String depart1 = depart.substring(0, depart.length() - 1);
+/* 225 */             vehicleWithBLOBs1.setvDepartName(this.departmentMapper.getDeptNameById(Integer.valueOf(depart1).intValue()));
+/*     */           }
+/*     */         }
+/* 228 */         if (!StringUtils.checkNull(vehicleWithBLOBs1.getvOnwer()).booleanValue()) {
+/* 229 */           String owner = vehicleWithBLOBs1.getvOnwer();
+/* 230 */           vehicleWithBLOBs1.setoOnwerName(this.eduUserService.getUserNameByUserIds(owner));
+/*     */         }
+/* 232 */         if (!StringUtils.checkNull(vehicleWithBLOBs1.getvCaruser()).booleanValue()) {
+/* 233 */           String carUser = vehicleWithBLOBs1.getvCaruser();
+/* 234 */           vehicleWithBLOBs1.setvCaruserName(this.eduUserService.getUserNameByUserIds(carUser));
+/*     */         }
+/* 236 */         if (!StringUtils.checkNull(vehicleWithBLOBs1.getvDriver()).booleanValue()) {
+/* 237 */           String driver = vehicleWithBLOBs1.getvDriver();
+/* 238 */           vehicleWithBLOBs1.setvDriverName(this.eduUserService.getUserNameByUserIds(driver));
+/*     */         }
+/* 240 */         if (!StringUtils.checkNull(vehicleWithBLOBs1.getDeptRange()).booleanValue()) {
+/* 241 */           StringBuffer sb = new StringBuffer();
+/* 242 */           String depart = vehicleWithBLOBs1.getDeptRange();
+/* 243 */           if (StringUtils.checkNull(depart).booleanValue()) {
+/* 244 */             String[] split = depart.split(",");
+/* 245 */             for (String s : split) {
+/* 246 */               String deptNameByDeptId = this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(s));
+/* 247 */               sb.append(deptNameByDeptId + ",");
+/*     */             }
+/*     */           }
+/* 250 */           vehicleWithBLOBs1.setDeptRangeName(sb.toString());
+/*     */         }
+/* 252 */         if (!StringUtils.checkNull(vehicleWithBLOBs1.getUserRange()).booleanValue()) {
+/* 253 */           String driver = vehicleWithBLOBs1.getUserRange();
+/* 254 */           vehicleWithBLOBs1.setUserRangeName(this.eduUserService.getUserNameByUserIds(driver));
+/*     */         }
+/*     */ 
+/* 257 */         if ((vehicleWithBLOBs1.getvType() != null) && (vehicleWithBLOBs1.getvType() != "")) {
+/* 258 */           SysCode sysCode = this.sysCodeMapper.getSingleCode("VEHICLETYPE", vehicleWithBLOBs1.getvType());
+/* 259 */           if (sysCode != null)
+/* 260 */             vehicleWithBLOBs1.setvTypeName(sysCode.getCodeName());
+/*     */         }
+/*     */         else {
+/* 263 */           vehicleWithBLOBs1.setvTypeName("");
+/*     */         }
+/*     */ 
+/* 267 */         if ((vehicleWithBLOBs1.getvStatus() != null) && (vehicleWithBLOBs1.getvStatus() != "")) {
+/* 268 */           SysCode sysCode1 = this.sysCodeMapper.getSingleCode("VEHICLESTATE", vehicleWithBLOBs1.getvStatus());
+/* 269 */           if (sysCode1 != null)
+/* 270 */             vehicleWithBLOBs1.setvStatusName(sysCode1.getCodeName());
+/*     */         }
+/*     */         else {
+/* 273 */           vehicleWithBLOBs1.setvStatusName("");
+/*     */         }
+/*     */ 
+/* 277 */         if ((vehicleWithBLOBs1.getvNature() != null) && (vehicleWithBLOBs1.getvNature() != "")) {
+/* 278 */           SysCode sysCode2 = this.sysCodeMapper.getSingleCode("PROPERTY", vehicleWithBLOBs1.getvNature());
+/* 279 */           if (sysCode2 != null)
+/* 280 */             vehicleWithBLOBs1.setvNatureName(sysCode2.getCodeName());
+/*     */         }
+/*     */         else {
+/* 283 */           vehicleWithBLOBs1.setvNatureName("");
+/*     */         }
+/*     */       }
+/*     */ 
+/* 287 */       ajaxJson.setObj(vehicleWithBLOBs);
+/* 288 */       ajaxJson.setMsg("ok");
+/* 289 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 291 */       ajaxJson.setFlag(false);
+/* 292 */       ajaxJson.setMsg(e.getMessage());
+/* 293 */       e.printStackTrace();
+/*     */     }
+/* 295 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getVeHicleFixRecord(Integer vId)
+/*     */   {
+/* 305 */     AjaxJson ajaxJson = new AjaxJson();
+/* 306 */     ajaxJson.setSuccess(true);
+/* 307 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 309 */       List <VehicleMaintenanceWithBLOBs> recordByVid = this.vehicleMaintenanceMapper.getRecordByVid(vId);
+/* 310 */       for (VehicleMaintenanceWithBLOBs vehicleMaintenanceWithBLOBs : recordByVid)
+/*     */       {
+/* 312 */         VehicleWithBLOBs vehicleWithBLOBs2 = this.vehicleMapper.selectByPrimaryKey(Integer.valueOf(vehicleMaintenanceWithBLOBs.getvId()));
+/* 313 */         if (vehicleWithBLOBs2 != null) {
+/* 314 */           vehicleMaintenanceWithBLOBs.setvIdNumber(vehicleWithBLOBs2.getvNum());
+/*     */         }
+/*     */ 
+/* 317 */         SysCode sysCode = this.sysCodeMapper.getSingleCode("FIX_TYPE", vehicleMaintenanceWithBLOBs.getVmType());
+/* 318 */         if (sysCode != null) {
+/* 319 */           vehicleMaintenanceWithBLOBs.setVmTypeName(sysCode.getCodeName());
+/*     */         }
+/*     */       }
+/*     */ 
+/* 323 */       ajaxJson.setObj(recordByVid);
+/* 324 */       ajaxJson.setMsg("ok");
+/* 325 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 327 */       ajaxJson.setFlag(false);
+/* 328 */       ajaxJson.setMsg(e.getMessage());
+/* 329 */       e.printStackTrace();
+/*     */     }
+/* 331 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getDropDownBox(HttpServletRequest request)
+/*     */   {
+/* 340 */     AjaxJson ajaxJson = new AjaxJson();
+/* 341 */     ajaxJson.setSuccess(true);
+/* 342 */     ajaxJson.setFlag(false);
+/*     */     try
+/*     */     {
+/* 345 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 346 */       String userId = users.getUserId();
+/* 347 */       Integer deptId = users.getDeptId();
+/* 348 */       VehicleWithBLOBs vehicleWithBLOBs = new VehicleWithBLOBs();
+/* 349 */       vehicleWithBLOBs.setUserRange(userId);
+/* 350 */       vehicleWithBLOBs.setDeptRange(String.valueOf(deptId));
+/* 351 */       List allList = new ArrayList();
+/* 352 */       List <VehicleWithBLOBs> vehicleWithBLOBs1 = this.vehicleMapper.selectRangeVehicle(vehicleWithBLOBs);
+/* 353 */       for (VehicleWithBLOBs vehicleWithBLOBs2 : vehicleWithBLOBs1) {
+/* 354 */         allList.add(vehicleWithBLOBs2);
+/*     */       }
+/* 356 */       List <VehicleWithBLOBs>dropDownBox = this.vehicleMapper.getDropDownBox();
+/* 357 */       for (VehicleWithBLOBs vehicleWithBLOBs2 : dropDownBox) {
+/* 358 */         if (((vehicleWithBLOBs2.getDeptRange() == null) || (vehicleWithBLOBs2.getDeptRange() == "")) && ((vehicleWithBLOBs2.getUserRange() == null) || (vehicleWithBLOBs2.getUserRange() == ""))) {
+/* 359 */           allList.add(vehicleWithBLOBs2);
+/*     */         }
+/*     */       }
+/* 362 */       ajaxJson.setObj(allList);
+/* 363 */       ajaxJson.setMsg("ok");
+/* 364 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 366 */       ajaxJson.setFlag(false);
+/* 367 */       ajaxJson.setMsg(e.getMessage());
+/* 368 */       e.printStackTrace();
+/*     */     }
+/* 370 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getVeHicleByNum(String vNum)
+/*     */   {
+/* 379 */     AjaxJson ajaxJson = new AjaxJson();
+/* 380 */     ajaxJson.setSuccess(true);
+/* 381 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 383 */       List veHicleByvNum = this.vehicleMapper.getVeHicleByvNum(vNum);
+/* 384 */       if (veHicleByvNum.size() > 0) {
+/* 385 */         ajaxJson.setFlag(true);
+/* 386 */         ajaxJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 389 */       ajaxJson.setFlag(false);
+/* 390 */       ajaxJson.setMsg("err");
+/* 391 */       e.printStackTrace();
+/*     */     }
+/* 393 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getVeHicleStatus(VehicleUsageWithBLOBs vehicleUsageWithBLOBs)
+/*     */   {
+/* 403 */     AjaxJson ajaxJson = new AjaxJson();
+/* 404 */     ajaxJson.setSuccess(true);
+/* 405 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 407 */       String s = vehicleUsageWithBLOBs.getvId();
+/* 408 */       if ((s != null) && (s != "")) {
+/* 409 */         List <VehicleMaintenanceWithBLOBs> veHicleStatus = this.vehicleMaintenanceMapper.getVeHicleStatus(Integer.valueOf(s));
+/* 410 */         if (veHicleStatus != null)
+/* 411 */           for (VehicleMaintenanceWithBLOBs vehicleMaintenanceWithBLOBs : veHicleStatus) {
+/* 412 */             Date date = vehicleMaintenanceWithBLOBs.getVmRequestDate();
+/* 413 */             Date vuStart = vehicleUsageWithBLOBs.getVuStart();
+/* 414 */             Date vuEnd = vehicleUsageWithBLOBs.getVuEnd();
+/* 415 */             long time = date.getTime();
+/* 416 */             long startTime = vuStart.getTime();
+/* 417 */             long endTime = vuEnd.getTime();
+/* 418 */             if ((startTime <= time) && (endTime >= time)) {
+/* 419 */               ajaxJson.setFlag(true);
+/* 420 */               ajaxJson.setMsg("申请该车时段在维护中");
+/*     */             }
+/*     */           }
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 426 */       ajaxJson.setFlag(false);
+/* 427 */       ajaxJson.setMsg("err");
+/* 428 */       e.printStackTrace();
+/*     */     }
+/* 430 */     return ajaxJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.vehicle.VeHicleService
+ * JD-Core Version:    0.6.0
+ */

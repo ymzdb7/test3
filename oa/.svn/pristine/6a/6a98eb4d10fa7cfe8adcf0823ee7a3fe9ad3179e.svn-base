@@ -1,0 +1,125 @@
+/*     */ package com.xoa.service.sys;
+/*     */ 
+/*     */ import com.xoa.dao.menu.SysMenuMapper;
+/*     */ import com.xoa.dao.sys.DangerSysMapper;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class DangerSysService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   DangerSysMapper mapper;
+/*     */ 
+/*     */   @Resource
+/*     */   SysMenuMapper sysMenuMapper;
+/*     */ 
+/*     */   public BaseWrapper truncateTable(HttpServletRequest request, String[] menuId)
+/*     */   {
+/*  33 */     BaseWrapper wrapper = new BaseWrapper();
+/*  34 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  35 */     if ((user == null) || (!user.getUserId().equals("admin"))) {
+/*  36 */       wrapper.setFlag(false);
+/*  37 */       wrapper.setStatus(true);
+/*  38 */       wrapper.setMsg("您没有权限");
+/*  39 */       return wrapper;
+/*     */     }
+/*     */     try {
+/*  42 */       for (String id : menuId) {
+/*  43 */         if (id.equals("0116"))
+/*     */         {
+/*  45 */           this.mapper.truncateTable("notify");
+/*     */         }
+/*  47 */         if (id.equals("0117"))
+/*     */         {
+/*  49 */           this.mapper.truncateTable("news");
+/*  50 */           this.mapper.truncateTable("news_comment");
+/*     */         }
+/*  52 */         if (id.equals("0101"))
+/*     */         {
+/*  54 */           this.mapper.truncateTable("email");
+/*  55 */           this.mapper.truncateTable("email_body");
+/*  56 */           this.mapper.truncateTable("webmail");
+/*  57 */           this.mapper.truncateTable("webmail_body");
+/*     */         }
+/*  59 */         if (id.equals("2016"))
+/*     */         {
+/*  61 */           this.mapper.truncateTable("calendar");
+/*     */         }
+/*  63 */         if (id.equals("0128"))
+/*     */         {
+/*  65 */           this.mapper.truncateTable("diary");
+/*  66 */           this.mapper.truncateTable("diary_comment");
+/*  67 */           this.mapper.truncateTable("diary_comment_reply");
+/*  68 */           this.mapper.truncateTable("diary_share");
+/*  69 */           this.mapper.truncateTable("diary_top");
+/*     */         }
+/*     */ 
+/*  72 */         if (id.equals("0136"))
+/*     */         {
+/*  74 */           List contentIds = this.mapper.getFileContentBySortType(Integer.valueOf(4));
+/*  75 */           List contentIdss = this.mapper.getFileContentBySortZero();
+/*  76 */           contentIds.addAll(contentIdss);
+/*  77 */           this.mapper.deleteFileContent(contentIds);
+/*  78 */           this.mapper.deleteFileBox(Integer.valueOf(4));
+/*     */         }
+/*  80 */         if (!id.equals("3001"))
+/*     */           continue;
+/*  82 */         List contentIds = this.mapper.getFileContentBySortType(Integer.valueOf(5));
+/*  83 */         this.mapper.deleteFileContent(contentIds);
+/*  84 */         this.mapper.deleteFileBox(Integer.valueOf(5));
+/*     */       }
+/*     */ 
+/* 109 */       wrapper.setFlag(true);
+/* 110 */       wrapper.setStatus(true);
+/* 111 */       wrapper.setMsg("操作成功");
+/*     */     } catch (Exception e) {
+/* 113 */       e.printStackTrace();
+/* 114 */       wrapper.setMsg("操作失败");
+/* 115 */       wrapper.setFlag(false);
+/* 116 */       wrapper.setStatus(true);
+/*     */     }
+/* 118 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper truncateTablePlagiarize(HttpServletRequest request, String[] menuId)
+/*     */   {
+/* 196 */     BaseWrapper wrapper = new BaseWrapper();
+/* 197 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */     try
+/*     */     {
+/* 200 */       for (String id : menuId) {
+/* 201 */         if (id.equals("0116"))
+/*     */         {
+/* 203 */           this.mapper.truncateTable("notify");
+/*     */         }
+/* 205 */         if (!id.equals("0117"))
+/*     */           continue;
+/* 207 */         this.mapper.truncateTable("news");
+/* 208 */         this.mapper.truncateTable("news_comment");
+/*     */       }
+/*     */ 
+/* 211 */       wrapper.setFlag(true);
+/* 212 */       wrapper.setStatus(true);
+/* 213 */       wrapper.setMsg("操作成功");
+/*     */     } catch (Exception e) {
+/* 215 */       e.printStackTrace();
+/* 216 */       wrapper.setMsg("操作失败");
+/* 217 */       wrapper.setFlag(false);
+/* 218 */       wrapper.setStatus(true);
+/*     */     }
+/* 220 */     return wrapper;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.sys.DangerSysService
+ * JD-Core Version:    0.6.0
+ */

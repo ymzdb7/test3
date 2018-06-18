@@ -1,0 +1,143 @@
+/*     */ package com.xoa.service.users.impl;
+/*     */ 
+/*     */ import com.xoa.dao.users.UserGroupMapper;
+/*     */ import com.xoa.model.users.UserGroup;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.users.UserGroupService;
+/*     */ import com.xoa.service.users.UsersService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class UserGroupServiceImpl
+/*     */   implements UserGroupService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private UserGroupMapper userGroupMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersService usersService;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<UserGroup> insertUserGroup(UserGroup userGroup)
+/*     */   {
+/*  54 */     ToJson json = new ToJson(1, "error");
+/*  55 */     int count = 0;
+/*     */     try {
+/*  57 */       if (userGroup != null) {
+/*  58 */         userGroup.setUserStr("");
+/*  59 */         count = this.userGroupMapper.insertUserGroup(userGroup);
+/*     */       }
+/*  61 */       if (count != 0) {
+/*  62 */         json.setMsg("ok");
+/*  63 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  66 */       e.printStackTrace();
+/*  67 */       json.setMsg(e.getMessage());
+/*  68 */       L.e(new Object[] { "UserGroupServiceImpl insertUserGroup:" + e });
+/*     */     }
+/*  70 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<UserGroup> updateUserGroup(UserGroup userGroup)
+/*     */   {
+/*  83 */     ToJson json = new ToJson(1, "error");
+/*  84 */     int count = 0;
+/*     */     try {
+/*  86 */       if (userGroup != null) {
+/*  87 */         count = this.userGroupMapper.updateUserGroup(userGroup);
+/*     */       }
+/*  89 */       if (count != 0) {
+/*  90 */         json.setMsg("ok");
+/*  91 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  94 */       json.setMsg(e.getMessage());
+/*  95 */       L.e(new Object[] { "UserGroupServiceImpl updateUserGroup:" + e });
+/*     */     }
+/*  97 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<UserGroup> getAllUserGroup()
+/*     */   {
+/* 108 */     ToJson json = new ToJson(1, "error");
+/* 109 */     int count = 0;
+/*     */     try {
+/* 111 */       List userGroupList = this.userGroupMapper.getAllUserGroup();
+/* 112 */       if ((userGroupList != null) && (userGroupList.size() > 0)) {
+/* 113 */         json.setObj(userGroupList);
+/* 114 */         json.setMsg("ok");
+/* 115 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 118 */       json.setMsg(e.getMessage());
+/* 119 */       L.e(new Object[] { "UserGroupServiceImpl getAllUserGroup:" + e });
+/*     */     }
+/* 121 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<UserGroup> delUserGroupByGroupId(String groupId)
+/*     */   {
+/* 134 */     ToJson json = new ToJson(1, "error");
+/* 135 */     int count = 0;
+/*     */     try {
+/* 137 */       if (!StringUtils.checkNull(groupId).booleanValue()) {
+/* 138 */         count = this.userGroupMapper.delUserGroupByGroupId(groupId);
+/*     */       }
+/* 140 */       if (count != 0) {
+/* 141 */         json.setMsg("ok");
+/* 142 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 145 */       json.setMsg(e.getMessage());
+/* 146 */       L.e(new Object[] { "UserGroupServiceImpl delUserGroupByGroupId:" + e });
+/*     */     }
+/* 148 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<UserGroup> getUserGroupByGroupId(String groupId)
+/*     */   {
+/* 159 */     ToJson json = new ToJson(1, "error");
+/* 160 */     UserGroup userGroup = new UserGroup();
+/*     */     try {
+/* 162 */       if (!StringUtils.checkNull(groupId).booleanValue()) {
+/* 163 */         userGroup = this.userGroupMapper.getUserGroupByGroupId(groupId);
+/* 164 */         StringBuffer userNameStr = new StringBuffer();
+/* 165 */         if ((userGroup != null) && 
+/* 166 */           (!StringUtils.checkNull(userGroup.getUserStr()).booleanValue())) {
+/* 167 */           List <Users>usersList = this.usersService.getUsersByUids(userGroup.getUserStr());
+/* 168 */           for (Users users : usersList) {
+/* 169 */             if ((users != null) && 
+/* 170 */               (!StringUtils.checkNull(users.getUserName()).booleanValue())) {
+/* 171 */               userNameStr.append(users.getUserName() + ",");
+/*     */             }
+/*     */           }
+/*     */ 
+/* 175 */           userGroup.setUserName(userNameStr.toString());
+/*     */         }
+/*     */ 
+/* 178 */         json.setObject(userGroup);
+/* 179 */         json.setMsg("ok");
+/* 180 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 183 */       json.setMsg(e.getMessage());
+/* 184 */       L.e(new Object[] { "UserGroupServiceImpl getUserGroupByGroupId:" + e });
+/*     */     }
+/* 186 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.users.impl.UserGroupServiceImpl
+ * JD-Core Version:    0.6.0
+ */

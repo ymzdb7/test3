@@ -1,0 +1,688 @@
+/*     */ package com.xoa.controller.netdisk;
+
+/*     */
+/*     */ import com.alibaba.fastjson.JSONObject;
+/*     */ import com.xoa.model.netdisk.Catalog;
+/*     */ import com.xoa.model.netdisk.MyNetdisk;
+/*     */ import com.xoa.model.netdisk.Netdisk;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.netdisk.NetdiskService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import com.xoa.util.netdisk.CheckAll;
+/*     */ import com.xoa.util.netdisk.CopyFile;
+/*     */ import com.xoa.util.netdisk.DeleteFile;
+/*     */ import com.xoa.util.netdisk.GlobalSearch;
+/*     */ import com.xoa.util.netdisk.ReadFile;
+/*     */ import com.xoa.util.netdisk.SearchFile;
+/*     */ import com.xoa.util.netdisk.ZipUtils;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.FileNotFoundException;
+/*     */ import java.io.IOException;
+/*     */ import java.io.InputStream;
+/*     */ import java.io.OutputStream;
+/*     */ import java.io.OutputStreamWriter;
+/*     */ import java.io.PrintStream;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Collections;
+/*     */ import java.util.Comparator;
+/*     */ import java.util.Hashtable;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.ResourceBundle;
+/*     */ import java.util.UUID;
+/*     */ import java.util.zip.ZipOutputStream;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.ServletOutputStream;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.context.annotation.Scope;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ import org.springframework.web.multipart.MultipartFile;
+/*     */ import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+
+/*     */
+/*     */ @Controller
+/*     */ @Scope("prototype")
+/*     */ @RequestMapping({ "/netdisk" })
+/*     */ public class NetdiskController
+/*     */ {
+	/*     */
+	/*     */ @Resource
+	/*     */ private NetdiskService netdiskService;
+	/* 557 */ private final int PASTETYPE_COPY = 0;
+	/* 558 */ private final int PASTETYPE_CUT = 1;
+
+	/*     */
+	/*     */ @RequestMapping({ "/netdesk" })
+	/*     */ public String netdesk()
+	/*     */ {
+		/* 55 */ return "app/netdesk/netdesk";
+		/*     */ }
+
+	/*     */
+	/*     */ @RequestMapping({ "/getNetDiskMenu" })
+	/*     */ @ResponseBody
+	/*     */ public BaseWrappers getNetDiskMenu(HttpServletRequest request)
+	/*     */ {
+		/* 67 */ return this.netdiskService.getNetDiskMenu(request);
+		/*     */ }
+
+	/*     */
+	/*     */ @ResponseBody
+	/*     */ @RequestMapping(value = { "/selectNetdiskBySearch" }, produces = { "application/json;charset=UTF-8" })
+	/*     */ public BaseWrappers selectNetdiskBySearch(HttpServletRequest request, String path,
+			@RequestParam(required = false, defaultValue = "0") Integer orderType,
+			@RequestParam(required = false, defaultValue = "0") Integer orderBy, String searchTitle, String content)
+	/*     */ {
+		/* 83 */ return this.netdiskService.selectNetdiskBySearch(request, path, orderType, orderBy, searchTitle,
+				content);
+		/*     */ }
+
+	/*     */
+	/*     */ @ResponseBody
+	/*     */ @RequestMapping(value = { "/selectNetdisk" }, produces = { "application/json;charset=UTF-8" })
+	/*     */ public ToJson<Catalog> selectNetdisk(HttpServletRequest request, String path)/*     */ throws Exception
+	/*     */ {
+		/* 96 */ ContextHolder.setConsumerType(Constant.MYOA + (String) request.getSession().getAttribute("loginDateSouse"));
+		/*     */
+		/* 98 */ Users users = (Users) SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+		/* 99 */ Map map = new Hashtable();
+		/* 100 */ ToJson toJson = new ToJson();
+		/* 101 */ map.put("userId", users.getUserId());
+		/* 102 */ map.put("userPriv", users.getUserPriv());
+		/* 103 */ map.put("deptId", users.getDeptId());
+		/* 104 */ Catalog catalog = null;
+		/* 105 */ List<Netdisk> neList = this.netdiskService.selectNetdisk();
+		/* 106 */ for (Netdisk netdisk : neList) {
+			/* 107 */ if (CheckAll.checkAll(netdisk.getUserId(), map)) {
+				/* 108 */ if (!StringUtils.checkNull(path).booleanValue())
+				/*     */ {
+					/* 110 */ catalog = ReadFile.getFiles(path);
+					/*     */ }
+				/*     */ } else {
+				/* 113 */ toJson.setFlag(1);
+				/* 114 */ toJson.setMsg("err");
+				/*     */ }
+			/*     */
+			/*     */ }
+		/*     */
+		/* 121 */ if (catalog != null) {
+			/* 122 */ toJson.setFlag(0);
+			/* 123 */ toJson.setMsg("ok");
+			/* 124 */ toJson.setObject(catalog);
+			/*     */ }
+		/*     */
+		/* 130 */ return toJson;
+	}
+
+	/* 135 */ @ResponseBody
+	/*     */ @RequestMapping(value = { "/rootNetdisk" }, produces = { "application/json;charset=UTF-8" })
+	/*     */ public ToJson<Catalog> selectNetdiskSettings(HttpServletRequest request) {
+		ToJson tojson = new ToJson(0, "");
+		/*     */ try {
+			/* 137 */ List<Netdisk> list = this.netdiskService.selectNetdisk();
+			/* 138 */ List<MyNetdisk> myNetdiskList = new ArrayList<MyNetdisk>();
+			/* 139 */ for (Netdisk disk : list)
+			/*     */ {
+				/* 141 */ ResourceBundle rb = ResourceBundle.getBundle("upload");
+				/* 142 */ String osName = System.getProperty("os.name");
+				/* 143 */ StringBuffer sb = new StringBuffer();
+				/* 144 */ if (osName.toLowerCase().startsWith("win"))
+					/* 145 */ sb = sb.append(rb.getString("netdisk.win"));
+				/*     */ else {
+					/* 147 */ sb = sb.append(rb.getString("netdisk.linux"));
+					/*     */ }
+				/*     */
+				/* 150 */ MyNetdisk myNetdisk = new MyNetdisk();
+				/* 151 */ String path = sb.toString() + disk.getDiskPath();
+				/* 152 */ myNetdisk.setPath(path);
+				/* 153 */ myNetdisk.setNeName(disk.getDiskName());
+				/* 154 */ myNetdisk.setTime(ReadFile.getFileTime(path));
+				/* 155 */ myNetdisk.setType("DIR");
+				/* 156 */ myNetdisk.setSize("");
+				/* 157 */ myNetdisk.setUpdatePriv(this.netdiskService.checkAuth(request, path, Integer.valueOf(18)));
+				/* 158 */ myNetdisk.setDownloadPriv(this.netdiskService.checkAuth(request, path, Integer.valueOf(19)));
+				/* 159 */ myNetdisk.setShowPriv(this.netdiskService.checkAuth(request, path, Integer.valueOf(1)));
+				/* 160 */ myNetdisk.setMakePriv(this.netdiskService.checkAuth(request, path, Integer.valueOf(17)));
+				/* 161 */ myNetdiskList.add(myNetdisk);
+				/*     */ }
+			/* 163 */ Catalog catalog = new Catalog();
+			/* 164 */ catalog.setMyNetdiskList(myNetdiskList);
+			/* 165 */ tojson.setObject(catalog);
+			/* 166 */ tojson.setMsg("ok");
+			/* 167 */ tojson.setFlag(0);
+			/*     */ } catch (Exception e) {
+			/* 169 */ tojson.setMsg(e.getMessage());
+			/*     */ }
+		/* 171 */ return tojson;
+	}
+
+	/* 176 */ @ResponseBody
+	/*     */ @RequestMapping(value = { "/queryNetdisk" }, produces = { "application/json;charset=UTF-8" })
+	/*     */ public ToJson<Catalog> queryNetdisk(HttpServletRequest request, String path) throws Exception {
+		ToJson toJson = new ToJson();
+		/* 177 */ Catalog catalog = null;
+		/*     */
+		/* 179 */ if (!StringUtils.checkNull(path).booleanValue()) {
+			/* 180 */ catalog = ReadFile.getFiles(path);
+			/*     */ } else {
+			/* 182 */ toJson.setFlag(1);
+			/* 183 */ toJson.setMsg("err");
+			/*     */ }
+		/*     */
+		/* 186 */ if (catalog != null) {
+			/* 187 */ toJson.setFlag(0);
+			/* 188 */ toJson.setMsg("ok");
+//			/* 189 */ Collections.sort(catalog.getMyNetdiskList(), new Comparator()
+//			/*     */ {
+//				@Override
+//				public int compare(MyNetdisk o1, MyNetdisk o2) {
+//					if ((o1.getSize() != null) && (o2.getSize() != null)) {
+//						/* 201 */ return -1;
+//						/*     */ }
+//					/* 203 */ if ((o1.getSize() == null) && (o2.getSize() == null)) {
+//						/* 204 */ return 1;
+//						/*     */ }
+//					/* 206 */ return 0;
+//				}
+//			});
+			/* 209 */ if ((catalog.getMyNetdiskList() != null) && (catalog.getMyNetdiskList().size() > 0)) {
+				/* 210 */ for (MyNetdisk myNetdisk : catalog.getMyNetdiskList()) {
+					/* 211 */ myNetdisk
+							.setUpdatePriv(this.netdiskService.checkAuth(request, path, Integer.valueOf(18)));
+					/* 212 */ myNetdisk
+							.setDownloadPriv(this.netdiskService.checkAuth(request, path, Integer.valueOf(19)));
+					/* 213 */ myNetdisk.setShowPriv(this.netdiskService.checkAuth(request, path, Integer.valueOf(1)));
+					/* 214 */ myNetdisk.setMakePriv(this.netdiskService.checkAuth(request, path, Integer.valueOf(17)));
+					/*     */ }
+				/*     */
+				/*     */ }
+			/*     */
+			/* 219 */ toJson.setObject(catalog);
+			/*     */ }
+		/* 221 */ return toJson;
+		/*     */ }
+
+	/*     */
+	/*     */ @ResponseBody
+	/*     */ @RequestMapping(value = { "/mkDirectory" }, produces = { "application/json;charset=UTF-8" })
+	/*     */ public ToJson<String> mkDirectory(HttpServletRequest request, String path, String directoryName)
+	/*     */ {
+		/* 234 */ ContextHolder.setConsumerType(Constant.MYOA + (String) request.getSession().getAttribute("loginDateSouse"));
+		/*     */
+		/* 236 */ String mkDirectoryPath = path + "/" + directoryName;
+		/* 237 */ ToJson json = new ToJson();
+		/* 238 */ if (!this.netdiskService.checkAuth(request, path, Integer.valueOf(17))) {
+			/* 239 */ json.setFlag(1);
+			/* 240 */ json.setMsg("err");
+			/* 241 */ return json;
+			/*     */ }
+		/* 243 */ if (ReadFile.mkDirectory(mkDirectoryPath)) {
+			/* 244 */ json.setFlag(0);
+			/* 245 */ json.setMsg("ok");
+			/*     */ }
+		/*     */ else
+		/*     */ {
+			/* 249 */ json.setFlag(1);
+			/* 250 */ json.setMsg("err");
+			/*     */ }
+		/*     */
+		/* 254 */ return json;
+		/*     */ }
+
+	/*     */
+	/*     */ @ResponseBody
+	/*     */ @RequestMapping(value = { "/changeName" }, produces = { "application/json;charset=UTF-8" })
+	/*     */ public BaseWrapper changeName(HttpServletRequest request, String path, String newsName)
+	/*     */ {
+		/* 267 */ BaseWrapper wrapper = new BaseWrapper();
+		/* 268 */ wrapper.setStatus(true);
+		/* 269 */ if (!this.netdiskService.checkAuth(request, path, Integer.valueOf(18))) {
+			/* 270 */ wrapper.setFlag(false);
+			/* 271 */ wrapper.setMsg("无权操作");
+			/* 272 */ return wrapper;
+			/*     */ }
+		/*     */ try {
+			/* 275 */ File file = new File(path);
+			/* 276 */ String name = newsName;
+			/* 277 */ String filename = file.getAbsolutePath();
+			/* 278 */ String filename1 = null;
+			/* 279 */ String prefix = filename.substring(filename.lastIndexOf(".") + 1, filename.length());
+			/* 280 */ if (filename.indexOf(".") >= 0)
+			/*     */ {
+				/* 282 */ filename = filename.substring(0, filename.lastIndexOf("."));
+				/* 283 */ filename1 = filename.substring(0, filename.lastIndexOf("\\"));
+				/* 284 */ File newfile = new File(filename1 + "/" + name + prefix);
+				/* 285 */ if (newfile.exists()) {
+					/* 286 */ wrapper.setMsg("文件已经存在");
+					/* 287 */ wrapper.setFlag(false);
+					/* 288 */ return wrapper;
+					/*     */ }
+				/* 290 */ file.renameTo(newfile);
+				/*     */ }
+			/*     */ else {
+				/* 293 */ filename1 = filename.substring(0, filename.lastIndexOf("\\"));
+				/* 294 */ File newfile = new File(filename1 + "/" + name);
+				/* 295 */ if (newfile.exists()) {
+					/* 296 */ wrapper.setMsg("文件已经存在");
+					/* 297 */ wrapper.setFlag(false);
+					/* 298 */ return wrapper;
+					/*     */ }
+				/* 300 */ System.gc();
+				/* 301 */ file.renameTo(newfile);
+				/*     */ }
+			/*     */
+			/* 305 */ wrapper.setMsg("成功");
+			/* 306 */ wrapper.setFlag(true);
+			/*     */ } catch (Exception e) {
+			/* 308 */ e.printStackTrace();
+			/* 309 */ wrapper.setMsg("操作失败");
+			/* 310 */ wrapper.setFlag(false);
+			/*     */ }
+		/*     */
+		/* 313 */ return wrapper;
+		/*     */ }
+
+	/*     */
+	/*     */ @ResponseBody
+	/*     */ @RequestMapping(value = { "/uploadFile" }, method = {
+			org.springframework.web.bind.annotation.RequestMethod.POST }, produces = {
+					"application/json;charset=UTF-8" })
+	/*     */ public void uploadFile(HttpServletRequest request, HttpServletResponse response, String path)
+			/*     */ throws IOException
+	/*     */ {
+		/* 327 */ ToJson json = new ToJson();
+		/* 328 */ if (!this.netdiskService.checkAuth(request, path, Integer.valueOf(17))) {
+			/* 329 */ json.setFlag(1);
+			/* 330 */ json.setMsg("无权操作");
+			/* 331 */ return;
+			/*     */ }
+		/*     */
+		/* 334 */ CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
+				request.getSession().getServletContext());
+		/*     */
+		/* 336 */ List errorOne = new ArrayList();
+		/*     */ try
+		/*     */ {
+			/* 340 */ if (multipartResolver.isMultipart(request))
+			/*     */ {
+				/* 342 */ MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
+				/*     */
+				/* 344 */ List<MultipartFile> files = multiRequest.getFiles("file");
+				/* 345 */ for (MultipartFile multipartFile : files) {
+					/* 346 */ if (multipartFile != null)
+					/*     */ {
+						/* 348 */ String myFileName = multipartFile.getOriginalFilename();
+						/*     */
+						/* 350 */ if (!StringUtils.checkNull(myFileName).booleanValue()) {
+							/* 351 */ String fileName = multipartFile.getOriginalFilename();
+							/* 352 */ String path1 = path + "/" + fileName;
+							/* 353 */ System.out.println(path1);
+							/* 354 */ File localFile = new File(path1);
+							/*     */
+							/* 359 */ if (localFile.exists())
+							/*     */ {
+								/* 362 */ String reName = localFile.getName().substring(0, fileName.lastIndexOf("."));
+								/*     */
+								/* 364 */ String fileType = ReadFile.getFileType(fileName);
+								/* 365 */ String path2 = path + "/" + reName + "-复件" + "." + fileType;
+								/*     */
+								/* 367 */ File parentFile = new File(path2);
+								/*     */
+								/* 369 */ multipartFile.transferTo(parentFile);
+								/*     */ } else {
+								/* 371 */ multipartFile.transferTo(localFile);
+								/*     */ }
+							/*     */ }
+						/*     */ else
+						/*     */ {
+							/* 376 */ errorOne.add(multipartFile.getName());
+							/*     */ }
+						/*     */ }
+					/*     */ }
+				/*     */ }
+			/*     */
+			/* 382 */ json.setFlag(0);
+			/* 383 */ json.setMsg("ok");
+			/* 384 */ json.setObj(errorOne);
+			/*     */ } catch (Exception e) {
+			/* 386 */ json.setFlag(1);
+			/* 387 */ json.setMsg("err");
+			/*     */ }
+		/*     */
+		/* 423 */ response.setHeader("content-type", "text/html;charset=utf-8");
+		/* 424 */ response.setCharacterEncoding("utf-8");
+		/* 425 */ ServletOutputStream out = response.getOutputStream();
+		/* 426 */ OutputStreamWriter ow = new OutputStreamWriter(out, "UTF-8");
+		/*     */
+		/* 428 */ ow.write(JSONObject.toJSONString(json));
+		/* 429 */ ow.flush();
+		/* 430 */ ow.close();
+		/*     */ }
+
+	/*     */
+	/*     */ @RequestMapping({ "/downLoadZipFile" })
+	/*     */ public void downLoadZipFile(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(name = "path[]") String[] path)/*     */ throws IOException
+	/*     */ {
+		/* 442 */ BaseWrapper wrapper = new BaseWrapper();
+		/* 443 */ wrapper.setStatus(true);
+		/* 444 */ if ((path != null) && (path.length > 0)) {
+			/* 445 */ ServletOutputStream out = response.getOutputStream();
+			/* 446 */ if (!this.netdiskService.checkAuth(request, path[0], Integer.valueOf(19))) {
+				/* 447 */ wrapper.setFlag(false);
+				/* 448 */ wrapper.setMsg("无权操作");
+				/* 449 */ out.print(JSONObject.toJSONString(wrapper));
+				/* 450 */ out.flush();
+				/*     */ }
+			/*     */ } else {
+			/* 453 */ ServletOutputStream out = response.getOutputStream();
+			/* 454 */ wrapper.setFlag(false);
+			/* 455 */ wrapper.setMsg("数据异常");
+			/* 456 */ out.print(JSONObject.toJSONString(wrapper));
+			/* 457 */ out.flush();
+			/*     */ }
+		/* 459 */ String zipName = UUID.randomUUID().toString() + ".zip";
+		/* 460 */ response.setContentType("APPLICATION/OCTET-STREAM");
+		/* 461 */ response.setHeader("Content-Disposition", "attachment; filename=" + zipName);
+		/* 462 */ ZipOutputStream out = new ZipOutputStream(response.getOutputStream());
+		/*     */ try {
+			/* 464 */ for (String filePath : path) {
+				/* 465 */ File file = new File(filePath);
+				/* 466 */ if (file.exists()) {
+					/* 467 */ ZipUtils.doCompress(file, out);
+					/* 468 */ response.flushBuffer();
+					/*     */ }
+				/*     */ }
+			/*     */ } catch (Exception e) {
+			/* 472 */ e.printStackTrace();
+			/*     */ } finally {
+			/* 474 */ out.close();
+			/*     */ }
+		/*     */ }
+
+	/*     */
+	/*     */ @RequestMapping(value = { "/download" }, method = {
+			org.springframework.web.bind.annotation.RequestMethod.GET }, produces = {
+					"application/json;charset=UTF-8" })
+	/*     */ public String download(String fileName, HttpServletRequest request, HttpServletResponse response,
+			String path)/*     */ throws IOException
+	/*     */ {
+		/* 490 */ BaseWrapper wrapper = new BaseWrapper();
+		/* 491 */ wrapper.setStatus(true);
+		/* 492 */ if (!this.netdiskService.checkAuth(request, path, Integer.valueOf(19))) {
+			/* 493 */ ServletOutputStream out = response.getOutputStream();
+			/* 494 */ wrapper.setFlag(false);
+			/* 495 */ wrapper.setMsg("无权操作");
+			/* 496 */ out.print(JSONObject.toJSONString(wrapper));
+			/* 497 */ out.flush();
+			/*     */ }
+		/* 499 */ response.setCharacterEncoding("utf-8");
+		/* 500 */ response.setContentType("multipart/form-data");
+		/* 501 */ response.setHeader("Content-Disposition", "attachment;fileName=" + fileName);
+		/*     */ try
+		/*     */ {
+			/* 506 */ InputStream inputStream = new FileInputStream(new File(path + File.separator + fileName));
+			/*     */
+			/* 509 */ OutputStream os = response.getOutputStream();
+			/* 510 */ byte[] b = new byte[2048];
+			/*     */ int length;
+			/* 512 */ while ((length = inputStream.read(b)) > 0) {
+				/* 513 */ os.write(b, 0, length);
+				/*     */ }
+			/*     */
+			/* 516 */ os.flush();
+			/* 517 */ os.close();
+			/* 518 */ inputStream.close();
+			/*     */ }
+		/*     */ catch (FileNotFoundException e) {
+			/* 521 */ e.printStackTrace();
+			/*     */ } catch (IOException e) {
+			/* 523 */ e.printStackTrace();
+			/*     */ }
+		/*     */
+		/* 527 */ return null;
+		/*     */ }
+
+	/*     */
+	/*     */ @RequestMapping(value = { "/copyFile" }, produces = { "application/json;charset=UTF-8" })
+	/*     */ public ToJson<String> copyFiles(String path)
+	/*     */ {
+		/* 537 */ ToJson json = new ToJson();
+		/* 538 */ if (!StringUtils.checkNull(path).booleanValue()) {
+			/* 539 */ String read = CopyFile.readByBufferedReader(path);
+			/* 540 */ json.setFlag(0);
+			/* 541 */ json.setMsg("ok");
+			/* 542 */ json.setObject(read);
+			/*     */ } else {
+			/* 544 */ json.setFlag(1);
+			/* 545 */ json.setMsg("err");
+			/*     */ }
+		/* 547 */ return json;
+		/*     */ }
+
+	/*     */
+	/*     */ @RequestMapping(value = { "/writeFile" }, produces = { "application/json;charset=UTF-8" })
+	/*     */ @ResponseBody
+	/*     */ public BaseWrapper writeFile(HttpServletRequest request,
+			@RequestParam(name = "resourcesPath[]") String[] resourcesPath, String toPath,
+			@RequestParam(required = false, defaultValue = "0") Integer pasteType)
+	/*     */ {
+		/* 563 */ BaseWrapper baseWrapper = new BaseWrapper();
+		/*     */
+		/* 566 */ baseWrapper.setStatus(true);
+		/* 567 */ if ((resourcesPath == null) || (resourcesPath.length == 0)) {
+			/* 568 */ baseWrapper.setFlag(false);
+			/* 569 */ baseWrapper.setMsg("源文件不能为空");
+			/* 570 */ return baseWrapper;
+			/*     */ }
+		/* 572 */ if (!this.netdiskService.checkAuth(request, resourcesPath[0], Integer.valueOf(18))) {
+			/* 573 */ baseWrapper.setFlag(false);
+			/* 574 */ baseWrapper.setMsg("无权操作");
+			/* 575 */ return baseWrapper;
+			/*     */ }
+		/*     */ try {
+			/* 578 */ if (!StringUtils.checkNull(toPath).booleanValue()) {
+				/* 579 */ File dir = new File(toPath);
+				/* 580 */ if (dir.exists()) {
+					/* 581 */ for (String filepath : resourcesPath) {
+						/* 582 */ File file = new File(filepath);
+						/* 583 */ if (file.exists()) {
+							/* 584 */ String willName = file.getName();
+							/* 585 */ File willfile = new File(toPath + File.separator + willName);
+							/* 586 */ if ((pasteType.intValue() == 1) &&
+							/* 587 */ (!willfile.exists())) {
+								/* 588 */ willfile.createNewFile();
+								/* 589 */ CopyFile.copeFile(file, willfile);
+								/* 590 */ boolean result = file.delete();
+								/* 591 */ int tryCount = 0;
+								/* 592 */ while ((!result) && (tryCount++ < 10)) {
+									/* 593 */ System.gc();
+									/* 594 */ result = file.delete();
+									/*     */ }
+								/*     */ }
+							/*     */
+							/* 598 */ if (pasteType.intValue() == 0) {
+								/* 599 */ if (!willfile.exists()) {
+									/* 600 */ willfile.createNewFile();
+									/* 601 */ CopyFile.copeFile(file, willfile);
+									/*     */ } else {
+									/* 603 */ String reName = file.getName().substring(0,
+											file.getName().lastIndexOf("."));
+									/* 604 */ String fileType = ReadFile.getFileType(filepath);
+									/* 605 */ File copyFile = new File(
+											toPath + File.separator + reName + "-复件." + fileType);
+									/* 606 */ copyFile.createNewFile();
+									/* 607 */ CopyFile.copeFile(file, copyFile);
+									/*     */ }
+								/*     */ }
+							/*     */ }
+						/*     */ }
+					/* 612 */ baseWrapper.setFlag(true);
+					/* 613 */ baseWrapper.setMsg("成功");
+					/*     */ }
+				/*     */ else {
+					/* 616 */ baseWrapper.setFlag(false);
+					/* 617 */ baseWrapper.setMsg("文件路径不存在");
+					/*     */ }
+				/*     */ } else {
+				/* 620 */ baseWrapper.setFlag(false);
+				/* 621 */ baseWrapper.setMsg("文件路径为空");
+				/*     */ }
+			/*     */ } catch (Exception e) {
+			/* 624 */ e.printStackTrace();
+			/* 625 */ baseWrapper.setFlag(false);
+			/* 626 */ baseWrapper.setMsg("数据异常");
+			/*     */ }
+		/* 628 */ return baseWrapper;
+		/*     */ }
+
+	/*     */
+	/*     */ @RequestMapping(value = { "/globalFile" }, produces = { "application/json;charset=UTF-8" })
+	/*     */ @ResponseBody
+	/*     */ public ToJson<String> globalFile(String content, String path)
+	/*     */ {
+		/* 640 */ ToJson json = new ToJson();
+		/* 641 */ if (!StringUtils.checkNull(path).booleanValue()) {
+			/* 642 */ String filename = path;
+			/*     */
+			/* 644 */ File file = new File(filename);
+			/* 645 */ String[] args = { content };
+			/* 646 */ for (int i = 0; i < args.length; i++) {
+				/* 647 */ GlobalSearch.findFile(file, args[i]);
+				/*     */
+				/* 649 */ for (String string : GlobalSearch.path) {
+					/* 650 */ System.out.println(string);
+					/*     */ }
+				/*     */
+				/*     */ }
+			/*     */
+			/* 655 */ json.setFlag(0);
+			/* 656 */ json.setMsg("ok");
+			/* 657 */ json.setObj(GlobalSearch.path);
+			/*     */ } else {
+			/* 659 */ json.setFlag(1);
+			/* 660 */ json.setMsg("err");
+			/*     */ }
+		/*     */
+		/* 664 */ return json;
+		/*     */ }
+
+	/*     */
+	/*     */ @RequestMapping(value = { "/searchFile" }, produces = { "application/json;charset=UTF-8" })
+	/*     */ @ResponseBody
+	/*     */ public ToJson<String> searchFile(String content, String path)
+	/*     */ {
+		/* 675 */ ToJson json = new ToJson();
+		/* 676 */ if (!StringUtils.checkNull(path).booleanValue()) {
+			/* 677 */ path = path.replaceAll("\\\\", "\\\\\\\\");
+			/* 678 */ String fileName = content;
+			/* 679 */ List<String> destpath = SearchFile.searchFile(path, fileName);
+			/* 680 */ if ((destpath != null) && (destpath.size() > 0)) {
+				/* 681 */ System.out.println("你要找的文件的目录如下：");
+				/* 682 */ for (String s : destpath) {
+					/* 683 */ System.out.println(s);
+					/*     */ }
+				/* 685 */ json.setFlag(0);
+				/* 686 */ json.setMsg("ok");
+				/* 687 */ json.setObj(destpath);
+				/*     */ } else {
+				/* 689 */ System.out.println("没有找到或您输入有误");
+				/*     */
+				/* 691 */ json.setFlag(1);
+				/* 692 */ json.setMsg("err");
+				/*     */ }
+			/*     */
+			/*     */ }
+		/*     */
+		/* 699 */ return json;
+	}
+
+	/* 704 */ @RequestMapping(value = { "/deleteFile" }, produces = { "application/json;charset=UTF-8" })
+	/*     */ @ResponseBody
+	/*     */ public ToJson<String> deleteFile(HttpServletRequest request,
+			@RequestParam(name = "path[]") String[] path) {
+		ToJson json = new ToJson();
+		/* 705 */ if ((path == null) || (path.length == 0)) {
+			/* 706 */ json.setMsg("err");
+			/* 707 */ json.setFlag(1);
+			/* 708 */ return json;
+			/*     */ }
+		/* 710 */ if (!this.netdiskService.checkAuth(request, path[0], Integer.valueOf(18))) {
+			/* 711 */ json.setFlag(1);
+			/* 712 */ json.setMsg("无权操作");
+			/* 713 */ return json;
+			/*     */ }
+		/* 715 */ List errorName = new ArrayList();
+		/*     */ try {
+			/* 717 */ for (String filepath : path) {
+				/* 718 */ File file = new File(filepath);
+				/* 719 */ if ((file.exists()) && (file.isFile())) {
+					/* 720 */ boolean result = file.delete();
+					/* 721 */ int tryCount = 0;
+					/* 722 */ while ((!result) && (tryCount++ < 10)) {
+						/* 723 */ System.gc();
+						/* 724 */ result = file.delete();
+						/*     */ }
+					/*     */ } else {
+					/* 727 */ errorName.add(filepath);
+					/*     */ }
+				/*     */ }
+			/* 730 */ json.setMsg("ok");
+			/* 731 */ json.setObj(errorName);
+			/* 732 */ json.setFlag(0);
+			/*     */ } catch (Exception e) {
+			/* 734 */ e.printStackTrace();
+			/* 735 */ json.setMsg("err");
+			/* 736 */ json.setFlag(1);
+			/*     */ }
+		/* 738 */ return json;
+	}
+
+	/*     */ @RequestMapping(value = { "/deleteFolder" }, produces = { "application/json;charset=UTF-8" })
+	/*     */ @ResponseBody
+	/*     */ public ToJson<String> deleteFolder(HttpServletRequest request, String path) {
+		/* 744 */ ToJson json = new ToJson();
+		/* 745 */ if (!this.netdiskService.checkAuth(request, path, Integer.valueOf(18))) {
+			/* 746 */ json.setFlag(1);
+			/* 747 */ json.setMsg("无权操作");
+			/* 748 */ return json;
+			/*     */ }
+		/* 750 */ if (!StringUtils.checkNull(path).booleanValue()) {
+			/* 751 */ DeleteFile.refreshFileList(path);
+			/* 752 */ json.setMsg("ok");
+			/* 753 */ json.setFlag(0);
+			/*     */ } else {
+			/* 755 */ json.setMsg("err");
+			/* 756 */ json.setFlag(1);
+			/*     */ }
+		/*     */
+		/* 759 */ return json;
+		/*     */ }
+
+	/*     */
+	/*     */ @RequestMapping({ "/up1" })
+	/*     */ public String cont(HttpServletRequest request)
+	/*     */ {
+		/* 792 */ ContextHolder.setConsumerType(Constant.MYOA + (String) request.getSession().getAttribute("loginDateSouse"));
+		/*     */
+		/* 794 */ return "app/upload/updwj1";
+		/*     */ }
+	/*     */ }
+
+/*
+ * Location: D:\xoa\webapps\ROOT\WEB-INF\classes\ Qualified Name:
+ * com.xoa.controller.netdisk.NetdiskController JD-Core Version: 0.6.0
+ */

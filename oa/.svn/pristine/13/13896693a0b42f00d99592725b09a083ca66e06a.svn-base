@@ -1,0 +1,67 @@
+/*    */ package com.xoa.controller.edu.eduSchoolCalendar;
+/*    */ 
+/*    */ import com.xoa.model.edu.eduSchoolCalendar.EduSchoolCalendarDescWithBLOBs;
+/*    */ import com.xoa.model.edu.eduSchoolCalendar.EduSchoolCalendarWithBLOBs;
+/*    */ import com.xoa.service.edu.eduSchoolCalendar.EduSchoolCalendarService;
+/*    */ import com.xoa.util.AjaxJson;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import javax.annotation.Resource;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.stereotype.Controller;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"/eduSchoolCalendar"})
+/*    */ public class EduSchoolCalendarController
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   private EduSchoolCalendarService eduSchoolCalendarService;
+/*    */ 
+/*    */   @RequestMapping({"/showSchoolCalendar"})
+/*    */   public String showSchoolCalendar(HttpServletRequest request)
+/*    */   {
+/* 31 */     return "app/edu/eduSchoolCalendar/eduSchoolCalendar";
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/editSchoolCalendar"})
+/*    */   public ToJson<EduSchoolCalendarWithBLOBs> editSchoolCalendar(HttpServletRequest request, EduSchoolCalendarWithBLOBs eduSchoolCalendarWithBLOBs)
+/*    */   {
+/* 45 */     return this.eduSchoolCalendarService.editSchoolCalendar(request, eduSchoolCalendarWithBLOBs);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/delSchoolCalendarById"})
+/*    */   public ToJson<EduSchoolCalendarWithBLOBs> delSchoolCalendarById(int id)
+/*    */   {
+/* 58 */     return this.eduSchoolCalendarService.delSchoolCalendarById(id);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/selSchoolCalendarByCond"})
+/*    */   public AjaxJson selSchoolCalendarByCond(EduSchoolCalendarWithBLOBs eduSchoolCalendarWithBLOBs)
+/*    */   {
+/* 71 */     return this.eduSchoolCalendarService.selSchoolCalendarByCond(eduSchoolCalendarWithBLOBs);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/editSCDesc"})
+/*    */   public ToJson<EduSchoolCalendarDescWithBLOBs> editSCDesc(HttpServletRequest request, EduSchoolCalendarDescWithBLOBs eduSchoolCalendarDescWithBLOBs)
+/*    */   {
+/* 84 */     return this.eduSchoolCalendarService.editSCDesc(request, eduSchoolCalendarDescWithBLOBs);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/getYearTerm"})
+/*    */   public ToJson<EduSchoolCalendarDescWithBLOBs> getYearTerm()
+/*    */   {
+/* 97 */     return this.eduSchoolCalendarService.getYearTerm();
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.edu.eduSchoolCalendar.EduSchoolCalendarController
+ * JD-Core Version:    0.6.0
+ */

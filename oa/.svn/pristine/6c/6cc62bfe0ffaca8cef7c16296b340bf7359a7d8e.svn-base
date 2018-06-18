@@ -1,0 +1,814 @@
+package com.myoa.controller.users;
+
+import com.myoa.model.users.RoleManager;
+import com.myoa.model.users.UserPriv;
+import com.myoa.model.users.Users;
+import com.myoa.service.syspara.SysParaService;
+import com.myoa.service.users.UsersPrivService;
+import com.myoa.util.AjaxJson;
+import com.myoa.util.Constant;
+import com.myoa.util.ExcelUtil;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.L;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.common.log.FileUtils;
+import com.myoa.util.common.session.SessionUtils;
+import com.myoa.util.dataSource.ContextHolder;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.TreeSet;
+import java.util.UUID;
+import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+@Controller
+public class UserPrivController {
+	private Logger loger = Logger.getLogger(UserPrivController.class);
+
+	@Resource
+	UsersPrivService usersPrivService;
+
+	@Resource
+	SysParaService sysParaService;
+
+	@RequestMapping({ "/roleAuthorization" })
+	public String roleAuthorization(HttpServletRequest request,
+			Map<String, Object> map) {
+		Users user = (Users) SessionUtils.getSessionInfo(request.getSession(),
+				Users.class, new Users());
+		if (!this.sysParaService.checkIsHaveSecure(user, Integer.valueOf(3))) {
+			return "app/common/development";
+		}
+		String ss = (String) SessionUtils.getSessionInfo(request.getSession(),
+				"superPwd", String.class);
+		if (StringUtils.checkNull(ss).booleanValue()) {
+			map.put("sign", Integer.valueOf(0));
+			return "app/UserPriv/roleAuthorization";
+		}
+		map.put("sign", Integer.valueOf(1));
+		return "app/UserPriv/roleAuthorization";
+	}
+
+	@RequestMapping({ "/newRole" })
+	public String newRole(HttpServletRequest request) {
+		String ss = (String) SessionUtils.getSessionInfo(request.getSession(),
+				"superPwd", String.class);
+		if (StringUtils.checkNull(ss).booleanValue()) {
+			return "app/UserPriv/roleAuthorization";
+		}
+		return "app/UserPriv/newRole";
+	}
+
+	@RequestMapping({ "/adjustTheRole" })
+	public String adjustTheRole(HttpServletRequest request) {
+		String ss = (String) SessionUtils.getSessionInfo(request.getSession(),
+				"superPwd", String.class);
+		if (StringUtils.checkNull(ss).booleanValue()) {
+			return "app/UserPriv/roleAuthorization";
+		}
+		return "app/UserPriv/adjustTheRole";
+	}
+
+	@RequestMapping({ "/modifyThePermissions" })
+	public String modifyThePermissions(HttpServletRequest request) {
+		String ss = (String) SessionUtils.getSessionInfo(request.getSession(),
+				"superPwd", String.class);
+		if (StringUtils.checkNull(ss).booleanValue()) {
+			return "app/UserPriv/roleAuthorization";
+		}
+		return "app/UserPriv/modifyThePermissions";
+	}
+
+	@RequestMapping({ "/theAuxiliaryRole" })
+	public String theAuxiliaryRole(HttpServletRequest request) {
+		String ss = (String) SessionUtils.getSessionInfo(request.getSession(),
+				"superPwd", String.class);
+		if (StringUtils.checkNull(ss).booleanValue()) {
+			return "app/UserPriv/roleAuthorization";
+		}
+		return "app/UserPriv/theAuxiliaryRole";
+	}
+
+	@RequestMapping({ "/superPassword" })
+	public String superPassword(HttpServletRequest request) {
+		String ss = (String) SessionUtils.getSessionInfo(request.getSession(),
+				"superPwd", String.class);
+		if (StringUtils.checkNull(ss).booleanValue()) {
+			return "app/UserPriv/roleAuthorization";
+		}
+		return "app/UserPriv/superPassword";
+	}
+
+	@RequestMapping({ "/theHumanResources" })
+	public String theHumanResources(HttpServletRequest request) {
+		String ss = (String) SessionUtils.getSessionInfo(request.getSession(),
+				"superPwd", String.class);
+		if (StringUtils.checkNull(ss).booleanValue()) {
+			return "app/UserPriv/roleAuthorization";
+		}
+		return "app/UserPriv/theHumanResources";
+	}
+
+	@RequestMapping({ "/cloning" })
+	public String cloning() {
+		return "app/UserPriv/cloning";
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/userPriv/addUser" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	public ToJson<UserPriv> addPriv(UserPriv userPriv,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(new StringBuilder()
+				.append(Constant.MYOA)
+				.append((String) request.getSession().getAttribute(
+						"loginDateSouse")).toString());
+
+		ToJson json = new ToJson(1, null);
+		try {
+			int count = this.usersPrivService.insertSelective(userPriv);
+			if (userPriv.getPrivNo() == null) {
+				json.setMsg("角色排序号不能为空");
+				json.setFlag(1);
+				return json;
+			}
+			if (StringUtils.checkNull(userPriv.getPrivName()).booleanValue()) {
+				json.setMsg("角色名称不能为空");
+				json.setFlag(1);
+				return json;
+			}
+			if (count == 2) {
+				json.setMsg("角色名称不能重复");
+				json.setFlag(1);
+			} else {
+				json.setMsg("新建成功 ");
+				json.setFlag(0);
+				json.setObject(userPriv);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			json.setMsg("新建失败 ");
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/userPriv/deletePriv" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	public ToJson<UserPriv> deletePriv(UserPriv userPriv,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(new StringBuilder()
+				.append(Constant.MYOA)
+				.append((String) request.getSession().getAttribute(
+						"loginDateSouse")).toString());
+
+		ToJson json = new ToJson(1, null);
+		this.loger.debug(new StringBuilder().append("ID")
+				.append(userPriv.getUserPriv()).toString());
+		try {
+			this.usersPrivService.deleteByPrimaryKey(userPriv.getUserPriv()
+					.intValue());
+			json.setObject(userPriv);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/userPriv/findByuserPriv" })
+	public ToJson<UserPriv> findUserByuserPriv(int userPriv,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(new StringBuilder()
+				.append(Constant.MYOA)
+				.append((String) request.getSession().getAttribute(
+						"loginDateSouse")).toString());
+
+		ToJson json = new ToJson(1, null);
+		try {
+			UserPriv priv = this.usersPrivService.selectByPrimaryKey(userPriv);
+			json.setObject(priv);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/userPriv/getAllPriv" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<UserPriv> getAllPriv(Map<String, Object> maps, Integer page,
+			Integer pageSize, boolean useFlag, HttpServletRequest request) {
+		ContextHolder.setConsumerType(new StringBuilder()
+				.append(Constant.MYOA)
+				.append((String) request.getSession().getAttribute(
+						"loginDateSouse")).toString());
+
+		ToJson json = new ToJson(1, null);
+		try {
+			List list = this.usersPrivService.getAllPriv(maps, page, pageSize,
+					useFlag);
+			json.setObj(list);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/userPriv/getPrivByMany" })
+	public ToJson<UserPriv> getPrivByMany(UserPriv userPriv,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(new StringBuilder()
+				.append(Constant.MYOA)
+				.append((String) request.getSession().getAttribute(
+						"loginDateSouse")).toString());
+
+		ToJson json = new ToJson(1, null);
+		try {
+			List list = this.usersPrivService.getPrivByMany(userPriv);
+			json.setObj(list);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getAllUserPriv" })
+	public ToJson<UserPriv> getAllUserPriv(HttpServletRequest request) {
+		ContextHolder.setConsumerType(new StringBuilder()
+				.append(Constant.MYOA)
+				.append((String) request.getSession().getAttribute(
+						"loginDateSouse")).toString());
+
+		ToJson json = new ToJson(1, null);
+		try {
+			List list = this.usersPrivService.getAllUserPriv();
+			json.setObj(list);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			e.printStackTrace();
+			json.setMsg(e.getMessage());
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/userPriv/updateUser" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	public ToJson<UserPriv> updateUserPriv(UserPriv userPriv,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(new StringBuilder()
+				.append(Constant.MYOA)
+				.append((String) request.getSession().getAttribute(
+						"loginDateSouse")).toString());
+
+		ToJson json = new ToJson(1, "error");
+		try {
+			if (userPriv.getFuncIdStr() == null) {
+				if (userPriv.getPrivNo() == null) {
+					json.setMsg("角色排序号不能为空");
+					json.setFlag(1);
+					return json;
+				}
+				if (StringUtils.checkNull(userPriv.getPrivName())
+						.booleanValue()) {
+					json.setMsg("角色名称不能为空");
+					json.setFlag(1);
+					return json;
+				}
+				int count = this.usersPrivService.updateUserPriv(userPriv);
+				if (count == 2) {
+					json.setMsg("角色名称不能重复");
+					json.setFlag(1);
+				} else {
+					json.setMsg("修改成功");
+					json.setFlag(0);
+				}
+			} else {
+				int count = this.usersPrivService.updateUserPriv(userPriv);
+				json.setMsg("修改成功");
+				json.setFlag(0);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			json.setMsg("修改失败");
+			L.e(new Object[] { new StringBuilder()
+					.append("UserPrivController updateUserPriv:").append(e)
+					.toString() });
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/userPriv/getBySearch" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<UserPriv> getBySearch(HttpServletRequest request,
+			Map<String, Object> maps) {
+		ToJson json = new ToJson();
+		try {
+			request.setCharacterEncoding("UTF-8");
+			String search = request.getParameter("search");
+			System.out.println(search);
+
+			maps = new HashMap();
+			maps.put("privName", search);
+			List list = this.usersPrivService.getPrivBySearch(maps);
+			json.setObj(list);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+			json.setFlag(1);
+			System.out.println(e.getMessage());
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/userPriv/copyUserPriv" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	public ToJson<UserPriv> copyUserPriv(UserPriv userPriv,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(new StringBuilder()
+				.append(Constant.MYOA)
+				.append((String) request.getSession().getAttribute(
+						"loginDateSouse")).toString());
+
+		ToJson json = new ToJson(1, "error");
+		try {
+			this.usersPrivService.copyUserPriv(userPriv);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+
+			L.e(new Object[] { new StringBuilder()
+					.append("UserPrivController copyUserPriv:").append(e)
+					.toString() });
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/userPriv/checkSuperPass" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	public ToJson<UserPriv> checkSuperPass(String password,
+			HttpServletRequest request) {
+		ToJson json = new ToJson(1, "error");
+		int count = 0;
+		if ((password != null) && (password != ""))
+			count = this.usersPrivService.checkSuperPass(password);
+		try {
+			if (count != 0) {
+				HttpSession session = request.getSession();
+				SessionUtils.putSession(session, "superPwd", password);
+
+				session.setMaxInactiveInterval(600);
+				json.setMsg("OK");
+				json.setFlag(0);
+			}
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+			L.e(new Object[] { new StringBuilder()
+					.append("UserPrivController checkSuperPass:").append(e)
+					.toString() });
+		}
+
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/userPriv/updateSuperPass" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	public ToJson<UserPriv> updateSuperPass(String newPwd,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(new StringBuilder()
+				.append(Constant.MYOA)
+				.append((String) request.getSession().getAttribute(
+						"loginDateSouse")).toString());
+
+		ToJson json = new ToJson(1, "error");
+		try {
+			this.usersPrivService.updateSuperPass(newPwd);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+
+			L.e(new Object[] { new StringBuilder()
+					.append("UserPrivController updateSuperPass:").append(e)
+					.toString() });
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/userPriv/deleteUserPriv" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	public ToJson<UserPriv> deleteUserPriv(String privids, String funcIds,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(new StringBuilder()
+				.append(Constant.MYOA)
+				.append((String) request.getSession().getAttribute(
+						"loginDateSouse")).toString());
+
+		ToJson json = new ToJson(1, "error");
+		try {
+			this.usersPrivService.deleteUserPriv(privids, funcIds);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+
+			L.e(new Object[] { new StringBuilder()
+					.append("UserPrivController deleteUserPriv:").append(e)
+					.toString() });
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/userPriv/updateUserPrivfuncIdStr" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	public ToJson<UserPriv> updateUserPrivfuncIdStr(String privids,
+			String funcIds, HttpServletRequest request) {
+		ContextHolder.setConsumerType(new StringBuilder()
+				.append(Constant.MYOA)
+				.append((String) request.getSession().getAttribute(
+						"loginDateSouse")).toString());
+
+		ToJson json = new ToJson(1, "error");
+		try {
+			this.usersPrivService.updateUserPrivfuncIdStr(privids, funcIds);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+
+			L.e(new Object[] { new StringBuilder()
+					.append("UserPrivController updateUserPrivfuncIdStr:")
+					.append(e).toString() });
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/userPriv/updNoByPrivId" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	public ToJson<UserPriv> updNoByPrivId(UserPriv userPrivs,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(new StringBuilder()
+				.append(Constant.MYOA)
+				.append((String) request.getSession().getAttribute(
+						"loginDateSouse")).toString());
+
+		return this.usersPrivService.updNoByPrivId(userPrivs);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/userPriv/updateUserFunByUID" })
+	public ToJson<UserPriv> updateUserFunByUID(String userId, String funcIds,
+			int sign) {
+		ToJson json = new ToJson(1, "error");
+		try {
+			if (sign == 1) {
+				return this.usersPrivService.addUserFunByUID(userId, funcIds);
+			}
+			this.usersPrivService.deleteUserFunByUID(userId, funcIds);
+
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+
+			L.e(new Object[] { new StringBuilder()
+					.append("UserPrivController updateUserFunByUID:").append(e)
+					.toString() });
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/outputUserPriv" })
+	public ToJson<UserPriv> outputUserPriv(HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		ToJson json = new ToJson(1, "error");
+		try {
+			HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("角色权限信息导出", 9);
+			String[] secondTitles = { "角色排序号", "角色名称", "权限模块" };
+			HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1,
+					secondTitles);
+			UserPriv userPriv = new UserPriv();
+			List<UserPriv> userPrivList = this.usersPrivService
+					.getAllUserPriv();
+			for (UserPriv userPriv1 : userPrivList) {
+				StringBuffer tempStr = new StringBuffer();
+				String[] funcIdArray = userPriv1.getFuncIdStr().split(",");
+				for (String funcId : funcIdArray) {
+					String funcStr = this.usersPrivService
+							.getFunNameByFunId(funcId);
+					if (funcStr != null) {
+						tempStr.append(new StringBuilder().append(funcStr)
+								.append(",").toString());
+					}
+				}
+				userPriv1.setFuncIdStr(tempStr.toString());
+			}
+
+			String[] beanProperty = { "privNo", "privName", "funcIdStr" };
+			HSSFWorkbook workbook = ExcelUtil.exportExcelData(workbook2,
+					userPrivList, beanProperty);
+			ServletOutputStream out = response.getOutputStream();
+
+			String filename = "角色权限导出.xls";
+			filename = FileUtils.encodeDownloadFilename(filename,
+					request.getHeader("user-agent"));
+
+			response.setContentType("application/vnd.ms-excel");
+			response.setHeader("content-disposition", new StringBuilder()
+					.append("attachment;filename=").append(filename).toString());
+
+			workbook.write(out);
+			out.close();
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+
+			L.e(new Object[] { new StringBuilder()
+					.append("UserPrivController outputUserPriv:").append(e)
+					.toString() });
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/inputUserPriv" })
+	public ToJson<UserPriv> inputUserPriv(HttpServletRequest request,
+			HttpServletResponse response, MultipartFile file,
+			HttpSession session) throws Exception {
+		ToJson json = new ToJson(1, "error");
+		try {
+			ResourceBundle rb = ResourceBundle.getBundle("upload");
+
+			String osName = System.getProperty("os.name");
+			StringBuffer path = new StringBuffer();
+			if (osName.toLowerCase().startsWith("win"))
+				path = path.append(rb.getString("upload.win"));
+			else {
+				path = path.append(rb.getString("upload.linux"));
+			}
+
+			UserPriv temp = new UserPriv();
+			if (file.isEmpty()) {
+				json.setMsg("请上传文件！");
+				return json;
+			}
+			String fileName = file.getOriginalFilename();
+			if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+				String uuid = UUID.randomUUID().toString();
+				uuid = uuid.replaceAll("-", "");
+				int pos = fileName.lastIndexOf(".");
+				String extName = fileName.substring(pos);
+				String newFileName = new StringBuilder().append(uuid)
+						.append(extName).toString();
+				String readPath = path
+						.append(System.getProperty("file.separator"))
+						.append(newFileName).toString();
+				File dest = new File(readPath);
+				file.transferTo(dest);
+
+				InputStream in = new FileInputStream(readPath);
+				HSSFWorkbook excelObj = new HSSFWorkbook(in);
+				HSSFSheet sheetObj = excelObj.getSheetAt(0);
+				Row rowObj = null;
+				int lastRowNum = sheetObj.getLastRowNum();
+				int success = 0;
+				int fail = 0;
+				for (int i = 2; i <= lastRowNum; i++) {
+					rowObj = sheetObj.getRow(i);
+					if (rowObj != null) {
+						Cell c0 = rowObj.getCell(0);
+						Cell c1 = rowObj.getCell(1);
+						Cell c2 = rowObj.getCell(2);
+						String cell0 = "";
+						if (c0 != null) {
+							if (0 == c0.getCellType()) {
+								double d = c0.getNumericCellValue();
+								cell0 = String.valueOf(d);
+							} else {
+								cell0 = c0.getStringCellValue();
+							}
+						}
+						if ((!StringUtils.checkNull(cell0).booleanValue())
+								&& (!StringUtils.checkNull(
+										c1.getStringCellValue()).booleanValue())
+								&& (!StringUtils.checkNull(
+										c2.getStringCellValue()).booleanValue())) {
+							if ((!StringUtils.checkNull(cell0).booleanValue())
+									&& (!StringUtils.checkNull(
+											c1.getStringCellValue())
+											.booleanValue())) {
+								UserPriv userPriv = new UserPriv();
+								if (cell0.contains(".")) {
+									cell0 = cell0.substring(0,
+											cell0.length() - 2);
+								}
+								userPriv.setPrivNo(Short.valueOf(cell0));
+								userPriv.setPrivName(c1.getStringCellValue());
+								String cell1 = c2.getStringCellValue();
+								String[] funcStrArray = cell1.split(",");
+								StringBuffer tempStr = new StringBuffer();
+								for (String funcStr : funcStrArray) {
+									List<String> funcIdList = this.usersPrivService
+											.getFunIdByFunName(funcStr.trim());
+									if (funcIdList.size() > 0) {
+										for (String funcId : funcIdList) {
+											tempStr.append(new StringBuilder()
+													.append(funcId).append(",")
+													.toString());
+										}
+									}
+								}
+								userPriv.setFuncIdStr(tempStr.toString());
+								int reapName = this.usersPrivService
+										.insertSelective(userPriv);
+								if (reapName != 2) {
+									success++;
+								} else {
+									fail++;
+									temp.setReapNameCount(Integer.valueOf(1));
+								}
+							} else {
+								fail++;
+								temp.setEmptyCount(Integer.valueOf(1));
+							}
+						}
+					}
+				}
+
+				temp.setInsertCounts(Integer.valueOf(success));
+				temp.setFailCounts(Integer.valueOf(fail));
+				json.setFlag(0);
+				json.setObject(temp);
+				dest.delete();
+			} else {
+				json.setMsg("文件类型不正确！");
+				return json;
+			}
+		} catch (Exception e) {
+			json.setMsg("数据保存异常");
+			e.printStackTrace();
+			L.e(new Object[] { new StringBuilder()
+					.append("UserPrivController inputUserPriv:").append(e)
+					.toString() });
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/userPriv/insertRoleManager" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	public ToJson<RoleManager> insertRoleManager(RoleManager roleManager) {
+		ToJson json = new ToJson(1, "error");
+		try {
+			int result = this.usersPrivService.insertRoleManager(roleManager);
+			if (result != 0) {
+				json.setObject(roleManager);
+				json.setMsg("OK");
+				json.setFlag(0);
+			}
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+			L.e(new Object[] { new StringBuilder()
+					.append("UserPrivController insertRoleManager:").append(e)
+					.toString() });
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/userPriv/updateRoleManager" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	public ToJson<RoleManager> updateRoleManager(RoleManager roleManager) {
+		ToJson json = new ToJson(1, "error");
+		try {
+			int result = this.usersPrivService.updateRoleManager(roleManager);
+			if (result != 0) {
+				json.setObject(roleManager);
+				json.setMsg("OK");
+				json.setFlag(0);
+			}
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+			L.e(new Object[] { new StringBuilder()
+					.append("UserPrivController updateRoleManager:").append(e)
+					.toString() });
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/userPriv/deleteRoleManagerById" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	public ToJson<RoleManager> deleteRoleManagerById(int roleManagerId) {
+		ToJson json = new ToJson(1, "error");
+		try {
+			int result = this.usersPrivService
+					.deleteRoleManagerById(roleManagerId);
+			if (result != 0) {
+				json.setMsg("OK");
+				json.setFlag(0);
+			}
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+			L.e(new Object[] { new StringBuilder()
+					.append("UserPrivController deleteRoleManagerById:")
+					.append(e).toString() });
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/userPriv/getRoleManagerById" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST })
+	public ToJson<RoleManager> getRoleManagerById(int roleManagerId) {
+		ToJson json = new ToJson(1, "error");
+		RoleManager roleManager = new RoleManager();
+		try {
+			roleManager = this.usersPrivService
+					.getRoleManagerById(roleManagerId);
+			json.setObject(roleManager);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+			L.e(new Object[] { new StringBuilder()
+					.append("UserPrivController getRoleManagerById:").append(e)
+					.toString() });
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/userPriv/getAllRoleManager" })
+	public ToJson<RoleManager> getAllRoleManager() {
+		ToJson json = new ToJson(1, "error");
+		RoleManager roleManager = new RoleManager();
+		try {
+			List roleManagerList = this.usersPrivService.getAllRoleManager();
+			json.setObj(roleManagerList);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+			L.e(new Object[] { new StringBuilder()
+					.append("UserPrivController getAllRoleManager:").append(e)
+					.toString() });
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/userPriv/aaa" })
+	public AjaxJson aaa() {
+		AjaxJson ajaxJson = new AjaxJson();
+		Map map = new HashMap();
+
+		String str = "12,2,5,9,3,7,5,12,1,2,5,9,6,4,2,7,9,2,3,";
+		TreeSet ts = new TreeSet();
+		int len1 = str.split(",").length;
+		String[] ss = str.split(",");
+		for (int i1 = 0; i1 < len1; i1++) {
+			ts.add(new StringBuilder().append(ss[i1]).append("").toString());
+		}
+
+		Iterator i1 = ts.iterator();
+		StringBuilder sb1 = new StringBuilder();
+		while (i1.hasNext()) {
+			sb1.append(new StringBuilder().append((String) i1.next())
+					.append(",").toString());
+		}
+
+		System.out.println(sb1.toString());
+		map.put("sb", sb1);
+		ajaxJson.setAttributes(map);
+		return ajaxJson;
+	}
+}

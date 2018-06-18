@@ -1,0 +1,37 @@
+/*    */ package com.xoa.util;
+/*    */ 
+/*    */ import java.util.HashMap;
+/*    */ import java.util.Map;
+/*    */ import java.util.ResourceBundle;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import javax.servlet.http.HttpSession;
+/*    */ 
+/*    */ public class DBPropertiesUtils
+/*    */ {
+/*    */   public static Map<String, String> getDbMsg(HttpServletRequest request)
+/*    */   {
+/* 27 */     String db = (String)request.getSession().getAttribute("loginDateSouse");
+/*    */ 
+/* 29 */     String ip = "";
+/* 30 */     String username = "";
+/* 31 */     String password = "";
+/* 32 */     ResourceBundle rb = ResourceBundle.getBundle("jdbc-sql");
+/* 33 */     String string = rb.getString("url" + db);
+/* 34 */     String[] urlArr = string.split(":");
+/* 35 */     String url = urlArr[2];
+/* 36 */     url = url.substring(2, url.length());
+/* 37 */     ip = url;
+/* 38 */     username = rb.getString("uname" + db);
+/* 39 */     password = rb.getString("password" + db);
+/* 40 */     Map map = new HashMap();
+/* 41 */     map.put("ip", ip);
+/* 42 */     map.put("username", username);
+/* 43 */     map.put("password", password);
+/* 44 */     return map;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.DBPropertiesUtils
+ * JD-Core Version:    0.6.0
+ */

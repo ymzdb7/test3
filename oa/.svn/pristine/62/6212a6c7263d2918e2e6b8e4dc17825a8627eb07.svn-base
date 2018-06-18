@@ -1,0 +1,65 @@
+/*    */ package com.xoa.controller.portalTemplate;
+/*    */ 
+/*    */ import com.xoa.model.portalTemplate.PortalTemplateWithBLOBs;
+/*    */ import com.xoa.service.portalTemplate.PortalTemplateService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import javax.annotation.Resource;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.stereotype.Controller;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"/temp"})
+/*    */ public class PortalTemplateController
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   private PortalTemplateService portalTemplateService;
+/*    */ 
+/*    */   @RequestMapping({"/temp"})
+/*    */   public String goIndex()
+/*    */   {
+/* 25 */     return "app/temp/index";
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/selectPortalTemplate"})
+/*    */   public ToJson selectPortalTemplate(Integer portalId)
+/*    */   {
+/* 39 */     return this.portalTemplateService.selectPortalTemplate(portalId);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/selectPortalTemplateById"})
+/*    */   public ToJson selectPortalTemplateById(Integer templateId)
+/*    */   {
+/* 52 */     return this.portalTemplateService.selectPortalTemplateById(templateId);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/insertPortalTemplate"})
+/*    */   public ToJson insertPortalTemplate(HttpServletRequest request, PortalTemplateWithBLOBs portalTemplateWithBLOBs)
+/*    */   {
+/* 65 */     return this.portalTemplateService.insertPortalTemplate(request, portalTemplateWithBLOBs);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/upPortalTemplate"})
+/*    */   public ToJson upPortalTemplate(PortalTemplateWithBLOBs portalTemplateWithBLOBs)
+/*    */   {
+/* 77 */     return this.portalTemplateService.upPortalTemplate(portalTemplateWithBLOBs);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/delPortalTemplate"})
+/*    */   public ToJson delPortalTemplate(PortalTemplateWithBLOBs portalTemplateWithBLOBs)
+/*    */   {
+/* 89 */     return this.portalTemplateService.delPortalTemplate(portalTemplateWithBLOBs);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.portalTemplate.PortalTemplateController
+ * JD-Core Version:    0.6.0
+ */

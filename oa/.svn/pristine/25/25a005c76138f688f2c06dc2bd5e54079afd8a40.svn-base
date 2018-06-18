@@ -1,0 +1,563 @@
+/*     */ package com.xoa.controller.department;
+/*     */ 
+/*     */ import com.xoa.dao.unitmanagement.UnitManageMapper;
+/*     */ import com.xoa.model.department.Department;
+/*     */ import com.xoa.model.unitmanagement.UnitManage;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.department.DepartmentService;
+/*     */ import com.xoa.service.users.UsersService;
+/*     */ import com.xoa.util.AjaxJson;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.commons.collections.map.HashedMap;
+/*     */ import org.apache.log4j.Logger;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/department"})
+/*     */ public class DepartmentController
+/*     */ {
+/*  47 */   private Logger loger = Logger.getLogger(DepartmentController.class);
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentService departmentService;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersService usersService;
+/*     */ 
+/*     */   @Resource
+/*     */   private UnitManageMapper unitManageMapper;
+/*     */ 
+/*  60 */   @RequestMapping({"/deptQuery"})
+/*     */   public String deptQuery() { return "app/department/deptQuery"; }
+/*     */ 
+/*     */   @RequestMapping({"/deptListShow"})
+/*     */   public String deptListShow() {
+/*  65 */     return "app/department/deptListShow";
+/*     */   }
+/*     */   @RequestMapping({"/newDeptManagement"})
+/*     */   public String companyInfo(HttpServletRequest request) {
+/*  70 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  72 */     return "app/sys/new_deptManagement";
+/*     */   }
+/*     */   @RequestMapping({"/batchSetDept"})
+/*     */   public String batchSetDept() {
+/*  77 */     return "app/department/batchSetDept";
+/*     */   }
+/*     */   @RequestMapping({"/upDeptRank"})
+/*     */   public String upDeptRank() {
+/*  82 */     return "app/department/upDeptRank";
+/*     */   }
+/*     */   @RequestMapping({"/exportOrImport"})
+/*     */   public String toExportOrImport() {
+/*  87 */     return "app/department/exportOrImport";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/addDept"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<Department> addDept(Department department, HttpServletRequest request)
+/*     */   {
+/* 102 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 104 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 106 */       if (!this.departmentService.checkDep(department, 0)) {
+/* 107 */         json.setMsg("该部门名称或排序号已经存在，请重新填写！");
+/* 108 */         json.setFlag(1);
+/* 109 */         return json;
+/*     */       }
+/* 111 */       Department departParent = null;
+/* 112 */       if (department.getDeptParent().intValue() != 0) {
+/* 113 */         departParent = this.departmentService.getDeptById(department.getDeptParent().intValue());
+/* 114 */         department.setDeptNo(departParent.getDeptNo() + department.getDeptNo());
+/*     */       } else {
+/* 116 */         List listByNo = this.departmentService.getDepByNo(department.getDeptNo());
+/* 117 */         if (listByNo.size() > 0) {
+/* 118 */           json.setMsg("该部门名称或排序号已经存在，请重新填写！");
+/* 119 */           json.setFlag(1);
+/* 120 */           return json;
+/*     */         }
+/* 122 */         department.setDeptNo(department.getDeptNo());
+/*     */       }
+/* 124 */       this.departmentService.insertDept(department);
+/* 125 */       json.setObject(department);
+/* 126 */       json.setMsg("OK");
+/* 127 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 129 */       json.setMsg("err");
+/* 130 */       json.setFlag(1);
+/* 131 */       e.printStackTrace();
+/*     */     }
+/* 133 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/deletedept"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   public ToJson<Department> deletedept(Department department, HttpServletRequest request)
+/*     */   {
+/* 150 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 152 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 154 */       Department dep = this.departmentService.getDeptById(department.getDeptId().intValue());
+/* 155 */       List<Department> list = this.departmentService.getChDeptByNo(dep.getDeptNo());
+/* 156 */       Users admin = this.usersService.findUserByName("admin", request);
+/* 157 */       for (Department d : list) {
+/* 158 */         List<Users> l = this.usersService.getUsersByDeptId(d.getDeptId());
+/* 159 */         if (l.size() > 0) {
+/* 160 */           json.setFlag(1);
+/* 161 */           json.setMsg("该部门下有人员，请处理后再删除该部门");
+/* 162 */           return json;
+/*     */         }
+/* 164 */         for (Users u : l) {
+/* 165 */           if (u.getUserId().equals(admin.getUserId())) {
+/* 166 */             json.setFlag(1);
+/* 167 */             json.setMsg("该部门下有人员，请处理后再删除该部门");
+/* 168 */             return json;
+/*     */           }
+/*     */         }
+/*     */       }
+/* 172 */       for (Department d : list) {
+/* 173 */         this.departmentService.deleteDept(d.getDeptId().intValue());
+/*     */       }
+/* 175 */       json.setFlag(0);
+/* 176 */       json.setMsg("true");
+/*     */     } catch (Exception e) {
+/* 178 */       json.setMsg(e.getMessage());
+/* 179 */       json.setFlag(1);
+/* 180 */       json.setMsg("false");
+/*     */     }
+/* 182 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getDeptById"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   public ToJson<Department> getDeptByid(int deptId, HttpServletRequest request)
+/*     */   {
+/* 197 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 199 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 201 */       Department department = this.departmentService.getDeptById(deptId);
+/*     */ 
+/* 203 */       if (!com.xoa.util.common.StringUtils.checkNull(department.getManager()).booleanValue()) {
+/* 204 */         String managerName = this.usersService.findUsersByuid(department.getManager());
+/* 205 */         if (!com.xoa.util.common.StringUtils.checkNull(managerName).booleanValue()) {
+/* 206 */           department.setManagerStr(managerName);
+/*     */         }
+/*     */       }
+/* 209 */       if (!com.xoa.util.common.StringUtils.checkNull(department.getAssistantId()).booleanValue()) {
+/* 210 */         String assistantStr = this.usersService.findUsersByuid(department.getAssistantId());
+/* 211 */         if (!com.xoa.util.common.StringUtils.checkNull(assistantStr).booleanValue()) {
+/* 212 */           department.setAssistantStr(assistantStr);
+/*     */         }
+/*     */       }
+/* 215 */       if (!com.xoa.util.common.StringUtils.checkNull(department.getLeader1()).booleanValue()) {
+/* 216 */         String leader1Name = this.usersService.findUsersByuid(department.getLeader1());
+/* 217 */         if (!com.xoa.util.common.StringUtils.checkNull(leader1Name).booleanValue()) {
+/* 218 */           department.setLeader1Name(leader1Name);
+/*     */         }
+/*     */       }
+/* 221 */       if (!com.xoa.util.common.StringUtils.checkNull(department.getLeader2()).booleanValue()) {
+/* 222 */         String leader2Name = this.usersService.findUsersByuid(department.getLeader2());
+/* 223 */         if (!com.xoa.util.common.StringUtils.checkNull(leader2Name).booleanValue()) {
+/* 224 */           department.setLeader2Name(leader2Name);
+/*     */         }
+/*     */       }
+/*     */ 
+/* 228 */       String assistantId = department.getAssistantId();
+/*     */ 
+/* 230 */       department.setAssistantId(this.usersService.findUsersByuid(assistantId) + "&" + assistantId);
+/* 231 */       String manager = department.getManager();
+/* 232 */       department.setManager(this.usersService.findUsersByuid(manager) + "&" + manager);
+/* 233 */       String leader1 = department.getLeader1();
+/* 234 */       department.setLeader1(this.usersService.findUsersByuid(leader1) + "&" + leader1);
+/* 235 */       String leader2 = department.getLeader2();
+/* 236 */       department.setLeader2(this.usersService.findUsersByuid(leader2) + "&" + leader2);
+/* 237 */       if (!com.xoa.util.common.StringUtils.checkNull(department.getClassifyOrgAdmin()).booleanValue()) {
+/* 238 */         String orgAminName = this.usersService.findUsersByuid(department.getClassifyOrgAdmin());
+/* 239 */         if (!com.xoa.util.common.StringUtils.checkNull(orgAminName).booleanValue()) {
+/* 240 */           department.setClassifyOrgAdminName(orgAminName);
+/*     */         }
+/*     */       }
+/* 243 */       json.setObject(department);
+/* 244 */       json.setMsg("OK");
+/* 245 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 247 */       json.setMsg(e.getMessage());
+/*     */     }
+/*     */ 
+/* 250 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getAlldept"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Department> getAlldept(HttpServletRequest request)
+/*     */   {
+/* 265 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 267 */     ToJson json = new ToJson(1, null);
+/*     */     try {
+/* 269 */       List list = this.departmentService.getDatagrid();
+/* 270 */       json.setObj(list);
+/* 271 */       json.setMsg("OK");
+/* 272 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 274 */       json.setMsg(e.getMessage());
+/*     */     }
+/*     */ 
+/* 277 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/editDept"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<Department> editDept(Department department, HttpServletRequest request)
+/*     */   {
+/* 293 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 295 */     ToJson json = new ToJson(0, null);
+/* 296 */     this.loger.debug("ID" + department.getDeptId());
+/*     */     try {
+/* 298 */       if (!this.departmentService.checkDep(department, 1)) {
+/* 299 */         json.setMsg("该部门名称或排序号已经存在，请重新填写！");
+/* 300 */         json.setFlag(1);
+/* 301 */         return json;
+/*     */       }
+/* 303 */       this.departmentService.editDept(department);
+/* 304 */       json.setObject(department);
+/* 305 */       json.setMsg("OK");
+/* 306 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 308 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 310 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getDeptByMany"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<Department> getDeptByMany(Department department, HttpServletRequest request)
+/*     */   {
+/* 325 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 327 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 329 */       List list = this.departmentService.getDeptByMany(department);
+/* 330 */       json.setObj(list);
+/* 331 */       json.setMsg("OK");
+/* 332 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 334 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 336 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getChDeptfq"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Department> getChDept(HttpServletRequest request)
+/*     */   {
+/* 355 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 357 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 359 */       request.setCharacterEncoding("UTF-8");
+/* 360 */       int deptId = Integer.parseInt(new String(request.getParameter("deptId").getBytes("ISO-8859-1"), "UTF-8"));
+/* 361 */       List<Department> list = this.departmentService.getChDept(deptId);
+/* 362 */       List list2 = new ArrayList();
+/* 363 */       for (Department dep : list) {
+/* 364 */         if ((dep.getDeptParent() != null) && (dep.getDeptParent().intValue() > 0)) {
+/* 365 */           Department department = this.departmentService.getDeptById(dep.getDeptParent().intValue());
+/* 366 */           dep.setDeptParentName(department.getDeptName());
+/*     */         }
+/* 368 */         List list1 = new ArrayList();
+/* 369 */         list1 = this.departmentService.getChDept(dep.getDeptId().intValue());
+/* 370 */         if (list1.size() != 0)
+/* 371 */           dep.setIsHaveCh("1");
+/*     */         else {
+/* 373 */           dep.setIsHaveCh("0");
+/*     */         }
+/* 375 */         list2.add(dep);
+/*     */       }
+/* 377 */       List l = this.usersService.getUsersByDeptId(Integer.valueOf(deptId));
+/*     */ 
+/* 379 */       int classifyCount = this.departmentService.selClaNumByParentId(deptId);
+/* 380 */       if (classifyCount > 0)
+/* 381 */         json.setTotleNum(Integer.valueOf(1));
+/*     */       else {
+/* 383 */         json.setTotleNum(Integer.valueOf(0));
+/*     */       }
+/* 385 */       json.setObject(l);
+/* 386 */       json.setObj(list2);
+/* 387 */       json.setMsg("OK");
+/* 388 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 390 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 392 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getFatherDept"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Department> getFatherDept(HttpServletRequest request)
+/*     */   {
+/* 408 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 410 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 412 */       request.setCharacterEncoding("UTF-8");
+/* 413 */       int deptParent = Integer.parseInt(new String(request.getParameter("deptParent").getBytes("ISO-8859-1"), "UTF-8"));
+/* 414 */       List list = new ArrayList();
+/* 415 */       list = this.departmentService.getFatherDept(deptParent, list);
+/* 416 */       StringBuffer sb = new StringBuffer();
+/* 417 */       for (int i = list.size() - 1; i >= 0; i--) {
+/* 418 */         sb.append(((Department)list.get(i)).getDeptName());
+/* 419 */         if (i > 0) {
+/* 420 */           sb.append("/");
+/*     */         }
+/*     */       }
+/* 423 */       json.setObject(sb);
+/* 424 */       json.setMsg("OK");
+/* 425 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 427 */       json.setMsg(e.getMessage());
+/*     */     }
+/*     */ 
+/* 430 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getChDeptByNo"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Department> getChDeptByNo(HttpServletRequest request, Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 450 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 452 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 454 */       request.setCharacterEncoding("UTF-8");
+/* 455 */       String deptNo = new String(request.getParameter("deptNo").getBytes("ISO-8859-1"), "UTF-8");
+/* 456 */       maps.put("deptNo", deptNo);
+/* 457 */       List list = new ArrayList();
+/* 458 */       list = this.departmentService.getChDeptByNo(deptNo);
+/* 459 */       json.setObj(list);
+/* 460 */       json.setMsg("OK");
+/* 461 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 463 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 465 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getChDept"}, produces={"application/json;charset=UTF-8"})
+/*     */   public AjaxJson getChDeptUser(HttpServletRequest request)
+/*     */   {
+/* 481 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try {
+/* 483 */       int count = 0;
+/* 484 */       String deptId = request.getParameter("deptId");
+/* 485 */       if (com.xoa.util.common.StringUtils.checkNull(deptId).booleanValue()) {
+/* 486 */         List<Department> list = this.departmentService.getDepartmentByParet();
+/* 487 */         for (Department department : list) {
+/* 488 */           int a = this.departmentService.getCountChDeptUser(department.getDeptNo());
+/* 489 */           count += a;
+/* 490 */           List list2 = this.departmentService.getChDept(department.getDeptId().intValue());
+/* 491 */           if (list2.size() != 0)
+/* 492 */             department.setIsHaveCh("1");
+/*     */           else {
+/* 494 */             department.setIsHaveCh("0");
+/*     */           }
+/*     */         }
+/* 497 */         ajaxJson.setObj(list);
+/* 498 */         ajaxJson.setTotleNum(Integer.valueOf(count));
+/* 499 */         ajaxJson.setFlag(true);
+/* 500 */         ajaxJson.setMsg("Initialize query");
+/* 501 */         Map map = new HashedMap();
+/* 502 */         map.put("claNum", Integer.valueOf(0));
+/* 503 */         ajaxJson.setAttributes(map);
+/* 504 */         return ajaxJson;
+/*     */       }
+/*     */ 
+/* 507 */       List<Department> list = this.departmentService.getChDeptUser(Integer.parseInt(deptId));
+/* 508 */       Department dep = this.departmentService.getDeptById(Integer.parseInt(deptId));
+/* 509 */       count = this.departmentService.getCountChDeptUser(dep.getDeptNo());
+/* 510 */       for (Department department : list) {
+/* 511 */         List l = this.departmentService.getChDept(dep.getDeptId().intValue());
+/* 512 */         if (l.size() != 0)
+/* 513 */           department.setIsHaveCh("1");
+/*     */         else {
+/* 515 */           department.setIsHaveCh("0");
+/*     */         }
+/*     */       }
+/* 518 */       Map map = new HashedMap();
+/* 519 */       int classifyCount = this.departmentService.selClaNumByParentId(Integer.valueOf(deptId).intValue());
+/* 520 */       if (classifyCount > 0)
+/* 521 */         map.put("claNum", Integer.valueOf(1));
+/*     */       else {
+/* 523 */         map.put("claNum", Integer.valueOf(0));
+/*     */       }
+/* 525 */       ajaxJson.setAttributes(map);
+/* 526 */       ajaxJson.setTotleNum(Integer.valueOf(count));
+/* 527 */       ajaxJson.setObj(list);
+/* 528 */       ajaxJson.setMsg("OK");
+/* 529 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 531 */       ajaxJson.setFlag(false);
+/* 532 */       ajaxJson.setMsg(e.getMessage());
+/*     */     }
+/* 534 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/listDept"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Department> listDept(HttpServletRequest request) {
+/* 542 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 544 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 546 */       List list = this.departmentService.listDept();
+/* 547 */       for (int i = 0; i < list.size(); i++) {
+/* 548 */         Department department = (Department)list.get(i);
+/* 549 */         String deptNo = department.getDeptNo();
+/* 550 */         int count = deptNo.length() / 3;
+/* 551 */         StringBuffer sb = new StringBuffer();
+/* 552 */         sb.append(".").append(org.apache.commons.lang.StringUtils.repeat(" ", count)).append("|-").append(department.getDeptName());
+/* 553 */         String depName = sb.toString();
+/* 554 */         department.setDeptName(depName);
+/*     */       }
+/* 556 */       json.setObj(list);
+/* 557 */       json.setMsg("OK");
+/* 558 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 560 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 562 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getFatherChildDep"})
+/*     */   public ToJson<Department> getFatherChildDept(HttpServletRequest request)
+/*     */   {
+/* 650 */     ToJson toJson = new ToJson(0, "");
+/*     */     try {
+/* 652 */       List depList = this.departmentService.getFatherChildDept();
+/* 653 */       toJson.setMsg("OK");
+/* 654 */       toJson.setFlag(0);
+/* 655 */       toJson.setObject(depList);
+/*     */     } catch (Exception e) {
+/* 657 */       toJson.setMsg(e.getMessage());
+/*     */     }
+/* 659 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/batchUpdateDeptById"})
+/*     */   public ToJson<Department> batchUpdateDeptById(String departments)
+/*     */   {
+/* 674 */     return this.departmentService.batchUpdateDeptById(departments);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/updateDeptNo"})
+/*     */   public ToJson<Department> updateDeptNo()
+/*     */   {
+/* 688 */     int deptParent = 0;
+/* 689 */     String deptParentNo = "";
+/* 690 */     ToJson json = new ToJson(1, "error");
+/* 691 */     int count = 0;
+/*     */     try {
+/* 693 */       this.departmentService.updateDeptNo(Integer.valueOf(deptParent), deptParentNo);
+/* 694 */       json.setMsg("ok");
+/* 695 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 697 */       json.setMsg(e.getMessage());
+/* 698 */       L.e(new Object[] { "DepartmentController updateDeptNo:" + e });
+/*     */     }
+/* 700 */     return json;
+/*     */   }
+/* 706 */   @ResponseBody
+/*     */   @RequestMapping(value={"/AllDept"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Department> listDept() { ToJson json = new ToJson();
+/*     */     try
+/*     */     {
+/* 709 */       UnitManage unitManage = this.unitManageMapper.showUnitManage();
+/* 710 */       Department department = new Department();
+/* 711 */       department.setDeptId(Integer.valueOf(0));
+/* 712 */       department.setDeptName(unitManage.getUnitName());
+/* 713 */       department.setDeptNo("");
+/* 714 */       List depList = this.departmentService.listDept();
+/* 715 */       List returnList = new ArrayList();
+/* 716 */       returnList.add(department);
+/* 717 */       returnList.addAll(depList);
+/* 718 */       json.setObj(returnList);
+/* 719 */       json.setFlag(0);
+/* 720 */       json.setMsg("true");
+/*     */     } catch (Exception e) {
+/* 722 */       json.setMsg("false");
+/* 723 */       json.setFlag(1);
+/*     */     }
+/* 725 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/outputDepartment"})
+/*     */   public ToJson<Department> outputDepartment(HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/* 736 */     return this.departmentService.outputDepartment(request, response);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/inputDepartment"})
+/*     */   public ToJson<Department> inputDepartment(HttpServletRequest request, HttpServletResponse response, MultipartFile file, HttpSession session)
+/*     */   {
+/* 747 */     return this.departmentService.importDepartment(request, response, file);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getAllDepartment"})
+/*     */   public ToJson<Department> getAllDepartment()
+/*     */   {
+/* 759 */     return this.departmentService.getAllDepartment();
+/*     */   }
+/* 765 */   @ResponseBody
+/*     */   @RequestMapping({"/getAllDeptAndUsers"})
+/*     */   public void getAllDeptAndUsers(HttpServletRequest request, HttpServletResponse response) { this.departmentService.getAllDepartAndUsers(request, response); }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/importDepartment"})
+/*     */   public ToJson<Department> importDepartment(HttpServletRequest request, HttpServletResponse response, MultipartFile file) {
+/* 772 */     return this.departmentService.importDepartment(request, response, file);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selDeptNoByDeptParent"})
+/*     */   public ToJson<Department> selDeptNoByDeptParent(String deptParent, String deptNo, int editFlag, String proDeptNo)
+/*     */   {
+/* 784 */     return this.departmentService.selDeptNoByDeptParent(deptParent, deptNo, editFlag, proDeptNo);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selByLikeDeptName"})
+/*     */   public ToJson<Department> selByLikeDeptName(String deptName)
+/*     */   {
+/* 797 */     return this.departmentService.selByLikeDeptName(deptName);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.department.DepartmentController
+ * JD-Core Version:    0.6.0
+ */

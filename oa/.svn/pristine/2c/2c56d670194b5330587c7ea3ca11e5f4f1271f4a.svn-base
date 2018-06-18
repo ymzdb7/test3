@@ -1,0 +1,170 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>宏控件</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >
+    <link rel="stylesheet" href="../formdesign/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="../../../css/ueditor/site.css">
+    <script type="text/javascript" src="../dialogs/internal.js"></script>
+    <script type="text/javascript" src="../../../js/jquery/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="../../../js/base/base.js"></script>
+    <script type="text/javascript">
+        function createElement(type, name)
+        {
+            var element = null;
+            try {
+                element = document.createElement('<'+type+' name="'+name+'">');
+            } catch (e) {}
+            if(element==null) {
+                element = document.createElement(type);
+                element.name = name;
+            }
+            return element;
+        }
+    </script>
+</head>
+<body>
+<div class="content">
+    <table class="table table-bordered table-striped table-hover">
+        <thead>
+        <tr>
+            <th><span>控件名称</span><span class="label label-important">*</span></th>
+            <th><span>类型</span></th>
+        </tr>
+        <tr>
+            <td>
+                <input id="orgname" type="text" placeholder="必填项"/>
+            </td>
+            <td>
+                <select  id="datafld" class="">
+
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th  colspan="2">
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;宽&nbsp;&nbsp;X&nbsp;&nbsp;高&nbsp;&nbsp;&nbsp;&&nbsp;&nbsp;&nbsp;字体大小</span>
+            </th>
+
+        </tr>
+        <tr>
+            <td  colspan="2">
+                <input id="orgwidth" type="text" value="150" class="input-small span1" placeholder="auto"/>
+                X
+                <input id="orgheight" type="text" value="" class="input-small span1" placeholder="auto"/>
+                &
+                <input id="orgfontsize" type="text" value="" class="input-small span1" placeholder="auto"/> px
+
+            </td>
+
+        </tr>
+        </thead>
+
+
+    </table>
+</div>
+<script type="text/javascript">
+    $(function () {
+        build();
+        function build(){
+            $.ajax({
+                type: "post",
+                url: "../../../document/getRuleAll",
+                dataType: 'JSON',
+                success: function (obj) {
+                    if(obj.flag==true){
+                        var option = '';
+                        obj.obj.forEach(function(v,i){
+                            option+='<option value="'+v.id+'">'+v.expression+'</option>';
+                        });
+                        $('#datafld').html(option);
+                        if( UE.plugins[thePlugins].editdom ) {
+                            oNode = UE.plugins[thePlugins].editdom;
+                            var gTitle=oNode.getAttribute('title').replace(/&quot;/g,"\""),gType=oNode.getAttribute('datafld'),
+                                gFontSize = oNode.getAttribute('orgfontsize'),
+                                gWidth = oNode.getAttribute('orgwidth'),
+                                    gHeight = oNode.getAttribute('orgheight');
+                            gTitle = gTitle==null ? '' : gTitle;
+                            if(gWidth != ''){
+                                $G('orgwidth').value = gWidth;
+                            }
+                            $G('orgheight').value = gHeight;
+                            $G('orgfontsize').value = gFontSize;
+                            $G('orgname').value = gTitle;
+                            $G('datafld').value    = gType;
+
+                        }
+                    }
+                }
+            });
+        }
+        var oNode = null,thePlugins = 'autocode';
+        var dataid = $.getQueryString('dataid');
+        var dataNumber=parent.pluginId;
+
+
+
+        dialog.oncancel = function () {
+            if( UE.plugins[thePlugins].editdom ) {
+                delete UE.plugins[thePlugins].editdom;
+            }
+        };
+        dialog.onok = function (){
+            if ( $G('orgname').value == '' ) {
+                alert('控件名称不能为空');
+                return false;
+            }
+            var gTitle=$G('orgname').value.replace(/\"/g,"&quot;"),gType=$G('datafld').value,
+                gFontSize = $G('orgfontsize').value,
+                gWidth = $G('orgwidth').value,
+                gHeight = $G('orgheight').value;
+            if( !oNode ) {
+                try {
+
+                    oNode = createElement('input','leipiNewField');
+                    oNode.setAttribute('type','text');
+                    oNode.setAttribute('value','{autocode}');
+                    oNode.setAttribute('class', "form_item ");
+                    oNode.setAttribute('data-type', "autocode");
+                    oNode.setAttribute('title',gTitle);
+                    oNode.setAttribute('name','DATA_'+dataNumber);
+                    oNode.setAttribute('id','DATA_'+dataNumber);
+                    oNode.setAttribute('datafld',gType);
+                    oNode.setAttribute('orgfontsize',gFontSize);
+                    oNode.setAttribute('orgwidth',gWidth);
+                    oNode.setAttribute('orgheight',gHeight);
+                    editor.execCommand('insertHtml',oNode.outerHTML);
+                    return true;
+                } catch ( e ) {
+                    try {
+                        editor.execCommand('error');
+                    } catch ( e ) {
+                        alert(控件异常);
+                    }
+                    return false;
+                }
+            } else {
+                
+                oNode = createElement('input','leipiNewField');
+                oNode.setAttribute('type','text');
+                oNode.setAttribute('value','{autocode}');
+                oNode.setAttribute('class', "form_item ");
+                oNode.setAttribute('data-type', "autocode");
+                oNode.setAttribute('title',gTitle);
+                oNode.setAttribute('name','DATA_'+dataid);
+                oNode.setAttribute('id','DATA_'+dataid);
+                oNode.setAttribute('datafld',gType);
+                oNode.setAttribute('orgfontsize',gFontSize);
+                oNode.setAttribute('orgwidth',gWidth);
+                oNode.setAttribute('orgheight',gHeight);
+
+                delete UE.plugins[thePlugins].editdom;
+            }
+        };
+
+    });
+
+</script>
+</body>
+</html>

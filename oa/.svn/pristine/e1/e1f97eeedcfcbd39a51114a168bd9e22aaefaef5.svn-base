@@ -1,0 +1,519 @@
+/*     */ package com.xoa.model.workflow;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class FlowPrintTplExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public FlowPrintTplExample()
+/*     */   {
+/*  15 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause) {
+/*  19 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause() {
+/*  23 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct) {
+/*  27 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct() {
+/*  31 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria() {
+/*  35 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria) {
+/*  39 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or() {
+/*  43 */     Criteria criteria = createCriteriaInternal();
+/*  44 */     this.oredCriteria.add(criteria);
+/*  45 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria() {
+/*  49 */     Criteria criteria = createCriteriaInternal();
+/*  50 */     if (this.oredCriteria.size() == 0) {
+/*  51 */       this.oredCriteria.add(criteria);
+/*     */     }
+/*  53 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal() {
+/*  57 */     Criteria criteria = new Criteria();
+/*  58 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear() {
+/*  62 */     this.oredCriteria.clear();
+/*  63 */     this.orderByClause = null;
+/*  64 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 454 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 458 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 462 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 466 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 470 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 474 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 478 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 482 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 487 */       this.condition = condition;
+/* 488 */       this.typeHandler = null;
+/* 489 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 494 */       this.condition = condition;
+/* 495 */       this.value = value;
+/* 496 */       this.typeHandler = typeHandler;
+/* 497 */       if ((value instanceof List))
+/* 498 */         this.listValue = true;
+/*     */       else
+/* 500 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 505 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 510 */       this.condition = condition;
+/* 511 */       this.value = value;
+/* 512 */       this.secondValue = secondValue;
+/* 513 */       this.typeHandler = typeHandler;
+/* 514 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 518 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends FlowPrintTplExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<FlowPrintTplExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/*  72 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/*  76 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<FlowPrintTplExample.Criterion> getAllCriteria() {
+/*  80 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<FlowPrintTplExample.Criterion> getCriteria() {
+/*  84 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/*  88 */       if (condition == null) {
+/*  89 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/*  91 */       this.criteria.add(new FlowPrintTplExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/*  95 */       if (value == null) {
+/*  96 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/*  98 */       this.criteria.add(new FlowPrintTplExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 102 */       if ((value1 == null) || (value2 == null)) {
+/* 103 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 105 */       this.criteria.add(new FlowPrintTplExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTIdIsNull() {
+/* 109 */       addCriterion("T_ID is null");
+/* 110 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTIdIsNotNull() {
+/* 114 */       addCriterion("T_ID is not null");
+/* 115 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTIdEqualTo(Integer value) {
+/* 119 */       addCriterion("T_ID =", value, "tId");
+/* 120 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTIdNotEqualTo(Integer value) {
+/* 124 */       addCriterion("T_ID <>", value, "tId");
+/* 125 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTIdGreaterThan(Integer value) {
+/* 129 */       addCriterion("T_ID >", value, "tId");
+/* 130 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTIdGreaterThanOrEqualTo(Integer value) {
+/* 134 */       addCriterion("T_ID >=", value, "tId");
+/* 135 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTIdLessThan(Integer value) {
+/* 139 */       addCriterion("T_ID <", value, "tId");
+/* 140 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTIdLessThanOrEqualTo(Integer value) {
+/* 144 */       addCriterion("T_ID <=", value, "tId");
+/* 145 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTIdIn(List<Integer> values) {
+/* 149 */       addCriterion("T_ID in", values, "tId");
+/* 150 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTIdNotIn(List<Integer> values) {
+/* 154 */       addCriterion("T_ID not in", values, "tId");
+/* 155 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTIdBetween(Integer value1, Integer value2) {
+/* 159 */       addCriterion("T_ID between", value1, value2, "tId");
+/* 160 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTIdNotBetween(Integer value1, Integer value2) {
+/* 164 */       addCriterion("T_ID not between", value1, value2, "tId");
+/* 165 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andFlowIdIsNull() {
+/* 169 */       addCriterion("FLOW_ID is null");
+/* 170 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andFlowIdIsNotNull() {
+/* 174 */       addCriterion("FLOW_ID is not null");
+/* 175 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andFlowIdEqualTo(Integer value) {
+/* 179 */       addCriterion("FLOW_ID =", value, "flowId");
+/* 180 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andFlowIdNotEqualTo(Integer value) {
+/* 184 */       addCriterion("FLOW_ID <>", value, "flowId");
+/* 185 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andFlowIdGreaterThan(Integer value) {
+/* 189 */       addCriterion("FLOW_ID >", value, "flowId");
+/* 190 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andFlowIdGreaterThanOrEqualTo(Integer value) {
+/* 194 */       addCriterion("FLOW_ID >=", value, "flowId");
+/* 195 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andFlowIdLessThan(Integer value) {
+/* 199 */       addCriterion("FLOW_ID <", value, "flowId");
+/* 200 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andFlowIdLessThanOrEqualTo(Integer value) {
+/* 204 */       addCriterion("FLOW_ID <=", value, "flowId");
+/* 205 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andFlowIdIn(List<Integer> values) {
+/* 209 */       addCriterion("FLOW_ID in", values, "flowId");
+/* 210 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andFlowIdNotIn(List<Integer> values) {
+/* 214 */       addCriterion("FLOW_ID not in", values, "flowId");
+/* 215 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andFlowIdBetween(Integer value1, Integer value2) {
+/* 219 */       addCriterion("FLOW_ID between", value1, value2, "flowId");
+/* 220 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andFlowIdNotBetween(Integer value1, Integer value2) {
+/* 224 */       addCriterion("FLOW_ID not between", value1, value2, "flowId");
+/* 225 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTTypeIsNull() {
+/* 229 */       addCriterion("T_TYPE is null");
+/* 230 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTTypeIsNotNull() {
+/* 234 */       addCriterion("T_TYPE is not null");
+/* 235 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTTypeEqualTo(String value) {
+/* 239 */       addCriterion("T_TYPE =", value, "tType");
+/* 240 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTTypeNotEqualTo(String value) {
+/* 244 */       addCriterion("T_TYPE <>", value, "tType");
+/* 245 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTTypeGreaterThan(String value) {
+/* 249 */       addCriterion("T_TYPE >", value, "tType");
+/* 250 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTTypeGreaterThanOrEqualTo(String value) {
+/* 254 */       addCriterion("T_TYPE >=", value, "tType");
+/* 255 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTTypeLessThan(String value) {
+/* 259 */       addCriterion("T_TYPE <", value, "tType");
+/* 260 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTTypeLessThanOrEqualTo(String value) {
+/* 264 */       addCriterion("T_TYPE <=", value, "tType");
+/* 265 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTTypeLike(String value) {
+/* 269 */       addCriterion("T_TYPE like", value, "tType");
+/* 270 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTTypeNotLike(String value) {
+/* 274 */       addCriterion("T_TYPE not like", value, "tType");
+/* 275 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTTypeIn(List<String> values) {
+/* 279 */       addCriterion("T_TYPE in", values, "tType");
+/* 280 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTTypeNotIn(List<String> values) {
+/* 284 */       addCriterion("T_TYPE not in", values, "tType");
+/* 285 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTTypeBetween(String value1, String value2) {
+/* 289 */       addCriterion("T_TYPE between", value1, value2, "tType");
+/* 290 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTTypeNotBetween(String value1, String value2) {
+/* 294 */       addCriterion("T_TYPE not between", value1, value2, "tType");
+/* 295 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTNameIsNull() {
+/* 299 */       addCriterion("T_NAME is null");
+/* 300 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTNameIsNotNull() {
+/* 304 */       addCriterion("T_NAME is not null");
+/* 305 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTNameEqualTo(String value) {
+/* 309 */       addCriterion("T_NAME =", value, "tName");
+/* 310 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTNameNotEqualTo(String value) {
+/* 314 */       addCriterion("T_NAME <>", value, "tName");
+/* 315 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTNameGreaterThan(String value) {
+/* 319 */       addCriterion("T_NAME >", value, "tName");
+/* 320 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTNameGreaterThanOrEqualTo(String value) {
+/* 324 */       addCriterion("T_NAME >=", value, "tName");
+/* 325 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTNameLessThan(String value) {
+/* 329 */       addCriterion("T_NAME <", value, "tName");
+/* 330 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTNameLessThanOrEqualTo(String value) {
+/* 334 */       addCriterion("T_NAME <=", value, "tName");
+/* 335 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTNameLike(String value) {
+/* 339 */       addCriterion("T_NAME like", value, "tName");
+/* 340 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTNameNotLike(String value) {
+/* 344 */       addCriterion("T_NAME not like", value, "tName");
+/* 345 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTNameIn(List<String> values) {
+/* 349 */       addCriterion("T_NAME in", values, "tName");
+/* 350 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTNameNotIn(List<String> values) {
+/* 354 */       addCriterion("T_NAME not in", values, "tName");
+/* 355 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTNameBetween(String value1, String value2) {
+/* 359 */       addCriterion("T_NAME between", value1, value2, "tName");
+/* 360 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andTNameNotBetween(String value1, String value2) {
+/* 364 */       addCriterion("T_NAME not between", value1, value2, "tName");
+/* 365 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andCreateTimeIsNull() {
+/* 369 */       addCriterion("CREATE_TIME is null");
+/* 370 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andCreateTimeIsNotNull() {
+/* 374 */       addCriterion("CREATE_TIME is not null");
+/* 375 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andCreateTimeEqualTo(Date value) {
+/* 379 */       addCriterion("CREATE_TIME =", value, "createTime");
+/* 380 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andCreateTimeNotEqualTo(Date value) {
+/* 384 */       addCriterion("CREATE_TIME <>", value, "createTime");
+/* 385 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andCreateTimeGreaterThan(Date value) {
+/* 389 */       addCriterion("CREATE_TIME >", value, "createTime");
+/* 390 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andCreateTimeGreaterThanOrEqualTo(Date value) {
+/* 394 */       addCriterion("CREATE_TIME >=", value, "createTime");
+/* 395 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andCreateTimeLessThan(Date value) {
+/* 399 */       addCriterion("CREATE_TIME <", value, "createTime");
+/* 400 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andCreateTimeLessThanOrEqualTo(Date value) {
+/* 404 */       addCriterion("CREATE_TIME <=", value, "createTime");
+/* 405 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andCreateTimeIn(List<Date> values) {
+/* 409 */       addCriterion("CREATE_TIME in", values, "createTime");
+/* 410 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andCreateTimeNotIn(List<Date> values) {
+/* 414 */       addCriterion("CREATE_TIME not in", values, "createTime");
+/* 415 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andCreateTimeBetween(Date value1, Date value2) {
+/* 419 */       addCriterion("CREATE_TIME between", value1, value2, "createTime");
+/* 420 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public FlowPrintTplExample.Criteria andCreateTimeNotBetween(Date value1, Date value2) {
+/* 424 */       addCriterion("CREATE_TIME not between", value1, value2, "createTime");
+/* 425 */       return (FlowPrintTplExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.workflow.FlowPrintTplExample
+ * JD-Core Version:    0.6.0
+ */

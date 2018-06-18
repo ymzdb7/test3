@@ -1,0 +1,84 @@
+/*     */ package com.xoa.controller.wechat;
+/*     */ 
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.wechat.LikeUser;
+/*     */ import com.xoa.model.wechat.WeChat;
+/*     */ import com.xoa.service.wechat.weChat.WeChatService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/weChat"})
+/*     */ public class WeChatController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private WeChatService weChatService;
+/*     */ 
+/*     */   @RequestMapping({"/index"})
+/*     */   public String index()
+/*     */   {
+/*  31 */     return "app/weChat/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/insertWeChat"})
+/*     */   @ResponseBody
+/*     */   public ToJson<WeChat> insertWeChat(WeChat weChat, HttpServletRequest request)
+/*     */   {
+/*  42 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  43 */     return this.weChatService.insertWeChat(weChat, user);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/selectWeChat"})
+/*     */   @ResponseBody
+/*     */   public ToJson<WeChat> selectWeChat(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, HttpServletRequest request)
+/*     */   {
+/*  59 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/*  61 */     ContextHolder.setConsumerType(sqlType);
+/*  62 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  63 */     return this.weChatService.selectWeChat(maps, page, pageSize, useFlag, sqlType, user);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/updateWeChatByPrimaryKey"})
+/*     */   @ResponseBody
+/*     */   public ToJson<WeChat> updateWeChatByPrimaryKey(Integer wid, HttpServletRequest request)
+/*     */   {
+/*  74 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  75 */     return this.weChatService.updateWeChatByPrimaryKey(wid, user);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/selectWeChatByPrimaryKey"})
+/*     */   @ResponseBody
+/*     */   public ToJson<WeChat> selectWeChatByPrimaryKey(Integer wid, HttpServletRequest request)
+/*     */   {
+/*  86 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/*  88 */     ContextHolder.setConsumerType(sqlType);
+/*  89 */     return this.weChatService.selectWeChatByPrimaryKey(wid, sqlType);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/deleteByPrimaryKey"})
+/*     */   @ResponseBody
+/*     */   public ToJson<WeChat> deleteByPrimaryKey(Integer wid)
+/*     */   {
+/* 100 */     return this.weChatService.deleteByPrimaryKey(wid); } 
+/* 105 */   @RequestMapping({"/getLikeUser"})
+/*     */   @ResponseBody
+/*     */   public ToJson<LikeUser> getLikeUser(Integer wid) { return this.weChatService.getLikeUser(wid);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.wechat.WeChatController
+ * JD-Core Version:    0.6.0
+ */

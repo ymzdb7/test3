@@ -1,0 +1,622 @@
+/*     */ package com.xoa.service.worldnews.impl;
+/*     */ 
+/*     */ import com.xoa.dao.common.SysCodeMapper;
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.users.UserPrivMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.dao.worldnews.NewsCommentMapper;
+/*     */ import com.xoa.dao.worldnews.NewsMapper;
+/*     */ import com.xoa.model.common.SysCode;
+/*     */ import com.xoa.model.department.Department;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.worldnews.News;
+/*     */ import com.xoa.service.ThreadSerivice.ThreadService;
+/*     */ import com.xoa.service.department.DepartmentService;
+/*     */ import com.xoa.service.sms.SmsService;
+/*     */ import com.xoa.service.users.UsersPrivService;
+/*     */ import com.xoa.service.users.UsersService;
+/*     */ import com.xoa.service.worldnews.NewService;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.GetAttachmentListUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.commons.collections.map.HashedMap;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class NewServiceImpl
+/*     */   implements NewService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private NewsMapper newsMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentService departmentService;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentMapper DepartmentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersService usersService;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersPrivService usersPrivService;
+/*     */ 
+/*     */   @Resource
+/*     */   private UserPrivMapper userPrivMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SysCodeMapper sysCodeMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private NewsCommentMapper newsCommentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SmsService smsService;
+/*     */ 
+/*     */   @Autowired
+/*     */   ThreadService threadService;
+/*     */ 
+/*     */   public ToJson<News> selectNews(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String name)
+/*     */     throws Exception
+/*     */   {
+/*  96 */     String[] strArray = null;
+/*  97 */     String[] strArray1 = null;
+/*  98 */     String[] strArray2 = null;
+/*  99 */     StringBuffer s = new StringBuffer();
+/* 100 */     StringBuffer s1 = new StringBuffer();
+/* 101 */     StringBuffer s2 = new StringBuffer();
+/* 102 */     ToJson newJson = new ToJson();
+/* 103 */     PageParams pageParams = new PageParams();
+/* 104 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 105 */     pageParams.setPage(page);
+/* 106 */     pageParams.setPageSize(pageSize);
+/* 107 */     maps.put("page", pageParams);
+/* 108 */     String typeIdStr = (String)maps.get("typeId");
+/* 109 */     if (StringUtils.checkNull(typeIdStr).booleanValue()) {
+/* 110 */       maps.put("typeId", null);
+/*     */     }
+/* 112 */     String changeId = (String)maps.get("changeId");
+/* 113 */     if (StringUtils.checkNull(changeId).booleanValue()) {
+/* 114 */       newJson.setFlag(1);
+/* 115 */       newJson.setMsg("err");
+/* 116 */       return newJson;
+/*     */     }
+/*     */ 
+/* 119 */     List<News> list = this.newsMapper.selectNews(maps);
+/* 120 */     if ("1".equals(changeId)) {
+/* 121 */       for (News news : list) {
+/* 122 */         news.setNewsDateTime(DateFormat.getStrDate(news.getNewsTime()));
+/* 123 */         news.setProviderName(news.getUsers().getUserName());
+/* 124 */         if ((news.getTypeId() != null) && (!news.getTypeId().equals(""))) {
+/* 125 */           String name11 = this.sysCodeMapper.getNewsNameByNo(news.getTypeId());
+/* 126 */           if (StringUtils.checkNull(name11).booleanValue())
+/* 127 */             news.setTypeName("");
+/*     */           else
+/* 129 */             news.setTypeName(name11);
+/*     */         }
+/*     */         else {
+/* 132 */           news.setTypeName("");
+/*     */         }
+/* 134 */         String depId = news.getToId();
+/* 135 */         if (!StringUtils.checkNull(depId).booleanValue()) {
+/* 136 */           String depName = this.departmentService.getDeptNameByDeptId(depId, ",");
+/* 137 */           if (!"ALL_DEPT".trim().equals(news.getToId()))
+/* 138 */             news.setDeprange(depName + ",");
+/*     */           else {
+/* 140 */             news.setDeprange(depName);
+/*     */           }
+/*     */ 
+/*     */         }
+/*     */ 
+/* 145 */         String userId = news.getUserId();
+/* 146 */         if (!StringUtils.checkNull(userId).booleanValue()) {
+/* 147 */           String userName = this.usersService.getUserNameById(userId);
+/* 148 */           news.setUserrange(userName + ",");
+/*     */         }
+/*     */ 
+/* 151 */         String roleId = news.getPrivId();
+/* 152 */         if (!StringUtils.checkNull(roleId).booleanValue()) {
+/* 153 */           String roleName = this.usersPrivService.getPrivNameByPrivId(roleId, ",");
+/* 154 */           news.setRolerange(roleName + ",");
+/*     */         }
+/*     */ 
+/* 157 */         if (news.getReaders().indexOf(name) != -1)
+/* 158 */           news.setRead(Integer.valueOf(1));
+/*     */         else {
+/* 160 */           news.setRead(Integer.valueOf(0));
+/*     */         }
+/*     */       }
+/* 163 */       newJson.setFlag(0);
+/* 164 */       newJson.setMsg("ok");
+/* 165 */       newJson.setObj(list);
+/* 166 */       newJson.setTotleNum(pageParams.getTotal());
+/* 167 */     } else if ("2".equals(changeId)) {
+/* 168 */       for (News news : list) {
+/* 169 */         this.newsMapper.deleteNews(news.getNewsId());
+/*     */       }
+/* 171 */       newJson.setFlag(0);
+/* 172 */       newJson.setMsg("ok");
+/* 173 */       newJson.setObject(Integer.valueOf(list.size()));
+/*     */     }
+/*     */ 
+/* 176 */     return newJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<News> unreadNews(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String name, String sqlType)
+/*     */     throws Exception
+/*     */   {
+/* 192 */     String[] strArray = null;
+/* 193 */     String[] strArray1 = null;
+/* 194 */     String[] strArray2 = null;
+/* 195 */     StringBuffer s = new StringBuffer();
+/* 196 */     StringBuffer s1 = new StringBuffer();
+/* 197 */     StringBuffer s2 = new StringBuffer();
+/* 198 */     ToJson newJson = new ToJson();
+/* 199 */     PageParams pageParams = new PageParams();
+/* 200 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 201 */     pageParams.setPage(page);
+/* 202 */     pageParams.setPageSize(pageSize);
+/* 203 */     maps.put("page", pageParams);
+/* 204 */     String typeIdStr = (String)maps.get("typeId");
+/* 205 */     if (StringUtils.checkNull(typeIdStr).booleanValue()) {
+/* 206 */       maps.put("typeId", null);
+/*     */     }
+/*     */ 
+/* 209 */     List<News> list = this.newsMapper.unreadNews(maps);
+/* 210 */     List list1 = new ArrayList();
+/* 211 */     List list2 = new ArrayList();
+/* 212 */     for (News news : list) {
+/* 213 */       Integer newsId = news.getNewsId();
+/* 214 */       if (newsId != null) {
+/* 215 */         int count = this.newsCommentMapper.getNewsCount(newsId);
+/* 216 */         news.setNewsCount(Integer.valueOf(count));
+/*     */       }
+/*     */ 
+/* 219 */       news.setNewsDateTime(DateFormat.getStrDate(news.getNewsTime()));
+/* 220 */       news.setProviderName(news.getUsers().getUserName());
+/* 221 */       if ((news.getTypeId() != null) && (!news.getTypeId().equals(""))) {
+/* 222 */         String name11 = this.sysCodeMapper.getNewsNameByNo(news.getTypeId());
+/* 223 */         if (StringUtils.checkNull(name11).booleanValue())
+/* 224 */           news.setTypeName("");
+/*     */         else
+/* 226 */           news.setTypeName(name11);
+/*     */       }
+/*     */       else {
+/* 229 */         news.setTypeName(" ");
+/*     */       }
+/* 231 */       if ((news.getAttachmentName() != null) && (news.getAttachmentId() != null))
+/*     */       {
+/* 233 */         news.setAttachment(GetAttachmentListUtil.returnAttachment(news.getAttachmentName(), news.getAttachmentId(), sqlType, "news"));
+/*     */       }
+/*     */ 
+/* 240 */       String depId = news.getToId();
+/* 241 */       if (!StringUtils.checkNull(depId).booleanValue()) {
+/* 242 */         String depName = this.departmentService.getDeptNameByDeptId(depId, ",");
+/* 243 */         if (!"ALL_DEPT".trim().equals(news.getToId()))
+/* 244 */           news.setDeprange(depName + ",");
+/*     */         else {
+/* 246 */           news.setDeprange(depName);
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 251 */       String userId = news.getUserId();
+/* 252 */       if (!StringUtils.checkNull(userId).booleanValue()) {
+/* 253 */         String userName = this.usersService.getUserNameById(userId);
+/* 254 */         news.setUserrange(userName + ",");
+/*     */       }
+/*     */ 
+/* 257 */       String roleId = news.getPrivId();
+/* 258 */       if (!StringUtils.checkNull(roleId).booleanValue()) {
+/* 259 */         String roleName = this.usersPrivService.getPrivNameByPrivId(roleId, ",");
+/* 260 */         news.setRolerange(roleName + ",");
+/*     */       }
+/* 262 */       if (news.getReaders().indexOf(name) != -1)
+/* 263 */         news.setRead(Integer.valueOf(1));
+/*     */       else {
+/* 265 */         news.setRead(Integer.valueOf(0));
+/*     */       }
+/*     */     }
+/*     */ 
+/* 269 */     newJson.setObj(list);
+/* 270 */     newJson.setTotleNum(pageParams.getTotal());
+/* 271 */     return newJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<News> readNews(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String name, String sqlType)
+/*     */     throws Exception
+/*     */   {
+/* 278 */     String[] strArray = null;
+/* 279 */     String[] strArray1 = null;
+/* 280 */     String[] strArray2 = null;
+/* 281 */     StringBuffer s = new StringBuffer();
+/* 282 */     StringBuffer s1 = new StringBuffer();
+/* 283 */     StringBuffer s2 = new StringBuffer();
+/* 284 */     ToJson newJson = new ToJson();
+/* 285 */     PageParams pageParams = new PageParams();
+/* 286 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 287 */     pageParams.setPage(page);
+/* 288 */     pageParams.setPageSize(pageSize);
+/* 289 */     maps.put("page", pageParams);
+/* 290 */     String typeIdStr = (String)maps.get("typeId");
+/* 291 */     if (StringUtils.checkNull(typeIdStr).booleanValue()) {
+/* 292 */       maps.put("typeId", null);
+/*     */     }
+/*     */ 
+/* 295 */     List<News> list = this.newsMapper.readNews(maps);
+/* 296 */     for (News news : list) {
+/* 297 */       Integer newsId = news.getNewsId();
+/* 298 */       if (newsId != null) {
+/* 299 */         int count = this.newsCommentMapper.getNewsCount(newsId);
+/* 300 */         news.setNewsCount(Integer.valueOf(count));
+/*     */       }
+/* 302 */       news.setNewsDateTime(DateFormat.getStrDate(news.getNewsTime()));
+/* 303 */       news.setProviderName(news.getUsers().getUserName());
+/* 304 */       if ((news.getTypeId() != null) && (!news.getTypeId().equals(""))) {
+/* 305 */         String name11 = this.sysCodeMapper.getNewsNameByNo(news.getTypeId());
+/* 306 */         if (StringUtils.checkNull(name11).booleanValue())
+/* 307 */           news.setTypeName("");
+/*     */         else
+/* 309 */           news.setTypeName(name11);
+/*     */       }
+/*     */       else {
+/* 312 */         news.setTypeName(" ");
+/*     */       }
+/* 314 */       if ((news.getAttachmentName() != null) && (news.getAttachmentId() != null))
+/*     */       {
+/* 316 */         news.setAttachment(GetAttachmentListUtil.returnAttachment(news.getAttachmentName(), news.getAttachmentId(), sqlType, "news"));
+/*     */       }
+/*     */ 
+/* 320 */       String depId = news.getToId();
+/* 321 */       if (!StringUtils.checkNull(depId).booleanValue()) {
+/* 322 */         String depName = this.departmentService.getDeptNameByDeptId(depId, ",");
+/* 323 */         if (!"ALL_DEPT".trim().equals(news.getToId()))
+/* 324 */           news.setDeprange(depName + ",");
+/*     */         else {
+/* 326 */           news.setDeprange(depName);
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 331 */       String userId = news.getUserId();
+/* 332 */       if (!StringUtils.checkNull(userId).booleanValue()) {
+/* 333 */         String userName = this.usersService.getUserNameById(userId);
+/* 334 */         news.setUserrange(userName + ",");
+/*     */       }
+/*     */ 
+/* 337 */       String roleId = news.getPrivId();
+/* 338 */       if (!StringUtils.checkNull(roleId).booleanValue()) {
+/* 339 */         String roleName = this.usersPrivService.getPrivNameByPrivId(roleId, ",");
+/* 340 */         news.setRolerange(roleName + ",");
+/*     */       }
+/* 342 */       if (news.getReaders().indexOf(name) != -1)
+/* 343 */         news.setRead(Integer.valueOf(1));
+/*     */       else {
+/* 345 */         news.setRead(Integer.valueOf(0));
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 350 */     newJson.setObj(list);
+/* 351 */     newJson.setTotleNum(pageParams.getTotal());
+/* 352 */     return newJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public void sendNews(News news, String remind, String tuisong, HttpServletRequest request)
+/*     */   {
+/* 365 */     this.newsMapper.save(news);
+/* 366 */     if ("1".equals(news.getPublish())) {
+/* 367 */       String sqlType = (String)request.getSession().getAttribute("loginDateSouse");
+/* 368 */       this.threadService.addNew(news, remind, tuisong, sqlType);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public void updateNews(News news, String remind, String tuisong, HttpServletRequest request)
+/*     */   {
+/* 384 */     this.newsMapper.update(news);
+/* 385 */     Map map = new HashedMap();
+/* 386 */     map.put("newsId", news.getNewsId());
+/* 387 */     News news1 = this.newsMapper.detailedNews(map);
+/* 388 */     if ("1".equals(news1.getPublish())) {
+/* 389 */       String sqlType = (String)request.getSession().getAttribute("loginDateSouse");
+/* 390 */       this.threadService.addNew(news1, remind, tuisong, sqlType);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public News queryById(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String name, String sqlType, String changId)
+/*     */     throws Exception
+/*     */   {
+/* 406 */     String[] strArray = null;
+/* 407 */     String[] strArray1 = null;
+/* 408 */     String[] strArray2 = null;
+/* 409 */     News news = this.newsMapper.detailedNews(maps);
+/* 410 */     news.setNewsDateTime(DateFormat.getStrDate(news.getNewsTime()));
+/* 411 */     news.setProviderName(news.getUsers().getUserName());
+/* 412 */     if ((news.getTypeId() != null) && (!news.getTypeId().equals(""))) {
+/* 413 */       String name11 = this.sysCodeMapper.getNewsNameByNo(news.getTypeId());
+/* 414 */       if (StringUtils.checkNull(name11).booleanValue())
+/* 415 */         news.setTypeName("");
+/*     */       else
+/* 417 */         news.setTypeName(name11);
+/*     */     }
+/*     */     else {
+/* 420 */       news.setTypeName(" ");
+/*     */     }
+/* 422 */     if ((news.getAttachmentName() != null) && (news.getAttachmentId() != null)) {
+/* 423 */       news.setAttachment(GetAttachmentListUtil.returnAttachment(news.getAttachmentName(), news.getAttachmentId(), sqlType, "news"));
+/*     */     }
+/*     */ 
+/* 427 */     StringBuffer s = new StringBuffer();
+/* 428 */     StringBuffer s1 = new StringBuffer();
+/* 429 */     StringBuffer s2 = new StringBuffer();
+/*     */ 
+/* 431 */     String depId = news.getToId();
+/* 432 */     if (!StringUtils.checkNull(depId).booleanValue()) {
+/* 433 */       String depName = this.departmentService.getDeptNameByDeptId(depId, ",");
+/* 434 */       if (!"ALL_DEPT".trim().equals(news.getToId()))
+/* 435 */         news.setDeprange(depName + ",");
+/*     */       else {
+/* 437 */         news.setDeprange(depName);
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 442 */     String userId = news.getUserId();
+/* 443 */     if (!StringUtils.checkNull(userId).booleanValue()) {
+/* 444 */       String userName = this.usersService.getUserNameById(userId);
+/* 445 */       news.setUserrange(userName + ",");
+/*     */     }
+/*     */ 
+/* 448 */     String roleId = news.getPrivId();
+/* 449 */     if (!StringUtils.checkNull(roleId).booleanValue()) {
+/* 450 */       String roleName = this.usersPrivService.getPrivNameByPrivId(roleId, ",");
+/* 451 */       news.setRolerange(roleName + ",");
+/*     */     }
+/* 453 */     if (!"1".equals(changId)) {
+/* 454 */       if ((news.getReaders().indexOf(name) == -1) || (StringUtils.checkNull(news.getReaders()).booleanValue()))
+/*     */       {
+/* 456 */         this.smsService.updatequerySmsByType("14", name, String.valueOf(news.getNewsId()));
+/* 457 */         StringBuffer str2 = new StringBuffer(news.getReaders());
+/* 458 */         str2.append(name);
+/* 459 */         str2.append(",");
+/* 460 */         String str1 = str2.toString();
+/* 461 */         news.setNewsId(news.getNewsId());
+/* 462 */         news.setReaders(str1);
+/* 463 */         news.setClickCount(Integer.valueOf(news.getClickCount().intValue() + 1));
+/* 464 */         this.newsMapper.updateNews(news);
+/*     */       }
+/*     */       else {
+/* 467 */         news.setNewsId(news.getNewsId());
+/* 468 */         news.setClickCount(Integer.valueOf(news.getClickCount().intValue() + 1));
+/* 469 */         this.newsMapper.updateclickCount(news);
+/*     */       }
+/*     */     }
+/* 472 */     return news;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public void deleteByPrimaryKey(Integer newsId)
+/*     */   {
+/* 485 */     this.newsMapper.deleteNews(newsId);
+/*     */   }
+/*     */ 
+/*     */   public ToJson<News> deleteByids(String[] newsId)
+/*     */   {
+/* 490 */     ToJson newsToJson = new ToJson();
+/* 491 */     if (newsId.length > 0)
+/*     */     {
+/* 493 */       this.newsMapper.deleteByids(newsId);
+/*     */     }
+/*     */ 
+/* 496 */     newsToJson.setFlag(0);
+/* 497 */     newsToJson.setMsg("ok");
+/* 498 */     return newsToJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<News> updayeByids(String[] newsId, String top, String publish)
+/*     */   {
+/* 503 */     ToJson newsToJson = new ToJson();
+/* 504 */     if ((StringUtils.checkNull(top).booleanValue()) && (StringUtils.checkNull(publish).booleanValue())) {
+/* 505 */       newsToJson.setFlag(1);
+/* 506 */       newsToJson.setMsg("err");
+/* 507 */       return newsToJson;
+/*     */     }
+/* 509 */     if (newsId.length > 0)
+/*     */     {
+/* 511 */       int a = this.newsMapper.updateByIds(top, publish, newsId);
+/* 512 */       newsToJson.setFlag(0);
+/* 513 */       newsToJson.setMsg("ok");
+/*     */     } else {
+/* 515 */       newsToJson.setFlag(1);
+/* 516 */       newsToJson.setMsg("err");
+/*     */     }
+/* 518 */     return newsToJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<News> ConsultTheSituationNew(String newsId)
+/*     */   {
+/* 523 */     ToJson newsToJson = new ToJson();
+/* 524 */     Map maps = new HashMap();
+/* 525 */     maps.put("newsId", newsId);
+/* 526 */     News news = this.newsMapper.detailedNews(maps);
+/* 527 */     if (news != null) {
+/* 528 */       news.setNewsDateTime(DateFormat.getStrDate(news.getNewsTime()));
+/* 529 */       news.setProviderName(news.getUsers().getUserName());
+/* 530 */       List<Users> unreadList = this.usersMapper.unreadConsultTheSituationNew(maps);
+/* 531 */       List<Users> readList = this.usersMapper.readConsultTheSituationNew(maps);
+/* 532 */       List<Department> departmentList = this.departmentMapper.getDatagrid();
+/* 533 */       for (Department department : departmentList) {
+/* 534 */         StringBuffer stringBuffer = new StringBuffer();
+/* 535 */         for (Users users : unreadList) {
+/* 536 */           Integer depId = users.getDeptId();
+/* 537 */           if (department.getDeptId().equals(depId)) {
+/* 538 */             stringBuffer.append(users.getUserName());
+/* 539 */             stringBuffer.append(",");
+/*     */           }
+/*     */         }
+/* 542 */         department.setUnread(stringBuffer.toString());
+/* 543 */         StringBuffer stringBuffer1 = new StringBuffer();
+/* 544 */         for (Users users : readList) {
+/* 545 */           Integer depId = users.getDeptId();
+/* 546 */           if (department.getDeptId().equals(depId)) {
+/* 547 */             stringBuffer1.append(users.getUserName());
+/* 548 */             stringBuffer1.append(",");
+/*     */           }
+/*     */         }
+/* 551 */         department.setRead(stringBuffer1.toString());
+/*     */       }
+/* 553 */       news.setReadSize(Integer.valueOf(readList.size()));
+/* 554 */       news.setUnreadSize(Integer.valueOf(unreadList.size()));
+/* 555 */       news.setDepartmentList(departmentList);
+/*     */     }
+/*     */ 
+/* 558 */     newsToJson.setFlag(0);
+/* 559 */     newsToJson.setMsg("ok");
+/* 560 */     newsToJson.setObject(news);
+/* 561 */     return newsToJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<News> selectNewsManage(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, String name, String sqlType)
+/*     */     throws Exception
+/*     */   {
+/* 576 */     ToJson newJson = new ToJson();
+/* 577 */     String[] strArray = null;
+/* 578 */     String[] strArray1 = null;
+/* 579 */     String[] strArray2 = null;
+/* 580 */     StringBuffer s = new StringBuffer();
+/* 581 */     StringBuffer s1 = new StringBuffer();
+/* 582 */     StringBuffer s2 = new StringBuffer();
+/* 583 */     PageParams pageParams = new PageParams();
+/* 584 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 585 */     pageParams.setPage(page);
+/* 586 */     pageParams.setPageSize(pageSize);
+/* 587 */     maps.put("page", pageParams);
+/* 588 */     String typeIdStr = (String)maps.get("typeId");
+/* 589 */     if (StringUtils.checkNull(typeIdStr).booleanValue()) {
+/* 590 */       maps.put("typeId", null);
+/*     */     }
+/* 592 */     List<News> list = this.newsMapper.selectNewsManage(maps);
+/* 593 */     List list1 = new ArrayList();
+/*     */ 
+/* 595 */     for (News news : list) {
+/* 596 */       Integer newsId = news.getNewsId();
+/* 597 */       if (newsId != null) {
+/* 598 */         int count = this.newsCommentMapper.getNewsCount(newsId);
+/* 599 */         news.setNewsCount(Integer.valueOf(count));
+/*     */       }
+/* 601 */       news.setNewsDateTime(DateFormat.getStrDate(news.getNewsTime()));
+/* 602 */       news.setProviderName(news.getUsers().getUserName());
+/* 603 */       if ((news.getTypeId() != null) && (!news.getTypeId().equals(""))) {
+/* 604 */         String name11 = this.sysCodeMapper.getNewsNameByNo(news.getTypeId());
+/* 605 */         if (StringUtils.checkNull(name11).booleanValue())
+/* 606 */           news.setTypeName("");
+/*     */         else
+/* 608 */           news.setTypeName(name11);
+/*     */       }
+/*     */       else {
+/* 611 */         news.setTypeName(" ");
+/*     */       }
+/* 613 */       if ((news.getAttachmentName() != null) && (news.getAttachmentId() != null))
+/*     */       {
+/* 615 */         news.setAttachment(GetAttachmentListUtil.returnAttachment(news.getAttachmentName(), news.getAttachmentId(), sqlType, "news"));
+/*     */       }
+/*     */ 
+/* 619 */       String depId = news.getToId();
+/* 620 */       if (!StringUtils.checkNull(depId).booleanValue()) {
+/* 621 */         String depName = this.departmentService.getDeptNameByDeptId(depId, ",");
+/* 622 */         news.setDeprange(depName);
+/*     */       }
+/*     */ 
+/* 625 */       String userId = news.getUserId();
+/* 626 */       if (!StringUtils.checkNull(userId).booleanValue()) {
+/* 627 */         String userName = this.usersService.getUserNameById(userId);
+/* 628 */         news.setUserrange(userName);
+/*     */       }
+/*     */ 
+/* 631 */       String roleId = news.getPrivId();
+/* 632 */       if (!StringUtils.checkNull(roleId).booleanValue()) {
+/* 633 */         String roleName = this.usersPrivService.getPrivNameByPrivId(roleId, ",");
+/* 634 */         news.setRolerange(roleName);
+/*     */       }
+/* 636 */       if (news.getReaders().indexOf(name) != -1)
+/* 637 */         news.setRead(Integer.valueOf(1));
+/*     */       else {
+/* 639 */         news.setRead(Integer.valueOf(0));
+/*     */       }
+/*     */     }
+/*     */ 
+/* 643 */     String button = (String)maps.get("button");
+/* 644 */     if (StringUtils.checkNull(button).booleanValue()) {
+/* 645 */       maps.put("typeId", null);
+/*     */     }
+/* 647 */     newJson.setObj(list);
+/* 648 */     newJson.setTotleNum(pageParams.getTotal());
+/* 649 */     return newJson;
+/*     */   }
+/*     */ 
+/*     */   public void updatePublish(News news, String remind, String tuisong, HttpServletRequest request)
+/*     */   {
+/* 655 */     this.newsMapper.updatePublish(news);
+/* 656 */     Map map = new HashedMap();
+/* 657 */     map.put("newsId", news.getNewsId());
+/* 658 */     News news1 = this.newsMapper.detailedNews(map);
+/* 659 */     if ("1".equals(news1.getPublish())) {
+/* 660 */       String sqlType = (String)request.getSession().getAttribute("loginDateSouse");
+/* 661 */       this.threadService.addNew(news1, remind, tuisong, sqlType);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public void updateNewsReades(News news, String remind, String tuisong, HttpServletRequest request)
+/*     */   {
+/* 670 */     this.newsMapper.updateNewsReades(news);
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper getNewCountByType(String type)
+/*     */   {
+/* 679 */     BaseWrapper baseWrapper = new BaseWrapper();
+/* 680 */     List<News> news = this.newsMapper.getNewCountByType();
+/* 681 */     Map temp = new HashMap();
+/* 682 */     for (News item : news) {
+/* 683 */       String key = "新闻";
+/* 684 */       SysCode code = item.getCodes();
+/* 685 */       if (code != null) {
+/* 686 */         key = code.getCodeName();
+/*     */       }
+/* 688 */       if (temp.containsKey(key))
+/* 689 */         temp.put(key, Integer.valueOf(((Integer)temp.get(key)).intValue() + 1));
+/*     */       else {
+/* 691 */         temp.put(key, Integer.valueOf(1));
+/*     */       }
+/*     */     }
+/* 694 */     baseWrapper.setData(temp);
+/* 695 */     baseWrapper.setFlag(true);
+/* 696 */     baseWrapper.setStatus(true);
+/* 697 */     return baseWrapper;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.worldnews.impl.NewServiceImpl
+ * JD-Core Version:    0.6.0
+ */

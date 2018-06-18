@@ -1,0 +1,81 @@
+/*     */ package com.xoa.controller.portals;
+/*     */ 
+/*     */ import com.xoa.model.portals.Portals;
+/*     */ import com.xoa.model.portals.PortalsUser;
+/*     */ import com.xoa.service.portals.PortalsService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/portals"})
+/*     */ public class PortalsController
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private PortalsService portalsService;
+/*     */ 
+/*     */   @RequestMapping({"/index"})
+/*     */   public String indexPage()
+/*     */   {
+/*  28 */     return "app/portals/index";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/add"})
+/*     */   public ToJson<Portals> addPortals(Portals portals)
+/*     */   {
+/*  39 */     return this.portalsService.addPortals(portals);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/update"})
+/*     */   public ToJson<Portals> updatePortals(Portals portals)
+/*     */   {
+/*  50 */     return this.portalsService.updatePortals(portals);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selPortals"})
+/*     */   public ToJson<Portals> selPortals(PageParams pageParams, Portals portals)
+/*     */   {
+/*  61 */     return this.portalsService.selPortals(pageParams, portals);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deletePortals"})
+/*     */   public ToJson<Portals> deletePortals(String portalsIds)
+/*     */   {
+/*  72 */     return this.portalsService.deletePortals(portalsIds);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selPortalsById"})
+/*     */   public ToJson<Portals> selPortalsById(Integer portalsId)
+/*     */   {
+/*  83 */     return this.portalsService.selPortalsById(portalsId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selPortalsUser"})
+/*     */   public ToJson<PortalsUser> selPortalsUser(HttpServletRequest request)
+/*     */   {
+/*  94 */     return this.portalsService.selPortalsUser(request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selIndexPortals"})
+/*     */   public ToJson<Portals> selIndexPortals(HttpServletRequest request)
+/*     */   {
+/* 105 */     return this.portalsService.selIndexPortals(request);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.portals.PortalsController
+ * JD-Core Version:    0.6.0
+ */

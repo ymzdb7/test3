@@ -1,0 +1,58 @@
+/*    */ package com.xoa.controller.edu.eduElectiveCourse;
+/*    */ 
+/*    */ import com.xoa.model.edu.eduElectiveCourse.eduElectiveCourseWithBLOBs;
+/*    */ import com.xoa.service.edu.eduElectiveCourse.IEduElectiveCourseSerivce;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.beans.factory.annotation.Autowired;
+/*    */ import org.springframework.stereotype.Controller;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"/eduElectiveCourseController"})
+/*    */ public class EduElectiveCourseController
+/*    */ {
+/*    */ 
+/*    */   @Autowired
+/*    */   private IEduElectiveCourseSerivce eduElectiveCourseSerivce;
+/*    */ 
+/*    */   @RequestMapping({"/insertSelective"})
+/*    */   @ResponseBody
+/*    */   public ToJson insertSelective(eduElectiveCourseWithBLOBs eduElectiveCourseWithBLOBs, HttpServletRequest request)
+/*    */   {
+/* 33 */     return this.eduElectiveCourseSerivce.insertSelective(eduElectiveCourseWithBLOBs, request);
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/selectEduElectiveCourse"})
+/*    */   @ResponseBody
+/*    */   public ToJson<eduElectiveCourseWithBLOBs> selectEduElectiveCourse(eduElectiveCourseWithBLOBs eduElectiveCourseWithBLOBs, HttpServletRequest request, Integer page, Integer pageSize, boolean useFlag)
+/*    */   {
+/* 47 */     return this.eduElectiveCourseSerivce.selectEduElectiveCourse(eduElectiveCourseWithBLOBs, request, page, pageSize, useFlag);
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/updateByPrimaryKeySelective"})
+/*    */   @ResponseBody
+/*    */   public ToJson updateByPrimaryKeySelective(eduElectiveCourseWithBLOBs eduElectiveCourseWithBLOBs)
+/*    */   {
+/* 60 */     return this.eduElectiveCourseSerivce.updateByPrimaryKeySelective(eduElectiveCourseWithBLOBs);
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/deleteElectveCourse"})
+/*    */   @ResponseBody
+/*    */   public ToJson deleteElectveCourse(HttpServletRequest request)
+/*    */   {
+/* 72 */     return this.eduElectiveCourseSerivce.deleteElectveCourse(request);
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/eduCourseUpdate"})
+/*    */   public String eduElectiveUpdate()
+/*    */   {
+/* 82 */     return "app/edu/eduElectiveCourse/basicCourseUpdate";
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.edu.eduElectiveCourse.EduElectiveCourseController
+ * JD-Core Version:    0.6.0
+ */

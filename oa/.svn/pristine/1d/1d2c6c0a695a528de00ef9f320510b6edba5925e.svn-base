@@ -1,0 +1,43 @@
+/*    */ package com.xoa.controller.tiggerplugin;
+/*    */ 
+/*    */ import com.xoa.service.work.impl.WorkServiceImpl;
+import com.xoa.util.Constant;
+/*    */ import com.xoa.util.JsonToProptyOrMapAndList;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import com.xoa.util.dataSource.ContextHolder;
+/*    */ import java.util.Map;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import javax.servlet.http.HttpSession;
+/*    */ import org.apache.log4j.Logger;
+/*    */ import org.springframework.beans.factory.annotation.Autowired;
+/*    */ import org.springframework.stereotype.Controller;
+/*    */ import org.springframework.web.bind.annotation.RequestBody;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"webService"})
+/*    */ public class WebPluginTigger
+/*    */ {
+/* 28 */   private Logger logger = Logger.getLogger(WebPluginTigger.class);
+/*    */ 
+/*    */   @Autowired
+/*    */   WorkServiceImpl workService;
+/*    */ 
+/* 37 */   @RequestMapping(value={"/webServiceTigger"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*    */   @ResponseBody
+/*    */   public ToJson webServiceTigger(@RequestBody String userToString, HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 39 */     this.logger.info("进入服务器");
+/* 40 */     Map maps = JsonToProptyOrMapAndList.returnMaps(userToString);
+/* 41 */     this.logger.info(JsonToProptyOrMapAndList.returnMaps(userToString));
+/* 42 */     this.logger.info("解析获取json数据");
+/*    */ 
+/* 46 */     return null;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.tiggerplugin.WebPluginTigger
+ * JD-Core Version:    0.6.0
+ */

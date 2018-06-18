@@ -1,0 +1,276 @@
+/*     */ package com.xoa.service.edu.eduScore.impl;
+/*     */ 
+/*     */ import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+/*     */ import com.xoa.dao.edu.eduScore.EduScoreMapper;
+/*     */ import com.xoa.model.edu.eduScore.EduScore;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.edu.eduScore.IEduScoreService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.InputStream;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.ResourceBundle;
+/*     */ import java.util.UUID;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.apache.poi.ss.usermodel.Cell;
+/*     */ import org.apache.poi.ss.usermodel.Row;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduScoreServiceImpl extends ServiceImpl<EduScoreMapper, EduScore>
+/*     */   implements IEduScoreService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   EduScoreMapper eduScoreMapper;
+/*     */ 
+/*     */   public void eudScoreInsert(EduScore eduScore)
+/*     */   {
+/*  50 */     this.eduScoreMapper.eudScoreInsert(eduScore);
+/*     */   }
+/*     */ 
+/*     */   public ToJson<String> yearSelect(String schollYear)
+/*     */   {
+/*  63 */     ToJson json = new ToJson();
+/*     */     try {
+/*  65 */       List yearlist = this.eduScoreMapper.yearSelect(schollYear);
+/*  66 */       if (yearlist.size() > 0) {
+/*  67 */         json.setObj(yearlist);
+/*  68 */         json.setMsg("ok");
+/*  69 */         json.setFlag(0);
+/*     */       } else {
+/*  71 */         json.setMsg("err");
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  74 */       e.printStackTrace();
+/*     */     }
+/*  76 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduScore> yearClassSelect(Map<String, String> maps)
+/*     */   {
+/*  89 */     ToJson json = new ToJson();
+/*     */     try {
+/*  91 */       List yearClassList = this.eduScoreMapper.yearClassSelect(maps);
+/*  92 */       if (yearClassList.size() > 0) {
+/*  93 */         int i = yearClassList.size();
+/*  94 */         json.setObj(yearClassList);
+/*  95 */         json.setMsg("ok");
+/*  96 */         json.setFlag(yearClassList.size());
+/*  97 */         json.setFlag(i);
+/*     */       } else {
+/*  99 */         json.setMsg("err");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 102 */       e.printStackTrace();
+/*     */     }
+/* 104 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduScore> wordEduScoreInsert(MultipartFile file, HttpServletRequest request, HttpServletResponse response, HttpSession session)
+/*     */   {
+/* 116 */     ToJson json = new ToJson();
+/* 117 */     Map mapClass = new HashMap();
+/*     */ 
+/* 119 */     Integer successCount = Integer.valueOf(0);
+/*     */     try
+/*     */     {
+/* 123 */       ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 124 */       String osName = System.getProperty("os.name");
+/* 125 */       StringBuffer path = new StringBuffer();
+/* 126 */       if (osName.toLowerCase().startsWith("win"))
+/* 127 */         path = path.append(rb.getString("upload.win"));
+/*     */       else {
+/* 129 */         path = path.append(rb.getString("upload.linux"));
+/*     */       }
+/*     */ 
+/* 132 */       if (file.isEmpty()) {
+/* 133 */         json.setMsg("请上传文件！");
+/* 134 */         json.setFlag(1);
+/* 135 */         return json;
+/*     */       }
+/* 137 */       String fileName = file.getOriginalFilename();
+/* 138 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 139 */         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+/* 140 */         int pos = fileName.indexOf(".");
+/* 141 */         String extName = fileName.substring(pos);
+/* 142 */         String newFileName = uuid + extName;
+/* 143 */         File dest = new File(path.toString(), newFileName);
+/* 144 */         file.transferTo(dest);
+/*     */ 
+/* 147 */         String readPath = path.append(newFileName).toString();
+/* 148 */         InputStream in = new FileInputStream(readPath);
+/* 149 */         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+/* 150 */         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+/* 151 */         Row row = sheetObj.getRow(0);
+/* 152 */         int colNum = row.getPhysicalNumberOfCells();
+/* 153 */         int lastRowNum = sheetObj.getLastRowNum();
+/* 154 */         List saveList = new ArrayList();
+/* 155 */         EduScore eduScore = null;
+/* 156 */         for (int i = 1; i <= lastRowNum; i++) {
+/* 157 */           eduScore = new EduScore();
+/* 158 */           row = sheetObj.getRow(i);
+/* 159 */           if (row != null) {
+/* 160 */             for (int j = 0; j < colNum; j++) {
+/* 161 */               Cell cell = row.getCell(j);
+/* 162 */               if (cell != null) {
+/* 163 */                 switch (j)
+/*     */                 {
+/*     */                 case 0:
+/* 166 */                   eduScore.setUserId(cell.getStringCellValue());
+/* 167 */                   break;
+/*     */                 case 1:
+/* 170 */                   eduScore.setUserName(cell.getStringCellValue());
+/* 171 */                   break;
+/*     */                 case 2:
+/* 174 */                   eduScore.setGradeName(cell.getStringCellValue());
+/* 175 */                   break;
+/*     */                 case 3:
+/* 178 */                   eduScore.setClassName(cell.getStringCellValue());
+/* 179 */                   break;
+/*     */                 case 4:
+/* 182 */                   eduScore.setSchoolYear(cell.getStringCellValue());
+/* 183 */                   break;
+/*     */                 case 5:
+/* 186 */                   eduScore.setSemester(cell.getStringCellValue());
+/* 187 */                   break;
+/*     */                 case 6:
+/* 190 */                   eduScore.setSubject(cell.getStringCellValue());
+/* 191 */                   break;
+/*     */                 case 7:
+/* 194 */                   eduScore.setExamType(cell.getStringCellValue());
+/* 195 */                   break;
+/*     */                 case 8:
+/* 198 */                   eduScore.setExamCheck(cell.getStringCellValue());
+/* 199 */                   break;
+/*     */                 case 9:
+/* 202 */                   eduScore.setExamNumber(cell.getStringCellValue());
+/* 203 */                   break;
+/*     */                 case 10:
+/* 206 */                   eduScore.setHeadteacherId((int)cell.getNumericCellValue() + "");
+/* 207 */                   break;
+/*     */                 case 11:
+/* 210 */                   eduScore.setHeadteacherName(cell.getStringCellValue());
+/* 211 */                   break;
+/*     */                 case 12:
+/* 214 */                   eduScore.setSubjectTeacherId((int)cell.getNumericCellValue() + "");
+/* 215 */                   break;
+/*     */                 case 13:
+/* 218 */                   eduScore.setSubjectTeacher(cell.getStringCellValue());
+/* 219 */                   break;
+/*     */                 case 14:
+/* 222 */                   SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd ");
+/* 223 */                   Date date1 = cell.getDateCellValue();
+/* 224 */                   eduScore.setEntryDate(date1);
+/* 225 */                   break;
+/*     */                 case 15:
+/* 228 */                   double score = cell.getNumericCellValue();
+/* 229 */                   eduScore.setScore(Integer.valueOf((int)score));
+/* 230 */                   break;
+/*     */                 case 16:
+/* 233 */                   eduScore.setScoreLevel(cell.getNumericCellValue() + "");
+/* 234 */                   break;
+/*     */                 case 17:
+/* 237 */                   eduScore.setExamId((int)cell.getNumericCellValue() + "");
+/*     */                 }
+/*     */ 
+/*     */               }
+/*     */ 
+/*     */             }
+/*     */ 
+/* 245 */             String gradeName = eduScore.getGradeName();
+/* 246 */             Map mapGrade = this.eduScoreMapper.selectGradeNameID(gradeName);
+/*     */ 
+/* 248 */             eduScore.setGradeId(mapGrade.get("deptId").toString());
+/*     */ 
+/* 250 */             mapClass.put("className", eduScore.getClassName());
+/* 251 */             mapClass.put("deptNo", mapGrade.get("deptNo"));
+/* 252 */             String classId = this.eduScoreMapper.selectClassID(mapClass);
+/*     */ 
+/* 254 */             eduScore.setClassId(classId);
+/* 255 */             eduScore.setAttachmentId("wu");
+/*     */ 
+/* 257 */             eduScore.setAttachmentName(fileName);
+/* 258 */             int count = this.eduScoreMapper.eudScoreInsert(eduScore);
+/* 259 */             if (count > 0) {
+/* 260 */               successCount = Integer.valueOf(successCount.intValue() + count);
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 266 */       if (successCount.intValue() > 0) {
+/* 267 */         json.setMsg("ok");
+/* 268 */         json.setFlag(1);
+/* 269 */         return json;
+/*     */       }
+/* 271 */       json.setMsg("err");
+/* 272 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 274 */       e.printStackTrace();
+/*     */     }
+/* 276 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson eduScoreTww(HttpServletRequest request)
+/*     */   {
+/* 287 */     ToJson json = new ToJson();
+/* 288 */     String paraValue = request.getParameter("paraValue");
+/*     */     try {
+/* 290 */       int count = this.eduScoreMapper.eduScoreTww(paraValue);
+/* 291 */       if (count > 0) {
+/* 292 */         json.setFlag(0);
+/* 293 */         json.setMsg("ok");
+/* 294 */         return json;
+/*     */       }
+/* 296 */       json.setMsg("err");
+/* 297 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 299 */       e.printStackTrace();
+/*     */     }
+/* 301 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson eduScoreTwwSelect(HttpServletRequest request)
+/*     */   {
+/* 312 */     ToJson json = new ToJson();
+/*     */ 
+/* 314 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 315 */     Integer id = users.getUid();
+/*     */     try {
+/* 317 */       String paraValue = this.eduScoreMapper.eduScoreTwwSelect();
+/* 318 */       String[] uid = paraValue.split(",");
+/* 319 */       for (int i = 0; i < uid.length; i++) {
+/* 320 */         Integer paraid = Integer.valueOf(uid[i]);
+/* 321 */         if (paraid == id) {
+/* 322 */           json.setFlag(0);
+/* 323 */           json.setMsg("ok");
+/* 324 */           return json;
+/*     */         }
+/*     */       }
+/* 327 */       json.setMsg("err");
+/* 328 */       json.setFlag(1);
+/*     */     } catch (Exception e) {
+/* 330 */       e.printStackTrace();
+/*     */     }
+/* 332 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduScore.impl.EduScoreServiceImpl
+ * JD-Core Version:    0.6.0
+ */

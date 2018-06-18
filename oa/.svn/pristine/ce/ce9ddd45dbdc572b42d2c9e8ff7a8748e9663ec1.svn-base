@@ -1,0 +1,173 @@
+/*     */ package com.xoa.controller.url;
+/*     */ 
+/*     */ import com.xoa.model.url.Url;
+/*     */ import com.xoa.service.url.UrlService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.log4j.Logger;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/controlpanel"})
+/*     */ public class UrlController
+/*     */ {
+/*  29 */   private Logger loger = Logger.getLogger(UrlController.class);
+/*     */ 
+/*     */   @Resource
+/*     */   private UrlService urlService;
+/*     */ 
+/*  36 */   @RequestMapping({"/index"})
+/*     */   public String url() { return "/app/url/index"; }
+/*     */ 
+/*     */   @RequestMapping({"/urlAdress"})
+/*     */   public String urlAdress() {
+/*  41 */     return "/app/url/urlAdress";
+/*     */   }
+/*  45 */   @RequestMapping({"/safelog"})
+/*     */   public String safelog() { return "/app/url/safelog"; }
+/*     */ 
+/*     */   @RequestMapping({"/adressList"})
+/*     */   public String list() {
+/*  50 */     return "/app/url/adressList";
+/*     */   }
+/*  54 */   @RequestMapping({"/desktop"})
+/*     */   public String desktop() { return "/app/url/desktop"; }
+/*     */ 
+/*     */   @RequestMapping({"/editAdress"})
+/*     */   public String edit() {
+/*  59 */     return "/app/url/editAdress";
+/*     */   }
+/*     */   @RequestMapping({"/editUserExtPage"})
+/*     */   public String editUserExtPage() {
+/*  64 */     return "/app/url/editUserExt";
+/*     */   }
+/*     */   @RequestMapping({"/form"})
+/*     */   public String form() {
+/*  69 */     return "/app/url/form";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/addUrl"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Url> addUrl(HttpServletRequest request, Url url)
+/*     */   {
+/*  81 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  83 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  85 */       this.urlService.addUrl(url, request);
+/*     */ 
+/*  87 */       json.setObject(url);
+/*  88 */       json.setMsg("ok");
+/*  89 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  91 */       e.printStackTrace();
+/*  92 */       json.setMsg("数据错误");
+/*  93 */       json.setFlag(1);
+/*     */     }
+/*  95 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectUrl"})
+/*     */   public ToJson<Url> selectUrl(HttpServletRequest request)
+/*     */   {
+/* 108 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 110 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 112 */       Url url = new Url();
+/* 113 */       List list = this.urlService.selectData(url);
+/* 114 */       if (list.size() > 0) {
+/* 115 */         json.setObj(list);
+/* 116 */         json.setMsg("ok");
+/* 117 */         json.setFlag(0);
+/*     */       } else {
+/* 119 */         json.setMsg("数据为空");
+/* 120 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 123 */       e.printStackTrace();
+/* 124 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 126 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getUrlById"})
+/*     */   public Url selectUrlById(HttpServletRequest request, Integer urlId)
+/*     */   {
+/* 138 */     return this.urlService.selectByUrlId(request, urlId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deleteUrl"})
+/*     */   public ToJson<Url> deleteUrl(@RequestParam("urlId") Integer urlId, HttpServletRequest request)
+/*     */   {
+/* 150 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 152 */     ToJson json = new ToJson(1, "error");
+/* 153 */     this.loger.debug("message" + urlId);
+/*     */     try {
+/* 155 */       this.urlService.deleteData(urlId);
+/* 156 */       json.setMsg("ok");
+/* 157 */       json.setFlag(0);
+/* 158 */       return json;
+/*     */     } catch (Exception e) {
+/* 160 */       e.printStackTrace();
+/* 161 */       json.setMsg(e.getMessage());
+/* 162 */       json.setFlag(1);
+/*     */     }
+/* 164 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deleteAll"})
+/*     */   public ToJson<Url> deleteAll(HttpServletRequest request, Url url)
+/*     */   {
+/* 176 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 178 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 180 */       this.urlService.deleteAll();
+/* 181 */       json.setMsg("ok");
+/* 182 */       return json;
+/*     */     } catch (Exception e) {
+/* 184 */       e.printStackTrace();
+/* 185 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 187 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/updateUrl"})
+/*     */   public ToJson<Url> updateUrl(Url url, HttpServletRequest request)
+/*     */   {
+/* 198 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 200 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 202 */       this.urlService.updateUrl(url);
+/* 203 */       json.setObject(url);
+/* 204 */       json.setMsg("ok");
+/* 205 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 207 */       e.printStackTrace();
+/* 208 */       json.setMsg(e.getMessage());
+/* 209 */       json.setFlag(1);
+/*     */     }
+/* 211 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.url.UrlController
+ * JD-Core Version:    0.6.0
+ */

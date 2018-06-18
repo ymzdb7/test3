@@ -1,0 +1,156 @@
+/*     */ package com.xoa.service.rms.impl;
+/*     */ 
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.rms.RmsRollRoomMapper;
+/*     */ import com.xoa.model.rms.RmsRollRoom;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.rms.RmsRollRoomService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class RmsRollRoomServiceImpl
+/*     */   implements RmsRollRoomService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private RmsRollRoomMapper rmsRollRoomMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   public ToJson<RmsRollRoom> save(RmsRollRoom rmsRollRoom, HttpServletRequest request)
+/*     */   {
+/*  36 */     ToJson json = new ToJson();
+/*     */     try {
+/*  38 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  39 */       rmsRollRoom.setAddUser(user.getUserId());
+/*  40 */       rmsRollRoom.setAddTime(new Date());
+/*     */ 
+/*  42 */       this.rmsRollRoomMapper.insertSelective(rmsRollRoom);
+/*  43 */       json.setMsg("ok");
+/*  44 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  46 */       e.printStackTrace();
+/*  47 */       json.setFlag(1);
+/*  48 */       json.setMsg("err");
+/*     */     }
+/*  50 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<RmsRollRoom> update(RmsRollRoom rmsRollRoom, HttpServletRequest request)
+/*     */   {
+/*  60 */     ToJson json = new ToJson();
+/*     */     try {
+/*  62 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  63 */       rmsRollRoom.setModUser(user.getUserId());
+/*  64 */       rmsRollRoom.setModTime(new Date());
+/*     */ 
+/*  66 */       this.rmsRollRoomMapper.updateByPrimaryKeySelective(rmsRollRoom);
+/*  67 */       json.setMsg("ok");
+/*  68 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  70 */       e.printStackTrace();
+/*  71 */       json.setFlag(1);
+/*  72 */       json.setMsg("err");
+/*     */     }
+/*  74 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<RmsRollRoom> delete(RmsRollRoom rmsRollRoom, HttpServletRequest request)
+/*     */   {
+/*  84 */     ToJson json = new ToJson();
+/*     */     try {
+/*  86 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  87 */       rmsRollRoom.setDelUser(user.getUserId());
+/*  88 */       rmsRollRoom.setDelTime(new Date());
+/*  89 */       this.rmsRollRoomMapper.updateByPrimaryKeySelective(rmsRollRoom);
+/*  90 */       this.rmsRollRoomMapper.deleteByPrimaryKey(rmsRollRoom.getRoomId());
+/*  91 */       json.setFlag(0);
+/*  92 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/*  94 */       e.printStackTrace();
+/*  95 */       json.setFlag(1);
+/*  96 */       json.setMsg("err");
+/*     */     }
+/*  98 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<RmsRollRoom> query(RmsRollRoom rmsRollRoom, PageParams pageParams)
+/*     */   {
+/* 108 */     ToJson json = new ToJson();
+/* 109 */     Map map = new HashMap();
+/* 110 */     map.put("page", pageParams);
+/*     */     try {
+/* 112 */       List rmsRollRooms = this.rmsRollRoomMapper.queryRooms(map);
+/* 113 */       json.setTotleNum(pageParams.getTotal());
+/* 114 */       json.setObj(rmsRollRooms);
+/* 115 */       json.setFlag(0);
+/* 116 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 118 */       e.printStackTrace();
+/* 119 */       json.setFlag(1);
+/* 120 */       json.setMsg("err");
+/*     */     }
+/* 122 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<RmsRollRoom> selectById(Integer roomId)
+/*     */   {
+/* 132 */     ToJson json = new ToJson();
+/*     */     try {
+/* 134 */       RmsRollRoom rmsRollRoom = this.rmsRollRoomMapper.selectById(roomId);
+/* 135 */       if ((!StringUtils.checkNull(rmsRollRoom.getViewDeptId()).booleanValue()) && (!"ALL_DEPT".equals(rmsRollRoom.getViewDeptId()))) {
+/* 136 */         String[] split = rmsRollRoom.getViewDeptId().split(",");
+/* 137 */         for (String deptId : split) {
+/* 138 */           String deptNameById = this.departmentMapper.getDeptNameById(Integer.parseInt(deptId));
+/* 139 */           if (!StringUtils.checkNull(rmsRollRoom.getViewDeptName()).booleanValue())
+/* 140 */             rmsRollRoom.setViewDeptName(rmsRollRoom.getViewDeptName() + deptNameById + ",");
+/*     */           else
+/* 142 */             rmsRollRoom.setViewDeptName(deptNameById + ",");
+/*     */         }
+/*     */       }
+/* 145 */       else if ("ALL_DEPT".equals(rmsRollRoom.getViewDeptId())) {
+/* 146 */         rmsRollRoom.setViewDeptName("全部部门");
+/*     */       }
+/* 148 */       json.setObject(rmsRollRoom);
+/* 149 */       json.setFlag(0);
+/* 150 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 152 */       e.printStackTrace();
+/* 153 */       json.setFlag(1);
+/* 154 */       json.setMsg("err");
+/*     */     }
+/* 156 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<RmsRollRoom> selectAll()
+/*     */   {
+/* 161 */     ToJson json = new ToJson();
+/*     */     try {
+/* 163 */       List rmsRollRooms = this.rmsRollRoomMapper.selectAll();
+/* 164 */       json.setObj(rmsRollRooms);
+/* 165 */       json.setFlag(0);
+/* 166 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 168 */       e.printStackTrace();
+/* 169 */       json.setFlag(1);
+/* 170 */       json.setMsg("err");
+/*     */     }
+/* 172 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.rms.impl.RmsRollRoomServiceImpl
+ * JD-Core Version:    0.6.0
+ */

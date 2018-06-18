@@ -1,0 +1,24 @@
+/*    */ package com.xoa.global.proxy;
+/*    */ 
+/*    */ import java.lang.reflect.InvocationHandler;
+/*    */ import java.lang.reflect.Method;
+/*    */ 
+/*    */ public class ProxyHandle
+/*    */   implements InvocationHandler
+/*    */ {
+/*    */   private Object proxied;
+/*    */ 
+/*    */   public ProxyHandle(Object proxied)
+/*    */   {
+/* 15 */     this.proxied = proxied;
+/*    */   }
+/*    */ 
+/*    */   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+/* 19 */     return method.invoke(this.proxied, args);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.global.proxy.ProxyHandle
+ * JD-Core Version:    0.6.0
+ */

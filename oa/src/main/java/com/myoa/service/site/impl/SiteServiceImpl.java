@@ -1,0 +1,147 @@
+ package com.myoa.service.site.impl;
+ 
+ import com.myoa.dao.site.SiteMapper;
+import com.myoa.model.site.Site;
+import com.myoa.service.site.SiteService;
+import com.myoa.util.ToJson;
+
+ import java.io.File;
+ import java.util.List;
+ import javax.annotation.Resource;
+ import javax.servlet.ServletContext;
+ import javax.servlet.http.HttpServletRequest;
+ import javax.servlet.http.HttpSession;
+ import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+ 
+ @Service
+ public class SiteServiceImpl
+   implements SiteService
+ {
+ 
+   @Resource
+   private SiteMapper siteMapper;
+ 
+   @Transactional
+   public ToJson<Site> selectSite()
+   {
+     ToJson json = json = new ToJson();
+     List list = this.siteMapper.selectSite();
+     try
+     {
+       if (list.size() > 0) {
+         json.setObj(list);
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   @Transactional
+   public ToJson<Site> selectSiteById(Site site) {
+     ToJson json = json = new ToJson();
+     try
+     {
+       Site site1 = this.siteMapper.selectByPrimaryKey(site.getPortalId());
+       json.setObject(site1);
+       json.setMsg("ok");
+       json.setFlag(0);
+     }
+     catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+   @Transactional
+   public ToJson<Site> insertSite(HttpServletRequest request, Site site) {
+     ToJson toJson = new ToJson(1, "error");
+     try
+     {
+       int temp = this.siteMapper.insertSelective(site);
+       if (temp > 0) {
+         toJson.setFlag(0);
+         toJson.setMsg("ok");
+       }
+     } catch (Exception e) {
+       toJson.setFlag(1);
+       toJson.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+ 
+     String rootPath = request.getSession().getServletContext().getRealPath("/");
+     File path = new File(rootPath, "cmsTmp");
+     if (!path.exists()) {
+       path.mkdirs();
+     }
+ 
+     if ((site.getPortalId() != null) && (site.getPortalId().intValue() != 0)) {
+       File cmsFile = new File(path, site.getPortalId() + "");
+       if (!cmsFile.exists()) {
+         cmsFile.mkdirs();
+       }
+     }
+     return toJson;
+   }
+ 
+   @Transactional
+   public ToJson<Site> upSite(Site site) {
+     ToJson toJson = new ToJson(1, "error");
+     try
+     {
+       int temp = this.siteMapper.updateByPrimaryKeySelective(site);
+       if (temp > 0) {
+         toJson.setFlag(0);
+         toJson.setMsg("ok");
+       }
+     } catch (Exception e) {
+       toJson.setFlag(1);
+       toJson.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return toJson;
+   }
+ 
+   @Transactional
+   public ToJson<Site> delSite(Site site) {
+     ToJson toJson = new ToJson(1, "error");
+     try
+     {
+       int temp = this.siteMapper.delSite(site);
+       if (temp > 0) {
+         toJson.setFlag(0);
+         toJson.setMsg("ok");
+       }
+     } catch (Exception e) {
+       toJson.setFlag(1);
+       toJson.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return toJson;
+   }
+ 
+   @Transactional
+   public ToJson<Site> selectSiteByTemp(Site site) {
+     ToJson json = json = new ToJson();
+     try
+     {
+       Site site1 = this.siteMapper.selectSiteByTemp(site.getPortalId());
+       json.setObject(site1);
+       json.setMsg("ok");
+       json.setFlag(0);
+     }
+     catch (Exception e) {
+       json.setFlag(1);
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+     }
+     return json;
+   }
+ }
+

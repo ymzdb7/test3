@@ -1,0 +1,324 @@
+ package com.xoa.service.edu.schoolRollInfo;
+ 
+ import com.xoa.dao.department.DepartmentMapper;
+ import com.xoa.dao.edu.schoolRollInfo.SchoolRollInfoMapper;
+ import com.xoa.model.edu.schoolRollInfo.SchoolRollInfo;
+ import com.xoa.model.users.Users;
+ import com.xoa.util.DateFormat;
+ import com.xoa.util.ExcelUtil;
+ import com.xoa.util.ToJson;
+ import com.xoa.util.common.L;
+ import com.xoa.util.common.StringUtils;
+ import com.xoa.util.common.log.FileUtils;
+ import com.xoa.util.common.session.SessionUtils;
+ import com.xoa.util.page.PageParams;
+ import java.io.File;
+ import java.io.FileInputStream;
+ import java.io.InputStream;
+ import java.util.Date;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.ResourceBundle;
+ import java.util.UUID;
+ import javax.servlet.ServletOutputStream;
+ import javax.servlet.http.HttpServletRequest;
+ import javax.servlet.http.HttpServletResponse;
+ import org.apache.poi.hssf.usermodel.HSSFSheet;
+ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+ import org.apache.poi.ss.usermodel.Cell;
+ import org.apache.poi.ss.usermodel.Row;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Service;
+ import org.springframework.transaction.annotation.Transactional;
+ import org.springframework.web.multipart.MultipartFile;
+ 
+ @Service
+ public class SchoolRollInfoService
+ {
+ 
+   @Autowired
+   private SchoolRollInfoMapper schoolRollInfoMapper;
+ 
+   @Autowired
+   private DepartmentMapper departmentMapper;
+ 
+   @Transactional
+   public ToJson<SchoolRollInfo> addShoolRollInfo(SchoolRollInfo schoolRollInfo, HttpServletRequest request)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       schoolRollInfo.setFlag("0");
+       schoolRollInfo.setCreateTime(new Date());
+       schoolRollInfo.setCreateUser(user.getUserId());
+       int count = this.schoolRollInfoMapper.insert(schoolRollInfo);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+       L.e(new Object[] { "SchoolRollInfoService addShoolRollInfo:" + e });
+     }
+     return json;
+   }
+ 
+   @Transactional
+   public ToJson<SchoolRollInfo> delShoolRollInfo(int id)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       int count = this.schoolRollInfoMapper.deleteByPrimaryKey(Integer.valueOf(id));
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+       L.e(new Object[] { "SchoolRollInfoService delShoolRollInfo:" + e });
+     }
+     return json;
+   }
+ 
+   @Transactional
+   public ToJson<SchoolRollInfo> updateShoolRollInfo(SchoolRollInfo schoolRollInfo)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       schoolRollInfo.setEditTime(new Date());
+       int count = this.schoolRollInfoMapper.updateByPrimaryKeySelective(schoolRollInfo);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+       L.e(new Object[] { "SchoolRollInfoService updateShoolRollInfo:" + e });
+     }
+     return json;
+   }
+ 
+   public ToJson<SchoolRollInfo> selSchoolRollInfoById(int id)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       SchoolRollInfo schoolRollInfo = this.schoolRollInfoMapper.selectByPrimaryKey(Integer.valueOf(id));
+       json.setFlag(0);
+       json.setMsg("ok");
+       json.setObject(schoolRollInfo);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+       L.e(new Object[] { "SchoolRollInfoService selSchoolRollInfoById:" + e });
+     }
+     return json;
+   }
+ 
+   public ToJson<SchoolRollInfo> selSchoolRollInfo(SchoolRollInfo schoolRollInfo, Integer page, Integer pageSize, boolean useFlag)
+   {
+     ToJson json = new ToJson(1, "error");
+     try
+     {
+       PageParams pageParams = new PageParams();
+       pageParams.setPage(page);
+       pageParams.setPageSize(pageSize);
+       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+       Map map = new HashMap();
+       map.put("page", pageParams);
+       map.put("schoolRollInfo", schoolRollInfo);
+       List list = this.schoolRollInfoMapper.selSchoolRollInfo(map);
+       json.setFlag(0);
+       json.setMsg("ok");
+       json.setObj(list);
+       json.setTotleNum(pageParams.getTotal());
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       e.printStackTrace();
+       L.e(new Object[] { "SchoolRollInfoService selSchoolRollInfo:" + e });
+     }
+     return json;
+   }
+ 
+   public ToJson<SchoolRollInfo> importSchoolRollInfo(HttpServletRequest request, HttpServletResponse response, MultipartFile file)
+   {
+     ToJson json = new ToJson(1, "error");
+     try
+     {
+       ResourceBundle rb = ResourceBundle.getBundle("upload");
+       String osName = System.getProperty("os.name");
+       StringBuffer path = new StringBuffer();
+       if (osName.toLowerCase().startsWith("win"))
+         path = path.append(rb.getString("upload.win"));
+       else {
+         path = path.append(rb.getString("upload.linux"));
+       }
+       int success = 0;
+ 
+       if (file.isEmpty()) {
+         json.setMsg("请上传文件！");
+         json.setFlag(1);
+         return json;
+       }
+       String fileName = file.getOriginalFilename();
+       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+         int pos = fileName.indexOf(".");
+         String extName = fileName.substring(pos);
+         String newFileName = uuid + extName;
+         File dest = new File(path.toString(), newFileName);
+         file.transferTo(dest);
+ 
+         String readPath = path.append(System.getProperty("file.separator")).append(newFileName).toString();
+         InputStream in = new FileInputStream(readPath);
+         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+         Row row = sheetObj.getRow(0);
+         int colNum = row.getPhysicalNumberOfCells();
+         int lastRowNum = sheetObj.getLastRowNum();
+         Map map = new HashMap();
+         map.put("schoolCode", Integer.valueOf(0));
+         map.put("schoolName", Integer.valueOf(1));
+         map.put("name", Integer.valueOf(2));
+         map.put("learnPhaseId", Integer.valueOf(3));
+         map.put("gradeId", Integer.valueOf(4));
+         map.put("classId", Integer.valueOf(5));
+         map.put("sex", Integer.valueOf(6));
+         map.put("brith", Integer.valueOf(7));
+         map.put("districtNo", Integer.valueOf(8));
+         map.put("origin", Integer.valueOf(9));
+         map.put("nation", Integer.valueOf(10));
+         map.put("nationality", Integer.valueOf(11));
+         map.put("cardType", Integer.valueOf(12));
+         map.put("cardId", Integer.valueOf(13));
+         map.put("region", Integer.valueOf(14));
+         map.put("health", Integer.valueOf(15));
+         map.put("political", Integer.valueOf(16));
+         map.put("registration", Integer.valueOf(17));
+         map.put("registrDistrict", Integer.valueOf(18));
+         map.put("entranceDate", Integer.valueOf(19));
+         map.put("entranceWay", Integer.valueOf(20));
+         map.put("studyWay", Integer.valueOf(21));
+         map.put("address", Integer.valueOf(22));
+         map.put("mailAddress", Integer.valueOf(23));
+         map.put("homrAddress", Integer.valueOf(24));
+         map.put("phone", Integer.valueOf(25));
+         map.put("postalCode", Integer.valueOf(26));
+         map.put("onlyChild", Integer.valueOf(27));
+         map.put("preEducation", Integer.valueOf(28));
+         map.put("leftChild", Integer.valueOf(29));
+         map.put("appliedFund", Integer.valueOf(30));
+         map.put("supplement", Integer.valueOf(31));
+         map.put("orphan", Integer.valueOf(32));
+         map.put("martyrsChild", Integer.valueOf(33));
+         map.put("goDistance", Integer.valueOf(34));
+         map.put("goWay", Integer.valueOf(35));
+         map.put("takeBus", Integer.valueOf(36));
+         map.put("preName", Integer.valueOf(37));
+         map.put("cardValiDate", Integer.valueOf(38));
+         map.put("bloodType", Integer.valueOf(39));
+         map.put("specialty", Integer.valueOf(40));
+         map.put("auxiliaryNum", Integer.valueOf(41));
+         map.put("stuNo", Integer.valueOf(42));
+         map.put("stuSource", Integer.valueOf(43));
+         map.put("eMail", Integer.valueOf(44));
+         map.put("homePage", Integer.valueOf(45));
+         map.put("disabilityType", Integer.valueOf(46));
+         map.put("governDegree", Integer.valueOf(47));
+         map.put("regularStudy", Integer.valueOf(48));
+         map.put("hidden", Integer.valueOf(49));
+         map.put("member1Name", Integer.valueOf(50));
+         map.put("member1Relation", Integer.valueOf(51));
+         map.put("member1RelationDesc", Integer.valueOf(52));
+         map.put("member1Address", Integer.valueOf(53));
+         map.put("member1District", Integer.valueOf(54));
+         map.put("member1Phone", Integer.valueOf(55));
+         map.put("member1Keeper", Integer.valueOf(56));
+         map.put("member1CardType", Integer.valueOf(57));
+         map.put("member1CardId", Integer.valueOf(58));
+         map.put("member1Nation", Integer.valueOf(59));
+         map.put("member1Workplace", Integer.valueOf(60));
+         map.put("member1Post", Integer.valueOf(61));
+         map.put("member2Name", Integer.valueOf(62));
+         map.put("member2Relation", Integer.valueOf(63));
+         map.put("member2RelationDesc", Integer.valueOf(64));
+         map.put("member2Address", Integer.valueOf(65));
+         map.put("member2District", Integer.valueOf(66));
+         map.put("member2Phone", Integer.valueOf(67));
+         map.put("member2Keeper", Integer.valueOf(68));
+         map.put("member2CardType", Integer.valueOf(69));
+         map.put("member2CardId", Integer.valueOf(70));
+         map.put("member2Nation", Integer.valueOf(71));
+         map.put("member2Workplace", Integer.valueOf(72));
+         map.put("member2Post", Integer.valueOf(73));
+         map.put("migrantChild", Integer.valueOf(74));
+         for (int i = 2; i <= lastRowNum; i++) {
+           row = sheetObj.getRow(i);
+           Cell cell = row.getCell(1);
+           SchoolRollInfo schoolRollInfo = (SchoolRollInfo)ExcelUtil.setCellInfoToModel(row, SchoolRollInfo.class, new SchoolRollInfo(), map);
+           if ((schoolRollInfo != null) && (!StringUtils.checkNull(schoolRollInfo.getName()).booleanValue())) {
+             success += this.schoolRollInfoMapper.insertSelective(schoolRollInfo);
+           }
+         }
+       }
+ 
+       SchoolRollInfo temp = new SchoolRollInfo();
+       temp.setSuccessCount(Integer.valueOf(success));
+       json.setFlag(0);
+       json.setMsg("ok");
+       json.setObject(temp);
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setMsg("数据保存异常");
+       json.setFlag(1);
+     }
+     return json;
+   }
+ 
+   public ToJson<SchoolRollInfo> outputSchoolRollInfo(HttpServletRequest request, HttpServletResponse response)
+     throws Exception
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("学籍信息导出", 9);
+       String[] secondTitles = { "学校标识码", "学校名称", "姓名", "学段", "年级", "班级", "性别", "出生日期", "出生地行政区划代码", "籍贯", "民族", "国籍/地区", "身份证件类型", "身份证件号", "港澳台侨外", "健康状况", "政治面貌", "户口性质", "户口所在地行政区划", "入学时间", "入学方式", "就读方式", "现住址", "通信地址", "家庭住址", "联系电话", "邮政编码", "是否独生子女（0-否，1-是）", "是否受过学前教育（0-否，1-是）", "是否留守儿童（0-否，1-是）", "是否需要申请资助（0-否，1-是）", "是否享受一补（0-否，1-是）", "是否孤儿（0-否，1-是）", "是否烈士或优抚子女（0-否，1-是）", "上下学距离", "上下学方式", "是否需要乘坐校车（0-否，1-是）", "曾用名", "身份证件有效期", "血型", "特长", "学籍辅号", "班内学号", "学生来源", "电子信箱", "主页地址", "残疾类型", "是否由政府购买学位（0-否，1-是）", "随班就读", "隐藏", "成员1姓名", "成员1关系", "成员1关系说明", "成员1现住址", "成员1户口所在地行政区划", "成员1联系电话", "成员1是否监护人", "成员1身份证件类型", "成员1身份证件号", "成员1名族", "成员1工作单位", "成员1职务", "成员2姓名", "成员2关系", "成员2关系说明", "成员2现住址", "成员2户口所在地行政区划", "成员2联系电话", "成员2是否监护人", "成员2身份证件类型", "成员2身份证号", "成员2民族", "成员2工作单位", "成员2职务", "是否进程务工人员随迁子女（0-否，1-是）" };
+ 
+       HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+       Map map = new HashMap();
+       SchoolRollInfo schoolRollInfo = new SchoolRollInfo();
+       map.put("schoolRollInfo", schoolRollInfo);
+       List<SchoolRollInfo> infoList = this.schoolRollInfoMapper.selSchoolRollInfo(map);
+       for (SchoolRollInfo info : infoList) {
+         if (info.getBrith() != null) {
+           info.setBrithStr(DateFormat.getDatestr(info.getBrith()));
+         }
+         if (info.getEntranceDate() != null) {
+           info.setEntranceDateStr(DateFormat.getDatestr(info.getEntranceDate()));
+         }
+       }
+       String[] beanProperty = { "schoolCode", "schoolName", "name", "learnPhaseId", "gradeId", "classId", "sex", "brithStr", "districtNo", "origin", "nation", "nationality", "cardType", "cardId", "region", "health", "political", "registration", "registrDistrict", "entranceDateStr", "entranceWay", "studyWay", "address", "mailAddress", "homrAddress", "phone", "postalCode", "onlyChild", "preEducation", "leftChild", "appliedFund", "supplement", "orphan", "martyrsChild", "goDistance", "goWay", "takeBus", "preName", "cardValiDate", "bloodType", "specialty", "auxiliaryNum", "stuNo", "stuSource", "eMail", "homePage", "disabilityType", "governDegree", "regularStudy", "hidden", "member1Name", "member1Relation", "member1RelationDesc", "member1Address", "member1District", "member1Phone", "member1Keeper", "member1CardType", "member1CardId", "member1Nation", "member1Workplace", "member1Post", "member2Name", "member2Relation", "member2RelationDesc", "member2Address", "member2District", "member2Phone", "member2Keeper", "member2CardType", "member2CardId", "member2Nation", "member2Workplace", "member2Post", "migrantChild" };
+ 
+       HSSFWorkbook workbook = ExcelUtil.exportExcelData(workbook2, infoList, beanProperty);
+       ServletOutputStream out = response.getOutputStream();
+       String filename = "学籍信息导出.xls";
+       filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+ 
+       response.setContentType("application/vnd.ms-excel");
+       response.setHeader("content-disposition", "attachment;filename=" + filename);
+ 
+       workbook.write(out);
+       out.close();
+       json.setMsg("OK");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+ 
+       L.e(new Object[] { "SchoolRollInfoService outputSchoolRollInfo:" + e });
+     }
+     return json;
+   }
+ }
+

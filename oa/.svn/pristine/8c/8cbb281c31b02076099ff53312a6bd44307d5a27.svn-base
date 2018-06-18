@@ -1,0 +1,44 @@
+package com.xoa.service.worldnews;
+
+import com.xoa.model.worldnews.News;
+import com.xoa.util.ToJson;
+import com.xoa.util.common.wrapper.BaseWrapper;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+
+public abstract interface NewService
+{
+  public abstract ToJson<News> selectNews(Map<String, Object> paramMap, Integer paramInteger1, Integer paramInteger2, boolean paramBoolean, String paramString)
+    throws Exception;
+
+  public abstract ToJson<News> unreadNews(Map<String, Object> paramMap, Integer paramInteger1, Integer paramInteger2, boolean paramBoolean, String paramString1, String paramString2)
+    throws Exception;
+
+  public abstract ToJson<News> readNews(Map<String, Object> paramMap, Integer paramInteger1, Integer paramInteger2, boolean paramBoolean, String paramString1, String paramString2)
+    throws Exception;
+
+  public abstract ToJson<News> selectNewsManage(Map<String, Object> paramMap, Integer paramInteger1, Integer paramInteger2, boolean paramBoolean, String paramString1, String paramString2)
+    throws Exception;
+
+  public abstract void sendNews(News paramNews, String paramString1, String paramString2, HttpServletRequest paramHttpServletRequest);
+
+  public abstract void updateNews(News paramNews, String paramString1, String paramString2, HttpServletRequest paramHttpServletRequest);
+
+  public abstract void updatePublish(News paramNews, String paramString1, String paramString2, HttpServletRequest paramHttpServletRequest);
+
+  public abstract void updateNewsReades(News paramNews, String paramString1, String paramString2, HttpServletRequest paramHttpServletRequest);
+
+  public abstract News queryById(Map<String, Object> paramMap, Integer paramInteger1, Integer paramInteger2, boolean paramBoolean, String paramString1, String paramString2, String paramString3)
+    throws Exception;
+
+  public abstract void deleteByPrimaryKey(Integer paramInteger);
+
+  public abstract ToJson<News> deleteByids(String[] paramArrayOfString);
+
+  public abstract ToJson<News> updayeByids(String[] paramArrayOfString, String paramString1, String paramString2);
+
+  public abstract ToJson<News> ConsultTheSituationNew(String paramString);
+
+  public abstract BaseWrapper getNewCountByType(String paramString);
+}
+

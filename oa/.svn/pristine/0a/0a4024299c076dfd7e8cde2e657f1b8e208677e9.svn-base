@@ -1,0 +1,148 @@
+/*     */ package com.xoa.service.smssetting.impl;
+/*     */ 
+/*     */ import com.xoa.dao.smsSettings.SmsSettingsMapper;
+/*     */ import com.xoa.model.smsSettings.SmsSettings;
+/*     */ import com.xoa.service.smssetting.SmsSettingsService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class SmsSettingsServiceImpl
+/*     */   implements SmsSettingsService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private SmsSettingsMapper smsSettingsMapper;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson insertSmsSettings(SmsSettings smsSettings)
+/*     */   {
+/*  29 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  31 */       int temp = this.smsSettingsMapper.insertSelective(smsSettings);
+/*  32 */       if (temp > 0) {
+/*  33 */         toJson.setFlag(0);
+/*  34 */         toJson.setMsg("success");
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  37 */       toJson.setFlag(1);
+/*  38 */       toJson.setMsg(e.getMessage());
+/*  39 */       e.printStackTrace();
+/*     */     }
+/*     */ 
+/*  42 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson delSmsSettings(int id) {
+/*  48 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  50 */       int temp = this.smsSettingsMapper.deleteByPrimaryKey(Integer.valueOf(id));
+/*  51 */       if (temp > 0) {
+/*  52 */         toJson.setFlag(0);
+/*  53 */         toJson.setMsg("success");
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  56 */       toJson.setFlag(1);
+/*  57 */       toJson.setMsg(e.getMessage());
+/*  58 */       e.printStackTrace();
+/*     */     }
+/*  60 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson upSmsSettings(SmsSettings smsSettings) {
+/*  66 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/*  69 */       int temp = this.smsSettingsMapper.updateByPrimaryKeySelective(smsSettings);
+/*  70 */       int id = 0;
+/*  71 */       if ((temp > 0) && 
+/*  72 */         (!smsSettings.getState().equals("0"))) {
+/*  73 */         List list = this.smsSettingsMapper.selectSmsSettingsState(smsSettings.getId());
+/*  74 */         for (int i = 0; i < list.size(); i++) {
+/*  75 */           id = ((SmsSettings)list.get(i)).getId().intValue();
+/*  76 */           this.smsSettingsMapper.upSmsSettingsState(Integer.valueOf(id));
+/*     */         }
+/*  78 */         toJson.setFlag(0);
+/*  79 */         toJson.setMsg("success");
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/*  83 */       toJson.setFlag(1);
+/*  84 */       toJson.setMsg(e.getMessage());
+/*  85 */       e.printStackTrace();
+/*     */     }
+/*  87 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson selectSmsSettings() {
+/*  93 */     ToJson toJson = new ToJson(1, "error");
+/*  94 */     Map map = new HashMap();
+/*     */     try {
+/*  96 */       List list = this.smsSettingsMapper.selectSmsSettings(map);
+/*     */ 
+/* 104 */       if (list.size() > 0) {
+/* 105 */         toJson.setObj(list);
+/* 106 */         toJson.setMsg("success");
+/* 107 */         toJson.setFlag(0);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 111 */       toJson.setFlag(1);
+/* 112 */       toJson.setMsg(e.getMessage());
+/* 113 */       e.printStackTrace();
+/*     */     }
+/*     */ 
+/* 117 */     return toJson;
+/*     */   }
+/* 121 */   @Transactional
+/*     */   public ToJson selectSmsSettingsAll() { ToJson toJson = new ToJson(1, "error");
+/* 122 */     Map map = new HashMap();
+/*     */     try {
+/* 124 */       List list = this.smsSettingsMapper.selectSmsSettingsAll(map);
+/*     */ 
+/* 132 */       if (list.size() > 0) {
+/* 133 */         toJson.setObj(list);
+/* 134 */         toJson.setMsg("success");
+/* 135 */         toJson.setFlag(0);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 139 */       toJson.setFlag(1);
+/* 140 */       toJson.setMsg(e.getMessage());
+/* 141 */       e.printStackTrace();
+/*     */     }
+/*     */ 
+/* 145 */     return toJson; }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson selectSmsSettingsById(HttpServletRequest request, Integer id) {
+/* 150 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 152 */       SmsSettings smsSettings = this.smsSettingsMapper.selectByPrimaryKey(id);
+/*     */ 
+/* 160 */       toJson.setObject(smsSettings);
+/* 161 */       toJson.setFlag(0);
+/* 162 */       toJson.setMsg("ok");
+/*     */     }
+/*     */     catch (Exception e) {
+/* 165 */       toJson.setFlag(1);
+/* 166 */       toJson.setMsg(e.getMessage());
+/* 167 */       e.printStackTrace();
+/*     */     }
+/* 169 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.smssetting.impl.SmsSettingsServiceImpl
+ * JD-Core Version:    0.6.0
+ */

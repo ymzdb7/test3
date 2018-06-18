@@ -1,0 +1,287 @@
+/*     */ package com.xoa.service.edu.eduArrangeCource.impl;
+/*     */ 
+/*     */ import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+/*     */ import com.xoa.dao.edu.eduArrangeCource.EduArrangeCourseMapper;
+/*     */ import com.xoa.model.edu.eduArrangeCource.EduArrangeCourse;
+/*     */ import com.xoa.model.edu.eduArrangeCource.EduArrbean;
+/*     */ import com.xoa.service.edu.eduArrangeCource.IEduArrangeCourseService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.InputStream;
+/*     */ import java.math.BigDecimal;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.ResourceBundle;
+/*     */ import java.util.UUID;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.apache.poi.ss.usermodel.Cell;
+/*     */ import org.apache.poi.ss.usermodel.Row;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduArrangeCourseServiceImpl extends ServiceImpl<EduArrangeCourseMapper, EduArrangeCourse>
+/*     */   implements IEduArrangeCourseService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private EduArrangeCourseMapper eduArrangeCourseMapper;
+/*     */ 
+/*     */   public ToJson<EduArrbean> eduArrangeCourseClassSelect(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  57 */     ToJson json = new ToJson();
+/*     */     try {
+/*  59 */       PageParams pageParams = new PageParams();
+/*  60 */       pageParams.setPage(page);
+/*  61 */       pageParams.setPageSize(pageSize);
+/*  62 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  63 */       maps.put("page", pageParams);
+/*  64 */       List edulsit = this.eduArrangeCourseMapper.eduArrangeCourseClassSelect(maps);
+/*  65 */       json.setObj(edulsit);
+/*  66 */       json.setMsg("ok");
+/*  67 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  69 */       e.printStackTrace();
+/*  70 */       json.setMsg("false");
+/*  71 */       json.setFlag(1);
+/*     */     }
+/*  73 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduArrbean> eduArrangeCourseTeacherSelect(HttpServletRequest request, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  88 */     ToJson json = new ToJson();
+/*  89 */     Map maps = new HashMap();
+/*     */ 
+/*  91 */     if ((request.getParameter("teacheri") == null) || (request.getParameter("teacheri").equals(""))) {
+/*  92 */       return null;
+/*     */     }
+/*  94 */     maps.put("teacheri", request.getParameter("teacheri"));
+/*  95 */     maps.put("academicYear", request.getParameter("academicYear"));
+/*  96 */     maps.put("semester", request.getParameter("semester"));
+/*  97 */     maps.put("monday", request.getParameter("teacheri"));
+/*  98 */     maps.put("tuesday", request.getParameter("teacheri"));
+/*  99 */     maps.put("wednesday", request.getParameter("teacheri"));
+/* 100 */     maps.put("thursday", request.getParameter("teacheri"));
+/* 101 */     maps.put("friday", request.getParameter("teacheri"));
+/* 102 */     maps.put("saturday", request.getParameter("teacheri"));
+/* 103 */     maps.put("friday", request.getParameter("teacheri"));
+/*     */     try
+/*     */     {
+/* 106 */       PageParams pageParams = new PageParams();
+/* 107 */       pageParams.setPage(page);
+/* 108 */       pageParams.setPageSize(pageSize);
+/* 109 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 110 */       maps.put("page", pageParams);
+/* 111 */       Map edulsit = this.eduArrangeCourseMapper.eduArrangeCourseTeacherSelect(maps);
+/* 112 */       json.setObject(edulsit);
+/* 113 */       json.setMsg("ok");
+/* 114 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 116 */       e.printStackTrace();
+/*     */     }
+/* 118 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduArrbean> eduArrangeCourseTotalClass(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 134 */     ToJson json = new ToJson();
+/*     */     try {
+/* 136 */       PageParams pageParams = new PageParams();
+/* 137 */       pageParams.setPage(page);
+/* 138 */       pageParams.setPageSize(pageSize);
+/* 139 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 140 */       maps.put("page", pageParams);
+/* 141 */       List edulsit = this.eduArrangeCourseMapper.eduArrangeCourseTotalClass(maps);
+/* 142 */       json.setObj(edulsit);
+/* 143 */       json.setMsg("ok");
+/* 144 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 146 */       e.printStackTrace();
+/* 147 */       json.setMsg("false");
+/* 148 */       json.setFlag(1);
+/*     */     }
+/* 150 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduArrangeCourse> eduArrangeCourseTotalTeacher(HttpServletRequest request, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 165 */     ToJson json = new ToJson();
+/* 166 */     Map maps = new HashMap();
+/*     */     try {
+/* 168 */       PageParams pageParams = new PageParams();
+/* 169 */       pageParams.setPage(page);
+/* 170 */       pageParams.setPageSize(pageSize);
+/* 171 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 172 */       maps.put("academicYear", request.getParameter("academicYear"));
+/* 173 */       maps.put("semester", request.getParameter("semester"));
+/* 174 */       maps.put("page", pageParams);
+/* 175 */       List edulsit = this.eduArrangeCourseMapper.eduArrangeCourseTotalTeacher(maps);
+/* 176 */       json.setObj(edulsit);
+/* 177 */       json.setMsg("ok");
+/* 178 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 180 */       e.printStackTrace();
+/* 181 */       json.setMsg("false");
+/* 182 */       json.setFlag(1);
+/*     */     }
+/* 184 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduArrangeCourse> importArrangeCourse(MultipartFile file, HttpServletRequest request, HttpServletResponse response, HttpSession session)
+/*     */   {
+/* 197 */     ToJson json = new ToJson();
+/*     */ 
+/* 199 */     Integer successCount = Integer.valueOf(0);
+/*     */     try
+/*     */     {
+/* 203 */       ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 204 */       String osName = System.getProperty("os.name");
+/* 205 */       StringBuffer path = new StringBuffer();
+/* 206 */       if (osName.toLowerCase().startsWith("win"))
+/* 207 */         path = path.append(rb.getString("upload.win"));
+/*     */       else {
+/* 209 */         path = path.append(rb.getString("upload.linux"));
+/*     */       }
+/*     */ 
+/* 212 */       if (file.isEmpty()) {
+/* 213 */         json.setMsg("请上传文件！");
+/* 214 */         json.setFlag(1);
+/* 215 */         return json;
+/*     */       }
+/* 217 */       String fileName = file.getOriginalFilename();
+/* 218 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 219 */         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+/* 220 */         int pos = fileName.indexOf(".");
+/* 221 */         String extName = fileName.substring(pos);
+/* 222 */         String newFileName = uuid + extName;
+/* 223 */         File dest = new File(path.toString(), newFileName);
+/* 224 */         file.transferTo(dest);
+/*     */ 
+/* 227 */         String readPath = path.append(newFileName).toString();
+/* 228 */         InputStream in = new FileInputStream(readPath);
+/* 229 */         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+/* 230 */         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+/* 231 */         Row row = sheetObj.getRow(0);
+/* 232 */         int colNum = row.getPhysicalNumberOfCells();
+/* 233 */         int lastRowNum = sheetObj.getLastRowNum();
+/* 234 */         List saveList = new ArrayList();
+/* 235 */         EduArrangeCourse eduArrangeCourse = null;
+/* 236 */         String value = null;
+/* 237 */         for (int i = 1; i <= lastRowNum; i++) {
+/* 238 */           eduArrangeCourse = new EduArrangeCourse();
+/* 239 */           row = sheetObj.getRow(i);
+/* 240 */           if (row != null) {
+/* 241 */             for (int j = 0; j < colNum; j++)
+/*     */             {
+/* 243 */               Cell cell = row.getCell(j);
+/* 244 */               if (cell != null) {
+/* 245 */                 switch (j)
+/*     */                 {
+/*     */                 case 0:
+/* 248 */                   BigDecimal big1 = new BigDecimal(cell.getNumericCellValue());
+/* 249 */                   value = big1.toString();
+/* 250 */                   if (null != value) {
+/* 251 */                     String[] item = value.split("[.]");
+/* 252 */                     if ((1 < item.length) && ("0".equals(item[1]))) {
+/* 253 */                       value = item[0];
+/*     */                     }
+/* 255 */                     eduArrangeCourse.setAcademicYear(value);
+/*     */                   }
+/*     */                   else {
+/* 258 */                     eduArrangeCourse.setAcademicYear(cell.getNumericCellValue() + "");
+/* 259 */                   }break;
+/*     */                 case 1:
+/* 262 */                   BigDecimal big2 = new BigDecimal(cell.getNumericCellValue());
+/* 263 */                   value = big2.toString();
+/* 264 */                   if (null != value) {
+/* 265 */                     String[] item = value.split("[.]");
+/* 266 */                     if ((1 < item.length) && ("0".equals(item[1]))) {
+/* 267 */                       value = item[0];
+/*     */                     }
+/*     */                   }
+/* 270 */                   eduArrangeCourse.setSemester(value);
+/* 271 */                   break;
+/*     */                 case 2:
+/* 274 */                   BigDecimal big3 = new BigDecimal(cell.getNumericCellValue());
+/* 275 */                   value = big3.toString();
+/* 276 */                   if (null != value) {
+/* 277 */                     String[] item = value.split("[.]");
+/* 278 */                     if ((1 < item.length) && ("0".equals(item[1]))) {
+/* 279 */                       value = item[0];
+/*     */                     }
+/*     */                   }
+/* 282 */                   eduArrangeCourse.setSection(value);
+/* 283 */                   break;
+/*     */                 case 3:
+/* 286 */                   eduArrangeCourse.setGrade(cell.getStringCellValue());
+/* 287 */                   break;
+/*     */                 case 4:
+/* 290 */                   eduArrangeCourse.setClazz(cell.getStringCellValue());
+/* 291 */                   break;
+/*     */                 case 5:
+/* 294 */                   eduArrangeCourse.setAfternoon(cell.getStringCellValue());
+/* 295 */                   break;
+/*     */                 case 6:
+/* 298 */                   eduArrangeCourse.setMonday(cell.getStringCellValue());
+/* 299 */                   break;
+/*     */                 case 7:
+/* 302 */                   eduArrangeCourse.setTuesday(cell.getStringCellValue());
+/* 303 */                   break;
+/*     */                 case 8:
+/* 306 */                   eduArrangeCourse.setWednesday(cell.getStringCellValue());
+/* 307 */                   break;
+/*     */                 case 9:
+/* 310 */                   eduArrangeCourse.setThursday(cell.getStringCellValue());
+/* 311 */                   break;
+/*     */                 case 10:
+/* 314 */                   eduArrangeCourse.setFriday(cell.getStringCellValue());
+/* 315 */                   break;
+/*     */                 case 11:
+/* 318 */                   eduArrangeCourse.setSaturday(cell.getStringCellValue());
+/* 319 */                   break;
+/*     */                 case 12:
+/* 322 */                   eduArrangeCourse.setSunday(cell.getStringCellValue());
+/* 323 */                   break;
+/*     */                 case 13:
+/* 326 */                   eduArrangeCourse.setWeekFlag(cell.getStringCellValue());
+/*     */                 }
+/*     */               }
+/*     */ 
+/*     */             }
+/*     */ 
+/* 332 */             eduArrangeCourse.setAttachmentId("无");
+/* 333 */             eduArrangeCourse.setAttachmentName("无");
+/* 334 */             int count = this.eduArrangeCourseMapper.eduArrangeCourseInsert(eduArrangeCourse);
+/* 335 */             if (count > 0) {
+/* 336 */               successCount = Integer.valueOf(successCount.intValue() + count);
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 342 */       if (successCount.intValue() > 0) {
+/* 343 */         json.setMsg("ok");
+/* 344 */         json.setFlag(0);
+/* 345 */         return json;
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 348 */       e.printStackTrace();
+/*     */     }
+/* 350 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduArrangeCource.impl.EduArrangeCourseServiceImpl
+ * JD-Core Version:    0.6.0
+ */

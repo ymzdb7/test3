@@ -1,0 +1,73 @@
+/*     */ package com.xoa.controller.meeting;
+/*     */ 
+/*     */ import com.xoa.model.meet.MeetingRoomWithBLOBs;
+/*     */ import com.xoa.service.meeting.MeetRoomService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @RequestMapping({"/meetingRoom"})
+/*     */ @Controller
+/*     */ public class MeetingRoomController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private MeetRoomService meetRoomService;
+/*     */ 
+/*     */   @RequestMapping({"/getAllMeetRoomInfo"})
+/*     */   @ResponseBody
+/*     */   public ToJson<MeetingRoomWithBLOBs> getAllMeetRoomInfo(Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  38 */     return this.meetRoomService.getAllMeetRoomInfo(page, pageSize, useFlag);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getMeetRoomBySid"})
+/*     */   @ResponseBody
+/*     */   public ToJson<MeetingRoomWithBLOBs> getMeetRoomBySid(String sid)
+/*     */   {
+/*  50 */     return this.meetRoomService.getMeetRoomBySid(sid);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/deleteMeetRoomBySid"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> deleteMeetRoomBySid(String sid)
+/*     */   {
+/*  62 */     return this.meetRoomService.deleteMeetRoomBySid(sid);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/addMeetRoom"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> addMeetRoom(MeetingRoomWithBLOBs meetingRoomWithBLOBs)
+/*     */   {
+/*  74 */     return this.meetRoomService.addMeetRoom(meetingRoomWithBLOBs);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/editMeetRoom"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> editMeetRoom(MeetingRoomWithBLOBs meetingRoomWithBLOBs)
+/*     */   {
+/*  86 */     return this.meetRoomService.editMeetRoom(meetingRoomWithBLOBs);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getAllMeetRoom"})
+/*     */   @ResponseBody
+/*     */   public ToJson<MeetingRoomWithBLOBs> getAllMeetRoom(HttpServletRequest request)
+/*     */   {
+/*  98 */     return this.meetRoomService.getAllMeetRoom(request);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getUserRoomCondition"})
+/*     */   @ResponseBody
+/*     */   public ToJson<MeetingRoomWithBLOBs> getUserRoomCondition(String currentDate)
+/*     */   {
+/* 108 */     return this.meetRoomService.getUserRoomCondition(currentDate);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.meeting.MeetingRoomController
+ * JD-Core Version:    0.6.0
+ */

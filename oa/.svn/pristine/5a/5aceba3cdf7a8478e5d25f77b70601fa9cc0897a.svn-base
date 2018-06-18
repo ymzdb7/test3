@@ -1,0 +1,40 @@
+/*    */ package com.xoa.controller.workflow;
+/*    */ 
+/*    */ import com.xoa.model.users.Users;
+/*    */ import com.xoa.service.syspara.SysParaService;
+/*    */ import com.xoa.util.common.session.SessionUtils;
+/*    */ import javax.annotation.Resource;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.stereotype.Controller;
+/*    */ import org.springframework.ui.Model;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"/workflow/formtype"})
+/*    */ public class FlowFormTypePageController
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   SysParaService sysParaService;
+/*    */ 
+/*    */   @RequestMapping({"/index"})
+/*    */   public String showPage(HttpServletRequest request, Model model)
+/*    */   {
+/* 27 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 28 */     if (!this.sysParaService.checkIsHaveSecure(user, Integer.valueOf(8))) {
+/* 29 */       return "app/common/development";
+/*    */     }
+/* 31 */     return "app/workflow/formtype/index";
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/control"})
+/*    */   public String control(HttpServletRequest request)
+/*    */   {
+/* 38 */     return "app/workflow/formtype/control";
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.workflow.FlowFormTypePageController
+ * JD-Core Version:    0.6.0
+ */

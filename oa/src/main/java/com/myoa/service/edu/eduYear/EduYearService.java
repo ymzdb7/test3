@@ -1,0 +1,295 @@
+ package com.myoa.service.edu.eduYear;
+ 
+ import com.myoa.dao.edu.eduYear.EduYearMapper;
+import com.myoa.model.edu.eduYear.EduYear;
+import com.myoa.model.users.Users;
+import com.myoa.util.ExcelUtil;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.log.FileUtils;
+import com.myoa.util.common.session.SessionUtils;
+import com.myoa.util.page.PageParams;
+
+ import java.io.File;
+ import java.io.FileInputStream;
+ import java.io.InputStream;
+ import java.io.OutputStream;
+ import java.text.SimpleDateFormat;
+ import java.util.Date;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.ResourceBundle;
+ import java.util.UUID;
+ import javax.annotation.Resource;
+ import javax.servlet.http.HttpServletRequest;
+ import javax.servlet.http.HttpServletResponse;
+ import org.apache.poi.hssf.usermodel.HSSFSheet;
+ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+ import org.apache.poi.ss.usermodel.Cell;
+ import org.apache.poi.ss.usermodel.Row;
+ import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+ 
+ @Service
+ public class EduYearService
+ {
+ 
+   @Resource
+   private EduYearMapper eduYearMapper;
+ 
+   public ToJson<EduYear> addEduYear(HttpServletRequest request, EduYear eduYear)
+   {
+     ToJson json = new ToJson();
+     try {
+       Map map = new HashMap();
+       EduYear year = new EduYear();
+       if ((eduYear.getYearCode() != null) && (!"".equals(eduYear.getYearCode()))) {
+         year.setYearCode(eduYear.getYearCode());
+         map.put("eduYear", year);
+         List eduYearList = this.eduYearMapper.selectList(map);
+         if ((eduYearList != null) && (eduYearList.size() > 0)) {
+           json.setFlag(1);
+           json.setMsg("编号重复");
+           return json;
+         }
+       }
+       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       eduYear.setCreateUser(user.getUserId());
+       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+       Date date = new Date();
+       String dateStr = sdf.format(date);
+       Date mydate = sdf.parse(dateStr);
+       eduYear.setCreateTime(mydate);
+       int count = this.eduYearMapper.insertSelective(eduYear);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setMsg(e.getMessage());
+       json.setFlag(1);
+     }
+     return json;
+   }
+ 
+   public ToJson<EduYear> deleteEduYear(Integer yearId)
+   {
+     ToJson json = new ToJson();
+     try {
+       int count = this.eduYearMapper.deleteByPrimaryKey(yearId);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setMsg(e.getMessage());
+       json.setFlag(1);
+     }
+     return json;
+   }
+ 
+   public ToJson<EduYear> selectEduYear(Integer yearId)
+   {
+     ToJson json = new ToJson();
+     try {
+       EduYear eduYear = this.eduYearMapper.selectByPrimaryKey(yearId);
+       json.setObject(eduYear);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setMsg(e.getMessage());
+       json.setFlag(1);
+     }
+     return json;
+   }
+ 
+   public ToJson<EduYear> updateEduYear(HttpServletRequest request, EduYear eduYear)
+   {
+     ToJson json = new ToJson();
+     try {
+       Map map = new HashMap();
+       EduYear year = new EduYear();
+       if ((eduYear.getYearCode() != null) && (!"".equals(eduYear.getYearCode()))) {
+         year.setYearCode(eduYear.getYearCode());
+         map.put("eduYear", year);
+         List eduYearList = this.eduYearMapper.selectList(map);
+         if ((eduYearList != null) && (eduYearList.size() > 0) && 
+           (((EduYear)eduYearList.get(0)).getYearId() != eduYear.getYearId())) {
+           json.setFlag(1);
+           json.setMsg("编号重复");
+           return json;
+         }
+ 
+       }
+ 
+       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd  HH:mm:ss");
+       Date date = new Date();
+       String dateStr = sdf.format(date);
+       Date mydate = sdf.parse(dateStr);
+       eduYear.setUpdateTime(mydate);
+       int count = this.eduYearMapper.updateByPrimaryKeySelective(eduYear);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+       json.setMsg(e.getMessage());
+       json.setFlag(1);
+     }
+     return json;
+   }
+ 
+   public ToJson<EduYear> selectAll(Integer page, Integer pageSize, boolean useFlag, EduYear eduYear, String export, HttpServletResponse response, HttpServletRequest request)
+   {
+     ToJson json = new ToJson();
+     try {
+       Map map = new HashMap();
+       PageParams pageParams = new PageParams();
+       pageParams.setPage(page);
+       pageParams.setPageSize(pageSize);
+       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+       map.put("page", pageParams);
+       map.put("eduYear", eduYear);
+       List eduYearList = this.eduYearMapper.selectList(map);
+       if (export == null) {
+         export = "0";
+       }
+       if ("1".equals(export)) {
+         HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("学年信息", 6);
+         String[] secondTitles = { "名称", "编号", "入学年份", "默认学年", "激活", "显示位置", "备注" };
+         HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+         String[] beanProperty = { "yearName", "yearCode", "schoolYear", "defaultSchoolYear", "enabled", "position" };
+         HSSFWorkbook workbook = null;
+         workbook = ExcelUtil.exportExcelData(workbook2, eduYearList, beanProperty);
+         OutputStream out = response.getOutputStream();
+         String filename = "学年.xls";
+         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+         response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+         response.setHeader("content-disposition", "attachment;filename=" + filename);
+         workbook.write(out);
+         out.close();
+       }
+       json.setObj(eduYearList);
+       json.setTotleNum(Integer.valueOf(this.eduYearMapper.selectCount(eduYear)));
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setMsg(e.getMessage());
+       json.setFlag(1);
+     }
+     return json;
+   }
+ 
+   public ToJson<EduYear> importEduYear(MultipartFile file, HttpServletRequest request, HttpServletResponse response)
+   {
+     ToJson json = new ToJson();
+ 
+     Integer successCount = Integer.valueOf(0);
+     try
+     {
+       ResourceBundle rb = ResourceBundle.getBundle("upload");
+       String osName = System.getProperty("os.name");
+       StringBuffer path = new StringBuffer();
+       if (osName.toLowerCase().startsWith("win"))
+         path = path.append(rb.getString("upload.win"));
+       else {
+         path = path.append(rb.getString("upload.linux"));
+       }
+ 
+       if (file.isEmpty()) {
+         json.setMsg("请上传文件！");
+         json.setFlag(1);
+         return json;
+       }
+       String fileName = file.getOriginalFilename();
+       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+         int pos = fileName.indexOf(".");
+         String extName = fileName.substring(pos);
+         String newFileName = uuid + extName;
+         File dest = new File(path.toString(), newFileName);
+         file.transferTo(dest);
+ 
+         String readPath = path.append(System.getProperty("file.separator")).append(newFileName).toString();
+         InputStream in = new FileInputStream(readPath);
+         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+         Row row = sheetObj.getRow(0);
+         int colNum = row.getPhysicalNumberOfCells();
+         int lastRowNum = sheetObj.getLastRowNum();
+         EduYear eduYear = null;
+         for (int i = 1; i <= lastRowNum; i++) {
+           eduYear = new EduYear();
+           row = sheetObj.getRow(i);
+           if (row != null) {
+             for (int j = 0; j < colNum; j++) {
+               Cell cell = row.getCell(j);
+               String value = "";
+               if (cell != null) {
+                 switch (j)
+                 {
+                 case 0:
+                   eduYear.setYearName(cell.getStringCellValue());
+                   break;
+                 case 1:
+                   eduYear.setYearCode(cell.getStringCellValue());
+                   break;
+                 case 2:
+                   if (cell.getCellType() == 0) {
+                     cell.setCellType(1);
+                   }
+                   eduYear.setSchoolYear(cell.getStringCellValue());
+                   break;
+                 case 3:
+                   eduYear.setDefaultSchoolYear(cell.getStringCellValue());
+                   break;
+                 case 4:
+                   eduYear.setEnabled(cell.getStringCellValue());
+                   break;
+                 case 5:
+                   if (cell.getCellType() == 0) {
+                     cell.setCellType(1);
+                   }
+                   eduYear.setPosition(cell.getStringCellValue());
+                   break;
+                 case 6:
+                   eduYear.setNote(cell.getStringCellValue());
+                 }
+               }
+ 
+             }
+ 
+             Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+             eduYear.setCreateUser(user.getUserId());
+             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+             Date date = new Date();
+             String dateStr = sdf.format(date);
+             Date mydate = sdf.parse(dateStr);
+             eduYear.setCreateTime(mydate);
+             int count = this.eduYearMapper.insertSelective(eduYear);
+             if (count > 0) {
+               successCount = Integer.valueOf(successCount.intValue() + count);
+             }
+           }
+         }
+       }
+ 
+       if (successCount.intValue() > 0) {
+         json.setMsg(successCount + "");
+         json.setFlag(0);
+         return json;
+       }
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setMsg("err");
+     }
+     return json;
+   }
+ }
+

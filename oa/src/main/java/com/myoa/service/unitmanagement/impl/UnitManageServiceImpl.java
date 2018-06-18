@@ -1,0 +1,65 @@
+ package com.myoa.service.unitmanagement.impl;
+ 
+ import com.myoa.dao.unitmanagement.UnitManageMapper;
+import com.myoa.model.unitmanagement.UnitManage;
+import com.myoa.service.sys.SystemInfoService;
+import com.myoa.service.unitmanagement.UnitManageService;
+import com.myoa.util.GetAttachmentListUtil;
+
+ import java.util.Map;
+ import javax.annotation.Resource;
+ import javax.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Service;
+ 
+ @Service
+ public class UnitManageServiceImpl
+   implements UnitManageService
+ {
+ 
+   @Resource
+   private UnitManageMapper unitManageMapper;
+ 
+   @Resource
+   private SystemInfoService systemInfoService;
+ 
+   public UnitManage showUnitManage(String sqlType, HttpServletRequest request)
+   {
+     UnitManage UnitManage = this.unitManageMapper.showUnitManage();
+     if ((UnitManage.getAttachmentName() != null) && (UnitManage.getAttachmentId() != null)) {
+       UnitManage.setAttachment(GetAttachmentListUtil.returnAttachment(UnitManage.getAttachmentName(), UnitManage.getAttachmentId(), sqlType, "sys"));
+     }
+     Map stringStringMap = this.systemInfoService.getAuthorization(request);
+     int a1;
+     if (("xoa1001".equals(sqlType)) && 
+       ("true".equals(stringStringMap.get("isAuthStr"))) && 
+       (!UnitManage.getUnitName().equals(stringStringMap.get("company")))) {
+       UnitManage.setUnitName((String)stringStringMap.get("company"));
+       a1 = this.unitManageMapper.updateUnit(sqlType, (String)stringStringMap.get("company"), Integer.valueOf(1));
+     }
+ 
+     if (((String)stringStringMap.get("isAuthStr")).equals("true"))
+       UnitManage.setIsFlag("true");
+     else {
+       UnitManage.setIsFlag("false");
+     }
+ 
+     return UnitManage;
+   }
+ 
+   public void addUnitManage(UnitManage unitManage)
+   {
+     this.unitManageMapper.addUnitManage(unitManage);
+   }
+ 
+   public void update(UnitManage unitManage)
+   {
+     UnitManage unitManage1 = this.unitManageMapper.showUnitManage();
+     if (unitManage1 != null) {
+       unitManage.setUnitId(Integer.valueOf(1));
+       this.unitManageMapper.update(unitManage);
+     } else {
+       this.unitManageMapper.addUnitManage(unitManage);
+     }
+   }
+ }
+

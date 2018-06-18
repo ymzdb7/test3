@@ -1,0 +1,79 @@
+/*     */ package com.xoa.controller.portalColumn;
+/*     */ 
+/*     */ import com.xoa.model.portalColumn.PortalColumn;
+/*     */ import com.xoa.service.portalColumn.PortalColumnService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/column"})
+/*     */ public class PortalColumnController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private PortalColumnService portalColumnService;
+/*     */ 
+/*     */   @RequestMapping({"/column"})
+/*     */   public String goIndex()
+/*     */   {
+/*  24 */     return "app/column/index";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectPortalColumn"})
+/*     */   public ToJson selectPortalColumn()
+/*     */   {
+/*  37 */     return this.portalColumnService.selectPortalColumn();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectPortalColumnById"})
+/*     */   public ToJson selectPortalColumnById(Integer columnId)
+/*     */   {
+/*  49 */     return this.portalColumnService.selectPortalColumnById(columnId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/insertPortalColumn"})
+/*     */   public ToJson insertPortalColumn(PortalColumn portalColumn)
+/*     */   {
+/*  61 */     return this.portalColumnService.insertPortalColumn(portalColumn);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/upPortalColumn"})
+/*     */   public ToJson upPortalColumn(PortalColumn portalColumn)
+/*     */   {
+/*  73 */     return this.portalColumnService.upPortalColumn(portalColumn);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/delPortalColumn"})
+/*     */   public ToJson delPortalColumn(@RequestParam("ids[]") Integer[] ids)
+/*     */   {
+/*  85 */     return this.portalColumnService.delPortalColumn(ids);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectSite"})
+/*     */   public ToJson selectSite()
+/*     */   {
+/*  98 */     return this.portalColumnService.selectSite();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/ColumnTreeController"})
+/*     */   public ToJson ColumnTreeController(@RequestParam("id") String id, @RequestParam(value="portalIds", required=false) Integer[] portalIds, @RequestParam(value="colIds", required=false) Integer[] colIds)
+/*     */   {
+/* 110 */     return this.portalColumnService.ColumnTree(id, portalIds, colIds);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.portalColumn.PortalColumnController
+ * JD-Core Version:    0.6.0
+ */

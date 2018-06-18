@@ -1,0 +1,197 @@
+ package com.myoa.model.rms;
+ 
+ import java.util.Date;
+ 
+ public class RmsRollRoom
+ {
+   private Integer roomId;
+   private Integer deptId;
+   private String deptName;
+   private String roomCode;
+   private String roomName;
+   private String categoryNo;
+   private String catalogNo;
+   private String remark;
+   private String addUser;
+   private Date addTime;
+   private String delUser;
+   private Date delTime;
+   private String modUser;
+   private Date modTime;
+   private String manageUser;
+   private String manageUserName;
+   private String viewDeptId;
+   private String viewDeptName;
+ 
+   public String getViewDeptName()
+   {
+     return this.viewDeptName;
+   }
+ 
+   public void setViewDeptName(String viewDeptName) {
+     this.viewDeptName = viewDeptName;
+   }
+ 
+   public String getDeptName() {
+     return this.deptName;
+   }
+ 
+   public void setDeptName(String deptName) {
+     this.deptName = deptName;
+   }
+ 
+   public String getManageUserName() {
+     return this.manageUserName;
+   }
+ 
+   public void setManageUserName(String manageUserName) {
+     this.manageUserName = manageUserName;
+   }
+ 
+   public String getManageUser() {
+     return this.manageUser;
+   }
+ 
+   public void setManageUser(String manageUser) {
+     this.manageUser = manageUser;
+   }
+ 
+   public String getViewDeptId() {
+     return this.viewDeptId;
+   }
+ 
+   public void setViewDeptId(String viewDeptId) {
+     this.viewDeptId = viewDeptId;
+   }
+ 
+   public Integer getRoomId()
+   {
+     return this.roomId;
+   }
+ 
+   public void setRoomId(Integer roomId)
+   {
+     this.roomId = roomId;
+   }
+ 
+   public Integer getDeptId()
+   {
+     return this.deptId;
+   }
+ 
+   public void setDeptId(Integer deptId)
+   {
+     this.deptId = deptId;
+   }
+ 
+   public String getRoomCode()
+   {
+     return this.roomCode;
+   }
+ 
+   public void setRoomCode(String roomCode)
+   {
+     this.roomCode = (roomCode == null ? null : roomCode.trim());
+   }
+ 
+   public String getRoomName()
+   {
+     return this.roomName;
+   }
+ 
+   public void setRoomName(String roomName)
+   {
+     this.roomName = (roomName == null ? null : roomName.trim());
+   }
+ 
+   public String getCategoryNo()
+   {
+     return this.categoryNo;
+   }
+ 
+   public void setCategoryNo(String categoryNo)
+   {
+     this.categoryNo = (categoryNo == null ? null : categoryNo.trim());
+   }
+ 
+   public String getCatalogNo()
+   {
+     return this.catalogNo;
+   }
+ 
+   public void setCatalogNo(String catalogNo)
+   {
+     this.catalogNo = (catalogNo == null ? null : catalogNo.trim());
+   }
+ 
+   public String getRemark()
+   {
+     return this.remark;
+   }
+ 
+   public void setRemark(String remark)
+   {
+     this.remark = (remark == null ? null : remark.trim());
+   }
+ 
+   public String getAddUser()
+   {
+     return this.addUser;
+   }
+ 
+   public void setAddUser(String addUser)
+   {
+     this.addUser = (addUser == null ? null : addUser.trim());
+   }
+ 
+   public Date getAddTime()
+   {
+     return this.addTime;
+   }
+ 
+   public void setAddTime(Date addTime)
+   {
+     this.addTime = addTime;
+   }
+ 
+   public String getDelUser()
+   {
+     return this.delUser;
+   }
+ 
+   public void setDelUser(String delUser)
+   {
+     this.delUser = (delUser == null ? null : delUser.trim());
+   }
+ 
+   public Date getDelTime()
+   {
+     return this.delTime;
+   }
+ 
+   public void setDelTime(Date delTime)
+   {
+     this.delTime = delTime;
+   }
+ 
+   public String getModUser()
+   {
+     return this.modUser;
+   }
+ 
+   public void setModUser(String modUser)
+   {
+     this.modUser = (modUser == null ? null : modUser.trim());
+   }
+ 
+   public Date getModTime()
+   {
+     return this.modTime;
+   }
+ 
+   public void setModTime(Date modTime)
+   {
+     this.modTime = modTime;
+   }
+ }
+

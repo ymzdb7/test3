@@ -1,0 +1,71 @@
+package com.myoa.dao.sms;
+
+import com.myoa.model.sms.Sms;
+import com.myoa.model.sms.SmsExample;
+
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface SmsMapper {
+	public abstract int countByExample(SmsExample paramSmsExample);
+
+	public abstract int deleteByExample(SmsExample paramSmsExample);
+
+	public abstract int insert(Sms paramSms);
+
+	public abstract int insertTomaqi(@Param("emps") List<Sms> paramList);
+
+	public abstract int insertSelective(Sms paramSms);
+
+	public abstract List<Sms> selectByExample(SmsExample paramSmsExample);
+
+	public abstract int updateByExampleSelective(@Param("record") Sms paramSms,
+			@Param("example") SmsExample paramSmsExample);
+
+	public abstract int updateByExample(@Param("record") Sms paramSms,
+			@Param("example") SmsExample paramSmsExample);
+
+	public abstract List<Sms> getSmsByMap(Map<String, Object> paramMap);
+
+	public abstract void updateDeleteFlag(@Param("toId") String paramString1,
+			@Param("deleteFlag") String paramString2,
+			@Param("bodyIds") String[] paramArrayOfString);
+
+	public abstract void updateRemindFlag(@Param("toId") String paramString1,
+			@Param("remindFlag") String paramString2,
+			@Param("bodyIds") String[] paramArrayOfString);
+
+	public abstract void deleteByRemind(@Param("toId") String paramString1,
+			@Param("fromId") String paramString2);
+
+	public abstract void deleteByDelFlag(@Param("fromId") String paramString);
+
+	public abstract void setRead(@Param("toId") String paramString,
+			@Param("bodyId") Integer paramInteger);
+
+	public abstract void setReadByUrl(@Param("toId") String paramString1,
+			@Param("url") String paramString2);
+
+	public abstract List<Map<String, Object>> smsSelectBody(
+			Map<String, Object> paramMap);
+
+	public abstract Integer putString(Map<String, Object> paramMap);
+
+	public abstract Integer putStringOne(Map<String, Object> paramMap);
+
+	public abstract int deleteOne(Integer paramInteger);
+
+	public abstract int deleteOnet(Integer paramInteger);
+
+	public abstract List<Sms> querySmsByType(Map<String, Object> paramMap);
+
+	public abstract List<String> querySmsByTypeUpdateRunId(
+			Map<String, Object> paramMap);
+
+	public abstract int updateSmsByIds(@Param("flag") String paramString,
+			@Param("ids") String[] paramArrayOfString);
+
+	public abstract int updateSmsUpdateRunId(@Param("flag") String paramString,
+			@Param("ids") String[] paramArrayOfString);
+}

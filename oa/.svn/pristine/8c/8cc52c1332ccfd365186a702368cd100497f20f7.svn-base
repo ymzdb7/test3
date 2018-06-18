@@ -1,0 +1,868 @@
+/*     */ package com.xoa.model.portals;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class PortalsExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public PortalsExample()
+/*     */   {
+/*  38 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  48 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  58 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  68 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  78 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  88 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  98 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 108 */     Criteria criteria = createCriteriaInternal();
+/* 109 */     this.oredCriteria.add(criteria);
+/* 110 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 120 */     Criteria criteria = createCriteriaInternal();
+/* 121 */     if (this.oredCriteria.size() == 0) {
+/* 122 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 124 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 134 */     Criteria criteria = new Criteria();
+/* 135 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 145 */     this.oredCriteria.clear();
+/* 146 */     this.orderByClause = null;
+/* 147 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 895 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 899 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 903 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 907 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 911 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 915 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 919 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 923 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 928 */       this.condition = condition;
+/* 929 */       this.typeHandler = null;
+/* 930 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 935 */       this.condition = condition;
+/* 936 */       this.value = value;
+/* 937 */       this.typeHandler = typeHandler;
+/* 938 */       if ((value instanceof List))
+/* 939 */         this.listValue = true;
+/*     */       else
+/* 941 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 946 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 951 */       this.condition = condition;
+/* 952 */       this.value = value;
+/* 953 */       this.secondValue = secondValue;
+/* 954 */       this.typeHandler = typeHandler;
+/* 955 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 959 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends PortalsExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<PortalsExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 161 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 165 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<PortalsExample.Criterion> getAllCriteria() {
+/* 169 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<PortalsExample.Criterion> getCriteria() {
+/* 173 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 177 */       if (condition == null) {
+/* 178 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 180 */       this.criteria.add(new PortalsExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 184 */       if (value == null) {
+/* 185 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 187 */       this.criteria.add(new PortalsExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 191 */       if ((value1 == null) || (value2 == null)) {
+/* 192 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 194 */       this.criteria.add(new PortalsExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsIdIsNull() {
+/* 198 */       addCriterion("portals_id is null");
+/* 199 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsIdIsNotNull() {
+/* 203 */       addCriterion("portals_id is not null");
+/* 204 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsIdEqualTo(Integer value) {
+/* 208 */       addCriterion("portals_id =", value, "portalsId");
+/* 209 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsIdNotEqualTo(Integer value) {
+/* 213 */       addCriterion("portals_id <>", value, "portalsId");
+/* 214 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsIdGreaterThan(Integer value) {
+/* 218 */       addCriterion("portals_id >", value, "portalsId");
+/* 219 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsIdGreaterThanOrEqualTo(Integer value) {
+/* 223 */       addCriterion("portals_id >=", value, "portalsId");
+/* 224 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsIdLessThan(Integer value) {
+/* 228 */       addCriterion("portals_id <", value, "portalsId");
+/* 229 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsIdLessThanOrEqualTo(Integer value) {
+/* 233 */       addCriterion("portals_id <=", value, "portalsId");
+/* 234 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsIdIn(List<Integer> values) {
+/* 238 */       addCriterion("portals_id in", values, "portalsId");
+/* 239 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsIdNotIn(List<Integer> values) {
+/* 243 */       addCriterion("portals_id not in", values, "portalsId");
+/* 244 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsIdBetween(Integer value1, Integer value2) {
+/* 248 */       addCriterion("portals_id between", value1, value2, "portalsId");
+/* 249 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsIdNotBetween(Integer value1, Integer value2) {
+/* 253 */       addCriterion("portals_id not between", value1, value2, "portalsId");
+/* 254 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsNoIsNull() {
+/* 258 */       addCriterion("portals_no is null");
+/* 259 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsNoIsNotNull() {
+/* 263 */       addCriterion("portals_no is not null");
+/* 264 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsNoEqualTo(Integer value) {
+/* 268 */       addCriterion("portals_no =", value, "portalsNo");
+/* 269 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsNoNotEqualTo(Integer value) {
+/* 273 */       addCriterion("portals_no <>", value, "portalsNo");
+/* 274 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsNoGreaterThan(Integer value) {
+/* 278 */       addCriterion("portals_no >", value, "portalsNo");
+/* 279 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsNoGreaterThanOrEqualTo(Integer value) {
+/* 283 */       addCriterion("portals_no >=", value, "portalsNo");
+/* 284 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsNoLessThan(Integer value) {
+/* 288 */       addCriterion("portals_no <", value, "portalsNo");
+/* 289 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsNoLessThanOrEqualTo(Integer value) {
+/* 293 */       addCriterion("portals_no <=", value, "portalsNo");
+/* 294 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsNoIn(List<Integer> values) {
+/* 298 */       addCriterion("portals_no in", values, "portalsNo");
+/* 299 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsNoNotIn(List<Integer> values) {
+/* 303 */       addCriterion("portals_no not in", values, "portalsNo");
+/* 304 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsNoBetween(Integer value1, Integer value2) {
+/* 308 */       addCriterion("portals_no between", value1, value2, "portalsNo");
+/* 309 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalsNoNotBetween(Integer value1, Integer value2) {
+/* 313 */       addCriterion("portals_no not between", value1, value2, "portalsNo");
+/* 314 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalNameIsNull() {
+/* 318 */       addCriterion("portal_name is null");
+/* 319 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalNameIsNotNull() {
+/* 323 */       addCriterion("portal_name is not null");
+/* 324 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalNameEqualTo(String value) {
+/* 328 */       addCriterion("portal_name =", value, "portalName");
+/* 329 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalNameNotEqualTo(String value) {
+/* 333 */       addCriterion("portal_name <>", value, "portalName");
+/* 334 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalNameGreaterThan(String value) {
+/* 338 */       addCriterion("portal_name >", value, "portalName");
+/* 339 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalNameGreaterThanOrEqualTo(String value) {
+/* 343 */       addCriterion("portal_name >=", value, "portalName");
+/* 344 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalNameLessThan(String value) {
+/* 348 */       addCriterion("portal_name <", value, "portalName");
+/* 349 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalNameLessThanOrEqualTo(String value) {
+/* 353 */       addCriterion("portal_name <=", value, "portalName");
+/* 354 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalNameLike(String value) {
+/* 358 */       addCriterion("portal_name like", value, "portalName");
+/* 359 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalNameNotLike(String value) {
+/* 363 */       addCriterion("portal_name not like", value, "portalName");
+/* 364 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalNameIn(List<String> values) {
+/* 368 */       addCriterion("portal_name in", values, "portalName");
+/* 369 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalNameNotIn(List<String> values) {
+/* 373 */       addCriterion("portal_name not in", values, "portalName");
+/* 374 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalNameBetween(String value1, String value2) {
+/* 378 */       addCriterion("portal_name between", value1, value2, "portalName");
+/* 379 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalNameNotBetween(String value1, String value2) {
+/* 383 */       addCriterion("portal_name not between", value1, value2, "portalName");
+/* 384 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalTypeIsNull() {
+/* 388 */       addCriterion("portal_type is null");
+/* 389 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalTypeIsNotNull() {
+/* 393 */       addCriterion("portal_type is not null");
+/* 394 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalTypeEqualTo(Integer value) {
+/* 398 */       addCriterion("portal_type =", value, "portalType");
+/* 399 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalTypeNotEqualTo(Integer value) {
+/* 403 */       addCriterion("portal_type <>", value, "portalType");
+/* 404 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalTypeGreaterThan(Integer value) {
+/* 408 */       addCriterion("portal_type >", value, "portalType");
+/* 409 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalTypeGreaterThanOrEqualTo(Integer value) {
+/* 413 */       addCriterion("portal_type >=", value, "portalType");
+/* 414 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalTypeLessThan(Integer value) {
+/* 418 */       addCriterion("portal_type <", value, "portalType");
+/* 419 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalTypeLessThanOrEqualTo(Integer value) {
+/* 423 */       addCriterion("portal_type <=", value, "portalType");
+/* 424 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalTypeIn(List<Integer> values) {
+/* 428 */       addCriterion("portal_type in", values, "portalType");
+/* 429 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalTypeNotIn(List<Integer> values) {
+/* 433 */       addCriterion("portal_type not in", values, "portalType");
+/* 434 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalTypeBetween(Integer value1, Integer value2) {
+/* 438 */       addCriterion("portal_type between", value1, value2, "portalType");
+/* 439 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalTypeNotBetween(Integer value1, Integer value2) {
+/* 443 */       addCriterion("portal_type not between", value1, value2, "portalType");
+/* 444 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalLinkIsNull() {
+/* 448 */       addCriterion("portal_link is null");
+/* 449 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalLinkIsNotNull() {
+/* 453 */       addCriterion("portal_link is not null");
+/* 454 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalLinkEqualTo(String value) {
+/* 458 */       addCriterion("portal_link =", value, "portalLink");
+/* 459 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalLinkNotEqualTo(String value) {
+/* 463 */       addCriterion("portal_link <>", value, "portalLink");
+/* 464 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalLinkGreaterThan(String value) {
+/* 468 */       addCriterion("portal_link >", value, "portalLink");
+/* 469 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalLinkGreaterThanOrEqualTo(String value) {
+/* 473 */       addCriterion("portal_link >=", value, "portalLink");
+/* 474 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalLinkLessThan(String value) {
+/* 478 */       addCriterion("portal_link <", value, "portalLink");
+/* 479 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalLinkLessThanOrEqualTo(String value) {
+/* 483 */       addCriterion("portal_link <=", value, "portalLink");
+/* 484 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalLinkLike(String value) {
+/* 488 */       addCriterion("portal_link like", value, "portalLink");
+/* 489 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalLinkNotLike(String value) {
+/* 493 */       addCriterion("portal_link not like", value, "portalLink");
+/* 494 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalLinkIn(List<String> values) {
+/* 498 */       addCriterion("portal_link in", values, "portalLink");
+/* 499 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalLinkNotIn(List<String> values) {
+/* 503 */       addCriterion("portal_link not in", values, "portalLink");
+/* 504 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalLinkBetween(String value1, String value2) {
+/* 508 */       addCriterion("portal_link between", value1, value2, "portalLink");
+/* 509 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andPortalLinkNotBetween(String value1, String value2) {
+/* 513 */       addCriterion("portal_link not between", value1, value2, "portalLink");
+/* 514 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andModuleIdIsNull() {
+/* 518 */       addCriterion("module_id is null");
+/* 519 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andModuleIdIsNotNull() {
+/* 523 */       addCriterion("module_id is not null");
+/* 524 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andModuleIdEqualTo(String value) {
+/* 528 */       addCriterion("module_id =", value, "moduleId");
+/* 529 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andModuleIdNotEqualTo(String value) {
+/* 533 */       addCriterion("module_id <>", value, "moduleId");
+/* 534 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andModuleIdGreaterThan(String value) {
+/* 538 */       addCriterion("module_id >", value, "moduleId");
+/* 539 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andModuleIdGreaterThanOrEqualTo(String value) {
+/* 543 */       addCriterion("module_id >=", value, "moduleId");
+/* 544 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andModuleIdLessThan(String value) {
+/* 548 */       addCriterion("module_id <", value, "moduleId");
+/* 549 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andModuleIdLessThanOrEqualTo(String value) {
+/* 553 */       addCriterion("module_id <=", value, "moduleId");
+/* 554 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andModuleIdLike(String value) {
+/* 558 */       addCriterion("module_id like", value, "moduleId");
+/* 559 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andModuleIdNotLike(String value) {
+/* 563 */       addCriterion("module_id not like", value, "moduleId");
+/* 564 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andModuleIdIn(List<String> values) {
+/* 568 */       addCriterion("module_id in", values, "moduleId");
+/* 569 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andModuleIdNotIn(List<String> values) {
+/* 573 */       addCriterion("module_id not in", values, "moduleId");
+/* 574 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andModuleIdBetween(String value1, String value2) {
+/* 578 */       addCriterion("module_id between", value1, value2, "moduleId");
+/* 579 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andModuleIdNotBetween(String value1, String value2) {
+/* 583 */       addCriterion("module_id not between", value1, value2, "moduleId");
+/* 584 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andUseFlagIsNull() {
+/* 588 */       addCriterion("use_flag is null");
+/* 589 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andUseFlagIsNotNull() {
+/* 593 */       addCriterion("use_flag is not null");
+/* 594 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andUseFlagEqualTo(Integer value) {
+/* 598 */       addCriterion("use_flag =", value, "useFlag");
+/* 599 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andUseFlagNotEqualTo(Integer value) {
+/* 603 */       addCriterion("use_flag <>", value, "useFlag");
+/* 604 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andUseFlagGreaterThan(Integer value) {
+/* 608 */       addCriterion("use_flag >", value, "useFlag");
+/* 609 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andUseFlagGreaterThanOrEqualTo(Integer value) {
+/* 613 */       addCriterion("use_flag >=", value, "useFlag");
+/* 614 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andUseFlagLessThan(Integer value) {
+/* 618 */       addCriterion("use_flag <", value, "useFlag");
+/* 619 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andUseFlagLessThanOrEqualTo(Integer value) {
+/* 623 */       addCriterion("use_flag <=", value, "useFlag");
+/* 624 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andUseFlagIn(List<Integer> values) {
+/* 628 */       addCriterion("use_flag in", values, "useFlag");
+/* 629 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andUseFlagNotIn(List<Integer> values) {
+/* 633 */       addCriterion("use_flag not in", values, "useFlag");
+/* 634 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andUseFlagBetween(Integer value1, Integer value2) {
+/* 638 */       addCriterion("use_flag between", value1, value2, "useFlag");
+/* 639 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andUseFlagNotBetween(Integer value1, Integer value2) {
+/* 643 */       addCriterion("use_flag not between", value1, value2, "useFlag");
+/* 644 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivDeptIsNull() {
+/* 648 */       addCriterion("access_priv_dept is null");
+/* 649 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivDeptIsNotNull() {
+/* 653 */       addCriterion("access_priv_dept is not null");
+/* 654 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivDeptEqualTo(String value) {
+/* 658 */       addCriterion("access_priv_dept =", value, "accessPrivDept");
+/* 659 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivDeptNotEqualTo(String value) {
+/* 663 */       addCriterion("access_priv_dept <>", value, "accessPrivDept");
+/* 664 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivDeptGreaterThan(String value) {
+/* 668 */       addCriterion("access_priv_dept >", value, "accessPrivDept");
+/* 669 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivDeptGreaterThanOrEqualTo(String value) {
+/* 673 */       addCriterion("access_priv_dept >=", value, "accessPrivDept");
+/* 674 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivDeptLessThan(String value) {
+/* 678 */       addCriterion("access_priv_dept <", value, "accessPrivDept");
+/* 679 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivDeptLessThanOrEqualTo(String value) {
+/* 683 */       addCriterion("access_priv_dept <=", value, "accessPrivDept");
+/* 684 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivDeptLike(String value) {
+/* 688 */       addCriterion("access_priv_dept like", value, "accessPrivDept");
+/* 689 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivDeptNotLike(String value) {
+/* 693 */       addCriterion("access_priv_dept not like", value, "accessPrivDept");
+/* 694 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivDeptIn(List<String> values) {
+/* 698 */       addCriterion("access_priv_dept in", values, "accessPrivDept");
+/* 699 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivDeptNotIn(List<String> values) {
+/* 703 */       addCriterion("access_priv_dept not in", values, "accessPrivDept");
+/* 704 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivDeptBetween(String value1, String value2) {
+/* 708 */       addCriterion("access_priv_dept between", value1, value2, "accessPrivDept");
+/* 709 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivDeptNotBetween(String value1, String value2) {
+/* 713 */       addCriterion("access_priv_dept not between", value1, value2, "accessPrivDept");
+/* 714 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivPrivIsNull() {
+/* 718 */       addCriterion("access_priv_priv is null");
+/* 719 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivPrivIsNotNull() {
+/* 723 */       addCriterion("access_priv_priv is not null");
+/* 724 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivPrivEqualTo(String value) {
+/* 728 */       addCriterion("access_priv_priv =", value, "accessPrivPriv");
+/* 729 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivPrivNotEqualTo(String value) {
+/* 733 */       addCriterion("access_priv_priv <>", value, "accessPrivPriv");
+/* 734 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivPrivGreaterThan(String value) {
+/* 738 */       addCriterion("access_priv_priv >", value, "accessPrivPriv");
+/* 739 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivPrivGreaterThanOrEqualTo(String value) {
+/* 743 */       addCriterion("access_priv_priv >=", value, "accessPrivPriv");
+/* 744 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivPrivLessThan(String value) {
+/* 748 */       addCriterion("access_priv_priv <", value, "accessPrivPriv");
+/* 749 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivPrivLessThanOrEqualTo(String value) {
+/* 753 */       addCriterion("access_priv_priv <=", value, "accessPrivPriv");
+/* 754 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivPrivLike(String value) {
+/* 758 */       addCriterion("access_priv_priv like", value, "accessPrivPriv");
+/* 759 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivPrivNotLike(String value) {
+/* 763 */       addCriterion("access_priv_priv not like", value, "accessPrivPriv");
+/* 764 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivPrivIn(List<String> values) {
+/* 768 */       addCriterion("access_priv_priv in", values, "accessPrivPriv");
+/* 769 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivPrivNotIn(List<String> values) {
+/* 773 */       addCriterion("access_priv_priv not in", values, "accessPrivPriv");
+/* 774 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivPrivBetween(String value1, String value2) {
+/* 778 */       addCriterion("access_priv_priv between", value1, value2, "accessPrivPriv");
+/* 779 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivPrivNotBetween(String value1, String value2) {
+/* 783 */       addCriterion("access_priv_priv not between", value1, value2, "accessPrivPriv");
+/* 784 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivUserIsNull() {
+/* 788 */       addCriterion("access_priv_user is null");
+/* 789 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivUserIsNotNull() {
+/* 793 */       addCriterion("access_priv_user is not null");
+/* 794 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivUserEqualTo(String value) {
+/* 798 */       addCriterion("access_priv_user =", value, "accessPrivUser");
+/* 799 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivUserNotEqualTo(String value) {
+/* 803 */       addCriterion("access_priv_user <>", value, "accessPrivUser");
+/* 804 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivUserGreaterThan(String value) {
+/* 808 */       addCriterion("access_priv_user >", value, "accessPrivUser");
+/* 809 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivUserGreaterThanOrEqualTo(String value) {
+/* 813 */       addCriterion("access_priv_user >=", value, "accessPrivUser");
+/* 814 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivUserLessThan(String value) {
+/* 818 */       addCriterion("access_priv_user <", value, "accessPrivUser");
+/* 819 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivUserLessThanOrEqualTo(String value) {
+/* 823 */       addCriterion("access_priv_user <=", value, "accessPrivUser");
+/* 824 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivUserLike(String value) {
+/* 828 */       addCriterion("access_priv_user like", value, "accessPrivUser");
+/* 829 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivUserNotLike(String value) {
+/* 833 */       addCriterion("access_priv_user not like", value, "accessPrivUser");
+/* 834 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivUserIn(List<String> values) {
+/* 838 */       addCriterion("access_priv_user in", values, "accessPrivUser");
+/* 839 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivUserNotIn(List<String> values) {
+/* 843 */       addCriterion("access_priv_user not in", values, "accessPrivUser");
+/* 844 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivUserBetween(String value1, String value2) {
+/* 848 */       addCriterion("access_priv_user between", value1, value2, "accessPrivUser");
+/* 849 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public PortalsExample.Criteria andAccessPrivUserNotBetween(String value1, String value2) {
+/* 853 */       addCriterion("access_priv_user not between", value1, value2, "accessPrivUser");
+/* 854 */       return (PortalsExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.portals.PortalsExample
+ * JD-Core Version:    0.6.0
+ */

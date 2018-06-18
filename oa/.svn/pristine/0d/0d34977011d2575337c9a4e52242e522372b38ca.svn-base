@@ -1,0 +1,540 @@
+ package com.myoa.service.workflow.flowtype.impl;
+ 
+ import com.myoa.dao.users.UsersMapper;
+import com.myoa.dao.workflow.FlowProcessMapper;
+import com.myoa.dao.workflow.FlowRunMapper;
+import com.myoa.dao.workflow.FlowRunPrcsMapper;
+import com.myoa.dao.workflow.FlowTypeModelMapper;
+import com.myoa.model.users.Users;
+import com.myoa.model.workflow.FlowProcess;
+import com.myoa.model.workflow.FlowRun;
+import com.myoa.model.workflow.FlowRunPrcs;
+import com.myoa.model.workflow.FlowRunPrcsExcted;
+import com.myoa.service.users.UsersService;
+import com.myoa.service.workflow.flowtype.FlowRunPrcsService;
+import com.myoa.util.AjaxJson;
+import com.myoa.util.DateFormat;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.L;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.page.PageParams;
+
+ import java.text.SimpleDateFormat;
+ import java.util.ArrayList;
+ import java.util.Date;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import javax.annotation.Resource;
+ import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+ 
+ @Service
+ public class FlowRunPrcsServiceImpl
+   implements FlowRunPrcsService
+ {
+ 
+   @Resource
+   private FlowRunPrcsMapper flowRunPrcsMapper;
+ 
+   @Resource
+   private UsersService usersService;
+ 
+   @Resource
+   private FlowTypeModelMapper flowTypeModelMapper;
+ 
+   @Resource
+   private FlowProcessMapper flowProcessMapper;
+ 
+   @Resource
+   private FlowRunMapper flowRunMapper;
+ 
+   @Resource
+   private UsersMapper usersMapper;
+ 
+   public void save(FlowRunPrcs flowRunPrcs)
+   {
+     this.flowRunPrcsMapper.insertSelective(flowRunPrcs);
+   }
+ 
+   public ToJson<FlowRunPrcs> selectObject(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+   {
+     ToJson toJson = new ToJson();
+     PageParams pageParams = new PageParams();
+     pageParams.setPage(page);
+     pageParams.setPageSize(pageSize);
+     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+     maps.put("page", pageParams);
+     List<FlowRunPrcs> list = this.flowRunPrcsMapper.selectObjcet(maps);
+     List returnList = new ArrayList();
+     int len = list.size();
+     if (len > 0) {
+       toJson.setTotleNum(pageParams.getTotal());
+       Date newDate = new Date();
+       for (FlowRunPrcs flowRunPrcs : list) {
+         flowRunPrcs.getFlowRun().setUserName(this.usersService.getUserNameById(flowRunPrcs.getFlowRun().getBeginUser()));
+         Users users = this.usersMapper.findUsersByuserId(flowRunPrcs.getUserId());
+         flowRunPrcs.setUid(users.getUid());
+         flowRunPrcs.setUserName(this.usersService.getUserNameById(flowRunPrcs.getUserId()));
+         flowRunPrcs.setFlowType(this.flowTypeModelMapper.queryOneObject(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId())));
+ 
+         FlowProcess flowProcess = this.flowProcessMapper.findProcess(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId()), flowRunPrcs.getFlowPrcs());
+         if (flowProcess != null) {
+           flowRunPrcs.setFlowProcess(flowProcess);
+         }
+ 
+         if (DateFormat.getTime(flowRunPrcs.getPrcsTime()).intValue() != -621701856)
+         {
+           flowRunPrcs.setReceive(DateFormat.getStrTime(DateFormat.getTime(flowRunPrcs.getPrcsTime())));
+ 
+           flowRunPrcs.setHandleTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(DateFormat.getStrDate(newDate)).intValue() - DateFormat.getTime(flowRunPrcs.getPrcsTime()).intValue())));
+         }
+ 
+         String createTime = flowRunPrcs.getCreateTime();
+ 
+         if (((DateFormat.getTime(flowRunPrcs.getPrcsTime()).intValue() != -621701856) && (flowRunPrcs.getPrcsId().intValue() > 1)) || ((DateFormat.getTime(flowRunPrcs.getPrcsTime()).intValue() == -621701856) && (flowRunPrcs.getPrcsId().intValue() > 1)))
+         {
+           Integer runId = flowRunPrcs.getRunId();
+           Integer prcsId = Integer.valueOf(flowRunPrcs.getPrcsId().intValue() - 1);
+           String userId = (String)maps.get("userId");
+           maps.put("prcsId", prcsId);
+           maps.put("runId", runId);
+           maps.put("flowPrcs", flowRunPrcs.getFlowPrcs());
+ 
+           flowRunPrcs.setReceiptTime(DateFormat.getStrTime(DateFormat.getTime(createTime)));
+ 
+           flowRunPrcs.setArriveTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(DateFormat.getStrDate(newDate)).intValue() - DateFormat.getTime(flowRunPrcs.getReceiptTime()).intValue())));
+         } else {
+           flowRunPrcs.setReceiptTime(DateFormat.getStrTime(DateFormat.getTime(createTime)));
+           flowRunPrcs.setArriveTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(DateFormat.getStrDate(newDate)).intValue() - DateFormat.getTime(createTime).intValue())));
+           flowRunPrcs.setReceive("");
+           flowRunPrcs.setHandleTime("");
+         }
+         FlowRun flowRun = this.flowRunMapper.find(flowRunPrcs.getRunId());
+         String userName = this.usersService.getUserNameById(flowRun.getBeginUser());
+         flowRunPrcs.setUserName(userName);
+         returnList.add(flowRunPrcs);
+       }
+       toJson.setFlag(0);
+       toJson.setMsg("ok");
+       toJson.setObj(returnList);
+     } else {
+       toJson.setFlag(1);
+       toJson.setMsg("error");
+     }
+     return toJson;
+   }
+ 
+   public ToJson<FlowRunPrcs> selectEnd(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+   {
+     ToJson toJson = new ToJson(1, "error");
+     PageParams pageParams = new PageParams();
+     pageParams.setPage(page);
+     pageParams.setPageSize(pageSize);
+     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+     maps.put("page", pageParams);
+     List<FlowRunPrcs> list = this.flowRunPrcsMapper.selectEnd(maps);
+     List returnList = new ArrayList();
+     int len = list.size();
+     if (len > 0) {
+       toJson.setTotleNum(pageParams.getTotal());
+       for (FlowRunPrcs flowRunPrcs : list) {
+         FlowRun flowRun = this.flowRunMapper.find(flowRunPrcs.getRunId());
+ 
+         Map map1 = new HashMap();
+         map1.put("prcsId", Integer.valueOf(flowRunPrcs.getPrcsId().intValue() + 1));
+         map1.put("runId", flowRunPrcs.getRunId());
+         List<FlowRunPrcs> nextFlowRunPrcsList = this.flowRunPrcsMapper.findNextFrp(map1);
+ 
+         List maxFrp = this.flowRunPrcsMapper.findMaxFrp(flowRunPrcs.getRunId());
+ 
+         if (nextFlowRunPrcsList.size() == 1) {
+           FlowRunPrcs flowRunPrcs1 = (FlowRunPrcs)nextFlowRunPrcsList.get(0);
+           if (flowRunPrcs1.getPrcsFlag().equals("1"))
+             flowRunPrcs.setState1("已转交，下一步未接收");
+           else if (flowRunPrcs1.getPrcsFlag().equals("2"))
+             flowRunPrcs.setState1("已转交，下一步办理中");
+           else if (flowRunPrcs1.getPrcsFlag().equals("3"))
+             flowRunPrcs.setState1("已转交，下一步已办结");
+           else if (flowRunPrcs1.getPrcsFlag().equals("4"))
+             flowRunPrcs.setState1("已办结");
+         }
+         else {
+           List list1 = new ArrayList();
+           int one = 0;
+           int two = 0;
+           int three = 0;
+           int four = 0;
+           for (FlowRunPrcs flowRunPrcs1 : nextFlowRunPrcsList) {
+             if (flowRunPrcs1.getPrcsFlag().equals("1"))
+               one++;
+             else if (flowRunPrcs1.getPrcsFlag().equals("2"))
+               two++;
+             else if (flowRunPrcs1.getPrcsFlag().equals("3"))
+               three++;
+             else if (flowRunPrcs1.getPrcsFlag().equals("4")) {
+               four++;
+             }
+           }
+           if (one == nextFlowRunPrcsList.size())
+             flowRunPrcs.setState1("已转交，下一步未接收");
+           else if (three == nextFlowRunPrcsList.size())
+             flowRunPrcs.setState1("已转交，下一步已办结");
+           else {
+             flowRunPrcs.setState1("已转交，下一步办理中");
+           }
+         }
+         if (maxFrp.size() > 1) {
+           flowRunPrcs.setState2("1");
+         } else {
+           FlowRunPrcs flowRunPrcs3 = (FlowRunPrcs)maxFrp.get(0);
+           flowRunPrcs.setState2("0");
+ 
+           Map map = new HashMap();
+           map.put("runId", flowRunPrcs3.getRunId());
+           map.put("prcsId", flowRunPrcs3.getPrcsId());
+           String prcsName = "第" + flowRunPrcs3.getPrcsId() + "步:" + this.flowProcessMapper.findPrcsName(map);
+           flowRunPrcs.setBz(prcsName);
+           flowRunPrcs.setCurrentPeople(this.usersService.getUserNameById(flowRunPrcs3.getUserId()));
+         }
+ 
+         if (StringUtils.checkNull(flowRun.getEndTime()).booleanValue()) {
+           flowRunPrcs.setState("执行中");
+         } else {
+           flowRunPrcs.setState("已结束");
+           flowRunPrcs.setState1("已办结");
+         }
+         flowRunPrcs.getFlowRun().setUserName(this.usersService.getUserNameById(flowRunPrcs.getFlowRun().getBeginUser()));
+         flowRunPrcs.setUserName(this.usersService.getUserNameById(flowRunPrcs.getUserId()));
+         flowRunPrcs.setFlowType(this.flowTypeModelMapper.queryOneObject(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId())));
+ 
+         FlowProcess flowProcess = this.flowProcessMapper.findProcess(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId()), flowRunPrcs.getFlowPrcs());
+         if (flowProcess != null) {
+           flowRunPrcs.setFlowProcess(flowProcess);
+         }
+         if (!StringUtils.checkNull(flowRunPrcs.getDeliverTime()).booleanValue()) {
+           flowRunPrcs.setDeliverTime(DateFormat.getStrTime(DateFormat.getTime(flowRunPrcs.getDeliverTime())));
+         }
+         returnList.add(flowRunPrcs);
+ 
+         flowRunPrcs.setArriveTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(DateFormat.getStrDate(new Date())).intValue() - DateFormat.getTime(flowRunPrcs.getCreateTime()).intValue())));
+ 
+         flowRunPrcs.setHandleTime(DateFormat.returnTime(Integer.valueOf(DateFormat.getTime(DateFormat.getStrDate(new Date())).intValue() - DateFormat.getTime(flowRunPrcs.getPrcsTime()).intValue())));
+         flowRunPrcs.setCreateTime(flowRunPrcs.getCreateTime().substring(0, flowRunPrcs.getCreateTime().length() - 2));
+         flowRunPrcs.setPrcsTime(flowRunPrcs.getPrcsTime().substring(0, flowRunPrcs.getPrcsTime().length() - 2));
+         flowRunPrcs.setJbbz("第" + flowRunPrcs.getPrcsId() + "步:" + flowRunPrcs.getFlowProcess().getPrcsName());
+       }
+       toJson.setFlag(0);
+       toJson.setMsg("ok");
+       toJson.setObj(returnList);
+     } else {
+       toJson.setFlag(1);
+       toJson.setMsg("error");
+     }
+     return toJson;
+   }
+ 
+   public ToJson<FlowRunPrcs> selectHang(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+   {
+     ToJson<FlowRunPrcs> toJson = new ToJson<FlowRunPrcs>();
+     PageParams pageParams = new PageParams();
+     pageParams.setPage(page);
+     pageParams.setPageSize(pageSize);
+     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+     maps.put("page", pageParams);
+     List<FlowRunPrcs> list = this.flowRunPrcsMapper.selectHang(maps);
+     List<FlowRunPrcs> returnList = new ArrayList<FlowRunPrcs>();
+     int len = list.size();
+     if (len > 0) {
+       toJson.setTotleNum(pageParams.getTotal());
+       for (FlowRunPrcs flowRunPrcs : list) {
+         flowRunPrcs.setUserName(this.usersService.getUserNameById(flowRunPrcs.getUserId()));
+         flowRunPrcs.setFlowType(this.flowTypeModelMapper.queryOneObject(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId())));
+         returnList.add(flowRunPrcs);
+       }
+       toJson.setFlag(0);
+       toJson.setMsg("ok");
+       toJson.setObj(returnList);
+     } else {
+       toJson.setFlag(1);
+       toJson.setMsg("error");
+     }
+     return toJson;
+   }
+ 
+   public ToJson<FlowRunPrcs> selectAll(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+   {
+     ToJson<FlowRunPrcs> toJson = new ToJson<FlowRunPrcs>(1, "error");
+     PageParams pages = new PageParams();
+     pages.setPage(page);
+     pages.setPageSize(pageSize);
+     pages.setUseFlag(Boolean.valueOf(useFlag));
+     maps.put("page", pages);
+     List<FlowRunPrcs> list = this.flowRunPrcsMapper.selectAll(maps);
+     List<FlowRunPrcs> returnList = new ArrayList();
+     int len = list.size();
+     if (len > 0) {
+       toJson.setTotleNum(pages.getTotal());
+       for (FlowRunPrcs flowRunPrcs : list)
+       {
+         FlowRun flowRun = this.flowRunMapper.find(flowRunPrcs.getRunId());
+         if (StringUtils.checkNull(flowRun.getEndTime()).booleanValue())
+           flowRunPrcs.setState("执行中");
+         else {
+           flowRunPrcs.setState("已结束");
+         }
+         flowRunPrcs.getFlowRun().setUserName(this.usersService.getUserNameById(flowRunPrcs.getFlowRun().getBeginUser()));
+         flowRunPrcs.setUserName(this.usersService.getUserNameById(flowRunPrcs.getUserId()));
+         flowRunPrcs.setFlowType(this.flowTypeModelMapper.queryOneObject(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId())));
+         FlowProcess flowProcess = this.flowProcessMapper.findProcess(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId()), flowRunPrcs.getFlowPrcs());
+         if (flowProcess != null) {
+           flowRunPrcs.setFlowProcess(flowProcess);
+         }
+         returnList.add(flowRunPrcs);
+         flowRunPrcs.setJbbz("第" + flowRunPrcs.getPrcsId() + "步:" + flowRunPrcs.getFlowProcess().getPrcsName());
+       }
+ 
+       toJson.setFlag(0);
+       toJson.setMsg("ok");
+       toJson.setObj(returnList);
+     } else {
+       toJson.setFlag(1);
+       toJson.setMsg("error");
+     }
+     return toJson;
+   }
+ 
+   @Transactional
+   public ToJson<FlowRunPrcs> deleteRunPrcs(FlowRunPrcs flowRunPrcs)
+   {
+     ToJson<FlowRunPrcs> toJson = new ToJson<FlowRunPrcs>(1, "error");
+     try {
+       Integer flag = this.flowRunPrcsMapper.selectPrcs(flowRunPrcs.getId());
+       if (flag.intValue() == 1) {
+         this.flowRunPrcsMapper.deleteWork(flowRunPrcs);
+         toJson.setFlag(0);
+         toJson.setMsg("ok");
+       }
+       else {
+         toJson.setMsg("repetition");
+       }
+     } catch (Exception e) {
+       L.e(new Object[] { "FlowRunPrcsService deleteRunPrcs:" + e });
+     }
+     return toJson;
+   }
+ 
+   public List<FlowRunPrcs> findByRunId(Map<String, Object> maps) {
+     List<FlowRunPrcs> l = this.flowRunPrcsMapper.selectfrp(maps);
+     return l;
+   }
+ 
+   @Transactional
+   public void update(FlowRunPrcsExcted flowRunPrcs)
+   {
+     this.flowRunPrcsMapper.updateByPrimaryKeySelective(flowRunPrcs);
+   }
+ 
+   @Transactional
+   public int updateSql(Map<String, Object> map)
+   {
+     int a = this.flowRunPrcsMapper.updateSome(map);
+     return a;
+   }
+ 
+   public List<FlowRunPrcs> findlessRunId(Map<String, Object> maps)
+   {
+     List list = this.flowRunPrcsMapper.findlessRunId(maps);
+     return list;
+   }
+ 
+   public AjaxJson entrustWork(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+   {
+     AjaxJson ajaxJson = new AjaxJson();
+     PageParams pages = new PageParams();
+     pages.setPage(page);
+     pages.setPageSize(pageSize);
+     pages.setUseFlag(Boolean.valueOf(useFlag));
+     maps.put("page", pages);
+     List<FlowRunPrcs> list = this.flowRunPrcsMapper.entrustWork(maps);
+     int len = list.size();
+     if (len > 0) {
+       ajaxJson.setTotleNum(pages.getTotal());
+       for (FlowRunPrcs flowRunPrcs : list) {
+         flowRunPrcs.setUserName(this.usersService.getUserNameById(flowRunPrcs.getUserId()));
+         flowRunPrcs.setFlowType(this.flowTypeModelMapper.queryOneObject(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId())));
+         FlowProcess flowProcess = this.flowProcessMapper.findProcess(Integer.valueOf(flowRunPrcs.getFlowRun().getFlowId()), flowRunPrcs.getFlowPrcs());
+         if (flowProcess != null) {
+           flowRunPrcs.setFlowProcess(flowProcess);
+         }
+       }
+     }
+ 
+     return null;
+   }
+ 
+   public Integer checkGatherNode(Map<String, Object> maps)
+   {
+     return this.flowRunPrcsMapper.checkGatherNode(maps);
+   }
+ 
+   public AjaxJson monitoring(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+   {
+     AjaxJson ajaxJson = new AjaxJson();
+     PageParams pages = new PageParams();
+     pages.setPage(page);
+     pages.setPageSize(pageSize);
+     pages.setUseFlag(Boolean.valueOf(useFlag));
+     maps.put("page", pages);
+     try {
+       List<FlowRunPrcs> list = this.flowRunPrcsMapper.monitoring(maps);
+       for (FlowRunPrcs flowRunPrcs : list) {
+         String time = reTime(flowRunPrcs.getPrcsTime());
+         flowRunPrcs.setHandleTime(time);
+         String prcsName = "第" + flowRunPrcs.getPrcsId() + "步" + ":" + flowRunPrcs.getPrcsName();
+         flowRunPrcs.setPrcsName(prcsName);
+       }
+       ajaxJson.setTotleNum(pages.getTotal());
+       ajaxJson.setMsg("OK");
+       ajaxJson.setFlag(true);
+       ajaxJson.setObj(list);
+     } catch (Exception e) {
+       ajaxJson.setMsg("false");
+       ajaxJson.setFlag(false);
+     }
+     return ajaxJson;
+   }
+ 
+   public static String reTime(String prcsTime) throws Exception
+   {
+     String format = "yyyy-MM-dd HH:mm:ss";
+     long aString = System.currentTimeMillis() / 1000L;
+     Integer time = Integer.valueOf(Integer.parseInt(String.valueOf(aString)));
+ 
+     SimpleDateFormat sdf = new SimpleDateFormat(format);
+     Long aa = Long.valueOf(sdf.parse(prcsTime).getTime() / 1000L);
+ 
+     Integer end = Integer.valueOf(Integer.parseInt(String.valueOf(aa)));
+     Integer re = Integer.valueOf(time.intValue() - end.intValue());
+     String aString3 = DateFormat.returnTime(re);
+     return aString3;
+   }
+ 
+   @Transactional
+   public ToJson<FlowRunPrcs> entrust(FlowRunPrcs flowRunPrcs, String entrstUser)
+   {
+     ToJson toJson = new ToJson(1, "error");
+     try {
+       FlowRunPrcs temp = this.flowRunPrcsMapper.selectByPrimaryKey(flowRunPrcs.getId());
+ 
+       if ((temp != null) && (temp.getUserId().equals(entrstUser))) {
+         toJson.setMsg("不能将工作委托给自己");
+         return toJson;
+       }
+ 
+       temp.setOpFlag("");
+       List userIds1 = this.flowRunPrcsMapper.selNotRunById(temp);
+       if (userIds1.contains(entrstUser)) {
+         toJson.setMsg("不能将工作委托给正在办理的人");
+         return toJson;
+       }
+ 
+       if ((!StringUtils.checkNull(flowRunPrcs.getOpFlag()).booleanValue()) && (flowRunPrcs.getOpFlag().equals("0"))) {
+         temp.setOpFlag("1");
+         temp.setPrcsId(Integer.valueOf(0));
+         temp.setFlowPrcs(Integer.valueOf(0));
+         List userIds2 = this.flowRunPrcsMapper.selNotRunById(temp);
+         if (userIds2.contains(entrstUser)) {
+           toJson.setMsg("不能将经办工作委托给主办人");
+           return toJson;
+         }
+       }
+ 
+       if ((!StringUtils.checkNull(flowRunPrcs.getOpFlag()).booleanValue()) && (flowRunPrcs.getOpFlag().equals("1"))) {
+         temp.setOpFlag("1");
+         temp.setPrcsId(Integer.valueOf(0));
+         temp.setFlowPrcs(Integer.valueOf(0));
+         List userIds2 = this.flowRunPrcsMapper.selNotRunById(temp);
+         if (userIds2.contains(entrstUser)) {
+           toJson.setMsg("不能将主办工作委托给主办人(自己转自己情况)");
+           return toJson;
+         }
+       }
+       int count = 0;
+       Map selParam = new HashMap();
+       selParam.put("runId", flowRunPrcs.getRunId());
+       selParam.put("prcsId", flowRunPrcs.getPrcsFlag());
+       selParam.put("opFlag", "0");
+       selParam.put("userId", entrstUser);
+       FlowRunPrcs model = this.flowRunPrcsMapper.selPrcsByNotRun(selParam);
+       if (model != null) {
+         model.setOtherUser(model.getOtherUser() + "," + flowRunPrcs.getUserId());
+         model.setPrcsFlag("1");
+         model.setOpFlag(flowRunPrcs.getOpFlag());
+         count += this.flowRunPrcsMapper.upPrcsById(model);
+       } else {
+         FlowRunPrcs insertData = new FlowRunPrcs();
+         insertData.setUserId(entrstUser);
+         insertData.setRunId(flowRunPrcs.getRunId());
+         Users users = this.usersMapper.findUsersByuserId(entrstUser);
+         insertData.setPrcsDept(users.getDeptId());
+         insertData.setPrcsId(flowRunPrcs.getPrcsId());
+         insertData.setPrcsFlag("1");
+         insertData.setOpFlag(flowRunPrcs.getOpFlag());
+         insertData.setParent(String.valueOf(Integer.valueOf(flowRunPrcs.getPrcsId().intValue()).intValue() - 1));
+         insertData.setOtherUser(flowRunPrcs.getUserId());
+         insertData.setFlowPrcs(flowRunPrcs.getFlowPrcs());
+         insertData.setTopFlag("0");
+         insertData.setCreateTime(DateFormat.getStrDate(new Date()));
+         insertData.setPrcsTime("0000-00-00 00:00:00");
+         insertData.setDeliverTime("0000-00-00 00:00:00");
+         insertData.setActiveTime("0000-00-00 00:00:00");
+         insertData.setBackFlowPrcs(Integer.valueOf(0));
+         insertData.setBackPrcsId(Integer.valueOf(0));
+         count += this.flowRunPrcsMapper.insertSelective(insertData);
+       }
+       FlowRunPrcs data = this.flowRunPrcsMapper.selectByPrimaryKey(flowRunPrcs.getId());
+       data.setPrcsFlag("4");
+       data.setOpFlag("0");
+       data.setDeliverTime(DateFormat.getStrDate(new Date()));
+       count += this.flowRunPrcsMapper.upPrcsById(data);
+       if (count > 0) {
+         toJson.setFlag(0);
+         toJson.setMsg("ok");
+       }
+     } catch (Exception e) {
+       e.printStackTrace();
+     }
+     return toJson;
+   }
+ 
+   public ToJson resumeExe(Integer runId, Integer id)
+   {
+     ToJson toJson = new ToJson(1, "error");
+     try {
+       FlowRun flowRun = this.flowRunMapper.find(runId);
+       FlowRunPrcs flowRunPrcs = new FlowRunPrcs();
+       int count = 0;
+       if (!StringUtils.checkNull(flowRun.getForceOver()).booleanValue()) {
+         String[] forceOver = flowRun.getForceOver().split("`");
+         flowRunPrcs.setId(id);
+         flowRunPrcs.setPrcsId(Integer.valueOf(forceOver[0]));
+         flowRunPrcs.setPrcsFlag(forceOver[1]);
+         flowRunPrcs.setFlowPrcs(Integer.valueOf(forceOver[2]));
+         flowRunPrcs.setUserId(forceOver[3]);
+         flowRun.setEndTime("0000-00-00 00:00:00");
+         flowRun.setForceOver("");
+         count += this.flowRunPrcsMapper.upPrcsStatusById(flowRunPrcs);
+         count += this.flowRunMapper.upRunByFouAndTime(flowRun);
+       }
+       if (count > 0) {
+         toJson.setFlag(0);
+         toJson.setMsg("ok");
+       }
+     } catch (Exception e) {
+       e.printStackTrace();
+     }
+     return toJson;
+   }
+ }
+

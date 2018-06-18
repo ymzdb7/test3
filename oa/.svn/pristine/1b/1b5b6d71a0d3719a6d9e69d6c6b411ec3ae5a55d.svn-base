@@ -1,0 +1,47 @@
+package com.xoa.controller.documentOrg;
+
+import com.xoa.model.documentOrg.DocumentOrg;
+import com.xoa.service.documentOrg.DocumentOrgService;
+import com.xoa.util.ToJson;
+import com.xoa.util.page.PageParams;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@RequestMapping({ "/documentOrg" })
+public class DocumentOrgController {
+
+	@Autowired
+	DocumentOrgService documentOrgService;
+
+	@RequestMapping({ "/issue" })
+	public String issue() {
+		return "app/officialDocument/issue";
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/save" })
+	public ToJson<DocumentOrg> save(Integer id, DocumentOrg documentOrg,
+			HttpServletRequest request) {
+		return this.documentOrgService.saveDoc(id, documentOrg, request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selDocumentOrg" })
+	public ToJson<DocumentOrg> selDocumentOrg(DocumentOrg documentOrg,
+			HttpServletRequest request, PageParams pageParams) {
+		return this.documentOrgService.selDocumentOrg(documentOrg, request,
+				pageParams);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/saveToDocument" })
+	public ToJson<Object> saveToDocument(HttpServletRequest request,
+			Integer id, Integer flowId, String documentType) {
+		return this.documentOrgService.saveToDocument(request, id, flowId,
+				documentType);
+	}
+}

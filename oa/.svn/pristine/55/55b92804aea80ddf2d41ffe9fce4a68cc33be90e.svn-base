@@ -1,0 +1,212 @@
+/*     */ package com.xoa.util;
+/*     */ 
+/*     */ import com.xoa.model.enclosure.Attachment;
+/*     */ import java.awt.Graphics;
+/*     */ import java.awt.Image;
+/*     */ import java.awt.image.BufferedImage;
+/*     */ import java.io.File;
+/*     */ import java.io.FileNotFoundException;
+/*     */ import java.io.FileOutputStream;
+/*     */ import java.io.IOException;
+/*     */ import java.io.InputStream;
+/*     */ import java.io.PrintStream;
+/*     */ import java.net.URL;
+/*     */ import java.util.Arrays;
+/*     */ import java.util.List;
+/*     */ import javax.imageio.ImageIO;
+/*     */ 
+/*     */ public class FileUploadUtil
+/*     */ {
+/*  21 */   public static final List<String> ALLOW_TYPES = Arrays.asList(new String[] { "image/jpg", "image/jpeg", "image/png", "image/gif" });
+/*     */ 
+/*     */   public static String rename(String fileName)
+/*     */   {
+/*  26 */     int i = fileName.lastIndexOf(".");
+/*  27 */     String str = fileName.substring(i);
+/*     */ 
+/*  29 */     return Math.abs((int)System.currentTimeMillis()) + str;
+/*     */   }
+/*     */ 
+/*     */   public static String rename(String fileName, String freeName) {
+/*  33 */     int i = fileName.lastIndexOf(".");
+/*  34 */     String str = fileName.substring(0, i);
+/*  35 */     String str1 = fileName.substring(i);
+/*     */ 
+/*  37 */     return str + freeName + str1;
+/*     */   }
+/*     */ 
+/*     */   public static boolean allowUpload(String postfix)
+/*     */   {
+/*  43 */     return ALLOW_TYPES.contains(postfix);
+/*     */   }
+/*     */ 
+/*     */   public static Object[] reAttachment(List<Attachment> list) {
+/*  47 */     StringBuffer id = new StringBuffer();
+/*  48 */     StringBuffer name = new StringBuffer();
+/*  49 */     for (Attachment attachment : list) {
+/*  50 */       int aid = attachment.getAid().intValue();
+/*  51 */       int attachId = attachment.getAttachId().intValue();
+/*  52 */       String ym = attachment.getYm();
+/*  53 */       String attachName = attachment.getAttachName();
+/*  54 */       String all = aid + "@" + ym + "_" + attachId;
+/*  55 */       id.append(all).append(",");
+/*  56 */       name.append(attachName).append("*");
+/*     */     }
+/*  58 */     Object[] o = new Object[2];
+/*  59 */     o[0] = id.toString();
+/*  60 */     o[1] = name.toString();
+/*  61 */     return o;
+/*     */   }
+/*     */ 
+/*     */   public static Object[] reAttachmentAll(List<Attachment> list)
+/*     */   {
+/*  67 */     StringBuffer id = new StringBuffer();
+/*  68 */     StringBuffer name = new StringBuffer();
+/*  69 */     for (Attachment attachment : list) {
+/*  70 */       int aid = attachment.getAid().intValue();
+/*  71 */       int attachId = attachment.getAttachId().intValue();
+/*  72 */       String ym = attachment.getYm();
+/*  73 */       String attachName = attachment.getAttachName();
+/*  74 */       String fileSize = attachment.getFileSize();
+/*  75 */       String time = attachment.getTime();
+/*  76 */       String all = aid + "@" + ym + "_" + attachId + "*" + fileSize + "|" + time;
+/*  77 */       id.append(all).append(",");
+/*  78 */       name.append(attachName).append("*");
+/*     */     }
+/*  80 */     Object[] o = new Object[2];
+/*  81 */     o[0] = id.toString();
+/*  82 */     o[1] = name.toString();
+/*  83 */     return o;
+/*     */   }
+/*     */ 
+/*     */   public static String zipImageFile(String oldFile, int width, int height, float quality, String smallIcon, String dirurl)
+/*     */   {
+/*  90 */     if (oldFile == null) {
+/*  91 */       return null;
+/*     */     }
+/*  93 */     String newImage = null;
+/*     */     try
+/*     */     {
+/*  96 */       Image srcFile = ImageIO.read(new File(oldFile));
+/*     */ 
+/*  98 */       BufferedImage tag = new BufferedImage(width, height, 1);
+/*  99 */       tag.getGraphics().drawImage(srcFile, 0, 0, width, height, null);
+/*     */ 
+/* 101 */       newImage = dirurl + System.getProperty("file.separator") + smallIcon;
+/*     */ 
+/* 103 */       System.out.println("0=||=============>newimage:" + newImage);
+/* 104 */       File file = new File(newImage);
+/* 105 */       if (file.exists()) {
+/* 106 */         System.out.println("0=||=============>文件存在不处理:" + newImage);
+/* 107 */         return "";
+/*     */       }
+/*     */ 
+/* 110 */       FileOutputStream out = new FileOutputStream(newImage);
+/*     */ 
+/* 116 */       ImageIO.write(tag, "jpeg", out);
+/* 117 */       out.close();
+/*     */     } catch (FileNotFoundException e) {
+/* 119 */       e.printStackTrace();
+/*     */     } catch (IOException e) {
+/* 121 */       System.out.println("buzhidao shisha +" + e.getMessage());
+/* 122 */       e.printStackTrace();
+/*     */     }
+/*     */ 
+/* 125 */     return newImage;
+/*     */   }
+/*     */ 
+/*     */   public static String writeFile(String fileName, InputStream is)
+/*     */   {
+/* 130 */     if ((fileName == null) || (fileName.trim().length() == 0)) {
+/* 131 */       return null;
+/*     */     }
+/*     */     try
+/*     */     {
+/* 135 */       FileOutputStream fos = new FileOutputStream(fileName);
+/* 136 */       byte[] readBytes = new byte[512];
+/* 137 */       int readed = 0;
+/* 138 */       while ((readed = is.read(readBytes)) > 0) {
+/* 139 */         fos.write(readBytes, 0, readed);
+/*     */       }
+/*     */ 
+/* 143 */       fos.close();
+/*     */ 
+/* 145 */       is.close();
+/*     */     }
+/*     */     catch (FileNotFoundException e)
+/*     */     {
+/* 149 */       e.printStackTrace();
+/*     */     }
+/*     */     catch (IOException e) {
+/* 152 */       e.printStackTrace();
+/*     */     }
+/*     */ 
+/* 155 */     return fileName;
+/*     */   }
+/*     */ 
+/*     */   public static void saveMinPhoto(String srcURL, String deskURL, double comBase, double scale)
+/*     */     throws Exception
+/*     */   {
+/* 162 */     File srcFile = new File(srcURL);
+/* 163 */     Image src = ImageIO.read(srcFile);
+/* 164 */     int srcHeight = src.getHeight(null);
+/* 165 */     int srcWidth = src.getWidth(null);
+/* 166 */     int deskHeight = 0;
+/* 167 */     int deskWidth = 0;
+/* 168 */     double srcScale = srcHeight / srcWidth;
+/*     */ 
+/* 170 */     if ((srcHeight > comBase) || (srcWidth > comBase)) {
+/* 171 */       if ((srcScale >= scale) || (1.0D / srcScale > scale)) {
+/* 172 */         if (srcScale >= scale) {
+/* 173 */           deskHeight = (int)comBase;
+/* 174 */           deskWidth = srcWidth * deskHeight / srcHeight;
+/*     */         } else {
+/* 176 */           deskWidth = (int)comBase;
+/* 177 */           deskHeight = srcHeight * deskWidth / srcWidth;
+/*     */         }
+/*     */       }
+/* 180 */       else if (srcHeight > comBase) {
+/* 181 */         deskHeight = (int)comBase;
+/* 182 */         deskWidth = srcWidth * deskHeight / srcHeight;
+/*     */       } else {
+/* 184 */         deskWidth = (int)comBase;
+/* 185 */         deskHeight = srcHeight * deskWidth / srcWidth;
+/*     */       }
+/*     */     }
+/*     */     else {
+/* 189 */       deskHeight = srcHeight;
+/* 190 */       deskWidth = srcWidth;
+/*     */     }
+/* 192 */     BufferedImage tag = new BufferedImage(deskWidth, deskHeight, 5);
+/* 193 */     tag.getGraphics().drawImage(src, 0, 0, deskWidth, deskHeight, null);
+/* 194 */     File file = new File(deskURL);
+/* 195 */     if (!file.exists()) {
+/* 196 */       file.createNewFile();
+/*     */     }
+/*     */ 
+/* 199 */     FileOutputStream deskImage = new FileOutputStream(deskURL);
+/* 200 */     ImageIO.write(tag, "jpeg", deskImage);
+/* 201 */     deskImage.close();
+/*     */   }
+/*     */ 
+/*     */   public static String getRootPath() {
+/* 205 */     String classPath = FileUploadUtil.class.getClassLoader().getResource("/").getPath();
+/* 206 */     String rootPath = "";
+/*     */ 
+/* 208 */     if ("\\".equals(File.separator)) {
+/* 209 */       rootPath = classPath.substring(1, classPath.indexOf("/WEB-INF/classes"));
+/* 210 */       rootPath = rootPath.replace("/", "\\");
+/*     */     }
+/*     */ 
+/* 213 */     if ("/".equals(File.separator)) {
+/* 214 */       rootPath = classPath.substring(0, classPath.indexOf("/WEB-INF/classes"));
+/* 215 */       rootPath = rootPath.replace("\\", "/");
+/*     */     }
+/* 217 */     return rootPath;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.FileUploadUtil
+ * JD-Core Version:    0.6.0
+ */

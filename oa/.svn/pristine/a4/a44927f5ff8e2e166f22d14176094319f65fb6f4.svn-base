@@ -1,0 +1,485 @@
+/*     */ package com.xoa.service.footprint.impl;
+/*     */ 
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.footprint.FootPrintMapper;
+/*     */ import com.xoa.model.department.Department;
+/*     */ import com.xoa.model.footprint.Foot;
+/*     */ import com.xoa.model.footprint.LngLat;
+/*     */ import com.xoa.service.footprint.FootPrintService;
+/*     */ import com.xoa.util.CoodinateCovertor;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.text.ParseException;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class FootPrintServiceImpl
+/*     */   implements FootPrintService
+/*     */ {
+/*     */   private static final String GET_MY_FOOTPRINT = "1";
+/*     */   private static final String GET_DEPT_FOOTPRINT = "2";
+/*     */ 
+/*     */   @Resource
+/*     */   private FootPrintMapper footPrintMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<Foot> addFootPrint(Foot foot)
+/*     */   {
+/*  54 */     ToJson toJson = new ToJson();
+/*     */     try {
+/*  56 */       this.footPrintMapper.addFootPrint(foot);
+/*  57 */       toJson.setFlag(0);
+/*  58 */       toJson.setMsg("ok");
+/*  59 */       toJson.setObject(foot);
+/*     */     } catch (Exception e) {
+/*  61 */       toJson.setFlag(1);
+/*  62 */       toJson.setMsg("error");
+/*     */     }
+/*  64 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public List<Foot> getFootPrint(String app, Integer uid, String pageNum)
+/*     */   {
+/*     */     Integer start;
+/*  81 */     if (pageNum == null) {
+/*  82 */       Integer currentpage = Integer.valueOf(0);
+/*  83 */       start = Integer.valueOf(0);
+/*     */     } else {
+/*  85 */       Integer currentpage = Integer.valueOf(Integer.parseInt(pageNum));
+/*  86 */       start = Integer.valueOf((currentpage.intValue() - 1) * 10);
+/*     */     }
+/*     */ 
+/*  90 */     List list = null;
+/*     */ 
+/*  93 */     List departmentList = null;
+/*  94 */     if ("2".equals(app)) {
+/*  95 */       departmentList = this.departmentMapper.getDepartmentByUid(uid);
+/*     */     }
+/*     */ 
+/*  99 */     if ("2".equals(app))
+/*     */     {
+/* 101 */       if ((departmentList != null) && (departmentList.size() == 1)) {
+/* 102 */         Department department = (Department)departmentList.get(0);
+/* 103 */         if ((department != null) && (department.getDeptId() != null)) {
+/* 104 */           Map map = new HashMap();
+/* 105 */           map.put("deptId", department.getDeptId());
+/* 106 */           map.put("currentpage", start);
+/* 107 */           list = this.footPrintMapper.getFootPrintByDepId(map);
+/*     */         }
+/*     */       }
+/*     */     }
+/* 111 */     else if ("1".equals(app)) {
+/* 112 */       Map map = new HashMap();
+/* 113 */       map.put("uid", uid);
+/* 114 */       map.put("currentpage", start);
+/* 115 */       list = this.footPrintMapper.getFootPrintByUid(map);
+/*     */     }
+/*     */     else
+/*     */     {
+/* 119 */       Map map = new HashMap();
+/* 120 */       map.put("currentpage", start);
+/* 121 */       list = this.footPrintMapper.getAllFootPrint(map);
+/*     */     }
+/* 123 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public List<Foot> getTheFootPrint(String dayStr, Integer uid)
+/*     */     throws ParseException
+/*     */   {
+/* 137 */     if ((dayStr == null) || (uid == null)) {
+/* 138 */       return null;
+/*     */     }
+/*     */ 
+/* 143 */     String startTime = dayStr.concat(" 00:00:00");
+/* 144 */     String endTime = dayStr.concat(" 23:59:59");
+/* 145 */     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+/* 146 */     Date start = sdf.parse(startTime);
+/* 147 */     Date end = sdf.parse(endTime);
+/*     */ 
+/* 149 */     Long beginDayTime = Long.valueOf(start.getTime() / 1000L);
+/* 150 */     Long endDayTime = Long.valueOf(end.getTime() / 1000L);
+/*     */ 
+/* 152 */     int startDay = beginDayTime.intValue();
+/* 153 */     int endDay = endDayTime.intValue();
+/*     */ 
+/* 155 */     Map hashMap = new HashMap();
+/* 156 */     hashMap.put("startDay", Integer.valueOf(startDay));
+/* 157 */     hashMap.put("endDay", Integer.valueOf(endDay));
+/* 158 */     hashMap.put("uid", uid);
+/* 159 */     List footList = this.footPrintMapper.getUserDayFootPrint(hashMap);
+/*     */ 
+/* 161 */     return footList;
+/*     */   }
+/*     */ 
+/*     */   public List<Foot> findByCondition(String condition, String app, String pageNum, Integer uid)
+/*     */   {
+/* 177 */     if ((condition == null) || ("".equals(condition)))
+/* 178 */       return getFootPrint(app, uid, pageNum);
+/*     */     Integer start;
+/* 184 */     if (pageNum == null) {
+/* 185 */       Integer currentpage = Integer.valueOf(0);
+/* 186 */       start = Integer.valueOf(0);
+/*     */     } else {
+/* 188 */       Integer currentpage = Integer.valueOf(Integer.parseInt(pageNum));
+/* 189 */       start = Integer.valueOf((currentpage.intValue() - 1) * 10);
+/*     */     }
+/* 191 */     List list = new ArrayList();
+/*     */ 
+/* 194 */     boolean flag = true;
+/*     */ 
+/* 196 */     Integer number = null;
+/*     */     try {
+/* 198 */       number = Integer.valueOf(Integer.parseInt(condition));
+/*     */     } catch (Exception e) {
+/* 200 */       flag = false;
+/*     */     }
+/*     */ 
+/* 204 */     if (!flag)
+/*     */     {
+/* 207 */       List departmentList = null;
+/* 208 */       if ("2".equals(app)) {
+/* 209 */         departmentList = this.departmentMapper.getDepartmentByUid(uid);
+/*     */       }
+/*     */ 
+/* 212 */       if ("2".equals(app)) {
+/* 213 */         if ((departmentList != null) && (departmentList.size() == 1)) {
+/* 214 */           Department department = (Department)departmentList.get(0);
+/* 215 */           if ((department != null) && (department.getDeptId() != null))
+/*     */           {
+/* 217 */             Map map = new HashMap();
+/* 218 */             map.put("deptId", department.getDeptId());
+/* 219 */             map.put("currentpage", start);
+/* 220 */             map.put("condition", "%".concat(condition).concat("%"));
+/* 221 */             list = this.footPrintMapper.getDeptFootPrintByCondition(map);
+/*     */           }
+/*     */         }
+/*     */       }
+/* 225 */       else if ("1".equals(app)) {
+/* 226 */         Map map = new HashMap();
+/* 227 */         map.put("uid", uid);
+/* 228 */         map.put("currentpage", start);
+/* 229 */         list = this.footPrintMapper.getFootPrintByUid(map);
+/*     */       }
+/*     */       else
+/*     */       {
+/* 233 */         Map map = new HashMap();
+/* 234 */         map.put("currentpage", start);
+/* 235 */         map.put("condition", "%".concat(condition).concat("%"));
+/* 236 */         list = this.footPrintMapper.getAllFootPrintByCondition(map);
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */     else
+/*     */     {
+/* 243 */       List departmentList = null;
+/* 244 */       if ("2".equals(app)) {
+/* 245 */         departmentList = this.departmentMapper.getDepartmentByUid(uid);
+/*     */       }
+/*     */ 
+/* 248 */       if ("2".equals(app)) {
+/* 249 */         if ((departmentList != null) && (departmentList.size() == 1))
+/*     */         {
+/* 251 */           Department department = (Department)departmentList.get(0);
+/* 252 */           if ((department != null) && (department.getDeptId() != null))
+/*     */           {
+/*     */             try
+/*     */             {
+/* 256 */               List<Map<String, Long>>  mapList = paseDateCondition("" + number);
+/*     */ 
+/* 258 */               for (Map map : mapList) {
+/* 259 */                 Long dayStartSecond = (Long)map.get("dayStartSecond");
+/* 260 */                 Long dayEndSecond = (Long)map.get("dayEndSecond");
+/*     */ 
+/* 262 */                 Map hashMap = new HashMap();
+/* 263 */                 hashMap.put("deptId", department.getDeptId());
+/* 264 */                 hashMap.put("dayStartSecond", dayStartSecond);
+/* 265 */                 hashMap.put("dayEndSecond", dayEndSecond);
+/* 266 */                 List<Foot> eachTimeList = new ArrayList();
+/* 267 */                 eachTimeList = this.footPrintMapper.getDeptFootPrintByTime(map);
+/*     */ 
+/* 270 */                 if (eachTimeList != null) {
+/* 271 */                   for (Foot foot : eachTimeList) {
+/* 272 */                     list.add(foot);
+/*     */                   }
+/*     */                 }
+/*     */               }
+/*     */             }
+/*     */             catch (Exception e)
+/*     */             {
+/* 279 */               e.printStackTrace();
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/* 284 */       else if ("1".equals(app)) {
+/*     */         try {
+/* 286 */           List<Map<String, Long>>  mapList = paseDateCondition("" + number);
+/*     */ 
+/* 288 */           for (Map map : mapList) {
+/* 289 */             Long dayStartSecond = (Long)map.get("dayStartSecond");
+/* 290 */             Long dayEndSecond = (Long)map.get("dayEndSecond");
+/* 291 */             Map hashMap = new HashMap();
+/* 292 */             hashMap.put("uid", uid);
+/* 293 */             hashMap.put("currentpage", start);
+/* 294 */             hashMap.put("dayStartSecond", dayStartSecond);
+/* 295 */             hashMap.put("dayEndSecond", dayEndSecond);
+/* 296 */             List<Foot> eachTimeList = new ArrayList();
+/* 297 */             eachTimeList = this.footPrintMapper.getFootPrintByUidTime(hashMap);
+/*     */ 
+/* 299 */             if (eachTimeList != null) {
+/* 300 */               for (Foot foot : eachTimeList)
+/* 301 */                 list.add(foot);
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */         catch (Exception e)
+/*     */         {
+/* 307 */           e.printStackTrace();
+/*     */         }
+/*     */       }
+/*     */       else {
+/*     */         try
+/*     */         {
+/* 313 */           List<Map<String, Long>>  mapList = paseDateCondition("" + number);
+/*     */ 
+/* 315 */           for (Map map : mapList) {
+/* 316 */             Map hashMap = new HashMap();
+/* 317 */             hashMap.put("currentpage", start);
+/* 318 */             hashMap.put("condition", condition);
+/* 319 */             hashMap.put("uid", uid);
+/* 320 */             Long dayStartSecond = (Long)map.get("dayStartSecond");
+/* 321 */             Long dayEndSecond = (Long)map.get("dayEndSecond");
+/* 322 */             hashMap.put("dayStartSecond", dayStartSecond);
+/* 323 */             hashMap.put("dayEndSecond", dayEndSecond);
+/* 324 */             List<Foot> eachTimeList = new ArrayList();
+/* 325 */             eachTimeList = this.footPrintMapper.getAllFootPrintByTime(hashMap);
+/*     */ 
+/* 327 */             if (eachTimeList != null) {
+/* 328 */               for (Foot foot1 : eachTimeList)
+/* 329 */                 list.add(foot1);
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */         catch (Exception e)
+/*     */         {
+/* 335 */           e.printStackTrace();
+/*     */         }
+/*     */       }
+/*     */     }
+/* 339 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public List<Foot> getTheDayFootPrint(String day, Integer uid)
+/*     */   {
+/* 352 */     if ((day != null) && (uid != null)) {
+/* 353 */       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+/*     */ 
+/* 355 */       String startDayStr = day.concat(" 00:00:00");
+/* 356 */       String endDayStr = day.concat(" 23:59:59");
+/*     */ 
+/* 358 */       Date startDaySecond = null;
+/*     */       try {
+/* 360 */         startDaySecond = sdf.parse(startDayStr);
+/*     */       } catch (ParseException e) {
+/* 362 */         e.printStackTrace();
+/*     */       }
+/* 364 */       Date endDaySecond = null;
+/*     */       try {
+/* 366 */         endDaySecond = sdf.parse(endDayStr);
+/*     */       } catch (ParseException e) {
+/* 368 */         e.printStackTrace();
+/*     */       }
+/*     */ 
+/* 371 */       Long start = Long.valueOf(startDaySecond.getTime() / 1000L);
+/* 372 */       Long end = Long.valueOf(endDaySecond.getTime() / 1000L);
+/*     */ 
+/* 374 */       Map hashMap = new HashMap();
+/* 375 */       hashMap.put("start", start);
+/* 376 */       hashMap.put("end", end);
+/* 377 */       hashMap.put("uid", uid);
+/*     */ 
+/* 379 */       return this.footPrintMapper.getTheDayFootPrint(hashMap);
+/*     */     }
+/* 381 */     return null;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Foot> editUpdateTimeByuid(String time, Integer uid, Integer id)
+/*     */   {
+/* 386 */     ToJson footToJson = new ToJson();
+/* 387 */     Foot foot = this.footPrintMapper.queryById(id);
+/* 388 */     if (foot != null) {
+/* 389 */       String a1 = DateFormat.getStrTime(foot.getCreateTime());
+/*     */ 
+/* 393 */       int a = this.footPrintMapper.editFootByTime(Integer.valueOf(Integer.parseInt(time)), uid, id);
+/* 394 */       footToJson.setMsg("ok");
+/* 395 */       footToJson.setFlag(0);
+/* 396 */       footToJson.setObject(DateFormat.returnTime(Integer.valueOf(Integer.parseInt(time) - foot.getCreateTime().intValue())));
+/*     */     }
+/*     */     else {
+/* 399 */       footToJson.setMsg("err");
+/* 400 */       footToJson.setFlag(1);
+/*     */     }
+/* 402 */     return footToJson;
+/*     */   }
+/*     */ 
+/*     */   public List<Map<String, Long>> paseDateCondition(String number)
+/*     */     throws ParseException
+/*     */   {
+/* 415 */     List list = new ArrayList();
+/*     */ 
+/* 418 */     List<String> dataStrList = new ArrayList();
+/* 419 */     String dateStr = "20";
+/*     */ 
+/* 421 */     for (int i = 17; i <= 50; i++) {
+/* 422 */       dateStr = dateStr.concat("" + i);
+/* 423 */       for (int k = 1; k <= 12; k++)
+/*     */       {
+/* 425 */         if (k < 10) {
+/* 426 */           dateStr = dateStr.concat("-0" + k);
+/*     */         }
+/*     */         else {
+/* 429 */           dateStr = dateStr.concat("-" + k);
+/*     */         }
+/*     */ 
+/* 432 */         for (int l = 1; l <= 31; l++)
+/*     */         {
+/* 434 */           if (l < 10) {
+/* 435 */             dateStr = dateStr.concat("-0" + l);
+/* 436 */             if (dateStr.contains(number))
+/* 437 */               dataStrList.add(dateStr);
+/*     */           }
+/*     */           else
+/*     */           {
+/* 441 */             dateStr = dateStr.concat("-" + l);
+/* 442 */             if (dateStr.contains(number)) {
+/* 443 */               dataStrList.add(dateStr);
+/*     */             }
+/*     */           }
+/*     */ 
+/* 447 */           dateStr = dateStr.substring(0, 7);
+/*     */         }
+/*     */ 
+/* 450 */         dateStr = dateStr.substring(0, 4);
+/*     */       }
+/*     */ 
+/* 453 */       dateStr = dateStr.substring(0, 2);
+/*     */     }
+/*     */ 
+/* 457 */     for (String s : dataStrList)
+/*     */     {
+/* 459 */       String dayStart = s.concat(" 00:00:00");
+/* 460 */       String dayEnd = s.concat(" 23:23:23");
+/*     */ 
+/* 462 */       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+/* 463 */       Date dayStartTime = sdf.parse(dayStart);
+/* 464 */       Long dayStartSecond = Long.valueOf(dayStartTime.getTime() / 1000L);
+/*     */ 
+/* 466 */       Date dayEndTime = sdf.parse(dayEnd);
+/* 467 */       Long dayEndSecond = Long.valueOf(dayEndTime.getTime() / 1000L);
+/* 468 */       Map map = new HashMap();
+/* 469 */       map.put("dayStartSecond", dayStartSecond);
+/* 470 */       map.put("dayEndSecond", dayEndSecond);
+/* 471 */       list.add(map);
+/*     */     }
+/* 473 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Foot> getWebFootPrint(String app, String time, String detail, Integer uid, Integer page, Integer pageSize, Boolean useFlag)
+/*     */   {
+/* 488 */     ToJson json = new ToJson();
+/*     */ 
+/* 490 */     PageParams pageParams = new PageParams();
+/* 491 */     pageParams.setPage(page);
+/* 492 */     pageParams.setPageSize(pageSize);
+/* 493 */     pageParams.setUseFlag(useFlag);
+/* 494 */     List<Foot> list = null;
+/*     */ 
+/* 497 */     List departmentList = null;
+/*     */     try {
+/* 499 */       String beginTime = "";
+/* 500 */       String endTime = "";
+/* 501 */       if (!StringUtils.checkNull(time).booleanValue()) {
+/* 502 */         beginTime = time + " 00:00:00";
+/* 503 */         endTime = time + " 23:59:59";
+/* 504 */         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/* 505 */         beginTime = String.valueOf(format.parse(beginTime).getTime() / 1000L);
+/* 506 */         endTime = String.valueOf(format.parse(endTime).getTime() / 1000L);
+/*     */       }
+/* 508 */       if ("2".equals(app)) {
+/* 509 */         departmentList = this.departmentMapper.getDepartmentByUid(uid);
+/*     */       }
+/*     */ 
+/* 513 */       if ("2".equals(app))
+/*     */       {
+/* 515 */         if ((departmentList != null) && (departmentList.size() == 1)) {
+/* 516 */           Department department = (Department)departmentList.get(0);
+/* 517 */           if ((department != null) && (department.getDeptId() != null)) {
+/* 518 */             Map map = new HashMap();
+/* 519 */             map.put("deptId", department.getDeptId());
+/* 520 */             map.put("page", pageParams);
+/* 521 */             map.put("time", time);
+/* 522 */             map.put("beginTime", beginTime);
+/* 523 */             map.put("endTime", endTime);
+/* 524 */             map.put("detail", detail);
+/* 525 */             list = this.footPrintMapper.getWebFootPrintByDepId(map);
+/*     */           }
+/*     */         }
+/*     */       }
+/* 529 */       else if ("1".equals(app)) {
+/* 530 */         Map map = new HashMap();
+/* 531 */         map.put("uid", uid);
+/* 532 */         map.put("page", pageParams);
+/* 533 */         map.put("time", time);
+/* 534 */         map.put("beginTime", beginTime);
+/* 535 */         map.put("endTime", endTime);
+/* 536 */         list = this.footPrintMapper.getWebFootPrintByUid(map);
+/* 537 */         for (Foot foot : list) {
+/* 538 */           LngLat lngLat = new LngLat();
+/* 539 */           lngLat.setLantitude(Double.valueOf(foot.getLng()).doubleValue());
+/* 540 */           lngLat.setLongitude(Double.valueOf(foot.getLat()).doubleValue());
+/* 541 */           LngLat lngLat1 = CoodinateCovertor.bd_encrypt(lngLat);
+/* 542 */           foot.setLantitude(String.valueOf(lngLat1.getLantitude()));
+/* 543 */           foot.setLongitude(String.valueOf(lngLat1.getLongitude()));
+/*     */         }
+/*     */       }
+/*     */       else
+/*     */       {
+/* 548 */         Map map = new HashMap();
+/* 549 */         map.put("page", pageParams);
+/* 550 */         map.put("time", time);
+/* 551 */         map.put("beginTime", beginTime);
+/* 552 */         map.put("endTime", endTime);
+/* 553 */         map.put("detail", detail);
+/* 554 */         list = this.footPrintMapper.getWebAllFootPrint(map);
+/*     */       }
+/*     */ 
+/* 557 */       json.setObj(list);
+/* 558 */       json.setTotleNum(pageParams.getTotal());
+/* 559 */       json.setMsg("ok");
+/* 560 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 562 */       json.setMsg(e.getMessage());
+/* 563 */       json.setFlag(1);
+/* 564 */       e.printStackTrace();
+/*     */     }
+/* 566 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.footprint.impl.FootPrintServiceImpl
+ * JD-Core Version:    0.6.0
+ */

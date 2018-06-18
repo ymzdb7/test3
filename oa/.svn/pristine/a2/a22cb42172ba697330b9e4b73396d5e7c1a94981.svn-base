@@ -1,0 +1,117 @@
+/*     */ package com.xoa.service.sys.impl;
+/*     */ 
+/*     */ import com.xoa.dao.sys.SealLogMapper;
+/*     */ import com.xoa.dao.sys.SealMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.sys.Seal;
+/*     */ import com.xoa.model.sys.SealLog;
+/*     */ import com.xoa.model.sys.SealWithBLOBs;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.sys.SealLogService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class SealLogServiceImpl
+/*     */   implements SealLogService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private SealLogMapper sealLogMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SealMapper sealMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   public int addSealLog(SealLog sealLog)
+/*     */   {
+/*  41 */     return this.sealLogMapper.insertSelective(sealLog);
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SealLog> getAllSealLog(String startTime, String endTime, HttpServletRequest request, String sealName, SealLog sealLog, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  46 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/*  48 */       if (startTime == "") {
+/*  49 */         startTime = null;
+/*     */       }
+/*  51 */       if (endTime == "") {
+/*  52 */         endTime = null;
+/*     */       }
+/*  54 */       PageParams pageParams = new PageParams();
+/*  55 */       pageParams.setPage(page);
+/*  56 */       pageParams.setPageSize(pageSize);
+/*  57 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  58 */       Map map = new HashMap();
+/*  59 */       map.put("page", pageParams);
+/*  60 */       map.put("startTime", startTime);
+/*  61 */       map.put("endTime", endTime);
+/*  62 */       StringBuffer sb = new StringBuffer();
+/*  63 */       String id = "";
+/*  64 */       if ((sealName != null) && (sealName != "")) {
+/*  65 */         List<SealWithBLOBs> sealByName = this.sealMapper.getSealByName(sealName);
+/*  66 */         for (SealWithBLOBs seal : sealByName) {
+/*  67 */           id = sb.append(seal.getSealId() + ",").toString();
+/*     */         }
+/*  69 */         id = id.substring(0, id.length() - 1);
+/*     */       }
+/*  71 */       sealLog.setsId(id);
+/*  72 */       map.put("sealLog", sealLog);
+/*  73 */       List<SealLog> allSealLogInfo = this.sealLogMapper.getAllSealLogInfo(map);
+/*  74 */       if (allSealLogInfo != null) {
+/*  75 */         for (SealLog sealLog1 : allSealLogInfo) {
+/*  76 */           Seal sealLogBySealId = this.sealMapper.getSealLogBySealId(sealLog1.getsId());
+/*  77 */           if (sealLogBySealId != null)
+/*  78 */             sealLog1.setSealName(sealLogBySealId.getSealName());
+/*     */           else {
+/*  80 */             sealLog1.setSealName("印章已删除");
+/*     */           }
+/*  82 */           Users usersByuserId = this.usersMapper.getUsersByuserId(sealLog1.getUserId());
+/*  83 */           sealLog1.setUserName(usersByuserId.getUserName());
+/*     */ 
+/*  85 */           if (sealLog1.getLogType().equals("makeseal")) {
+/*  86 */             sealLog1.setLogTypeName("制作印章");
+/*     */           }
+/*  88 */           else if (sealLog1.getLogType().equals("setseal")) {
+/*  89 */             sealLog1.setLogTypeName("印章授权");
+/*     */           }
+/*  91 */           else if (sealLog1.getLogType().equals("deleteseal")) {
+/*  92 */             sealLog1.setLogTypeName("删除印章");
+/*     */           }
+/*     */         }
+/*     */       }
+/*  96 */       json.setFlag(0);
+/*  97 */       json.setMsg("ok");
+/*  98 */       json.setObj(allSealLogInfo);
+/*     */     } catch (Exception e) {
+/* 100 */       e.printStackTrace();
+/*     */     }
+/* 102 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> deleteSealLog(String[] ids)
+/*     */   {
+/* 107 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 109 */       this.sealLogMapper.deleteSealLog(ids);
+/* 110 */       json.setMsg("ok");
+/* 111 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 113 */       e.printStackTrace();
+/*     */     }
+/* 115 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.sys.impl.SealLogServiceImpl
+ * JD-Core Version:    0.6.0
+ */

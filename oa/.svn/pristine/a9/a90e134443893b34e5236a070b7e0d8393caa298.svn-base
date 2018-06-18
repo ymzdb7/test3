@@ -1,0 +1,100 @@
+/*     */ package com.xoa.util.treeUtil;
+/*     */ 
+/*     */ import com.xoa.model.file.FileSortModel;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ 
+/*     */ public class FileCommSortTreeUtil
+/*     */ {
+/*     */   private static final String MENU_ID = "";
+/*     */   Map<String, Object> map;
+/*     */   List<FileSortModel> rootTree;
+/*     */   List<FileSortModel> childTree;
+/*     */ 
+/*     */   public FileCommSortTreeUtil(List<FileSortModel> rootTree, List<FileSortModel> childTree, Map<String, Object> map)
+/*     */   {
+/*  27 */     this.rootTree = rootTree;
+/*  28 */     this.childTree = childTree;
+/*  29 */     this.map = map;
+/*     */   }
+/*     */ 
+/*     */   public List<TreeNode> getTreeNode()
+/*     */   {
+/*  34 */     return getRootNodes();
+/*     */   }
+/*     */ 
+/*     */   private List<TreeNode> getRootNodes()
+/*     */   {
+/*  43 */     List rootNodes = new ArrayList();
+/*  44 */     for (FileSortModel fs : this.rootTree) {
+/*  45 */       TreeNode node = RootToNode(fs);
+/*  46 */       if ((node != null) && 
+/*  47 */         (addChlidNodes(node))) {
+/*  48 */         rootNodes.add(node);
+/*     */       }
+/*     */     }
+/*     */ 
+/*  52 */     return rootNodes;
+/*     */   }
+/*     */ 
+/*     */   private TreeNode RootToNode(FileSortModel fs)
+/*     */   {
+/*  61 */     if (fs == null) {
+/*  62 */       return null;
+/*     */     }
+/*  64 */     TreeNode node = new TreeNode();
+/*  65 */     node.setId(String.valueOf(fs.getSortId()));
+/*  66 */     node.setDataId(String.valueOf(fs.getSortId()));
+/*  67 */     node.setText(fs.getSortName());
+/*  68 */     node.setParentId(String.valueOf(fs.getSortParent()));
+/*  69 */     node.setState("closed");
+/*  70 */     node.getAttributes().put("pid", String.valueOf(fs.getSortParent()));
+/*     */ 
+/*  72 */     node.getAttributes().put("USER_ID", Integer.valueOf(CheckTree.checkAll(fs.getUserId(), this.map) == true ? 1 : 0));
+/*     */ 
+/*  74 */     node.getAttributes().put("NEW_USER", Integer.valueOf(CheckTree.checkAll(fs.getNewUser(), this.map) == true ? 1 : 0));
+/*     */ 
+/*  76 */     node.getAttributes().put("MANAGE_USER", Integer.valueOf(CheckTree.checkAll(fs.getManagerUser(), this.map) == true ? 1 : 0));
+/*     */ 
+/*  78 */     node.getAttributes().put("DEL_USER", Integer.valueOf(CheckTree.checkAll(fs.getDelUser(), this.map) == true ? 1 : 0));
+/*     */ 
+/*  80 */     node.getAttributes().put("DOWN_USER", Integer.valueOf(CheckTree.checkAll(fs.getDownUser(), this.map) == true ? 1 : 0));
+/*     */ 
+/*  82 */     node.getAttributes().put("SIGN_USER", Integer.valueOf(CheckTree.checkAll(fs.getSignUser(), this.map) == true ? 1 : 0));
+/*     */ 
+/*  84 */     node.getAttributes().put("REVIEW", Integer.valueOf(CheckTree.checkAll(fs.getReview(), this.map) == true ? 1 : 0));
+/*     */ 
+/*  86 */     node.getAttributes().put("OWNER", Integer.valueOf(CheckTree.checkAll(fs.getOwner(), this.map) == true ? 1 : 0));
+/*  87 */     return node;
+/*     */   }
+/*     */ 
+/*     */   private boolean addChlidNodes(TreeNode rootNode)
+/*     */   {
+/*  96 */     List childNodes = new ArrayList();
+/*  97 */     boolean flag = rootNode.getAttributes().get("USER_ID").toString().equals("1");
+/*  98 */     boolean temp = false;
+/*  99 */     boolean temp2 = false;
+/* 100 */     for (FileSortModel fs : this.childTree) {
+/* 101 */       if (rootNode.getDataId().equals(String.valueOf(fs.getSortParent()))) {
+/* 102 */         TreeNode node = RootToNode(fs);
+/* 103 */         if (flag) {
+/* 104 */           childNodes.add(node);
+/* 105 */           temp = addChlidNodes(node);
+/*     */         }
+/* 107 */         else if (node.getAttributes().get("USER_ID").toString().equals("1")) {
+/* 108 */           childNodes.add(node);
+/* 109 */           temp2 = addChlidNodes(node);
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 114 */     rootNode.setChildren(childNodes);
+/* 115 */     return (flag) || (temp) || (temp2);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.treeUtil.FileCommSortTreeUtil
+ * JD-Core Version:    0.6.0
+ */

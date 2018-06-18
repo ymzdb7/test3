@@ -1,0 +1,98 @@
+/*    */ package com.xoa.service.flowhook.Impl;
+/*    */ 
+/*    */ import com.xoa.dao.flowhook.FlowHookMapper;
+/*    */ import com.xoa.dao.workflow.FlowTypeModelMapper;
+/*    */ import com.xoa.model.workflow.FlowDetailInfo;
+/*    */ import com.xoa.model.workflow.FlowHookWithBLOBs;
+/*    */ import com.xoa.model.workflow.FlowTypeModel;
+/*    */ import com.xoa.service.flowhook.FlowHookService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import com.xoa.util.common.StringUtils;
+/*    */ import java.util.List;
+/*    */ import javax.annotation.Resource;
+/*    */ import org.springframework.stereotype.Service;
+/*    */ import org.springframework.transaction.annotation.Transactional;
+/*    */ 
+/*    */ @Service
+/*    */ public class FlowHookServiceImpl
+/*    */   implements FlowHookService
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   private FlowHookMapper flowHookMapper;
+/*    */ 
+/*    */   @Resource
+/*    */   private FlowTypeModelMapper flowTypeModelMapper;
+/*    */ 
+/*    */   @Transactional
+/*    */   public int saveHook(FlowHookWithBLOBs flowHook)
+/*    */   {
+/* 29 */     return this.flowHookMapper.insertSelective(flowHook);
+/*    */   }
+/*    */ 
+/*    */   @Transactional
+/*    */   public int deleteHook(FlowHookWithBLOBs flowHook) {
+/* 35 */     return this.flowHookMapper.deleteByhid(flowHook);
+/*    */   }
+/*    */ 
+/*    */   @Transactional
+/*    */   public int updateHook(FlowHookWithBLOBs flowHook) {
+/* 41 */     return this.flowHookMapper.updateByhidSelective(flowHook);
+/*    */   }
+/*    */ 
+/*    */   public FlowHookWithBLOBs getHookById(FlowHookWithBLOBs flowHook)
+/*    */   {
+/* 46 */     return this.flowHookMapper.selectByhid(flowHook);
+/*    */   }
+/*    */ 
+/*    */   public List<FlowHookWithBLOBs> getHookAll(FlowHookWithBLOBs flowHook)
+/*    */   {
+/* 51 */     List<FlowHookWithBLOBs> flowHookWithBLOBs = this.flowHookMapper.gethookAll(flowHook);
+/* 52 */     for (FlowHookWithBLOBs f : flowHookWithBLOBs) {
+/* 53 */       Integer flowId = f.getFlowId();
+/* 54 */       if (flowId != null) {
+/* 55 */         FlowDetailInfo flowDetailInfo = this.flowTypeModelMapper.selectFlowDetailInfo(flowId);
+/* 56 */         if ((flowDetailInfo != null) && (flowDetailInfo.getFlowName() != null)) {
+/* 57 */           f.setFlowName(flowDetailInfo.getFlowName());
+/*    */         }
+/*    */       }
+/*    */     }
+/* 61 */     return flowHookWithBLOBs;
+/*    */   }
+/*    */ 
+/*    */   public FlowHookWithBLOBs selectByOrderId(FlowHookWithBLOBs flowHookWithBLOBs)
+/*    */   {
+/* 66 */     return this.flowHookMapper.selectByOrderId(flowHookWithBLOBs);
+/*    */   }
+/*    */ 
+/*    */   public FlowHookWithBLOBs selectByName(FlowHookWithBLOBs flowHookWithBLOBs)
+/*    */   {
+/* 71 */     return this.flowHookMapper.selectByName(flowHookWithBLOBs);
+/*    */   }
+/*    */ 
+/*    */   public ToJson<FlowHookWithBLOBs> queryFormId(String folwId)
+/*    */   {
+/* 76 */     ToJson flowHookWithBLOBsToJson = new ToJson();
+/* 77 */     if (StringUtils.checkNull(folwId).booleanValue()) {
+/* 78 */       flowHookWithBLOBsToJson.setFlag(1);
+/* 79 */       flowHookWithBLOBsToJson.setMsg("err");
+/* 80 */       return flowHookWithBLOBsToJson;
+/*    */     }
+/* 82 */     FlowTypeModel flowTypeModel = this.flowTypeModelMapper.queryOneObject(Integer.valueOf(Integer.parseInt(folwId)));
+/* 83 */     if (flowTypeModel != null) {
+/* 84 */       flowHookWithBLOBsToJson.setFlag(0);
+/* 85 */       flowHookWithBLOBsToJson.setMsg("ok");
+/* 86 */       flowHookWithBLOBsToJson.setObject(flowTypeModel);
+/*    */     } else {
+/* 88 */       flowHookWithBLOBsToJson.setFlag(1);
+/* 89 */       flowHookWithBLOBsToJson.setMsg("err");
+/*    */     }
+/*    */ 
+/* 94 */     return flowHookWithBLOBsToJson;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.flowhook.Impl.FlowHookServiceImpl
+ * JD-Core Version:    0.6.0
+ */

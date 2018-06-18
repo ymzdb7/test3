@@ -1,0 +1,192 @@
+ package com.myoa.service.wechat.WeChatComment.impl;
+ 
+ import com.myoa.dao.users.UsersMapper;
+import com.myoa.dao.wechat.WeChatCommentMapper;
+import com.myoa.dao.wechat.WeChatCommentReplyMapper;
+import com.myoa.model.users.Users;
+import com.myoa.model.wechat.WeChatComment;
+import com.myoa.model.wechat.WeChatCommentReply;
+import com.myoa.service.wechat.WeChatComment.WeChatCommentService;
+import com.myoa.util.ToJson;
+import com.myoa.util.page.PageParams;
+
+ import java.io.UnsupportedEncodingException;
+ import java.net.URLDecoder;
+ import java.net.URLEncoder;
+ import java.text.SimpleDateFormat;
+ import java.util.Date;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.regex.Matcher;
+ import java.util.regex.Pattern;
+ import javax.annotation.Resource;
+import org.springframework.stereotype.Service;
+ 
+ @Service
+ public class WeChatCommentServiceImpl
+   implements WeChatCommentService
+ {
+ 
+   @Resource
+   private WeChatCommentMapper weChatCommentMapper;
+ 
+   @Resource
+   private WeChatCommentReplyMapper weChatCommentReplyMapper;
+ 
+   @Resource
+   private UsersMapper usersMapper;
+ 
+   public static String emojiConvert1(String str)
+     throws UnsupportedEncodingException
+   {
+     String patternString = "([\\x{10000}-\\x{10ffff}?-?])";
+ 
+     Pattern pattern = Pattern.compile(patternString);
+ 
+     Matcher matcher = pattern.matcher(str);
+ 
+     StringBuffer sb = new StringBuffer();
+     while (matcher.find()) {
+       try {
+         matcher.appendReplacement(sb, "[[" + URLEncoder.encode(matcher.group(1), "UTF-8") + "]]");
+       }
+       catch (UnsupportedEncodingException e)
+       {
+         e.printStackTrace();
+       }
+     }
+     matcher.appendTail(sb);
+ 
+     return sb.toString();
+   }
+ 
+   public static String emojiRecovery2(String str) throws UnsupportedEncodingException
+   {
+     String patternString = "\\[\\[(.*?)\\]\\]";
+ 
+     Pattern pattern = Pattern.compile(patternString);
+     Matcher matcher = pattern.matcher(str);
+ 
+     StringBuffer sb = new StringBuffer();
+     while (matcher.find()) {
+       try {
+         matcher.appendReplacement(sb, URLDecoder.decode(matcher.group(1), "UTF-8"));
+       }
+       catch (UnsupportedEncodingException e)
+       {
+         e.printStackTrace();
+       }
+     }
+     matcher.appendTail(sb);
+ 
+     return sb.toString();
+   }
+ 
+   public ToJson<WeChatComment> insertWeChatComment(WeChatComment weChatComment, Users user)
+   {
+     ToJson json = new ToJson();
+     try {
+       int uid = user.getUid().intValue();
+       String currentTime = String.valueOf(new Date().getTime() / 1000L);
+       int time = Integer.valueOf(currentTime).intValue();
+       weChatComment.setUid(Integer.valueOf(uid));
+       weChatComment.setsTime(Integer.valueOf(time));
+       String message = emojiConvert1(weChatComment.getMessage());
+       weChatComment.setMessage(message);
+       this.weChatCommentMapper.insertWeChatComment(weChatComment);
+       json.setFlag(0);
+       json.setMsg("ok");
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+       json.setFlag(1);
+       json.setMsg("err");
+     }
+ 
+     return json;
+   }
+ 
+   public ToJson<WeChatComment> selectWeChatCommentByWID(Integer wid, Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+   {
+     ToJson json = new ToJson();
+     PageParams pageParams = new PageParams();
+     pageParams.setPage(page);
+     pageParams.setPageSize(pageSize);
+     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+     maps.put("page", pageParams);
+     WeChatComment selectWeChatComment = new WeChatComment();
+     selectWeChatComment.setWid(wid);
+     maps.put("weChatComment", selectWeChatComment);
+     try {
+       List <WeChatComment>weChatCommentList = this.weChatCommentMapper.selectWeChatCommentByWIDPage(maps);
+       if (weChatCommentList.size() != 0) {
+         for (WeChatComment weChatComment : weChatCommentList) {
+           List <WeChatCommentReply> weChatCommentReplyList = this.weChatCommentReplyMapper.selectWeChatCommentReply(wid, weChatComment.getCid());
+           if (weChatCommentReplyList.size() != 0) {
+             for (WeChatCommentReply weChatCommentReply : weChatCommentReplyList) {
+               Users tUser = this.usersMapper.selectUserByUId(weChatCommentReply.getTid());
+               weChatCommentReply.setToName(tUser.getUserName());
+               weChatCommentReply.setToAvatar(tUser.getAvatar());
+               Users user = this.usersMapper.selectUserByUId(weChatCommentReply.getUid());
+               weChatCommentReply.setUserName(user.getUserName());
+               weChatCommentReply.setUserAvatar(user.getAvatar());
+               int rTime = weChatCommentReply.getrTime().intValue();
+               SimpleDateFormat sformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+               long lTime = new Long(rTime * 1000L).longValue();
+               Date date = new Date(lTime);
+               String newTime = sformat.format(date);
+               weChatCommentReply.setTime(newTime);
+               String rMessage = emojiRecovery2(weChatCommentReply.getMessage());
+               weChatCommentReply.setMessage(rMessage);
+             }
+             weChatComment.setWeChatCommentReplyList(weChatCommentReplyList);
+           }
+           else {
+             weChatComment.setWeChatCommentReplyList(weChatCommentReplyList);
+           }
+           Users user = this.usersMapper.selectUserByUId(weChatComment.getUid());
+           weChatComment.setUserName(user.getUserName());
+           weChatComment.setUserAvatar(user.getAvatar());
+           int rTime = weChatComment.getsTime().intValue();
+           SimpleDateFormat sformat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+           long lTime = new Long(rTime * 1000L).longValue();
+           Date date = new Date(lTime);
+           String newTime = sformat.format(date);
+           weChatComment.setTime(newTime);
+           String cMessage = emojiRecovery2(weChatComment.getMessage());
+           weChatComment.setMessage(cMessage);
+         }
+       }
+ 
+       json.setObj(weChatCommentList);
+       json.setFlag(0);
+       json.setMsg("ok");
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+       json.setFlag(1);
+       json.setMsg("err");
+     }
+     return json;
+   }
+ 
+   public ToJson<WeChatComment> deleteByPrimaryKey(Integer cid) {
+     ToJson json = new ToJson();
+     try {
+       this.weChatCommentMapper.deleteByPrimaryKey(cid);
+       List weChatCommentReplyList = this.weChatCommentReplyMapper.selectWeChatCommentReplyByCID(cid);
+       if (weChatCommentReplyList.size() != 0) {
+         this.weChatCommentReplyMapper.deleteWeChatCommentReplyByCID(cid);
+       }
+       json.setFlag(0);
+       json.setMsg("ok");
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+       json.setFlag(1);
+       json.setMsg("err");
+     }
+     return json;
+   }
+ }
+

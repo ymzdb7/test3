@@ -1,0 +1,593 @@
+/*     */ package com.xoa.controller.work;
+/*     */ 
+/*     */ import com.xoa.dao.workflow.FlowRunMapper;
+/*     */ import com.xoa.dao.workflow.FlowRunPrcsMapper;
+/*     */ import com.xoa.model.enclosure.Attachment;
+/*     */ import com.xoa.model.flowRunFeedback.FlowRunFeedback;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.workflow.FlowFast;
+/*     */ import com.xoa.model.workflow.FlowRunPrcs;
+/*     */ import com.xoa.service.ThreadSerivice.ThreadService;
+/*     */ import com.xoa.service.WFE.WFERunner.WFEFlowRun;
+/*     */ import com.xoa.service.WFE.WFERunner.WFEFlowRunInfo;
+/*     */ import com.xoa.service.WFE.WFERunner.WFEFlowRunPrcs;
+/*     */ import com.xoa.service.WFE.WFERunner.WFERunner;
+/*     */ import com.xoa.service.sms.SmsService;
+/*     */ import com.xoa.service.syspara.SysParaService;
+/*     */ import com.xoa.service.work.WorkService;
+/*     */ import com.xoa.service.workflow.flowtype.FlowRunPrcsService;
+/*     */ import com.xoa.util.AjaxJson;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/workflow/work"})
+/*     */ public class WorkController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowRunPrcsService flowRunPrcsService;
+/*     */ 
+/*     */   @Resource
+/*     */   private WorkService workService;
+/*     */ 
+/*     */   @Resource
+/*     */   private SmsService smsService;
+/*     */ 
+/*     */   @Resource
+/*     */   private SysParaService sysParaService;
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowRunMapper flowRunMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   protected WFERunner wfeRunner;
+/*     */ 
+/*     */   @Resource
+/*     */   private WFEFlowRun wfeFlowRun;
+/*     */ 
+/*     */   @Resource
+/*     */   private WFEFlowRunPrcs wfeFlowRunPrcs;
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowRunPrcsMapper flowRunPrcsMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private ThreadService threadService;
+/*     */ 
+/*     */   @RequestMapping({"addwork"})
+/*     */   public String work(HttpServletRequest request)
+/*     */   {
+/*  80 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  82 */     return "app/workflow/work/add_work";
+/*     */   }
+/*  86 */   @RequestMapping({"workformh5"})
+/*     */   public String workformh5(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  88 */     return "app/workflow/work/workformh5"; } 
+/*     */   @RequestMapping({"zhuanjiaoh5"})
+/*     */   public String zhuanjiaoh5(HttpServletRequest request) {
+/*  92 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  94 */     return "app/workflow/work/zhuanjiaoh5";
+/*     */   }
+/*  98 */   @RequestMapping({"workformh5PreView"})
+/*     */   public String workformh5PreView(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 100 */     return "app/workflow/work/workformh5PreView"; } 
+/*     */   @RequestMapping({"turnh5"})
+/*     */   public String turnh5(HttpServletRequest request) {
+/* 104 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 106 */     return "app/workflow/work/turnh5"; } 
+/* 109 */   @RequestMapping({"feedback"})
+/*     */   public String feedback(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 111 */     return "app/workflow/work/feedback"; } 
+/*     */   @RequestMapping({"newflowguider"})
+/*     */   public String addflowGuider(HttpServletRequest request) {
+/* 115 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 117 */     return "app/workflow/work/newFlowGuider";
+/*     */   }
+/* 121 */   @RequestMapping({"workList"})
+/*     */   public String workList(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 123 */     return "app/workflow/work/workList"; } 
+/*     */   @RequestMapping({"waitwork"})
+/*     */   public String waitwork(HttpServletRequest request) {
+/* 127 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 129 */     return "app/workflow/work/waitwork";
+/*     */   }
+/* 133 */   @RequestMapping({"endwork"})
+/*     */   public String endwork(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 135 */     return "app/workflow/work/endwork"; } 
+/*     */   @RequestMapping({"allwork"})
+/*     */   public String allwork(HttpServletRequest request) {
+/* 139 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 141 */     return "app/workflow/work/allwork";
+/*     */   }
+/* 145 */   @RequestMapping({"workform"})
+/*     */   public String workform(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 147 */     return "app/workflow/work/workform"; }
+/*     */ 
+/*     */   @RequestMapping({"workform1"})
+/*     */   public String workform1(HttpServletRequest request) {
+/* 152 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 154 */     return "app/workflow/work/workform1";
+/*     */   }
+/* 158 */   @RequestMapping({"workformPreView"})
+/*     */   public String workformPreView(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 160 */     return "app/workflow/work/workformPreView"; }
+/*     */ 
+/*     */   @RequestMapping({"notifyWork"})
+/*     */   public String notifyWork(HttpServletRequest request) {
+/* 165 */     return "app/workflow/work/notifyWork";
+/*     */   }
+/*     */   @RequestMapping({"workDelegate"})
+/*     */   public String workDelegate(HttpServletRequest request) {
+/* 170 */     return "app/workflow/work/workDelegate";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/automaticNumbering"})
+/*     */   public String automaticNumbering() {
+/* 176 */     return "app/workflow/work/automaticNumbering";
+/*     */   }
+/* 180 */   @RequestMapping({"/automaticNumberingOne"})
+/*     */   public String automaticNumberingOne() { return "app/workflow/work/automaticNumberingOne"; } 
+/*     */   @RequestMapping({"/numberingAdminister"})
+/*     */   public String numberingAdminister() {
+/* 184 */     return "app/workflow/work/numberingAdminister";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/businessApplications"})
+/*     */   public String businessApplications(HttpServletRequest request)
+/*     */   {
+/* 192 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 193 */     if (!this.sysParaService.checkIsHaveSecure(user, Integer.valueOf(5))) {
+/* 194 */       return "app/common/development";
+/*     */     }
+/* 196 */     return "app/workflow/work/businessApplications";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"workfastAdd"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowFast> fastAdd(HttpServletRequest request, Integer flowId, @RequestParam(value="flowStep", required=false) Integer prcsId, @RequestParam(value="prcsId", required=false) String flowProcs, @RequestParam(value="runId", required=false) String id, @RequestParam(value="runName", required=false) String runName, @RequestParam(value="preView", required=false) String preView)
+/*     */   {
+/* 221 */     String tableName = request.getParameter("tableName");
+/* 222 */     String tabId = request.getParameter("tabId");
+/* 223 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 224 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 226 */     this.threadService.addNewworkFastAdd(user, flowId.intValue(), prcsId.intValue(), flowProcs, id, tableName, tabId, sqlType);
+/* 227 */     return this.wfeRunner.getWfeFlowRunInfo().workFastAdd(user, flowId.intValue(), prcsId.intValue(), flowProcs, id, request, sqlType, runName, preView);
+/*     */   }
+/* 233 */   @RequestMapping({"createGuide"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson createGuide(String flowId, HttpServletRequest request) { Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 234 */     return this.wfeRunner.getWfeFlowRunInfo().createGuide(flowId, user, request);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"nextwork"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowFast> nextwork(HttpServletRequest request, @RequestParam(value="flowId", required=false) String flowId, @RequestParam(value="formdata", required=false) String formdata, @RequestParam(value="modifydata", required=false) String modifydata, @RequestParam(value="formLength", required=false) String formlength, @RequestParam(value="runId", required=false) int runId, @RequestParam(value="runName", required=false) String runName, @RequestParam(value="beginTime", required=false) String beginTime, @RequestParam(value="beginUser", required=false) String beginUser, @RequestParam(value="prcsId", required=false) String prcsId, @RequestParam(value="fromDataReject", required=false) String fromDateReject, @RequestParam(value="tableName", required=false) String tableName, @RequestParam(value="tabId", required=false) String tabId, @RequestParam(value="flowPrcs", required=false) String flowPrcs)
+/*     */   {
+/* 272 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 285 */     return this.wfeRunner.getWfeFlowRunInfo().nextwork(flowId, formdata, modifydata, formlength, runId, runName, beginTime, beginUser, sqlType, prcsId, fromDateReject, tableName, tabId, flowPrcs, request);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"saveWork"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowRunPrcs> savework(HttpServletRequest request, @RequestParam(value="runId", required=false) String runId, @RequestParam(value="runName", required=false) String runName, @RequestParam(value="flowId", required=false) String flowId, @RequestParam(value="prcsId", required=false) String prcsId, @RequestParam(value="prcsflag", required=false) String prcsFlag, @RequestParam(value="flowPrcs", required=false) String flowPrcs, @RequestParam(value="beginTime", required=false) String beginTime, @RequestParam(value="beginUser", required=false) String beginUser, @RequestParam(value="jingbanUser", required=false) String jingbanUser, @RequestParam(value="currentPrcsId", required=false) String currentPrcsId, @RequestParam(value="orgAdd", required=false) String orgadd, @RequestParam(value="viewUser", required=false) String viewUser, @RequestParam(value="smsContent", required=false) String smsContent, @RequestParam(value="smsType", required=false) String smsType, @RequestParam(value="tableName", required=false) String tableName, @RequestParam(value="tabId", required=false) String tabId, @RequestParam(value="flowStep", required=false) String flowStep)
+/*     */   {
+/* 329 */     String tuisong = request.getParameter("tuisong");
+/* 330 */     String topDefault = request.getParameter("topDefault");
+/* 331 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 332 */     this.workService.todoWorkSmsBoby(beginUser, flowPrcs, tableName, runId, runName, flowId, prcsId, currentPrcsId, tabId, flowStep, smsContent, request, smsType, user, orgadd, jingbanUser, viewUser);
+/*     */ 
+/* 335 */     String smsUrl = "/workflow/work/workform?opflag=1&flowId=" + Integer.valueOf(flowId) + "&flowStep=" + flowStep + "&runId=" + runId + "&prcsId=" + currentPrcsId;
+/* 336 */     if ("document".equals(tableName)) {
+/* 337 */       smsUrl = "/workflow/work/workform?opflag=1&flowId=" + flowId + "&flowStep=" + flowStep + "&tableName=" + tableName + "&tabId=" + tabId + "&runId=" + runId + "&prcsId=" + currentPrcsId + "&isNomalType=false";
+/* 338 */       this.smsService.updatequerySmsByType("70", user.getUserId(), smsUrl.trim());
+/*     */     } else {
+/* 340 */       this.smsService.updatequerySmsByType("7", user.getUserId(), smsUrl.trim());
+/*     */     }
+/* 342 */     return this.wfeRunner.getWfeFlowRunInfo().savework(runId, runName, flowId, prcsId, prcsFlag, flowPrcs, beginTime, beginUser, jingbanUser, viewUser, user, currentPrcsId, topDefault);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"selectFlowData"})
+/*     */   @ResponseBody
+/*     */   public Map<String, Object> fastAdd(HttpServletRequest request, @RequestParam(value="runId", required=false) String runId, @RequestParam(value="flowId", required=false) String flowId)
+/*     */   {
+/* 360 */     return this.wfeRunner.getWfeFlowRunInfo().fastAdd(runId, flowId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"workUpload"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   @ResponseBody
+/*     */   public ToJson<Attachment> workUpload(@RequestParam(value="file", required=false) MultipartFile[] files, String module, String runId, HttpServletRequest request)
+/*     */   {
+/* 376 */     String company = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 378 */     return this.wfeRunner.getWfeFlowRunInfo().workUpload(files, company, module, runId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"findworkUpload"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   @ResponseBody
+/*     */   public ToJson<Attachment> findworkUpload(HttpServletRequest request, String runId)
+/*     */   {
+/* 392 */     String company = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 394 */     if (StringUtils.checkNull(company).booleanValue()) {
+/* 395 */       company = "xoa1001";
+/*     */     }
+/* 397 */     String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/* 398 */     return this.wfeRunner.getWfeFlowRunInfo().findworkUpload(runId, company);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"workfeedback"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowRunFeedback> workfeedback(String content, String runId, String prcsId, String flowPrcs, HttpServletRequest request)
+/*     */   {
+/* 417 */     String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/* 418 */     return this.wfeRunner.getWfeFlowRunInfo().workfeedback(content, runId, prcsId, flowPrcs, userId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"findworkfeedback"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   @ResponseBody
+/*     */   public AjaxJson findworkfeedback(HttpServletRequest request, String runId, String prcsId, String flowPrcs, String signlock)
+/*     */   {
+/* 434 */     String company = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 436 */     String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/* 437 */     return this.wfeRunner.getWfeFlowRunInfo().findworkfeedback(runId, prcsId, flowPrcs, userId, company, signlock);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"findbranch"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   @ResponseBody
+/*     */   public AjaxJson findBranch(HttpServletRequest request, String flowId, String runId, String flowPrcs)
+/*     */   {
+/* 453 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 454 */     String currentFlowPrcs = request.getParameter("currentFlowPrcs");
+/* 455 */     return this.wfeRunner.getWfeFlowRunInfo().findBranch(flowId, runId, flowPrcs, currentFlowPrcs, user);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"deletework"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   @ResponseBody
+/*     */   public ToJson delete(String runId, @RequestParam("AID") String aid, @RequestParam("MODULE") String module, @RequestParam("YM") String ym, @RequestParam("ATTACHMENT_ID") String attachmentId, @RequestParam("ATTACHMENT_NAME") String attachmentName, @RequestParam("COMPANY") String company, HttpServletResponse response, HttpServletRequest request)
+/*     */   {
+/* 483 */     return this.wfeRunner.getWfeFlowRunInfo().delete(runId, aid, module, ym, attachmentId, attachmentName, company, response, request);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"getflowprcsdata"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowRunPrcs> getflowprcsdata(String allowBack, String runId, String prcsId, HttpServletRequest request)
+/*     */   {
+/* 499 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 500 */     return this.wfeRunner.getWfeFlowRunInfo().getflowprcsdata(allowBack, runId, prcsId, user.getUserId());
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"insertprcsdata"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   @ResponseBody
+/*     */   public AjaxJson insertprcsdata(String runId, String flowStep, String prcsId, String flowPrcs, String feedback, HttpServletRequest request)
+/*     */   {
+/* 517 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 518 */     return this.wfeRunner.getWfeFlowRunInfo().insertprcsdata(runId, flowStep, prcsId, flowPrcs, user, feedback);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"selectWork"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowRunPrcs> selectObject(FlowRunPrcs flowRunPrcs, HttpServletRequest request, @RequestParam(value="page", required=false) Integer page, @RequestParam(value="pageSize", required=false) Integer pageSize, @RequestParam(value="useFlag", required=false) boolean useFlag)
+/*     */   {
+/* 537 */     Map maps = new HashMap();
+/* 538 */     if (StringUtils.checkNull(flowRunPrcs.getUserId()).booleanValue()) {
+/* 539 */       String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/* 540 */       maps.put("userId", userId);
+/*     */     } else {
+/* 542 */       maps.put("userId", flowRunPrcs.getUserId());
+/*     */     }
+/* 544 */     if (!StringUtils.checkNull(flowRunPrcs.getMyworkconditions()).booleanValue()) {
+/* 545 */       maps.put("myworkconditions", flowRunPrcs.getMyworkconditions());
+/*     */     }
+/* 547 */     return this.wfeRunner.getWfeFlowRunPrcs().selectObject(maps, page, pageSize, useFlag);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"selectEndWord"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowRunPrcs> selectEnd(FlowRunPrcs flowRunPrcs, HttpServletRequest request, @RequestParam(value="page", required=false) Integer page, @RequestParam(value="pageSize", required=false) Integer pageSize, @RequestParam(value="useFlag", required=false) boolean useFlag)
+/*     */   {
+/* 565 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 567 */     Map maps = new HashMap();
+/* 568 */     if (StringUtils.checkNull(flowRunPrcs.getUserId()).booleanValue()) {
+/* 569 */       String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/* 570 */       maps.put("userId", userId);
+/*     */     } else {
+/* 572 */       maps.put("userId", flowRunPrcs.getUserId());
+/*     */     }
+/* 574 */     if (!StringUtils.checkNull(flowRunPrcs.getMyworkconditions()).booleanValue()) {
+/* 575 */       maps.put("myworkconditions", flowRunPrcs.getMyworkconditions());
+/*     */     }
+/* 577 */     return this.wfeRunner.getWfeFlowRunPrcs().selectEnd(maps, page, pageSize, useFlag);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"selectHang"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowRunPrcs> selectEndHang(FlowRunPrcs flowRunPrcs, HttpServletRequest request, @RequestParam(value="page", required=false) Integer page, @RequestParam(value="pageSize", required=false) Integer pageSize, @RequestParam(value="useFlag", required=false) boolean useFlag)
+/*     */   {
+/* 594 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 596 */     Map maps = new HashMap();
+/* 597 */     if (StringUtils.checkNull(flowRunPrcs.getUserId()).booleanValue()) {
+/* 598 */       String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/* 599 */       maps.put("userId", userId);
+/*     */     } else {
+/* 601 */       maps.put("userId", flowRunPrcs.getUserId());
+/*     */     }
+/* 603 */     if (!StringUtils.checkNull(flowRunPrcs.getMyworkconditions()).booleanValue()) {
+/* 604 */       maps.put("myworkconditions", flowRunPrcs.getMyworkconditions());
+/*     */     }
+/* 606 */     return this.wfeRunner.getWfeFlowRunPrcs().selectHang(maps, page, pageSize, useFlag);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"selectAll"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowRunPrcs> selectAll(FlowRunPrcs flowRunPrcs, HttpServletRequest request, @RequestParam(value="page", required=false) Integer page, @RequestParam(value="pageSize", required=false) Integer pageSize, @RequestParam(value="useFlag", required=false) boolean useFlag)
+/*     */   {
+/* 625 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 627 */     Map maps = new HashMap();
+/* 628 */     if (StringUtils.checkNull(flowRunPrcs.getUserId()).booleanValue()) {
+/* 629 */       String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/* 630 */       maps.put("userId", userId);
+/*     */     } else {
+/* 632 */       maps.put("userId", flowRunPrcs.getUserId());
+/*     */     }
+/* 634 */     if (!StringUtils.checkNull(flowRunPrcs.getMyworkconditions()).booleanValue()) {
+/* 635 */       maps.put("myworkconditions", flowRunPrcs.getMyworkconditions());
+/*     */     }
+/* 637 */     return this.wfeRunner.getWfeFlowRunPrcs().selectAll(maps, page, pageSize, useFlag);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"deleteRunPrcs"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowRunPrcs> deleteRunPrcs(FlowRunPrcs flowRunPrcs, HttpServletRequest request)
+/*     */   {
+/* 650 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 652 */     if (StringUtils.checkNull(flowRunPrcs.getUserId()).booleanValue()) {
+/* 653 */       String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/* 654 */       flowRunPrcs.setUserId(userId);
+/*     */     }
+/* 656 */     return this.wfeRunner.getWfeFlowRunPrcs().deleteRunPrcs(flowRunPrcs);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"procseeDesign"})
+/*     */   public String procseeDesign(HttpServletRequest request)
+/*     */   {
+/* 680 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 682 */     return "app/workflow/work/procseeDesign";
+/*     */   }
+/* 686 */   @RequestMapping({"processSpeak"})
+/*     */   public String processSpeak(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 688 */     return "app/workflow/work/processSpeak";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"exportFlowRun"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowFast> exportFlowRun(HttpServletRequest request, Integer flowId, @RequestParam(value="flowStep", required=false) Integer prcsId, @RequestParam(value="prcsId", required=false) String flowProcs, @RequestParam(value="runId", required=false) String id, @RequestParam(value="runName", required=false) String runName)
+/*     */   {
+/* 701 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 702 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 705 */     return this.wfeRunner.getWfeFlowRunInfo().workFastAdd(user, flowId.intValue(), prcsId.intValue(), flowProcs, id, request, sqlType, runName, null);
+/*     */   }
+/*     */   @RequestMapping({"/exportExcel"})
+/*     */   @ResponseBody
+/*     */   public void exportExcel(HttpServletRequest request, HttpServletResponse response) {
+/* 712 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/* 714 */     String type = request.getParameter("type");
+/* 715 */     this.wfeRunner.getWfeFlowRunInfo().exportExcel(user, type, response);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/entrust"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowRunPrcs> entrust(String runId, String prcsId, String toId, String flowPrcs, String opFlag, HttpServletRequest request)
+/*     */   {
+/* 729 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 730 */     return this.wfeRunner.getWfeFlowRunInfo().entrust(runId, prcsId, toId, flowPrcs, opFlag, user);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"entrustWork"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   @ResponseBody
+/*     */   public AjaxJson entrustWork(FlowRunPrcs flowRunPrcs, HttpServletRequest request, @RequestParam(value="page", required=false) Integer page, @RequestParam(value="pageSize", required=false) Integer pageSize, @RequestParam(value="useFlag", required=false) boolean useFlag)
+/*     */   {
+/* 743 */     Map maps = new HashMap();
+/* 744 */     if (StringUtils.checkNull(flowRunPrcs.getUserId()).booleanValue()) {
+/* 745 */       String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/* 746 */       maps.put("userId", userId);
+/*     */     } else {
+/* 748 */       maps.put("userId", flowRunPrcs.getUserId());
+/*     */     }
+/* 750 */     if (!StringUtils.checkNull(flowRunPrcs.getMyworkconditions()).booleanValue()) {
+/* 751 */       maps.put("myworkconditions", flowRunPrcs.getMyworkconditions());
+/*     */     }
+/* 753 */     return this.wfeRunner.getWfeFlowRunPrcs().entrustWork(maps, page, pageSize, useFlag);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"monitoring"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson monitoring(@RequestParam(value="runName", required=false) String runName, @RequestParam(value="runId", required=false) Integer runId, @RequestParam(value="flowName", required=false) String flowName, @RequestParam(value="workLevel", required=false) String workLevel, @RequestParam(value="userId", required=false) String userId, @RequestParam(value="status", required=false) String status, @RequestParam(value="flowId", required=false) String flowId, @RequestParam(value="page", required=false) Integer page, @RequestParam(value="pageSize", required=false) Integer pageSize, @RequestParam(value="useFlag", required=false) boolean useFlag, @RequestParam(value="output", required=false) String output, HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/* 773 */     Map maps = new HashMap();
+/* 774 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 775 */     maps.put("runName", runName);
+/* 776 */     maps.put("runId", runId);
+/* 777 */     maps.put("flowName", flowName);
+/* 778 */     maps.put("workLevel", workLevel);
+/* 779 */     if ((!StringUtils.checkNull(userId).booleanValue()) && (userId.contains(",")))
+/* 780 */       maps.put("userId", userId.substring(0, userId.length() - 1));
+/*     */     else {
+/* 782 */       maps.put("userId", userId);
+/*     */     }
+/* 784 */     maps.put("status", status);
+/* 785 */     maps.put("flowId", flowId);
+/* 786 */     maps.put("currentUid", user.getUid());
+/* 787 */     return this.wfeRunner.getWfeFlowRunPrcs().monitoring(maps, page, pageSize, useFlag, output, request, response);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"workMonitoring"})
+/*     */   public String workMonitoring(HttpServletRequest request) {
+/* 793 */     return "app/workflow/work/workMonitor";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"workAttention"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson workAttention(HttpServletRequest request, @RequestParam(value="runId", required=false) Integer runId, @RequestParam(value="userId", required=false) String userId, @RequestParam(value="status", required=false) String status)
+/*     */   {
+/* 803 */     return this.wfeRunner.getWfeFlowRunInfo().workAttention(runId, userId, status);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"worDelete"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson worDelete(HttpServletRequest request, @RequestParam(value="runId", required=false) Integer runId, @RequestParam(value="status", required=false) String status)
+/*     */   {
+/* 813 */     return this.wfeRunner.getWfeFlowRunInfo().worDelete(runId, status);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"saveHandle"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson saveHandle(HttpServletRequest request, @RequestParam(value="runId", required=false) int runId, @RequestParam(value="prcsId", required=false) String prcsId, @RequestParam(value="flowPrcs", required=false) String flowPrcs)
+/*     */   {
+/* 830 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 832 */     String flowId = request.getParameter("flowId");
+/* 833 */     String tableName = request.getParameter("tableName");
+/* 834 */     String tabId = request.getParameter("tabId");
+/* 835 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 836 */     this.threadService.add0pflagNewWorkFastAdd(user, Integer.parseInt(flowId), Integer.parseInt(prcsId), flowPrcs, String.valueOf(runId), tableName, tabId, sqlType);
+/* 837 */     return this.wfeRunner.getWfeFlowRunInfo().saveHandle(Integer.valueOf(runId), prcsId, flowPrcs, user);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"entrustUser"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowRunPrcs> entrust(FlowRunPrcs flowRunPrcs, String entrstUser)
+/*     */   {
+/* 857 */     return this.flowRunPrcsService.entrust(flowRunPrcs, entrstUser);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"updateState"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> updateState(String flag, String runId, @RequestParam(value="prcsId", required=false) String prcsId, @RequestParam(value="userId", required=false) String userId, @RequestParam(value="flowPrcs", required=false) String flowPrcs, @RequestParam(value="prcsFlag", required=false) String prcsFlag)
+/*     */   {
+/* 876 */     ToJson tojson = new ToJson(1, "error");
+/*     */     try {
+/* 878 */       int count = 0;
+/* 879 */       Map map = new HashMap();
+/* 880 */       if ("1".equals(flag)) {
+/* 881 */         map.put("endTime", new Date());
+/* 882 */         map.put("delFlag", Integer.valueOf(1));
+/* 883 */         map.put("runId", runId);
+/* 884 */         count += this.wfeFlowRun.updateState(map);
+/* 885 */         this.smsService.querySmsByTypeUpdateRunId("7", runId);
+/*     */       } else {
+/* 887 */         map.put("prcsFlag", "4");
+/* 888 */         map.put("deliverTime", new Date());
+/* 889 */         map.put("endTime", new Date());
+/* 890 */         String[] runIdArr = runId.split(",");
+/* 891 */         String[] prcsIdArr = prcsId.split(",");
+/* 892 */         String[] prcsFlagArr = prcsFlag.split(",");
+/* 893 */         String[] flowPrcsArr = flowPrcs.split(",");
+/* 894 */         String[] userIdArr = userId.split(",");
+/* 895 */         for (int i = 0; i < runIdArr.length; i++) {
+/* 896 */           map.put("runId", runIdArr[i]);
+/* 897 */           map.put("forceOver", prcsIdArr[i] + "`" + prcsFlagArr[i] + "`" + flowPrcsArr[i] + "`" + userIdArr[i]);
+/* 898 */           count += this.wfeFlowRunPrcs.updateEnd(map);
+/*     */         }
+/*     */       }
+/* 901 */       if (count > 0) {
+/* 902 */         tojson.setFlag(0);
+/* 903 */         tojson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 906 */       e.printStackTrace();
+/*     */     }
+/* 908 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"reminders"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> reminders(Integer id, String userId, String flowPrcs, String runId, String runName, String flowId, String prcsId, String smsContent, HttpServletRequest request)
+/*     */   {
+/* 923 */     ToJson tojson = new ToJson(1, "error");
+/*     */     try {
+/* 925 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 926 */       this.workService.todoWorkSmsBoby(userId, flowPrcs, null, runId, runName, flowId, prcsId, null, null, null, smsContent, request, "2", user, null, "", "");
+/* 927 */       FlowRunPrcs flowRunPrcs = this.flowRunPrcsMapper.selectByPrimaryKey(id);
+/* 928 */       flowRunPrcs.setIsRemind(Integer.valueOf(1));
+/* 929 */       if (StringUtils.checkNull(flowRunPrcs.getDeliverTime()).booleanValue()) {
+/* 930 */         flowRunPrcs.setDeliverTime("0000-00-00 00:00:00");
+/*     */       }
+/* 932 */       int count = this.flowRunPrcsMapper.upPrcsById(flowRunPrcs);
+/* 933 */       if (count > 0) {
+/* 934 */         tojson.setFlag(0);
+/* 935 */         tojson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 938 */       e.printStackTrace();
+/*     */     }
+/* 940 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"resumeExe"})
+/*     */   @ResponseBody
+/*     */   public ToJson resumeExe(Integer runId, Integer id)
+/*     */   {
+/* 954 */     return this.flowRunPrcsService.resumeExe(runId, id);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"workBack"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson workBack(Integer prcsId, Integer flowPrcs, String runId, String userId)
+/*     */   {
+/* 964 */     return this.wfeFlowRunPrcs.workBack(prcsId, flowPrcs, runId, userId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"remindSteps"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson remindSteps(Integer prcsId, String runId)
+/*     */   {
+/* 973 */     return this.wfeFlowRunPrcs.remindSteps(prcsId, runId);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.work.WorkController
+ * JD-Core Version:    0.6.0
+ */

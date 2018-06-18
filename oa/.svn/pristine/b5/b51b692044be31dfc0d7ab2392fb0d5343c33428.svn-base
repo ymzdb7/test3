@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>宏标记</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >
+    <link rel="stylesheet" href="../formdesign/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="../../../css/ueditor/site.css">
+    <script type="text/javascript" src="../dialogs/internal.js"></script>
+    <script type="text/javascript" src="../../../js/jquery/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="../../../js/base/base.js"></script>
+    <script type="text/javascript">
+        function createElement(type, name)
+        {
+            var element = null;
+            try {
+                element = document.createElement('<'+type+' name="'+name+'">');
+            } catch (e) {}
+            if(element==null) {
+                element = document.createElement(type);
+                element.name = name;
+            }
+            return element;
+        }
+    </script>
+</head>
+<body>
+<div class="content">
+    <table class="table table-bordered table-striped table-hover">
+        <tbody id='itemAttr'>
+        <tr>
+            <th><span>控件名称</span><span class="label label-important">*</span></th>
+            <th><span>类型</span></th>
+        </tr>
+        <tr>
+            <td>
+                <input id="orgname" type="text" placeholder="必填项"/>
+            </td>
+            <td>
+                <select  id="datafld" class="">
+
+                        <option value="SYS_FLOW_FORMNAME">表单名称</option>
+                        <option value="SYS_FLOW_FLOWNAME">流程名称</option>
+                        <option value="SYS_FLOW_STARTTIME">流程开始时间</option>
+                        <option value="SYS_FLOW_ENDTIME">流程结束时间</option>
+                        <option value="SYS_FLOW_RUNID">流水号</option>
+                        <option value="SYS_FLOW_BEGINNAME">流程发起人姓名</option>
+                        <option value="SYS_FLOW_BEGINID">流程发起人ID</option>
+                        <option value="SYS_FLOW_SIGNTEXT">会签意见</option>
+                </select>
+            </td>
+        </tr>
+
+
+        <tr>
+            <th colspan="2"><span>控件样式</span></th>
+            <!--<th><span>可见性</span></th>-->
+        </tr>
+        <tr>
+            <td colspan="2">
+                宽 <input id="orgwidth" type="text" value="150" class="input-small span1" placeholder="auto"/> px
+                &nbsp;&nbsp;
+                高 <input id="orgheight" type="text" value="30" class="input-small span1" placeholder="auto"/> px
+                &nbsp;&nbsp;
+                字体大小 <input id="orgfontsize" type="text" value="" class="input-small span1" placeholder="auto"/> px
+
+            </td>
+            <!--<td>-->
+                <!--<label class="checkbox"> <input id="orghide" type="checkbox"> 隐藏 </label>-->
+            <!--</td>-->
+        </tr>
+        </tbody>
+
+    </table>
+</div>
+<script type="text/javascript">
+    $(function () {
+
+        var oNode = null,thePlugins = 'macrossign';
+        var dataid = $.getQueryString('dataid');
+        var dataNumber=parent.pluginId;
+        if( UE.plugins[thePlugins].editdom ) {
+            oNode = UE.plugins[thePlugins].editdom;
+            var gTitle=oNode.getAttribute('title').replace(/&quot;/g,"\""),
+                gHeight=oNode.getAttribute('orgheight'),
+                gFontSize=oNode.getAttribute('orgfontsize'),
+                gWidth=oNode.getAttribute('orgwidth'),
+                gType=oNode.getAttribute('datafld');
+            gTitle = gTitle==null ? '' : gTitle;
+            $G('orgname').value = gTitle;
+//            if(oNode.getAttribute('orghide')=='1'){
+//                $G('orghide').checked = true;
+//            }
+            $G('orgname').value    = gTitle;
+            $G('datafld').value    = gType;
+            $G('orgwidth').value = gWidth;
+            $G('orgfontsize').value = gFontSize;
+            $G('orgheight').value = gHeight;
+        }
+        dialog.oncancel = function () {
+            if( UE.plugins[thePlugins].editdom ) {
+                delete UE.plugins[thePlugins].editdom;
+            }
+        };
+        dialog.onok = function (){
+            if ( $G('orgname').value == '' ) {
+                alert('控件名称不能为空');
+                return false;
+            }
+            var gTitle=$G('orgname').value.replace(/\"/g,"&quot;"),gFontSize=$G('orgfontsize').value,gWidth=$G('orgwidth').value,gType=$G('datafld').value,gHeight=$G('orgheight').value;
+            if( !oNode ) {
+                try {
+                    /*
+                     if ( $G('datafld').value.indexOf('sys_list')>0 ) {
+                     oNode = document.createElement("select");
+                     var objOption = new Option('{macros}', '');
+                     oNode.options[oNode.options.length] = objOption;
+                     } else {
+                     //input
+                     }*/
+                    oNode = createElement('input','leipiNewField');
+                    oNode.setAttribute('type','text');
+                    oNode.setAttribute('value','{macros}');
+                    oNode.setAttribute('class', "macrossign  form_item ");
+                    oNode.setAttribute('data-type', "macrossign");
+                    oNode.setAttribute('title',gTitle);
+                    oNode.setAttribute('name','DATA_'+dataNumber);
+                    oNode.setAttribute('id','DATA_'+dataNumber);
+                    oNode.setAttribute('datafld',gType);
+//                    if( $G('orghide').checked ) {
+//                        oNode.setAttribute('orghide', '1' ) ;
+//                    } else {
+//                        oNode.setAttribute('orghide', '0' ) ;
+//                    }
+                    if( gFontSize != '' ) {
+                        oNode.style.fontSize = gFontSize + 'px';
+                        oNode.setAttribute('orgfontsize',gFontSize );
+                    }
+                    if( gWidth != '' ) {
+                        oNode.style.width = gWidth + 'px';
+                        oNode.setAttribute('orgwidth',gWidth );
+                    }
+                    if( gHeight != '' ) {
+                        oNode.style.height = gHeight + 'px';
+                        oNode.setAttribute('orgheight',gHeight );
+                    }
+                    editor.execCommand('insertHtml',oNode.outerHTML);
+                    return true;
+                } catch ( e ) {
+                    try {
+                        editor.execCommand('error');
+                    } catch ( e ) {
+                        alert(控件异常);
+                    }
+                    return false;
+                }
+            } else {
+               
+                oNode.setAttribute('type','text');
+                oNode.setAttribute('value','{macros}');
+                oNode.setAttribute('class', "macrossign  form_item ");
+                oNode.setAttribute('data-type', "macrossign");
+                oNode.setAttribute('title',gTitle);
+                oNode.setAttribute('name','DATA_'+dataid);
+                oNode.setAttribute('id','DATA_'+dataid);
+                oNode.setAttribute('datafld',gType);
+//                if( $G('orghide').checked ) {
+//                    oNode.setAttribute('orghide', '1' ) ;
+//                } else {
+//                    oNode.setAttribute('orghide', '0' ) ;
+//                }
+                if( gFontSize != '' ) {
+                    oNode.style.fontSize = gFontSize + 'px';
+                    oNode.setAttribute('orgfontsize',gFontSize );
+                }else{
+                    oNode.setAttribute('orgfontsize', '');
+                }
+                if( gWidth != '' ) {
+                    oNode.style.width = gWidth + 'px';
+                    oNode.setAttribute('orgwidth',gWidth );
+                }else{
+                    oNode.setAttribute('orgwidth', '');
+                }
+                if( gHeight != '' ) {
+                    oNode.style.height = gHeight + 'px';
+                    oNode.setAttribute('orgheight',gHeight );
+                }else{
+                    oNode.setAttribute('orgheight', '');
+                }
+                delete UE.plugins[thePlugins].editdom;
+            }
+        };
+
+    });
+
+</script>
+</body>
+</html>

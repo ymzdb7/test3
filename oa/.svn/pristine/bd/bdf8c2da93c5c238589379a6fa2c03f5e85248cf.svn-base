@@ -1,0 +1,61 @@
+package com.xoa.dao.sys;
+
+import com.xoa.model.sys.Seal;
+import com.xoa.model.sys.SealExample;
+import com.xoa.model.sys.SealWithBLOBs;
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface SealMapper {
+	public abstract int countByExample(SealExample paramSealExample);
+
+	public abstract int deleteByExample(SealExample paramSealExample);
+
+	public abstract int deleteByPrimaryKey(Integer paramInteger);
+
+	public abstract int insert(SealWithBLOBs paramSealWithBLOBs);
+
+	public abstract int insertSelective(SealWithBLOBs paramSealWithBLOBs);
+
+	public abstract List<SealWithBLOBs> selectByExampleWithBLOBs(
+			SealExample paramSealExample);
+
+	public abstract List<Seal> selectByExample(SealExample paramSealExample);
+
+	public abstract SealWithBLOBs selectByPrimaryKey(Integer paramInteger);
+
+	public abstract int updateByExampleSelective(
+			@Param("record") SealWithBLOBs paramSealWithBLOBs,
+			@Param("example") SealExample paramSealExample);
+
+	public abstract int updateByExampleWithBLOBs(
+			@Param("record") SealWithBLOBs paramSealWithBLOBs,
+			@Param("example") SealExample paramSealExample);
+
+	public abstract int updateByExample(@Param("record") Seal paramSeal,
+			@Param("example") SealExample paramSealExample);
+
+	public abstract int updateByPrimaryKeySelective(
+			SealWithBLOBs paramSealWithBLOBs);
+
+	public abstract int updateByPrimaryKeyWithBLOBs(
+			SealWithBLOBs paramSealWithBLOBs);
+
+	public abstract int updateByPrimaryKey(Seal paramSeal);
+
+	public abstract List<SealWithBLOBs> getSealByUser(String paramString);
+
+	public abstract List<SealWithBLOBs> getAllSealInfo(
+			Map<String, Object> paramMap);
+
+	public abstract SealWithBLOBs getSealById(Integer paramInteger);
+
+	public abstract void deleteSeal(String[] paramArrayOfString);
+
+	public abstract List<SealWithBLOBs> getSealByName(String paramString);
+
+	public abstract Seal getSealLogBySealId(String paramString);
+
+	public abstract Seal getSealLogBySealIdLastOne(String paramString);
+}

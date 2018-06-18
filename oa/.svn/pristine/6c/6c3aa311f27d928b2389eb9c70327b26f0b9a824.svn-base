@@ -1,0 +1,928 @@
+/*      */ package com.xoa.service.document.Impl;
+/*      */ 
+/*      */ import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.xoa.dao.document.DocumentModelMapper;
+import com.xoa.dao.document.SysRuleModelMapper;
+import com.xoa.dao.users.UsersMapper;
+import com.xoa.dao.workflow.FlowFormTypeMapper;
+import com.xoa.dao.workflow.FlowProcessMapper;
+import com.xoa.dao.workflow.FlowRunMapper;
+import com.xoa.dao.workflow.FlowRunPrcsMapper;
+import com.xoa.dao.workflow.FlowTypeModelMapper;
+import com.xoa.model.document.DocumentModel;
+import com.xoa.model.document.DocumentModelFlowRunPrcs;
+import com.xoa.model.document.DocumentModelOverRun;
+import com.xoa.model.document.DocumentModelWithBLOBs;
+import com.xoa.model.document.SysRuleModel;
+import com.xoa.model.enclosure.Attachment;
+import com.xoa.model.sms.SmsBody;
+import com.xoa.model.sys.SealWithBLOBs;
+import com.xoa.model.users.Users;
+import com.xoa.model.workflow.FlowFast;
+import com.xoa.model.workflow.FlowProcess;
+import com.xoa.model.workflow.FlowRunPrcs;
+import com.xoa.service.WFE.WFERunner.WFEFlowRunInfo;
+import com.xoa.service.department.impl.DepartmentServiceImpl;
+import com.xoa.service.document.DocumentSerivce;
+import com.xoa.service.sms.SmsService;
+import com.xoa.service.sys.SealService;
+import com.xoa.service.users.UsersService;
+import com.xoa.service.work.WorkService;
+import com.xoa.util.Constant;
+import com.xoa.util.DateFormat;
+import com.xoa.util.GetAttachmentListUtil;
+import com.xoa.util.ToJson;
+import com.xoa.util.common.StringUtils;
+import com.xoa.util.common.session.SessionUtils;
+import com.xoa.util.common.wrapper.BaseWrappers;
+import com.xoa.util.page.PageParams;
+/*      */ 
+/*      */ @Service
+/*      */ public class DocumentSerivceImpl
+/*      */   implements DocumentSerivce
+/*      */ {
+/*      */ 
+/*      */   @Resource
+/*      */   DocumentModelMapper documentModelMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   SysRuleModelMapper sysRuleModelMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   FlowRunMapper flowRunMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   FlowTypeModelMapper flowTypeModelMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   FlowFormTypeMapper flowFormTypeMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   FlowRunPrcsMapper flowRunPrcsMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   WorkService workService;
+/*      */ 
+/*      */   @Resource
+/*      */   FlowProcessMapper flowProcessMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   DepartmentServiceImpl departmentServiceImpl;
+/*      */ 
+/*      */   @Resource
+/*      */   UsersService usersService;
+/*      */ 
+/*      */   @Autowired
+/*      */   SmsService smsService;
+/*      */ 
+/*      */   @Resource
+/*      */   private SealService sealService;
+/*      */ 
+/*      */   @Resource
+/*      */   UsersMapper usersMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private WFEFlowRunInfo wfeFlowRunInfo;
+/*  423 */   public final String numberZero = "0";
+/*  424 */   public final String numberOne = "1";
+/*  425 */   public final String numberTwo = "2";
+/*      */ 
+/*  509 */   private final String SHOT_YEAR = "YY";
+/*      */ 
+/*  511 */   private final String All_YEAR = "ALL_YY";
+/*      */ 
+/*  513 */   private final String DATE = "DATE";
+/*      */ 
+/*  515 */   private final String DATE_TIME = "DATE_TIME";
+/*      */ 
+/*  517 */   private final String H_MOS = "H_MOS";
+/*      */ 
+/*  519 */   private final String H_MO = "H_MO";
+/*      */ 
+/*  521 */   private final String MONTHS = "MONTHS";
+/*      */ 
+/*  523 */   private final String MONTH = "MONTH";
+/*      */ 
+/*  525 */   private final String COUNTER = "COUNTER";
+/*      */ 
+/*  965 */   private final String One_Week = "oneWeek";
+/*  966 */   private final String Second_Week = "secondWeek";
+/*  967 */   private final String Third_Week = "thirdWeek";
+/*  968 */   private final String One_Month = "oneMonth";
+/*  969 */   private final String Second_Month = "secondMonth";
+/*  970 */   private final String Third_Month = "thirdMonth";
+/*      */ 
+/*      */   public int saveSysRule(SysRuleModel sysRule)
+/*      */   {
+/*   76 */     return this.sysRuleModelMapper.saveSysRule(sysRule);
+/*      */   }
+/*      */ 
+/*      */   public int deleteSysRule(SysRuleModel sysRule) {
+/*   80 */     return this.sysRuleModelMapper.deleteSysRule(sysRule);
+/*      */   }
+/*      */ 
+/*      */   public int updateRuleById(SysRuleModel sysRule) {
+/*   84 */     return this.sysRuleModelMapper.updateRuleById(sysRule);
+/*      */   }
+/*      */ 
+/*      */   public SysRuleModel getRuleById(SysRuleModel sysRule, HttpServletRequest request)
+/*      */   {
+/*   89 */     SysRuleModel sys = this.sysRuleModelMapper.getRuleById(sysRule);
+/*   90 */     String expression = sys.getExpression();
+/*   91 */     String transforedExpression = transfor(expression, request, sys);
+/*   92 */     List<String> titleList = new ArrayList<String>();
+/*   93 */     List<String> expressionList = new ArrayList<String>();
+/*   94 */     sys.setExpressionStr(expression);
+/*   95 */     String expressionStr = sys.getExpressionStr();
+/*      */ 
+/*   97 */     Pattern pattern = Pattern.compile("(?<=\\[)(.+?)(?=\\])");
+/*   98 */     Matcher matcher = pattern.matcher(expression);
+/*   99 */     Calendar now = Calendar.getInstance();
+/*      */ 
+/*  101 */     String str = null;
+/*      */ 
+/*  103 */     while (matcher.find()) {
+/*  104 */       switch (matcher.group())
+/*      */       {
+/*      */       case "YY":
+/*  107 */         str = String.valueOf(now.get(1));
+/*  108 */         titleList.add("短年份");
+/*  109 */         expressionList.add(str.substring(str.length() - 2));
+/*  110 */         expressionStr = expressionStr.replace("[YY]", " " + str.substring(str.length() - 2) + " ");
+/*      */ 
+/*  112 */         break;
+/*      */       case "ALL_YY":
+/*  115 */         str = String.valueOf(now.get(1));
+/*  116 */         titleList.add("全年份");
+/*  117 */         expressionList.add(str);
+/*  118 */         expressionStr = expressionStr.replace("[ALL_YY]", " " + str + " ");
+/*      */ 
+/*  120 */         break;
+/*      */       case "DATE":
+/*  123 */         str = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+/*      */ 
+/*  125 */         titleList.add("日期");
+/*  126 */         expressionList.add(str);
+/*  127 */         expressionStr = expressionStr.replace("[DATE]", " " + str + " ");
+/*      */ 
+/*  129 */         break;
+/*      */       case "DATE_TIME":
+/*  132 */         str = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+/*      */ 
+/*  134 */         titleList.add("日期时间");
+/*  135 */         expressionList.add(str);
+/*  136 */         expressionStr = expressionStr.replace("[DATE_TIME]", " " + str + " ");
+/*      */ 
+/*  138 */         break;
+/*      */       case "H_MOS":
+/*  141 */         int day = now.get(5);
+/*  142 */         if (day < 10)
+/*  143 */           str = "0" + day;
+/*      */         else {
+/*  145 */           str = String.valueOf(day);
+/*      */         }
+/*  147 */         titleList.add("长日期");
+/*  148 */         expressionList.add(str);
+/*  149 */         expressionStr = expressionStr.replace("[H_MOS]", " " + str + " ");
+/*      */ 
+/*  151 */         break;
+/*      */       case "H_MO":
+/*  154 */         str = String.valueOf(now.get(5));
+/*  155 */         titleList.add("短日期");
+/*  156 */         expressionList.add(str);
+/*  157 */         expressionStr = expressionStr.replace("[H_MO]", " " + str + " ");
+/*      */ 
+/*  159 */         break;
+/*      */       case "MONTHS":
+/*  162 */         int month = now.get(2) + 1;
+/*  163 */         if (month < 10)
+/*  164 */           str = "0" + month;
+/*      */         else {
+/*  166 */           str = String.valueOf(month);
+/*      */         }
+/*  168 */         titleList.add("长月份");
+/*  169 */         expressionList.add(str);
+/*  170 */         expressionStr = expressionStr.replace("[MONTHS]", " " + str + " ");
+/*      */ 
+/*  172 */         break;
+/*      */       case "MONTH":
+/*  175 */         str = String.valueOf(now.get(2) + 1);
+/*  176 */         titleList.add("短月份");
+/*  177 */         expressionList.add(str);
+/*  178 */         expressionStr = expressionStr.replace("[MONTH]", " " + str + " ");
+/*      */ 
+/*  180 */         break;
+/*      */       case "COUNTER":
+/*  183 */         int number = sys.getCounter().intValue();
+/*  184 */         String str1 = String.format("%0" + sys.getDigit() + "d", new Object[] { Integer.valueOf(number) });
+/*  185 */         str = String.valueOf(sys.getCounter());
+/*  186 */         expressionStr = expressionStr.replace("[COUNTER]", " " + str1 + " ");
+/*      */       }
+/*      */ 
+/*      */     }
+/*      */ 
+/*  193 */     str = String.valueOf(sys.getCounter());
+/*  194 */     titleList.add("计数器");
+/*  195 */     expressionList.add(str);
+/*  196 */     sys.setExpressionStr(expressionStr);
+/*  197 */     sys.setRuleTitles(titleList);
+/*  198 */     sys.setRuleExps(expressionList);
+/*  199 */     return sys;
+/*      */   }
+/*      */ 
+/*      */   private String transfor(String expression, HttpServletRequest request, SysRuleModel sys)
+/*      */   {
+/*  204 */     String date2 = DateFormat.getCurrentTime();
+/*  205 */     Date date = DateFormat.getDate(date2);
+/*  206 */     Calendar c = Calendar.getInstance();
+/*  207 */     int datenum = c.get(5);
+/*  208 */     String userName = String.valueOf(request.getSession().getAttribute("userName"));
+/*      */ 
+/*  211 */     String expression2 = expression.replace("{Y}", String.valueOf(date.getYear() + 1900)).replace("{M}", String.valueOf(date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : Integer.valueOf(date.getMonth() + 1))).replace("{D}", String.valueOf(datenum)).replace("{H}", String.valueOf(date.getHours())).replace("{I}", String.valueOf(date.getMinutes())).replace("{S}", String.valueOf(date.getSeconds())).replace("{U}", userName).replace("{F}", "流程名").replace("{FS}", "流程分类名称 公文").replace("{LD}", "长部门名").replace("{SD}", "短部门名").replace("{RUN}", "流水号").replace("{N}", "编号").replace("{NM}", "重新按月编号").replace("{NY}", "重新编号按年");
+/*      */ 
+/*  234 */     return expression2;
+/*      */   }
+/*      */ 
+/*      */   public List<SysRuleModel> getRuleAll(SysRuleModel sysRule) {
+/*  238 */     List<SysRuleModel> ruleAll = this.sysRuleModelMapper.getRuleAll(sysRule);
+/*  239 */     for (SysRuleModel s : ruleAll) {
+/*  240 */       String expression = s.getExpression();
+/*  241 */       s.setExpressionStr(expression);
+/*  242 */       String expressionStr = s.getExpressionStr();
+/*      */ 
+/*  244 */       Pattern pattern = Pattern.compile("(?<=\\[)(.+?)(?=\\])");
+/*  245 */       Matcher matcher = pattern.matcher(expression);
+/*  246 */       Calendar now = Calendar.getInstance();
+/*      */ 
+/*  248 */       String str = null;
+/*      */ 
+/*  250 */       while (matcher.find()) {
+/*  251 */         switch (matcher.group())
+/*      */         {
+/*      */         case "YY":
+/*  254 */           str = String.valueOf(now.get(1));
+/*  255 */           expressionStr = expressionStr.replace("[YY]", " " + str.substring(str.length() - 2) + " ");
+/*      */ 
+/*  257 */           break;
+/*      */         case "ALL_YY":
+/*  260 */           str = String.valueOf(now.get(1));
+/*  261 */           expressionStr = expressionStr.replace("[ALL_YY]", " " + str + " ");
+/*      */ 
+/*  263 */           break;
+/*      */         case "DATE":
+/*  266 */           str = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+/*      */ 
+/*  268 */           expressionStr = expressionStr.replace("[DATE]", " " + str + " ");
+/*      */ 
+/*  270 */           break;
+/*      */         case "DATE_TIME":
+/*  273 */           str = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+/*      */ 
+/*  275 */           expressionStr = expressionStr.replace("[DATE_TIME]", " " + str + " ");
+/*      */ 
+/*  277 */           break;
+/*      */         case "H_MOS":
+/*  280 */           int day = now.get(5);
+/*  281 */           if (day < 10)
+/*  282 */             str = "0" + day;
+/*      */           else {
+/*  284 */             str = String.valueOf(day);
+/*      */           }
+/*  286 */           expressionStr = expressionStr.replace("[H_MOS]", " " + str + " ");
+/*      */ 
+/*  288 */           break;
+/*      */         case "H_MO":
+/*  291 */           str = String.valueOf(now.get(5));
+/*  292 */           expressionStr = expressionStr.replace("[H_MO]", " " + str + " ");
+/*      */ 
+/*  294 */           break;
+/*      */         case "MONTHS":
+/*  297 */           int month = now.get(2) + 1;
+/*  298 */           if (month < 10)
+/*  299 */             str = "0" + month;
+/*      */           else {
+/*  301 */             str = String.valueOf(month);
+/*      */           }
+/*  303 */           expressionStr = expressionStr.replace("[MONTHS]", " " + str + " ");
+/*      */ 
+/*  305 */           break;
+/*      */         case "MONTH":
+/*  308 */           str = String.valueOf(now.get(2) + 1);
+/*  309 */           expressionStr = expressionStr.replace("[MONTH]", " " + str + " ");
+/*      */ 
+/*  311 */           break;
+/*      */         case "COUNTER":
+/*  314 */           int number = s.getCounter().intValue();
+/*  315 */           String str1 = String.format("%0" + s.getDigit() + "d", new Object[] { Integer.valueOf(number) });
+/*  316 */           str = String.valueOf(s.getCounter());
+/*  317 */           expressionStr = expressionStr.replace("[COUNTER]", " " + str1 + " ");
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  323 */       s.setExpressionStr(expressionStr);
+/*      */     }
+/*  325 */     return ruleAll;
+/*      */   }
+/*      */ 
+/*      */   public SysRuleModel getRuleByCode(SysRuleModel sysRule)
+/*      */   {
+/*  330 */     return this.sysRuleModelMapper.getRuleByCode(sysRule);
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Object> saveDocument(Users user, Integer fflowId, Integer fflowStep, String fprcsId, String frunName, DocumentModelWithBLOBs document, HttpServletRequest request)
+/*      */   {
+/*  336 */     ToJson<Object> toJson = new ToJson<Object>();
+/*      */     try {
+/*  338 */       String cureTime = DateFormat.getCurrentTime2();
+/*  339 */       document.setPrintDate(cureTime);
+/*      */ 
+/*  341 */       String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  345 */       ToJson<FlowFast> fastToJson = this.workService.workFastAdd(user, fflowId.intValue(), fflowStep.intValue(), fprcsId, "", request, sqlType, frunName, null);
+/*      */ 
+/*  347 */       if (fastToJson.isFlag()) {
+/*  348 */         FlowFast fast = (FlowFast)fastToJson.getObject();
+/*  349 */         Integer runId = Integer.valueOf(fast.getFlowRun().getRunId());
+/*  350 */         document.setRunId(runId);
+/*  351 */         int result = this.documentModelMapper.insertSelective(document);
+/*  352 */         DocumentModelWithBLOBs newDoc = this.documentModelMapper.selectByPrimaryKey(document);
+/*      */ 
+/*  354 */         newDoc.setTableName("document");
+/*  355 */         toJson.setObject(newDoc);
+/*  356 */         toJson.setMsg("document");
+/*  357 */         toJson.setFlag(0);
+/*      */       } else {
+/*  359 */         toJson.setMsg("document");
+/*  360 */         toJson.setFlag(1);
+/*      */       }
+/*      */     }
+/*      */     catch (Exception e)
+/*      */     {
+/*  365 */       e.printStackTrace();
+/*  366 */       toJson.setFlag(1);
+/*      */     }
+/*  368 */     return toJson;
+/*      */   }
+/*      */ 
+/*      */   public int deleteDocument(DocumentModelWithBLOBs document) {
+/*  372 */     int result = this.documentModelMapper.deleteByPrimaryKey(document);
+/*  373 */     return result;
+/*      */   }
+/*      */ 
+/*      */   public int updateDocument(DocumentModelWithBLOBs document) {
+/*  377 */     int result = this.documentModelMapper.updateByPrimaryKeySelective(document);
+/*  378 */     return result;
+/*      */   }
+/*      */ 
+/*      */   public DocumentModelWithBLOBs selectDocumentById(HttpServletRequest request, DocumentModelWithBLOBs document)
+/*      */   {
+/*  383 */     List<SealWithBLOBs> sealByUser = this.sealService.getSealByUser(request);
+/*  384 */     DocumentModelWithBLOBs resultDocument = this.documentModelMapper.selectByPrimaryKey(document);
+/*  385 */     DocumentModel documentEditPriv = this.documentModelMapper.getDocumentEditPriv(document.getId());
+/*  386 */     resultDocument.setDocumentEditPriv(documentEditPriv.getDocumentEditPriv());
+/*  387 */     resultDocument.setDocumentEditPrivDetail(documentEditPriv.getDocumentEditPrivDetail() == null ? "" : documentEditPriv.getDocumentEditPrivDetail());
+/*  388 */     resultDocument.setSealWithBLOBs(sealByUser);
+/*  389 */     String company = "";
+/*  390 */     if ((!StringUtils.checkNull((String)request.getSession().getAttribute("loginDateSouse")).booleanValue()) && (!"null".equals((String)request.getSession().getAttribute("loginDateSouse"))) && (request.getSession().getAttribute("loginDateSouse") != null))
+/*  391 */       company = (String)request.getSession().getAttribute("loginDateSouse");
+/*      */     else {
+/*  393 */       company = "1001";
+/*      */     }
+/*      */ 
+/*  396 */     if ((!StringUtils.checkNull(resultDocument.getMainFileName()).booleanValue()) && (!StringUtils.checkNull(resultDocument.getMainFile()).booleanValue())) {
+/*  397 */       List<Attachment> attachments = GetAttachmentListUtil.returnAttachment(resultDocument.getMainFileName(), resultDocument.getMainFile(), Constant.MYOA + company, "document");
+/*  398 */       if ((attachments != null) && (attachments.size() > 0))
+/*  399 */         resultDocument.setWordAttUrl(((Attachment)attachments.get(0)).getAttUrl());
+/*      */       else {
+/*  401 */         resultDocument.setWordAttUrl("");
+/*      */       }
+/*      */     }
+/*      */ 
+/*  405 */     if ((!StringUtils.checkNull(resultDocument.getMainAipFile()).booleanValue()) && (!StringUtils.checkNull(resultDocument.getMainAipFileName()).booleanValue())) {
+/*  406 */       List<Attachment> attachments = GetAttachmentListUtil.returnAttachment(resultDocument.getMainAipFileName(), resultDocument.getMainAipFile(), Constant.MYOA + company, "document");
+/*  407 */       if ((attachments != null) && (attachments.size() > 0))
+/*  408 */         resultDocument.setAipAttUrl(((Attachment)attachments.get(0)).getAttUrl());
+/*      */       else {
+/*  410 */         resultDocument.setAipAttUrl("");
+/*      */       }
+/*      */     }
+/*      */ 
+/*  414 */     return resultDocument;
+/*      */   }
+/*      */ 
+/*      */   public List<DocumentModelWithBLOBs> selectDocAll(DocumentModelWithBLOBs document)
+/*      */   {
+/*  420 */     return this.documentModelMapper.selectDocAll(document);
+/*      */   }
+/*      */ 
+/*      */   public ToJson<DocumentModelWithBLOBs> seleDocSendReceive(String documentType, String curUserID, String allUserID, String dispatchType, String printDate, HttpServletRequest request, Integer page, Integer pageSize, Boolean useFlag)
+/*      */   {
+/*  432 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  434 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*      */ 
+/*  436 */     ToJson<DocumentModelWithBLOBs> documentModelWithBLOBsToJson = new ToJson<DocumentModelWithBLOBs>();
+/*  437 */     if (StringUtils.checkNull(documentType).booleanValue()) {
+/*  438 */       documentModelWithBLOBsToJson.setFlag(1);
+/*  439 */       documentModelWithBLOBsToJson.setMsg("缺少必要参数");
+/*      */     }
+/*  441 */     Map<String,Object> objectMap = new HashMap<String,Object>();
+/*  442 */     PageParams pageParams = new PageParams();
+/*  443 */     pageParams.setUseFlag(useFlag);
+/*  444 */     pageParams.setPage(page);
+/*  445 */     pageParams.setPageSize(pageSize);
+/*      */ 
+/*  448 */     objectMap.put("dispatchType", dispatchType);
+/*  449 */     objectMap.put("printDate", printDate);
+/*      */ 
+/*  451 */     objectMap.put("page", pageParams);
+/*  452 */     objectMap.put("documentType", documentType);
+/*  453 */     if ("0".equals(curUserID)) {
+/*  454 */       objectMap.put("flowStatus", "0");
+/*  455 */       objectMap.put("curUserID", users.getUserId());
+/*  456 */     } else if ("1".equals(curUserID)) {
+/*  457 */       objectMap.put("flowStatus", "1");
+/*  458 */       objectMap.put("allUserID", users.getUserId());
+/*  459 */     } else if ("2".equals(curUserID)) {
+/*  460 */       objectMap.put("creater", users.getUserId());
+/*      */     }
+/*      */ 
+/*  463 */     List<DocumentModelWithBLOBs> documentModelWithBLOBs = this.documentModelMapper.seleDocSendReceive(objectMap);
+/*      */ 
+/*  465 */     if ((documentModelWithBLOBs != null) && (documentModelWithBLOBs.size() > 0)) {
+/*  466 */       Iterator<DocumentModelWithBLOBs> iterator = documentModelWithBLOBs.iterator();
+/*      */ 
+/*  468 */       while (iterator.hasNext())
+/*      */       {
+/*  470 */         DocumentModelWithBLOBs modelWithBLOBs = (DocumentModelWithBLOBs)iterator.next();
+/*  471 */         modelWithBLOBs.setUserName(this.usersMapper.getUsernameByUserId(modelWithBLOBs.getCreater()));
+/*      */ 
+/*  473 */         FlowRunPrcs flowRunPrcs = this.flowRunPrcsMapper.selectqueryByRunId(modelWithBLOBs.getFlowPrcs(), modelWithBLOBs.getRunId());
+/*      */ 
+/*  480 */         FlowProcess flowProcess = this.flowProcessMapper.findPrcessName(modelWithBLOBs.getFlowId(), Integer.valueOf(Integer.parseInt(modelWithBLOBs.getFlowPrcs())));
+/*      */ 
+/*  483 */         modelWithBLOBs.setPrcsName(flowProcess.getPrcsName());
+/*  484 */         modelWithBLOBs.setPrcsId(flowRunPrcs.getPrcsId().toString());
+/*  485 */         FlowRunPrcs flowRunPrcsOne = this.flowRunPrcsMapper.selectqueryByRunId("2", modelWithBLOBs.getRunId());
+/*      */ 
+/*  488 */         if (flowRunPrcsOne != null)
+/*  489 */           modelWithBLOBs.setDraftType("1");
+/*      */         else {
+/*  491 */           modelWithBLOBs.setDraftType("0");
+/*      */         }
+/*      */       }
+/*      */ 
+/*  495 */       documentModelWithBLOBsToJson.setFlag(0);
+/*  496 */       documentModelWithBLOBsToJson.setMsg("ok");
+/*  497 */       documentModelWithBLOBsToJson.setObj(documentModelWithBLOBs);
+/*  498 */       documentModelWithBLOBsToJson.setTotleNum(pageParams.getTotal());
+/*      */     }
+/*      */ 
+/*  501 */     return documentModelWithBLOBsToJson;
+/*      */   }
+/*      */ 
+/*      */   public BaseWrappers<DocumentModelFlowRunPrcs>  selectDocSelective(Integer documentType, String title, Integer flowId, String dispatchType, String urgency, String secrecy, String userId, String deptId, String createTime, Integer status, PageParams pageParams, HttpServletRequest request)
+/*      */   {
+/*  553 */     BaseWrappers<DocumentModelFlowRunPrcs>  baseWrappers = new BaseWrappers<DocumentModelFlowRunPrcs>();
+/*  554 */     Map<String,Object> param = new HashMap<String,Object>();
+/*  555 */     param.put("documentType", documentType);
+/*  556 */     param.put("title", title);
+/*  557 */     param.put("flowId", flowId);
+/*  558 */     param.put("dispatchType", dispatchType);
+/*  559 */     param.put("urgency", urgency);
+/*  560 */     param.put("secrecy", secrecy);
+/*  561 */     param.put("userId", userId);
+/*  562 */     param.put("deptId", deptId);
+/*  563 */     param.put("createTime", createTime);
+/*  564 */     param.put("status", status);
+/*  565 */     param.put("page", pageParams);
+/*  566 */     List<DocumentModelFlowRunPrcs>  selectiveDoc = this.documentModelMapper.querySelectDoc(param);
+/*  567 */     baseWrappers.setDatas(selectiveDoc);
+/*  568 */     baseWrappers.setFlag(true);
+/*  569 */     return baseWrappers;
+/*      */   }
+/*      */ 
+/*      */   public BaseWrappers<DocumentModelFlowRunPrcs> selWillDocSendOrReceive(HttpServletRequest request, String documentType, String dispatchType, String printDate, String title, Integer docStatus, Integer page, Integer pageSize, Integer prcsFlag)
+/*      */   {
+/*  575 */     BaseWrappers<DocumentModelFlowRunPrcs> wrappers = new BaseWrappers<DocumentModelFlowRunPrcs>();
+/*  576 */     wrappers.setStatus(true);
+/*  577 */     wrappers.setFlag(false);
+/*  578 */     if (StringUtils.checkNull(documentType).booleanValue()) {
+/*  579 */       wrappers.setMsg("获取公文类型失败");
+/*  580 */       return wrappers;
+/*      */     }
+/*  582 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  583 */     if (StringUtils.checkNull(users.getUserId()).booleanValue()) {
+/*  584 */       wrappers.setMsg("用户信息过期");
+/*  585 */       return wrappers;
+/*      */     }
+/*  587 */     if (StringUtils.checkNull(dispatchType).booleanValue()) {
+/*  588 */       dispatchType = null;
+/*      */     }
+/*  590 */     if (StringUtils.checkNull(printDate).booleanValue()) {
+/*  591 */       printDate = null;
+/*      */     }
+/*  593 */     if (StringUtils.checkNull(title).booleanValue()) {
+/*  594 */       title = null;
+/*      */     }
+/*      */ 
+/*  597 */     page = Integer.valueOf((page.intValue() - 1) * pageSize.intValue());
+/*  598 */     Map<String,Object> param = new HashMap<String,Object>();
+/*  599 */     param.put("userId", users.getUserId());
+/*  600 */     param.put("documentType", documentType);
+/*  601 */     param.put("printDate", printDate);
+/*  602 */     param.put("dispatchType", dispatchType);
+/*  603 */     param.put("page", page);
+/*  604 */     param.put("pageSize", pageSize);
+/*  605 */     param.put("prcsFlag", prcsFlag);
+/*  606 */     param.put("title", title);
+/*  607 */     param.put("docStatus", docStatus);
+/*  608 */     List<DocumentModelFlowRunPrcs> datas = this.documentModelMapper.selWillDocSendOrReceive(param);
+/*      */ 
+/*  610 */     for (DocumentModelFlowRunPrcs d : datas)
+/*      */     {
+/*  612 */       if ("0".equals(d.getTimeOutType()))
+/*      */       {
+/*  614 */         if (d.getPrFlag().equals(Integer.valueOf(2))) {
+/*  615 */           if (!StringUtils.checkNull(d.getPrcsTime()).booleanValue())
+/*  616 */             setTimeOutStr(d, DateFormat.getTime(d.getPrcsTime()));
+/*      */         }
+/*  618 */         else if ((d.getPrFlag().equals(Integer.valueOf(1))) && 
+/*  619 */           (!StringUtils.checkNull(d.getTimeOut()).booleanValue())) {
+/*  620 */           d.setIfOutTime(Boolean.valueOf(true));
+/*  621 */           d.setTimeOutStr("计时未开始");
+/*      */         }
+/*      */       }
+/*  624 */       else if (("1".equals(d.getTimeOutType())) && 
+/*  625 */         (!d.getRealPrcsId().equals(Integer.valueOf(1)))) {
+/*  626 */         if ((!d.getPrFlag().equals(Integer.valueOf(3))) && (!d.getPrFlag().equals(Integer.valueOf(4)))) {
+/*  627 */           if (!StringUtils.checkNull(d.getCreateTime()).booleanValue())
+/*  628 */             setTimeOutStr(d, DateFormat.getTime(d.getCreateTime()));
+/*      */         }
+/*  630 */         else if (d.getPrFlag().equals(Integer.valueOf(3))) {
+/*  631 */           d.setTimeOutStr("计时已结束");
+/*  632 */           d.setIfOutTime(Boolean.valueOf(true));
+/*  633 */         } else if (d.getPrFlag().equals(Integer.valueOf(4))) {
+/*  634 */           d.setTimeOutStr("计时已结束");
+/*  635 */           d.setIfOutTime(Boolean.valueOf(true));
+/*      */         }
+/*      */       }
+/*      */ 
+/*  639 */       if (d.getPrintDate().length() > 10) {
+/*  640 */         d.setPrintDate(d.getPrintDate().substring(0, 10));
+/*      */       }
+/*      */     }
+/*  643 */     Integer total = this.documentModelMapper.selWillDocSendOrReceiveCounts(param);
+/*  644 */     wrappers.setTotal(total);
+/*  645 */     wrappers.setFlag(true);
+/*  646 */     wrappers.setDatas(datas);
+/*  647 */     return wrappers;
+/*      */   }
+/*      */ 
+/*      */   private void setTimeOutStr(DocumentModelFlowRunPrcs d, Integer time)
+/*      */   {
+/*  656 */     if (!StringUtils.checkNull(d.getTimeOut()).booleanValue())
+/*      */     {
+/*  658 */       String[] split = d.getTimeOut().split(",");
+/*  659 */       if (split.length == 2) {
+/*  660 */         String timeCount = split[0];
+/*  661 */         String timeType = split[1];
+/*      */ 
+/*  663 */         if (timeType.equals("hour"))
+/*      */         {
+/*  665 */           int i = Integer.valueOf(timeCount).intValue() * 60 * 60;
+/*      */ 
+/*  667 */           int outTimeEnd = time.intValue() + i;
+/*      */ 
+/*  669 */           int currentTime = (int)(System.currentTimeMillis() / 1000L);
+/*      */ 
+/*  671 */           d.setTimeOutStr("时限" + timeCount + "小时，" + getTimeOutStr(outTimeEnd, currentTime, d));
+/*  672 */         } else if (timeType.equals("day"))
+/*      */         {
+/*  674 */           int i = Integer.valueOf(timeCount).intValue() * 24 * 60 * 60;
+/*      */ 
+/*  676 */           int outTimeEnd = time.intValue() + i;
+/*      */ 
+/*  678 */           int currentTime = (int)(System.currentTimeMillis() / 1000L);
+/*      */ 
+/*  680 */           d.setTimeOutStr("时限" + timeCount + "天，" + getTimeOutStr(outTimeEnd, currentTime, d));
+/*      */         }
+/*      */       }
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   private String getTimeOutStr(int outTimeEnd, int currentTime, DocumentModelFlowRunPrcs d)
+/*      */   {
+/*      */     String s;
+/*  693 */     if (outTimeEnd > currentTime) {
+/*  694 */       int times = outTimeEnd - currentTime;
+/*  695 */       s = "剩余" + DateFormat.returnTime(Integer.valueOf(times));
+/*  696 */       d.setIfOutTime(Boolean.valueOf(false));
+/*      */     } else {
+/*  698 */       int times = currentTime - outTimeEnd;
+/*  699 */       s = "超时" + DateFormat.returnTime(Integer.valueOf(times));
+/*  700 */       d.setIfOutTime(Boolean.valueOf(true));
+/*      */     }
+/*  702 */     return s;
+/*      */   }
+/*      */ 
+/*      */   public BaseWrappers<DocumentModelOverRun> selOverDocSendOrReceive(HttpServletRequest request, String documentType, String dispatchType, String printDate, String title, Integer docStatus, Integer page, Integer pageSize, Integer prcsFlag)
+/*      */   {
+/*  708 */     BaseWrappers<DocumentModelOverRun> wrappers = new BaseWrappers<DocumentModelOverRun>();
+/*  709 */     wrappers.setStatus(true);
+/*  710 */     wrappers.setFlag(false);
+/*  711 */     if (StringUtils.checkNull(documentType).booleanValue()) {
+/*  712 */       wrappers.setMsg("获取公文类型失败");
+/*  713 */       return wrappers;
+/*      */     }
+/*  715 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  716 */     if (StringUtils.checkNull(users.getUserId()).booleanValue()) {
+/*  717 */       wrappers.setMsg("用户信息过期");
+/*  718 */       return wrappers;
+/*      */     }
+/*  720 */     if (StringUtils.checkNull(dispatchType).booleanValue()) {
+/*  721 */       dispatchType = null;
+/*      */     }
+/*  723 */     if (StringUtils.checkNull(printDate).booleanValue()) {
+/*  724 */       printDate = null;
+/*      */     }
+/*  726 */     page = Integer.valueOf((page.intValue() - 1) * pageSize.intValue());
+/*  727 */     Map<String,Object> param = new HashMap<String,Object>();
+/*  728 */     param.put("userId", users.getUserId());
+/*  729 */     param.put("documentType", documentType);
+/*  730 */     param.put("printDate", printDate);
+/*  731 */     param.put("dispatchType", dispatchType);
+/*  732 */     param.put("page", page);
+/*  733 */     param.put("pageSize", pageSize);
+/*  734 */     param.put("prcsFlag", prcsFlag);
+/*  735 */     List<DocumentModelOverRun>  datas = this.documentModelMapper.selOverDocSendOrReceive(param);
+/*  736 */     Integer total = this.documentModelMapper.selOverDocSendOrReceiveCounts(param);
+/*  737 */     wrappers.setTotal(total);
+/*  738 */     wrappers.setFlag(true);
+/*  739 */     wrappers.setDatas(datas);
+/*  740 */     return wrappers;
+/*      */   }
+/*      */ 
+/*      */   public BaseWrappers<DocumentModelFlowRunPrcs> selMyDocSendOrReceive(HttpServletRequest request, String documentType, String dispatchType, String printDate, String title, Integer docStatus, Integer page, Integer pageSize)
+/*      */   {
+/*  745 */     BaseWrappers<DocumentModelFlowRunPrcs> wrappers = new BaseWrappers<DocumentModelFlowRunPrcs>();
+/*  746 */     wrappers.setStatus(true);
+/*  747 */     wrappers.setFlag(false);
+/*  748 */     if (StringUtils.checkNull(documentType).booleanValue()) {
+/*  749 */       wrappers.setMsg("获取公文类型失败");
+/*  750 */       return wrappers;
+/*      */     }
+/*  752 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  753 */     if (StringUtils.checkNull(users.getUserId()).booleanValue()) {
+/*  754 */       wrappers.setMsg("用户信息过期");
+/*  755 */       return wrappers;
+/*      */     }
+/*  757 */     if (StringUtils.checkNull(dispatchType).booleanValue()) {
+/*  758 */       dispatchType = null;
+/*      */     }
+/*  760 */     if (StringUtils.checkNull(printDate).booleanValue()) {
+/*  761 */       printDate = null;
+/*      */     }
+/*  763 */     if (StringUtils.checkNull(title).booleanValue()) {
+/*  764 */       title = null;
+/*      */     }
+/*      */ 
+/*  767 */     page = Integer.valueOf((page.intValue() - 1) * pageSize.intValue());
+/*  768 */     Map<String,Object> param = new HashMap<String,Object>();
+/*  769 */     param.put("userId", users.getUserId());
+/*  770 */     param.put("documentType", documentType);
+/*  771 */     param.put("printDate", printDate);
+/*  772 */     param.put("dispatchType", dispatchType);
+/*  773 */     param.put("page", page);
+/*  774 */     param.put("pageSize", pageSize);
+/*  775 */     param.put("title", title);
+/*  776 */     param.put("docStatus", docStatus);
+/*  777 */     List<DocumentModelFlowRunPrcs> datas = this.documentModelMapper.selMyDocSendOrReceive(param);
+/*  778 */     for (DocumentModelFlowRunPrcs d : datas) {
+/*  779 */       if (d.getPrintDate().length() > 10) {
+/*  780 */         d.setPrintDate(d.getPrintDate().substring(0, 10));
+/*      */       }
+/*      */     }
+/*  783 */     Integer total = this.documentModelMapper.selMyDocSendOrReceiveCounts(param);
+/*  784 */     wrappers.setTotal(total);
+/*  785 */     wrappers.setFlag(true);
+/*  786 */     wrappers.setDatas(datas);
+/*  787 */     return wrappers;
+/*      */   }
+/*      */ 
+/*      */   public BaseWrappers<DocumentModelFlowRunPrcs> selOverseeTheOfficialDocument(HttpServletRequest request, String documentType, String dispatchType, String computationNumber, Integer page, Integer pageSize, Boolean useFlag)
+/*      */   {
+/*  800 */     BaseWrappers<DocumentModelFlowRunPrcs> wrappers = new BaseWrappers<DocumentModelFlowRunPrcs>();
+/*  801 */     wrappers.setStatus(true);
+/*  802 */     wrappers.setFlag(false);
+/*  803 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  804 */     if (StringUtils.checkNull(users.getUserId()).booleanValue()) {
+/*  805 */       wrappers.setMsg("用户信息过期");
+/*  806 */       return wrappers;
+/*      */     }
+/*  808 */     if (StringUtils.checkNull(dispatchType).booleanValue()) {
+/*  809 */       dispatchType = null;
+/*      */     }
+/*  811 */     if (StringUtils.checkNull(documentType).booleanValue()) {
+/*  812 */       documentType = null;
+/*      */     }
+/*  814 */     String date = "";
+/*  815 */     if (!StringUtils.checkNull(computationNumber).booleanValue())
+/*  816 */       date = computationTime(computationNumber);
+/*      */     else {
+/*  818 */       date = null;
+/*      */     }
+/*  820 */     Map<String,Object> objectMap = new HashMap<String,Object>();
+/*  821 */     PageParams pageParams = new PageParams();
+/*  822 */     pageParams.setUseFlag(useFlag);
+/*  823 */     pageParams.setPage(page);
+/*  824 */     pageParams.setPageSize(pageSize);
+/*  825 */     objectMap.put("page", pageParams);
+/*  826 */     objectMap.put("dispatchType", dispatchType);
+/*  827 */     objectMap.put("documentType", documentType);
+/*  828 */     objectMap.put("date", date);
+/*  829 */     List<DocumentModelFlowRunPrcs> datas = this.documentModelMapper.selOverseeTheOfficialDocument(objectMap);
+/*  830 */     for (DocumentModelFlowRunPrcs data : datas) {
+/*  831 */       data.setCurUserIdName(this.usersMapper.getUsernameByUserId(data.getCurUserId()));
+/*  832 */       data.setAllUserIdName(this.usersService.getUserNameById(data.getAllUserId()));
+/*      */     }
+/*  834 */     wrappers.setTotal(pageParams.getTotal());
+/*  835 */     wrappers.setFlag(true);
+/*  836 */     wrappers.setDatas(datas);
+/*      */ 
+/*  838 */     return wrappers;
+/*      */   }
+/*      */ 
+/*      */   public BaseWrappers addDocSendSms(HttpServletRequest req, String cuName, String allName, String title, String classify, String flowId, String prcsId, String flowStep, String runId)
+/*      */   {
+/*  843 */     BaseWrappers wrappers = new BaseWrappers();
+/*  844 */     Users users = (Users)SessionUtils.getSessionInfo(req.getSession(), Users.class, new Users());
+/*  845 */     if (StringUtils.checkNull(users.getUserId()).booleanValue()) {
+/*  846 */       wrappers.setMsg("用户信息过期");
+/*  847 */       return wrappers;
+/*      */     }
+/*  849 */     SmsBody smsBody = new SmsBody();
+/*  850 */     smsBody.setFromId(users.getUserId());
+/*  851 */     smsBody.setSmsType("70");
+/*  852 */     smsBody.setContent(title);
+/*  853 */     smsBody.setSendTime(Integer.valueOf((int)(System.currentTimeMillis() / 1000L)));
+/*  854 */     smsBody.setRemindUrl("/workflow/work/workform?flowId=" + flowId + "&prcsId=" + prcsId + "&flowStep=" + flowStep + "&runId=" + runId);
+/*  855 */     String toId = "";
+/*  856 */     if ("0".equals(classify)) {
+/*  857 */       toId = cuName;
+/*  858 */     } else if ("1".equals(classify)) {
+/*  859 */       toId = allName;
+/*  860 */     } else if ("2".equals(classify)) {
+/*  861 */       String[] all = allName.split(",");
+/*  862 */       StringBuffer str = new StringBuffer();
+/*  863 */       for (int i = 0; i < all.length; i++) {
+/*  864 */         if (!all[i].equals(cuName)) {
+/*  865 */           str.append(all[i]);
+/*  866 */           str.append(",");
+/*      */         }
+/*      */       }
+/*  869 */       toId = cuName + "," + str.toString();
+/*      */     }
+/*      */ 
+/*  878 */     wrappers.setFlag(true);
+/*  879 */     wrappers.setStatus(true);
+/*  880 */     return wrappers;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<DocumentModel> getDocumentEditPriv(Integer id)
+/*      */   {
+/*  891 */     ToJson<DocumentModel> json = new ToJson<DocumentModel>();
+/*      */     try {
+/*  893 */       if (id != null) {
+/*  894 */         DocumentModel documentEditPriv = this.documentModelMapper.getDocumentEditPriv(id);
+/*  895 */         json.setObject(documentEditPriv);
+/*  896 */         json.setFlag(0);
+/*  897 */         json.setMsg("ok");
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  900 */       e.printStackTrace();
+/*  901 */       json.setFlag(1);
+/*  902 */       json.setMsg("err");
+/*      */     }
+/*  904 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public BaseWrappers<DocumentModelFlowRunPrcs> selectTimeOutDoc(HttpServletRequest request)
+/*      */   {
+/*  914 */     BaseWrappers<DocumentModelFlowRunPrcs> wrappers = new BaseWrappers<DocumentModelFlowRunPrcs>();
+/*      */ 
+/*  916 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  917 */     if (StringUtils.checkNull(users.getUserId()).booleanValue()) {
+/*  918 */       wrappers.setMsg("用户信息过期");
+/*  919 */       return wrappers;
+/*      */     }
+/*      */ 
+/*  922 */     Map<String,Object> param = new HashMap<String,Object>();
+/*      */ 
+/*  924 */     param.put("userId", users.getUserId());
+/*  925 */     param.put("page", Integer.valueOf(0));
+/*  926 */     param.put("pageSize", Integer.valueOf(5));
+/*      */ 
+/*  928 */     List<DocumentModelFlowRunPrcs> datas = this.documentModelMapper.selectTimeOutDoc(param);
+/*      */ 
+/*  930 */     for (DocumentModelFlowRunPrcs d : datas)
+/*      */     {
+/*  932 */       if (d.getTimeOutType().equals("0"))
+/*      */       {
+/*  934 */         if (d.getPrFlag().equals(Integer.valueOf(2))) {
+/*  935 */           if (!StringUtils.checkNull(d.getPrcsTime()).booleanValue())
+/*  936 */             setTimeOutStr(d, DateFormat.getTime(d.getPrcsTime()));
+/*      */         }
+/*  938 */         else if ((d.getPrFlag().equals(Integer.valueOf(1))) && 
+/*  939 */           (!StringUtils.checkNull(d.getTimeOut()).booleanValue())) {
+/*  940 */           d.setTimeOutStr("计时未开始");
+/*  941 */           d.setIfOutTime(Boolean.valueOf(true));
+/*      */         }
+/*      */       }
+/*  944 */       else if ((d.getTimeOutType().equals("1")) && 
+/*  945 */         (!d.getRealPrcsId().equals(Integer.valueOf(1)))) {
+/*  946 */         if ((!d.getPrFlag().equals(Integer.valueOf(3))) && (!d.getPrFlag().equals(Integer.valueOf(4)))) {
+/*  947 */           if (!StringUtils.checkNull(d.getCreateTime()).booleanValue())
+/*  948 */             setTimeOutStr(d, DateFormat.getTime(d.getCreateTime()));
+/*      */         }
+/*  950 */         else if (d.getPrFlag().equals(Integer.valueOf(3))) {
+/*  951 */           d.setTimeOutStr("计时已结束,下一步经办人未接收");
+/*  952 */           d.setIfOutTime(Boolean.valueOf(true));
+/*  953 */         } else if (d.getPrFlag().equals(Integer.valueOf(4))) {
+/*  954 */           d.setTimeOutStr("计时已结束,已结束");
+/*  955 */           d.setIfOutTime(Boolean.valueOf(true));
+/*      */         }
+/*      */       }
+/*      */     }
+/*      */ 
+/*  960 */     wrappers.setFlag(true);
+/*  961 */     wrappers.setDatas(datas);
+/*  962 */     return wrappers;
+/*      */   }
+/*      */ 
+/*      */   public String computationTime(String computationNumber)
+/*      */   {
+/*  975 */     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+/*  976 */     Calendar c = Calendar.getInstance();
+/*  977 */     String day = "";
+/*  978 */     if ("oneWeek".equals(computationNumber)) {
+/*  979 */       c.setTime(new Date());
+/*  980 */       c.add(5, 7);
+/*  981 */       Date d = c.getTime();
+/*  982 */       day = format.format(d);
+/*  983 */     } else if ("secondWeek".equals(computationNumber)) {
+/*  984 */       c.setTime(new Date());
+/*  985 */       c.add(5, 14);
+/*  986 */       Date d1 = c.getTime();
+/*  987 */       day = format.format(d1);
+/*      */     }
+/*  989 */     else if ("thirdWeek".equals(computationNumber)) {
+/*  990 */       c.setTime(new Date());
+/*  991 */       c.add(5, 21);
+/*  992 */       Date d2 = c.getTime();
+/*  993 */       day = format.format(d2);
+/*      */     }
+/*  995 */     else if ("oneMonth".equals(computationNumber)) {
+/*  996 */       c.setTime(new Date());
+/*  997 */       c.add(2, 1);
+/*  998 */       Date m = c.getTime();
+/*  999 */       day = format.format(m);
+/*      */     }
+/* 1001 */     else if ("secondMonth".equals(computationNumber)) {
+/* 1002 */       c.setTime(new Date());
+/* 1003 */       c.add(2, 2);
+/* 1004 */       Date m2 = c.getTime();
+/* 1005 */       day = format.format(m2);
+/*      */     }
+/* 1007 */     else if ("thirdMonth".equals(computationNumber)) {
+/* 1008 */       c.setTime(new Date());
+/* 1009 */       c.add(2, 3);
+/* 1010 */       Date m3 = c.getTime();
+/* 1011 */       day = format.format(m3);
+/*      */     }
+/*      */ 
+/* 1015 */     return day;
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.document.Impl.DocumentSerivceImpl
+ * JD-Core Version:    0.6.0
+ */

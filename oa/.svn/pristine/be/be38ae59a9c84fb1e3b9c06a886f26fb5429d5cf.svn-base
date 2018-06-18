@@ -1,0 +1,63 @@
+/*    */ package com.xoa.service.event.impl;
+/*    */ 
+/*    */ import com.xoa.dao.event.TimeLinePostUserMapper;
+/*    */ import com.xoa.model.event.TimeLinePostUser;
+/*    */ import com.xoa.service.event.TimeLinePostUserService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import com.xoa.util.common.L;
+/*    */ import javax.annotation.Resource;
+/*    */ import org.springframework.stereotype.Service;
+/*    */ 
+/*    */ @Service
+/*    */ public class TimeLinePostUserServiceImpl
+/*    */   implements TimeLinePostUserService
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   TimeLinePostUserMapper timeLinePostUserMapper;
+/*    */ 
+/*    */   public ToJson<TimeLinePostUser> updateTimeLinePostUser(TimeLinePostUser timeLinePostUser)
+/*    */   {
+/* 23 */     ToJson toJson = new ToJson(1, "error");
+/*    */     try {
+/* 25 */       int a = this.timeLinePostUserMapper.updateTimeLinePostUser(timeLinePostUser);
+/* 26 */       if (a > 0) {
+/* 27 */         toJson.setMsg("ok");
+/* 28 */         toJson.setFlag(0);
+/*    */       } else {
+/* 30 */         toJson.setMsg("修改失败");
+/* 31 */         toJson.setFlag(1);
+/*    */       }
+/*    */     } catch (Exception e) {
+/* 34 */       e.printStackTrace();
+/* 35 */       toJson.setMsg(e.getMessage());
+/* 36 */       L.e(new Object[] { "TimeLinePostUserServiceImpl updateTimeLinePostUser:" + e });
+/*    */     }
+/* 38 */     return toJson;
+/*    */   }
+/*    */ 
+/*    */   public ToJson<TimeLinePostUser> addTimeLinePostUser(TimeLinePostUser timeLinePostUser)
+/*    */   {
+/* 43 */     ToJson toJson = new ToJson(1, "error");
+/*    */     try {
+/* 45 */       int b = this.timeLinePostUserMapper.addTimeLinePostUser(timeLinePostUser);
+/* 46 */       if (b > 0) {
+/* 47 */         toJson.setMsg("ok");
+/* 48 */         toJson.setFlag(0);
+/*    */       } else {
+/* 50 */         toJson.setMsg("新建失败");
+/* 51 */         toJson.setFlag(1);
+/*    */       }
+/*    */     } catch (Exception e) {
+/* 54 */       e.printStackTrace();
+/* 55 */       toJson.setMsg(e.getMessage());
+/* 56 */       L.e(new Object[] { "TimeLinePostUserServiceImpl addTimeLinePostUser:" + e });
+/*    */     }
+/* 58 */     return toJson;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.event.impl.TimeLinePostUserServiceImpl
+ * JD-Core Version:    0.6.0
+ */

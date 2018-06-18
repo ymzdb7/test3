@@ -1,0 +1,29 @@
+/*    */ package com.xoa.global.jsondate;
+/*    */ 
+/*    */ import com.xoa.util.DateFormat;
+/*    */ import java.io.IOException;
+/*    */ import java.util.Date;
+/*    */ import org.codehaus.jackson.JsonGenerator;
+/*    */ import org.codehaus.jackson.JsonProcessingException;
+/*    */ import org.codehaus.jackson.map.JsonSerializer;
+/*    */ import org.codehaus.jackson.map.SerializerProvider;
+/*    */ 
+/*    */ public class DateSerializerHMS extends JsonSerializer<Date>
+/*    */ {
+/*    */   public void serialize(Date o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
+/*    */     throws IOException, JsonProcessingException
+/*    */   {
+/*    */     try
+/*    */     {
+/* 20 */       String date = DateFormat.getFormatByUse("HH:mm:ss", o);
+/* 21 */       jsonGenerator.writeString(date);
+/*    */     } catch (Exception e) {
+/* 23 */       e.printStackTrace();
+/*    */     }
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.global.jsondate.DateSerializerHMS
+ * JD-Core Version:    0.6.0
+ */

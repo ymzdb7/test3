@@ -1,0 +1,249 @@
+ package com.myoa.util;
+ 
+ import com.myoa.util.common.session.SessionException;
+import com.myoa.util.common.session.SessionUtils;
+
+ import java.io.File;
+ import java.io.PrintStream;
+ import java.lang.reflect.Field;
+ import java.lang.reflect.InvocationTargetException;
+ import java.lang.reflect.Method;
+ import java.util.ArrayList;
+ import java.util.List;
+ import java.util.Map;
+ import org.apache.commons.beanutils.BeanUtils;
+ import org.apache.commons.beanutils.PropertyUtils;
+ import org.apache.poi.hssf.usermodel.HSSFCell;
+ import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+ import org.apache.poi.hssf.usermodel.HSSFDateUtil;
+ import org.apache.poi.hssf.usermodel.HSSFFont;
+ import org.apache.poi.hssf.usermodel.HSSFRow;
+ import org.apache.poi.hssf.usermodel.HSSFSheet;
+ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+ import org.apache.poi.ss.usermodel.Cell;
+ import org.apache.poi.ss.usermodel.Row;
+ import org.apache.poi.ss.usermodel.Sheet;
+ import org.apache.poi.ss.usermodel.Workbook;
+ import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.util.CellRangeAddress;
+ 
+ public class ExcelUtil
+ {
+   public static HSSFWorkbook makeExcelHead(String title, int cellRangeAddressLength)
+   {
+     HSSFWorkbook workbook = new HSSFWorkbook();
+     HSSFCellStyle styleTitle = createStyle(workbook, 16);
+     HSSFSheet sheet = workbook.createSheet(title);
+     sheet.setDefaultColumnWidth(25);
+     CellRangeAddress cellRangeAddress = new CellRangeAddress(0, 0, 0, cellRangeAddressLength);
+     sheet.addMergedRegion(cellRangeAddress);
+     HSSFRow rowTitle = sheet.createRow(0);
+     HSSFCell cellTitle = rowTitle.createCell(0);
+ 
+     styleTitle.setFillPattern((short)1);
+     styleTitle.setFillForegroundColor((short)22);
+     cellTitle.setCellValue(title);
+     cellTitle.setCellStyle(styleTitle);
+     return workbook;
+   }
+ 
+   public static HSSFWorkbook makeSecondHead(HSSFWorkbook workbook, String[] secondTitles)
+   {
+     HSSFSheet sheet = workbook.getSheetAt(0);
+     HSSFRow rowField = sheet.createRow(1);
+     HSSFCellStyle styleField = createStyle(workbook, 13);
+     for (int i = 0; i < secondTitles.length; i++) {
+       HSSFCell cell = rowField.createCell(i);
+       cell.setCellValue(secondTitles[i]);
+       cell.setCellStyle(styleField);
+     }
+     return workbook;
+   }
+ 
+   public static <T> HSSFWorkbook exportExcelData(HSSFWorkbook workbook, List<T> dataList, String[] beanPropertys)
+     throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
+   {
+     HSSFSheet sheet = workbook.getSheetAt(0);
+ 
+     HSSFCellStyle styleData = workbook.createCellStyle();
+     styleData.setAlignment((short)2);
+     styleData.setVerticalAlignment((short)1);
+ 
+     for (int j = 0; j < dataList.size(); j++) {
+       HSSFRow rowData = sheet.createRow(j + 2);
+       Object t = dataList.get(j);
+       for (int k = 0; k < beanPropertys.length; k++) {
+         System.out.println(t);
+         System.out.println(beanPropertys[k]);
+         Object value = PropertyUtils.getSimpleProperty(t, beanPropertys[k]);
+ 
+         HSSFCell cellData = rowData.createCell(k);
+         try {
+           if ((!value.equals("")) && (value != null)) {
+             cellData.setCellValue(value.toString());
+           }
+           else {
+             cellData.setCellValue("");
+           }
+ 
+           cellData.setCellStyle(styleData);
+         }
+         catch (Exception e)
+         {
+         }
+       }
+     }
+     return workbook;
+   }
+ 
+   public static <T> List<T> parserExcel(Class<T> clazz, File file, String[] beanPropertys)
+   {
+     List list = new ArrayList();
+     try {
+       Workbook workbook = WorkbookFactory.create(file);
+       Sheet sheet = workbook.getSheetAt(0);
+ 
+       int rowSize = sheet.getPhysicalNumberOfRows();
+       if (rowSize > 2) {
+         for (int i = 2; i < rowSize; i++) {
+           Object t = clazz.newInstance();
+           Row row = sheet.getRow(i);
+           int cellSize = row.getPhysicalNumberOfCells();
+           for (int j = 0; j < cellSize; j++)
+           {
+             Object cellValue = getCellValue(row.getCell(j));
+             BeanUtils.copyProperty(t, beanPropertys[j], cellValue);
+           }
+ 
+           list.add(t);
+         }
+       }
+     }
+     catch (Exception e)
+     {
+       e.printStackTrace();
+     }
+     return list;
+   }
+ 
+   private static Object getCellValue(Cell cell)
+   {
+     Object result = null;
+     if (cell != null) {
+       switch (cell.getCellType()) {
+       case 1:
+         result = cell.getStringCellValue();
+         break;
+       case 0:
+         if (!HSSFDateUtil.isCellDateFormatted(cell)) break;
+         double cellValue = cell.getNumericCellValue();
+         result = HSSFDateUtil.getJavaDate(cellValue);
+         break;
+       case 4:
+         result = Boolean.valueOf(cell.getBooleanCellValue());
+         break;
+       case 2:
+         result = cell.getCellFormula();
+         break;
+       case 5:
+         result = Byte.valueOf(cell.getErrorCellValue());
+         break;
+       case 3:
+         break;
+       }
+ 
+     }
+ 
+     return result;
+   }
+ 
+   private static HSSFCellStyle createStyle(HSSFWorkbook workbook, int fontSize)
+   {
+     HSSFCellStyle style = workbook.createCellStyle();
+     style.setAlignment((short)2);
+     style.setVerticalAlignment((short)1);
+ 
+     HSSFFont font = workbook.createFont();
+     font.setFontHeightInPoints((short)fontSize);
+     font.setBoldweight((short)700);
+     style.setFont(font);
+     return style;
+   }
+ 
+   public static <T> T setCellInfoToModel(Row row, Class<T> clazz, T deffault, Map<String, Integer> param)
+   {
+     Object ret = null;
+     if (deffault == null)
+       return null;
+     try {
+       Field[] fields = Class.forName(clazz.getName()).getDeclaredFields();
+       ret = clazz.cast(deffault);
+       for (int i = 0; i < fields.length; i++) {
+         fields[i].setAccessible(true);
+         String methodName = "";
+         if (fields[i].getName().equals("eMail"))
+           methodName = "eMail";
+         else {
+           methodName = SessionUtils.getMethodName(fields[i].getName());
+         }
+         Method set_Method = clazz.getMethod("set" + methodName, new Class[] { fields[i].getType() });
+ 
+         set_Method.setAccessible(true);
+         for (int j = 0; j < row.getPhysicalNumberOfCells(); j++) {
+           Cell cell = row.getCell(j);
+           if ((cell == null) || 
+             (param.get(fields[i].getName()) == null) || (j != ((Integer)param.get(fields[i].getName())).intValue())) continue;
+           Object value = null;
+           switch (cell.getCellType()) {
+           case 1:
+             if (fields[i].getGenericType().toString().equals("class java.util.Date"))
+             {
+               value = DateFormat.DateToStr(cell.getStringCellValue());
+             } else if (fields[i].getGenericType().toString().equals("class java.util.Integer"))
+             {
+               value = Integer.valueOf(cell.getStringCellValue());
+             }
+             else value = cell.getStringCellValue();
+ 
+             break;
+           case 0:
+             if (HSSFDateUtil.isCellDateFormatted(cell)) {
+               double cellValue = cell.getNumericCellValue();
+               value = HSSFDateUtil.getJavaDate(cellValue);
+             } else {
+               value = Integer.valueOf((int)cell.getNumericCellValue());
+             }
+             break;
+           case 4:
+             value = Boolean.valueOf(cell.getBooleanCellValue());
+             break;
+           case 2:
+             value = cell.getCellFormula();
+             break;
+           case 5:
+             value = Byte.valueOf(cell.getErrorCellValue());
+             value = DateFormat.DateToStr(String.valueOf(value));
+             break;
+           case 3:
+             break;
+           }
+ 
+           if (value == null) continue;
+           try {
+             set_Method.invoke(ret, new Object[] { value });
+           } catch (Exception e) {
+             set_Method.invoke(ret, new Object[] { String.valueOf(value) });
+           }
+         }
+ 
+       }
+ 
+     }
+     catch (Exception e)
+     {
+       e.printStackTrace();
+       throw new SessionException("value is null");
+     }
+     return (T)ret;
+   }
+ }

@@ -1,0 +1,108 @@
+/*     */ package com.xoa.controller.workflow;
+/*     */ 
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.syspara.SysParaService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.io.PrintStream;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/flowSetting"})
+/*     */ public class FlowSettingPageController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   SysParaService sysParaService;
+/*     */ 
+/*     */   @RequestMapping({"/index"})
+/*     */   public String indexPage(Model model, Integer flowId, HttpServletRequest request)
+/*     */   {
+/*  27 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  29 */     System.out.println("页面获取参数：" + flowId);
+/*  30 */     model.addAttribute("flowId", flowId);
+/*  31 */     return "app/workflow/flowsettting/index";
+/*     */   }
+/*  35 */   @RequestMapping({"/processDesignTool"})
+/*     */   public String processDesignToolpage() { return "app/workflow/flowsettting/processDesignTool"; }
+/*     */ 
+/*     */   @RequestMapping({"/processDesignliucheng"})
+/*     */   public String processDesignliucheng() {
+/*  40 */     return "app/workflow/flowsettting/processDesignliucheng";
+/*     */   }
+/*     */   @RequestMapping({"/processDesignToolTwo"})
+/*     */   public String processDesignToolTwopage() {
+/*  45 */     return "app/workflow/flowsettting/processDesignToolTwo";
+/*     */   }
+/*     */   @RequestMapping({"/processDesignToolTwoO"})
+/*     */   public String processDesignToolTwopageO() {
+/*  50 */     return "app/workflow/flowsettting/processDesignToolTwoO";
+/*     */   }
+/*     */   @RequestMapping({"/processDesignToolTwoT"})
+/*     */   public String processDesignToolTwopageT() {
+/*  55 */     return "app/workflow/flowsettting/processDesignToolTwoT";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/processDesignToolTwoThelog"})
+/*     */   public String processDesignToolTwoThelog()
+/*     */   {
+/*  62 */     return "app/workflow/flowsettting/processDesignToolTwoThelog";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/processDesignToolTwoView"})
+/*     */   public String processDesignToolTwoView()
+/*     */   {
+/*  69 */     return "app/workflow/flowsettting/processDesignToolTwoView";
+/*     */   }
+/*  73 */   @RequestMapping({"/processDesignToolsT"})
+/*     */   public String processDesignToolsT() { return "app/workflow/flowsettting/processDesignToolsT"; }
+/*     */ 
+/*     */   @RequestMapping({"/processDesignToolsTlc"})
+/*     */   public String processDesignToolsTlc() {
+/*  78 */     return "app/workflow/flowsettting/processDesignToolsTliucheng";
+/*     */   }
+/*     */   @RequestMapping({"/flowSettingMain"})
+/*     */   public String flowSettingMain() {
+/*  83 */     return "app/workflow/flowsettting/theDesignProcess/main";
+/*     */   }
+/*  87 */   @RequestMapping({"/theHomePage"})
+/*     */   public String theHomePage() { return "app/workflow/flowsettting/theDesignProcess/theHomePage"; } 
+/*     */   @RequestMapping({"/attributeTwo"})
+/*     */   public String attributeTwo() {
+/*  91 */     return "app/workflow/flowsettting/theDesignProcess/designProcessSection/attribute";
+/*     */   }
+/*  95 */   @RequestMapping({"/stepsTwo"})
+/*     */   public String stepsTwo() { return "app/workflow/flowsettting/theDesignProcess/designProcessSection/steps"; } 
+/*     */   @RequestMapping({"/permissions"})
+/*     */   public String permissions(HttpServletRequest request) {
+/*  99 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 100 */     if (!this.sysParaService.checkIsHaveSecure(user, Integer.valueOf(8))) {
+/* 101 */       return "app/common/development";
+/*     */     }
+/* 103 */     return "app/workflow/flowsettting/theDesignProcess/permissions";
+/*     */   }
+/* 107 */   @RequestMapping({"/timingTask"})
+/*     */   public String timingTask() { return "app/workflow/flowsettting/theDesignProcess/timingTask"; } 
+/*     */   @RequestMapping({"/configureTemplateQuery"})
+/*     */   public String configureTemplateQuery() {
+/* 111 */     return "app/workflow/flowsettting/theDesignProcess/configureTemplateQuery";
+/*     */   }
+/* 115 */   @RequestMapping({"/applicationLayoutFile"})
+/*     */   public String applicationLayoutFile() { return "app/workflow/flowsettting/theDesignProcess/applicationLayoutFile"; } 
+/*     */   @RequestMapping({"/attributeThree"})
+/*     */   public String attributeThree() {
+/* 119 */     return "app/workflow/flowsettting/theDesignProcess/designProcessSection/attributeTwo";
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.workflow.FlowSettingPageController
+ * JD-Core Version:    0.6.0
+ */

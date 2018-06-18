@@ -1,0 +1,125 @@
+/*     */ package com.xoa.service.book;
+/*     */ 
+/*     */ import com.xoa.dao.book.BookTypeMapper;
+/*     */ import com.xoa.model.book.BookType;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class BookTypeService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private BookTypeMapper bookTypeMapper;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<BookType> insertType(BookType bookType)
+/*     */   {
+/*  35 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  37 */       int count = this.bookTypeMapper.insertType(bookType);
+/*  38 */       if (count > 0) {
+/*  39 */         json.setMsg("ok");
+/*  40 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  43 */       json.setMsg(e.getMessage());
+/*  44 */       L.e(new Object[] { "BookTypeService insertType:" + e });
+/*  45 */       e.printStackTrace();
+/*     */     }
+/*  47 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<BookType> upTypeById(BookType bookType)
+/*     */   {
+/*  59 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  61 */       int count = this.bookTypeMapper.upTypeById(bookType);
+/*  62 */       if (count > 0) {
+/*  63 */         json.setMsg("ok");
+/*  64 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  67 */       json.setMsg(e.getMessage());
+/*  68 */       L.e(new Object[] { "BookTypeService upTypeById:" + e });
+/*  69 */       e.printStackTrace();
+/*     */     }
+/*  71 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<BookType> delTypeById(Integer typeId)
+/*     */   {
+/*  83 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  85 */       int count = this.bookTypeMapper.delTypeById(typeId);
+/*  86 */       if (count > 0) {
+/*  87 */         json.setMsg("ok");
+/*  88 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  91 */       json.setMsg(e.getMessage());
+/*  92 */       L.e(new Object[] { "BookTypeService delTypeById:" + e });
+/*  93 */       e.printStackTrace();
+/*     */     }
+/*  95 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookType> selTypeById(Integer typeId)
+/*     */   {
+/* 106 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 108 */       BookType bookType = this.bookTypeMapper.selTypeById(typeId);
+/* 109 */       json.setObject(bookType);
+/* 110 */       json.setMsg("ok");
+/* 111 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 113 */       json.setMsg(e.getMessage());
+/* 114 */       L.e(new Object[] { "BookTypeService selTypeById:" + e });
+/* 115 */       e.printStackTrace();
+/*     */     }
+/* 117 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookType> selAllType()
+/*     */   {
+/* 128 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 130 */       List list = this.bookTypeMapper.selAllType();
+/* 131 */       json.setObj(list);
+/* 132 */       json.setMsg("ok");
+/* 133 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 135 */       json.setMsg(e.getMessage());
+/* 136 */       L.e(new Object[] { "BookTypeService selAllType:" + e });
+/* 137 */       e.printStackTrace();
+/*     */     }
+/* 139 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<BookType> selCountByTypeName(String typeName)
+/*     */   {
+/* 150 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 152 */       int count = this.bookTypeMapper.selCountByTypeName(typeName);
+/* 153 */       json.setTotleNum(Integer.valueOf(count));
+/* 154 */       json.setMsg("ok");
+/* 155 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 157 */       json.setMsg(e.getMessage());
+/* 158 */       L.e(new Object[] { "BookTypeService selCountByTypeName:" + e });
+/* 159 */       e.printStackTrace();
+/*     */     }
+/* 161 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.book.BookTypeService
+ * JD-Core Version:    0.6.0
+ */

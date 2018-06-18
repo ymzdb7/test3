@@ -1,0 +1,23 @@
+package com.myoa.dao.netdisk;
+
+import com.myoa.model.netdisk.Netdisk;
+
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface NetdiskMapper {
+	public abstract int addNetdisk(Netdisk paramNetdisk);
+
+	public abstract List<Netdisk> selectNetdisk();
+
+	public abstract void delete(Integer paramInteger);
+
+	public abstract int editNetdisk(Netdisk paramNetdisk);
+
+	public abstract int editNetdiskJurisdiction(Map<String, String> paramMap);
+
+	public abstract Netdisk queryNetdisk(@Param("diskId") Integer paramInteger);
+
+	public abstract Netdisk queryNetdiskold(@Param("path") String paramString);
+}

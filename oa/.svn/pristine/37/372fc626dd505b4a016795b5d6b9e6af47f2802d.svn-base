@@ -1,0 +1,420 @@
+ package com.myoa.service.workPlan;
+ 
+ import com.myoa.dao.workPlan.WorkDetailMapper;
+import com.myoa.dao.workPlan.WorkPlanMapper;
+import com.myoa.model.edu.eduUser.EduUser;
+import com.myoa.model.users.Users;
+import com.myoa.model.workPlan.WorkDetailWithBLOBs;
+import com.myoa.model.workPlan.WorkPlanWithBLOBs;
+import com.myoa.service.department.DepartmentService;
+import com.myoa.service.edu.eduUser.IEduUserService;
+import com.myoa.util.DateFormat;
+import com.myoa.util.ExcelUtil;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.L;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.common.log.FileUtils;
+import com.myoa.util.common.session.SessionUtils;
+import com.myoa.util.page.PageParams;
+
+ import java.io.OutputStream;
+ import java.util.ArrayList;
+ import java.util.Date;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import javax.annotation.Resource;
+ import javax.servlet.http.HttpServletRequest;
+ import javax.servlet.http.HttpServletResponse;
+ import javax.servlet.http.HttpSession;
+ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+ import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+ 
+ @Service
+ public class WorkPlanService
+ {
+ 
+   @Resource
+   private WorkPlanMapper workPlanMapper;
+ 
+   @Resource
+   private IEduUserService eduUserService;
+ 
+   @Resource
+   private DepartmentService departmentService;
+ 
+   @Resource
+   private WorkDetailMapper workDetailMapper;
+ 
+   public ToJson<WorkPlanWithBLOBs> selectWorkPlanByCond(int output, WorkPlanWithBLOBs workPlanWithBLOBs, HttpServletRequest request, HttpServletResponse response, HttpSession session, Integer page, Integer pageSize, boolean useFlag)
+   {
+     ToJson json = new ToJson(1, "error");
+     try
+     {
+       PageParams pageParams = new PageParams();
+       pageParams.setPage(page);
+       pageParams.setPageSize(pageSize);
+       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+       Map map = new HashMap();
+       map.put("page", pageParams);
+       if (workPlanWithBLOBs != null) {
+         if (workPlanWithBLOBs.getStatusFlag().intValue() != 0) {
+           Date date = new Date();
+           workPlanWithBLOBs.setCurrent(date);
+         }
+         if ((!StringUtils.checkNull(workPlanWithBLOBs.getToId()).booleanValue()) && (workPlanWithBLOBs.getToId().contains(","))) {
+           workPlanWithBLOBs.setToId(workPlanWithBLOBs.getToId().replace(",", ""));
+         }
+         if ((!StringUtils.checkNull(workPlanWithBLOBs.getToPersonId()).booleanValue()) && (workPlanWithBLOBs.getToPersonId().contains(","))) {
+           workPlanWithBLOBs.setToPersonId(workPlanWithBLOBs.getToPersonId().replace(",", ""));
+         }
+         if ((!StringUtils.checkNull(workPlanWithBLOBs.getParticipator()).booleanValue()) && (workPlanWithBLOBs.getParticipator().contains(","))) {
+           workPlanWithBLOBs.setParticipator(workPlanWithBLOBs.getParticipator().replace(",", ""));
+         }
+       }
+       map.put("workPlanWithBLOBs", workPlanWithBLOBs);
+       List<WorkPlanWithBLOBs> workPlanWithBLOBsList = this.workPlanMapper.selectWorkPlanByCond(map);
+ 
+       Date date = new Date();
+       long currentTime = DateFormat.getTime(DateFormat.getStrDate(date)).intValue();
+       long beginTime = 0L;
+       long endTime = 0L;
+       double particiCount = 0.0D;
+       double percent = 0.0D;
+       Map uidPartParam = new HashMap();
+       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       uidPartParam.put("uId", user.getUid());
+       for (WorkPlanWithBLOBs temp : workPlanWithBLOBsList) {
+         uidPartParam.put("planId", temp.getPlanId());
+         int uidPartFlag = this.workPlanMapper.selManAndPartCount(uidPartParam);
+         temp.setUidPartFlag(Integer.valueOf(uidPartFlag));
+ 
+         if (temp.getBeginDate() != null) {
+           beginTime = DateFormat.getTime(DateFormat.getStrDate(temp.getBeginDate())).intValue();
+         }
+         if (temp.getEndDate() != null) {
+           endTime = DateFormat.getTime(DateFormat.getStrDate(temp.getEndDate())).intValue();
+         }
+         if (temp.getEndDate() == null) {
+           if (currentTime < beginTime) {
+             temp.setStatus("1");
+             temp.setStatusName("未开始");
+           } else {
+             temp.setStatus("2");
+             temp.setStatusName("进行中");
+           }
+         }
+         else if (temp.getPublish().equals("1")) {
+           if (temp.getSuspendFlag() == "0")
+           {
+             temp.setStatusName("暂停");
+           }
+           else if ((currentTime < beginTime) && (currentTime < endTime)) {
+             temp.setStatus("1");
+             temp.setStatusName("未开始");
+           } else if ((currentTime >= beginTime) && (currentTime <= endTime)) {
+             temp.setStatus("2");
+             temp.setStatusName("进行中");
+           } else if ((currentTime > beginTime) && (currentTime > endTime)) {
+             temp.setStatus("3");
+             temp.setStatusName("已结束");
+           }
+         }
+         else {
+           temp.setStatusName("未发布");
+         }
+ 
+         if (!StringUtils.checkNull(temp.getManager()).booleanValue()) {
+           particiCount += 1.0D;
+           temp.setManagerName(this.eduUserService.getUserNameByUids(temp.getManager()));
+         }
+         if (!StringUtils.checkNull(temp.getOpinionLeader()).booleanValue()) {
+           temp.setOpinionLeaderName(this.eduUserService.getUserNameByUids(temp.getOpinionLeader()));
+         }
+         if (!StringUtils.checkNull(temp.getParticipator()).booleanValue()) {
+           particiCount += temp.getParticipator().split(",").length - 1;
+           temp.setParticipatorName(this.eduUserService.getUserNameByUids(temp.getParticipator()));
+         }
+         if (!StringUtils.checkNull(temp.getToPersonId()).booleanValue()) {
+           temp.setToPersonName(this.eduUserService.getUserNameByUids(temp.getToPersonId()));
+         }
+         if (!StringUtils.checkNull(temp.getToId()).booleanValue()) {
+           temp.setToName(this.departmentService.getDeptNameByDeptId(temp.getToId(), ","));
+         }
+         if ((!StringUtils.checkNull(temp.getCreator()).booleanValue()) && 
+           (this.eduUserService.getByuserId(temp.getCreator()) != null)) {
+           temp.setCreatorName(this.eduUserService.getByuserId(temp.getCreator()).getUserName());
+         }
+ 
+         if (temp.getPlanId() != null) {
+           WorkDetailWithBLOBs workDetail = new WorkDetailWithBLOBs();
+           workDetail.setPlanId(temp.getPlanId().toString());
+           workDetail.setTypeFlag("0");
+           List<WorkDetailWithBLOBs> workDetailList = this.workDetailMapper.selWorkDetailByPlanId(workDetail);
+           for (WorkDetailWithBLOBs workDetailWithBLOBs : workDetailList) {
+             if (workDetailWithBLOBs.getPercent() != null) {
+               percent += workDetailWithBLOBs.getPercent().intValue();
+             }
+           }
+           int progress = 0;
+           if (particiCount != 0.0D) {
+             progress = (int)(percent / particiCount);
+           }
+           temp.setProgress(Integer.valueOf(progress));
+         }
+       }
+       if (output == 1) {
+         HSSFWorkbook tableWork = ExcelUtil.makeExcelHead("工作计划表", 15);
+         String[] secondTitles = { "计划名称", "计划内容", "开始时间", "结束时间", "计划类别", "开放部门", "开放人员", "负责人", "参与人", "创建人", "创建时间", "状态", "备注" };
+         HSSFWorkbook excelWork = ExcelUtil.makeSecondHead(tableWork, secondTitles);
+         String[] beanProperty = { "name", "content", "beginDate", "endDate", "typeName", "toName", "toPersonName", "managerName", "participatorName", "creatorName", "createDate", "statusName", "remark" };
+         HSSFWorkbook workbook = ExcelUtil.exportExcelData(excelWork, workPlanWithBLOBsList, beanProperty);
+         response.setContentType("text/html;charset=UTF-8");
+         OutputStream out = response.getOutputStream();
+ 
+         String filename = "工作计划表.xls";
+         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+ 
+         response.setContentType("application/vnd.ms-excel");
+         response.setHeader("content-disposition", "attachment;filename=" + filename);
+ 
+         workbook.write(out);
+         out.flush();
+         out.close();
+       }
+ 
+       int result = this.workPlanMapper.selectWorkPlanTotalByCond(workPlanWithBLOBs);
+ 
+       json.setTotleNum(Integer.valueOf(result));
+       json.setObj(workPlanWithBLOBsList);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "WorkPlanService selectWorkPlanByCond:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   @Transactional
+   public ToJson<WorkPlanWithBLOBs> insertWorkPlan(WorkPlanWithBLOBs workPlanWithBLOBs, HttpServletRequest request)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       Date date = new Date();
+       if (workPlanWithBLOBs.getBeginDate() == null) {
+         workPlanWithBLOBs.setBeginDate(date);
+       }
+       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       workPlanWithBLOBs.setCreateDate(date);
+       workPlanWithBLOBs.setCreator(user.getUserId());
+       int count = this.workPlanMapper.insertWorkPlan(workPlanWithBLOBs);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "WorkPlanService insertWorkPlan:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   @Transactional
+   public ToJson<WorkPlanWithBLOBs> updateWorkPlanById(WorkPlanWithBLOBs workPlanWithBLOBs)
+   {
+     ToJson json = new ToJson(1, "error");
+     int count = 0;
+     try {
+       if (workPlanWithBLOBs.getBeginDate() == null) {
+         Date date = new Date();
+         workPlanWithBLOBs.setBeginDate(date);
+       }
+ 
+       if ((!StringUtils.checkNull(workPlanWithBLOBs.getClearEndClearFlag()).booleanValue()) && 
+         (workPlanWithBLOBs.getClearEndClearFlag().equals("1"))) {
+         WorkPlanWithBLOBs workPlan = this.workPlanMapper.selectWorkPlanById(workPlanWithBLOBs.getPlanId().intValue());
+         if (workPlan.getEndDate() != null) {
+           long endTime = DateFormat.getDateTime(DateFormat.getDatestr(workPlan.getEndDate())).intValue();
+           long time = DateFormat.getDateTime(DateFormat.getDatestr(new Date())).intValue();
+           if (endTime <= time) {
+             count += this.workPlanMapper.clearEndDateById(workPlanWithBLOBs.getPlanId().intValue());
+           }
+         }
+       }
+ 
+       count += this.workPlanMapper.updateWorkPlanById(workPlanWithBLOBs);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "WorkPlanService updateWorkPlanById:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   @Transactional
+   public ToJson<WorkPlanWithBLOBs> delWorkPlanById(int planId)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       int count = this.workPlanMapper.delWorkPlanById(planId);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "WorkPlanService delWorkPlanById:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   @Transactional
+   public ToJson<WorkPlanWithBLOBs> deleteWorkPlanByIds(String planIds)
+   {
+     ToJson toJson = new ToJson(1, "error");
+     try {
+       int count = 0;
+       String[] planIdArray = planIds.split(",");
+       for (String planId : planIdArray) {
+         if (!StringUtils.checkNull(planId).booleanValue()) {
+           count = this.workPlanMapper.delWorkPlanById(Integer.valueOf(planId).intValue());
+         }
+       }
+       if (count > 0) {
+         toJson.setFlag(0);
+         toJson.setMsg("ok");
+       }
+     } catch (Exception e) {
+       toJson.setMsg(e.getMessage());
+       L.e(new Object[] { "WorkPlanService deleteWorkPlanByIds:" + e });
+     }
+     return toJson;
+   }
+ 
+   public ToJson<WorkPlanWithBLOBs> selectWorkPlanById(int planId)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       WorkPlanWithBLOBs workPlanWithBLOBs = this.workPlanMapper.selectWorkPlanById(planId);
+ 
+       Date date = new Date();
+       long currentTime = DateFormat.getTime(DateFormat.getStrDate(date)).intValue();
+       long beginTime = 0L;
+       long endTime = 0L;
+       if (workPlanWithBLOBs.getBeginDate() != null) {
+         beginTime = DateFormat.getTime(DateFormat.getStrDate(workPlanWithBLOBs.getBeginDate())).intValue();
+       }
+       if (workPlanWithBLOBs.getEndDate() != null) {
+         endTime = DateFormat.getTime(DateFormat.getStrDate(workPlanWithBLOBs.getEndDate())).intValue();
+       }
+       if (workPlanWithBLOBs.getEndDate() == null) {
+         if (currentTime < beginTime) {
+           workPlanWithBLOBs.setStatus("1");
+           workPlanWithBLOBs.setStatusName("未开始");
+         } else {
+           workPlanWithBLOBs.setStatus("2");
+           workPlanWithBLOBs.setStatusName("进行中");
+         }
+       }
+       else if ((currentTime < beginTime) && (currentTime < endTime)) {
+         workPlanWithBLOBs.setStatus("1");
+         workPlanWithBLOBs.setStatusName("未开始");
+       } else if ((currentTime > beginTime) && (currentTime < endTime)) {
+         workPlanWithBLOBs.setStatus("2");
+         workPlanWithBLOBs.setStatusName("进行中");
+       } else if ((currentTime > beginTime) && (currentTime > endTime)) {
+         workPlanWithBLOBs.setStatus("3");
+         workPlanWithBLOBs.setStatusName("已结束");
+       }
+ 
+       if (!StringUtils.checkNull(workPlanWithBLOBs.getManager()).booleanValue()) {
+         workPlanWithBLOBs.setManagerName(this.eduUserService.getUserNameByUids(workPlanWithBLOBs.getManager()));
+       }
+       if (!StringUtils.checkNull(workPlanWithBLOBs.getOpinionLeader()).booleanValue()) {
+         workPlanWithBLOBs.setOpinionLeaderName(this.eduUserService.getUserNameByUids(workPlanWithBLOBs.getOpinionLeader()));
+       }
+       if (!StringUtils.checkNull(workPlanWithBLOBs.getParticipator()).booleanValue()) {
+         workPlanWithBLOBs.setParticipatorName(this.eduUserService.getUserNameByUids(workPlanWithBLOBs.getParticipator()));
+       }
+       if (!StringUtils.checkNull(workPlanWithBLOBs.getToPersonId()).booleanValue()) {
+         workPlanWithBLOBs.setToPersonName(this.eduUserService.getUserNameByUids(workPlanWithBLOBs.getToPersonId()));
+       }
+       if (!StringUtils.checkNull(workPlanWithBLOBs.getToId()).booleanValue()) {
+         workPlanWithBLOBs.setToName(this.departmentService.getDeptNameByDeptId(workPlanWithBLOBs.getToId(), ","));
+       }
+       if ((!StringUtils.checkNull(workPlanWithBLOBs.getCreator()).booleanValue()) && 
+         (this.eduUserService.getByuserId(workPlanWithBLOBs.getCreator()) != null)) {
+         workPlanWithBLOBs.setCreatorName(this.eduUserService.getByuserId(workPlanWithBLOBs.getCreator()).getUserName());
+       }
+ 
+       json.setObject(workPlanWithBLOBs);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "WorkPlanService selectWorkPlanById:" + e });
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public List<WorkPlanWithBLOBs> getNoFinished(WorkPlanWithBLOBs workPlanWithBLOBs, Integer page, Integer pageSize, boolean useFlag)
+   {
+     PageParams pageParams = new PageParams();
+     pageParams.setPage(page);
+     pageParams.setPageSize(pageSize);
+     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+     Map map = new HashMap();
+     map.put("page", pageParams);
+     map.put("workPlanWithBLOBs", workPlanWithBLOBs);
+     List<WorkPlanWithBLOBs> allWorkPlan = this.workPlanMapper.selectWorkPlanByCond(map);
+ 
+     map.remove("page");
+     Date date = new Date();
+     workPlanWithBLOBs.setCurrent(date);
+     workPlanWithBLOBs.setStatusFlag(Integer.valueOf(1));
+     map.put("workPlanWithBLOBs", workPlanWithBLOBs);
+     List<WorkPlanWithBLOBs> finishedList = this.workPlanMapper.selectWorkPlanByCond(map);
+ 
+     List noFinishedList = new ArrayList();
+     for (WorkPlanWithBLOBs workPlan : allWorkPlan) {
+       int count = 0;
+       for (WorkPlanWithBLOBs temp : finishedList) {
+         if (workPlan.getPlanId() == temp.getPlanId()) {
+           count++;
+           break;
+         }
+       }
+       if (count == 0) {
+         noFinishedList.add(workPlan);
+       }
+     }
+     return noFinishedList;
+   }
+ 
+   public int getNoFinishedCount(WorkPlanWithBLOBs workPlanWithBLOBs)
+   {
+     Map map = new HashMap();
+     map.put("workPlanWithBLOBs", workPlanWithBLOBs);
+     List allWorkPlan = this.workPlanMapper.selectWorkPlanByCond(map);
+ 
+     Date date = new Date();
+     workPlanWithBLOBs.setCurrent(date);
+     workPlanWithBLOBs.setStatusFlag(Integer.valueOf(1));
+     map.put("workPlanWithBLOBs", workPlanWithBLOBs);
+     List finishedList = this.workPlanMapper.selectWorkPlanByCond(map);
+ 
+     int count = allWorkPlan.size() - finishedList.size();
+     return count;
+   }
+ }
+

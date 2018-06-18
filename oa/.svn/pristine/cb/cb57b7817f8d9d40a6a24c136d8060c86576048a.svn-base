@@ -1,0 +1,1106 @@
+/*      */ package com.xoa.service.department.impl;
+/*      */ 
+/*      */ import com.alibaba.fastjson.JSONArray;
+/*      */ import com.alibaba.fastjson.JSONObject;
+/*      */ import com.xoa.dao.department.DepartmentMapper;
+/*      */ import com.xoa.dao.users.UsersMapper;
+/*      */ import com.xoa.model.department.Department;
+/*      */ import com.xoa.model.users.Users;
+/*      */ import com.xoa.service.department.DepartmentService;
+/*      */ import com.xoa.service.users.UsersService;
+/*      */ import com.xoa.util.ExcelUtil;
+/*      */ import com.xoa.util.ToJson;
+/*      */ import com.xoa.util.common.L;
+/*      */ import com.xoa.util.common.log.FileUtils;
+/*      */ import com.xoa.util.common.session.SessionUtils;
+/*      */ import com.xoa.util.netdisk.ZipUtils;
+/*      */ import java.io.File;
+/*      */ import java.io.FileInputStream;
+/*      */ import java.io.FileOutputStream;
+/*      */ import java.io.InputStream;
+/*      */ import java.io.OutputStream;
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.HashMap;
+/*      */ import java.util.Iterator;
+/*      */ import java.util.List;
+/*      */ import java.util.Map;
+/*      */ import java.util.ResourceBundle;
+/*      */ import java.util.UUID;
+/*      */ import javax.annotation.Resource;
+/*      */ import javax.servlet.ServletOutputStream;
+/*      */ import javax.servlet.http.HttpServletRequest;
+/*      */ import javax.servlet.http.HttpServletResponse;
+/*      */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*      */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*      */ import org.apache.poi.ss.usermodel.Cell;
+/*      */ import org.apache.poi.ss.usermodel.Row;
+/*      */ import org.jdom2.Document;
+/*      */ import org.jdom2.Element;
+/*      */ import org.jdom2.output.Format;
+/*      */ import org.jdom2.output.XMLOutputter;
+/*      */ import org.springframework.stereotype.Service;
+/*      */ import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+/*      */ 
+/*      */ @Service
+/*      */ public class DepartmentServiceImpl
+/*      */   implements DepartmentService
+/*      */ {
+/*      */ 
+/*      */   @Resource
+/*      */   private DepartmentMapper departmentMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersService usersService;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersMapper usersMapper;
+/*   62 */   static int times = 0;
+/*      */ 
+/*      */   public List<String> getDeptNameById(int[] deptID)
+/*      */   {
+/*   76 */     List<String> list = new ArrayList();
+/*      */ 
+/*   78 */     StringBuffer sb = new StringBuffer();
+/*   79 */     for (int i = 0; i < deptID.length; i++) {
+/*   80 */       if (deptID.length == 1) {
+/*   81 */         String deptName = this.departmentMapper.getDeptNameById(deptID[i]);
+/*   82 */         list.add(deptName);
+/*   83 */         return list;
+/*      */       }
+/*   85 */       String deptName = this.departmentMapper.getDeptNameById(deptID[i]);
+/*   86 */       if (i < deptID.length - 1)
+/*   87 */         sb.append(deptName).append(",");
+/*      */       else {
+/*   89 */         sb.append(deptName);
+/*      */       }
+/*      */     }
+/*      */ 
+/*   93 */     list.add(sb.toString());
+/*   94 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public String getDeptNameByDeptId(String deptId, String flag)
+/*      */   {
+/*  109 */     if (com.xoa.util.common.StringUtils.checkNull(deptId).booleanValue()) {
+/*  110 */       return null;
+/*      */     }
+/*      */ 
+/*  113 */     StringBuffer sb = new StringBuffer();
+/*  114 */     if ("ALL_DEPT".trim().equals(deptId)) {
+/*  115 */       sb.append("全部部门");
+/*      */     } else {
+/*  117 */       String[] temp = deptId.split(flag);
+/*  118 */       for (int i = 0; i < temp.length; i++) {
+/*  119 */         if (!com.xoa.util.common.StringUtils.checkNull(temp[i]).booleanValue()) {
+/*  120 */           String userName = this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(Integer.parseInt(temp[i])));
+/*  121 */           if (!com.xoa.util.common.StringUtils.checkNull(userName).booleanValue()) {
+/*  122 */             if (i < temp.length - 1)
+/*  123 */               sb.append(userName).append(",");
+/*      */             else {
+/*  125 */               sb.append(userName);
+/*      */             }
+/*      */           }
+/*      */         }
+/*      */       }
+/*      */     }
+/*  131 */     return sb.toString();
+/*      */   }
+/*      */ 
+/*      */   public String getDpNameById(int[] deptID)
+/*      */   {
+/*  147 */     StringBuffer sb = new StringBuffer();
+/*  148 */     for (int i = 0; i < deptID.length; i++) {
+/*  149 */       if (deptID.length == 1) {
+/*  150 */         String deptName = this.departmentMapper.getDeptNameById(deptID[i]);
+/*  151 */         return deptName;
+/*      */       }
+/*  153 */       String deptName = this.departmentMapper.getDeptNameById(deptID[i]);
+/*  154 */       if (i < deptID.length - 1)
+/*  155 */         sb.append(deptName).append(",");
+/*      */       else {
+/*  157 */         sb.append(deptName);
+/*      */       }
+/*      */     }
+/*      */ 
+/*  161 */     return sb.toString();
+/*      */   }
+/*      */ 
+/*      */   public List<Department> getDatagrid()
+/*      */   {
+/*  175 */     List<Department> departmentList = this.departmentMapper.getDatagrid();
+/*  176 */     StringBuffer bb1 = new StringBuffer();
+/*  177 */     StringBuffer bb2 = new StringBuffer();
+/*  178 */     StringBuffer bb3 = new StringBuffer();
+/*  179 */     StringBuffer bb4 = new StringBuffer();
+/*  180 */     for (Department dept : departmentList) {
+/*  181 */       String manag = dept.getManager();
+/*  182 */       String assistant = dept.getAssistantId();
+/*  183 */       String leader1 = dept.getLeader1();
+/*  184 */       String leader2 = dept.getLeader2();
+/*  185 */       if ((manag != null) && (!manag.equals(""))) {
+/*  186 */         String[] mm = manag.split(",");
+/*  187 */         for (int j = 0; j < mm.length; j++) {
+/*  188 */           String name2 = this.usersService.findUsersByuid(new int[] { Integer.parseInt(mm[j]) });
+/*  189 */           if (name2 != null) {
+/*  190 */             bb1.append(name2);
+/*  191 */             bb1.append(",");
+/*  192 */             dept.setManager(bb1.toString().substring(0, bb1.toString().length() - 1));
+/*      */           }
+/*      */         }
+/*      */ 
+/*  196 */         bb1.delete(0, bb1.length());
+/*      */       }
+/*  198 */       if ((assistant != null) && (!assistant.equals(""))) {
+/*  199 */         String[] cc = assistant.split(",");
+/*  200 */         for (int j = 0; j < cc.length; j++) {
+/*  201 */           String name3 = this.usersService.findUsersByuid(new int[] { Integer.parseInt(cc[j]) });
+/*  202 */           if (name3 != null) {
+/*  203 */             bb2.append(name3);
+/*  204 */             bb2.append(",");
+/*  205 */             dept.setAssistantId(bb2.toString().substring(0, bb2.toString().length() - 1));
+/*      */           }
+/*      */         }
+/*      */ 
+/*  209 */         bb2.delete(0, bb2.length());
+/*      */       }
+/*  211 */       if ((leader1 != null) && (!leader1.equals(""))) {
+/*  212 */         String[] dd = leader1.split(",");
+/*  213 */         for (int j = 0; j < dd.length; j++) {
+/*  214 */           String name4 = this.usersService.findUsersByuid(new int[] { Integer.parseInt(dd[j]) });
+/*  215 */           if (name4 != null) {
+/*  216 */             bb3.append(name4);
+/*  217 */             bb3.append(",");
+/*  218 */             dept.setLeader1(bb3.toString().substring(0, bb3.toString().length() - 1));
+/*      */           }
+/*      */         }
+/*      */ 
+/*  222 */         bb3.delete(0, bb3.length());
+/*      */       }
+/*  224 */       if ((leader2 != null) && (!leader2.equals(""))) {
+/*  225 */         String[] ee = leader2.split(",");
+/*  226 */         for (int j = 0; j < ee.length; j++) {
+/*  227 */           String name5 = this.usersService.findUsersByuid(new int[] { Integer.parseInt(ee[j]) });
+/*  228 */           if (name5 != null) {
+/*  229 */             bb4.append(name5);
+/*  230 */             bb4.append(",");
+/*  231 */             dept.setLeader2(bb4.toString().substring(0, bb4.toString().length() - 1));
+/*      */           }
+/*      */         }
+/*      */ 
+/*  235 */         bb4.delete(0, bb4.length());
+/*      */       }
+/*      */     }
+/*      */ 
+/*  239 */     return departmentList;
+/*      */   }
+/*      */ 
+/*      */   public Department getDeptById(int deptId)
+/*      */   {
+/*  254 */     Department department = this.departmentMapper.getDeptById(deptId);
+/*  255 */     department.setDeptParentName(this.departmentMapper.getDeptNameByDeptId(department.getDeptParent()));
+/*  256 */     return department;
+/*      */   }
+/*      */ 
+/*      */   public void deleteDept(int deptId)
+/*      */   {
+/*  269 */     this.departmentMapper.deleteDept(deptId);
+/*      */   }
+/*      */ 
+/*      */   public void editDept(Department department)
+/*      */   {
+/*  283 */     if ((department.getDeptParent() != null) && (department.getDeptParent().intValue() != 0)) {
+/*  284 */       Department dept = this.departmentMapper.getDeptById(department.getDeptParent().intValue());
+/*  285 */       department.setDeptNo(dept.getDeptNo() + department.getDeptNo());
+/*      */     }
+/*  287 */     this.departmentMapper.editDept(department);
+/*      */   }
+/*      */ 
+/*      */   public void insertDept(Department department)
+/*      */   {
+/*  301 */     this.departmentMapper.insertDept(department);
+/*      */   }
+/*      */ 
+/*      */   public List<Department> getDeptByMany(Department department)
+/*      */   {
+/*  316 */     List<Department> list = this.departmentMapper.getDeptByMany(department);
+/*  317 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public List<Department> getChDept(int deptId)
+/*      */   {
+/*  335 */     List<Department> list = this.departmentMapper.getChDept(deptId);
+/*      */ 
+/*  337 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public List<Department> getFatherDept(int deptParent, List<Department> list)
+/*      */   {
+/*  353 */     Department dep = this.departmentMapper.getFatherDept(deptParent);
+/*  354 */     if (dep.getDeptParent().intValue() != 0) {
+/*  355 */       list.add(dep);
+/*      */     } else {
+/*  357 */       list.add(dep);
+/*  358 */       return list;
+/*      */     }
+/*  360 */     return getFatherDept(dep.getDeptParent().intValue(), list);
+/*      */   }
+/*      */ 
+/*      */   public String longDepName(int deptId) {
+/*  364 */     Department department = this.departmentMapper.getFatherDept(deptId);
+/*  365 */     List<Department> l = new ArrayList<Department>();
+/*  366 */     List<Department> list = getFatherDept(department.getDeptId().intValue(), l);
+/*  367 */     StringBuffer sb = new StringBuffer();
+/*  368 */     for (int i = list.size() - 2; i >= 0; i--) {
+/*  369 */       sb.append(((Department)list.get(i)).getDeptName());
+/*  370 */       if (i > 0) {
+/*  371 */         sb.append("/");
+/*      */       }
+/*      */     }
+/*  374 */     return sb.toString();
+/*      */   }
+/*      */ 
+/*      */   public List<Department> getChDeptByNo(String deptNo)
+/*      */   {
+/*  379 */     List<Department> list = this.departmentMapper.getBydeptNo(deptNo);
+/*  380 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public List<Department> getChDtUser(int deptId)
+/*      */   {
+/*  393 */     List<Department> list = this.departmentMapper.getChDeptUser(deptId);
+/*      */ 
+/*  395 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public List<Department> getChDeptUser(int deptId)
+/*      */   {
+/*  410 */     List<Department> list = this.departmentMapper.getChDeptUser(deptId);
+/*  411 */     List<Department> list1 = this.departmentMapper.getChDept(deptId);
+/*  412 */     for (Department dep : list1) {
+/*  413 */       Department department = getDeptById(dep.getDeptParent().intValue());
+/*  414 */       dep.setDeptParentName(department.getDeptName());
+/*  415 */       List<Department> list2 = new ArrayList<Department>();
+/*  416 */       list2 = getChDept(dep.getDeptId().intValue());
+/*  417 */       if (list2.size() != 0)
+/*  418 */         dep.setIsHaveCh("1");
+/*      */       else {
+/*  420 */         dep.setIsHaveCh("0");
+/*      */       }
+/*      */     }
+/*  423 */     if ((list.size() != 0) && (list1.size() != 0)) {
+/*  424 */       for (int i = 0; i < list1.size(); i++) {
+/*  425 */         list.add(list1.get(i));
+/*      */       }
+/*  427 */       return list;
+/*      */     }
+/*  429 */     if ((list.size() != 0) && (list1.size() == 0)) {
+/*  430 */       return list;
+/*      */     }
+/*  432 */     if ((list.size() == 0) && (list1.size() != 0)) {
+/*  433 */       return list1;
+/*      */     }
+/*  435 */     if ((list.size() == 0) && (list1.size() == 0)) {
+/*  436 */       return list;
+/*      */     }
+/*  438 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public int getCountChDeptUser(String deptNo)
+/*      */   {
+/*  452 */     int count = this.departmentMapper.getCountChDeptUser(deptNo);
+/*  453 */     return count;
+/*      */   }
+/*      */ 
+/*      */   public List<Department> listDept()
+/*      */   {
+/*  458 */     List<Department> allDept = this.departmentMapper.getDatagrid();
+/*      */ 
+/*  460 */     List<Department> deptParent = this.departmentMapper.getDepartmentByParet();
+/*  461 */     for (Department department : deptParent) {
+/*  462 */       if (ifChilds(allDept, department.getDeptId().intValue())) {
+/*  463 */         List<Department> resultList = new ArrayList<Department>();
+/*  464 */         resultList = getChildList(allDept, department.getDeptId().intValue(), resultList);
+/*  465 */         department.setChild(resultList);
+/*      */       }
+/*      */     }
+/*      */ 
+/*  469 */     return deptParent;
+/*      */   }
+/*      */ 
+/*      */   public List<Department> getFatherChildDept()
+/*      */   {
+/*  481 */     List<Department> allDeptList = this.departmentMapper.getDatagrid();
+/*  482 */     List<Department> departments = addChildDeptToFather(allDeptList);
+/*      */ 
+/*  484 */     return departments;
+/*      */   }
+/*      */ 
+/*      */   public List<Department> addChildDeptToFather(List<Department> departments)
+/*      */   {
+/*  496 */     ArrayList<Department> departmentList = new ArrayList<Department>();
+/*  497 */     for (int i = 0; i < departments.size(); i++) {
+/*  498 */       Department department = (Department)departments.get(i);
+/*  499 */       department.setChild(new ArrayList<Department>());
+/*  500 */       Integer deptId = department.getDeptId();
+/*  501 */       for (int j = 0; j < departments.size(); j++) {
+/*  502 */         if (((Department)departments.get(j)).getDeptParent().equals(deptId)) {
+/*  503 */           department.getChild().add(departments.get(j));
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  509 */       departmentList.add(department);
+/*      */     }
+/*      */ 
+/*  512 */     ArrayList<Department> fatherDeptList = new ArrayList<Department>();
+/*      */ 
+/*  514 */     for (int i = 0; i < departmentList.size(); i++) {
+/*  515 */       Integer deptParrentId = ((Department)departmentList.get(i)).getDeptParent();
+/*      */ 
+/*  517 */       if (deptParrentId.intValue() == 0) {
+/*  518 */         fatherDeptList.add(departmentList.get(i));
+/*      */       }
+/*      */     }
+/*      */ 
+/*  522 */     return fatherDeptList;
+/*      */   }
+/*      */ 
+/*      */   private static List<Department> getChildList(List<Department> list, int deptId, List<Department> reList)
+/*      */   {
+/*  529 */     for (Department department : list) {
+/*  530 */       if (department.getDeptParent().intValue() == deptId)
+/*      */       {
+/*  532 */         reList.add(department);
+/*  533 */         if (ifChilds(list, department.getDeptId().intValue())) {
+/*  534 */           getChildList(list, department.getDeptId().intValue(), reList);
+/*      */         }
+/*      */       }
+/*      */     }
+/*  538 */     return reList;
+/*      */   }
+/*      */ 
+/*      */   private static boolean ifChilds(List<Department> list, int deptId)
+/*      */   {
+/*  546 */     boolean flag = false;
+/*  547 */     for (Department department : list) {
+/*  548 */       if (department.getDeptParent().intValue() == deptId) {
+/*  549 */         flag = true;
+/*  550 */         break;
+/*      */       }
+/*      */     }
+/*  553 */     return flag;
+/*      */   }
+/*      */ 
+/*      */   public Department getFirstDept(String deptNo)
+/*      */   {
+/*  558 */     Department dep = this.departmentMapper.getFirstDept(deptNo);
+/*  559 */     return dep;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public ToJson<Department> batchUpdateDeptById(String departments)
+/*      */   {
+/*  576 */     ToJson<Department> json = new ToJson<Department>(1, "error");
+/*  577 */     int count = 0;
+/*      */     try {
+/*  579 */       JSONArray jsonArray = JSONArray.parseArray(departments);
+/*  580 */       List<Department> departmentList = new ArrayList<Department>();
+/*  581 */       Department department = new Department();
+/*  582 */       int i = 0; for (int len = jsonArray.size(); i < len; i++) {
+/*  583 */         JSONObject jsonJ = jsonArray.getJSONObject(i);
+/*  584 */         Integer deptId = jsonJ.getInteger("deptId");
+/*  585 */         String manager = jsonJ.getString("manager");
+/*  586 */         String assistantId = jsonJ.getString("assistantId");
+/*      */ 
+/*  588 */         department.setDeptId(deptId);
+/*  589 */         department.setManager(manager);
+/*  590 */         department.setAssistantId(assistantId);
+/*  591 */         count += this.departmentMapper.batchUpdateDeptById(department);
+/*      */       }
+/*      */ 
+/*  596 */       if (count != 0) {
+/*  597 */         json.setMsg("ok");
+/*  598 */         json.setFlag(0);
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  601 */       json.setMsg(e.getMessage());
+/*  602 */       L.e(new Object[] { "DepartmentServiceImpl batchUpdateDeptById:" + e });
+/*      */     }
+/*  604 */     return json;
+/*      */   }
+/*      */ 
+/*      */   @Transactional
+/*      */   public void updateDeptNo(Integer deptParent, String deptParentNo)
+/*      */   {
+/*  619 */     int deptNo = 0;
+/*  620 */     List<Department> list = this.departmentMapper.getChDept(deptParent.intValue());
+/*  621 */     if (list.size() != 0)
+/*  622 */       for (Department department : list) {
+/*  623 */         int deptId = department.getDeptId().intValue();
+/*  624 */         deptNo += 5;
+/*  625 */         StringBuffer sb = new StringBuffer();
+/*  626 */         sb.append(deptParentNo).append(org.apache.commons.lang.StringUtils.repeat("0", 3 - String.valueOf(deptNo).length())).append(String.valueOf(deptNo));
+/*  627 */         String deptNostr = sb.toString();
+/*  628 */         Department department1 = new Department();
+/*  629 */         department1.setDeptId(Integer.valueOf(deptId));
+/*  630 */         department1.setDeptNo(deptNostr.toString());
+/*  631 */         this.departmentMapper.updateDeptNoByDeptId(department1);
+/*  632 */         updateDeptNo(Integer.valueOf(deptId), deptNostr);
+/*      */       }
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Department> outputDepartment(HttpServletRequest request, HttpServletResponse response)
+/*      */   {
+/*  644 */     ToJson<Department> json = new ToJson<Department>(1, "error");
+/*      */     try {
+/*  646 */       HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("OA部门信息导出", 9);
+/*  647 */       String[] secondTitles = { "部门名称", "部门排序号", "上级部门", "部门电话", "部门传真", "部门地址", "部门职能", "是否机构", "是否全局部门" };
+/*  648 */       HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/*  649 */       Department userPriv = new Department();
+/*  650 */       List<Department> departmentList = this.departmentMapper.getAllDepartment();
+/*  651 */       for (Department department : departmentList) {
+/*  652 */         int deptParent = department.getDeptParent().intValue();
+/*  653 */         String deptParentName = this.departmentMapper.getFatherDeptName(Integer.valueOf(deptParent));
+/*  654 */         if (com.xoa.util.common.StringUtils.checkNull(deptParentName).booleanValue())
+/*  655 */           department.setDeptParentName("");
+/*      */         else {
+/*  657 */           department.setDeptParentName(deptParentName);
+/*      */         }
+/*      */       }
+/*      */ 
+/*  661 */       String[] beanProperty = { "deptName", "deptNo", "deptParentName", "telNo", "faxNo", "deptAddress", "deptFunc", "isOrg", "gDept" };
+/*  662 */       HSSFWorkbook workbook = ExcelUtil.exportExcelData(workbook2, departmentList, beanProperty);
+/*  663 */       ServletOutputStream out = response.getOutputStream();
+/*      */ 
+/*  665 */       String filename = "OA部门导出.xls";
+/*  666 */       filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/*      */ 
+/*  668 */       response.setContentType("application/vnd.ms-excel");
+/*  669 */       response.setHeader("content-disposition", "attachment;filename=" + filename);
+/*      */ 
+/*  671 */       workbook.write(out);
+/*  672 */       out.close();
+/*  673 */       json.setMsg("OK");
+/*  674 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  676 */       json.setMsg(e.getMessage());
+/*  677 */       L.e(new Object[] { "DepartmentServiceImpl outputDepartment:" + e });
+/*      */     }
+/*  679 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public List<Department> getAllDep(int deptId, int deptParent, List<Department> allDep)
+/*      */   {
+/*  684 */     List<Department> list = this.departmentMapper.getChDept(deptParent);
+/*  685 */     if (list.size() != 0) {
+/*  686 */       for (Department department : list) {
+/*  687 */         deptId = department.getDeptId().intValue();
+/*  688 */         Department department1 = new Department();
+/*  689 */         department1.setDeptId(Integer.valueOf(deptId));
+/*  690 */         allDep.add(department);
+/*  691 */         getAllDep(deptId, deptId, allDep);
+/*      */       }
+/*      */     }
+/*  694 */     return allDep;
+/*      */   }
+/*      */ 
+/*      */   public boolean checkDep(Department dep, int edit)
+/*      */   {
+/*  700 */     List<Department> list = this.departmentMapper.checkDep(dep.getDeptName());
+/*  701 */     if (edit == 0) {
+/*  702 */       if ((list != null) && (list.size() > 0)) {
+/*  703 */         for (Department d : list) {
+/*  704 */           if (d.getDeptParent().equals(dep.getDeptParent())) {
+/*  705 */             return false;
+/*      */           }
+/*      */         }
+/*  708 */         return true;
+/*      */       }
+/*  710 */       return true;
+/*      */     }
+/*      */ 
+/*  713 */     Department old = this.departmentMapper.getDeptById(dep.getDeptId().intValue());
+/*  714 */     if ((list != null) && (list.size() > 0)) {
+/*  715 */       for (Department d : list) {
+/*  716 */         if ((d.getDeptParent().equals(dep.getDeptParent())) && (!d.getDeptName().equals(old.getDeptName()))) {
+/*  717 */           return false;
+/*      */         }
+/*      */       }
+/*  720 */       return true;
+/*      */     }
+/*  722 */     return true;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Department> getAllDepartment()
+/*      */   {
+/*  735 */     ToJson<Department> json = new ToJson<Department>(1, "error");
+/*      */     try {
+/*  737 */       List<Department> departmentList = this.departmentMapper.getAllDepartment();
+/*  738 */       for (Department department : departmentList) {
+/*  739 */         StringBuffer manager = new StringBuffer();
+/*  740 */         StringBuffer assistant = new StringBuffer();
+/*  741 */         if (!com.xoa.util.common.StringUtils.checkNull(department.getManager()).booleanValue()) {
+/*  742 */           String[] managerArray = department.getManager().split(",");
+/*  743 */           for (String managerId : managerArray) {
+/*  744 */             Users users = this.usersService.findUserByuid(Integer.valueOf(managerId).intValue());
+/*  745 */             if (users != null) {
+/*  746 */               manager.append(users.getUserName() + ",");
+/*      */             }
+/*      */           }
+/*      */         }
+/*  750 */         if (!com.xoa.util.common.StringUtils.checkNull(department.getAssistantId()).booleanValue()) {
+/*  751 */           String[] assistantArray = department.getAssistantId().split(",");
+/*  752 */           for (String assistantId : assistantArray) {
+/*  753 */             Users users = this.usersService.findUserByuid(Integer.valueOf(assistantId).intValue());
+/*  754 */             if (users != null) {
+/*  755 */               assistant.append(users.getUserName() + ",");
+/*      */             }
+/*      */           }
+/*      */         }
+/*  759 */         department.setManagerStr(manager.toString());
+/*  760 */         department.setAssistantStr(assistant.toString());
+/*      */       }
+/*  762 */       json.setObj(departmentList);
+/*  763 */       json.setMsg("ok");
+/*  764 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  766 */       e.printStackTrace();
+/*  767 */       json.setMsg(e.getMessage());
+/*  768 */       L.e(new Object[] { "DepartmentServiceImpl getAllDepartment:" + e });
+/*      */     }
+/*  770 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public int judgeHashUser(String deptId)
+/*      */   {
+/*  782 */     int flag = 0;
+/*      */     try {
+/*  784 */       int count = this.usersMapper.judgeHashUser(deptId);
+/*  785 */       if (count != 0)
+/*  786 */         flag = 1;
+/*      */     }
+/*      */     catch (Exception e)
+/*      */     {
+/*  790 */       L.e(new Object[] { "DepartmentServiceImpl judgeHashUser:" + e });
+/*      */     }
+/*  792 */     return flag;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Department> getAllDepartAndUsers(HttpServletRequest request, HttpServletResponse response)
+/*      */   {
+/*  803 */     ToJson<Department> json = new ToJson<Department>();
+/*      */ 
+/*  805 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/*      */ 
+/*  807 */     String osName = System.getProperty("os.name");
+/*  808 */     StringBuffer sb = new StringBuffer();
+/*  809 */     if (osName.toLowerCase().startsWith("win"))
+/*  810 */       sb = sb.append(rb.getString("upload.win"));
+/*      */     else {
+/*  812 */       sb = sb.append(rb.getString("upload.linux"));
+/*      */     }
+/*      */ 
+/*      */     try
+/*      */     {
+/*  817 */       List<Department> firstDeparts = this.departmentMapper.getChDept(0);
+/*      */ 
+/*  819 */       getChildAndUsers(firstDeparts);
+/*      */ 
+/*  822 */       Element root = new Element("org").setAttribute("a", "0").setAttribute("b", "北京高速波软件有限公司");
+/*      */ 
+/*  824 */       Document Doc = new Document(root);
+/*      */ 
+/*  826 */       writeXML(firstDeparts, root);
+/*      */ 
+/*  828 */       String path = sb.append("/org.xml").toString();
+/*      */ 
+/*  831 */       Format format = Format.getPrettyFormat();
+/*  832 */       XMLOutputter XMLOut = new XMLOutputter(format);
+/*  833 */       XMLOut.output(Doc, new FileOutputStream(path));
+/*      */ 
+/*  835 */       File file = new File(path);
+/*      */ 
+/*  837 */       if (!file.exists()) {
+/*  838 */         json.setFlag(1);
+/*  839 */         json.setMsg("xml文件不存在");
+/*  840 */         return json;
+/*      */       }
+/*  842 */       String zipPath = path.replace("org.xml", "org.zip");
+/*      */ 
+/*  844 */       ZipUtils.zip(path, zipPath);
+/*      */ 
+/*  846 */       File zipFile = new File(path);
+/*      */ 
+/*  848 */       if (!zipFile.exists()) {
+/*  849 */         json.setFlag(1);
+/*  850 */         json.setMsg("zip文件不存在");
+/*  851 */         return json;
+/*      */       }
+/*      */ 
+/*  854 */       response.setContentType("application/x-zip-compressed");
+/*  855 */       response.setHeader("content-disposition", "attachment;filename=org.zip");
+/*      */ 
+/*  857 */       InputStream inputStream = new FileInputStream(new File(zipPath));
+/*  858 */       OutputStream os = response.getOutputStream();
+/*  859 */       byte[] b = new byte[2048];
+/*      */       int length;
+/*  861 */       while ((length = inputStream.read(b)) > 0) {
+/*  862 */         os.write(b, 0, length);
+/*      */       }
+/*      */ 
+/*  865 */       os.close();
+/*  866 */       inputStream.close();
+/*      */ 
+/*  868 */       json.setFlag(0);
+/*  869 */       json.setMsg("ok");
+/*      */     } catch (Exception e) {
+/*  871 */       e.printStackTrace();
+/*  872 */       json.setMsg("err");
+/*  873 */       json.setFlag(1);
+/*      */     }
+/*  875 */     return json;
+/*      */   }
+/*      */ 
+/*      */   private void writeXML(List<Department> firstDeparts, Element root)
+/*      */     throws Exception
+/*      */   {
+/*  886 */     if ((firstDeparts != null) && (firstDeparts.size() > 0))
+/*  887 */       for (Department d : firstDeparts)
+/*      */       {
+/*  889 */         Element elements = new Element("d");
+/*  890 */         elements.setAttribute("a", d.getDeptId().toString()).setAttribute("b", d.getDeptName()).setAttribute("c", "0");
+/*  891 */         root.addContent(elements);
+/*  892 */         if ((d.getUsers() != null) && (d.getUsers().size() > 0)) {
+/*  893 */           for (Users u : d.getUsers()) {
+/*  894 */             Element elementU = new Element("u");
+/*  895 */             elementU.setAttribute("a", u.getUid().toString()).setAttribute("b", u.getUserName()).setAttribute("c", u.getUserPriv().toString()).setAttribute("d", u.getSex()).setAttribute("e", u.getOnStatus() == null ? "" : u.getOnStatus().trim()).setAttribute("h", u.getByname()).setAttribute("i", u.getDeptId().toString()).setAttribute("k", u.getMobilNo() == null ? "" : u.getMobilNo().trim()).setAttribute("m", u.getOicqNo() == null ? "" : u.getOicqNo().trim()).setAttribute("l", u.getEmail() == null ? "" : u.getEmail().trim()).setAttribute("p1", u.getNotLogin().toString());
+/*      */ 
+/*  901 */             elements.addContent(elementU);
+/*      */           }
+/*      */         }
+/*  904 */         if ((d.getChild() == null) || (d.getChild().size() <= 0))
+/*      */           continue;
+/*  906 */         writeXML(d.getChild(), elements);
+/*      */       }
+/*      */   }
+/*      */ 
+/*      */   private void getChildAndUsers(List<Department> departs)
+/*      */     throws Exception
+/*      */   {
+/*  921 */     for (Department d : departs) {
+/*  922 */       List<Department> chDept = this.departmentMapper.getChDept(d.getDeptId().intValue());
+/*  923 */       List<Users> usersByDeptId = this.usersMapper.getUsersByDeptId(d.getDeptId());
+/*  924 */       if ((usersByDeptId != null) && (usersByDeptId.size() > 0)) {
+/*  925 */         d.setUsers(usersByDeptId);
+/*      */       }
+/*  927 */       if ((chDept != null) && (chDept.size() > 0)) {
+/*  928 */         d.setChild(chDept);
+/*  929 */         getChildAndUsers(chDept);
+/*      */       }
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Department> setClassifyOrgByDeptId(String deptIds, String classifyOrgAdmin, int classifyOrg)
+/*      */   {
+/*  944 */     ToJson<Department> json = new ToJson<Department>(1, "error");
+/*  945 */     int count = 0;
+/*  946 */     Department department = new Department();
+/*  947 */     department.setClassifyOrgAdmin(classifyOrgAdmin);
+/*  948 */     department.setClassifyOrg(Integer.valueOf(classifyOrg));
+/*      */     try {
+/*  950 */       if (!com.xoa.util.common.StringUtils.checkNull(deptIds).booleanValue()) {
+/*  951 */         String[] deptIdArray = deptIds.split(",");
+/*  952 */         if (classifyOrg == 0)
+/*      */         {
+/*  954 */           department.setDeptId(Integer.valueOf(deptIds));
+/*  955 */           count += this.departmentMapper.setClassifyOrgByDeptId(department);
+/*  956 */           delClassify(deptIds, department, count);
+/*  957 */           if (count > 0) {
+/*  958 */             json.setMsg("ok");
+/*  959 */             json.setFlag(0);
+/*      */           }
+/*  961 */           return json;
+/*      */         }
+/*  963 */         for (String deptId : deptIdArray)
+/*      */         {
+/*  965 */           department.setDeptId(Integer.valueOf(deptId));
+/*  966 */           count += this.departmentMapper.setClassifyOrgByDeptId(department);
+/*      */ 
+/*  968 */           int deptParent = 1;
+/*  969 */           for (int i = 0; deptParent != 0; i++) {
+/*  970 */             if (this.departmentMapper.getFatherDept(Integer.valueOf(deptId).intValue()) != null) {
+/*  971 */               deptParent = this.departmentMapper.getFatherDept(Integer.valueOf(deptId).intValue()).getDeptParent().intValue();
+/*      */             }
+/*  973 */             if (deptParent != 0) {
+/*  974 */               department.setDeptId(Integer.valueOf(deptParent));
+/*  975 */               StringBuffer strOrgAdmin = new StringBuffer();
+/*  976 */               String OrgAdmin = this.departmentMapper.getDeptById(deptParent).getClassifyOrgAdmin();
+/*  977 */               strOrgAdmin.append(OrgAdmin);
+/*  978 */               String[] postOrgAdmin = classifyOrgAdmin.split(",");
+/*  979 */               if (!com.xoa.util.common.StringUtils.checkNull(OrgAdmin).booleanValue()) {
+/*  980 */                 String[] destOrgAdmin = OrgAdmin.split(",");
+/*  981 */                 int flag = 0;
+/*  982 */                 for (String str1 : postOrgAdmin) {
+/*  983 */                   for (String str2 : destOrgAdmin) {
+/*  984 */                     if (str1.equals(str2)) {
+/*  985 */                       flag = 1;
+/*  986 */                       break;
+/*      */                     }
+/*      */                   }
+/*  989 */                   if (flag == 0) {
+/*  990 */                     strOrgAdmin.append(str1 + ",");
+/*      */                   }
+/*      */                 }
+/*  993 */                 department.setClassifyOrgAdmin(strOrgAdmin.toString());
+/*      */               } else {
+/*  995 */                 department.setClassifyOrgAdmin(classifyOrgAdmin);
+/*      */               }
+/*  997 */               count += this.departmentMapper.setClassifyOrgByDeptId(department);
+/*      */             }
+/*  999 */             deptId = String.valueOf(deptParent);
+/*      */           }
+/*      */         }
+/*      */       }
+/* 1003 */       if (count > 0) {
+/* 1004 */         json.setMsg("ok");
+/* 1005 */         json.setFlag(0);
+/*      */       }
+/*      */     } catch (Exception e) {
+/* 1008 */       json.setMsg(e.getMessage());
+/* 1009 */       L.e(new Object[] { "DepartmentServiceImpl setClassifyOrgByDeptId:" + e });
+/*      */     }
+/* 1011 */     return json;
+/*      */   }
+/*      */ 
+/*      */   void delClassify(String deptIds, Department department, int count)
+/*      */   {
+/* 1022 */     List<Integer> deptIdList = this.departmentMapper.getDeptIdByParent(Integer.valueOf(deptIds).intValue());
+/*      */     Iterator<Integer> i$;
+/* 1023 */     if (deptIdList.size() > 0)
+/* 1024 */       for (i$ = deptIdList.iterator(); i$.hasNext(); ) { int deptId = ((Integer)i$.next()).intValue();
+/* 1025 */         department.setDeptId(Integer.valueOf(deptId));
+/* 1026 */         count += this.departmentMapper.setClassifyOrgByDeptId(department);
+/* 1027 */         delClassify(String.valueOf(deptId), department, count);
+/*      */       }
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Department> getAllClassifyOrg()
+/*      */   {
+/* 1041 */     ToJson<Department> json = new ToJson<Department>(1, "error");
+/*      */     try {
+/* 1043 */       List<Department> departmentList = this.departmentMapper.getAllClassifyOrg();
+/* 1044 */       json.setObj(departmentList);
+/* 1045 */       json.setMsg("ok");
+/* 1046 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/* 1048 */       json.setMsg(e.getMessage());
+/* 1049 */       L.e(new Object[] { "DepartmentServiceImpl getAllClassifyOrg:" + e });
+/*      */     }
+/* 1051 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Department> getClassifyOrgByAdmin(HttpServletRequest request)
+/*      */   {
+/* 1062 */     ToJson<Department> json = new ToJson<Department>(1, "error");
+/*      */     try {
+/* 1064 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 1065 */       Department department = new Department();
+/* 1066 */       department.setUid(user.getUid());
+/* 1067 */       int deptId = Integer.parseInt(new String(request.getParameter("deptId").getBytes("ISO-8859-1"), "UTF-8"));
+/* 1068 */       department.setDeptParent(Integer.valueOf(deptId));
+/* 1069 */       List<Department> departmentList = this.departmentMapper.getClassifyOrgByAdmin(department);
+/* 1070 */       json.setObj(departmentList);
+/* 1071 */       json.setMsg("ok");
+/* 1072 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/* 1074 */       json.setMsg(e.getMessage());
+/* 1075 */       L.e(new Object[] { "DepartmentServiceImpl getClassifyOrgByAdmin:" + e });
+/*      */     }
+/* 1077 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public List<Department> getDepartmentByParet() {
+/* 1081 */     return this.departmentMapper.getDepartmentByParet();
+/*      */   }
+/*      */ 
+/*      */   public int selClaNumByParentId(int deptId)
+/*      */   {
+/* 1091 */     return this.departmentMapper.selClaNumByParentId(deptId);
+/*      */   }
+/*      */ 
+/*      */   public List<Department> getDepByNo(String deptNo)
+/*      */   {
+/* 1096 */     List<Department> list = this.departmentMapper.getDepByNo(deptNo);
+/* 1097 */     return list;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Department> importDepartment(HttpServletRequest request, HttpServletResponse response, MultipartFile file)
+/*      */   {
+/* 1102 */     ToJson<Department> json = new ToJson<Department>();
+/*      */     try
+/*      */     {
+/* 1106 */       ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 1107 */       String osName = System.getProperty("os.name");
+/* 1108 */       StringBuffer path = new StringBuffer();
+/* 1109 */       if (osName.toLowerCase().startsWith("win"))
+/* 1110 */         path = path.append(rb.getString("upload.win"));
+/*      */       else {
+/* 1112 */         path = path.append(rb.getString("upload.linux"));
+/*      */       }
+/*      */ 
+/* 1115 */       if (file.isEmpty()) {
+/* 1116 */         json.setMsg("请上传文件！");
+/* 1117 */         json.setFlag(1);
+/* 1118 */         return json;
+/*      */       }
+/* 1120 */       String fileName = file.getOriginalFilename();
+/* 1121 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 1122 */         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+/* 1123 */         int pos = fileName.indexOf(".");
+/* 1124 */         String extName = fileName.substring(pos);
+/* 1125 */         String newFileName = uuid + extName;
+/* 1126 */         File dest = new File(path.toString(), newFileName);
+/* 1127 */         file.transferTo(dest);
+/*      */ 
+/* 1130 */         String readPath = path.append(System.getProperty("file.separator")).append(newFileName).toString();
+/* 1131 */         InputStream in = new FileInputStream(readPath);
+/* 1132 */         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+/* 1133 */         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+/* 1134 */         Row row = sheetObj.getRow(0);
+/* 1135 */         int colNum = row.getPhysicalNumberOfCells();
+/* 1136 */         int lastRowNum = sheetObj.getLastRowNum();
+/* 1137 */         Department entity = null;
+/* 1138 */         int successCount = 0;
+/* 1139 */         int failCount = 0;
+/* 1140 */         Department department = new Department();
+/* 1141 */         for (int i = 1; i <= lastRowNum; i++) {
+/* 1142 */           entity = new Department();
+/* 1143 */           row = sheetObj.getRow(i);
+/* 1144 */           String deptParent = null;
+/* 1145 */           if (row != null) {
+/* 1146 */             for (int j = 0; j < colNum; j++) {
+/* 1147 */               Cell cell = row.getCell(j);
+/* 1148 */               if (cell != null) {
+/* 1149 */                 switch (j) {
+/*      */                 case 0:
+/* 1151 */                   entity.setDeptName(cell.getStringCellValue());
+/* 1152 */                   break;
+/*      */                 case 1:
+/* 1154 */                   entity.setDeptNo(cell.getStringCellValue());
+/* 1155 */                   break;
+/*      */                 case 2:
+/* 1157 */                   entity.setDeptParentName(cell.getStringCellValue());
+/* 1158 */                   if (!com.xoa.util.common.StringUtils.checkNull(cell.getStringCellValue()).booleanValue()) {
+/* 1159 */                     List<String> deptParentList = this.departmentMapper.getDeptIdByDeptName(cell.getStringCellValue());
+/* 1160 */                     if (deptParentList.size() > 0) {
+/* 1161 */                       deptParent = (String)deptParentList.get(0);
+/*      */                     }
+/* 1163 */                     if (com.xoa.util.common.StringUtils.checkNull(deptParent).booleanValue())
+/* 1164 */                       entity.setDeptParent(Integer.valueOf(-1));
+/*      */                     else
+/* 1166 */                       entity.setDeptParent(Integer.valueOf(deptParent));
+/*      */                   }
+/*      */                   else {
+/* 1169 */                     entity.setDeptParent(Integer.valueOf(0));
+/*      */                   }
+/* 1171 */                   break;
+/*      */                 case 3:
+/* 1173 */                   entity.setTelNo(cell.getStringCellValue());
+/* 1174 */                   break;
+/*      */                 case 4:
+/* 1176 */                   entity.setFaxNo(cell.getStringCellValue());
+/* 1177 */                   break;
+/*      */                 case 5:
+/* 1179 */                   entity.setDeptAddress(cell.getStringCellValue());
+/* 1180 */                   break;
+/*      */                 case 6:
+/* 1182 */                   entity.setDeptFunc(cell.getStringCellValue());
+/* 1183 */                   break;
+/*      */                 case 7:
+/* 1185 */                   if ("是".equals(cell.getStringCellValue().trim())) {
+/* 1186 */                     entity.setClassifyOrg(Integer.valueOf(1)); } else {
+/* 1187 */                     if ((!"否".equals(cell.getStringCellValue().trim())) && (!"不是".equals(cell.getStringCellValue().trim()))) continue;
+/* 1188 */                     entity.setClassifyOrg(Integer.valueOf(0)); } break;
+/*      */                 case 8:
+/* 1192 */                   if ("是".equals(cell.getStringCellValue().trim())) {
+/* 1193 */                     entity.setgDept(Byte.valueOf((byte) 1)); } else {
+/* 1194 */                     if ((!"否".equals(cell.getStringCellValue().trim())) && (!"不是".equals(cell.getStringCellValue().trim()))) continue;
+/* 1195 */                     entity.setgDept(Byte.valueOf((byte) 0));
+/*      */                   }
+/*      */                 }
+/*      */               }
+/*      */             }
+/*      */ 
+/*      */           }
+/*      */ 
+/* 1203 */           if ((com.xoa.util.common.StringUtils.checkNull(entity.getDeptName()).booleanValue()) || (com.xoa.util.common.StringUtils.checkNull(entity.getDeptNo()).booleanValue()) || (entity.getDeptNo().length() != 3)) {
+/* 1204 */             failCount++;
+/* 1205 */             entity.setNameRoNoNull(Integer.valueOf(1));
+/*      */           }
+/*      */           else
+/*      */           {
+/* 1210 */             String deptName = row.getCell(0).getStringCellValue();
+/* 1211 */             if (!checkDep(entity, 0)) {
+/* 1212 */               failCount++;
+/* 1213 */               entity.setNameRepeat(Integer.valueOf(1));
+/*      */             }
+/* 1218 */             else if ((entity.getDeptParent() != null) && (entity.getDeptParent().intValue() == -1)) {
+/* 1219 */               failCount++;
+/* 1220 */               entity.setNoParent(Integer.valueOf(1));
+/*      */             }
+/*      */             else
+/*      */             {
+/* 1225 */               if (!com.xoa.util.common.StringUtils.checkNull(deptParent).booleanValue()) {
+/* 1226 */                 Department parent = this.departmentMapper.getDeptById(Integer.valueOf(deptParent).intValue());
+/* 1227 */                 if (parent != null) {
+/* 1228 */                   entity.setDeptNo(parent.getDeptNo() + entity.getDeptNo());
+/*      */                 }
+/*      */               }
+/* 1231 */               List<Department> departmentList = this.departmentMapper.getDepByNo(entity.getDeptNo());
+/* 1232 */               if (departmentList.size() == 0) {
+/* 1233 */                 this.departmentMapper.insertDept(entity);
+/* 1234 */                 successCount++;
+/*      */               } else {
+/* 1236 */                 failCount++;
+/* 1237 */                 entity.setNoRepeat(Integer.valueOf(1));
+/*      */               }
+/*      */             }
+/*      */           }
+/*      */         }
+/* 1241 */         entity.setSuccessCount(Integer.valueOf(successCount));
+/* 1242 */         entity.setFailCount(Integer.valueOf(failCount));
+/* 1243 */         json.setFlag(0);
+/* 1244 */         json.setObject(entity);
+/* 1245 */         dest.delete();
+/*      */       } else {
+/* 1247 */         json.setMsg("文件类型不正确！");
+/* 1248 */         json.setFlag(1);
+/* 1249 */         return json;
+/*      */       }
+/*      */     }
+/*      */     catch (Exception e) {
+/* 1253 */       e.printStackTrace();
+/* 1254 */       json.setMsg("数据保存异常");
+/* 1255 */       json.setFlag(1);
+/*      */     }
+/* 1257 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Department> selDeptNoByDeptParent(String deptParent, String deptNo, int editFlag, String proDeptNo)
+/*      */   {
+/* 1267 */     ToJson<Department> json = new ToJson<Department>(1, "error");
+/*      */     try {
+/* 1269 */       if ((!com.xoa.util.common.StringUtils.checkNull(deptParent).booleanValue()) && (deptParent.contains(","))) {
+/* 1270 */         deptParent = deptParent.substring(0, deptParent.length() - 1);
+/*      */       }
+/* 1272 */       Map<String,Object> map = new HashMap<String,Object>();
+/* 1273 */       map.put("deptParent", deptParent);
+/* 1274 */       if (editFlag == 1) {
+/* 1275 */         if ((!com.xoa.util.common.StringUtils.checkNull(deptParent).booleanValue()) && (!deptParent.equals("0"))) {
+/* 1276 */           Department dept = this.departmentMapper.getDeptById(Integer.valueOf(deptParent).intValue());
+/* 1277 */           proDeptNo = dept.getDeptNo() + proDeptNo;
+/* 1278 */           map.put("deptNo", proDeptNo);
+/*      */         } else {
+/* 1280 */           map.put("deptNo", proDeptNo);
+/*      */         }
+/*      */       }
+/* 1283 */       List<String> deptNoList = this.departmentMapper.selDeptNoByDeptParent(map);
+/* 1284 */       for (String deptNoStr : deptNoList) {
+/* 1285 */         if (deptNoStr.equals(deptNo)) {
+/* 1286 */           json.setFlag(1);
+/* 1287 */           json.setMsg("repeat");
+/* 1288 */           return json;
+/*      */         }
+/*      */       }
+/* 1291 */       json.setMsg("ok");
+/* 1292 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/* 1294 */       e.printStackTrace();
+/* 1295 */       json.setMsg(e.getMessage());
+/* 1296 */       L.e(new Object[] { "DepartmentServiceImpl selDeptNoByDeptParent:" + e });
+/*      */     }
+/* 1298 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<Department> selByLikeDeptName(String deptName)
+/*      */   {
+/* 1310 */     ToJson<Department> json = new ToJson<Department>(1, "error");
+/*      */     try {
+/* 1312 */       List<Department> departmentList = this.departmentMapper.selByLikeDeptName(deptName);
+/* 1313 */       StringBuffer bb1 = new StringBuffer();
+/* 1314 */       StringBuffer bb2 = new StringBuffer();
+/* 1315 */       StringBuffer bb3 = new StringBuffer();
+/* 1316 */       StringBuffer bb4 = new StringBuffer();
+/* 1317 */       for (Department dept : departmentList) {
+/* 1318 */         String manag = dept.getManager();
+/* 1319 */         String assistant = dept.getAssistantId();
+/* 1320 */         String leader1 = dept.getLeader1();
+/* 1321 */         String leader2 = dept.getLeader2();
+/* 1322 */         if ((manag != null) && (!manag.equals(""))) {
+/* 1323 */           String[] mm = manag.split(",");
+/* 1324 */           for (int j = 0; j < mm.length; j++) {
+/* 1325 */             String name2 = this.usersService.findUsersByuid(new int[] { Integer.parseInt(mm[j]) });
+/* 1326 */             if (name2 != null) {
+/* 1327 */               bb1.append(name2);
+/* 1328 */               bb1.append(",");
+/* 1329 */               dept.setManager(bb1.toString().substring(0, bb1.toString().length() - 1));
+/*      */             }
+/*      */           }
+/* 1332 */           bb1.delete(0, bb1.length());
+/*      */         }
+/* 1334 */         if ((assistant != null) && (!assistant.equals(""))) {
+/* 1335 */           String[] cc = assistant.split(",");
+/* 1336 */           for (int j = 0; j < cc.length; j++) {
+/* 1337 */             String name3 = this.usersService.findUsersByuid(new int[] { Integer.parseInt(cc[j]) });
+/* 1338 */             if (name3 != null) {
+/* 1339 */               bb2.append(name3);
+/* 1340 */               bb2.append(",");
+/* 1341 */               dept.setAssistantId(bb2.toString().substring(0, bb2.toString().length() - 1));
+/*      */             }
+/*      */           }
+/*      */ 
+/* 1345 */           bb2.delete(0, bb2.length());
+/*      */         }
+/* 1347 */         if ((leader1 != null) && (!leader1.equals(""))) {
+/* 1348 */           String[] dd = leader1.split(",");
+/* 1349 */           for (int j = 0; j < dd.length; j++) {
+/* 1350 */             String name4 = this.usersService.findUsersByuid(new int[] { Integer.parseInt(dd[j]) });
+/* 1351 */             if (name4 != null) {
+/* 1352 */               bb3.append(name4);
+/* 1353 */               bb3.append(",");
+/* 1354 */               dept.setLeader1(bb3.toString().substring(0, bb3.toString().length() - 1));
+/*      */             }
+/*      */           }
+/*      */ 
+/* 1358 */           bb3.delete(0, bb3.length());
+/*      */         }
+/* 1360 */         if ((leader2 != null) && (!leader2.equals(""))) {
+/* 1361 */           String[] ee = leader2.split(",");
+/* 1362 */           for (int j = 0; j < ee.length; j++) {
+/* 1363 */             String name5 = this.usersService.findUsersByuid(new int[] { Integer.parseInt(ee[j]) });
+/* 1364 */             if (name5 != null) {
+/* 1365 */               bb4.append(name5);
+/* 1366 */               bb4.append(",");
+/* 1367 */               dept.setLeader2(bb4.toString().substring(0, bb4.toString().length() - 1));
+/*      */             }
+/*      */           }
+/*      */ 
+/* 1371 */           bb4.delete(0, bb4.length());
+/*      */         }
+/*      */       }
+/* 1374 */       json.setObj(departmentList);
+/* 1375 */       json.setMsg("ok");
+/* 1376 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/* 1378 */       json.setMsg(e.getMessage());
+/* 1379 */       L.e(new Object[] { "DepartmentServiceImpl selByLikeDeptName:" + e });
+/*      */     }
+/* 1381 */     return json;
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.department.impl.DepartmentServiceImpl
+ * JD-Core Version:    0.6.0
+ */

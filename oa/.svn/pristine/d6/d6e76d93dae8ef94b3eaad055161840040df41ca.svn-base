@@ -1,0 +1,75 @@
+/*     */ package com.xoa.controller.users;
+/*     */ 
+/*     */ import com.xoa.model.users.UserGroup;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.users.UserGroupService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.apache.log4j.Logger;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/usergroup"})
+/*     */ public class UserGroupController
+/*     */ {
+/*  50 */   private Logger loger = Logger.getLogger(UserGroupController.class);
+/*     */ 
+/*     */   @Resource
+/*     */   UserGroupService userGroupService;
+/*     */ 
+/*  57 */   @RequestMapping({"/userGroup"})
+/*     */   public String userGroup() { return "app/department/userGroup"; }
+/*     */ 
+/*     */   @RequestMapping({"/addUserGroup"})
+/*     */   public String addUserGroup() {
+/*  62 */     return "app/department/addUserGroup";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/insertUserGroup"})
+/*     */   public ToJson<UserGroup> insertUserGroup(UserGroup userGroup, HttpServletRequest request)
+/*     */   {
+/*  76 */     if (userGroup != null) {
+/*  77 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  78 */       userGroup.setUserId(user.getUserId());
+/*     */     }
+/*  80 */     return this.userGroupService.insertUserGroup(userGroup);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/updateUserGroup"})
+/*     */   public ToJson<UserGroup> updateUserGroup(UserGroup userGroup)
+/*     */   {
+/*  93 */     return this.userGroupService.updateUserGroup(userGroup);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getAllUserGroup"})
+/*     */   public ToJson<UserGroup> getAllUserGroup()
+/*     */   {
+/* 105 */     return this.userGroupService.getAllUserGroup();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/delUserGroupByGroupId"})
+/*     */   public ToJson<UserGroup> delUserGroupByGroupId(String groupId)
+/*     */   {
+/* 118 */     return this.userGroupService.delUserGroupByGroupId(groupId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getUserGroupByGroupId"})
+/*     */   public ToJson<UserGroup> getUserGroupByGroupId(String groupId)
+/*     */   {
+/* 131 */     return this.userGroupService.getUserGroupByGroupId(groupId);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.users.UserGroupController
+ * JD-Core Version:    0.6.0
+ */

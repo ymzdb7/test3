@@ -1,0 +1,578 @@
+/*     */ package com.xoa.service.workflow.flowtype.impl;
+/*     */ 
+/*     */ import com.xoa.dao.workflow.FlowProcessMapper;
+/*     */ import com.xoa.dao.workflow.FlowRunMapper;
+/*     */ import com.xoa.dao.workflow.FlowRunPrcsMapper;
+/*     */ import com.xoa.dao.workflow.FlowTypeModelMapper;
+/*     */ import com.xoa.model.flowxml.FlowOutXml;
+/*     */ import com.xoa.model.flowxml.FlowProcessXml;
+/*     */ import com.xoa.model.flowxml.FlowTypeXml;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.workflow.FlowDetailInfo;
+/*     */ import com.xoa.model.workflow.FlowProcess;
+/*     */ import com.xoa.model.workflow.FlowTypeModel;
+/*     */ import com.xoa.service.department.DepartmentService;
+/*     */ import com.xoa.service.enclosure.EnclosureService;
+/*     */ import com.xoa.service.users.UsersPrivService;
+/*     */ import com.xoa.service.users.UsersService;
+/*     */ import com.xoa.service.workflow.JobClassifyService;
+/*     */ import com.xoa.service.workflow.flowtype.FlowTypeService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.GetAttachmentListUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.PHPSerializerUtils;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import java.io.InputStream;
+/*     */ import java.lang.reflect.Field;
+/*     */ import java.lang.reflect.Method;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.jdom2.CDATA;
+/*     */ import org.jdom2.Document;
+/*     */ import org.jdom2.Element;
+/*     */ import org.jdom2.input.SAXBuilder;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ import org.springframework.web.multipart.MultipartFile;
+import org.xml.sax.InputSource;
+/*     */ 
+/*     */ @Service
+/*     */ public class FlowTypeServiceImpl
+/*     */   implements FlowTypeService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowTypeModelMapper flowTypeModelMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   JobClassifyService classifyService;
+/*     */ 
+/*     */   @Autowired
+/*     */   FlowProcessMapper processMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   FlowRunMapper flowRunMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   FlowRunPrcsMapper flowRunPrcsMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentService departmentService;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersService usersService;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersPrivService usersPrivService;
+/*     */ 
+/*     */   @Resource
+/*     */   EnclosureService enclosureService;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<FlowTypeModel> saveFlow(FlowTypeModel flowTypeModel)
+/*     */   {
+/*  90 */     ToJson toJson = new ToJson();
+/*     */     try {
+/*  92 */       this.flowTypeModelMapper.save(flowTypeModel);
+/*  93 */       toJson.setMsg("ok");
+/*  94 */       toJson.setFlag(0);
+/*  95 */       toJson.setObject(flowTypeModel);
+/*     */     } catch (Exception e) {
+/*  97 */       L.e(new Object[] { "保存异常：" + e });
+/*  98 */       e.printStackTrace();
+/*  99 */       toJson.setMsg("error");
+/* 100 */       toJson.setFlag(1);
+/*     */     }
+/* 102 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowTypeModel> selectAllFlow(Integer flowId)
+/*     */   {
+/* 107 */     ToJson toJson = new ToJson();
+/*     */     try {
+/* 109 */       FlowTypeModel flowTypeModel = this.flowTypeModelMapper.queryOneObject(flowId);
+/* 110 */       if (!StringUtils.checkNull(flowTypeModel.getViewDept()).booleanValue()) {
+/* 111 */         flowTypeModel.setViewDeptName(this.departmentService.getDeptNameByDeptId(flowTypeModel.getViewDept(), ","));
+/*     */       }
+/* 113 */       if (!StringUtils.checkNull(flowTypeModel.getViewRole()).booleanValue()) {
+/* 114 */         flowTypeModel.setViewRoleName(this.usersPrivService.getPrivNameByPrivId(flowTypeModel.getViewRole(), ","));
+/*     */       }
+/* 116 */       if (!StringUtils.checkNull(flowTypeModel.getViewUser()).booleanValue()) {
+/* 117 */         flowTypeModel.setViewUserName(this.usersService.getUserNameById(flowTypeModel.getViewUser()));
+/*     */       }
+/*     */ 
+/* 131 */       toJson.setFlag(0);
+/* 132 */       toJson.setMsg("ok");
+/* 133 */       toJson.setObject(flowTypeModel);
+/*     */     } catch (Exception e) {
+/* 135 */       toJson.setFlag(1);
+/* 136 */       toJson.setMsg("error");
+/*     */     }
+/* 138 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowTypeModel> selectAllFlow(Integer flowId, HttpServletRequest request)
+/*     */   {
+/* 151 */     ToJson toJson = new ToJson();
+/*     */     try {
+/* 153 */       FlowTypeModel flowTypeModel = this.flowTypeModelMapper.queryOneObject(flowId);
+/* 154 */       if (!StringUtils.checkNull(flowTypeModel.getViewDept()).booleanValue()) {
+/* 155 */         flowTypeModel.setViewDeptName(this.departmentService.getDeptNameByDeptId(flowTypeModel.getViewDept(), ","));
+/*     */       }
+/* 157 */       if (!StringUtils.checkNull(flowTypeModel.getViewRole()).booleanValue()) {
+/* 158 */         flowTypeModel.setViewRoleName(this.usersPrivService.getPrivNameByPrivId(flowTypeModel.getViewRole(), ","));
+/*     */       }
+/* 160 */       if (!StringUtils.checkNull(flowTypeModel.getViewUser()).booleanValue()) {
+/* 161 */         flowTypeModel.setViewUserName(this.usersService.getUserNameById(flowTypeModel.getViewUser()));
+/*     */       }
+/* 163 */       String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 165 */       String attachmentStrs = flowTypeModel.getAttachmentId();
+/* 166 */       String attachmentStrName = flowTypeModel.getAttachmentName();
+/* 167 */       List list = null;
+/* 168 */       if ((!StringUtils.checkNull(attachmentStrs).booleanValue()) && (!StringUtils.checkNull(attachmentStrName).booleanValue())) {
+/* 169 */         list = GetAttachmentListUtil.returnAttachment(attachmentStrName, attachmentStrs, sqlType, "workflow");
+/*     */       }
+/* 171 */       flowTypeModel.setAttachment(list);
+/*     */ 
+/* 173 */       toJson.setFlag(0);
+/* 174 */       toJson.setMsg("ok");
+/* 175 */       toJson.setObject(flowTypeModel);
+/*     */     } catch (Exception e) {
+/* 177 */       toJson.setFlag(1);
+/* 178 */       toJson.setMsg("error");
+/*     */     }
+/* 180 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowTypeModel> quertBySortId(Integer flowId)
+/*     */   {
+/* 185 */     ToJson toJson = new ToJson();
+/*     */ 
+/* 187 */     List datas = this.flowTypeModelMapper.selectBySortid(flowId);
+/* 188 */     if ((datas != null) && (datas.size() > 0)) {
+/* 189 */       toJson.setObj(datas);
+/* 190 */       toJson.setFlag(0);
+/* 191 */       toJson.setMsg("success");
+/*     */     } else {
+/* 193 */       toJson.setFlag(1);
+/* 194 */       toJson.setMsg("no data");
+/*     */     }
+/*     */ 
+/* 197 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowTypeModel> flowBySearch(String searchValue, Integer flowId)
+/*     */   {
+/* 203 */     ToJson toJson = new ToJson();
+/* 204 */     if (StringUtils.checkNull(searchValue).booleanValue()) {
+/* 205 */       toJson.setFlag(1);
+/* 206 */       toJson.setMsg("搜索字段不能为空");
+/* 207 */       return toJson;
+/*     */     }
+/*     */ 
+/* 210 */     List datas = this.flowTypeModelMapper.selectBySearch(searchValue, flowId);
+/* 211 */     if ((datas != null) && (datas.size() > 0)) {
+/* 212 */       toJson.setObj(datas);
+/* 213 */       toJson.setFlag(0);
+/* 214 */       toJson.setMsg("success");
+/*     */     } else {
+/* 216 */       toJson.setFlag(1);
+/* 217 */       toJson.setMsg("no data");
+/*     */     }
+/* 219 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<FlowTypeModel> updateFlow(FlowTypeModel flowTypeModel)
+/*     */   {
+/* 233 */     ToJson toJson = new ToJson();
+/*     */     try {
+/* 235 */       int a = this.flowTypeModelMapper.updateFlowTypeModel(flowTypeModel);
+/* 236 */       if (a > 0) {
+/* 237 */         toJson.setFlag(0);
+/* 238 */         toJson.setMsg("ok");
+/*     */       } else {
+/* 240 */         toJson.setFlag(1);
+/* 241 */         toJson.setMsg("err");
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 245 */       toJson.setFlag(1);
+/* 246 */       toJson.setMsg("error");
+/* 247 */       L.e(new Object[] { "错误消息：" + e });
+/*     */     }
+/* 249 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowTypeModel> selectFlowAuthOrSearch(HttpServletRequest request, String searchValue, Integer sortId)
+/*     */   {
+/* 254 */     Map param = new HashMap();
+/* 255 */     ToJson toJson = new ToJson();
+/* 256 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 257 */     if (user.getUid() == null) {
+/* 258 */       toJson.setFlag(1);
+/* 259 */       toJson.setMsg("无法获取用户信息");
+/* 260 */       return toJson;
+/*     */     }
+/*     */ 
+/* 263 */     List<Integer> sirtIds = this.classifyService.getSortChildId(sortId, new ArrayList());
+/* 264 */     StringBuffer sirtIdsTr = new StringBuffer();
+/* 265 */     int i = 0;
+/* 266 */     for (Integer integer : sirtIds) {
+/* 267 */       sirtIdsTr.append(integer);
+/* 268 */       if (i != sirtIds.size()) {
+/* 269 */         sirtIdsTr.append(",");
+/*     */       }
+/* 271 */       i++;
+/*     */     }
+/* 273 */     Integer[] arry = new Integer[0];
+/* 274 */     arry = (Integer[])sirtIds.toArray(arry);
+/* 275 */     String privOther = user.getUserPrivOther() == null ? "" : user.getUserPrivOther();
+/* 276 */     String[] privIds = privOther.split(",");
+/* 277 */     String deptOther = user.getDeptIdOther() == null ? "" : user.getDeptIdOther();
+/* 278 */     String[] deptIds = deptOther.split(",");
+/* 279 */     param.put("user", user.getUserId() == null ? "" : user.getUserId());
+/* 280 */     param.put("deptId", user.getDeptId() == null ? "" : user.getDeptId());
+/* 281 */     param.put("privId", user.getUserPriv() == null ? "" : user.getUserPriv());
+/* 282 */     if ((privIds != null) && (privIds.length > 0)) {
+/* 283 */       param.put("privIds", privIds);
+/*     */     }
+/* 285 */     if ((deptIds != null) && (deptIds.length > 0)) {
+/* 286 */       param.put("deptIds", deptIds);
+/*     */     }
+/* 288 */     param.put("searchValue", searchValue);
+/* 289 */     L.w(arry);
+/* 290 */     if (sortId != null) {
+/* 291 */       param.put("sortId", sirtIdsTr.toString());
+/*     */     }
+/*     */ 
+/* 294 */     List datas = this.flowTypeModelMapper.selectFlowAuthOrSearch(param);
+/*     */ 
+/* 296 */     if ((datas != null) && (datas.size() > 0)) {
+/* 297 */       toJson.setFlag(0);
+/* 298 */       toJson.setMsg("成功");
+/* 299 */       toJson.setObj(datas);
+/*     */     } else {
+/* 301 */       toJson.setFlag(1);
+/* 302 */       toJson.setMsg("失败");
+/*     */     }
+/* 304 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowDetailInfo> selectFlowDetailInfo(Integer flowId)
+/*     */   {
+/* 309 */     ToJson ret = new ToJson();
+/* 310 */     if (flowId == null) {
+/* 311 */       ret.setFlag(1);
+/* 312 */       ret.setMsg("流程Id不能为空");
+/* 313 */       return ret;
+/*     */     }
+/* 315 */     FlowDetailInfo info = this.flowTypeModelMapper.selectFlowDetailInfo(flowId);
+/*     */ 
+/* 317 */     List datas = this.processMapper.selectPricByFlowId(flowId);
+/*     */ 
+/* 320 */     if (info == null) {
+/* 321 */       ret.setFlag(1);
+/* 322 */       ret.setMsg("没有信息");
+/*     */     } else {
+/* 324 */       int cutNum = cutNumber(datas).intValue();
+/* 325 */       info.setCutNumber(Integer.valueOf(cutNum));
+/* 326 */       ret.setObject(info);
+/* 327 */       ret.setFlag(0);
+/* 328 */       ret.setMsg("成功");
+/*     */     }
+/* 330 */     return ret;
+/*     */   }
+/*     */ 
+/*     */   private Integer cutNumber(List<FlowProcess> datas) {
+/* 334 */     if ((datas == null) || (datas.size() == 0)) {
+/* 335 */       return Integer.valueOf(0);
+/*     */     }
+/* 337 */     int res = 0;
+/* 338 */     for (int i = 0; i < datas.size() - 1; i++) {
+/* 339 */       FlowProcess now = (FlowProcess)datas.get(i);
+/* 340 */       if (StringUtils.checkNull(now.getPrcsTo()).booleanValue())
+/* 341 */         res++;
+/* 342 */       else if ("0,".equals(now.getPrcsTo())) {
+/* 343 */         res++;
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 360 */     return Integer.valueOf(res);
+/*     */   }
+/*     */ 
+/*     */   public FlowTypeModel selectOnlyType(Integer flowId, Integer formId)
+/*     */   {
+/* 373 */     return this.flowTypeModelMapper.selectOnlyType(flowId, formId);
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowTypeModel> selectAttachmentAndInstructions(Integer flowId, Integer formId, String sqlType)
+/*     */   {
+/* 385 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 387 */       FlowTypeModel flowTypeModel = this.flowTypeModelMapper.selectAttachmentAndInstructions(flowId, formId);
+/* 388 */       if ((flowTypeModel.getAttachmentName() != null) && (flowTypeModel.getAttachmentId() != null)) {
+/* 389 */         flowTypeModel.setAttachment(GetAttachmentListUtil.returnAttachment(flowTypeModel.getAttachmentName(), flowTypeModel.getAttachmentId(), sqlType, "workflow"));
+/*     */       } else {
+/* 391 */         flowTypeModel.setAttachmentName("");
+/* 392 */         flowTypeModel.setAttachmentId("");
+/*     */       }
+/* 394 */       toJson.setObject(flowTypeModel);
+/* 395 */       toJson.setFlag(0);
+/* 396 */       toJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 398 */       L.e(new Object[] { "FlowTypeServiceImpl selectAttachmentAndInstructions:" + e });
+/*     */     }
+/* 400 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public FlowTypeModel sfTbyrunId(Integer runId) {
+/* 404 */     FlowTypeModel flowTypeModel = this.flowTypeModelMapper.sflowType(runId);
+/* 405 */     return flowTypeModel;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper getFlowOutModel(Integer flowId) throws Exception
+/*     */   {
+/* 410 */     BaseWrapper wrapper = new BaseWrapper();
+/* 411 */     FlowOutXml flowOutXml = new FlowOutXml();
+/* 412 */     FlowTypeModel flowTypeModel = this.flowTypeModelMapper.queryOneObject(flowId);
+/* 413 */     FlowTypeXml typeXml = (FlowTypeXml)invokeFlowData(flowTypeModel, FlowTypeXml.class);
+/* 414 */     List<FlowProcess> datas = this.processMapper.selectPricByFlowId(flowId);
+/* 415 */     List pro = new ArrayList();
+/* 416 */     for (FlowProcess flowProcess : datas) {
+/* 417 */       FlowProcessXml processXml = (FlowProcessXml)invokeFlowData(flowProcess, FlowProcessXml.class);
+/* 418 */       pro.add(processXml);
+/*     */     }
+/* 420 */     flowOutXml.setProcess(pro);
+/* 421 */     flowOutXml.setBaseInfo(typeXml);
+/* 422 */     wrapper.setData(writeFileUsingJDOM(flowOutXml));
+/* 423 */     wrapper.setMsg(flowTypeModel.getFlowName());
+/* 424 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper intputFlowFile(Integer flowId, MultipartFile file)
+/*     */   {
+/* 429 */     BaseWrapper wrapper = new BaseWrapper();
+/*     */     try
+/*     */     {
+/* 432 */       this.processMapper.deleteByFlowId(flowId);
+/* 433 */       readFlowXml(flowId, file.getInputStream());
+/* 434 */       wrapper.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 436 */       e.printStackTrace();
+/*     */     }
+/* 438 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   @Transactional(rollbackFor={RuntimeException.class})
+/*     */   public BaseWrapper deleteFlow(Integer flowId) {
+/* 444 */     BaseWrapper wrapper = new BaseWrapper();
+/* 445 */     wrapper.setStatus(true);
+/* 446 */     wrapper.setFlag(false);
+/*     */     try
+/*     */     {
+/* 449 */       this.processMapper.deleteByFlowId(flowId);
+/* 450 */       this.flowTypeModelMapper.deleteByFlowId(flowId);
+/* 451 */       List runIds = this.flowRunMapper.getRunIdsByFlowId(flowId);
+/* 452 */       this.flowRunMapper.deleteByFlowId(flowId);
+/* 453 */       if ((runIds != null) && (runIds.size() > 0))
+/* 454 */         this.flowRunPrcsMapper.deleteByRunIds(runIds);
+/* 455 */       wrapper.setFlag(true);
+/*     */     }
+/*     */     catch (Exception e) {
+/* 458 */       e.printStackTrace();
+/* 459 */       throw new RuntimeException();
+/*     */     }
+/*     */ 
+/* 462 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper clearFlow(Integer flowId)
+/*     */   {
+/* 467 */     BaseWrapper wrapper = new BaseWrapper();
+/* 468 */     wrapper.setStatus(true);
+/* 469 */     wrapper.setFlag(false);
+/*     */     try
+/*     */     {
+/* 472 */       List runIds = this.flowRunMapper.getRunIdsByFlowId(flowId);
+/* 473 */       this.flowRunMapper.deleteByFlowId(flowId);
+/* 474 */       if ((runIds != null) && (runIds.size() > 0))
+/* 475 */         this.flowRunPrcsMapper.deleteByRunIds(runIds);
+/* 476 */       wrapper.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 478 */       e.printStackTrace();
+/* 479 */       throw new RuntimeException();
+/*     */     }
+/* 481 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   private void readFlowXml(Integer flowId, InputStream read) throws Exception {
+/* 485 */     SAXBuilder sb = new SAXBuilder();
+/* 486 */     InputSource source = new InputSource(read);
+/* 487 */     Document doc = sb.build(source);
+/* 488 */     Element root = doc.getRootElement();
+/* 489 */     List baseInfos = root.getChildren("BaseInfo");
+/* 490 */     for (Iterator i$ = baseInfos.iterator(); i$.hasNext(); ) { Object element = i$.next();
+/* 491 */       FlowTypeModel flowTypeModel = (FlowTypeModel)resolveDatas(element, FlowTypeXml.class, FlowTypeModel.class);
+/* 492 */       flowTypeModel.setFlowId(flowId);
+/* 493 */       flowTypeModel.setFlowName(null);
+/* 494 */       flowTypeModel.setFormId(null);
+/* 495 */       flowTypeModel.setFlowSort(null);
+/* 496 */       this.flowTypeModelMapper.updateFlowTypeModel(flowTypeModel);
+/*     */     }
+/* 498 */     List process = root.getChildren("Process");
+/* 499 */     for (Iterator i$ = process.iterator(); i$.hasNext(); ) { Object element = i$.next();
+/* 500 */       FlowProcess flowProcess = (FlowProcess)resolveDatas(element, FlowProcessXml.class, FlowProcess.class);
+/* 501 */       flowProcess.setId(null);
+/* 502 */       flowProcess.setFlowId(flowId);
+/* 503 */       flowProcess.setFileuploadPriv(PHPSerializerUtils.unSerializer(flowProcess.getFileuploadPriv()));
+/* 504 */       flowProcess.setImguploadPriv(PHPSerializerUtils.unSerializer(flowProcess.getImguploadPriv()));
+/* 505 */       this.processMapper.insert(flowProcess);
+/*     */     }
+/* 507 */     read.close();
+/*     */   }
+/*     */ 
+/*     */   private <T> T resolveDatas(Object data, Class clazz1, Class<T> clazz) throws Exception {
+/* 511 */     String checkCulm = "MANAGE_USER,QUERY_USER,NEW_USER,DEPT_ID,PRCS_USER,PRCS_DEPT,PRCS_PRIV,AUTO_USER_OP,AUTO_USER,MAIL_TO";
+/* 512 */     Object ret = clazz.newInstance();
+/* 513 */     Element element = (Element)data;
+/* 514 */     Field[] fields = clazz1.getDeclaredFields();
+/* 515 */     for (Field field : fields) {
+/* 516 */       String name = field.getName();
+/* 517 */       if (checkCulm.indexOf(name) <= 0) {
+/* 518 */         String value = element.getChildText(field.getName());
+/* 519 */         if (!StringUtils.checkNull(value).booleanValue()) {
+/* 520 */           String caml = StringUtils.underline2Camel(name, true);
+/* 521 */           if (caml.length() == 2) {
+/* 522 */             caml.toLowerCase();
+/*     */           }
+/* 524 */           Field child = clazz.getDeclaredField(caml);
+/* 525 */           child.setAccessible(true);
+/* 526 */           field.setAccessible(true);
+/* 527 */           Method set_Method = clazz.getMethod("set" + SessionUtils.getMethodName(caml), new Class[] { child.getType() });
+/*     */ 
+/* 530 */           Class clazzz = child.getType();
+/* 531 */           set_Method.setAccessible(true);
+/* 532 */           if (clazzz == String.class) {
+/* 533 */             set_Method.invoke(ret, new Object[] { value });
+/*     */           }
+/* 535 */           if (clazzz == Integer.class) {
+/* 536 */             set_Method.invoke(ret, new Object[] { Integer.valueOf(Integer.parseInt(value)) });
+/*     */           }
+/* 538 */           if (clazzz == Byte.class) {
+/* 539 */             set_Method.invoke(ret, new Object[] { Byte.valueOf(Byte.parseByte(value)) });
+/*     */           }
+/* 541 */           if (clazzz == Double.class) {
+/* 542 */             set_Method.invoke(ret, new Object[] { Double.valueOf(Double.parseDouble(value)) });
+/*     */           }
+/* 544 */           if (clazzz == Float.class) {
+/* 545 */             set_Method.invoke(ret, new Object[] { Float.valueOf(Float.parseFloat(value)) });
+/*     */           }
+/* 547 */           if ((clazzz != Date.class) || 
+/* 548 */             (value.equals("0000-00-00 00:00:00"))) continue;
+/* 549 */           set_Method.invoke(ret, new Object[] { DateFormat.getDate(value) });
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 554 */     return (T)ret;
+/*     */   }
+/*     */ 
+/*     */   private <T> T invokeFlowData(Object object, Class<T> clazz)
+/*     */   {
+/*     */     try {
+/* 560 */       Object ret = clazz.newInstance();
+/* 561 */       Field[] fields = clazz.getDeclaredFields();
+/* 562 */       for (Field field : fields) {
+/* 563 */         String name = field.getName();
+/* 564 */         String camlStr = null;
+/* 565 */         if (name.length() == 2)
+/* 566 */           camlStr = name.toLowerCase();
+/*     */         else {
+/* 568 */           camlStr = StringUtils.underline2Camel(name, true);
+/*     */         }
+/*     */ 
+/* 571 */         Field child = object.getClass().getDeclaredField(camlStr);
+/* 572 */         if (child != null) {
+/* 573 */           child.setAccessible(true);
+/* 574 */           field.setAccessible(true);
+/* 575 */           Method set_Method = clazz.getMethod("set" + name, new Class[] { field.getType() });
+/*     */ 
+/* 578 */           set_Method.setAccessible(true);
+/* 579 */           set_Method.invoke(ret, new Object[] { child.get(object) });
+/*     */         }
+/*     */       }
+/* 582 */       return (T)ret;
+/*     */     } catch (Exception e) {
+/* 584 */       e.printStackTrace();
+/*     */     }
+/* 586 */     return null;
+/*     */   }
+/*     */   private Document writeFileUsingJDOM(FlowOutXml outXml) throws Exception {
+/* 589 */     Document doc = new Document();
+/* 590 */     doc.setRootElement(new Element("WorkFlow"));
+/* 591 */     if (outXml != null) {
+/* 592 */       Element element = new Element("BaseInfo");
+/* 593 */       addConet(element, outXml.getBaseInfo());
+/* 594 */       doc.getRootElement().addContent(element);
+/* 595 */       addConetList(doc, outXml.getProcess());
+/*     */     }
+/* 597 */     return doc;
+/*     */   }
+/*     */ 
+/*     */   private void addConetList(Document doc, List<FlowProcessXml> process) throws Exception
+/*     */   {
+/* 602 */     for (FlowProcessXml processXml : process) {
+/* 603 */       Element element = new Element("Process");
+/* 604 */       Field[] fields = processXml.getClass().getDeclaredFields();
+/* 605 */       for (Field field : fields) {
+/* 606 */         field.setAccessible(true);
+/* 607 */         CDATA cdata = new CDATA(field.getName()).setText(field.get(processXml) == null ? " " : field.get(processXml).toString());
+/* 608 */         element.addContent(new Element(field.getName()).addContent(cdata));
+/*     */       }
+/* 610 */       doc.getRootElement().addContent(element);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   private void addConet(Element element, FlowTypeXml baseInfo) throws Exception {
+/* 615 */     Field[] fields = baseInfo.getClass().getDeclaredFields();
+/* 616 */     for (Field field : fields) {
+/* 617 */       field.setAccessible(true);
+/* 618 */       CDATA cdata = new CDATA(field.getName()).setText(field.get(baseInfo) == null ? " " : field.get(baseInfo).toString());
+/* 619 */       element.addContent(new Element(field.getName()).addContent(cdata));
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowTypeModel> selAllType()
+/*     */   {
+/* 632 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 634 */       List flowTypeModelList = this.flowTypeModelMapper.selAllType();
+/* 635 */       toJson.setObj(flowTypeModelList);
+/* 636 */       toJson.setFlag(0);
+/* 637 */       toJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 639 */       L.e(new Object[] { "FlowTypeServiceImpl selAllType:" + e });
+/*     */     }
+/* 641 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.workflow.flowtype.impl.FlowTypeServiceImpl
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,37 @@
+/*    */ package com.xoa.controller.file;
+/*    */ 
+/*    */ import com.xoa.model.enclosure.Attachment;
+/*    */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*    */ import org.springframework.stereotype.Controller;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ 
+/*    */ @RequestMapping({"/file"})
+/*    */ @Controller
+/*    */ public class Test
+/*    */ {
+/*    */   @RequestMapping({"/test"})
+/*    */   @ResponseBody
+/*    */   public BaseWrapper test1(Integer type)
+/*    */   {
+/* 20 */     BaseWrapper wrapper = new BaseWrapper();
+/* 21 */     Attachment att = new Attachment();
+/* 22 */     att.setYm("2015-03-09");
+/*    */ 
+/* 28 */     wrapper.setFlag(true);
+/* 29 */     wrapper.setStatus(true);
+/* 30 */     if (type.intValue() == 1)
+/*    */     {
+/* 32 */       wrapper.setData(Integer.valueOf(type.intValue() + 1));
+/*    */     } else {
+/* 34 */       wrapper.setFlag(false);
+/* 35 */       wrapper.setStatus(false);
+/*    */     }
+/* 37 */     return wrapper;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.file.Test
+ * JD-Core Version:    0.6.0
+ */

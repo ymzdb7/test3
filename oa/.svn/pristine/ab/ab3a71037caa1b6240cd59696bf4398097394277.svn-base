@@ -1,0 +1,499 @@
+/*     */ package com.xoa.service.smsDelivery.impl;
+/*     */ 
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.sms2.Sms2PrivMapper;
+/*     */ import com.xoa.dao.smsSettings.SmsSettingsMapper;
+/*     */ import com.xoa.model.department.Department;
+/*     */ import com.xoa.model.sms2.Sms2Priv;
+/*     */ import com.xoa.model.smsSettings.SmsSettings;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.smsDelivery.Sms2PrivService;
+/*     */ import com.xoa.service.users.UsersService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.sendUtil.send;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class Sms2PrivServiceImpl
+/*     */   implements Sms2PrivService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private Sms2PrivMapper sms2PrivMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersService usersService;
+/*     */ 
+/*     */   @Resource
+/*     */   private SmsSettingsMapper smsSettingsMapper;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<Sms2Priv> selectSms2Priv()
+/*     */   {
+/*  53 */     ToJson json = new ToJson();
+/*     */     try {
+/*  55 */       Sms2Priv sms2Priv = this.sms2PrivMapper.selectSms2Priv();
+/*  56 */       if (!StringUtils.checkNull(sms2Priv.getTypePriv()).booleanValue()) {
+/*  57 */         String[] split = sms2Priv.getTypePriv().split(",");
+/*  58 */         List sms2Priv1 = this.sms2PrivMapper.selectSms2Priv1(split);
+/*  59 */         json.setObj(sms2Priv1);
+/*     */       }
+/*     */ 
+/*  62 */       json.setMsg("ok");
+/*  63 */       json.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/*  67 */       json.setFlag(1);
+/*  68 */       json.setMsg(e.getMessage());
+/*  69 */       e.printStackTrace();
+/*     */     }
+/*  71 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson upSms2Priv(Sms2Priv sms2Priv)
+/*     */   {
+/*  79 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  81 */       int temp = this.sms2PrivMapper.upSms2Priv(sms2Priv);
+/*  82 */       if (temp > 0) {
+/*  83 */         toJson.setFlag(0);
+/*  84 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  87 */       toJson.setFlag(1);
+/*  88 */       toJson.setMsg(e.getMessage());
+/*  89 */       e.printStackTrace();
+/*     */     }
+/*  91 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<Sms2Priv> selectRemindPriv()
+/*     */   {
+/*  99 */     ToJson json = new ToJson();
+/*     */     try {
+/* 101 */       Sms2Priv sms2Priv = this.sms2PrivMapper.selectSms2Priv();
+/* 102 */       if (!StringUtils.checkNull(sms2Priv.getRemindPriv()).booleanValue()) {
+/* 103 */         String[] split = sms2Priv.getRemindPriv().split(",");
+/* 104 */         List remindPriv1 = this.sms2PrivMapper.selectRemindPriv1(split);
+/* 105 */         json.setObj(remindPriv1);
+/*     */       }
+/*     */ 
+/* 108 */       json.setMsg("ok");
+/* 109 */       json.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 113 */       json.setFlag(1);
+/* 114 */       json.setMsg(e.getMessage());
+/* 115 */       e.printStackTrace();
+/*     */     }
+/* 117 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson upRemindPriv(Sms2Priv sms2Priv) {
+/* 123 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 125 */       if (!StringUtils.checkNull(sms2Priv.getRemindPriv()).booleanValue()) {
+/* 126 */         String[] split = sms2Priv.getRemindPriv().split(",");
+/* 127 */         List<Sms2Priv> sms2PrivList = this.sms2PrivMapper.upRemindPriv(split);
+/* 128 */         String str = "";
+/* 129 */         for (Sms2Priv sms2Priv1 : sms2PrivList) {
+/* 130 */           str = str + sms2Priv1.getUserId() + ",";
+/*     */         }
+/* 132 */         sms2Priv.setRemindPriv(str);
+/*     */       }
+/* 134 */       int temp = this.sms2PrivMapper.upSms2Priv(sms2Priv);
+/* 135 */       if (temp > 0) {
+/* 136 */         toJson.setFlag(0);
+/* 137 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 140 */       toJson.setFlag(1);
+/* 141 */       toJson.setMsg(e.getMessage());
+/* 142 */       e.printStackTrace();
+/*     */     }
+/* 144 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<Sms2Priv> selectSms2RemindPriv()
+/*     */   {
+/* 151 */     ToJson json = new ToJson();
+/*     */     try {
+/* 153 */       Sms2Priv sms2Priv = this.sms2PrivMapper.selectSms2Priv();
+/* 154 */       if (!StringUtils.checkNull(sms2Priv.getSms2RemindPriv()).booleanValue()) {
+/* 155 */         String[] split = sms2Priv.getSms2RemindPriv().split(",");
+/* 156 */         List remindPriv1 = this.sms2PrivMapper.selectSms2RemindPriv1(split);
+/* 157 */         json.setObj(remindPriv1);
+/*     */       }
+/*     */ 
+/* 160 */       json.setMsg("ok");
+/* 161 */       json.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 165 */       json.setFlag(1);
+/* 166 */       json.setMsg(e.getMessage());
+/* 167 */       e.printStackTrace();
+/*     */     }
+/* 169 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson upselectSms2RemindPriv(Sms2Priv sms2Priv) {
+/* 175 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 177 */       if (!StringUtils.checkNull(sms2Priv.getSms2RemindPriv()).booleanValue()) {
+/* 178 */         String[] split = sms2Priv.getSms2RemindPriv().split(",");
+/* 179 */         List<Sms2Priv> sms2PrivList = this.sms2PrivMapper.upselectSms2RemindPriv(split);
+/* 180 */         String str = "";
+/* 181 */         for (Sms2Priv sms2Priv1 : sms2PrivList) {
+/* 182 */           str = str + sms2Priv1.getUserId() + ",";
+/*     */         }
+/* 184 */         sms2Priv.setSms2RemindPriv(str);
+/*     */       }
+/* 186 */       int temp = this.sms2PrivMapper.upSms2Priv(sms2Priv);
+/* 187 */       if (temp > 0) {
+/* 188 */         toJson.setFlag(0);
+/* 189 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 192 */       toJson.setFlag(1);
+/* 193 */       toJson.setMsg(e.getMessage());
+/* 194 */       e.printStackTrace();
+/*     */     }
+/* 196 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson selectModule()
+/*     */   {
+/* 204 */     ToJson json = new ToJson();
+/*     */     try {
+/* 206 */       Sms2Priv sms2Priv = this.sms2PrivMapper.selectSms2Priv();
+/*     */ 
+/* 209 */       if (!StringUtils.checkNull(sms2Priv.getTypePriv()).booleanValue()) {
+/* 210 */         String[] split = sms2Priv.getTypePriv().split(",");
+/* 211 */         List sms2Priv1 = this.sms2PrivMapper.selectModule(split);
+/* 212 */         json.setObj(sms2Priv1);
+/*     */       }
+/*     */ 
+/* 216 */       json.setMsg("ok");
+/* 217 */       json.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 221 */       json.setFlag(1);
+/* 222 */       json.setMsg(e.getMessage());
+/* 223 */       e.printStackTrace();
+/*     */     }
+/* 225 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson selectModuleOrder()
+/*     */   {
+/* 233 */     ToJson json = new ToJson();
+/*     */     try {
+/* 235 */       List list = this.sms2PrivMapper.selectModuleOrder();
+/* 236 */       json.setObj(list);
+/* 237 */       json.setMsg("ok");
+/* 238 */       json.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 242 */       json.setFlag(1);
+/* 243 */       json.setMsg(e.getMessage());
+/* 244 */       e.printStackTrace();
+/*     */     }
+/* 246 */     return json;
+/*     */   }
+/*     */   @Transactional
+/*     */   public ToJson selectSmsRemind() {
+/* 251 */     ToJson json = new ToJson();
+/*     */     try {
+/* 253 */       Sms2Priv sms2Priv = this.sms2PrivMapper.selectSmsRemind();
+/* 254 */       if (!StringUtils.checkNull(sms2Priv.getParaValue()).booleanValue()) {
+/* 255 */         String[] split = sms2Priv.getParaValue().split("\\|");
+/* 256 */         if (split.length == 1) {
+/* 257 */           sms2Priv.setColumn1(split[0]);
+/* 258 */         } else if (split.length == 2) {
+/* 259 */           sms2Priv.setColumn1(split[0]);
+/* 260 */           sms2Priv.setColumn2(split[1]);
+/* 261 */         } else if (split.length == 3) {
+/* 262 */           sms2Priv.setColumn1(split[0]);
+/* 263 */           sms2Priv.setColumn2(split[1]);
+/* 264 */           sms2Priv.setColumn3(split[2]);
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 269 */       json.setObject(sms2Priv);
+/* 270 */       json.setMsg("ok");
+/* 271 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 273 */       json.setFlag(1);
+/* 274 */       json.setMsg(e.getMessage());
+/* 275 */       e.printStackTrace();
+/*     */     }
+/* 277 */     return json;
+/*     */   }
+/* 281 */   @Transactional
+/*     */   public ToJson upSmsRemindSet(Sms2Priv sms2Priv) { ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 283 */       int temp = this.sms2PrivMapper.upSmsRemindSet(sms2Priv);
+/* 284 */       if (temp > 0) {
+/* 285 */         toJson.setFlag(0);
+/* 286 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 289 */       toJson.setFlag(1);
+/* 290 */       toJson.setMsg(e.getMessage());
+/* 291 */       e.printStackTrace();
+/*     */     }
+/* 293 */     return toJson; }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson selectSender(String name)
+/*     */   {
+/* 299 */     ToJson json = new ToJson();
+/*     */     try {
+/* 301 */       Sms2Priv sms2Priv = this.sms2PrivMapper.selectSmsRemind();
+/* 302 */       if (!StringUtils.checkNull(sms2Priv.getParaValue()).booleanValue()) {
+/* 303 */         String[] split = sms2Priv.getParaValue().split("\\|");
+/*     */ 
+/* 305 */         if (split[2].contains("," + name + ","))
+/* 306 */           sms2Priv.setSmsDefault("0");
+/*     */         else {
+/* 308 */           sms2Priv.setSmsDefault("1");
+/*     */         }
+/* 310 */         if (split[1].contains("," + name + ","))
+/* 311 */           sms2Priv.setThingDefault("0");
+/*     */         else {
+/* 313 */           sms2Priv.setThingDefault("1");
+/*     */         }
+/* 315 */         if (split[0].contains("," + name + ","))
+/* 316 */           sms2Priv.setThingRemind("0");
+/*     */         else {
+/* 318 */           sms2Priv.setThingRemind("1");
+/*     */         }
+/*     */       }
+/* 321 */       json.setObject(sms2Priv);
+/* 322 */       json.setMsg("ok");
+/* 323 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 325 */       json.setFlag(1);
+/* 326 */       json.setMsg(e.getMessage());
+/* 327 */       e.printStackTrace();
+/*     */     }
+/* 329 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson smsSender(StringBuffer mobileString, StringBuffer contextString, Sms2Priv sms2Priv) {
+/* 335 */     ToJson toJson = new ToJson(1, "error");
+/*     */ 
+/* 337 */     Map map = new HashMap();
+/*     */ 
+/* 339 */     String stime = "";
+/*     */     try
+/*     */     {
+/* 342 */       List<SmsSettings> list = this.smsSettingsMapper.selectSmsSettings(map);
+/* 343 */       if (list.size() == 1) {
+/* 344 */         for (SmsSettings smsSettings : list) {
+/* 345 */           if (smsSettings.getState().equals("1")) {
+/* 346 */             StringBuffer extno = new StringBuffer(smsSettings.getExtend2());
+/*     */ 
+/* 348 */             send.doPost(mobileString, contextString, smsSettings.getProtocol(), smsSettings.getHost(), smsSettings.getPort(), smsSettings.getUsername(), smsSettings.getPwd(), smsSettings.getContentField(), smsSettings.getCode(), smsSettings.getMobile(), smsSettings.getTimeContent(), smsSettings.getSign(), smsSettings.getLocation(), smsSettings.getExtend1(), smsSettings.getExtend2(), smsSettings.getExtend3(), smsSettings.getExtend4(), smsSettings.getExtend5(), sms2Priv.getStartTime());
+/*     */           }
+/*     */ 
+/*     */         }
+/*     */ 
+/* 356 */         toJson.setFlag(0);
+/* 357 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 362 */       e.printStackTrace();
+/* 363 */       toJson.setFlag(1);
+/* 364 */       toJson.setMsg(e.getMessage());
+/* 365 */       e.printStackTrace();
+/*     */     }
+/* 367 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson selSenderMobile(String smsDefault, Sms2Priv sms2Priv, StringBuffer contextString, HttpServletRequest request)
+/*     */   {
+/* 374 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 377 */       String[] userIdList = sms2Priv.getUserId().split(",");
+/* 378 */       List<String> userArray = new ArrayList();
+/* 379 */       for (String userId : userIdList) {
+/* 380 */         userArray.add(userId);
+/*     */       }
+/*     */ 
+/* 383 */       List<Users> deptList = new ArrayList();
+/* 384 */       if (!StringUtils.checkNull(sms2Priv.getToId()).booleanValue()) {
+/* 385 */         if ("ALL_DEPT".trim().equals(sms2Priv.getToId())) {
+/* 386 */           List<Department> deptListArr = this.departmentMapper.getAllDepartment();
+/* 387 */           StringBuffer stringBuffer = new StringBuffer();
+/* 388 */           for (Department department : deptListArr) {
+/* 389 */             stringBuffer.append(department.getDeptId());
+/* 390 */             stringBuffer.append(",");
+/*     */           }
+/* 392 */           deptList = this.usersService.getUserByDeptIds(stringBuffer.toString(), Integer.valueOf(1));
+/*     */         } else {
+/* 394 */           deptList = this.usersService.getUserByDeptIds(sms2Priv.getToId(), Integer.valueOf(1));
+/*     */         }
+/*     */       }
+/* 397 */       List<String> deptArray = new ArrayList();
+/* 398 */       for (Users users : deptList) {
+/* 399 */         deptArray.add(users.getUserId());
+/*     */       }
+/*     */ 
+/* 402 */       List<Users> privList = new ArrayList<Users>();
+/* 403 */       if (!StringUtils.checkNull(sms2Priv.getPrivId()).booleanValue()) {
+/* 404 */         privList = this.usersService.getUserByDeptIds(sms2Priv.getPrivId(), Integer.valueOf(2));
+/*     */       }
+/* 406 */       List<String> privArray = new ArrayList();
+/* 407 */       for (Users users : privList) {
+/* 408 */         privArray.add(users.getUserId());
+/*     */       }
+/*     */ 
+/* 411 */       for (String userId : userArray) {
+/* 412 */         int f1 = 0;
+/* 413 */         for (String deptUser : deptArray) {
+/* 414 */           if (userId.equals(deptUser)) {
+/* 415 */             f1 = 1;
+/* 416 */             break;
+/*     */           }
+/*     */         }
+/* 419 */         if (f1 == 0) {
+/* 420 */           deptArray.add(userId);
+/*     */         }
+/*     */       }
+/* 423 */       for (String temp1 : deptArray) {
+/* 424 */         int f2 = 0;
+/* 425 */         for (String privUser : privArray) {
+/* 426 */           if (temp1.equals(privUser)) {
+/* 427 */             f2 = 1;
+/* 428 */             break;
+/*     */           }
+/*     */         }
+/* 431 */         if (f2 == 0) {
+/* 432 */           privArray.add(temp1);
+/*     */         }
+/*     */       }
+/* 435 */       StringBuffer mobileString = new StringBuffer();
+/* 436 */       for (String tempUser : privArray) {
+/* 437 */         String mobile = this.sms2PrivMapper.selSenderMobile(tempUser);
+/* 438 */         if ((mobile != null) && (!mobile.equals(""))) {
+/* 439 */           mobileString.append(mobile + ",");
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 445 */       smsSender(mobileString, contextString, sms2Priv);
+/*     */ 
+/* 447 */       toJson.setFlag(0);
+/* 448 */       toJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 450 */       toJson.setFlag(1);
+/* 451 */       toJson.setMsg(e.getMessage());
+/* 452 */       e.printStackTrace();
+/*     */     }
+/* 454 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<Sms2Priv> selOutPriv()
+/*     */   {
+/* 462 */     ToJson json = new ToJson();
+/*     */     try {
+/* 464 */       Sms2Priv sms2Priv = this.sms2PrivMapper.selectSms2Priv();
+/* 465 */       if (!StringUtils.checkNull(sms2Priv.getOutPriv()).booleanValue()) {
+/* 466 */         String[] split = sms2Priv.getOutPriv().split(",");
+/* 467 */         List sms2Priv1 = this.sms2PrivMapper.selOutPriv(split);
+/* 468 */         json.setObj(sms2Priv1);
+/*     */       }
+/*     */ 
+/* 471 */       json.setMsg("ok");
+/* 472 */       json.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 476 */       json.setFlag(1);
+/* 477 */       json.setMsg(e.getMessage());
+/* 478 */       e.printStackTrace();
+/*     */     }
+/* 480 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson upOutPriv(Sms2Priv sms2Priv)
+/*     */   {
+/* 487 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 489 */       if (!StringUtils.checkNull(sms2Priv.getOutPriv()).booleanValue()) {
+/* 490 */         String[] split = sms2Priv.getOutPriv().split(",");
+/* 491 */         List<Sms2Priv> sms2PrivList = this.sms2PrivMapper.upOutPriv(split);
+/* 492 */         String str = "";
+/* 493 */         for (Sms2Priv sms2Priv1 : sms2PrivList) {
+/* 494 */           str = str + sms2Priv1.getUserId() + ",";
+/*     */         }
+/* 496 */         sms2Priv.setOutPriv(str);
+/*     */       }
+/* 498 */       int temp = this.sms2PrivMapper.upSms2Priv(sms2Priv);
+/* 499 */       if (temp > 0) {
+/* 500 */         toJson.setFlag(0);
+/* 501 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 504 */       toJson.setFlag(1);
+/* 505 */       toJson.setMsg(e.getMessage());
+/* 506 */       e.printStackTrace();
+/*     */     }
+/* 508 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson outToSelf(Sms2Priv sms2Priv)
+/*     */   {
+/* 515 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 517 */       int temp = this.sms2PrivMapper.upSms2Priv(sms2Priv);
+/* 518 */       if (temp > 0) {
+/* 519 */         toJson.setFlag(0);
+/* 520 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 523 */       toJson.setFlag(1);
+/* 524 */       toJson.setMsg(e.getMessage());
+/* 525 */       e.printStackTrace();
+/*     */     }
+/* 527 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.smsDelivery.impl.Sms2PrivServiceImpl
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,678 @@
+/*     */ package com.xoa.model.url;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class UrlExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public UrlExample()
+/*     */   {
+/*  38 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  48 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  58 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  68 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  78 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  88 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  98 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 108 */     Criteria criteria = createCriteriaInternal();
+/* 109 */     this.oredCriteria.add(criteria);
+/* 110 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 120 */     Criteria criteria = createCriteriaInternal();
+/* 121 */     if (this.oredCriteria.size() == 0) {
+/* 122 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 124 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 134 */     Criteria criteria = new Criteria();
+/* 135 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 145 */     this.oredCriteria.clear();
+/* 146 */     this.orderByClause = null;
+/* 147 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 705 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 709 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 713 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 717 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 721 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 725 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 729 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 733 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 738 */       this.condition = condition;
+/* 739 */       this.typeHandler = null;
+/* 740 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 745 */       this.condition = condition;
+/* 746 */       this.value = value;
+/* 747 */       this.typeHandler = typeHandler;
+/* 748 */       if ((value instanceof List))
+/* 749 */         this.listValue = true;
+/*     */       else
+/* 751 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 756 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 761 */       this.condition = condition;
+/* 762 */       this.value = value;
+/* 763 */       this.secondValue = secondValue;
+/* 764 */       this.typeHandler = typeHandler;
+/* 765 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 769 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends UrlExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<UrlExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 161 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 165 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<UrlExample.Criterion> getAllCriteria() {
+/* 169 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<UrlExample.Criterion> getCriteria() {
+/* 173 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 177 */       if (condition == null) {
+/* 178 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 180 */       this.criteria.add(new UrlExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 184 */       if (value == null) {
+/* 185 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 187 */       this.criteria.add(new UrlExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 191 */       if ((value1 == null) || (value2 == null)) {
+/* 192 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 194 */       this.criteria.add(new UrlExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIdIsNull() {
+/* 198 */       addCriterion("URL_ID is null");
+/* 199 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIdIsNotNull() {
+/* 203 */       addCriterion("URL_ID is not null");
+/* 204 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIdEqualTo(Integer value) {
+/* 208 */       addCriterion("URL_ID =", value, "urlId");
+/* 209 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIdNotEqualTo(Integer value) {
+/* 213 */       addCriterion("URL_ID <>", value, "urlId");
+/* 214 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIdGreaterThan(Integer value) {
+/* 218 */       addCriterion("URL_ID >", value, "urlId");
+/* 219 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIdGreaterThanOrEqualTo(Integer value) {
+/* 223 */       addCriterion("URL_ID >=", value, "urlId");
+/* 224 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIdLessThan(Integer value) {
+/* 228 */       addCriterion("URL_ID <", value, "urlId");
+/* 229 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIdLessThanOrEqualTo(Integer value) {
+/* 233 */       addCriterion("URL_ID <=", value, "urlId");
+/* 234 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIdIn(List<Integer> values) {
+/* 238 */       addCriterion("URL_ID in", values, "urlId");
+/* 239 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIdNotIn(List<Integer> values) {
+/* 243 */       addCriterion("URL_ID not in", values, "urlId");
+/* 244 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIdBetween(Integer value1, Integer value2) {
+/* 248 */       addCriterion("URL_ID between", value1, value2, "urlId");
+/* 249 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIdNotBetween(Integer value1, Integer value2) {
+/* 253 */       addCriterion("URL_ID not between", value1, value2, "urlId");
+/* 254 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlNoIsNull() {
+/* 258 */       addCriterion("URL_NO is null");
+/* 259 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlNoIsNotNull() {
+/* 263 */       addCriterion("URL_NO is not null");
+/* 264 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlNoEqualTo(Integer value) {
+/* 268 */       addCriterion("URL_NO =", value, "urlNo");
+/* 269 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlNoNotEqualTo(Integer value) {
+/* 273 */       addCriterion("URL_NO <>", value, "urlNo");
+/* 274 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlNoGreaterThan(Integer value) {
+/* 278 */       addCriterion("URL_NO >", value, "urlNo");
+/* 279 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlNoGreaterThanOrEqualTo(Integer value) {
+/* 283 */       addCriterion("URL_NO >=", value, "urlNo");
+/* 284 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlNoLessThan(Integer value) {
+/* 288 */       addCriterion("URL_NO <", value, "urlNo");
+/* 289 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlNoLessThanOrEqualTo(Integer value) {
+/* 293 */       addCriterion("URL_NO <=", value, "urlNo");
+/* 294 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlNoIn(List<Integer> values) {
+/* 298 */       addCriterion("URL_NO in", values, "urlNo");
+/* 299 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlNoNotIn(List<Integer> values) {
+/* 303 */       addCriterion("URL_NO not in", values, "urlNo");
+/* 304 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlNoBetween(Integer value1, Integer value2) {
+/* 308 */       addCriterion("URL_NO between", value1, value2, "urlNo");
+/* 309 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlNoNotBetween(Integer value1, Integer value2) {
+/* 313 */       addCriterion("URL_NO not between", value1, value2, "urlNo");
+/* 314 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIsNull() {
+/* 318 */       addCriterion("URL is null");
+/* 319 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIsNotNull() {
+/* 323 */       addCriterion("URL is not null");
+/* 324 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlEqualTo(String value) {
+/* 328 */       addCriterion("URL =", value, "url");
+/* 329 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlNotEqualTo(String value) {
+/* 333 */       addCriterion("URL <>", value, "url");
+/* 334 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlGreaterThan(String value) {
+/* 338 */       addCriterion("URL >", value, "url");
+/* 339 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlGreaterThanOrEqualTo(String value) {
+/* 343 */       addCriterion("URL >=", value, "url");
+/* 344 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlLessThan(String value) {
+/* 348 */       addCriterion("URL <", value, "url");
+/* 349 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlLessThanOrEqualTo(String value) {
+/* 353 */       addCriterion("URL <=", value, "url");
+/* 354 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlLike(String value) {
+/* 358 */       addCriterion("URL like", value, "url");
+/* 359 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlNotLike(String value) {
+/* 363 */       addCriterion("URL not like", value, "url");
+/* 364 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIn(List<String> values) {
+/* 368 */       addCriterion("URL in", values, "url");
+/* 369 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlNotIn(List<String> values) {
+/* 373 */       addCriterion("URL not in", values, "url");
+/* 374 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlBetween(String value1, String value2) {
+/* 378 */       addCriterion("URL between", value1, value2, "url");
+/* 379 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlNotBetween(String value1, String value2) {
+/* 383 */       addCriterion("URL not between", value1, value2, "url");
+/* 384 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUserIsNull() {
+/* 388 */       addCriterion("USER is null");
+/* 389 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUserIsNotNull() {
+/* 393 */       addCriterion("USER is not null");
+/* 394 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUserEqualTo(String value) {
+/* 398 */       addCriterion("USER =", value, "user");
+/* 399 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUserNotEqualTo(String value) {
+/* 403 */       addCriterion("USER <>", value, "user");
+/* 404 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUserGreaterThan(String value) {
+/* 408 */       addCriterion("USER >", value, "user");
+/* 409 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUserGreaterThanOrEqualTo(String value) {
+/* 413 */       addCriterion("USER >=", value, "user");
+/* 414 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUserLessThan(String value) {
+/* 418 */       addCriterion("USER <", value, "user");
+/* 419 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUserLessThanOrEqualTo(String value) {
+/* 423 */       addCriterion("USER <=", value, "user");
+/* 424 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUserLike(String value) {
+/* 428 */       addCriterion("USER like", value, "user");
+/* 429 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUserNotLike(String value) {
+/* 433 */       addCriterion("USER not like", value, "user");
+/* 434 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUserIn(List<String> values) {
+/* 438 */       addCriterion("USER in", values, "user");
+/* 439 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUserNotIn(List<String> values) {
+/* 443 */       addCriterion("USER not in", values, "user");
+/* 444 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUserBetween(String value1, String value2) {
+/* 448 */       addCriterion("USER between", value1, value2, "user");
+/* 449 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUserNotBetween(String value1, String value2) {
+/* 453 */       addCriterion("USER not between", value1, value2, "user");
+/* 454 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlTypeIsNull() {
+/* 458 */       addCriterion("URL_TYPE is null");
+/* 459 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlTypeIsNotNull() {
+/* 463 */       addCriterion("URL_TYPE is not null");
+/* 464 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlTypeEqualTo(String value) {
+/* 468 */       addCriterion("URL_TYPE =", value, "urlType");
+/* 469 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlTypeNotEqualTo(String value) {
+/* 473 */       addCriterion("URL_TYPE <>", value, "urlType");
+/* 474 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlTypeGreaterThan(String value) {
+/* 478 */       addCriterion("URL_TYPE >", value, "urlType");
+/* 479 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlTypeGreaterThanOrEqualTo(String value) {
+/* 483 */       addCriterion("URL_TYPE >=", value, "urlType");
+/* 484 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlTypeLessThan(String value) {
+/* 488 */       addCriterion("URL_TYPE <", value, "urlType");
+/* 489 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlTypeLessThanOrEqualTo(String value) {
+/* 493 */       addCriterion("URL_TYPE <=", value, "urlType");
+/* 494 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlTypeLike(String value) {
+/* 498 */       addCriterion("URL_TYPE like", value, "urlType");
+/* 499 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlTypeNotLike(String value) {
+/* 503 */       addCriterion("URL_TYPE not like", value, "urlType");
+/* 504 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlTypeIn(List<String> values) {
+/* 508 */       addCriterion("URL_TYPE in", values, "urlType");
+/* 509 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlTypeNotIn(List<String> values) {
+/* 513 */       addCriterion("URL_TYPE not in", values, "urlType");
+/* 514 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlTypeBetween(String value1, String value2) {
+/* 518 */       addCriterion("URL_TYPE between", value1, value2, "urlType");
+/* 519 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlTypeNotBetween(String value1, String value2) {
+/* 523 */       addCriterion("URL_TYPE not between", value1, value2, "urlType");
+/* 524 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andSubTypeIsNull() {
+/* 528 */       addCriterion("SUB_TYPE is null");
+/* 529 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andSubTypeIsNotNull() {
+/* 533 */       addCriterion("SUB_TYPE is not null");
+/* 534 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andSubTypeEqualTo(String value) {
+/* 538 */       addCriterion("SUB_TYPE =", value, "subType");
+/* 539 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andSubTypeNotEqualTo(String value) {
+/* 543 */       addCriterion("SUB_TYPE <>", value, "subType");
+/* 544 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andSubTypeGreaterThan(String value) {
+/* 548 */       addCriterion("SUB_TYPE >", value, "subType");
+/* 549 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andSubTypeGreaterThanOrEqualTo(String value) {
+/* 553 */       addCriterion("SUB_TYPE >=", value, "subType");
+/* 554 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andSubTypeLessThan(String value) {
+/* 558 */       addCriterion("SUB_TYPE <", value, "subType");
+/* 559 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andSubTypeLessThanOrEqualTo(String value) {
+/* 563 */       addCriterion("SUB_TYPE <=", value, "subType");
+/* 564 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andSubTypeLike(String value) {
+/* 568 */       addCriterion("SUB_TYPE like", value, "subType");
+/* 569 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andSubTypeNotLike(String value) {
+/* 573 */       addCriterion("SUB_TYPE not like", value, "subType");
+/* 574 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andSubTypeIn(List<String> values) {
+/* 578 */       addCriterion("SUB_TYPE in", values, "subType");
+/* 579 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andSubTypeNotIn(List<String> values) {
+/* 583 */       addCriterion("SUB_TYPE not in", values, "subType");
+/* 584 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andSubTypeBetween(String value1, String value2) {
+/* 588 */       addCriterion("SUB_TYPE between", value1, value2, "subType");
+/* 589 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andSubTypeNotBetween(String value1, String value2) {
+/* 593 */       addCriterion("SUB_TYPE not between", value1, value2, "subType");
+/* 594 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIconIsNull() {
+/* 598 */       addCriterion("URL_ICON is null");
+/* 599 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIconIsNotNull() {
+/* 603 */       addCriterion("URL_ICON is not null");
+/* 604 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIconEqualTo(String value) {
+/* 608 */       addCriterion("URL_ICON =", value, "urlIcon");
+/* 609 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIconNotEqualTo(String value) {
+/* 613 */       addCriterion("URL_ICON <>", value, "urlIcon");
+/* 614 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIconGreaterThan(String value) {
+/* 618 */       addCriterion("URL_ICON >", value, "urlIcon");
+/* 619 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIconGreaterThanOrEqualTo(String value) {
+/* 623 */       addCriterion("URL_ICON >=", value, "urlIcon");
+/* 624 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIconLessThan(String value) {
+/* 628 */       addCriterion("URL_ICON <", value, "urlIcon");
+/* 629 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIconLessThanOrEqualTo(String value) {
+/* 633 */       addCriterion("URL_ICON <=", value, "urlIcon");
+/* 634 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIconLike(String value) {
+/* 638 */       addCriterion("URL_ICON like", value, "urlIcon");
+/* 639 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIconNotLike(String value) {
+/* 643 */       addCriterion("URL_ICON not like", value, "urlIcon");
+/* 644 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIconIn(List<String> values) {
+/* 648 */       addCriterion("URL_ICON in", values, "urlIcon");
+/* 649 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIconNotIn(List<String> values) {
+/* 653 */       addCriterion("URL_ICON not in", values, "urlIcon");
+/* 654 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIconBetween(String value1, String value2) {
+/* 658 */       addCriterion("URL_ICON between", value1, value2, "urlIcon");
+/* 659 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public UrlExample.Criteria andUrlIconNotBetween(String value1, String value2) {
+/* 663 */       addCriterion("URL_ICON not between", value1, value2, "urlIcon");
+/* 664 */       return (UrlExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.url.UrlExample
+ * JD-Core Version:    0.6.0
+ */

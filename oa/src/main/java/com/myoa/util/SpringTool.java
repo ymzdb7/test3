@@ -1,0 +1,27 @@
+ package com.myoa.util;
+ 
+ import org.springframework.beans.BeansException;
+ import org.springframework.context.ApplicationContext;
+ import org.springframework.context.ApplicationContextAware;
+ 
+ public class SpringTool
+   implements ApplicationContextAware
+ {
+   private static ApplicationContext applicationContext = null;
+ 
+   public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
+   {
+     if (applicationContext == null)
+       applicationContext = applicationContext;
+   }
+ 
+   public static ApplicationContext getApplicationContext()
+   {
+     return applicationContext;
+   }
+ 
+   public static Object getBean(String name) {
+     return getApplicationContext().getBean(name);
+   }
+ }
+

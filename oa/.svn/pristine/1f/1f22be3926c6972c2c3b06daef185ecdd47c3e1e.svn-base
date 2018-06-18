@@ -1,0 +1,406 @@
+/*     */ package com.xoa.service.edu.eduTeacher.impl;
+/*     */ 
+/*     */ import com.xoa.dao.edu.eduCourse.EduCourseMapper;
+/*     */ import com.xoa.dao.edu.eduDepartment.EduDepartmentMapper;
+/*     */ import com.xoa.dao.edu.eduTeacher.EduTeacherMapper;
+/*     */ import com.xoa.dao.edu.eduUser.EduUserMapper;
+/*     */ import com.xoa.model.edu.eduCourse.EduCourse;
+/*     */ import com.xoa.model.edu.eduDepartment.EduDepartment;
+/*     */ import com.xoa.model.edu.eduTeacher.EduTeacher;
+/*     */ import com.xoa.model.edu.eduTeacher.EduTeacherWithBLOBs;
+/*     */ import com.xoa.model.edu.eduUser.EduUser;
+/*     */ import com.xoa.service.edu.eduTeacher.EduTeacherService;
+/*     */ import com.xoa.util.ExcelUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.InputStream;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.ResourceBundle;
+/*     */ import java.util.Set;
+/*     */ import java.util.UUID;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.ServletOutputStream;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.apache.poi.ss.usermodel.Cell;
+/*     */ import org.apache.poi.ss.usermodel.Row;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduTeacherServiceImpl
+/*     */   implements EduTeacherService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private EduTeacherMapper eduTeacherMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private EduDepartmentMapper eduDepartmentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private EduUserMapper eduUserMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private EduCourseMapper eduCourseMapper;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<EduTeacher> save(EduTeacherWithBLOBs eduTeacher)
+/*     */   {
+/*  61 */     ToJson json = new ToJson();
+/*     */     try {
+/*  63 */       eduTeacher.setClazz(eduTeacher.getClazz().trim());
+/*  64 */       Map map = eduTeacher.getMap();
+/*  65 */       Set<String> strings = map.keySet();
+/*  66 */       for (String course : strings) {
+/*  67 */         if (course.equals("班主任")) {
+/*  68 */           eduTeacher.setTeacherType("班主任");
+/*     */         } else {
+/*  70 */           eduTeacher.setTeacherType("任课教师");
+/*  71 */           eduTeacher.setCourse(course.trim());
+/*     */         }
+/*  73 */         String userId = ((String)map.get(course)).replace(",", "").trim();
+/*  74 */         EduUser teacher = this.eduUserMapper.getByuserId(userId);
+/*  75 */         EduDepartment clazzByName = this.eduDepartmentMapper.getClazzByName(eduTeacher.getGrade());
+/*  76 */         if ((clazzByName != null) && (clazzByName.getDeptId() != null) && 
+/*  77 */           (teacher != null) && (teacher.getUserName() != null)) {
+/*  78 */           eduTeacher.setUserName(teacher.getUserName());
+/*  79 */           eduTeacher.setUserId(userId);
+/*  80 */           eduTeacher.setClassId(clazzByName.getDeptId().toString());
+/*  81 */           if (eduTeacher.getTeacherType().equals("班主任")) {
+/*  82 */             eduTeacher.setCourse(null);
+/*     */           }
+/*  84 */           EduTeacher singleTeacher = this.eduTeacherMapper.getSingleTeacher(eduTeacher);
+/*  85 */           if (singleTeacher != null)
+/*  86 */             this.eduTeacherMapper.updateByParameter(eduTeacher);
+/*     */           else {
+/*  88 */             this.eduTeacherMapper.insertSelective(eduTeacher);
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/*  93 */       json.setFlag(0);
+/*  94 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/*  96 */       e.printStackTrace();
+/*  97 */       json.setFlag(1);
+/*  98 */       json.setMsg("err");
+/*     */     }
+/* 100 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduTeacher> getTeacherInfo(EduTeacherWithBLOBs eduTeacher)
+/*     */   {
+/* 110 */     ToJson json = new ToJson();
+/*     */     try {
+/* 112 */       eduTeacher.setTerm(eduTeacher.getTerm().trim());
+/* 113 */       eduTeacher.setGrade(eduTeacher.getGrade().trim());
+/* 114 */       eduTeacher.setClazz(eduTeacher.getClazz().trim());
+/* 115 */       List teacherInfo = this.eduTeacherMapper.getTeacherInfo(eduTeacher);
+/* 116 */       json.setObj(teacherInfo);
+/* 117 */       json.setMsg("ok");
+/* 118 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 120 */       e.printStackTrace();
+/* 121 */       json.setMsg("err");
+/* 122 */       json.setFlag(1);
+/*     */     }
+/* 124 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduTeacher> deleteTeacher(String ids)
+/*     */   {
+/* 134 */     ToJson json = new ToJson();
+/*     */     try {
+/* 136 */       String[] split = ids.split(",");
+/* 137 */       for (String id : split) {
+/* 138 */         this.eduTeacherMapper.deleteByPrimaryKey(Integer.valueOf(id));
+/*     */       }
+/* 140 */       json.setFlag(0);
+/* 141 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 143 */       e.printStackTrace();
+/* 144 */       json.setMsg("err");
+/*     */     }
+/* 146 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduTeacher> importTeacher(MultipartFile file, HttpServletRequest request, HttpServletResponse response, HttpSession session)
+/*     */   {
+/* 156 */     ToJson json = new ToJson();
+/*     */ 
+/* 158 */     Integer successCount = Integer.valueOf(0);
+/*     */     try
+/*     */     {
+/* 162 */       ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 163 */       String osName = System.getProperty("os.name");
+/* 164 */       StringBuffer path = new StringBuffer();
+/* 165 */       if (osName.toLowerCase().startsWith("win"))
+/* 166 */         path = path.append(rb.getString("upload.win"));
+/*     */       else {
+/* 168 */         path = path.append(rb.getString("upload.linux"));
+/*     */       }
+/*     */ 
+/* 172 */       if (file.isEmpty()) {
+/* 173 */         json.setMsg("请上传文件！");
+/* 174 */         json.setFlag(1);
+/* 175 */         return json;
+/*     */       }
+/* 177 */       String fileName = file.getOriginalFilename();
+/* 178 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 179 */         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+/* 180 */         int pos = fileName.indexOf(".");
+/* 181 */         String extName = fileName.substring(pos);
+/* 182 */         String newFileName = uuid + extName;
+/* 183 */         File dest = new File(path.toString(), newFileName);
+/* 184 */         file.transferTo(dest);
+/*     */ 
+/* 187 */         String readPath = path.append(newFileName).toString();
+/* 188 */         InputStream in = new FileInputStream(readPath);
+/* 189 */         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+/* 190 */         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+/* 191 */         Row row = sheetObj.getRow(0);
+/* 192 */         int colNum = row.getPhysicalNumberOfCells();
+/* 193 */         int lastRowNum = sheetObj.getLastRowNum();
+/* 194 */         List saveList = new ArrayList();
+/* 195 */         EduTeacherWithBLOBs entity = null;
+/*     */         Integer localInteger1;
+/* 197 */         for (int i = 1; i <= lastRowNum; i++) {
+/* 198 */           entity = new EduTeacherWithBLOBs();
+/* 199 */           row = sheetObj.getRow(i);
+/* 200 */           if (row != null) {
+/* 201 */             for (int j = 0; j < colNum; j++) {
+/* 202 */               Cell cell = row.getCell(j);
+/* 203 */               if (cell != null) {
+/* 204 */                 switch (j)
+/*     */                 {
+/*     */                 case 0:
+/* 207 */                   entity.setGrade(cell.getStringCellValue());
+/* 208 */                   break;
+/*     */                 case 1:
+/* 211 */                   entity.setClazz(cell.getStringCellValue());
+/* 212 */                   break;
+/*     */                 case 2:
+/* 215 */                   entity.setSchoolYear(cell.getStringCellValue());
+/* 216 */                   break;
+/*     */                 case 3:
+/* 219 */                   entity.setTerm(cell.getStringCellValue());
+/* 220 */                   break;
+/*     */                 case 4:
+/* 223 */                   entity.setCourse(cell.getStringCellValue());
+/* 224 */                   break;
+/*     */                 case 5:
+/* 227 */                   entity.setUserId(cell.getStringCellValue());
+/* 228 */                   break;
+/*     */                 case 6:
+/* 231 */                   entity.setTeacherType(cell.getStringCellValue());
+/* 232 */                   break;
+/*     */                 case 7:
+/* 235 */                   entity.setUserName(cell.getStringCellValue());
+/* 236 */                   break;
+/*     */                 case 8:
+/* 239 */                   entity.setSemeter(cell.getStringCellValue());
+/*     */                 }
+/*     */               }
+/*     */             }
+/*     */ 
+/* 244 */             EduTeacher singleTeacher = this.eduTeacherMapper.getSingleTeacher(entity);
+/* 245 */             EduDepartment clazzByName = this.eduDepartmentMapper.getClazzByName(entity.getGrade());
+/* 246 */             EduUser byuserId = this.eduUserMapper.getByuserId(entity.getUserId());
+/* 247 */             if ((byuserId == null) || 
+/* 248 */               (clazzByName == null)) continue;
+/* 249 */             entity.setClassId(clazzByName.getDeptId().toString());
+/*     */             Integer localInteger2;
+/* 250 */             if (singleTeacher != null) {
+/* 251 */               entity.setId(singleTeacher.getId());
+/* 252 */               this.eduTeacherMapper.updateByPrimaryKeySelective(entity);
+/* 253 */               localInteger1 = successCount; localInteger2 = successCount = Integer.valueOf(successCount.intValue() + 1);
+/*     */             } else {
+/* 255 */               this.eduTeacherMapper.insertSelective(entity);
+/* 256 */               localInteger1 = successCount; localInteger2 = successCount = Integer.valueOf(successCount.intValue() + 1);
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */       else
+/*     */       {
+/* 263 */         json.setMsg("file type error!");
+/* 264 */         json.setFlag(1);
+/* 265 */         return json;
+/*     */       }
+/*     */ 
+/* 268 */       json.setTotleNum(successCount);
+/* 269 */       json.setMsg("ok");
+/* 270 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 272 */       e.printStackTrace();
+/* 273 */       json.setMsg("err");
+/* 274 */       json.setFlag(1);
+/*     */     }
+/* 276 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduTeacher> queryAndExport(HttpServletRequest request, HttpServletResponse response, String userId, String teacherType, String schoolYear, String clazz, String grade, String term, String course, boolean useFlag, Integer page, Integer pageSize, String queryType)
+/*     */   {
+/* 286 */     ToJson json = new ToJson();
+/*     */     try {
+/* 288 */       PageParams pageParams = new PageParams();
+/* 289 */       pageParams.setPageSize(pageSize);
+/* 290 */       pageParams.setPage(page);
+/* 291 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 292 */       Map map = new HashMap();
+/* 293 */       map.put("page", pageParams);
+/* 294 */       map.put("userId", userId.trim());
+/* 295 */       map.put("teacherType", teacherType.trim());
+/* 296 */       map.put("schoolYear", schoolYear.trim());
+/* 297 */       map.put("clazz", clazz.trim());
+/* 298 */       map.put("grade", grade.trim());
+/* 299 */       map.put("term", term.trim());
+/* 300 */       map.put("course", course.trim());
+/* 301 */       if ("1".equals(queryType)) {
+/* 302 */         List eduTeachers = this.eduTeacherMapper.queryTeacher(map);
+/* 303 */         json.setObj(eduTeachers);
+/* 304 */       } else if ("2".equals(queryType)) {
+/* 305 */         map.remove("page");
+/* 306 */         List eduTeachers = this.eduTeacherMapper.queryTeacher(map);
+/* 307 */         HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("OA用户信息", 9);
+/* 308 */         String[] secondTitles = { "编号", "年级", "班级", "学年", "学期", "科目", "教师用户名", "教师类型", "教师姓名" };
+/* 309 */         HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/* 310 */         String[] beanProperty = { "id", "grade", "clazz", "schoolYear", "term", "course", "userId", "teacherType", "userName" };
+/*     */ 
+/* 312 */         HSSFWorkbook workbook = ExcelUtil.exportExcelData(workbook2, eduTeachers, beanProperty);
+/* 313 */         ServletOutputStream out = response.getOutputStream();
+/*     */ 
+/* 315 */         String filename = "任课教师信息表.xls";
+/* 316 */         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/* 317 */         response.setContentType("application/vnd.ms-excel");
+/* 318 */         response.setHeader("content-disposition", "attachment;filename=" + filename);
+/* 319 */         workbook.write(out);
+/*     */       }
+/* 321 */       map.remove("page");
+/* 322 */       Integer integer = this.eduTeacherMapper.queryTeacherCount(map);
+/* 323 */       json.setTotleNum(integer);
+/* 324 */       json.setMsg("ok");
+/* 325 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 327 */       e.printStackTrace();
+/* 328 */       json.setFlag(1);
+/* 329 */       json.setMsg("err");
+/*     */     }
+/* 331 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduTeacher> getEduTeacherById(Integer id)
+/*     */   {
+/* 336 */     ToJson json = new ToJson();
+/*     */     try {
+/* 338 */       EduTeacherWithBLOBs eduTeacherWithBLOBs = this.eduTeacherMapper.selectByPrimaryKey(id);
+/* 339 */       json.setObject(eduTeacherWithBLOBs);
+/* 340 */       json.setFlag(0);
+/* 341 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 343 */       e.printStackTrace();
+/* 344 */       json.setMsg("err");
+/*     */     }
+/* 346 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduCourse> getCourseByGrade(String grade)
+/*     */   {
+/* 351 */     ToJson json = new ToJson();
+/*     */     try {
+/* 353 */       grade = grade.trim();
+/* 354 */       String grades1 = "年级名称：一年级，二年级，三年级，四年级，五年级，六年级";
+/* 355 */       String grades2 = "年级名称：七年级，八年级，九年级";
+/* 356 */       String grades3 = "年级名称：高一，高二，高三";
+/* 357 */       String stage = "0";
+/* 358 */       if (grades1.indexOf(grade) >= 5)
+/* 359 */         stage = "1";
+/* 360 */       else if (grades2.indexOf(grade) >= 5)
+/* 361 */         stage = "1,2";
+/* 362 */       else if (grades3.indexOf(grade) >= 5) {
+/* 363 */         stage = "1,2,3";
+/*     */       }
+/* 365 */       List courseByStage = this.eduCourseMapper.getCourseByStage(stage);
+/* 366 */       json.setObj(courseByStage);
+/* 367 */       json.setFlag(0);
+/* 368 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 370 */       e.printStackTrace();
+/* 371 */       json.setMsg("err");
+/*     */     }
+/* 373 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduTeacher> update(EduTeacherWithBLOBs eduTeacher)
+/*     */   {
+/* 378 */     ToJson json = new ToJson();
+/*     */     try {
+/* 380 */       eduTeacher.setUserId(eduTeacher.getUserId().replace(",", "").trim());
+/* 381 */       eduTeacher.setUserName(eduTeacher.getUserName().replace(",", "").trim());
+/* 382 */       this.eduTeacherMapper.updateByPrimaryKey(eduTeacher);
+/* 383 */       json.setFlag(0);
+/* 384 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 386 */       e.printStackTrace();
+/* 387 */       json.setMsg("err");
+/*     */     }
+/* 389 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Map<String, Object>> UsersTeacherIdselect(EduTeacher eduTeacher)
+/*     */   {
+/* 400 */     ToJson json = new ToJson();
+/*     */     try {
+/* 402 */       List educlasslist = this.eduTeacherMapper.UsersTeacherIdselect(eduTeacher);
+/* 403 */       if (educlasslist.size() > 0) {
+/* 404 */         json.setObject(educlasslist);
+/* 405 */         json.setFlag(0);
+/* 406 */         json.setMsg("ok");
+/*     */       } else {
+/* 408 */         json.setMsg("err");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 411 */       e.printStackTrace();
+/*     */     }
+/* 413 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<String> getKeMu()
+/*     */   {
+/* 422 */     ToJson json = new ToJson();
+/*     */     try {
+/* 424 */       List list = this.eduTeacherMapper.getKeMu();
+/* 425 */       if (list.size() > 0) {
+/* 426 */         json.setObj(list);
+/* 427 */         json.setFlag(0);
+/* 428 */         json.setMsg("ok");
+/* 429 */         return json;
+/*     */       }
+/* 431 */       json.setMsg("err");
+/* 432 */       json.setFlag(1);
+/*     */     } catch (Exception e) {
+/* 434 */       e.printStackTrace();
+/*     */     }
+/* 436 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public List<EduTeacher> getTeacherBygc(String grade, String clazz) {
+/* 440 */     return this.eduTeacherMapper.getTeacherBygc(grade, clazz);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduTeacher.impl.EduTeacherServiceImpl
+ * JD-Core Version:    0.6.0
+ */

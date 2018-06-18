@@ -1,0 +1,127 @@
+package com.myoa.controller.hr;
+
+import com.myoa.util.Constant;
+import com.myoa.util.dataSource.ContextHolder;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+@RequestMapping({ "/hr/page" })
+public class HrPageController {
+	private Logger loger = Logger.getLogger(HrPageController.class);
+
+	@RequestMapping({ "/retiree" })
+	public String retiree() {
+		return "app/hr/retiree";
+	}
+
+	@RequestMapping({ "/*" })
+	public String manageMail(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/hr/hrindex";
+	}
+
+	@RequestMapping({ "/hrOnJop" })
+	public String selectPersonnelFile(HttpServletRequest request) {
+		return "app/hr/hr_onJop";
+	}
+
+	@RequestMapping({ "/hrOnFind" })
+	public String findPersonFile(HttpServletRequest request) {
+		return "app/hr/hr_onFind";
+	}
+
+	@RequestMapping({ "/hrLeaveJop" })
+	public String leavePerson(HttpServletRequest request) {
+		return "app/hr/hr_leaveJop";
+	}
+
+	@RequestMapping({ "/hrLeaveFind" })
+	public String leavaFindPerson(HttpServletRequest request) {
+		return "app/hr/hr_leaveFind";
+	}
+
+	@RequestMapping({ "/hrContRight" })
+	public String contRightLeavePerson(HttpServletRequest request) {
+		return "app/hr/hr_contRight";
+	}
+
+	@RequestMapping({ "/contractDueQuery" })
+	public String contractDueQuery(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/hr/contractDueQuery";
+	}
+
+	@RequestMapping({ "/contractIndex" })
+	public String contractIndex(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/hr/contractIndex";
+	}
+
+	@RequestMapping({ "/contractInOut" })
+	public String contractInOut(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/hr/contractInOut";
+	}
+
+	@RequestMapping({ "/contractNew" })
+	public String contractNew(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/hr/contractNew";
+	}
+
+	@RequestMapping({ "/contractQuery" })
+	public String contractQuery(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/hr/contractQuery";
+	}
+
+	@RequestMapping({ "/contractUp" })
+	public String contractUp(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/hr/contractUp";
+	}
+
+	@RequestMapping({ "/contractStraff" })
+	public String contractStraff(HttpServletRequest request) {
+		return "app/hr/contractStraff";
+	}
+
+	@RequestMapping({ "/noContract" })
+	public String noContract(HttpServletRequest request) {
+		return "app/hr/contractStraff";
+	}
+
+	@RequestMapping({ "/contractDetail" })
+	public String contractDetail(HttpServletRequest request) {
+		return "app/hr/contractDetail";
+	}
+
+	@RequestMapping({ "/personnelInformation" })
+	public String personnelInformation() {
+		return "app/hr/personnelInformation";
+	}
+
+	@RequestMapping({ "/hrImportInfo" })
+	public String hrImportInfo() {
+		return "app/hr/hrImportInfo";
+	}
+}

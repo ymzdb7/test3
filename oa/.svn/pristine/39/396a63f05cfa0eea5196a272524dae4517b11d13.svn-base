@@ -1,0 +1,134 @@
+/*     */ package com.xoa.service.edu.eduElectivePublish.impl;
+/*     */ 
+/*     */ import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+/*     */ import com.xoa.dao.common.SysCodeMapper;
+/*     */ import com.xoa.dao.edu.eduElectiveDetail.EduElectiveDetailMapper;
+/*     */ import com.xoa.dao.edu.eduElectivePublish.EduElectivePublishMapper;
+/*     */ import com.xoa.model.common.SysCode;
+/*     */ import com.xoa.model.edu.eduElectivePublish.EduElectivePublish;
+/*     */ import com.xoa.service.edu.eduElectivePublish.IEduElectivePublishService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.beans.Transient;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduElectivePublishServiceImpl extends ServiceImpl<EduElectivePublishMapper, EduElectivePublish>
+/*     */   implements IEduElectivePublishService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private SysCodeMapper sysCodeMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private EduElectivePublishMapper eduElectivePublishMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private EduElectiveDetailMapper eduElectiveDetailMapper;
+/*     */ 
+/*     */   public ToJson<EduElectivePublish> selectEduPublish(EduElectivePublish eduElectivePublish, HttpServletRequest request, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  47 */     ToJson json = new ToJson();
+/*     */     try {
+/*  49 */       List<EduElectivePublish>  list = this.eduElectivePublishMapper.selectEduPublish(eduElectivePublish);
+/*  50 */       for (Iterator<EduElectivePublish>  i$ = list.iterator(); i$.hasNext(); ) {EduElectivePublish eduElectivePublish1 = i$.next();
+/*  51 */         List<SysCode> code = this.sysCodeMapper.getSysCode("EDU_YEAR_NO");
+/*  52 */         for (SysCode sysCode : code)
+/*  53 */           if (sysCode.getCodeNo().equals(eduElectivePublish1.getYear()))
+/*  54 */             eduElectivePublish1.setYearName(sysCode.getCodeName());
+/*     */       }
+/*     */       EduElectivePublish eduElectivePublish1;
+/*  58 */       if (list.size() > 0) {
+/*  59 */         json.setObj(list);
+/*  60 */         json.setFlag(0);
+/*  61 */         json.setMsg("ok");
+/*     */       } else {
+/*  63 */         json.setMsg("err");
+/*  64 */         json.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  67 */       e.printStackTrace();
+/*     */     }
+/*  69 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transient
+/*     */   public ToJson insertEduEPublish(EduElectivePublish eduElectivePublish)
+/*     */   {
+/*  82 */     ToJson json = new ToJson();
+/*     */     try {
+/*  84 */       eduElectivePublish.setCreateUser("admin");
+/*  85 */       eduElectivePublish.setAttachmentId("无");
+/*  86 */       eduElectivePublish.setAttachmentName("无");
+/*  87 */       int count = this.eduElectivePublishMapper.insertEduEPublish(eduElectivePublish);
+/*  88 */       if (count > 0) {
+/*  89 */         json.setFlag(count);
+/*  90 */         json.setMsg("ok");
+/*     */       } else {
+/*  92 */         json.setMsg("err");
+/*  93 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  96 */       e.printStackTrace();
+/*     */     }
+/*  98 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transient
+/*     */   public ToJson updateEduPublish(EduElectivePublish eduElectivePublish)
+/*     */   {
+/* 111 */     ToJson json = new ToJson();
+/*     */     try {
+/* 113 */       int count = this.eduElectivePublishMapper.updateEduPublish(eduElectivePublish);
+/* 114 */       if (count > 0) {
+/* 115 */         json.setMsg("ok");
+/* 116 */         json.setFlag(count);
+/*     */       } else {
+/* 118 */         json.setMsg("err");
+/* 119 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 122 */       e.printStackTrace();
+/*     */     }
+/* 124 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transient
+/*     */   public ToJson deleteEduPublish(HttpServletRequest request)
+/*     */   {
+/* 138 */     ToJson json = new ToJson();
+/* 139 */     String[] id = request.getParameterValues("id[]");
+/* 140 */     int t = 0; int count = 0; int to = 0;
+/*     */     try {
+/* 142 */       for (int i = 0; i < id.length; i++) {
+/* 143 */         int tid = Integer.parseInt(id[i].trim());
+/* 144 */         to = this.eduElectiveDetailMapper.deleteElectiveDetaim(Integer.valueOf(tid));
+/* 145 */         if (to > 0) {
+/* 146 */           count = this.eduElectivePublishMapper.deleteEduPublish(Integer.valueOf(tid));
+/* 147 */           t += count; } else {
+/* 148 */           json.setMsg("err");
+/* 149 */           json.setFlag(1);
+/* 150 */           return json;
+/*     */         }
+/*     */       }
+/* 153 */       if (t > 0) {
+/* 154 */         json.setMsg("ok" + count);
+/* 155 */         json.setFlag(0);
+/* 156 */         return json;
+/*     */       }
+/* 158 */       json.setMsg("err");
+/* 159 */       json.setFlag(1);
+/*     */     } catch (Exception e) {
+/* 161 */       e.printStackTrace();
+/*     */     }
+/* 163 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduElectivePublish.impl.EduElectivePublishServiceImpl
+ * JD-Core Version:    0.6.0
+ */

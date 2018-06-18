@@ -1,0 +1,51 @@
+/*    */ package com.xoa.controller.event;
+/*    */ 
+/*    */ import com.xoa.util.Constant;
+import com.xoa.util.dataSource.ContextHolder;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import javax.servlet.http.HttpSession;
+/*    */ import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"/timeLineConmon"})
+/*    */ public class TimeLineConmonController
+/*    */ {
+/*    */   @RequestMapping({"/eventManage"})
+/*    */   public String EventManage(HttpServletRequest request)
+/*    */   {
+/* 18 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 20 */     return "app/event/eventManage";
+/*    */   }
+/*    */   @RequestMapping({"/event"})
+/*    */   public String Event(HttpServletRequest request) {
+/* 25 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 27 */     return "app/event/eventIndex";
+/*    */   }
+/*    */   @RequestMapping({"/timeLineEvent"})
+/*    */   public String TimeLineEvent(HttpServletRequest request) {
+/* 32 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 34 */     return "app/event/event";
+/*    */   }
+/*    */   @RequestMapping({"/eventSee"})
+/*    */   public String eventSee(HttpServletRequest request) {
+/* 39 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 41 */     return "app/event/eventSee";
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/eventManageIndex"})
+/*    */   public String eventManageSee(HttpServletRequest request) {
+/* 47 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 49 */     return "app/event/eventManageIndex";
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.event.TimeLineConmonController
+ * JD-Core Version:    0.6.0
+ */

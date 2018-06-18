@@ -1,0 +1,348 @@
+/*     */ package com.xoa.util.email;
+/*     */ 
+/*     */ import java.io.BufferedInputStream;
+/*     */ import java.io.BufferedOutputStream;
+/*     */ import java.io.File;
+/*     */ import java.io.FileOutputStream;
+/*     */ import java.io.InputStream;
+/*     */ import java.io.PrintStream;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.Date;
+/*     */ import javax.mail.BodyPart;
+/*     */ import javax.mail.Flags;
+/*     */ import javax.mail.Flags.Flag;
+/*     */ import javax.mail.Message;
+/*     */ import javax.mail.Message.RecipientType;
+/*     */ import javax.mail.MessagingException;
+/*     */ import javax.mail.Multipart;
+/*     */ import javax.mail.Part;
+/*     */ import javax.mail.internet.InternetAddress;
+/*     */ import javax.mail.internet.MimeMessage;
+/*     */ import javax.mail.internet.MimeUtility;
+/*     */ 
+/*     */ public class EmailUtils
+/*     */ {
+/*  22 */   private MimeMessage mimeMessage = null;
+/*     */ 
+/*  26 */   private String saveAttachPath = "";
+/*     */ 
+/*  30 */   private StringBuffer bodyText = new StringBuffer();
+/*     */ 
+/*  34 */   private String dateFormat = "yy-MM-dd HH:mm:ss";
+/*     */ 
+/*     */   public EmailUtils()
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   public EmailUtils(MimeMessage mimeMessage)
+/*     */   {
+/*  54 */     this.mimeMessage = mimeMessage;
+/*  55 */     System.out.println("创建一个ReceiveEmail对象....");
+/*     */   }
+/*     */ 
+/*     */   public void setMimeMessage(MimeMessage mimeMessage)
+/*     */   {
+/*  66 */     this.mimeMessage = mimeMessage;
+/*  67 */     System.out.println("设置一个MimeMessage对象...");
+/*     */   }
+/*     */ 
+/*     */   public String getFrom()
+/*     */     throws Exception
+/*     */   {
+/*  78 */     InternetAddress[] address = (InternetAddress[])(InternetAddress[])this.mimeMessage.getFrom();
+/*  79 */     String from = address[0].getAddress();
+/*  80 */     if (from == null) {
+/*  81 */       from = "";
+/*  82 */       System.out.println("无法知道发送者.");
+/*     */     }
+/*  84 */     String personal = address[0].getPersonal();
+/*     */ 
+/*  86 */     if (personal == null) {
+/*  87 */       personal = "";
+/*  88 */       System.out.println("无法知道发送者的姓名.");
+/*     */     }
+/*     */ 
+/*  91 */     String fromAddr = null;
+/*  92 */     if ((personal != null) || (from != null)) {
+/*  93 */       fromAddr = personal + "<" + from + ">";
+/*  94 */       System.out.println("发送者是：" + fromAddr);
+/*     */     } else {
+/*  96 */       System.out.println("无法获得发送者信息.");
+/*     */     }
+/*  98 */     return fromAddr;
+/*     */   }
+/*     */ 
+/*     */   public String getMailAddress(String type)
+/*     */     throws Exception
+/*     */   {
+/* 110 */     String mailAddr = "";
+/* 111 */     String addType = type.toUpperCase();
+/*     */ 
+/* 113 */     InternetAddress[] address = null;
+/* 114 */     if ((addType.equals("TO")) || (addType.equals("CC")) || (addType.equals("BCC")))
+/*     */     {
+/* 116 */       if (addType.equals("TO"))
+/* 117 */         address = (InternetAddress[])(InternetAddress[])this.mimeMessage.getRecipients(Message.RecipientType.TO);
+/* 118 */       else if (addType.equals("CC"))
+/* 119 */         address = (InternetAddress[])(InternetAddress[])this.mimeMessage.getRecipients(Message.RecipientType.CC);
+/*     */       else {
+/* 121 */         address = (InternetAddress[])(InternetAddress[])this.mimeMessage.getRecipients(Message.RecipientType.BCC);
+/*     */       }
+/*     */ 
+/* 124 */       if (address != null) {
+/* 125 */         for (int i = 0; i < address.length; i++) {
+/* 126 */           String emailAddr = address[i].getAddress();
+/* 127 */           if (emailAddr == null) {
+/* 128 */             emailAddr = "";
+/*     */           } else {
+/* 130 */             System.out.println("转换之前的emailAddr: " + emailAddr);
+/* 131 */             emailAddr = MimeUtility.decodeText(emailAddr);
+/* 132 */             System.out.println("转换之后的emailAddr: " + emailAddr);
+/*     */           }
+/* 134 */           String personal = address[i].getPersonal();
+/* 135 */           if (personal == null) {
+/* 136 */             personal = "";
+/*     */           } else {
+/* 138 */             System.out.println("转换之前的personal: " + personal);
+/* 139 */             personal = MimeUtility.decodeText(personal);
+/* 140 */             System.out.println("转换之后的personal: " + personal);
+/*     */           }
+/* 142 */           String compositeto = personal + "<" + emailAddr + ">";
+/* 143 */           System.out.println("完整的邮件地址：" + compositeto);
+/* 144 */           mailAddr = mailAddr + "," + compositeto;
+/*     */         }
+/* 146 */         mailAddr = mailAddr.substring(1);
+/*     */       }
+/*     */     } else {
+/* 149 */       throw new Exception("错误的电子邮件类型!");
+/*     */     }
+/* 151 */     return mailAddr;
+/*     */   }
+/*     */ 
+/*     */   public String getSubject()
+/*     */     throws MessagingException
+/*     */   {
+/* 162 */     String subject = "";
+/*     */     try {
+/* 164 */       System.out.println("转换前的subject：" + this.mimeMessage.getSubject());
+/* 165 */       subject = MimeUtility.decodeText(this.mimeMessage.getSubject());
+/* 166 */       System.out.println("转换后的subject: " + this.mimeMessage.getSubject());
+/* 167 */       if (subject == null)
+/* 168 */         subject = "";
+/*     */     }
+/*     */     catch (Exception exce) {
+/* 171 */       exce.printStackTrace();
+/*     */     }
+/* 173 */     return subject;
+/*     */   }
+/*     */ 
+/*     */   public String getSentDate()
+/*     */     throws Exception
+/*     */   {
+/* 184 */     Date sentDate = this.mimeMessage.getSentDate();
+/* 185 */     System.out.println("发送日期 原始类型: " + this.dateFormat);
+/* 186 */     SimpleDateFormat format = new SimpleDateFormat(this.dateFormat);
+/* 187 */     String strSentDate = format.format(sentDate);
+/* 188 */     System.out.println("发送日期 可读类型: " + strSentDate);
+/* 189 */     return strSentDate;
+/*     */   }
+/*     */ 
+/*     */   public String getBodyText()
+/*     */   {
+/* 200 */     return this.bodyText.toString();
+/*     */   }
+/*     */ 
+/*     */   public void getMailContent(Part part)
+/*     */     throws Exception
+/*     */   {
+/* 212 */     String contentType = part.getContentType();
+/*     */ 
+/* 214 */     System.out.println("邮件的MimeType类型: " + contentType);
+/* 215 */     int nameIndex = contentType.indexOf("name");
+/* 216 */     boolean conName = false;
+/* 217 */     if (nameIndex != -1) {
+/* 218 */       conName = true;
+/*     */     }
+/* 220 */     System.out.println("邮件内容的类型:　" + contentType);
+/* 221 */     if ((part.isMimeType("text/plain")) && (!conName))
+/*     */     {
+/* 223 */       this.bodyText.append((String)part.getContent());
+/* 224 */     } else if ((part.isMimeType("text/html")) && (!conName))
+/*     */     {
+/* 226 */       this.bodyText.append((String)part.getContent());
+/* 227 */     } else if (part.isMimeType("multipart/*"))
+/*     */     {
+/* 229 */       Multipart multipart = (Multipart)part.getContent();
+/* 230 */       int counts = multipart.getCount();
+/* 231 */       for (int i = 0; i < counts; i++)
+/* 232 */         getMailContent(multipart.getBodyPart(i));
+/*     */     }
+/* 234 */     else if (part.isMimeType("message/rfc822"))
+/*     */     {
+/* 236 */       getMailContent((Part)part.getContent());
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public boolean getReplySign()
+/*     */     throws MessagingException
+/*     */   {
+/* 251 */     boolean replySign = false;
+/*     */ 
+/* 253 */     String[] needReply = this.mimeMessage.getHeader("Disposition-Notification-To");
+/*     */ 
+/* 255 */     if (needReply != null) {
+/* 256 */       replySign = true;
+/*     */     }
+/* 258 */     if (replySign)
+/* 259 */       System.out.println("该邮件需要回复");
+/*     */     else {
+/* 261 */       System.out.println("该邮件不需要回复");
+/*     */     }
+/* 263 */     return replySign;
+/*     */   }
+/*     */ 
+/*     */   public String getMessageId()
+/*     */     throws MessagingException
+/*     */   {
+/* 274 */     String messageID = this.mimeMessage.getMessageID();
+/* 275 */     System.out.println("邮件ID: " + messageID);
+/* 276 */     return messageID;
+/*     */   }
+/*     */ 
+/*     */   public boolean isNew()
+/*     */     throws MessagingException
+/*     */   {
+/* 287 */     boolean isNew = false;
+/* 288 */     Flags flags = this.mimeMessage.getFlags();
+/* 289 */     Flags.Flag[] flag = flags.getSystemFlags();
+/* 290 */     System.out.println("flags的长度:　" + flag.length);
+/* 291 */     for (int i = 0; i < flag.length; i++) {
+/* 292 */       if (flag[i] == Flags.Flag.SEEN) {
+/* 293 */         isNew = true;
+/* 294 */         System.out.println("seen email...");
+/*     */       }
+/*     */     }
+/*     */ 
+/* 298 */     return isNew;
+/*     */   }
+/*     */ 
+/*     */   public boolean isContainAttach(Part part)
+/*     */     throws Exception
+/*     */   {
+/* 309 */     boolean attachFlag = false;
+/*     */ 
+/* 311 */     if (part.isMimeType("multipart/*")) {
+/* 312 */       Multipart mp = (Multipart)part.getContent();
+/* 313 */       for (int i = 0; i < mp.getCount(); i++) {
+/* 314 */         BodyPart mPart = mp.getBodyPart(i);
+/* 315 */         String disposition = mPart.getDisposition();
+/* 316 */         if ((disposition != null) && ((disposition.equals("attachment")) || (disposition.equals("inline")))) {
+/* 317 */           attachFlag = true;
+/* 318 */         } else if (mPart.isMimeType("multipart/*")) {
+/* 319 */           attachFlag = isContainAttach(mPart);
+/*     */         } else {
+/* 321 */           String conType = mPart.getContentType();
+/*     */ 
+/* 323 */           if (conType.toLowerCase().indexOf("application") != -1)
+/* 324 */             attachFlag = true;
+/* 325 */           if (conType.toLowerCase().indexOf("name") != -1)
+/* 326 */             attachFlag = true;
+/*     */         }
+/*     */       }
+/* 329 */     } else if (part.isMimeType("message/rfc822")) {
+/* 330 */       attachFlag = isContainAttach((Part)part.getContent());
+/*     */     }
+/* 332 */     return attachFlag;
+/*     */   }
+/*     */ 
+/*     */   public void saveAttachMent(Part part)
+/*     */     throws Exception
+/*     */   {
+/* 343 */     String fileName = "";
+/* 344 */     if (part.isMimeType("multipart/*")) {
+/* 345 */       Multipart mp = (Multipart)part.getContent();
+/* 346 */       for (int i = 0; i < mp.getCount(); i++) {
+/* 347 */         BodyPart mPart = mp.getBodyPart(i);
+/* 348 */         String disposition = mPart.getDisposition();
+/* 349 */         if ((disposition != null) && ((disposition.equals("attachment")) || (disposition.equals("inline")))) {
+/* 350 */           fileName = mPart.getFileName();
+/* 351 */           if (fileName.toLowerCase().indexOf("gb2312") != -1) {
+/* 352 */             fileName = MimeUtility.decodeText(fileName);
+/*     */           }
+/* 354 */           saveFile(fileName, mPart.getInputStream());
+/* 355 */         } else if (mPart.isMimeType("multipart/*")) {
+/* 356 */           saveAttachMent(mPart);
+/*     */         } else {
+/* 358 */           fileName = mPart.getFileName();
+/* 359 */           if ((fileName != null) && (fileName.toLowerCase().indexOf("GB2312") != -1)) {
+/* 360 */             fileName = MimeUtility.decodeText(fileName);
+/* 361 */             saveFile(fileName, mPart.getInputStream());
+/*     */           }
+/*     */         }
+/*     */       }
+/* 365 */     } else if (part.isMimeType("message/rfc822")) {
+/* 366 */       saveAttachMent((Part)part.getContent());
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public void setAttachPath(String attachPath)
+/*     */   {
+/* 378 */     this.saveAttachPath = attachPath;
+/*     */   }
+/*     */ 
+/*     */   public void setDateFormat(String format)
+/*     */     throws Exception
+/*     */   {
+/* 389 */     this.dateFormat = format;
+/*     */   }
+/*     */ 
+/*     */   public String getAttachPath()
+/*     */   {
+/* 400 */     return this.saveAttachPath;
+/*     */   }
+/*     */ 
+/*     */   private void saveFile(String fileName, InputStream in)
+/*     */     throws Exception
+/*     */   {
+/* 411 */     String osName = System.getProperty("os.name");
+/* 412 */     String storeDir = getAttachPath();
+/* 413 */     String separator = "";
+/* 414 */     if (osName == null) {
+/* 415 */       osName = "";
+/*     */     }
+/* 417 */     if (osName.toLowerCase().indexOf("win") != -1) {
+/* 418 */       separator = "\\";
+/* 419 */       if ((storeDir == null) || (storeDir.equals("")))
+/* 420 */         storeDir = "c:\\tmp";
+/*     */     } else {
+/* 422 */       separator = "/";
+/* 423 */       storeDir = "/tmp";
+/*     */     }
+/* 425 */     File storeFile = new File(storeDir + separator + fileName);
+/* 426 */     System.out.println("附件的保存地址:　" + storeFile.toString());
+/*     */ 
+/* 430 */     BufferedOutputStream bos = null;
+/* 431 */     BufferedInputStream bis = null;
+/*     */     try
+/*     */     {
+/* 434 */       bos = new BufferedOutputStream(new FileOutputStream(storeFile));
+/* 435 */       bis = new BufferedInputStream(in);
+/*     */       int c;
+/* 437 */       while ((c = bis.read()) != -1) {
+/* 438 */         bos.write(c);
+/* 439 */         bos.flush();
+/*     */       }
+/*     */     } catch (Exception exception) {
+/* 442 */       exception.printStackTrace();
+/* 443 */       throw new Exception("文件保存失败!");
+/*     */     } finally {
+/* 445 */       bos.close();
+/* 446 */       bis.close();
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.email.EmailUtils
+ * JD-Core Version:    0.6.0
+ */

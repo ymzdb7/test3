@@ -1,0 +1,398 @@
+/*     */ package com.xoa.service.attend;
+/*     */ 
+/*     */ import com.xoa.dao.attend.AttendLeaveMapper;
+/*     */ import com.xoa.dao.common.SysCodeMapper;
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.dao.workflow.FlowRunMapper;
+/*     */ import com.xoa.dao.workflow.FlowRunPrcsMapper;
+/*     */ import com.xoa.model.attend.AttendFlowRunPrcs;
+/*     */ import com.xoa.model.attend.AttendLeave;
+/*     */ import com.xoa.model.common.SysCode;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.workflow.FlowFast;
+/*     */ import com.xoa.model.workflow.FlowRun;
+/*     */ import com.xoa.model.workflow.FlowRunPrcs;
+/*     */ import com.xoa.model.workflow.FlowTypeModel;
+/*     */ import com.xoa.service.WFE.WFERunner.WFEFlowRunInfo;
+/*     */ import com.xoa.service.attend.wrapper.AttendSetWrappers;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.DateCompute;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*     */ import com.xoa.util.ipUtil.IpAddr;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Calendar;
+/*     */ import java.util.Date;
+/*     */ import java.util.GregorianCalendar;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class AttendLeaveService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private AttendLeaveMapper attendLeaveMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private SysCodeMapper sysCodeMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private FlowRunPrcsMapper flowRunPrcsMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private FlowRunMapper flowRunMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private WFEFlowRunInfo wfeFlowRunInfo;
+/*  64 */   public final String dateTime = "0";
+/*     */ 
+/*     */   public ToJson<AttendFlowRunPrcs> queryAllAttendLeave(Integer page, Integer pageSize, Boolean useFlag, HttpServletRequest request, String FlowAllow)
+/*     */   {
+/*  73 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  74 */     Map objectMap = new HashMap();
+/*  75 */     PageParams pageParams = new PageParams();
+/*  76 */     pageParams.setUseFlag(useFlag);
+/*  77 */     pageParams.setPage(page);
+/*  78 */     pageParams.setPageSize(pageSize);
+/*  79 */     objectMap.put("page", pageParams);
+/*  80 */     objectMap.put("userId", users.getUserId());
+/*  81 */     objectMap.put("flowAllow", FlowAllow);
+/*  82 */     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  83 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  85 */       List<AttendFlowRunPrcs> attendLeaveList = this.attendLeaveMapper.queryAllAttendLeave(objectMap);
+/*  86 */       for (AttendLeave attendLeave : attendLeaveList)
+/*     */       {
+/*  88 */         if (!StringUtils.checkNull(attendLeave.getUserId()).booleanValue()) {
+/*  89 */           if (this.usersMapper.findUsersByuserId(attendLeave.getUserId()) != null) {
+/*  90 */             attendLeave.setUserName(this.usersMapper.findUsersByuserId(attendLeave.getUserId()).getUserName());
+/*     */           }
+/*  92 */           if ((this.usersMapper.findUsersByuserId(attendLeave.getUserId()) != null) && 
+/*  93 */             (this.departmentMapper.getDeptNameById(this.usersMapper.findUsersByuserId(attendLeave.getUserId()).getDeptId().intValue()) != null)) {
+/*  94 */             attendLeave.setDeptName(this.departmentMapper.getDeptNameById(this.usersMapper.findUsersByuserId(attendLeave.getUserId()).getDeptId().intValue()));
+/*     */           }
+/*     */ 
+/*     */         }
+/*     */ 
+/*  99 */         if ((!StringUtils.checkNull(attendLeave.getAgent()).booleanValue()) && 
+/* 100 */           (this.usersMapper.findUsersByuserId(attendLeave.getAgent()) != null)) {
+/* 101 */           attendLeave.setAgent(this.usersMapper.findUsersByuserId(attendLeave.getAgent()).getUserName());
+/*     */         }
+/*     */ 
+/* 104 */         if (!StringUtils.checkNull(attendLeave.getStatus()).booleanValue()) {
+/* 105 */           int status = Integer.valueOf(attendLeave.getStatus()).intValue();
+/* 106 */           switch (status) {
+/*     */           case 1:
+/* 108 */             attendLeave.setStatus("未确认");
+/* 109 */             break;
+/*     */           case 2:
+/* 111 */             attendLeave.setStatus("确认销假");
+/*     */           }
+/*     */         }
+/*     */ 
+/* 115 */         if (!StringUtils.checkNull(attendLeave.getAllow()).booleanValue()) {
+/* 116 */           int allow = Integer.valueOf(attendLeave.getAllow()).intValue();
+/* 117 */           switch (allow) {
+/*     */           case 0:
+/* 119 */             attendLeave.setAllow("待审批");
+/* 120 */             break;
+/*     */           case 1:
+/* 122 */             attendLeave.setAllow("已批准");
+/* 123 */             break;
+/*     */           case 2:
+/* 125 */             attendLeave.setAllow("未批准");
+/* 126 */             break;
+/*     */           case 3:
+/* 128 */             attendLeave.setAllow("申请销假");
+/*     */           }
+/*     */         }
+/*     */ 
+/* 132 */         if (!StringUtils.checkNull(attendLeave.getLeaveType2()).booleanValue()) {
+/* 133 */           int leaveType2 = Integer.valueOf(attendLeave.getLeaveType2()).intValue();
+/* 134 */           switch (leaveType2) {
+/*     */           case 1:
+/* 136 */             attendLeave.setLeaveType2("事假");
+/* 137 */             break;
+/*     */           case 2:
+/* 139 */             attendLeave.setLeaveType2("病假");
+/* 140 */             break;
+/*     */           case 3:
+/* 142 */             attendLeave.setLeaveType2("年假");
+/*     */           }
+/*     */         }
+/*     */ 
+/* 146 */         if ((attendLeave.getLeaveDate1() != null) && (attendLeave.getLeaveDate1() != null)) {
+/* 147 */           attendLeave.setBeginDate(DateFormat.getStrDate(attendLeave.getLeaveDate1()));
+/* 148 */           attendLeave.setEndDate(DateFormat.getStrDate(attendLeave.getLeaveDate2()));
+/* 149 */           long begin = DateFormat.getTime(sdf.format(attendLeave.getLeaveDate1())).intValue();
+/* 150 */           long end = DateFormat.getTime(sdf.format(attendLeave.getLeaveDate2())).intValue();
+/* 151 */           attendLeave.setLeaveTime(DateFormat.returnTime(Integer.valueOf((int)(end - begin))));
+/*     */         } else {
+/* 153 */           attendLeave.setBeginDate("");
+/* 154 */           attendLeave.setEndDate("");
+/* 155 */           attendLeave.setLeaveTime("");
+/*     */         }
+/* 157 */         FlowRunPrcs flowRunPrcs = this.flowRunPrcsMapper.queryByRunId(attendLeave.getRunId());
+/* 158 */         if (flowRunPrcs != null) {
+/* 159 */           attendLeave.setFlowPrcs(flowRunPrcs.getFlowPrcs().toString());
+/* 160 */           attendLeave.setPrcsId(flowRunPrcs.getPrcsId().toString());
+/*     */         } else {
+/* 162 */           attendLeave.setFlowPrcs("");
+/* 163 */           attendLeave.setPrcsId("");
+/*     */         }
+/* 165 */         FlowRun flowRun = this.flowRunMapper.find(attendLeave.getRunId());
+/* 166 */         if (flowRun != null) {
+/* 167 */           attendLeave.setRunId(Integer.valueOf(flowRun.getRunId()));
+/*     */         }
+/*     */       }
+/*     */ 
+/* 171 */       json.setObj(attendLeaveList);
+/* 172 */       json.setMsg("ok");
+/* 173 */       json.setFlag(0);
+/* 174 */       json.setTotleNum(pageParams.getTotal());
+/*     */     } catch (Exception e) {
+/* 176 */       json.setMsg(e.getMessage());
+/* 177 */       L.e(new Object[] { "AttendService queryAllAttendLeave:" + e });
+/*     */     }
+/* 179 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<AttendLeave> queryAllAttendLeaveFields(String tableName, HttpServletRequest req) {
+/* 183 */     String sqlType = Constant.MYOA + (String)req.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 185 */     ToJson json = new ToJson(1, "error");
+/* 186 */     Map map = new HashMap();
+/* 187 */     map.put("tableName", tableName);
+/* 188 */     map.put("sqlType", sqlType);
+/* 189 */     List attendLeaveList = this.attendLeaveMapper.queryAllAttendLeaveFields(map);
+/* 190 */     if ((attendLeaveList != null) && (attendLeaveList.size() > 0))
+/*     */     {
+/* 232 */       json.setObj(attendLeaveList);
+/* 233 */       json.setMsg("ok");
+/* 234 */       json.setFlag(0);
+/* 235 */       return json;
+/*     */     }
+/* 237 */     return json;
+/*     */   }
+/*     */   public BaseWrapper addAttendLeave(String userId, String recordTime, HttpServletRequest request) {
+/* 240 */     AttendSetWrappers wrappers = new AttendSetWrappers();
+/* 241 */     AttendLeave attendLeave = new AttendLeave();
+/* 242 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 243 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 245 */     List<SysCode> sysCodes = this.sysCodeMapper.getSysCode("KQQJTYPE");
+/* 246 */     for (SysCode sysCode : sysCodes) {
+/* 247 */       if (sysCode.getCodeName().equals("请假申请")) {
+/* 248 */         ToJson flowFastToJson = this.wfeFlowRunInfo.workFastAdd(user, Integer.parseInt(sysCode.getCodeNo()), 1, "1", "", request, sqlType, "", null);
+/* 249 */         if (flowFastToJson.isFlag()) {
+/* 250 */           if (StringUtils.checkNull(userId).booleanValue()) {
+/* 251 */             Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 252 */             attendLeave.setUserId(users.getUserId());
+/*     */           } else {
+/* 254 */             attendLeave.setUserId(userId);
+/*     */           }
+/* 256 */           FlowFast flowFast = (FlowFast)flowFastToJson.getObject();
+/* 257 */           attendLeave.setRunId(Integer.valueOf(flowFast.getFlowRun().getRunId()));
+/* 258 */           attendLeave.setRecordTime(DateFormat.getDate(recordTime));
+/* 259 */           attendLeave.setRegisterIp(IpAddr.getIpAddress(request));
+/* 260 */           attendLeave.setTableName("attend_leave");
+/* 261 */           attendLeave.setAllow("0");
+/* 262 */           attendLeave.setStatus("1");
+/*     */ 
+/* 264 */           int amount = this.attendLeaveMapper.addAttendLeave(attendLeave);
+/* 265 */           if (amount > 0) {
+/* 266 */             attendLeave.setFlowId(flowFast.getFlowTypeModel().getFlowId().toString());
+/* 267 */             attendLeave.setFlowName(flowFast.getFlowTypeModel().getFlowName());
+/* 268 */             wrappers.setFlag(true);
+/* 269 */             wrappers.setStatus(true);
+/* 270 */             wrappers.setData(attendLeave);
+/* 271 */             wrappers.setMsg("更新成功");
+/*     */           }
+/*     */ 
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 291 */     return wrappers;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrappers backlogAttendList(HttpServletRequest request, String num, Integer page, Integer pageSize, Boolean useFlag)
+/*     */   {
+/* 296 */     BaseWrappers wrappers = new BaseWrappers();
+/* 297 */     wrappers.setStatus(true);
+/* 298 */     wrappers.setFlag(false);
+/* 299 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 300 */     if (StringUtils.checkNull(users.getUserId()).booleanValue()) {
+/* 301 */       wrappers.setMsg("用户信息过期");
+/* 302 */       return wrappers;
+/*     */     }
+/* 304 */     Map map = new HashMap();
+/* 305 */     PageParams pageParams = new PageParams();
+/* 306 */     pageParams.setUseFlag(useFlag);
+/* 307 */     pageParams.setPage(page);
+/* 308 */     pageParams.setPageSize(pageSize);
+/* 309 */     map.put("page", pageParams);
+/* 310 */     map.put("userId", users.getUserId());
+/* 311 */     wrappers.setTotal(pageParams.getTotal());
+/* 312 */     if ("1".equals(num)) {
+/* 313 */       List<AttendFlowRunPrcs> attendFlowRunPrcs = this.attendLeaveMapper.backlogAttendList(map);
+/* 314 */       for (AttendFlowRunPrcs attendFlowRunPrcs1 : attendFlowRunPrcs)
+/*     */       {
+/* 316 */         if ((this.usersMapper.findUsersByuserId(attendFlowRunPrcs1.getUserId()) != null) && 
+/* 317 */           (this.departmentMapper.getDeptNameById(this.usersMapper.findUsersByuserId(attendFlowRunPrcs1.getUserId()).getDeptId().intValue()) != null)) {
+/* 318 */           attendFlowRunPrcs1.setDeptName(this.departmentMapper.getDeptNameById(this.usersMapper.findUsersByuserId(attendFlowRunPrcs1.getUserId()).getDeptId().intValue()));
+/*     */         }
+/*     */ 
+/* 321 */         if ((attendFlowRunPrcs1.getLeaveDate1() != null) && (attendFlowRunPrcs1.getLeaveDate1() != null)) {
+/* 322 */           attendFlowRunPrcs1.setBeginDate(DateFormat.getStrDate(attendFlowRunPrcs1.getLeaveDate1()));
+/* 323 */           attendFlowRunPrcs1.setEndDate(DateFormat.getStrDate(attendFlowRunPrcs1.getLeaveDate2()));
+/*     */         }
+/*     */         else {
+/* 326 */           attendFlowRunPrcs1.setBeginDate("");
+/* 327 */           attendFlowRunPrcs1.setEndDate("");
+/*     */         }
+/*     */ 
+/* 330 */         attendFlowRunPrcs1.setTableName("attend_leave");
+/*     */       }
+/* 332 */       wrappers.setFlag(true);
+/* 333 */       wrappers.setDatas(attendFlowRunPrcs);
+/* 334 */       wrappers.setTotal(pageParams.getTotal());
+/* 335 */     } else if ("2".equals(num)) {
+/* 336 */       List<AttendFlowRunPrcs> attendFlowRunPrcs = this.attendLeaveMapper.haveDoneAttendList(map);
+/* 337 */       for (AttendFlowRunPrcs attendFlowRunPrcs1 : attendFlowRunPrcs)
+/*     */       {
+/* 339 */         if ((this.usersMapper.findUsersByuserId(attendFlowRunPrcs1.getUserId()) != null) && 
+/* 340 */           (this.departmentMapper.getDeptNameById(this.usersMapper.findUsersByuserId(attendFlowRunPrcs1.getUserId()).getDeptId().intValue()) != null)) {
+/* 341 */           attendFlowRunPrcs1.setDeptName(this.departmentMapper.getDeptNameById(this.usersMapper.findUsersByuserId(attendFlowRunPrcs1.getUserId()).getDeptId().intValue()));
+/*     */         }
+/*     */ 
+/* 344 */         if ((attendFlowRunPrcs1.getLeaveDate1() != null) && (attendFlowRunPrcs1.getLeaveDate1() != null)) {
+/* 345 */           attendFlowRunPrcs1.setBeginDate(DateFormat.getStrDate(attendFlowRunPrcs1.getLeaveDate1()));
+/* 346 */           attendFlowRunPrcs1.setEndDate(DateFormat.getStrDate(attendFlowRunPrcs1.getLeaveDate2()));
+/*     */         }
+/*     */         else {
+/* 349 */           attendFlowRunPrcs1.setBeginDate("");
+/* 350 */           attendFlowRunPrcs1.setEndDate("");
+/*     */         }
+/*     */ 
+/* 353 */         attendFlowRunPrcs1.setTableName("attend_leave");
+/*     */       }
+/* 355 */       wrappers.setFlag(true);
+/* 356 */       wrappers.setDatas(attendFlowRunPrcs);
+/* 357 */       wrappers.setTotal(pageParams.getTotal());
+/*     */     }
+/*     */ 
+/* 360 */     return wrappers;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper getAllByDate(String startDate, String endDate, Integer length, String userId)
+/*     */   {
+/* 365 */     BaseWrapper baseWrapper = new BaseWrapper();
+/* 366 */     GregorianCalendar calendar = new GregorianCalendar();
+/* 367 */     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+/*     */ 
+/* 369 */     if ((length != null) && (length.intValue() > 0)) {
+/* 370 */       calendar.setTime(new Date());
+/* 371 */       endDate = sdf.format(calendar.getTime());
+/* 372 */       calendar.add(2, -length.intValue());
+/* 373 */       calendar.set(5, 1);
+/* 374 */       startDate = sdf.format(calendar.getTime());
+/*     */     }
+/*     */ 
+/* 377 */     HashMap param = new HashMap();
+/* 378 */     param.put("startDate", startDate);
+/* 379 */     param.put("endDate", endDate);
+/* 380 */     param.put("userId", userId);
+/* 381 */     List<AttendLeave> attendLeaves = this.attendLeaveMapper.getAllByDate(param);
+/*     */ 
+/* 383 */     sdf = new SimpleDateFormat("yyyy-MM");
+/* 384 */     Map temp = new HashMap();
+/* 385 */     for (AttendLeave a : attendLeaves) {
+/* 386 */       Date date = a.getLeaveDate1();
+/* 387 */       String key = "unKnown";
+/* 388 */       if (date != null) {
+/* 389 */         key = sdf.format(date);
+/*     */       }
+/* 391 */       if (temp.containsKey(key))
+/* 392 */         temp.put(key, Integer.valueOf(((Integer)temp.get(key)).intValue() + 1));
+/*     */       else {
+/* 394 */         temp.put(key, Integer.valueOf(1));
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 411 */     baseWrapper.setData(temp);
+/* 412 */     return baseWrapper;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<AttendLeave> selectAttendLeaveByUserId(String beginDate, String endDate, HttpServletRequest req)
+/*     */   {
+/* 421 */     ToJson json = new ToJson();
+/*     */     try {
+/* 423 */       String userId = ((Users)SessionUtils.getSessionInfo(req.getSession(), Users.class, new Users())).getUserId();
+/* 424 */       List<Date> dates = DateCompute.getBetweenDates(DateFormat.DateToStr(beginDate), DateFormat.DateToStr(endDate));
+/* 425 */       List attendLeaveList = this.attendLeaveMapper.selectAttendLeaveByUserId(userId);
+/* 426 */       List newAttendLeaveList = new ArrayList();
+/* 427 */       if (attendLeaveList.size() > 0) {
+/* 428 */         for (Iterator i$ = attendLeaveList.iterator(); i$.hasNext(); ) {
+	                AttendLeave  attendLeave = (AttendLeave)i$.next();
+/* 429 */           for (Date nowDate : dates) {
+/* 430 */             String aTime = DateFormat.getDatestr(attendLeave.getRecordTime()).substring(0, 10);
+/* 431 */             String nTime = DateFormat.getDatestr(nowDate);
+/* 432 */             if (aTime.equals(nTime))
+/* 433 */               newAttendLeaveList.add(attendLeave);
+/*     */           }
+/*     */         }
+/*     */         AttendLeave attendLeave;
+/* 438 */         json.setObj(newAttendLeaveList);
+/* 439 */         json.setFlag(0);
+/* 440 */         json.setMsg("ok");
+/*     */       } else {
+/* 442 */         json.setFlag(1);
+/* 443 */         json.setMsg("err");
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 449 */       e.printStackTrace();
+/* 450 */       json.setFlag(1);
+/* 451 */       json.setMsg("err");
+/*     */     }
+/* 453 */     return json;
+/*     */   }
+/*     */   public BaseWrapper getAttendLeaveCount() {
+/* 456 */     AttendSetWrappers wrappers = new AttendSetWrappers();
+/* 457 */     Calendar cal = Calendar.getInstance();
+/* 458 */     int year = cal.get(1);
+/* 459 */     List attendLeaves = this.attendLeaveMapper.getAttendLeaveCount(String.valueOf(year));
+/* 460 */     wrappers.setData(attendLeaves);
+/* 461 */     wrappers.setFlag(true);
+/* 462 */     wrappers.setStatus(true);
+/* 463 */     wrappers.setMsg("更新成功");
+/* 464 */     return wrappers;
+/*     */   }
+/*     */ } 

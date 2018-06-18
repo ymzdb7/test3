@@ -1,0 +1,73 @@
+package com.xoa.service.common;
+
+import com.xoa.model.common.SysCode;
+import com.xoa.model.users.OrgManage;
+import com.xoa.util.ToJson;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import net.sf.json.JSONObject;
+
+public abstract interface SysCodeService
+{
+  public abstract ToJson<SysCode> getSysCode(String paramString);
+
+  public abstract List<SysCode> getAllSysCode();
+
+  public abstract void update(SysCode paramSysCode);
+
+  public abstract List<SysCode> getLogType();
+
+  public abstract String getLogNameByNo(String paramString);
+
+  public abstract void deleteSysCode(SysCode paramSysCode);
+
+  public abstract void addSysMainCode(SysCode paramSysCode);
+
+  public abstract Boolean isCodeOrderExits(SysCode paramSysCode);
+
+  public abstract Boolean isCodeNoExits(SysCode paramSysCode);
+
+  public abstract Boolean iseditCodeNoExits(SysCode paramSysCode);
+
+  public abstract ToJson editisCodeNoExits(SysCode paramSysCode, String paramString);
+
+  public abstract Boolean ChildisCodeNoExits(SysCode paramSysCode);
+
+  public abstract void addChildSysCode(SysCode paramSysCode);
+
+  public abstract List<SysCode> getChildSysCode(SysCode paramSysCode);
+
+  public abstract SysCode getCodeByCodeNo(SysCode paramSysCode);
+
+  public abstract ToJson<List<SysCode>> getErrSysCode();
+
+  public abstract ToJson<Object> recoverCode(HttpServletRequest paramHttpServletRequest, String paramString);
+
+  public abstract void exportCode(HttpServletRequest paramHttpServletRequest, HttpServletResponse paramHttpServletResponse);
+
+  public abstract ToJson<SysCode> getErrInfo(String paramString);
+
+  public abstract ToJson<SysCode> deleteErrCode(String paramString);
+
+  public abstract ToJson<List<SysCode>> getAllCode();
+
+  public abstract JSONObject DropDownBoxs(String[] paramArrayOfString);
+
+  public abstract ToJson<Object> updateDabase();
+
+  public abstract ToJson<Object> editDabase(HttpServletRequest paramHttpServletRequest, HttpServletResponse paramHttpServletResponse);
+
+  public abstract ToJson<Object> getObjects();
+
+  public abstract ToJson<Object> getObjectdetail();
+
+  public abstract List<OrgManage> queryId();
+
+  public abstract boolean isAppNewVersion(String paramString1, String paramString2);
+
+  public abstract ToJson<Object> updateResource();
+
+  public abstract void downLog(HttpServletResponse paramHttpServletResponse, HttpServletRequest paramHttpServletRequest);
+}
+

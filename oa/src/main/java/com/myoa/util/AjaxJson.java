@@ -1,0 +1,62 @@
+ package com.myoa.util;
+ 
+ import java.util.Map;
+ 
+ public class AjaxJson
+ {
+   private boolean flag = true;
+   private String msg = "操作成功";
+   private Object obj = null;
+   private Map<String, Object> attributes;
+   private Integer totleNum;
+ 
+   public Map<String, Object> getAttributes()
+   {
+     return this.attributes;
+   }
+ 
+   public void setAttributes(Map<String, Object> attributes) {
+     this.attributes = attributes;
+   }
+ 
+   public String getMsg() {
+     return this.msg;
+   }
+ 
+   public void setMsg(String msg) {
+     this.msg = msg;
+   }
+ 
+   public Object getObj() {
+     return this.obj;
+   }
+ 
+   public void setObj(Object obj) {
+     this.obj = obj;
+   }
+ 
+   public boolean isFlag() {
+     return this.flag;
+   }
+ 
+   public void setFlag(boolean flag) {
+     this.flag = flag;
+   }
+ 
+   public boolean isSuccess() {
+     return this.flag;
+   }
+ 
+   public void setSuccess(boolean success) {
+     this.flag = this.flag;
+   }
+ 
+   public Integer getTotleNum() {
+     return this.totleNum;
+   }
+ 
+   public void setTotleNum(Integer totleNum) {
+     this.totleNum = totleNum;
+   }
+ }
+

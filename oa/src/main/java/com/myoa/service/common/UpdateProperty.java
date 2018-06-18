@@ -1,0 +1,64 @@
+  package com.myoa.service.common;
+  
+  import com.myoa.util.common.StringUtils;
+
+  import java.io.File;
+  import java.io.FileNotFoundException;
+  import java.io.FileWriter;
+  import java.io.IOException;
+  import java.util.ResourceBundle;
+import org.springframework.stereotype.Service;
+  
+  @Service
+  public class UpdateProperty
+  {
+    public void updatePro()
+    {
+      try
+      {
+        ResourceBundle rb = ResourceBundle.getBundle("upload");
+        String upload = rb.getString("update.win");
+        if ((!StringUtils.checkNull(upload).booleanValue()) && (upload.equals("1")) && 
+          (System.getProperty("user.dir").indexOf("\\myoa\\tomcat") != -1)) {
+          String path = System.getProperty("user.dir").replace("\\myoa\\tomcat", "");
+          String uploadWin = path + "/myoa";
+          String netdiskWin = path + " netdisk";
+          setProper(uploadWin, netdiskWin);
+        }
+      }
+      catch (Exception e)
+      {
+        e.printStackTrace();
+      }
+    }
+  
+    public static void setProper(String key, String value)
+    {
+      String proFilePath = (System.getProperty("user.dir") + "\\webapps\\ROOT\\WEB-INF\\classes\\upload.properties").replace("\\tomcat", "");
+      try {
+        File file = new File(proFilePath);
+        FileWriter fileWriter = new FileWriter(file);
+        fileWriter.write("update.win=2");
+        fileWriter.write(System.getProperty("line.separator"));
+        fileWriter.write("netdisk.linux= netdisk");
+        fileWriter.write(System.getProperty("line.separator"));
+        fileWriter.write("netdisk.win=" + value);
+        fileWriter.write(System.getProperty("line.separator"));
+        fileWriter.write("upload.win=" + key);
+        fileWriter.write(System.getProperty("line.separator"));
+        fileWriter.write("upload.linux= upload");
+        fileWriter.flush();
+        fileWriter.close();
+      }
+      catch (FileNotFoundException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  
+    public static void main(String[] args)
+    {
+    }
+  }
+

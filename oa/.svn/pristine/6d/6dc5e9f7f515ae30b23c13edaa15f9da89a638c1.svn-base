@@ -1,0 +1,316 @@
+/*     */ package com.xoa.service.edu.eduPrize.impl;
+/*     */ 
+/*     */ import com.xoa.dao.common.SysCodeMapper;
+/*     */ import com.xoa.dao.edu.eduCourse.EduCourseMapper;
+/*     */ import com.xoa.dao.edu.eduDepartment.EduDepartmentMapper;
+/*     */ import com.xoa.dao.edu.eduPrize.EduPrizeInfoMapper;
+/*     */ import com.xoa.model.common.SysCode;
+/*     */ import com.xoa.model.edu.eduCourse.EduCourseWithBLOBs;
+/*     */ import com.xoa.model.edu.eduDepartment.EduDepartmentWithBLOBs;
+/*     */ import com.xoa.model.edu.eduPrize.EduPrizeInfo;
+/*     */ import com.xoa.service.edu.eduPrize.EduPrizeService;
+/*     */ import com.xoa.util.AjaxJson;
+/*     */ import com.xoa.util.ExcelUtil;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.OutputStream;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduPrizeServiceImpl
+/*     */   implements EduPrizeService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private EduPrizeInfoMapper eduPrizeInfoMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private EduDepartmentMapper eduDepartmentMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private EduCourseMapper eduCourseMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private SysCodeMapper sysCodeMapper;
+/*     */ 
+/*     */   public AjaxJson addEduPrizeInfo(EduPrizeInfo eduPrizeInfo)
+/*     */   {
+/*  49 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try {
+/*  51 */       int i = this.eduPrizeInfoMapper.insertSelective(eduPrizeInfo);
+/*  52 */       if (i > 0) {
+/*  53 */         ajaxJson.setMsg("ok");
+/*  54 */         ajaxJson.setFlag(true);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  57 */       ajaxJson.setMsg("err");
+/*  58 */       ajaxJson.setFlag(false);
+/*  59 */       e.printStackTrace();
+/*     */     }
+/*  61 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getAllEduPrizeInfo(EduPrizeInfo eduPrizeInfo, HttpServletRequest request, Integer page, Integer pageSize, Boolean useFlag)
+/*     */   {
+/*  66 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try
+/*     */     {
+/*  69 */       PageParams pageParams = new PageParams();
+/*  70 */       pageParams.setPage(page);
+/*  71 */       pageParams.setPageSize(pageSize);
+/*  72 */       pageParams.setUseFlag(useFlag);
+/*  73 */       Map map = new HashMap();
+/*  74 */       map.put("page", pageParams);
+/*  75 */       if ((eduPrizeInfo.getTeacherUserId() != null) && (eduPrizeInfo.getTeacherUserId() != ""))
+/*     */       {
+/*  77 */         eduPrizeInfo.setTeacherUserId(eduPrizeInfo.getTeacherUserId().substring(0, eduPrizeInfo.getTeacherUserId().length() - 1));
+/*     */       }
+/*  79 */       map.put("eduPrizeInfo", eduPrizeInfo);
+/*     */ 
+/*  81 */       List<EduPrizeInfo> allEduPrizeInfo = this.eduPrizeInfoMapper.getAllEduPrizeInfo(map);
+/*  82 */       int i = 1;
+/*     */ 
+/*  84 */       for (EduPrizeInfo eduPrizeInfo1 : allEduPrizeInfo)
+/*     */       {
+/*  86 */         String teacherUserName = eduPrizeInfo1.getTeacherUserName();
+/*  87 */         eduPrizeInfo1.setTeacherUserName(teacherUserName.substring(0, teacherUserName.length() - 1));
+/*     */ 
+/*  89 */         eduPrizeInfo1.setIdNo(Integer.valueOf(i));
+/*  90 */         i++;
+/*     */ 
+/*  92 */         if (eduPrizeInfo1.getGrade() != null) {
+/*  93 */           EduDepartmentWithBLOBs eduDepartmentWithBLOBs = this.eduDepartmentMapper.queryGetObjectByDeptId(eduPrizeInfo1.getGrade().toString());
+/*  94 */           if (eduDepartmentWithBLOBs != null)
+/*  95 */             eduPrizeInfo1.setGradeName(eduDepartmentWithBLOBs.getDeptName());
+/*     */           else
+/*  97 */             eduPrizeInfo1.setGradeName("");
+/*     */         }
+/*     */         else
+/*     */         {
+/* 101 */           eduPrizeInfo1.setGradeName("");
+/*     */         }
+/*     */ 
+/* 104 */         if (eduPrizeInfo1.getClazz() != null) {
+/* 105 */           EduDepartmentWithBLOBs eduDepartmentWithBLOBs1 = this.eduDepartmentMapper.queryGetObjectByDeptId(eduPrizeInfo1.getClazz().toString());
+/* 106 */           if (eduDepartmentWithBLOBs1 != null)
+/* 107 */             eduPrizeInfo1.setClassName(eduDepartmentWithBLOBs1.getDeptName());
+/*     */           else
+/* 109 */             eduPrizeInfo1.setClassName("");
+/*     */         }
+/*     */         else {
+/* 112 */           eduPrizeInfo1.setClassName("");
+/*     */         }
+/* 114 */         if (eduPrizeInfo1.getSubject() != null)
+/*     */         {
+/* 116 */           EduCourseWithBLOBs courseBycourseId = this.eduCourseMapper.getCourseBycourseId(eduPrizeInfo1.getSubject());
+/* 117 */           if (courseBycourseId != null)
+/* 118 */             eduPrizeInfo1.setSubjectName(courseBycourseId.getCourseName());
+/*     */           else
+/* 120 */             eduPrizeInfo1.setSubjectName("");
+/*     */         }
+/*     */         else
+/*     */         {
+/* 124 */           eduPrizeInfo1.setSubjectName("");
+/*     */         }
+/*     */ 
+/* 127 */         SysCode code = this.sysCodeMapper.getSingleCode("PRIZE_LEVEL", eduPrizeInfo1.getLevel());
+/* 128 */         if (code != null)
+/* 129 */           eduPrizeInfo1.setLevelName(code.getCodeName());
+/*     */         else {
+/* 131 */           eduPrizeInfo1.setLevelName("");
+/*     */         }
+/*     */       }
+/*     */ 
+/* 135 */       int getcount = this.eduPrizeInfoMapper.getCount();
+/* 136 */       ajaxJson.setTotleNum(Integer.valueOf(getcount));
+/* 137 */       ajaxJson.setFlag(true);
+/* 138 */       ajaxJson.setMsg("ok");
+/* 139 */       ajaxJson.setObj(allEduPrizeInfo);
+/*     */     } catch (Exception e) {
+/* 141 */       ajaxJson.setFlag(false);
+/* 142 */       ajaxJson.setMsg("err");
+/* 143 */       e.printStackTrace();
+/*     */     }
+/* 145 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson editEduPrizeInfo(EduPrizeInfo eduPrizeInfo)
+/*     */   {
+/* 150 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try {
+/* 152 */       int i = this.eduPrizeInfoMapper.updateByPrimaryKeySelective(eduPrizeInfo);
+/* 153 */       if (i > 0) {
+/* 154 */         ajaxJson.setMsg("ok");
+/* 155 */         ajaxJson.setFlag(true);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 158 */       ajaxJson.setMsg("err");
+/* 159 */       ajaxJson.setFlag(false);
+/* 160 */       e.printStackTrace();
+/*     */     }
+/* 162 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson deleteEduPrizeInfo(Integer id)
+/*     */   {
+/* 167 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try {
+/* 169 */       this.eduPrizeInfoMapper.deleteEduPrizeInfo(id);
+/* 170 */       ajaxJson.setMsg("ok");
+/* 171 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 173 */       ajaxJson.setMsg("err");
+/* 174 */       ajaxJson.setFlag(false);
+/* 175 */       e.printStackTrace();
+/*     */     }
+/* 177 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getEduPrizeInfoById(Integer id)
+/*     */   {
+/* 182 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try {
+/* 184 */       EduPrizeInfo eduPrizeInfoById = this.eduPrizeInfoMapper.getEduPrizeInfoById(id);
+/* 185 */       ajaxJson.setMsg("ok");
+/* 186 */       ajaxJson.setFlag(true);
+/*     */ 
+/* 188 */       EduDepartmentWithBLOBs eduDepartmentWithBLOBs = this.eduDepartmentMapper.queryGetObjectByDeptId(eduPrizeInfoById.getGrade().toString());
+/* 189 */       if (eduDepartmentWithBLOBs != null)
+/* 190 */         eduPrizeInfoById.setGradeName(eduDepartmentWithBLOBs.getDeptName());
+/*     */       else {
+/* 192 */         eduPrizeInfoById.setGradeName("");
+/*     */       }
+/*     */ 
+/* 195 */       EduDepartmentWithBLOBs eduDepartmentWithBLOBs1 = this.eduDepartmentMapper.queryGetObjectByDeptId(eduPrizeInfoById.getClazz().toString());
+/* 196 */       if (eduDepartmentWithBLOBs1 != null)
+/* 197 */         eduPrizeInfoById.setClassName(eduDepartmentWithBLOBs1.getDeptName());
+/*     */       else {
+/* 199 */         eduPrizeInfoById.setClassName("");
+/*     */       }
+/*     */ 
+/* 202 */       EduCourseWithBLOBs courseBycourseId = this.eduCourseMapper.getCourseBycourseId(eduPrizeInfoById.getSubject());
+/* 203 */       if (courseBycourseId != null)
+/* 204 */         eduPrizeInfoById.setSubjectName(courseBycourseId.getCourseName());
+/*     */       else {
+/* 206 */         eduPrizeInfoById.setSubjectName("");
+/*     */       }
+/*     */ 
+/* 209 */       SysCode code = this.sysCodeMapper.getSingleCode("PRIZE_LEVEL", eduPrizeInfoById.getLevel());
+/* 210 */       if (code != null)
+/* 211 */         eduPrizeInfoById.setLevelName(code.getCodeName());
+/*     */       else {
+/* 213 */         eduPrizeInfoById.setLevelName("");
+/*     */       }
+/* 215 */       ajaxJson.setObj(eduPrizeInfoById);
+/*     */     } catch (Exception e) {
+/* 217 */       ajaxJson.setMsg("err");
+/* 218 */       ajaxJson.setFlag(false);
+/* 219 */       e.printStackTrace();
+/*     */     }
+/* 221 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getAllSubject(HttpServletRequest request)
+/*     */   {
+/* 226 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try {
+/* 228 */       List allSubject = this.eduCourseMapper.getAllSubject();
+/* 229 */       ajaxJson.setObj(allSubject);
+/* 230 */       ajaxJson.setMsg("ok");
+/* 231 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 233 */       ajaxJson.setMsg("err");
+/* 234 */       ajaxJson.setFlag(false);
+/* 235 */       e.printStackTrace();
+/*     */     }
+/* 237 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public void exportExcel(EduPrizeInfo eduPrizeInfo, HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/* 242 */     Map map = new HashMap();
+/* 243 */     map.put("eduPrizeInfo", eduPrizeInfo);
+/* 244 */     List<EduPrizeInfo> allEduPrizeInfo = this.eduPrizeInfoMapper.getAllEduPrizeInfo(map);
+/* 245 */     int i = 1;
+/* 246 */     for (EduPrizeInfo eduPrizeInfo1 : allEduPrizeInfo)
+/*     */     {
+/* 248 */       String teacherUserName = eduPrizeInfo1.getTeacherUserName();
+/* 249 */       eduPrizeInfo1.setTeacherUserName(teacherUserName.substring(0, teacherUserName.length() - 1));
+/*     */ 
+/* 251 */       eduPrizeInfo1.setIdNo(Integer.valueOf(i));
+/* 252 */       i++;
+/*     */ 
+/* 254 */       if (eduPrizeInfo1.getGrade() != null) {
+/* 255 */         EduDepartmentWithBLOBs eduDepartmentWithBLOBs = this.eduDepartmentMapper.queryGetObjectByDeptId(eduPrizeInfo1.getGrade().toString());
+/* 256 */         if (eduDepartmentWithBLOBs != null)
+/* 257 */           eduPrizeInfo1.setGradeName(eduDepartmentWithBLOBs.getDeptName());
+/*     */         else
+/* 259 */           eduPrizeInfo1.setGradeName("");
+/*     */       }
+/*     */       else
+/*     */       {
+/* 263 */         eduPrizeInfo1.setGradeName("");
+/*     */       }
+/*     */ 
+/* 266 */       if (eduPrizeInfo1.getClazz() != null) {
+/* 267 */         EduDepartmentWithBLOBs eduDepartmentWithBLOBs1 = this.eduDepartmentMapper.queryGetObjectByDeptId(eduPrizeInfo1.getClazz().toString());
+/* 268 */         if (eduDepartmentWithBLOBs1 != null)
+/* 269 */           eduPrizeInfo1.setClassName(eduDepartmentWithBLOBs1.getDeptName());
+/*     */         else
+/* 271 */           eduPrizeInfo1.setClassName("");
+/*     */       }
+/*     */       else {
+/* 274 */         eduPrizeInfo1.setClassName("");
+/*     */       }
+/* 276 */       eduPrizeInfo1.setAllName(eduPrizeInfo1.getGradeName() + eduPrizeInfo1.getClassName());
+/* 277 */       if (eduPrizeInfo1.getSubject() != null)
+/*     */       {
+/* 279 */         EduCourseWithBLOBs courseBycourseId = this.eduCourseMapper.getCourseBycourseId(eduPrizeInfo1.getSubject());
+/* 280 */         if (courseBycourseId != null)
+/* 281 */           eduPrizeInfo1.setSubjectName(courseBycourseId.getCourseName());
+/*     */         else
+/* 283 */           eduPrizeInfo1.setSubjectName("");
+/*     */       }
+/*     */       else
+/*     */       {
+/* 287 */         eduPrizeInfo1.setSubjectName("");
+/*     */       }
+/*     */ 
+/* 290 */       SysCode code = this.sysCodeMapper.getSingleCode("PRIZE_LEVEL", eduPrizeInfo1.getLevel());
+/* 291 */       if (code != null)
+/* 292 */         eduPrizeInfo1.setLevelName(code.getCodeName());
+/*     */       else {
+/* 294 */         eduPrizeInfo1.setLevelName("");
+/*     */       }
+/*     */     }
+/* 297 */     HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("教师获奖信息表", 9);
+/* 298 */     String[] secondTitles = { "序号", "教师姓名", "任课班级", "科目", "获奖项目", "获奖时间", "级别", "备注" };
+/* 299 */     HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/* 300 */     String[] beanProperty = { "idNo", "teacherUserName", "allName", "subjectName", "prizeProject", "time", "levelName", "remark" };
+/* 301 */     HSSFWorkbook workbook = null;
+/*     */     try {
+/* 303 */       workbook = ExcelUtil.exportExcelData(workbook2, allEduPrizeInfo, beanProperty);
+/* 304 */       OutputStream out = response.getOutputStream();
+/* 305 */       String filename = "人事导出信息表.xls";
+/* 306 */       filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/* 307 */       response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+/* 308 */       response.setHeader("content-disposition", "attachment;filename=" + filename);
+/* 309 */       workbook.write(out);
+/* 310 */       out.close();
+/*     */     } catch (Exception e) {
+/* 312 */       e.printStackTrace();
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduPrize.impl.EduPrizeServiceImpl
+ * JD-Core Version:    0.6.0
+ */

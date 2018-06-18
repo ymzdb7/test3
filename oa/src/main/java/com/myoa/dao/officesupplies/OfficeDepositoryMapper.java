@@ -1,0 +1,79 @@
+package com.myoa.dao.officesupplies;
+
+import com.myoa.model.officesupplies.OfficeDepository;
+import com.myoa.model.officesupplies.OfficeDepositoryExample;
+import com.myoa.model.officesupplies.OfficeDepositoryWithBLOBs;
+
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface OfficeDepositoryMapper {
+	public abstract int countByExample(
+			OfficeDepositoryExample paramOfficeDepositoryExample);
+
+	public abstract int deleteByExample(
+			OfficeDepositoryExample paramOfficeDepositoryExample);
+
+	public abstract int deleteByPrimaryKey(Integer paramInteger);
+
+	public abstract int insert(
+			OfficeDepositoryWithBLOBs paramOfficeDepositoryWithBLOBs);
+
+	public abstract int insertSelective(
+			OfficeDepositoryWithBLOBs paramOfficeDepositoryWithBLOBs);
+
+	public abstract List<OfficeDepositoryWithBLOBs> selectByExampleWithBLOBs(
+			OfficeDepositoryExample paramOfficeDepositoryExample);
+
+	public abstract List<OfficeDepository> selectByExample(
+			OfficeDepositoryExample paramOfficeDepositoryExample);
+
+	public abstract OfficeDepositoryWithBLOBs selectByPrimaryKey(
+			Integer paramInteger);
+
+	public abstract int updateByExampleSelective(
+			@Param("record") OfficeDepositoryWithBLOBs paramOfficeDepositoryWithBLOBs,
+			@Param("example") OfficeDepositoryExample paramOfficeDepositoryExample);
+
+	public abstract int updateByExampleWithBLOBs(
+			@Param("record") OfficeDepositoryWithBLOBs paramOfficeDepositoryWithBLOBs,
+			@Param("example") OfficeDepositoryExample paramOfficeDepositoryExample);
+
+	public abstract int updateByExample(
+			@Param("record") OfficeDepository paramOfficeDepository,
+			@Param("example") OfficeDepositoryExample paramOfficeDepositoryExample);
+
+	public abstract int updateByPrimaryKeySelective(
+			OfficeDepositoryWithBLOBs paramOfficeDepositoryWithBLOBs);
+
+	public abstract int updateByPrimaryKeyWithBLOBs(
+			OfficeDepositoryWithBLOBs paramOfficeDepositoryWithBLOBs);
+
+	public abstract int updateByPrimaryKey(
+			OfficeDepository paramOfficeDepository);
+
+	public abstract int insertDepository(
+			OfficeDepositoryWithBLOBs paramOfficeDepositoryWithBLOBs);
+
+	public abstract int updateDepositoryById(
+			OfficeDepositoryWithBLOBs paramOfficeDepositoryWithBLOBs);
+
+	public abstract int delDepositoryById(Integer paramInteger);
+
+	public abstract OfficeDepositoryWithBLOBs selDepositoryById(
+			Integer paramInteger);
+
+	public abstract OfficeDepositoryWithBLOBs selDepositoryByName(
+			String paramString);
+
+	public abstract List<OfficeDepositoryWithBLOBs> selAllDepository();
+
+	public abstract List<OfficeDepositoryWithBLOBs> selDepositoryByDept(
+			String paramString);
+
+	public abstract List<OfficeDepositoryWithBLOBs> selByDepoAndTypeAndPro(
+			Map<String, Object> paramMap);
+
+	public abstract List<OfficeDepositoryWithBLOBs> getAllDeposttoryTree();
+}

@@ -1,0 +1,103 @@
+/*     */ package com.xoa.controller.rms.roll;
+/*     */ 
+/*     */ import com.xoa.model.rms.RmsRollWithBLOBs;
+/*     */ import com.xoa.service.rms.RmsRollService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/rmsRoll"})
+/*     */ public class RmsRollController
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private RmsRollService rmsRollService;
+/*     */ 
+/*     */   @RequestMapping({"/index"})
+/*     */   public String index()
+/*     */   {
+/*  31 */     return "app/rms/roll/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/toManagePage"})
+/*     */   public String toManagePage()
+/*     */   {
+/*  41 */     return "app/rms/roll/manageRmsRoll";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/toNewPage"})
+/*     */   public String toNew()
+/*     */   {
+/*  51 */     return "app/rms/roll/addRmsRoll";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/toQueryPage"})
+/*     */   public String toQueryPage()
+/*     */   {
+/*  61 */     return "app/rms/roll/queryRmsRoll";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/detail"})
+/*     */   public String toDetail()
+/*     */   {
+/*  71 */     return "app/rms/roll/detail";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/lookFile"})
+/*     */   public String lookFile()
+/*     */   {
+/*  81 */     return "app/rms/roll/lookFile";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/save"})
+/*     */   public ToJson<RmsRollWithBLOBs> save(RmsRollWithBLOBs rmsRoll, HttpServletRequest request)
+/*     */   {
+/*  91 */     return this.rmsRollService.save(rmsRoll, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/update"})
+/*     */   public ToJson<RmsRollWithBLOBs> update(RmsRollWithBLOBs rmsRollWithBLOBs, HttpServletRequest request)
+/*     */   {
+/* 102 */     return this.rmsRollService.update(rmsRollWithBLOBs, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/query"})
+/*     */   public ToJson<RmsRollWithBLOBs> query(RmsRollWithBLOBs rmsRollWithBLOBs, PageParams pageParams)
+/*     */   {
+/* 113 */     return this.rmsRollService.query(rmsRollWithBLOBs, pageParams);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/delete"})
+/*     */   public ToJson<RmsRollWithBLOBs> destroy(String rollIds, HttpServletRequest request)
+/*     */   {
+/* 124 */     return this.rmsRollService.destroy(rollIds, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectById"})
+/*     */   public ToJson<RmsRollWithBLOBs> selectById(Integer rollId)
+/*     */   {
+/* 135 */     return this.rmsRollService.selectById(rollId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectAll"})
+/*     */   public ToJson<RmsRollWithBLOBs> selectAll()
+/*     */   {
+/* 146 */     return this.rmsRollService.selectAll();
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.rms.roll.RmsRollController
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,52 @@
+/*    */ package com.xoa.service.footprint.impl;
+/*    */ 
+/*    */ import com.xoa.dao.footprint.FootSetMapper;
+/*    */ import com.xoa.model.footprint.FootSet;
+/*    */ import com.xoa.service.footprint.FootSetSerivce;
+/*    */ import java.util.List;
+/*    */ import javax.annotation.Resource;
+/*    */ import org.springframework.stereotype.Service;
+/*    */ 
+/*    */ @Service
+/*    */ public class FootSetServiceImpl
+/*    */   implements FootSetSerivce
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   private FootSetMapper footSetMapper;
+/*    */ 
+/*    */   public String getTime()
+/*    */   {
+/* 32 */     List list = this.footSetMapper.getTime();
+/* 33 */     String time = null;
+/* 34 */     if ((list != null) && (list.size() == 1)) {
+/* 35 */       FootSet footSet = (FootSet)list.get(0);
+/* 36 */       if (footSet.getTime() != null)
+/* 37 */         time = footSet.getTime();
+/*    */     }
+/*    */     else
+/*    */     {
+/* 41 */       time = "60";
+/*    */     }
+/*    */ 
+/* 44 */     return time;
+/*    */   }
+/*    */ 
+/*    */   public void editUpdateTime(String time)
+/*    */   {
+/* 56 */     String updateTime = null;
+/*    */ 
+/* 58 */     if (time == null)
+/*    */     {
+/* 60 */       updateTime = "60";
+/*    */     }
+/* 62 */     else updateTime = time;
+/*    */ 
+/* 66 */     this.footSetMapper.editUpdateTime(updateTime);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.footprint.impl.FootSetServiceImpl
+ * JD-Core Version:    0.6.0
+ */

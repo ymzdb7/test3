@@ -1,0 +1,141 @@
+/*     */ package com.xoa.service.portalArticle.impl;
+/*     */ 
+/*     */ import com.xoa.dao.portalArticle.PortalArticleMapper;
+/*     */ import com.xoa.dao.portalColumn.PortalColumnMapper;
+/*     */ import com.xoa.model.portalArticle.PortalArticle;
+/*     */ import com.xoa.model.portalArticle.PortalArticleWithBLOBs;
+/*     */ import com.xoa.service.portalArticle.PortalArticleService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class PortalArticleServiceImpl
+/*     */   implements PortalArticleService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private PortalArticleMapper portalArticleMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private PortalColumnMapper portalColumnMapper;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<PortalArticleWithBLOBs> selectPortalArticle(PortalArticleWithBLOBs portalArticleWithBLOBs)
+/*     */   {
+/*  37 */     ToJson json = new ToJson();
+/*     */     try {
+/*  39 */       List list = this.portalArticleMapper.selectPortalArticle(portalArticleWithBLOBs);
+/*  40 */       if (list.size() > 0) {
+/*  41 */         json.setObj(list);
+/*  42 */         json.setMsg("ok");
+/*  43 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  46 */       json.setFlag(1);
+/*  47 */       json.setMsg(e.getMessage());
+/*  48 */       e.printStackTrace();
+/*     */     }
+/*  50 */     return json;
+/*     */   }
+/*     */   @Transactional
+/*     */   public ToJson selectPortalArticleById(Integer articleId) {
+/*  55 */     ToJson json = new ToJson();
+/*     */     try {
+/*  57 */       PortalArticle PortalArticle = this.portalArticleMapper.selectByPrimaryKey(articleId);
+/*  58 */       json.setObject(PortalArticle);
+/*  59 */       json.setMsg("ok");
+/*  60 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  62 */       json.setFlag(1);
+/*  63 */       json.setMsg(e.getMessage());
+/*  64 */       e.printStackTrace();
+/*     */     }
+/*  66 */     return json;
+/*     */   }
+/*     */   @Transactional
+/*     */   public ToJson<PortalArticleWithBLOBs> insertPortalArticle(PortalArticleWithBLOBs portalArticleWithBLOBs) {
+/*  71 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/*  74 */       int temp = this.portalArticleMapper.insertSelective(portalArticleWithBLOBs);
+/*  75 */       if (temp > 0) {
+/*  76 */         toJson.setFlag(0);
+/*  77 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  80 */       toJson.setFlag(1);
+/*  81 */       toJson.setMsg(e.getMessage());
+/*  82 */       e.printStackTrace();
+/*     */     }
+/*  84 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<PortalArticleWithBLOBs> upPortalArticle(PortalArticleWithBLOBs portalArticleWithBLOBs) {
+/*  90 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/*  93 */       int temp = this.portalArticleMapper.updateByPrimaryKeySelective(portalArticleWithBLOBs);
+/*  94 */       if (temp > 0) {
+/*  95 */         toJson.setFlag(0);
+/*  96 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  99 */       toJson.setFlag(1);
+/* 100 */       toJson.setMsg(e.getMessage());
+/* 101 */       e.printStackTrace();
+/*     */     }
+/* 103 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<PortalArticleWithBLOBs> delPortalArticle(PortalArticleWithBLOBs portalArticleWithBLOBs) {
+/* 109 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 112 */       int temp = this.portalArticleMapper.delPortalArticle(portalArticleWithBLOBs);
+/* 113 */       if (temp > 0) {
+/* 114 */         toJson.setFlag(0);
+/* 115 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 118 */       toJson.setFlag(1);
+/* 119 */       toJson.setMsg(e.getMessage());
+/* 120 */       e.printStackTrace();
+/*     */     }
+/* 122 */     return toJson;
+/*     */   }
+/*     */   @Transactional
+/*     */   public ToJson articleTree(String id, Integer[] colIds) {
+/* 127 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 129 */       if (id != null) {
+/* 130 */         String[] sp = id.split(";");
+/* 131 */         Integer sid = Integer.valueOf(sp[0]);
+/* 132 */         String type = sp[1];
+/* 133 */         List articlesList = null;
+/* 134 */         if (type.equals("chnl")) {
+/* 135 */           articlesList = this.portalArticleMapper.columnExpandArticle(sid);
+/*     */         }
+/* 137 */         if (articlesList.size() > 0) {
+/* 138 */           toJson.setFlag(0);
+/* 139 */           toJson.setMsg("ok");
+/* 140 */           toJson.setObj(articlesList);
+/*     */         }
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 144 */       toJson.setFlag(1);
+/* 145 */       toJson.setMsg(e.getMessage());
+/* 146 */       e.printStackTrace();
+/*     */     }
+/* 148 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.portalArticle.impl.PortalArticleServiceImpl
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,20 @@
+package com.myoa.dao.wechat;
+
+import com.myoa.model.wechat.WeChatComment;
+
+import java.util.List;
+import java.util.Map;
+
+public abstract interface WeChatCommentMapper {
+	public abstract int insertWeChatComment(WeChatComment paramWeChatComment);
+
+	public abstract List<WeChatComment> selectWeChatCommentByWIDPage(
+			Map<String, Object> paramMap);
+
+	public abstract List<WeChatComment> selectWeChatCommentByWID(
+			Integer paramInteger);
+
+	public abstract int deleteByPrimaryKey(Integer paramInteger);
+
+	public abstract int deleteWeChatCommentByWID(Integer paramInteger);
+}

@@ -1,0 +1,79 @@
+/*     */ package com.xoa.controller.vehicle;
+/*     */ 
+/*     */ import com.xoa.model.vehicle.VehicleOilCard;
+/*     */ import com.xoa.service.vehicle.VehicleOilCardService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.Date;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.beans.propertyeditors.CustomDateEditor;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.WebDataBinder;
+/*     */ import org.springframework.web.bind.annotation.InitBinder;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"oilCard"})
+/*     */ public class VehicleOilCardController
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   VehicleOilCardService vehicleOilCardService;
+/*     */ 
+/*     */   @InitBinder
+/*     */   public void initBinder(WebDataBinder binder)
+/*     */   {
+/*  33 */     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+/*  34 */     dateFormat.setLenient(false);
+/*  35 */     binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/addVehicleOilCard"})
+/*     */   public ToJson<Object> addVehicleOilCard(VehicleOilCard vehicleOilCard)
+/*     */   {
+/*  48 */     return this.vehicleOilCardService.addVehicleOilCard(vehicleOilCard);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/editVehicleOilCard"})
+/*     */   public ToJson<Object> editVehicleOilCard(VehicleOilCard vehicleOilCard)
+/*     */   {
+/*  60 */     return this.vehicleOilCardService.editVehicleOilCard(vehicleOilCard);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deleteOilCard"})
+/*     */   public ToJson<Object> deleteOilCard(Integer id)
+/*     */   {
+/*  73 */     return this.vehicleOilCardService.deleteOilCard(id);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deleteCards"})
+/*     */   public ToJson<Object> deleteCards(String[] ids)
+/*     */   {
+/*  85 */     return this.vehicleOilCardService.deleteCards(ids);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectAllCard"})
+/*     */   public ToJson<VehicleOilCard> selectAllCard(HttpServletRequest request)
+/*     */   {
+/*  97 */     return this.vehicleOilCardService.selectAllCard(request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectOilCardById"})
+/*     */   public ToJson<VehicleOilCard> selectOilCardById(Integer id)
+/*     */   {
+/* 109 */     return this.vehicleOilCardService.selectOilCardById(id);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.vehicle.VehicleOilCardController
+ * JD-Core Version:    0.6.0
+ */

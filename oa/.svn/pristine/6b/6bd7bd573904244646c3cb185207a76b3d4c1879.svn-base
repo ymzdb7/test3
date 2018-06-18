@@ -1,0 +1,64 @@
+/*    */ package com.xoa.service.event.impl;
+/*    */ 
+/*    */ import com.xoa.dao.event.TimeLineViewDeptMapper;
+/*    */ import com.xoa.model.event.TimeLineViewDept;
+/*    */ import com.xoa.service.event.TimeLineViewDeptService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import com.xoa.util.common.L;
+/*    */ import javax.annotation.Resource;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.stereotype.Service;
+/*    */ 
+/*    */ @Service
+/*    */ public class TimeLineViewDeptServiceImpl
+/*    */   implements TimeLineViewDeptService
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   TimeLineViewDeptMapper timeLineViewDeptMapper;
+/*    */ 
+/*    */   public ToJson<TimeLineViewDept> updateTimeLineViewDept(HttpServletRequest request, TimeLineViewDept timeLineViewDept)
+/*    */   {
+/* 23 */     ToJson toJson = new ToJson(1, "error");
+/*    */     try {
+/* 25 */       int a = this.timeLineViewDeptMapper.updateTimeLineViewDept(timeLineViewDept);
+/* 26 */       if (a > 0) {
+/* 27 */         toJson.setMsg("ok");
+/* 28 */         toJson.setFlag(0);
+/*    */       } else {
+/* 30 */         toJson.setMsg("修改失败");
+/* 31 */         toJson.setFlag(1);
+/*    */       }
+/*    */     } catch (Exception e) {
+/* 34 */       e.printStackTrace();
+/* 35 */       toJson.setMsg(e.getMessage());
+/* 36 */       L.e(new Object[] { "TimeLineViewDeptServiceImpl updateTimeLineViewDept:" + e });
+/*    */     }
+/* 38 */     return toJson;
+/*    */   }
+/*    */ 
+/*    */   public ToJson<TimeLineViewDept> addTimeLineViewDept(HttpServletRequest request, TimeLineViewDept timeLineViewDept)
+/*    */   {
+/* 43 */     ToJson toJson = new ToJson(1, "error");
+/*    */     try {
+/* 45 */       int b = this.timeLineViewDeptMapper.addTimeLineViewDept(timeLineViewDept);
+/* 46 */       if (b > 0) {
+/* 47 */         toJson.setMsg("ok");
+/* 48 */         toJson.setFlag(0);
+/*    */       } else {
+/* 50 */         toJson.setMsg("新建失败");
+/* 51 */         toJson.setFlag(1);
+/*    */       }
+/*    */     } catch (Exception e) {
+/* 54 */       e.printStackTrace();
+/* 55 */       toJson.setMsg(e.getMessage());
+/* 56 */       L.e(new Object[] { "TimeLineViewDeptServiceImpl addTimeLineViewDept:" + e });
+/*    */     }
+/* 58 */     return null;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.event.impl.TimeLineViewDeptServiceImpl
+ * JD-Core Version:    0.6.0
+ */

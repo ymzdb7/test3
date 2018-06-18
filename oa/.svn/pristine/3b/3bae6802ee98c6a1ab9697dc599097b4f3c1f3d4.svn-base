@@ -1,0 +1,494 @@
+/*     */ package com.xoa.util.dataSource;
+/*     */ 
+/*     */ import com.ibatis.common.resources.Resources;
+/*     */ import java.sql.Connection;
+/*     */ import java.sql.DriverManager;
+/*     */ import java.sql.ResultSet;
+/*     */ import java.sql.Statement;
+/*     */ import java.util.Properties;
+/*     */ 
+/*     */ public class Verification
+/*     */ {
+/*     */   public static boolean CheckIsExistTable(Connection connection, String driver, String url, String username, String password, String tableName)
+/*     */   {
+/*  22 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/*  24 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/*  25 */       Class.forName(driver);
+/*  26 */       connection = DriverManager.getConnection(url, username, password);
+/*  27 */       String sql = "SHOW TABLES LIKE '" + tableName + "'";
+/*     */ 
+/*  29 */       Statement st = connection.createStatement();
+/*  30 */       ResultSet rs = st.executeQuery(sql);
+/*  31 */       while (rs.next()) {
+/*  32 */         flag = Boolean.valueOf(true);
+/*     */       }
+/*  34 */       rs.close();
+/*  35 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/*  38 */       e.printStackTrace();
+/*     */     }
+/*  40 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistfield(Connection connection, String driver, String url, String username, String password, String tableName, String fieldName)
+/*     */   {
+/*  51 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/*  53 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/*  54 */       Class.forName(driver);
+/*  55 */       connection = DriverManager.getConnection(url, username, password);
+/*  56 */       String sql = "show columns from " + tableName + " like " + "'" + fieldName + "'";
+/*     */ 
+/*  58 */       Statement st = connection.createStatement();
+/*  59 */       ResultSet rs = st.executeQuery(sql);
+/*  60 */       while (rs.next()) {
+/*  61 */         flag = Boolean.valueOf(true);
+/*     */       }
+/*  63 */       rs.close();
+/*  64 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/*  67 */       e.printStackTrace();
+/*     */     }
+/*  69 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistMenu(Connection connection, String driver, String url, String username, String password, String menuId)
+/*     */   {
+/*  79 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/*  81 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/*  82 */       Class.forName(driver);
+/*  83 */       connection = DriverManager.getConnection(url, username, password);
+/*  84 */       String sql = "SELECT * FROM sys_menu WHERE MENU_ID ='" + menuId + "'";
+/*     */ 
+/*  86 */       Statement st = connection.createStatement();
+/*  87 */       ResultSet rs = st.executeQuery(sql);
+/*  88 */       while (rs.next()) {
+/*  89 */         flag = Boolean.valueOf(true);
+/*     */       }
+/*  91 */       rs.close();
+/*  92 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/*  95 */       e.printStackTrace();
+/*     */     }
+/*  97 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistFunction(Connection connection, String driver, String url, String username, String password, String functionId)
+/*     */   {
+/* 107 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 109 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 110 */       Class.forName(driver);
+/* 111 */       connection = DriverManager.getConnection(url, username, password);
+/* 112 */       String sql = "SELECT * FROM sys_function WHERE FUNC_ID =" + functionId;
+/* 113 */       Statement st = connection.createStatement();
+/* 114 */       ResultSet rs = st.executeQuery(sql);
+/* 115 */       while (rs.next()) {
+/* 116 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 118 */       rs.close();
+/* 119 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 122 */       e.printStackTrace();
+/*     */     }
+/* 124 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistIndex(Connection connection, String driver, String url, String username, String password, String tableName, String fieldName)
+/*     */   {
+/* 134 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 136 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 137 */       Class.forName(driver);
+/* 138 */       connection = DriverManager.getConnection(url, username, password);
+/* 139 */       String sql = "SHOW INDEX FROM " + tableName + " WHERE column_name LIKE" + "'" + fieldName + "'";
+/* 140 */       Statement st = connection.createStatement();
+/* 141 */       ResultSet rs = st.executeQuery(sql);
+/* 142 */       while (rs.next()) {
+/* 143 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 145 */       rs.close();
+/* 146 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 149 */       e.printStackTrace();
+/*     */     }
+/* 151 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistCode(Connection connection, String driver, String url, String username, String password, String codeNo, String parentNo)
+/*     */   {
+/* 162 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 164 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 165 */       Class.forName(driver);
+/* 166 */       connection = DriverManager.getConnection(url, username, password);
+/* 167 */       String sql = "SELECT * FROM sys_code WHERE CODE_NO ='" + codeNo + "'" + " and PARENT_NO =" + "'" + parentNo + "'";
+/* 168 */       Statement st = connection.createStatement();
+/* 169 */       ResultSet rs = st.executeQuery(sql);
+/* 170 */       while (rs.next()) {
+/* 171 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 173 */       rs.close();
+/* 174 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 177 */       e.printStackTrace();
+/*     */     }
+/* 179 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckCode(Connection connection, String driver, String url, String username, String password, String codeId)
+/*     */   {
+/* 190 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 192 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 193 */       Class.forName(driver);
+/* 194 */       connection = DriverManager.getConnection(url, username, password);
+/* 195 */       String sql = "SELECT * FROM sys_code WHERE CODE_ID ='" + codeId + "'";
+/* 196 */       Statement st = connection.createStatement();
+/* 197 */       ResultSet rs = st.executeQuery(sql);
+/* 198 */       while (rs.next()) {
+/* 199 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 201 */       rs.close();
+/* 202 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 205 */       e.printStackTrace();
+/*     */     }
+/* 207 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistParam(Connection connection, String driver, String url, String username, String password, String paramName)
+/*     */   {
+/* 218 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 220 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 221 */       Class.forName(driver);
+/* 222 */       connection = DriverManager.getConnection(url, username, password);
+/* 223 */       String sql = "SELECT * FROM sys_para WHERE  PARA_NAME ='" + paramName + "'";
+/*     */ 
+/* 225 */       Statement st = connection.createStatement();
+/* 226 */       ResultSet rs = st.executeQuery(sql);
+/* 227 */       while (rs.next()) {
+/* 228 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 230 */       rs.close();
+/* 231 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 234 */       e.printStackTrace();
+/*     */     }
+/* 236 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistThing(Connection connection, String driver, String url, String username, String password, String id)
+/*     */   {
+/* 246 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 248 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 249 */       Class.forName(driver);
+/* 250 */       connection = DriverManager.getConnection(url, username, password);
+/* 251 */       String sql = "SELECT * FROM flow_trigger WHERE ID =" + id;
+/*     */ 
+/* 253 */       Statement st = connection.createStatement();
+/* 254 */       ResultSet rs = st.executeQuery(sql);
+/* 255 */       while (rs.next()) {
+/* 256 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 258 */       rs.close();
+/* 259 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 262 */       e.printStackTrace();
+/*     */     }
+/* 264 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistUserPriv(Connection connection, String driver, String url, String username, String password, String userPriv)
+/*     */   {
+/* 274 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 276 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 277 */       Class.forName(driver);
+/* 278 */       connection = DriverManager.getConnection(url, username, password);
+/* 279 */       String sql = "SELECT * FROM user_priv WHERE USER_PRIV =" + userPriv;
+/*     */ 
+/* 281 */       Statement st = connection.createStatement();
+/* 282 */       ResultSet rs = st.executeQuery(sql);
+/* 283 */       while (rs.next()) {
+/* 284 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 286 */       rs.close();
+/* 287 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 290 */       e.printStackTrace();
+/*     */     }
+/* 292 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistUserFunction(Connection connection, String driver, String url, String username, String password, String uid)
+/*     */   {
+/* 302 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 304 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 305 */       Class.forName(driver);
+/* 306 */       connection = DriverManager.getConnection(url, username, password);
+/* 307 */       String sql = "SELECT * FROM user_function WHERE uid =" + uid;
+/*     */ 
+/* 309 */       Statement st = connection.createStatement();
+/* 310 */       ResultSet rs = st.executeQuery(sql);
+/* 311 */       while (rs.next()) {
+/* 312 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 314 */       rs.close();
+/* 315 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 318 */       e.printStackTrace();
+/*     */     }
+/* 320 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistKgSign(Connection connection, String driver, String url, String username, String password, String relation_Id)
+/*     */   {
+/* 330 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 332 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 333 */       Class.forName(driver);
+/* 334 */       connection = DriverManager.getConnection(url, username, password);
+/* 335 */       String sql = "SELECT * FROM kg_relation_keysign WHERE RELATION_ID =" + relation_Id;
+/*     */ 
+/* 337 */       Statement st = connection.createStatement();
+/* 338 */       ResultSet rs = st.executeQuery(sql);
+/* 339 */       while (rs.next()) {
+/* 340 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 342 */       rs.close();
+/* 343 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 346 */       e.printStackTrace();
+/*     */     }
+/* 348 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistKgkeyUser(Connection connection, String driver, String url, String username, String password, String key_UserId)
+/*     */   {
+/* 358 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 360 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 361 */       Class.forName(driver);
+/* 362 */       connection = DriverManager.getConnection(url, username, password);
+/* 363 */       String sql = "SELECT * FROM kg_relation_keyuser WHERE KEY_USER_ID =" + key_UserId;
+/*     */ 
+/* 365 */       Statement st = connection.createStatement();
+/* 366 */       ResultSet rs = st.executeQuery(sql);
+/* 367 */       while (rs.next()) {
+/* 368 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 370 */       rs.close();
+/* 371 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 374 */       e.printStackTrace();
+/*     */     }
+/* 376 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistkgSignature(Connection connection, String driver, String url, String username, String password, String SignNature_ID)
+/*     */   {
+/* 387 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 389 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 390 */       Class.forName(driver);
+/* 391 */       connection = DriverManager.getConnection(url, username, password);
+/* 392 */       String sql = "SELECT * FROM kg_signature WHERE SIGNATURE_ID =" + SignNature_ID;
+/*     */ 
+/* 394 */       Statement st = connection.createStatement();
+/* 395 */       ResultSet rs = st.executeQuery(sql);
+/* 396 */       while (rs.next()) {
+/* 397 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 399 */       rs.close();
+/* 400 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 403 */       e.printStackTrace();
+/*     */     }
+/* 405 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistkgSignKey(Connection connection, String driver, String url, String username, String password, String signKey_Id)
+/*     */   {
+/* 415 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 417 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 418 */       Class.forName(driver);
+/* 419 */       connection = DriverManager.getConnection(url, username, password);
+/* 420 */       String sql = "SELECT * FROM kg_signkey WHERE SIGNKEY_ID =" + signKey_Id;
+/*     */ 
+/* 422 */       Statement st = connection.createStatement();
+/* 423 */       ResultSet rs = st.executeQuery(sql);
+/* 424 */       while (rs.next()) {
+/* 425 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 427 */       rs.close();
+/* 428 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 431 */       e.printStackTrace();
+/*     */     }
+/* 433 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistInfoCenter(Connection connection, String driver, String url, String username, String password, String infoId)
+/*     */   {
+/* 444 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 446 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 447 */       Class.forName(driver);
+/* 448 */       connection = DriverManager.getConnection(url, username, password);
+/* 449 */       String sql = "SELECT * FROM info_center WHERE INFO_ID =" + infoId;
+/*     */ 
+/* 451 */       Statement st = connection.createStatement();
+/* 452 */       ResultSet rs = st.executeQuery(sql);
+/* 453 */       while (rs.next()) {
+/* 454 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 456 */       rs.close();
+/* 457 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 460 */       e.printStackTrace();
+/*     */     }
+/* 462 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistWidget(Connection connection, String driver, String url, String username, String password, String id)
+/*     */   {
+/* 472 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 474 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 475 */       Class.forName(driver);
+/* 476 */       connection = DriverManager.getConnection(url, username, password);
+/* 477 */       String sql = "SELECT * FROM widget WHERE ID =" + id;
+/*     */ 
+/* 479 */       Statement st = connection.createStatement();
+/* 480 */       ResultSet rs = st.executeQuery(sql);
+/* 481 */       while (rs.next()) {
+/* 482 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 484 */       rs.close();
+/* 485 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 488 */       e.printStackTrace();
+/*     */     }
+/* 490 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistSysPara(Connection connection, String driver, String url, String username, String password, String paraName)
+/*     */   {
+/* 500 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 502 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 503 */       Class.forName(driver);
+/* 504 */       connection = DriverManager.getConnection(url, username, password);
+/* 505 */       String sql = "SELECT * FROM sys_para WHERE PARA_NAME ='" + paraName + "'";
+/*     */ 
+/* 507 */       Statement st = connection.createStatement();
+/* 508 */       ResultSet rs = st.executeQuery(sql);
+/* 509 */       while (rs.next()) {
+/* 510 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 512 */       rs.close();
+/* 513 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 516 */       e.printStackTrace();
+/*     */     }
+/* 518 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistUser(Connection connection, String driver, String url, String username, String password, String uid)
+/*     */   {
+/* 528 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 530 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 531 */       Class.forName(driver);
+/* 532 */       connection = DriverManager.getConnection(url, username, password);
+/* 533 */       String sql = "SELECT * FROM user WHERE uid ='" + uid + "'";
+/*     */ 
+/* 535 */       Statement st = connection.createStatement();
+/* 536 */       ResultSet rs = st.executeQuery(sql);
+/* 537 */       while (rs.next()) {
+/* 538 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 540 */       rs.close();
+/* 541 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 544 */       e.printStackTrace();
+/*     */     }
+/* 546 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistPor(Connection connection, String driver, String url, String username, String password, String portalsId)
+/*     */   {
+/* 556 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 558 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 559 */       Class.forName(driver);
+/* 560 */       connection = DriverManager.getConnection(url, username, password);
+/* 561 */       String sql = "SELECT * FROM portals WHERE portals_id ='" + portalsId + "'";
+/*     */ 
+/* 563 */       Statement st = connection.createStatement();
+/* 564 */       ResultSet rs = st.executeQuery(sql);
+/* 565 */       while (rs.next()) {
+/* 566 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 568 */       rs.close();
+/* 569 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 572 */       e.printStackTrace();
+/*     */     }
+/* 574 */     return flag.booleanValue();
+/*     */   }
+/*     */ 
+/*     */   public static boolean CheckIsExistDepartment(Connection connection, String driver, String url, String username, String password, String deptId)
+/*     */   {
+/* 584 */     Boolean flag = Boolean.valueOf(false);
+/*     */     try {
+/* 586 */       Properties props = Resources.getResourceAsProperties("jdbc-sql.properties");
+/* 587 */       Class.forName(driver);
+/* 588 */       connection = DriverManager.getConnection(url, username, password);
+/* 589 */       String sql = "SELECT * FROM department WHERE DEPT_ID ='" + deptId + "'";
+/* 590 */       Statement st = connection.createStatement();
+/* 591 */       ResultSet rs = st.executeQuery(sql);
+/* 592 */       while (rs.next()) {
+/* 593 */         flag = Boolean.valueOf(true);
+/*     */       }
+/* 595 */       rs.close();
+/* 596 */       st.close();
+/*     */     }
+/*     */     catch (Exception e) {
+/* 599 */       e.printStackTrace();
+/*     */     }
+/* 601 */     return flag.booleanValue();
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.dataSource.Verification
+ * JD-Core Version:    0.6.0
+ */

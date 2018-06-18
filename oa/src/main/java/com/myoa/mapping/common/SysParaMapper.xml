@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.myoa.dao.common.SysParaMapper">
+    <resultMap id="BaseResultMap" type="com.myoa.model.common.SysPara">
+        <id column="PARA_NAME" property="paraName" javaType="string"/>
+        <result column="PARA_VALUE" property="paraValue" javaType="string"/>
+    </resultMap>
+
+
+    <select id="getSysPara" resultType="String">
+  SELECT s.PARA_VALUE FROM sys_para s WHERE s.PARA_NAME='MOBILE_SCREEN'
+  </select>
+
+    <select id="getTheSysParam" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT s.PARA_VALUE, s.PARA_NAME FROM sys_para s WHERE s.PARA_NAME=#{paraName}
+    </select>
+
+
+    <sql id="Base_Column_List">
+    PARA_NAME, PARA_VALUE
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.myoa.model.common.SysPara">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_para
+        where PARA_NAME = #{paraName,jdbcType=VARCHAR}
+    </select>
+
+
+    <select id="getIeTitle" resultMap="BaseResultMap">
+     SELECT  PARA_NAME,PARA_VALUE
+      FROM sys_para 
+      where PARA_NAME='STATUS_TEXT_MARQUEE'
+   
+  </select>
+
+
+    <update id="updateSysPara" parameterType="com.myoa.model.common.SysPara">
+        update sys_para
+        <set>
+            <if test="paraValue != null">
+                PARA_VALUE = #{paraValue},
+            </if>
+        </set>
+        where PARA_NAME = #{paraName}
+    </update>
+    <select id="querySysPara" resultMap="BaseResultMap">
+      SELECT  PARA_NAME,PARA_VALUE
+      FROM sys_para
+      where PARA_NAME=#{paraName}
+</select>
+
+    <select id="getStatus" resultMap="BaseResultMap">
+        select * from sys_para where PARA_NAME='EDU_STUDENT_UPGRADE'
+    </select>
+
+    <select id="selEduParam" resultMap="BaseResultMap">
+        SELECT * FROM sys_para
+        where
+        PARA_NAME='WINTER_VACATION_END'
+        OR
+        PARA_NAME='SUMMER_VACATION_END'
+        OR
+        PARA_NAME='EDU_DEFAULT_PASSWORD'
+    </select>
+
+    <select id="selectNotify" resultMap="BaseResultMap">
+         SELECT * FROM sys_para
+        where
+        PARA_NAME='NOTIFY_AUDITING_SINGLE_NEW'
+        OR
+        PARA_NAME='NOTIFY_AUDITING_MANAGER'
+        OR
+        PARA_NAME='NOTIFY_AUDITING_EDIT'
+        OR
+        PARA_NAME='NOTIFY_AUDITING_ALL'
+    </select>
+    <select id="selectNotifySingleNew" resultType="string">
+        SELECT PARA_VALUE FROM sys_para
+        where
+        PARA_NAME='NOTIFY_AUDITING_SINGLE_NEW'
+    </select>
+    <select id="getEditFlag" resultType="string">
+        SELECT PARA_VALUE FROM sys_para
+        where PARA_NAME='NOTIFY_AUDITING_EDIT'
+
+    </select>
+
+    <select id="getAutidingUsers" resultType="string">
+        SELECT PARA_VALUE FROM sys_para
+        where PARA_NAME='NOTIFY_AUDITING_ALL'
+    </select>
+
+    <insert id="insertSysPara" parameterType="com.myoa.model.common.SysPara">
+        INSERT INTO sys_para
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="paraName != null">
+            PARA_NAME,
+        </if>
+        <if test="paraValue != null">
+            PARA_VALUE,
+        </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+        <if test="paraName != null" >
+            #{paraName,jdbcType=VARCHAR},
+        </if>
+        <if test="paraValue != null" >
+            #{paraValue,jdbcType=VARCHAR},
+        </if>
+        </trim>
+    </insert>
+
+    <select id="getSysParaList" parameterType="java.util.List" resultMap="BaseResultMap">
+        SELECT * FROM sys_para WHERE PARA_NAME IN
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getSysParaByParaNameLike" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT * FROM sys_para WHERE PARA_NAME LIKE CONCAT('%',#{paraName},'%')
+    </select>
+</mapper>

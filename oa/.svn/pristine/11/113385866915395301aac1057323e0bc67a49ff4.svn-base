@@ -1,0 +1,64 @@
+/*    */ package com.xoa.controller.edu.eduLearnPhase;
+/*    */ 
+/*    */ import com.xoa.model.edu.eduLearnPhase.EduLearnPhase;
+/*    */ import com.xoa.service.edu.eduLearnPhase.EduLearnPhaseService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import org.springframework.beans.factory.annotation.Autowired;
+/*    */ import org.springframework.stereotype.Controller;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"/eduLearnPhase"})
+/*    */ public class EduLearnPhaseController
+/*    */ {
+/*    */ 
+/*    */   @Autowired
+/*    */   private EduLearnPhaseService eduLearnPhaseService;
+/*    */ 
+/*    */   @RequestMapping({"/studySectionManagement"})
+/*    */   public String index()
+/*    */   {
+/* 26 */     return "app/edu/basicSetting/studySectionManagement";
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/addEduLearnPhase"})
+/*    */   public ToJson<EduLearnPhase> addEduLearnPhase(EduLearnPhase eduLearnPhase)
+/*    */   {
+/* 40 */     return this.eduLearnPhaseService.addEduLearnPhase(eduLearnPhase);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/delEduLearnPhase"})
+/*    */   public ToJson<EduLearnPhase> delEduLearnPhase(int id)
+/*    */   {
+/* 53 */     return this.eduLearnPhaseService.delEduLearnPhase(id);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/updateEduLearnPhase"})
+/*    */   public ToJson<EduLearnPhase> updateEduLearnPhase(EduLearnPhase eduLearnPhase)
+/*    */   {
+/* 66 */     return this.eduLearnPhaseService.updateEduLearnPhase(eduLearnPhase);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/selEduLearnPhaseById"})
+/*    */   public ToJson<EduLearnPhase> selEduLearnPhaseById(int id)
+/*    */   {
+/* 79 */     return this.eduLearnPhaseService.selEduLearnPhaseById(id);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/selEduLearnPhase"})
+/*    */   public ToJson<EduLearnPhase> selEduLearnPhase(EduLearnPhase eduLearnPhase, Integer page, Integer pageSize, boolean useFlag)
+/*    */   {
+/* 92 */     return this.eduLearnPhaseService.selEduLearnPhase(eduLearnPhase, page, pageSize, useFlag);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.edu.eduLearnPhase.EduLearnPhaseController
+ * JD-Core Version:    0.6.0
+ */

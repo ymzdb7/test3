@@ -1,0 +1,25 @@
+/*    */ package com.xoa.global.intercptor;
+/*    */ 
+/*    */ import javax.servlet.http.HttpSession;
+/*    */ import javax.servlet.http.HttpSessionEvent;
+/*    */ import javax.servlet.http.HttpSessionListener;
+/*    */ 
+/*    */ public class CommonSessionListener implements HttpSessionListener
+/*    */ {
+/* 13 */   private CommonSessionContext myc = CommonSessionContext.getInstance();
+/*    */ 
+/*    */   public void sessionCreated(HttpSessionEvent httpSessionEvent)
+/*    */   {
+/* 17 */     this.myc.AddSession(httpSessionEvent.getSession());
+/*    */   }
+/*    */ 
+/*    */   public void sessionDestroyed(HttpSessionEvent httpSessionEvent) {
+/* 21 */     HttpSession session = httpSessionEvent.getSession();
+/* 22 */     this.myc.DelSession(session);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.global.intercptor.CommonSessionListener
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,45 @@
+package com.myoa.global.exception;
+
+import com.alibaba.fastjson.support.spring.FastJsonJsonView;
+import com.myoa.service.im.ImDataException;
+import com.myoa.service.workflow.JobClassifyException;
+
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.web.servlet.HandlerExceptionResolver;
+import org.springframework.web.servlet.ModelAndView;
+
+public class GlobalException implements HandlerExceptionResolver {
+	public ModelAndView resolveException(HttpServletRequest arg0,
+			HttpServletResponse arg1, Object arg2, Exception arg3) {
+		FastJsonJsonView view = new FastJsonJsonView();
+		ModelAndView modelAndView = new ModelAndView();
+
+		Map all = new HashMap();
+		all.put("status", Boolean.valueOf(false));
+		all.put("flag", Boolean.valueOf(false));
+		all.put("message", arg3.getMessage());
+		view.setAttributesMap(all);
+
+		if ((arg3 instanceof ImDataException)) {
+			Map ex = new HashMap();
+			ex.put("status", Boolean.valueOf(false));
+			ex.put("flag", Boolean.valueOf(false));
+			ex.put("message", "Im操作失败");
+			view.setAttributesMap(ex);
+		}
+
+		if ((arg3 instanceof JobClassifyException)) {
+			Map ex = new HashMap();
+			ex.put("status", Boolean.valueOf(false));
+			ex.put("flag", Boolean.valueOf(false));
+			ex.put("message", "分类操作失败");
+			view.setAttributesMap(ex);
+		}
+		arg3.printStackTrace();
+		modelAndView.setView(view);
+		return modelAndView;
+	}
+}

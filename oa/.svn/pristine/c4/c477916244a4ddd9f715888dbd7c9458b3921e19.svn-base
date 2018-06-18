@@ -1,0 +1,319 @@
+/*     */ package com.xoa.service.sys.impl;
+/*     */ 
+/*     */ import com.xoa.dao.sys.SealMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.enclosure.Attachment;
+/*     */ import com.xoa.model.sys.Seal;
+/*     */ import com.xoa.model.sys.SealLog;
+/*     */ import com.xoa.model.sys.SealWithBLOBs;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.sys.SealLogService;
+/*     */ import com.xoa.service.sys.SealService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.GetAttachmentListUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.ipUtil.IpAddr;
+/*     */ import java.net.InetAddress;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class SealServiceImpl
+/*     */   implements SealService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private SealMapper sealMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SealLogService sealLogService;
+/*     */ 
+/*     */   public ToJson<Object> addSealObject(HttpServletRequest request, SealWithBLOBs sealWithBLOBs)
+/*     */   {
+/*  41 */     ToJson json = new ToJson(1, "err");
+/*     */ 
+/*  44 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  45 */     String userId = users.getUserId();
+/*  46 */     sealWithBLOBs.setUserStr(userId + ",");
+/*  47 */     if (sealWithBLOBs.getSealId() == null) {
+/*  48 */       sealWithBLOBs.setSealId("");
+/*     */     }
+/*  50 */     if (sealWithBLOBs.getDeptId() == null) {
+/*  51 */       sealWithBLOBs.setDeptId("");
+/*     */     }
+/*  53 */     if (sealWithBLOBs.getSealName() == null) {
+/*  54 */       sealWithBLOBs.setSealName("");
+/*     */     }
+/*  56 */     if (sealWithBLOBs.getCertStr() == null) {
+/*  57 */       sealWithBLOBs.setCertStr("");
+/*     */     }
+/*  59 */     if (sealWithBLOBs.getUserStr() == null) {
+/*  60 */       sealWithBLOBs.setUserStr("");
+/*     */     }
+/*  62 */     if (sealWithBLOBs.getSealData() == null) {
+/*  63 */       sealWithBLOBs.setSealData("");
+/*     */     }
+/*  65 */     Date date = new Date();
+/*  66 */     sealWithBLOBs.setCreateTime(date);
+/*     */     try {
+/*  68 */       int i = this.sealMapper.insertSelective(sealWithBLOBs);
+/*  69 */       SealLog sealLog = new SealLog();
+/*  70 */       sealLog.setsId(sealWithBLOBs.getSealId());
+/*  71 */       sealLog.setUserId(userId);
+/*  72 */       sealLog.setLogTime(date);
+/*  73 */       sealLog.setLogType("makeseal");
+/*  74 */       sealLog.setResult("制章成功");
+/*  75 */       InetAddress currentIp = IpAddr.getCurrentIp();
+/*  76 */       sealLog.setIpAdd(currentIp.toString().substring(1, currentIp.toString().length()));
+/*  77 */       int i1 = this.sealLogService.addSealLog(sealLog);
+/*  78 */       if (i > 0) {
+/*  79 */         json.setFlag(0);
+/*  80 */         json.setMsg("ok");
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/*  84 */       json.setFlag(1);
+/*  85 */       json.setMsg("err");
+/*  86 */       e.getMessage();
+/*     */     }
+/*     */ 
+/*  89 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> editSealObject(HttpServletRequest request, SealWithBLOBs seal)
+/*     */   {
+/*  94 */     ToJson json = new ToJson(1, "err");
+/*     */     try
+/*     */     {
+/*  97 */       Date date = new Date();
+/*  98 */       int i = this.sealMapper.updateByPrimaryKeySelective(seal);
+/*     */ 
+/* 100 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 101 */       String userId = users.getUserId();
+/* 102 */       SealLog sealLog = new SealLog();
+/* 103 */       SealWithBLOBs sealById = this.sealMapper.getSealById(Integer.valueOf(seal.getId().intValue()));
+/* 104 */       sealLog.setsId(sealById.getSealId());
+/* 105 */       sealLog.setUserId(userId);
+/* 106 */       sealLog.setLogTime(date);
+/* 107 */       sealLog.setLogType("setseal");
+/*     */ 
+/* 109 */       StringBuffer sb = new StringBuffer();
+/* 110 */       if ((seal.getUserStr() != null) && (seal.getUserStr() != "")) {
+/* 111 */         String userStr = seal.getUserStr();
+/* 112 */         String[] split = userStr.split(",");
+/* 113 */         for (String s : split) {
+/* 114 */           Users usersByuserId = this.usersMapper.getUsersByuserId(s);
+/* 115 */           sb.append(usersByuserId.getUserName() + ",");
+/*     */         }
+/* 117 */         seal.setUserName(sb.toString());
+/*     */       } else {
+/* 119 */         seal.setUserName("");
+/*     */       }
+/* 121 */       sealLog.setResult("授权给:" + seal.getUserName());
+/* 122 */       InetAddress currentIp = IpAddr.getCurrentIp();
+/* 123 */       sealLog.setIpAdd(currentIp.toString().substring(1, currentIp.toString().length()));
+/* 124 */       int i1 = this.sealLogService.addSealLog(sealLog);
+/* 125 */       if (i > 0) {
+/* 126 */         json.setFlag(0);
+/* 127 */         json.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 130 */       e.getMessage();
+/*     */     }
+/* 132 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public List<SealWithBLOBs> getSealByUser(HttpServletRequest request)
+/*     */   {
+/* 137 */     List sealByUser = new ArrayList();
+/*     */ 
+/* 139 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 140 */     String userId = users.getUserId();
+/* 141 */     if (userId != null) {
+/* 142 */       sealByUser = this.sealMapper.getSealByUser(userId);
+/*     */     }
+/* 144 */     for (Iterator i$ = sealByUser.iterator(); i$.hasNext(); ) {
+				SealWithBLOBs sealWithBLOBs;
+				sealWithBLOBs = (SealWithBLOBs)i$.next();
+/*     */ 
+/* 146 */       List<Attachment> attachmentList = new ArrayList();
+/* 147 */       if ((sealWithBLOBs.getAttachmentName() != null) && (!"".equals(sealWithBLOBs.getAttachmentName()))) {
+/* 148 */         attachmentList = GetAttachmentListUtil.returnAttachment(sealWithBLOBs.getAttachmentName(), sealWithBLOBs.getAttachmentId(), Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "seal");
+/*     */       }
+/* 150 */       if (attachmentList != null)
+/* 151 */         for (Attachment attachment : attachmentList) {
+/* 152 */           sealWithBLOBs.setUrl(attachment.getAttUrl());
+/* 153 */           sealWithBLOBs.setName(attachment.getAttachName());
+/*     */         }
+/*     */     }
+/*     */     SealWithBLOBs sealWithBLOBs;
+/* 157 */     return sealByUser;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SealWithBLOBs> getAllSealInfo(SealWithBLOBs sealWithBLOBs, String startTime, String endTime)
+/*     */   {
+/* 162 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 164 */       Map map = new HashMap();
+/* 165 */       map.put("sealWithBLOBs", sealWithBLOBs);
+/* 166 */       map.put("startTime", startTime);
+/* 167 */       map.put("endTime", endTime);
+/*     */ 
+/* 169 */       List<SealWithBLOBs> allSealInfo = this.sealMapper.getAllSealInfo(map);
+/* 170 */       for (SealWithBLOBs sealWithBLOBs1 : allSealInfo) {
+/* 171 */         StringBuffer sb = new StringBuffer();
+/* 172 */         if ((sealWithBLOBs1.getUserStr() != null) && (sealWithBLOBs1.getUserStr() != "")) {
+/* 173 */           String userStr = sealWithBLOBs1.getUserStr();
+/* 174 */           String[] split = userStr.split(",");
+/* 175 */           for (String s : split) {
+/* 176 */             Users usersByuserId = this.usersMapper.getUsersByuserId(s);
+/* 177 */             sb.append(usersByuserId.getUserName() + ",");
+/*     */           }
+/* 179 */           sealWithBLOBs1.setUserName(sb.toString());
+/*     */         } else {
+/* 181 */           sealWithBLOBs1.setUserName("");
+/*     */         }
+/*     */       }
+/* 184 */       json.setFlag(0);
+/* 185 */       json.setObj(allSealInfo);
+/* 186 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 188 */       e.printStackTrace();
+/*     */     }
+/* 190 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SealWithBLOBs> getSealById(String id)
+/*     */   {
+/* 196 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 198 */       if (id != null) {
+/* 199 */         StringBuffer sb = new StringBuffer();
+/* 200 */         SealWithBLOBs sealById = this.sealMapper.getSealById(Integer.valueOf(id));
+/* 201 */         if ((sealById.getUserStr() != null) && (sealById.getUserStr() != "")) {
+/* 202 */           String[] split = sealById.getUserStr().split(",");
+/* 203 */           for (String s : split) {
+/* 204 */             Users usersByuserId = this.usersMapper.getUsersByuserId(s);
+/* 205 */             sb.append(usersByuserId.getUserName() + ",");
+/*     */           }
+/* 207 */           sealById.setUserName(sb.toString());
+/*     */         } else {
+/* 209 */           sealById.setUserName(sb.toString());
+/*     */         }
+/* 211 */         json.setObject(sealById);
+/* 212 */         json.setFlag(0);
+/* 213 */         json.setMsg("ok");
+/*     */       }
+/*     */     } catch (NumberFormatException e) {
+/* 216 */       e.printStackTrace();
+/*     */     }
+/* 218 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> deleteSeal(HttpServletRequest request, String[] ids)
+/*     */   {
+/* 224 */     ToJson json = new ToJson(1, "err");
+/*     */     try
+/*     */     {
+/*     */       int i1;
+/* 226 */       for (String s : ids)
+/*     */       {
+/* 228 */         Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 229 */         String userId = users.getUserId();
+/* 230 */         Date date = new Date();
+/* 231 */         SealLog sealLog = new SealLog();
+/* 232 */         if ((s != null) && (s != "")) {
+/* 233 */           SealWithBLOBs sealById = this.sealMapper.getSealById(Integer.valueOf(s));
+/* 234 */           sealLog.setsId(sealById.getSealId());
+/*     */         } else {
+/* 236 */           sealLog.setsId("");
+/*     */         }
+/* 238 */         sealLog.setUserId(userId);
+/* 239 */         sealLog.setLogTime(date);
+/* 240 */         sealLog.setLogType("deleteseal");
+/* 241 */         sealLog.setResult("删除成功");
+/* 242 */         InetAddress currentIp = IpAddr.getCurrentIp();
+/* 243 */         sealLog.setIpAdd(currentIp.toString().substring(1, currentIp.toString().length()));
+/* 244 */         i1 = this.sealLogService.addSealLog(sealLog);
+/*     */       }
+/* 246 */       this.sealMapper.deleteSeal(ids);
+/* 247 */       json.setFlag(0);
+/* 248 */       json.setMsg("ok");
+/*     */     }
+/*     */     catch (Exception e) {
+/* 251 */       e.printStackTrace();
+/*     */     }
+/* 253 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> getSealIdById(HttpServletRequest request, String id)
+/*     */   {
+/* 258 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 260 */       Seal sealLogBySealId = this.sealMapper.getSealLogBySealIdLastOne(id);
+/* 261 */       String sealId_1 = "0001";
+/* 262 */       if (sealLogBySealId != null) {
+/* 263 */         String sealId = sealLogBySealId.getSealId();
+/*     */ 
+/* 265 */         String s = sealId.substring(0, sealId.length() - 3);
+/*     */ 
+/* 267 */         String s2 = sealId.substring(sealId.length() - 3, sealId.length());
+/* 268 */         Integer integer = Integer.valueOf(s2);
+/* 269 */         integer = Integer.valueOf(integer.intValue() + 1);
+/* 270 */         String s1 = integer.toString();
+/* 271 */         if (s1.length() == 1) {
+/* 272 */           s2 = "000" + integer;
+/* 273 */           sealId_1 = s2;
+/* 274 */         } else if (s1.length() == 2) {
+/* 275 */           s2 = "00" + integer;
+/* 276 */           sealId_1 = s2;
+/*     */         }
+/* 278 */         else if (s1.length() == 3) {
+/* 279 */           s2 = "0" + integer;
+/* 280 */           sealId_1 = s2;
+/*     */         }
+/* 282 */         else if (s1.length() == 4) {
+/* 283 */           s2 = integer.toString();
+/* 284 */           sealId_1 = s2;
+/*     */         }
+/*     */       }
+/* 287 */       json.setFlag(0);
+/* 288 */       json.setMsg("ok");
+/* 289 */       json.setObject(sealId_1);
+/*     */     } catch (Exception e) {
+/* 291 */       e.printStackTrace();
+/*     */     }
+/* 293 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SealWithBLOBs> getSealBySealId(HttpServletRequest request, String sealId)
+/*     */   {
+/* 298 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 300 */       Seal sealLogBySealId = this.sealMapper.getSealLogBySealId(sealId);
+/* 301 */       json.setFlag(0);
+/* 302 */       json.setMsg("ok");
+/* 303 */       json.setObject(sealLogBySealId);
+/*     */     } catch (Exception e) {
+/* 305 */       e.printStackTrace();
+/*     */     }
+/* 307 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.sys.impl.SealServiceImpl
+ * JD-Core Version:    0.6.0
+ */

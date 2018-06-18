@@ -1,0 +1,849 @@
+/*     */ package com.xoa.model.event;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class TimeLineExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public TimeLineExample()
+/*     */   {
+/*  39 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  49 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  59 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  69 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  79 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  89 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  99 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 109 */     Criteria criteria = createCriteriaInternal();
+/* 110 */     this.oredCriteria.add(criteria);
+/* 111 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 121 */     Criteria criteria = createCriteriaInternal();
+/* 122 */     if (this.oredCriteria.size() == 0) {
+/* 123 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 125 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 135 */     Criteria criteria = new Criteria();
+/* 136 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 146 */     this.oredCriteria.clear();
+/* 147 */     this.orderByClause = null;
+/* 148 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 876 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 880 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 884 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 888 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 892 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 896 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 900 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 904 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 909 */       this.condition = condition;
+/* 910 */       this.typeHandler = null;
+/* 911 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 916 */       this.condition = condition;
+/* 917 */       this.value = value;
+/* 918 */       this.typeHandler = typeHandler;
+/* 919 */       if ((value instanceof List))
+/* 920 */         this.listValue = true;
+/*     */       else
+/* 922 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 927 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 932 */       this.condition = condition;
+/* 933 */       this.value = value;
+/* 934 */       this.secondValue = secondValue;
+/* 935 */       this.typeHandler = typeHandler;
+/* 936 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 940 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends TimeLineExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<TimeLineExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 162 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 166 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<TimeLineExample.Criterion> getAllCriteria() {
+/* 170 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<TimeLineExample.Criterion> getCriteria() {
+/* 174 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 178 */       if (condition == null) {
+/* 179 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 181 */       this.criteria.add(new TimeLineExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 185 */       if (value == null) {
+/* 186 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 188 */       this.criteria.add(new TimeLineExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 192 */       if ((value1 == null) || (value2 == null)) {
+/* 193 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 195 */       this.criteria.add(new TimeLineExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUuidIsNull() {
+/* 199 */       addCriterion("UUID is null");
+/* 200 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUuidIsNotNull() {
+/* 204 */       addCriterion("UUID is not null");
+/* 205 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUuidEqualTo(String value) {
+/* 209 */       addCriterion("UUID =", value, "uuid");
+/* 210 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUuidNotEqualTo(String value) {
+/* 214 */       addCriterion("UUID <>", value, "uuid");
+/* 215 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUuidGreaterThan(String value) {
+/* 219 */       addCriterion("UUID >", value, "uuid");
+/* 220 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUuidGreaterThanOrEqualTo(String value) {
+/* 224 */       addCriterion("UUID >=", value, "uuid");
+/* 225 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUuidLessThan(String value) {
+/* 229 */       addCriterion("UUID <", value, "uuid");
+/* 230 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUuidLessThanOrEqualTo(String value) {
+/* 234 */       addCriterion("UUID <=", value, "uuid");
+/* 235 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUuidLike(String value) {
+/* 239 */       addCriterion("UUID like", value, "uuid");
+/* 240 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUuidNotLike(String value) {
+/* 244 */       addCriterion("UUID not like", value, "uuid");
+/* 245 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUuidIn(List<String> values) {
+/* 249 */       addCriterion("UUID in", values, "uuid");
+/* 250 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUuidNotIn(List<String> values) {
+/* 254 */       addCriterion("UUID not in", values, "uuid");
+/* 255 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUuidBetween(String value1, String value2) {
+/* 259 */       addCriterion("UUID between", value1, value2, "uuid");
+/* 260 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUuidNotBetween(String value1, String value2) {
+/* 264 */       addCriterion("UUID not between", value1, value2, "uuid");
+/* 265 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrTimeIsNull() {
+/* 269 */       addCriterion("CR_TIME is null");
+/* 270 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrTimeIsNotNull() {
+/* 274 */       addCriterion("CR_TIME is not null");
+/* 275 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrTimeEqualTo(Date value) {
+/* 279 */       addCriterion("CR_TIME =", value, "crTime");
+/* 280 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrTimeNotEqualTo(Date value) {
+/* 284 */       addCriterion("CR_TIME <>", value, "crTime");
+/* 285 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrTimeGreaterThan(Date value) {
+/* 289 */       addCriterion("CR_TIME >", value, "crTime");
+/* 290 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrTimeGreaterThanOrEqualTo(Date value) {
+/* 294 */       addCriterion("CR_TIME >=", value, "crTime");
+/* 295 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrTimeLessThan(Date value) {
+/* 299 */       addCriterion("CR_TIME <", value, "crTime");
+/* 300 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrTimeLessThanOrEqualTo(Date value) {
+/* 304 */       addCriterion("CR_TIME <=", value, "crTime");
+/* 305 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrTimeIn(List<Date> values) {
+/* 309 */       addCriterion("CR_TIME in", values, "crTime");
+/* 310 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrTimeNotIn(List<Date> values) {
+/* 314 */       addCriterion("CR_TIME not in", values, "crTime");
+/* 315 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrTimeBetween(Date value1, Date value2) {
+/* 319 */       addCriterion("CR_TIME between", value1, value2, "crTime");
+/* 320 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrTimeNotBetween(Date value1, Date value2) {
+/* 324 */       addCriterion("CR_TIME not between", value1, value2, "crTime");
+/* 325 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andEndTimeIsNull() {
+/* 329 */       addCriterion("END_TIME is null");
+/* 330 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andEndTimeIsNotNull() {
+/* 334 */       addCriterion("END_TIME is not null");
+/* 335 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andEndTimeEqualTo(Date value) {
+/* 339 */       addCriterion("END_TIME =", value, "endTime");
+/* 340 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andEndTimeNotEqualTo(Date value) {
+/* 344 */       addCriterion("END_TIME <>", value, "endTime");
+/* 345 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andEndTimeGreaterThan(Date value) {
+/* 349 */       addCriterion("END_TIME >", value, "endTime");
+/* 350 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andEndTimeGreaterThanOrEqualTo(Date value) {
+/* 354 */       addCriterion("END_TIME >=", value, "endTime");
+/* 355 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andEndTimeLessThan(Date value) {
+/* 359 */       addCriterion("END_TIME <", value, "endTime");
+/* 360 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andEndTimeLessThanOrEqualTo(Date value) {
+/* 364 */       addCriterion("END_TIME <=", value, "endTime");
+/* 365 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andEndTimeIn(List<Date> values) {
+/* 369 */       addCriterion("END_TIME in", values, "endTime");
+/* 370 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andEndTimeNotIn(List<Date> values) {
+/* 374 */       addCriterion("END_TIME not in", values, "endTime");
+/* 375 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andEndTimeBetween(Date value1, Date value2) {
+/* 379 */       addCriterion("END_TIME between", value1, value2, "endTime");
+/* 380 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andEndTimeNotBetween(Date value1, Date value2) {
+/* 384 */       addCriterion("END_TIME not between", value1, value2, "endTime");
+/* 385 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andStartTimeIsNull() {
+/* 389 */       addCriterion("START_TIME is null");
+/* 390 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andStartTimeIsNotNull() {
+/* 394 */       addCriterion("START_TIME is not null");
+/* 395 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andStartTimeEqualTo(Date value) {
+/* 399 */       addCriterion("START_TIME =", value, "startTime");
+/* 400 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andStartTimeNotEqualTo(Date value) {
+/* 404 */       addCriterion("START_TIME <>", value, "startTime");
+/* 405 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andStartTimeGreaterThan(Date value) {
+/* 409 */       addCriterion("START_TIME >", value, "startTime");
+/* 410 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andStartTimeGreaterThanOrEqualTo(Date value) {
+/* 414 */       addCriterion("START_TIME >=", value, "startTime");
+/* 415 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andStartTimeLessThan(Date value) {
+/* 419 */       addCriterion("START_TIME <", value, "startTime");
+/* 420 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andStartTimeLessThanOrEqualTo(Date value) {
+/* 424 */       addCriterion("START_TIME <=", value, "startTime");
+/* 425 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andStartTimeIn(List<Date> values) {
+/* 429 */       addCriterion("START_TIME in", values, "startTime");
+/* 430 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andStartTimeNotIn(List<Date> values) {
+/* 434 */       addCriterion("START_TIME not in", values, "startTime");
+/* 435 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andStartTimeBetween(Date value1, Date value2) {
+/* 439 */       addCriterion("START_TIME between", value1, value2, "startTime");
+/* 440 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andStartTimeNotBetween(Date value1, Date value2) {
+/* 444 */       addCriterion("START_TIME not between", value1, value2, "startTime");
+/* 445 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTitleIsNull() {
+/* 449 */       addCriterion("TITLE_ is null");
+/* 450 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTitleIsNotNull() {
+/* 454 */       addCriterion("TITLE_ is not null");
+/* 455 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTitleEqualTo(String value) {
+/* 459 */       addCriterion("TITLE_ =", value, "title");
+/* 460 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTitleNotEqualTo(String value) {
+/* 464 */       addCriterion("TITLE_ <>", value, "title");
+/* 465 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTitleGreaterThan(String value) {
+/* 469 */       addCriterion("TITLE_ >", value, "title");
+/* 470 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTitleGreaterThanOrEqualTo(String value) {
+/* 474 */       addCriterion("TITLE_ >=", value, "title");
+/* 475 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTitleLessThan(String value) {
+/* 479 */       addCriterion("TITLE_ <", value, "title");
+/* 480 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTitleLessThanOrEqualTo(String value) {
+/* 484 */       addCriterion("TITLE_ <=", value, "title");
+/* 485 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTitleLike(String value) {
+/* 489 */       addCriterion("TITLE_ like", value, "title");
+/* 490 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTitleNotLike(String value) {
+/* 494 */       addCriterion("TITLE_ not like", value, "title");
+/* 495 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTitleIn(List<String> values) {
+/* 499 */       addCriterion("TITLE_ in", values, "title");
+/* 500 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTitleNotIn(List<String> values) {
+/* 504 */       addCriterion("TITLE_ not in", values, "title");
+/* 505 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTitleBetween(String value1, String value2) {
+/* 509 */       addCriterion("TITLE_ between", value1, value2, "title");
+/* 510 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTitleNotBetween(String value1, String value2) {
+/* 514 */       addCriterion("TITLE_ not between", value1, value2, "title");
+/* 515 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTypeIsNull() {
+/* 519 */       addCriterion("TYPE_ is null");
+/* 520 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTypeIsNotNull() {
+/* 524 */       addCriterion("TYPE_ is not null");
+/* 525 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTypeEqualTo(String value) {
+/* 529 */       addCriterion("TYPE_ =", value, "type");
+/* 530 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTypeNotEqualTo(String value) {
+/* 534 */       addCriterion("TYPE_ <>", value, "type");
+/* 535 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTypeGreaterThan(String value) {
+/* 539 */       addCriterion("TYPE_ >", value, "type");
+/* 540 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTypeGreaterThanOrEqualTo(String value) {
+/* 544 */       addCriterion("TYPE_ >=", value, "type");
+/* 545 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTypeLessThan(String value) {
+/* 549 */       addCriterion("TYPE_ <", value, "type");
+/* 550 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTypeLessThanOrEqualTo(String value) {
+/* 554 */       addCriterion("TYPE_ <=", value, "type");
+/* 555 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTypeLike(String value) {
+/* 559 */       addCriterion("TYPE_ like", value, "type");
+/* 560 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTypeNotLike(String value) {
+/* 564 */       addCriterion("TYPE_ not like", value, "type");
+/* 565 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTypeIn(List<String> values) {
+/* 569 */       addCriterion("TYPE_ in", values, "type");
+/* 570 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTypeNotIn(List<String> values) {
+/* 574 */       addCriterion("TYPE_ not in", values, "type");
+/* 575 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTypeBetween(String value1, String value2) {
+/* 579 */       addCriterion("TYPE_ between", value1, value2, "type");
+/* 580 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTypeNotBetween(String value1, String value2) {
+/* 584 */       addCriterion("TYPE_ not between", value1, value2, "type");
+/* 585 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateTimeIsNull() {
+/* 589 */       addCriterion("UPDATE_TIME is null");
+/* 590 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateTimeIsNotNull() {
+/* 594 */       addCriterion("UPDATE_TIME is not null");
+/* 595 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateTimeEqualTo(Date value) {
+/* 599 */       addCriterion("UPDATE_TIME =", value, "updateTime");
+/* 600 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateTimeNotEqualTo(Date value) {
+/* 604 */       addCriterion("UPDATE_TIME <>", value, "updateTime");
+/* 605 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateTimeGreaterThan(Date value) {
+/* 609 */       addCriterion("UPDATE_TIME >", value, "updateTime");
+/* 610 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateTimeGreaterThanOrEqualTo(Date value) {
+/* 614 */       addCriterion("UPDATE_TIME >=", value, "updateTime");
+/* 615 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateTimeLessThan(Date value) {
+/* 619 */       addCriterion("UPDATE_TIME <", value, "updateTime");
+/* 620 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateTimeLessThanOrEqualTo(Date value) {
+/* 624 */       addCriterion("UPDATE_TIME <=", value, "updateTime");
+/* 625 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateTimeIn(List<Date> values) {
+/* 629 */       addCriterion("UPDATE_TIME in", values, "updateTime");
+/* 630 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateTimeNotIn(List<Date> values) {
+/* 634 */       addCriterion("UPDATE_TIME not in", values, "updateTime");
+/* 635 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateTimeBetween(Date value1, Date value2) {
+/* 639 */       addCriterion("UPDATE_TIME between", value1, value2, "updateTime");
+/* 640 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateTimeNotBetween(Date value1, Date value2) {
+/* 644 */       addCriterion("UPDATE_TIME not between", value1, value2, "updateTime");
+/* 645 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrUserIdIsNull() {
+/* 649 */       addCriterion("CR_USER_ID is null");
+/* 650 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrUserIdIsNotNull() {
+/* 654 */       addCriterion("CR_USER_ID is not null");
+/* 655 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrUserIdEqualTo(Integer value) {
+/* 659 */       addCriterion("CR_USER_ID =", value, "crUserId");
+/* 660 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrUserIdNotEqualTo(Integer value) {
+/* 664 */       addCriterion("CR_USER_ID <>", value, "crUserId");
+/* 665 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrUserIdGreaterThan(Integer value) {
+/* 669 */       addCriterion("CR_USER_ID >", value, "crUserId");
+/* 670 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrUserIdGreaterThanOrEqualTo(Integer value) {
+/* 674 */       addCriterion("CR_USER_ID >=", value, "crUserId");
+/* 675 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrUserIdLessThan(Integer value) {
+/* 679 */       addCriterion("CR_USER_ID <", value, "crUserId");
+/* 680 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrUserIdLessThanOrEqualTo(Integer value) {
+/* 684 */       addCriterion("CR_USER_ID <=", value, "crUserId");
+/* 685 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrUserIdIn(List<Integer> values) {
+/* 689 */       addCriterion("CR_USER_ID in", values, "crUserId");
+/* 690 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrUserIdNotIn(List<Integer> values) {
+/* 694 */       addCriterion("CR_USER_ID not in", values, "crUserId");
+/* 695 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrUserIdBetween(Integer value1, Integer value2) {
+/* 699 */       addCriterion("CR_USER_ID between", value1, value2, "crUserId");
+/* 700 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andCrUserIdNotBetween(Integer value1, Integer value2) {
+/* 704 */       addCriterion("CR_USER_ID not between", value1, value2, "crUserId");
+/* 705 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateUserIdIsNull() {
+/* 709 */       addCriterion("UPDATE_USER_ID is null");
+/* 710 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateUserIdIsNotNull() {
+/* 714 */       addCriterion("UPDATE_USER_ID is not null");
+/* 715 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateUserIdEqualTo(Integer value) {
+/* 719 */       addCriterion("UPDATE_USER_ID =", value, "updateUserId");
+/* 720 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateUserIdNotEqualTo(Integer value) {
+/* 724 */       addCriterion("UPDATE_USER_ID <>", value, "updateUserId");
+/* 725 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateUserIdGreaterThan(Integer value) {
+/* 729 */       addCriterion("UPDATE_USER_ID >", value, "updateUserId");
+/* 730 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateUserIdGreaterThanOrEqualTo(Integer value) {
+/* 734 */       addCriterion("UPDATE_USER_ID >=", value, "updateUserId");
+/* 735 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateUserIdLessThan(Integer value) {
+/* 739 */       addCriterion("UPDATE_USER_ID <", value, "updateUserId");
+/* 740 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateUserIdLessThanOrEqualTo(Integer value) {
+/* 744 */       addCriterion("UPDATE_USER_ID <=", value, "updateUserId");
+/* 745 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateUserIdIn(List<Integer> values) {
+/* 749 */       addCriterion("UPDATE_USER_ID in", values, "updateUserId");
+/* 750 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateUserIdNotIn(List<Integer> values) {
+/* 754 */       addCriterion("UPDATE_USER_ID not in", values, "updateUserId");
+/* 755 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateUserIdBetween(Integer value1, Integer value2) {
+/* 759 */       addCriterion("UPDATE_USER_ID between", value1, value2, "updateUserId");
+/* 760 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andUpdateUserIdNotBetween(Integer value1, Integer value2) {
+/* 764 */       addCriterion("UPDATE_USER_ID not between", value1, value2, "updateUserId");
+/* 765 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTagIsNull() {
+/* 769 */       addCriterion("TAG_ is null");
+/* 770 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTagIsNotNull() {
+/* 774 */       addCriterion("TAG_ is not null");
+/* 775 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTagEqualTo(String value) {
+/* 779 */       addCriterion("TAG_ =", value, "tag");
+/* 780 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTagNotEqualTo(String value) {
+/* 784 */       addCriterion("TAG_ <>", value, "tag");
+/* 785 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTagGreaterThan(String value) {
+/* 789 */       addCriterion("TAG_ >", value, "tag");
+/* 790 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTagGreaterThanOrEqualTo(String value) {
+/* 794 */       addCriterion("TAG_ >=", value, "tag");
+/* 795 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTagLessThan(String value) {
+/* 799 */       addCriterion("TAG_ <", value, "tag");
+/* 800 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTagLessThanOrEqualTo(String value) {
+/* 804 */       addCriterion("TAG_ <=", value, "tag");
+/* 805 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTagLike(String value) {
+/* 809 */       addCriterion("TAG_ like", value, "tag");
+/* 810 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTagNotLike(String value) {
+/* 814 */       addCriterion("TAG_ not like", value, "tag");
+/* 815 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTagIn(List<String> values) {
+/* 819 */       addCriterion("TAG_ in", values, "tag");
+/* 820 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTagNotIn(List<String> values) {
+/* 824 */       addCriterion("TAG_ not in", values, "tag");
+/* 825 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTagBetween(String value1, String value2) {
+/* 829 */       addCriterion("TAG_ between", value1, value2, "tag");
+/* 830 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public TimeLineExample.Criteria andTagNotBetween(String value1, String value2) {
+/* 834 */       addCriterion("TAG_ not between", value1, value2, "tag");
+/* 835 */       return (TimeLineExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.event.TimeLineExample
+ * JD-Core Version:    0.6.0
+ */

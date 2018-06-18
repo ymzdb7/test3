@@ -1,0 +1,213 @@
+/*     */ package com.xoa.service.infoCenter;
+/*     */ 
+/*     */ import com.xoa.dao.infoCenter.InfoCenterMapper;
+/*     */ import com.xoa.dao.users.UserFunctionMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.infoCenter.InfoCenter;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class InfoCenterService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private InfoCenterMapper infoCenterMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private UserFunctionMapper userFunctionMapper;
+/*     */   private Users users;
+/*     */ 
+/*     */   public BaseWrapper getInfoCenterOrder(HttpServletRequest request)
+/*     */   {
+/*  40 */     BaseWrapper wrapper = new BaseWrapper();
+/*  41 */     this.users = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users()));
+/*  42 */     Users user = this.usersMapper.selectUserByUId(this.users.getUid());
+/*  43 */     String definedOrder = this.infoCenterMapper.getInfoCenterDefinedOrder();
+/*     */ 
+/*  45 */     if (user.getMytableLeft().equals("ALL")) {
+/*  46 */       user.setMytableLeft(definedOrder);
+/*     */     }
+/*     */ 
+/*  49 */     String userIdFunctions = this.userFunctionMapper.getUserFuncIdStr(user.getUserId());
+/*  50 */     userIdFunctions = getNewUserIdFunction(definedOrder, userIdFunctions);
+/*  51 */     String[] infoCenters = user.getMytableLeft().split(",");
+/*     */ 
+/*  53 */     infoCenters = power(infoCenters, userIdFunctions);
+/*  54 */     user.setMytableLeft(transToStr(infoCenters));
+/*     */ 
+/*  56 */     if (user != null) {
+/*  57 */       wrapper.setFlag(true);
+/*  58 */       wrapper.setMsg("查询成功！");
+/*  59 */       wrapper.setData(user.getMytableLeft());
+/*     */     } else {
+/*  61 */       wrapper.setMsg("查询失败！");
+/*     */     }
+/*  63 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   @Transactional(rollbackFor={RuntimeException.class})
+/*     */   public BaseWrapper setInfoCenterOrder(String infoCenterOrder) {
+/*  69 */     BaseWrapper wrapper = new BaseWrapper();
+/*  70 */     Users user = this.usersMapper.selectUserByUId(this.users.getUid());
+/*  71 */     user.setMytableLeft(infoCenterOrder);
+/*     */     try
+/*     */     {
+/*  74 */       int result = this.usersMapper.editUser(user);
+/*  75 */       if (result > 0) {
+/*  76 */         wrapper.setFlag(true);
+/*  77 */         wrapper.setMsg("更新成功！");
+/*     */       } else {
+/*  79 */         wrapper.setMsg("更新失败！");
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  82 */       e.printStackTrace();
+/*  83 */       throw new RuntimeException("更新出错！");
+/*     */     }
+/*  85 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper getHadInfoCenterList()
+/*     */   {
+/*  92 */     BaseWrapper wrapper = new BaseWrapper();
+/*  93 */     List infoCenterList = new ArrayList();
+/*     */ 
+/*  95 */     Users user = this.usersMapper.selectUserByUId(this.users.getUid());
+/*  96 */     String definedOrder = this.infoCenterMapper.getInfoCenterDefinedOrder();
+/*     */     String userFunctions;
+/*     */     //String userFunctions;
+/*  98 */     if (!user.getMytableLeft().equals("ALL"))
+/*  99 */       userFunctions = user.getMytableLeft();
+/*     */     else {
+/* 101 */       userFunctions = definedOrder;
+/*     */     }
+/*     */ 
+/* 105 */     String userIdFunctions = this.userFunctionMapper.getUserFuncIdStr(user.getUserId());
+/* 106 */     userIdFunctions = getNewUserIdFunction(definedOrder, userIdFunctions);
+/* 107 */     String[] infoCenters = userFunctions.split(",");
+/*     */ 
+/* 109 */     infoCenters = power(infoCenters, userIdFunctions);
+/*     */ 
+/* 111 */     for (String userFunction : infoCenters) {
+/* 112 */       if (!userFunction.equals("")) {
+/* 113 */         InfoCenter infoCenter = this.infoCenterMapper.getInfoCenterByInfoFuncId(Integer.valueOf(Integer.parseInt(userFunction)));
+/* 114 */         if (infoCenter != null) {
+/* 115 */           infoCenterList.add(infoCenter);
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 120 */     if (infoCenterList != null) {
+/* 121 */       wrapper.setFlag(true);
+/* 122 */       wrapper.setMsg("查询成功！");
+/* 123 */       wrapper.setData(infoCenterList);
+/*     */     } else {
+/* 125 */       wrapper.setMsg("查询失败！");
+/*     */     }
+/* 127 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper getChooseInfoCenterList()
+/*     */   {
+/* 135 */     BaseWrapper wrapper = new BaseWrapper();
+/* 136 */     List infoCenterList = new ArrayList();
+/* 137 */     Users user = this.usersMapper.selectUserByUId(this.users.getUid());
+/* 138 */     String definedOrder = this.infoCenterMapper.getInfoCenterDefinedOrder();
+/*     */ 
+/* 141 */     String userFunctions = user.getMytableLeft();
+/*     */ 
+/* 143 */     String userIdFunctions = this.userFunctionMapper.getUserFuncIdStr(user.getUserId());
+/*     */ 
+/* 145 */     if (userFunctions.equals("ALL")) {
+/* 146 */       userFunctions = definedOrder;
+/*     */     }
+/*     */ 
+/* 149 */     String[] userFunctionList = userFunctions.split(",");
+/* 150 */     userIdFunctions = getNewUserIdFunction(definedOrder, userIdFunctions);
+/*     */ 
+/* 152 */     String[] userIdFunctionList = userIdFunctions.split(",");
+/*     */ 
+/* 154 */     for (String userFunction : userFunctionList) {
+/* 155 */       for (int i = 0; i < userIdFunctionList.length; i++) {
+/* 156 */         if (userFunction.equals(userIdFunctionList[i])) {
+/* 157 */           userIdFunctionList[i] = "";
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 162 */     for (String userIdFunction : userIdFunctionList) {
+/* 163 */       InfoCenter infoCenter = null;
+/* 164 */       if (!userIdFunction.equals("")) {
+/* 165 */         infoCenter = this.infoCenterMapper.getInfoCenterByInfoFuncId(Integer.valueOf(Integer.parseInt(userIdFunction)));
+/* 166 */         if (infoCenter != null) {
+/* 167 */           infoCenterList.add(infoCenter);
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 172 */     if (infoCenterList != null) {
+/* 173 */       wrapper.setFlag(true);
+/* 174 */       wrapper.setMsg("查询成功！");
+/* 175 */       wrapper.setData(infoCenterList);
+/*     */     } else {
+/* 177 */       wrapper.setMsg("查询失败！");
+/*     */     }
+/* 179 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public String[] power(String[] theTables, String userIdFunctions)
+/*     */   {
+/* 184 */     int i = 0;
+/* 185 */     for (String theTable : theTables) {
+/* 186 */       if (!("," + userIdFunctions + ",").contains("," + theTable + ",")) {
+/* 187 */         theTables[i] = "";
+/*     */       }
+/* 189 */       i++;
+/*     */     }
+/* 191 */     return theTables;
+/*     */   }
+/*     */ 
+/*     */   public String transToStr(String[] strs)
+/*     */   {
+/* 196 */     String result = "";
+/* 197 */     for (String str : strs) {
+/* 198 */       if (str != "") {
+/* 199 */         result = result + str + ",";
+/*     */       }
+/*     */     }
+/* 202 */     return result;
+/*     */   }
+/*     */ 
+/*     */   public String getNewUserIdFunction(String definedOrders, String userIdFunctions)
+/*     */   {
+/* 207 */     String[] definedOrderList = definedOrders.split(",");
+/* 208 */     for (String order : definedOrderList) {
+/* 209 */       if ((Integer.parseInt(order) > 0) || 
+/* 210 */         (StringUtils.checkNull(userIdFunctions).booleanValue())) continue;
+/* 211 */       if (!userIdFunctions.substring(userIdFunctions.length() - 1, userIdFunctions.length()).equals(","))
+/* 212 */         userIdFunctions = userIdFunctions + "," + order + ",";
+/*     */       else {
+/* 214 */         userIdFunctions = userIdFunctions + order + ",";
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 219 */     return userIdFunctions;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.infoCenter.InfoCenterService
+ * JD-Core Version:    0.6.0
+ */

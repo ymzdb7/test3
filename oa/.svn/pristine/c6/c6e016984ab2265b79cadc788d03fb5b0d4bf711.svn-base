@@ -1,0 +1,102 @@
+/*     */ package com.xoa.controller.sys;
+/*     */ 
+/*     */ import com.xoa.controller.news.NewsController;
+/*     */ import com.xoa.model.unitmanagement.UnitManage;
+/*     */ import com.xoa.service.unitmanagement.UnitManageService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.log4j.Logger;
+/*     */ import org.springframework.context.annotation.Scope;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @Scope("prototype")
+/*     */ @RequestMapping({"/sys"})
+/*     */ public class UnitManagementController
+/*     */ {
+/*  21 */   private Logger loger = Logger.getLogger(NewsController.class);
+/*     */ 
+/*     */   @Resource
+/*     */   private UnitManageService unitManageService;
+/*     */ 
+/*  26 */   @RequestMapping({"/companyInfo"})
+/*     */   public String companyInfo(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  28 */     return "app/sys/companyInfo"; } 
+/*     */   @RequestMapping({"/unitInfor"})
+/*     */   public String unitInfor(HttpServletRequest request) {
+/*  32 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  34 */     return "app/sys/unitInfor";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/showUnitManage"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<UnitManage> showUnitManage(HttpServletRequest request)
+/*     */   {
+/*  43 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/*  45 */     ContextHolder.setConsumerType(sqlType);
+/*  46 */     ToJson json = new ToJson(0, null);
+/*     */     try
+/*     */     {
+/*  49 */       UnitManage um = this.unitManageService.showUnitManage(sqlType, request);
+/*  50 */       json.setObject(um);
+/*  51 */       json.setMsg("OK");
+/*  52 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  54 */       json.setFlag(1);
+/*  55 */       json.setMsg("err");
+/*     */     }
+/*  57 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/addUnitMnaage"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<UnitManage> addUnitMnaage(UnitManage unitManage, HttpServletRequest request)
+/*     */   {
+/*  67 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  70 */     ToJson json = new ToJson(0, null);
+/*     */     try
+/*     */     {
+/*  73 */       this.unitManageService.addUnitManage(unitManage);
+/*  74 */       json.setMsg("OK");
+/*  75 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  77 */       json.setFlag(1);
+/*  78 */       json.setMsg("err");
+/*     */     }
+/*  80 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/updateUnit"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<UnitManage> updateUnit(UnitManage unitManage, HttpServletRequest request)
+/*     */   {
+/*  96 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  98 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 100 */       this.unitManageService.update(unitManage);
+/* 101 */       json.setObject(unitManage);
+/* 102 */       json.setMsg("OK");
+/* 103 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 105 */       json.setFlag(1);
+/* 106 */       json.setMsg("err");
+/*     */     }
+/* 108 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.sys.UnitManagementController
+ * JD-Core Version:    0.6.0
+ */

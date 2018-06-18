@@ -1,0 +1,189 @@
+package com.myoa.model.file;
+
+import com.myoa.model.enclosure.Attachment;
+
+import java.util.List;
+import java.util.Map;
+
+public class FileContentModel {
+	Integer contentId;
+	Integer sortId;
+	String subject;
+	String content;
+	String sendTime;
+	String attachmentId;
+	String attachmentName;
+	String attachmentDesc;
+	String userId;
+	String contentNo;
+	String newPerson;
+	String readers;
+	String creater;
+	String logs;
+	String keyword;
+	String filePath;
+	String fileSize;
+	Map<String, Object> mapPriv;
+	String fileType;
+	List<Attachment> attachmentList;
+
+	public String getFileSize() {
+		return this.fileSize == null ? "0" : this.fileSize;
+	}
+
+	public void setFileSize(String fileSize) {
+		this.fileSize = fileSize;
+	}
+
+	public Map<String, Object> getMapPriv() {
+		return this.mapPriv;
+	}
+
+	public void setMapPriv(Map<String, Object> mapPriv) {
+		this.mapPriv = mapPriv;
+	}
+
+	public String getFilePath() {
+		return this.filePath;
+	}
+
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+
+	public String getFileType() {
+		return this.fileType;
+	}
+
+	public void setFileType(String fileType) {
+		this.fileType = fileType;
+	}
+
+	public List<Attachment> getAttachmentList() {
+		return this.attachmentList;
+	}
+
+	public void setAttachmentList(List<Attachment> attachmentList) {
+		this.attachmentList = attachmentList;
+	}
+
+	public Integer getContentId() {
+		return this.contentId;
+	}
+
+	public void setContentId(Integer contentId) {
+		this.contentId = contentId;
+	}
+
+	public Integer getSortId() {
+		return this.sortId;
+	}
+
+	public void setSortId(Integer sortId) {
+		this.sortId = sortId;
+	}
+
+	public String getSubject() {
+		return this.subject;
+	}
+
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+
+	public String getContent() {
+		return this.content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public String getSendTime() {
+		return this.sendTime;
+	}
+
+	public void setSendTime(String sendTime) {
+		this.sendTime = sendTime;
+	}
+
+	public String getAttachmentId() {
+		return this.attachmentId;
+	}
+
+	public void setAttachmentId(String attachmentId) {
+		this.attachmentId = attachmentId;
+	}
+
+	public String getAttachmentName() {
+		return this.attachmentName;
+	}
+
+	public void setAttachmentName(String attachmentName) {
+		this.attachmentName = attachmentName;
+	}
+
+	public String getAttachmentDesc() {
+		return this.attachmentDesc == null ? "" : this.attachmentDesc;
+	}
+
+	public void setAttachmentDesc(String attachmentDesc) {
+		this.attachmentDesc = attachmentDesc;
+	}
+
+	public String getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getContentNo() {
+		return this.contentNo;
+	}
+
+	public void setContentNo(String contentNo) {
+		this.contentNo = contentNo;
+	}
+
+	public String getNewPerson() {
+		return this.newPerson;
+	}
+
+	public void setNewPerson(String newPerson) {
+		this.newPerson = newPerson;
+	}
+
+	public String getReaders() {
+		return this.readers;
+	}
+
+	public void setReaders(String readers) {
+		this.readers = readers;
+	}
+
+	public String getCreater() {
+		return this.creater;
+	}
+
+	public void setCreater(String creater) {
+		this.creater = creater;
+	}
+
+	public String getLogs() {
+		return this.logs;
+	}
+
+	public void setLogs(String logs) {
+		this.logs = logs;
+	}
+
+	public String getKeyword() {
+		return this.keyword;
+	}
+
+	public void setKeyword(String keyword) {
+		this.keyword = keyword;
+	}
+}

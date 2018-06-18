@@ -1,0 +1,49 @@
+package com.myoa.dao.meet;
+
+import com.myoa.model.meet.MeetingTopic;
+import com.myoa.model.meet.MeetingTopicExample;
+
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface MeetingTopicMapper {
+	public abstract int countByExample(
+			MeetingTopicExample paramMeetingTopicExample);
+
+	public abstract int deleteByExample(
+			MeetingTopicExample paramMeetingTopicExample);
+
+	public abstract int deleteByPrimaryKey(Integer paramInteger);
+
+	public abstract int insert(MeetingTopic paramMeetingTopic);
+
+	public abstract int insertSelective(MeetingTopic paramMeetingTopic);
+
+	public abstract List<MeetingTopic> selectByExampleWithBLOBs(
+			MeetingTopicExample paramMeetingTopicExample);
+
+	public abstract List<MeetingTopic> selectByExample(
+			MeetingTopicExample paramMeetingTopicExample);
+
+	public abstract MeetingTopic selectByPrimaryKey(Integer paramInteger);
+
+	public abstract int updateByExampleSelective(
+			@Param("record") MeetingTopic paramMeetingTopic,
+			@Param("example") MeetingTopicExample paramMeetingTopicExample);
+
+	public abstract int updateByExampleWithBLOBs(
+			@Param("record") MeetingTopic paramMeetingTopic,
+			@Param("example") MeetingTopicExample paramMeetingTopicExample);
+
+	public abstract int updateByExample(
+			@Param("record") MeetingTopic paramMeetingTopic,
+			@Param("example") MeetingTopicExample paramMeetingTopicExample);
+
+	public abstract int updateByPrimaryKeySelective(
+			MeetingTopic paramMeetingTopic);
+
+	public abstract int updateByPrimaryKeyWithBLOBs(
+			MeetingTopic paramMeetingTopic);
+
+	public abstract int updateByPrimaryKey(MeetingTopic paramMeetingTopic);
+}

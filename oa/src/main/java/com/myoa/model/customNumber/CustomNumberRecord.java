@@ -1,0 +1,69 @@
+package com.myoa.model.customNumber;
+
+import java.util.Date;
+
+public class CustomNumberRecord {
+	private Integer uuid;
+	private Integer customNumberId;
+	private String numberStyle;
+	private Integer numberValue;
+	private Date crTime;
+	private String model;
+	private String modelId;
+
+	public Date getCrTime() {
+		return this.crTime;
+	}
+
+	public void setCrTime(Date crTime) {
+		this.crTime = crTime;
+	}
+
+	public Integer getUuid() {
+		return this.uuid;
+	}
+
+	public void setUuid(Integer uuid) {
+		this.uuid = uuid;
+	}
+
+	public Integer getCustomNumberId() {
+		return this.customNumberId;
+	}
+
+	public void setCustomNumberId(Integer customNumberId) {
+		this.customNumberId = customNumberId;
+	}
+
+	public String getNumberStyle() {
+		return this.numberStyle;
+	}
+
+	public void setNumberStyle(String numberStyle) {
+		this.numberStyle = (numberStyle == null ? null : numberStyle.trim());
+	}
+
+	public Integer getNumberValue() {
+		return this.numberValue;
+	}
+
+	public void setNumberValue(Integer numberValue) {
+		this.numberValue = numberValue;
+	}
+
+	public String getModel() {
+		return this.model;
+	}
+
+	public void setModel(String model) {
+		this.model = (model == null ? null : model.trim());
+	}
+
+	public String getModelId() {
+		return this.modelId;
+	}
+
+	public void setModelId(String modelId) {
+		this.modelId = (modelId == null ? null : modelId.trim());
+	}
+}

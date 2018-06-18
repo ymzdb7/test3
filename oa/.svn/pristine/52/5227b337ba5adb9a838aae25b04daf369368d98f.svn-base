@@ -1,0 +1,292 @@
+/*     */ package com.xoa.global.intercptor;
+import com.xoa.global.component.Global;
+/*     */ 
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.sys.impl.SystemInfoServiceImpl;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.MobileCheck;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.lang.reflect.Method;
+/*     */ import java.util.Arrays;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.Map.Entry;
+/*     */ import javax.servlet.http.Cookie;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Component;
+/*     */ import org.springframework.web.method.HandlerMethod;
+/*     */ import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+/*     */ 
+/*     */ @Component
+/*     */ public class CommonInterceptor implements HandlerInterceptor
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   CommonFunctionMemory commonFunctionMemory;
+/*     */ 
+/*     */   @Autowired
+/*     */   SystemInfoServiceImpl systemInfoService;
+/*     */   private List<String> ignoreUrls;
+/*     */   private String loginUrl;
+/*     */   private String welcomUrl;
+/*     */   private String redirectUrl;
+/*     */   private String mainUrl;
+/*     */ 
+/*     */   public String getMainUrl()
+/*     */   {
+/*  54 */     return this.mainUrl;
+/*     */   }
+/*     */ 
+/*     */   public void setMainUrl(String mainUrl) {
+/*  58 */     this.mainUrl = mainUrl;
+/*     */   }
+/*     */ 
+/*     */   public String getRedirectUrl() {
+/*  62 */     return this.redirectUrl;
+/*     */   }
+/*     */ 
+/*     */   public void setRedirectUrl(String redirectUrl) {
+/*  66 */     this.redirectUrl = redirectUrl;
+/*     */   }
+/*     */ 
+/*     */   public String getLoginUrl() {
+/*  70 */     return this.loginUrl;
+/*     */   }
+/*     */ 
+/*     */   public void setLoginUrl(String loginUrl) {
+/*  74 */     this.loginUrl = loginUrl;
+/*     */   }
+/*     */ 
+/*     */   public String getWelcomUrl() {
+/*  78 */     return this.welcomUrl;
+/*     */   }
+/*     */ 
+/*     */   public void setWelcomUrl(String welcomUrl) {
+/*  82 */     this.welcomUrl = welcomUrl;
+/*     */   }
+/*     */ 
+/*     */   public List<String> getIgnoreUrls() {
+/*  86 */     return this.ignoreUrls;
+/*     */   }
+/*     */ 
+/*     */   public void setIgnoreUrls(List<String> ignoreUrls) {
+/*  90 */     this.ignoreUrls = ignoreUrls;
+/*     */   }
+/*     */ 
+/*     */   public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object handler)
+/*     */     throws Exception
+/*     */   {
+/*  96 */     String visitUrl = httpServletRequest.getRequestURI();
+              System.out.println(visitUrl);
+/*  97 */     long startTime = System.currentTimeMillis();
+/*  98 */     httpServletRequest.setAttribute("startTime", Long.valueOf(startTime));
+/*  99 */     if ((handler instanceof HandlerMethod)) {
+/* 100 */       HandlerMethod h = (HandlerMethod)handler;
+/* 101 */       CommonRequestModel model = new CommonRequestModel();
+/* 102 */       model.setUrl(visitUrl);
+/* 103 */       model.setVisitTime(DateFormat.getStrDate(new Date()));
+/* 104 */       model.setController(h.getBean().getClass().getName());
+/* 105 */       model.setMethod(h.getMethod().getName());
+/*     */ 
+/* 108 */       L.s(new Object[] { model });
+/*     */     }
+/*     */ 
+/* 111 */     if (visitUrl.equals(this.redirectUrl)) {
+/* 112 */       ContextHolder.setConsumerType("");
+/* 113 */       return true;
+/*     */     }
+/*     */ 
+/* 119 */     L.s(new Object[] { this.loginUrl, "loginUrlloginUrl", visitUrl });
+/* 120 */     if (visitUrl.equals(this.welcomUrl)) {
+/* 121 */       ContextHolder.setConsumerType("");
+/* 122 */       httpServletRequest.getSession().invalidate();
+/* 123 */       SessionUtils.cleanUserSession(httpServletRequest.getSession());
+/* 124 */       return true;
+/*     */     }
+/*     */ 
+/* 127 */     for (String url : this.ignoreUrls) {
+	             
+/* 128 */       if (visitUrl.indexOf(url)>=0) {
+/* 129 */         return true;
+/*     */       }
+/*     */     }
+/*     */ 
+/* 133 */     if (visitUrl.equals(this.loginUrl)) {
+/* 134 */       String loginId = "default";
+/* 135 */       if (MobileCheck.isMobileDevice(httpServletRequest.getHeader("user-agent"))) {
+/* 136 */         httpServletRequest.getSession().invalidate();
+/* 137 */         SessionUtils.cleanUserSession(httpServletRequest.getSession());
+/*     */       }
+/* 139 */       Map param = httpServletRequest.getParameterMap();
+/* 140 */       if ((param != null) && (param.get("loginId") != null))
+/*     */       {
+/* 143 */         String[] value = (String[])param.get("loginId");
+/* 144 */         if ((value != null) && (value.length == 1))
+/* 145 */           loginId = value[0];
+/*     */         else {
+/* 147 */           loginId = Arrays.toString(value);
+/*     */         }
+/*     */       }
+/* 150 */       String dbsource = new StringBuilder().append(Constant.MYOA).append(loginId).toString();
+/* 151 */       L.w(new Object[] { "数据库切换到：", dbsource });
+/* 152 */       ContextHolder.setConsumerType(dbsource);
+/* 153 */       return true;
+/*     */     }
+/*     */ 
+/* 156 */     Map endLecDate = this.systemInfoService.getEndLecDate(httpServletRequest);
+/* 157 */     String useEndDate = (String)endLecDate.get("useEndDate");
+/* 158 */     String endLecDateStr = (String)endLecDate.get("endLecDateStr");
+/* 159 */     L.s(new Object[] { useEndDate, "0=||===========>", endLecDateStr });
+/* 160 */     if (checkTimeOut(useEndDate, endLecDateStr)) {
+/* 161 */       if (MobileCheck.isMobileDevice(httpServletRequest.getHeader("user-agent")))
+/* 162 */         httpServletResponse.sendError(403, new StringBuilder().append(httpServletRequest.getContextPath()).append(this.welcomUrl).toString());
+/*     */       else {
+/* 164 */         httpServletResponse.sendRedirect(new StringBuilder().append(httpServletRequest.getContextPath()).append(this.redirectUrl).append("?imageType=").append("100030").toString());
+/*     */       }
+/* 166 */       return false;
+/*     */     }
+/* 168 */     String testIds = httpServletRequest.getParameter(Global.JSESSIONID);
+/*     */ 
+/* 170 */     String testId = httpServletRequest.getHeader(Global.JSESSIONID);
+/* 171 */     L.s(new Object[] { "0=||================>testId" });
+/* 172 */     L.s(new Object[] { testId });
+/* 173 */     Cookie[] cookies = httpServletRequest.getCookies();
+/* 174 */     L.s(new Object[] { "0=||================>sessionTest" });
+/* 175 */     Users user = null;
+/* 176 */     String functionIdStr = null;
+/* 177 */     if (cookies != null) {
+/* 178 */       for (Cookie cookie : cookies) {
+/* 179 */         L.s(new Object[] { cookie });
+/* 180 */         CommonSessionContext myContext = CommonSessionContext.getInstance();
+/* 181 */         HttpSession session = null;
+/* 182 */         if (MobileCheck.isMobileDevice(httpServletRequest.getHeader("user-agent"))) {
+/* 183 */           if (cookie.getName().contains("JSESSIONID")) {
+/* 184 */             String sessionId = cookie.getValue();
+/* 185 */             L.s(new Object[] { sessionId });
+/* 186 */             session = myContext.getSession(sessionId);
+/*     */           }
+/*     */         }
+/* 189 */         else if (cookie.getName().contains(Global.JSESSIONID)) {
+/* 190 */           String sessionId = cookie.getValue();
+/* 191 */           session = myContext.getSession(sessionId);
+/* 192 */           L.s(new Object[] { sessionId });
+/*     */         }
+/*     */ 
+/* 195 */         L.w(new Object[] { session });
+/* 196 */         if (session != null) {
+/* 197 */           HttpSession sessionNow = httpServletRequest.getSession();
+/* 198 */           ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)session.getAttribute("loginDateSouse")).toString());
+/*     */ 
+/* 200 */           user = (Users)SessionUtils.getSessionInfo(session, Users.class, new Users());
+/* 201 */           functionIdStr = (String)SessionUtils.getSessionInfo(session, "functionIdStr", String.class);
+/* 202 */           SessionUtils.putSession(sessionNow, user);
+/* 203 */           SessionUtils.putSession(sessionNow, "functionIdStr", functionIdStr);
+/* 204 */           SessionUtils.putSession(sessionNow, "loginDateSouse", (String)session.getAttribute("loginDateSouse"));
+/*     */ 
+/* 206 */           SessionUtils.putSession(sessionNow, "InterfaceModel", (String)session.getAttribute("InterfaceModel"));
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 213 */     if (!StringUtils.checkNull(testIds).booleanValue()) {
+/* 214 */       HttpSession session = null;
+/* 215 */       CommonSessionContext myContext = CommonSessionContext.getInstance();
+/* 216 */       session = myContext.getSession(testIds);
+/* 217 */       if (session != null) {
+/* 218 */         HttpSession sessionNow = httpServletRequest.getSession();
+/* 219 */         ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)session.getAttribute("loginDateSouse")).toString());
+/*     */ 
+/* 221 */         user = (Users)SessionUtils.getSessionInfo(session, Users.class, new Users());
+/* 222 */         functionIdStr = (String)SessionUtils.getSessionInfo(session, "functionIdStr", String.class);
+/* 223 */         SessionUtils.putSession(sessionNow, user);
+/* 224 */         SessionUtils.putSession(sessionNow, "functionIdStr", functionIdStr);
+/* 225 */         SessionUtils.putSession(sessionNow, "loginDateSouse", (String)session.getAttribute("loginDateSouse"));
+/*     */ 
+/* 227 */         SessionUtils.putSession(sessionNow, "InterfaceModel", (String)session.getAttribute("InterfaceModel"));
+/*     */       }
+/*     */     }
+/*     */ 
+/* 231 */     if ((user != null) && (user.getUid() != null))
+/*     */     {
+/* 233 */       return true;
+/*     */     }
+/*     */ 
+/* 265 */     if (MobileCheck.isMobileDevice(httpServletRequest.getHeader("user-agent")))
+/* 266 */       httpServletResponse.sendError(403, new StringBuilder().append(httpServletRequest.getContextPath()).append(this.welcomUrl).toString());
+/*     */     else {
+/* 268 */       httpServletResponse.sendRedirect(new StringBuilder().append(httpServletRequest.getContextPath()).append(this.redirectUrl).append("?imageType=").append("403 ").toString());
+/*     */     }
+/* 270 */     return false;
+/*     */   }
+/*     */ 
+/*     */   private boolean checkTimeOut(String useEndDate, String endLecDateStr) {
+/*     */     try {
+/* 275 */       Date now = new Date();
+/* 276 */       if (StringUtils.checkNull(endLecDateStr).booleanValue()) {
+/* 277 */         return true;
+/*     */       }
+/* 279 */       if ("永久使用".equals(endLecDateStr)) {
+/* 280 */         return false;
+/*     */       }
+/* 282 */       Date timeOut = DateFormat.DateToStr(endLecDateStr);
+/* 283 */       if (timeOut.getTime() < now.getTime()) {
+/* 284 */         return true;
+/*     */       }
+/*     */ 
+/* 288 */       if (StringUtils.checkNull(useEndDate).booleanValue())
+/* 289 */         return true;
+/* 290 */       if (useEndDate.equals("0000-00-00")) {
+/* 291 */         return false;
+/*     */       }
+/* 293 */       timeOut = DateFormat.DateToStr(useEndDate);
+/* 294 */       if (timeOut.getTime() < now.getTime())
+/* 295 */         return true;
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 299 */       e.printStackTrace();
+/* 300 */       return true;
+/*     */     }
+/* 302 */     return false;
+/*     */   }
+/*     */ 
+/*     */   public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, ModelAndView modelAndView)
+/*     */     throws Exception
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) throws Exception
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   private String getParamString(Map<String, String[]> map)
+/*     */   {
+/* 316 */     StringBuilder sb = new StringBuilder();
+/* 317 */     for (Map.Entry e : map.entrySet()) {
+/* 318 */       sb.append((String)e.getKey()).append("=");
+/* 319 */       String[] value = (String[])e.getValue();
+/* 320 */       if ((value != null) && (value.length == 1))
+/* 321 */         sb.append(value[0]).append("\t");
+/*     */       else {
+/* 323 */         sb.append(Arrays.toString(value)).append("\t");
+/*     */       }
+/*     */     }
+/* 326 */     return sb.toString();
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.global.intercptor.CommonInterceptor
+ * JD-Core Version:    0.6.0
+ */

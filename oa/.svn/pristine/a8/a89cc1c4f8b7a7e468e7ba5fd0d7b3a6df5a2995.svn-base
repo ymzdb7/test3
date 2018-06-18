@@ -1,0 +1,144 @@
+/*     */ package com.xoa.controller.hr;
+/*     */ 
+/*     */ import com.xoa.model.hr.HrStaffContract;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.hr.HrStaffContractService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.Calendar;
+/*     */ import java.util.Date;
+/*     */ import java.util.GregorianCalendar;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/hr/contract"})
+/*     */ public class HrStaffContractController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private HrStaffContractService hrStaffContractService;
+/*     */ 
+/*     */   @RequestMapping({"/getContractInfo"})
+/*     */   @ResponseBody
+/*     */   public ToJson<HrStaffContract> getContractInfo(HttpServletRequest request, String contractId)
+/*     */   {
+/*  44 */     return this.hrStaffContractService.getcontractinfo(request, contractId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/updateContractInfo"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> updateContractInfo(HrStaffContract hrStaffContract, String userPriv)
+/*     */   {
+/*  56 */     return this.hrStaffContractService.updateContractInfo(hrStaffContract, userPriv);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/deleteContractInfo"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> deleteContractInfo(String contractId)
+/*     */   {
+/*  68 */     return this.hrStaffContractService.deleteContractInfo(contractId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getAllContract"})
+/*     */   @ResponseBody
+/*     */   public ToJson<HrStaffContract> getAllContract(Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  80 */     return this.hrStaffContractService.getAllContract(page, pageSize, useFlag);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/addContract"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> addContract(HttpServletRequest request, HrStaffContract hrStaffContract, String userPriv)
+/*     */   {
+/*  93 */     return this.hrStaffContractService.addContract(request, hrStaffContract, userPriv);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getTrialContract"})
+/*     */   @ResponseBody
+/*     */   public ToJson<HrStaffContract> getTrialContract(String startTime, String endTime, String status)
+/*     */   {
+/* 107 */     if (status.equals("1")) {
+/* 108 */       SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
+/* 109 */       Calendar calendar = Calendar.getInstance();
+/* 110 */       Date theDate = calendar.getTime();
+/* 111 */       GregorianCalendar gcLast = (GregorianCalendar)Calendar.getInstance();
+/* 112 */       gcLast.setTime(theDate);
+/* 113 */       gcLast.set(5, 1);
+/*     */ 
+/* 115 */       startTime = sf.format(gcLast.getTime());
+/*     */ 
+/* 117 */       Calendar calendar2 = Calendar.getInstance();
+/* 118 */       calendar2.set(5, calendar.getActualMaximum(5));
+/* 119 */       endTime = sf.format(calendar2.getTime());
+/* 120 */       return this.hrStaffContractService.getTrialContract(startTime, endTime);
+/*     */     }
+/*     */ 
+/* 123 */     return this.hrStaffContractService.getTrialContract(startTime, endTime);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getMaturityContract"})
+/*     */   @ResponseBody
+/*     */   public ToJson<HrStaffContract> getMaturityContract(HrStaffContract hrStaffContract, String startTime, String endTime, String status)
+/*     */   {
+/* 138 */     if (status.equals("1")) {
+/* 139 */       SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
+/* 140 */       Calendar calendar = Calendar.getInstance();
+/* 141 */       Date theDate = calendar.getTime();
+/* 142 */       GregorianCalendar gcLast = (GregorianCalendar)Calendar.getInstance();
+/* 143 */       gcLast.setTime(theDate);
+/* 144 */       gcLast.set(5, 1);
+/*     */ 
+/* 146 */       startTime = sf.format(gcLast.getTime());
+/*     */ 
+/* 148 */       Calendar calendar2 = Calendar.getInstance();
+/* 149 */       calendar2.set(5, calendar.getActualMaximum(5));
+/* 150 */       endTime = sf.format(calendar2.getTime());
+/* 151 */       return this.hrStaffContractService.getMaturityContract(hrStaffContract, startTime, endTime);
+/*     */     }
+/* 153 */     return this.hrStaffContractService.getMaturityContract(hrStaffContract, startTime, endTime);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getContract"})
+/*     */   @ResponseBody
+/*     */   public ToJson<HrStaffContract> getContract(HrStaffContract hrStaffContract, String SignstartTime, String SignendTime, String TrialstartTime, String TrialendTime, String MaturitystartTime, String MaturityendTime, String RelievestartTime, String RelieveendTime, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 176 */     return this.hrStaffContractService.getContract(hrStaffContract, SignstartTime, SignendTime, TrialstartTime, TrialendTime, MaturitystartTime, MaturityendTime, RelievestartTime, RelieveendTime, page, pageSize, useFlag);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deleteByIds"})
+/*     */   public ToJson<HrStaffContract> deleteByIds(String ids)
+/*     */   {
+/* 188 */     return this.hrStaffContractService.deleteByIds(ids);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getContractAnalysis"})
+/*     */   public BaseWrapper getContractAnalysis()
+/*     */   {
+/* 201 */     return this.hrStaffContractService.getContractAnalysis();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getContractInfoByStaffName"})
+/*     */   public ToJson<HrStaffContract> getContractInfoByStaffName(HttpServletRequest request)
+/*     */   {
+/* 214 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 215 */     return this.hrStaffContractService.getContractInfoByStaffName(user);
+/*     */   }
+/* 221 */   @ResponseBody
+/*     */   @RequestMapping({"/getHrCountByType"})
+/*     */   public BaseWrapper getHrCountByType(HttpServletRequest request) { return this.hrStaffContractService.getHrCountByType();
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.hr.HrStaffContractController
+ * JD-Core Version:    0.6.0
+ */

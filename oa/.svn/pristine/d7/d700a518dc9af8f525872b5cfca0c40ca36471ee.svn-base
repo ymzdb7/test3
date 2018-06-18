@@ -1,0 +1,50 @@
+ package com.myoa.model.strstatus;
+ 
+ public class Strstatus
+ {
+   private Integer id;
+   private String content;
+   private String state;
+   private String stringSql;
+ 
+   public Integer getId()
+   {
+     return this.id;
+   }
+ 
+   public void setId(Integer id)
+   {
+     this.id = id;
+   }
+ 
+   public String getContent()
+   {
+     return this.content;
+   }
+ 
+   public void setContent(String content)
+   {
+     this.content = (content == null ? null : content.trim());
+   }
+ 
+   public String getState()
+   {
+     return this.state;
+   }
+ 
+   public void setState(String state)
+   {
+     this.state = (state == null ? null : state.trim());
+   }
+ 
+   public String getStringSql()
+   {
+     return this.stringSql;
+   }
+ 
+   public void setStringSql(String stringSql)
+   {
+     this.stringSql = (stringSql == null ? null : stringSql.trim());
+   }
+ }
+

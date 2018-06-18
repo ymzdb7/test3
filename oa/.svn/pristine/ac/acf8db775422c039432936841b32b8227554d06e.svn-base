@@ -1,0 +1,164 @@
+/*     */ package com.xoa.controller.flowhook;
+/*     */ 
+/*     */ import com.xoa.model.workflow.FlowHookWithBLOBs;
+/*     */ import com.xoa.service.flowhook.FlowHookService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/flowhook"})
+/*     */ public class FlowHookController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   FlowHookService flowHookService;
+/*     */ 
+/*     */   @RequestMapping({"/saveHook"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowHookWithBLOBs> saveHook(FlowHookWithBLOBs flowHookWithBLOBs, HttpServletRequest request)
+/*     */   {
+/*  33 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  35 */     ToJson tojson = new ToJson();
+/*     */     try {
+/*  37 */       FlowHookWithBLOBs flowHookWithBLOBs1 = this.flowHookService.selectByOrderId(flowHookWithBLOBs);
+/*  38 */       int result = 0;
+/*  39 */       FlowHookWithBLOBs flowHookWithBLOBs3 = this.flowHookService.selectByName(flowHookWithBLOBs);
+/*  40 */       if ((flowHookWithBLOBs3 != null) && (flowHookWithBLOBs.getHname().equals(flowHookWithBLOBs3.getHname()))) {
+/*  41 */         tojson.setMsg("保存失败，存在相同的名称!");
+/*  42 */         tojson.setFlag(1);
+/*     */       }
+/*  44 */       else if (flowHookWithBLOBs1 != null) {
+/*  45 */         tojson.setMsg("保存失败，存在相同的排序号!");
+/*  46 */         tojson.setFlag(1);
+/*     */       } else {
+/*  48 */         result = this.flowHookService.saveHook(flowHookWithBLOBs);
+/*  49 */         if (result == 1) {
+/*  50 */           tojson.setMsg("保存成功");
+/*  51 */           tojson.setFlag(0);
+/*     */         } else {
+/*  53 */           tojson.setMsg("保存失败");
+/*  54 */           tojson.setFlag(1);
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/*  59 */       e.printStackTrace();
+/*  60 */       tojson.setMsg("保存失败");
+/*  61 */       tojson.setFlag(1);
+/*     */     }
+/*     */ 
+/*  64 */     return tojson;
+/*     */   }
+/*  70 */   @RequestMapping({"/deleteHook"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowHookWithBLOBs> deleteHook(FlowHookWithBLOBs flowHookWithBLOBs, HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  72 */     ToJson tojson = new ToJson();
+/*     */     try {
+/*  74 */       int result = this.flowHookService.deleteHook(flowHookWithBLOBs);
+/*  75 */       if (result == 1) {
+/*  76 */         tojson.setMsg("删除成功");
+/*  77 */         tojson.setFlag(0);
+/*     */       } else {
+/*  79 */         tojson.setMsg("删除失败");
+/*  80 */         tojson.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  83 */       e.printStackTrace();
+/*  84 */       tojson.setMsg("删除失败");
+/*  85 */       tojson.setFlag(1);
+/*     */     }
+/*     */ 
+/*  88 */     return tojson; } 
+/*     */   @RequestMapping({"/updateHook"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowHookWithBLOBs> updateHook(FlowHookWithBLOBs flowHookWithBLOBs, HttpServletRequest request) {
+/*  94 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  96 */     ToJson tojson = new ToJson();
+/*     */     try {
+/*  98 */       FlowHookWithBLOBs flowHookWithBLOBs2 = this.flowHookService.selectByOrderId(flowHookWithBLOBs);
+/*  99 */       FlowHookWithBLOBs flowHookWithBLOBs3 = this.flowHookService.selectByName(flowHookWithBLOBs);
+/* 100 */       if ((flowHookWithBLOBs3 != null) && (!flowHookWithBLOBs.getOrderId().equals(flowHookWithBLOBs3.getOrderId()))) {
+/* 101 */         tojson.setMsg("修改失败，存在相同的名称");
+/* 102 */         tojson.setFlag(1);
+/*     */       }
+/* 104 */       else if ((flowHookWithBLOBs2 != null) && (!flowHookWithBLOBs.getOrderId().equals(flowHookWithBLOBs2.getOrderId()))) {
+/* 105 */         tojson.setMsg("修改失败，存在相同的排序号");
+/* 106 */         tojson.setFlag(1);
+/*     */       } else {
+/* 108 */         FlowHookWithBLOBs flowHookWithBLOBs1 = this.flowHookService.selectByOrderId(flowHookWithBLOBs);
+/* 109 */         if (flowHookWithBLOBs1 != null) {
+/* 110 */           int result = this.flowHookService.updateHook(flowHookWithBLOBs);
+/* 111 */           if (result == 1) {
+/* 112 */             tojson.setMsg("修改成功");
+/* 113 */             tojson.setFlag(0);
+/*     */           } else {
+/* 115 */             tojson.setMsg("修改失败");
+/* 116 */             tojson.setFlag(1);
+/*     */           }
+/*     */         } else {
+/* 119 */           tojson.setMsg("修改失败，数据不存在");
+/* 120 */           tojson.setFlag(1);
+/*     */         }
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 127 */       e.printStackTrace();
+/*     */     }
+/* 129 */     return tojson;
+/*     */   }
+/* 135 */   @RequestMapping({"/getHookById"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowHookWithBLOBs> getRuleById(FlowHookWithBLOBs flowHookWithBLOBs, HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 137 */     ToJson tojson = new ToJson();
+/*     */     try {
+/* 139 */       FlowHookWithBLOBs result = this.flowHookService.getHookById(flowHookWithBLOBs);
+/* 140 */       tojson.setObject(result);
+/* 141 */       tojson.setMsg("ok");
+/* 142 */       tojson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 144 */       e.printStackTrace();
+/* 145 */       tojson.setMsg("err");
+/* 146 */       tojson.setFlag(1);
+/*     */     }
+/* 148 */     return tojson; } 
+/*     */   @RequestMapping({"/getHookAll"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowHookWithBLOBs> getHookAll(FlowHookWithBLOBs flowHookWithBLOBs, HttpServletRequest request) {
+/* 154 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 156 */     ToJson tojson = new ToJson();
+/*     */     try {
+/* 158 */       List result = this.flowHookService.getHookAll(flowHookWithBLOBs);
+/* 159 */       tojson.setObj(result);
+/* 160 */       tojson.setMsg("ok");
+/* 161 */       tojson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 163 */       e.printStackTrace();
+/* 164 */       tojson.setMsg("err");
+/* 165 */       tojson.setFlag(1);
+/*     */     }
+/* 167 */     return tojson; } 
+/* 172 */   @RequestMapping({"/queryFormId"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowHookWithBLOBs> queryFormId(String folwId) { return this.flowHookService.queryFormId(folwId);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.flowhook.FlowHookController
+ * JD-Core Version:    0.6.0
+ */

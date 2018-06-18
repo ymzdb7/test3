@@ -1,0 +1,738 @@
+/*     */ package com.xoa.model.infoCenter;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class InfoCenterExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public InfoCenterExample()
+/*     */   {
+/*  38 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  48 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  58 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  68 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  78 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  88 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  98 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 108 */     Criteria criteria = createCriteriaInternal();
+/* 109 */     this.oredCriteria.add(criteria);
+/* 110 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 120 */     Criteria criteria = createCriteriaInternal();
+/* 121 */     if (this.oredCriteria.size() == 0) {
+/* 122 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 124 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 134 */     Criteria criteria = new Criteria();
+/* 135 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 145 */     this.oredCriteria.clear();
+/* 146 */     this.orderByClause = null;
+/* 147 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 765 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 769 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 773 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 777 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 781 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 785 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 789 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 793 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 798 */       this.condition = condition;
+/* 799 */       this.typeHandler = null;
+/* 800 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 805 */       this.condition = condition;
+/* 806 */       this.value = value;
+/* 807 */       this.typeHandler = typeHandler;
+/* 808 */       if ((value instanceof List))
+/* 809 */         this.listValue = true;
+/*     */       else
+/* 811 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 816 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 821 */       this.condition = condition;
+/* 822 */       this.value = value;
+/* 823 */       this.secondValue = secondValue;
+/* 824 */       this.typeHandler = typeHandler;
+/* 825 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 829 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends InfoCenterExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<InfoCenterExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 161 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 165 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<InfoCenterExample.Criterion> getAllCriteria() {
+/* 169 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<InfoCenterExample.Criterion> getCriteria() {
+/* 173 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 177 */       if (condition == null) {
+/* 178 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 180 */       this.criteria.add(new InfoCenterExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 184 */       if (value == null) {
+/* 185 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 187 */       this.criteria.add(new InfoCenterExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 191 */       if ((value1 == null) || (value2 == null)) {
+/* 192 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 194 */       this.criteria.add(new InfoCenterExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoIdIsNull() {
+/* 198 */       addCriterion("INFO_ID is null");
+/* 199 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoIdIsNotNull() {
+/* 203 */       addCriterion("INFO_ID is not null");
+/* 204 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoIdEqualTo(Integer value) {
+/* 208 */       addCriterion("INFO_ID =", value, "infoId");
+/* 209 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoIdNotEqualTo(Integer value) {
+/* 213 */       addCriterion("INFO_ID <>", value, "infoId");
+/* 214 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoIdGreaterThan(Integer value) {
+/* 218 */       addCriterion("INFO_ID >", value, "infoId");
+/* 219 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoIdGreaterThanOrEqualTo(Integer value) {
+/* 223 */       addCriterion("INFO_ID >=", value, "infoId");
+/* 224 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoIdLessThan(Integer value) {
+/* 228 */       addCriterion("INFO_ID <", value, "infoId");
+/* 229 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoIdLessThanOrEqualTo(Integer value) {
+/* 233 */       addCriterion("INFO_ID <=", value, "infoId");
+/* 234 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoIdIn(List<Integer> values) {
+/* 238 */       addCriterion("INFO_ID in", values, "infoId");
+/* 239 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoIdNotIn(List<Integer> values) {
+/* 243 */       addCriterion("INFO_ID not in", values, "infoId");
+/* 244 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoIdBetween(Integer value1, Integer value2) {
+/* 248 */       addCriterion("INFO_ID between", value1, value2, "infoId");
+/* 249 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoIdNotBetween(Integer value1, Integer value2) {
+/* 253 */       addCriterion("INFO_ID not between", value1, value2, "infoId");
+/* 254 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoNoIsNull() {
+/* 258 */       addCriterion("INFO_NO is null");
+/* 259 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoNoIsNotNull() {
+/* 263 */       addCriterion("INFO_NO is not null");
+/* 264 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoNoEqualTo(Integer value) {
+/* 268 */       addCriterion("INFO_NO =", value, "infoNo");
+/* 269 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoNoNotEqualTo(Integer value) {
+/* 273 */       addCriterion("INFO_NO <>", value, "infoNo");
+/* 274 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoNoGreaterThan(Integer value) {
+/* 278 */       addCriterion("INFO_NO >", value, "infoNo");
+/* 279 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoNoGreaterThanOrEqualTo(Integer value) {
+/* 283 */       addCriterion("INFO_NO >=", value, "infoNo");
+/* 284 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoNoLessThan(Integer value) {
+/* 288 */       addCriterion("INFO_NO <", value, "infoNo");
+/* 289 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoNoLessThanOrEqualTo(Integer value) {
+/* 293 */       addCriterion("INFO_NO <=", value, "infoNo");
+/* 294 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoNoIn(List<Integer> values) {
+/* 298 */       addCriterion("INFO_NO in", values, "infoNo");
+/* 299 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoNoNotIn(List<Integer> values) {
+/* 303 */       addCriterion("INFO_NO not in", values, "infoNo");
+/* 304 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoNoBetween(Integer value1, Integer value2) {
+/* 308 */       addCriterion("INFO_NO between", value1, value2, "infoNo");
+/* 309 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoNoNotBetween(Integer value1, Integer value2) {
+/* 313 */       addCriterion("INFO_NO not between", value1, value2, "infoNo");
+/* 314 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName1IsNull() {
+/* 318 */       addCriterion("INFO_NAME1 is null");
+/* 319 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName1IsNotNull() {
+/* 323 */       addCriterion("INFO_NAME1 is not null");
+/* 324 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName1EqualTo(String value) {
+/* 328 */       addCriterion("INFO_NAME1 =", value, "infoName1");
+/* 329 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName1NotEqualTo(String value) {
+/* 333 */       addCriterion("INFO_NAME1 <>", value, "infoName1");
+/* 334 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName1GreaterThan(String value) {
+/* 338 */       addCriterion("INFO_NAME1 >", value, "infoName1");
+/* 339 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName1GreaterThanOrEqualTo(String value) {
+/* 343 */       addCriterion("INFO_NAME1 >=", value, "infoName1");
+/* 344 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName1LessThan(String value) {
+/* 348 */       addCriterion("INFO_NAME1 <", value, "infoName1");
+/* 349 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName1LessThanOrEqualTo(String value) {
+/* 353 */       addCriterion("INFO_NAME1 <=", value, "infoName1");
+/* 354 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName1Like(String value) {
+/* 358 */       addCriterion("INFO_NAME1 like", value, "infoName1");
+/* 359 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName1NotLike(String value) {
+/* 363 */       addCriterion("INFO_NAME1 not like", value, "infoName1");
+/* 364 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName1In(List<String> values) {
+/* 368 */       addCriterion("INFO_NAME1 in", values, "infoName1");
+/* 369 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName1NotIn(List<String> values) {
+/* 373 */       addCriterion("INFO_NAME1 not in", values, "infoName1");
+/* 374 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName1Between(String value1, String value2) {
+/* 378 */       addCriterion("INFO_NAME1 between", value1, value2, "infoName1");
+/* 379 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName1NotBetween(String value1, String value2) {
+/* 383 */       addCriterion("INFO_NAME1 not between", value1, value2, "infoName1");
+/* 384 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName2IsNull() {
+/* 388 */       addCriterion("INFO_NAME2 is null");
+/* 389 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName2IsNotNull() {
+/* 393 */       addCriterion("INFO_NAME2 is not null");
+/* 394 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName2EqualTo(String value) {
+/* 398 */       addCriterion("INFO_NAME2 =", value, "infoName2");
+/* 399 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName2NotEqualTo(String value) {
+/* 403 */       addCriterion("INFO_NAME2 <>", value, "infoName2");
+/* 404 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName2GreaterThan(String value) {
+/* 408 */       addCriterion("INFO_NAME2 >", value, "infoName2");
+/* 409 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName2GreaterThanOrEqualTo(String value) {
+/* 413 */       addCriterion("INFO_NAME2 >=", value, "infoName2");
+/* 414 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName2LessThan(String value) {
+/* 418 */       addCriterion("INFO_NAME2 <", value, "infoName2");
+/* 419 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName2LessThanOrEqualTo(String value) {
+/* 423 */       addCriterion("INFO_NAME2 <=", value, "infoName2");
+/* 424 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName2Like(String value) {
+/* 428 */       addCriterion("INFO_NAME2 like", value, "infoName2");
+/* 429 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName2NotLike(String value) {
+/* 433 */       addCriterion("INFO_NAME2 not like", value, "infoName2");
+/* 434 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName2In(List<String> values) {
+/* 438 */       addCriterion("INFO_NAME2 in", values, "infoName2");
+/* 439 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName2NotIn(List<String> values) {
+/* 443 */       addCriterion("INFO_NAME2 not in", values, "infoName2");
+/* 444 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName2Between(String value1, String value2) {
+/* 448 */       addCriterion("INFO_NAME2 between", value1, value2, "infoName2");
+/* 449 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName2NotBetween(String value1, String value2) {
+/* 453 */       addCriterion("INFO_NAME2 not between", value1, value2, "infoName2");
+/* 454 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName3IsNull() {
+/* 458 */       addCriterion("INFO_NAME3 is null");
+/* 459 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName3IsNotNull() {
+/* 463 */       addCriterion("INFO_NAME3 is not null");
+/* 464 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName3EqualTo(String value) {
+/* 468 */       addCriterion("INFO_NAME3 =", value, "infoName3");
+/* 469 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName3NotEqualTo(String value) {
+/* 473 */       addCriterion("INFO_NAME3 <>", value, "infoName3");
+/* 474 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName3GreaterThan(String value) {
+/* 478 */       addCriterion("INFO_NAME3 >", value, "infoName3");
+/* 479 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName3GreaterThanOrEqualTo(String value) {
+/* 483 */       addCriterion("INFO_NAME3 >=", value, "infoName3");
+/* 484 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName3LessThan(String value) {
+/* 488 */       addCriterion("INFO_NAME3 <", value, "infoName3");
+/* 489 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName3LessThanOrEqualTo(String value) {
+/* 493 */       addCriterion("INFO_NAME3 <=", value, "infoName3");
+/* 494 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName3Like(String value) {
+/* 498 */       addCriterion("INFO_NAME3 like", value, "infoName3");
+/* 499 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName3NotLike(String value) {
+/* 503 */       addCriterion("INFO_NAME3 not like", value, "infoName3");
+/* 504 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName3In(List<String> values) {
+/* 508 */       addCriterion("INFO_NAME3 in", values, "infoName3");
+/* 509 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName3NotIn(List<String> values) {
+/* 513 */       addCriterion("INFO_NAME3 not in", values, "infoName3");
+/* 514 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName3Between(String value1, String value2) {
+/* 518 */       addCriterion("INFO_NAME3 between", value1, value2, "infoName3");
+/* 519 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName3NotBetween(String value1, String value2) {
+/* 523 */       addCriterion("INFO_NAME3 not between", value1, value2, "infoName3");
+/* 524 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName4IsNull() {
+/* 528 */       addCriterion("INFO_NAME4 is null");
+/* 529 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName4IsNotNull() {
+/* 533 */       addCriterion("INFO_NAME4 is not null");
+/* 534 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName4EqualTo(String value) {
+/* 538 */       addCriterion("INFO_NAME4 =", value, "infoName4");
+/* 539 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName4NotEqualTo(String value) {
+/* 543 */       addCriterion("INFO_NAME4 <>", value, "infoName4");
+/* 544 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName4GreaterThan(String value) {
+/* 548 */       addCriterion("INFO_NAME4 >", value, "infoName4");
+/* 549 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName4GreaterThanOrEqualTo(String value) {
+/* 553 */       addCriterion("INFO_NAME4 >=", value, "infoName4");
+/* 554 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName4LessThan(String value) {
+/* 558 */       addCriterion("INFO_NAME4 <", value, "infoName4");
+/* 559 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName4LessThanOrEqualTo(String value) {
+/* 563 */       addCriterion("INFO_NAME4 <=", value, "infoName4");
+/* 564 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName4Like(String value) {
+/* 568 */       addCriterion("INFO_NAME4 like", value, "infoName4");
+/* 569 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName4NotLike(String value) {
+/* 573 */       addCriterion("INFO_NAME4 not like", value, "infoName4");
+/* 574 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName4In(List<String> values) {
+/* 578 */       addCriterion("INFO_NAME4 in", values, "infoName4");
+/* 579 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName4NotIn(List<String> values) {
+/* 583 */       addCriterion("INFO_NAME4 not in", values, "infoName4");
+/* 584 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName4Between(String value1, String value2) {
+/* 588 */       addCriterion("INFO_NAME4 between", value1, value2, "infoName4");
+/* 589 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName4NotBetween(String value1, String value2) {
+/* 593 */       addCriterion("INFO_NAME4 not between", value1, value2, "infoName4");
+/* 594 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName5IsNull() {
+/* 598 */       addCriterion("INFO_NAME5 is null");
+/* 599 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName5IsNotNull() {
+/* 603 */       addCriterion("INFO_NAME5 is not null");
+/* 604 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName5EqualTo(String value) {
+/* 608 */       addCriterion("INFO_NAME5 =", value, "infoName5");
+/* 609 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName5NotEqualTo(String value) {
+/* 613 */       addCriterion("INFO_NAME5 <>", value, "infoName5");
+/* 614 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName5GreaterThan(String value) {
+/* 618 */       addCriterion("INFO_NAME5 >", value, "infoName5");
+/* 619 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName5GreaterThanOrEqualTo(String value) {
+/* 623 */       addCriterion("INFO_NAME5 >=", value, "infoName5");
+/* 624 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName5LessThan(String value) {
+/* 628 */       addCriterion("INFO_NAME5 <", value, "infoName5");
+/* 629 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName5LessThanOrEqualTo(String value) {
+/* 633 */       addCriterion("INFO_NAME5 <=", value, "infoName5");
+/* 634 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName5Like(String value) {
+/* 638 */       addCriterion("INFO_NAME5 like", value, "infoName5");
+/* 639 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName5NotLike(String value) {
+/* 643 */       addCriterion("INFO_NAME5 not like", value, "infoName5");
+/* 644 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName5In(List<String> values) {
+/* 648 */       addCriterion("INFO_NAME5 in", values, "infoName5");
+/* 649 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName5NotIn(List<String> values) {
+/* 653 */       addCriterion("INFO_NAME5 not in", values, "infoName5");
+/* 654 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName5Between(String value1, String value2) {
+/* 658 */       addCriterion("INFO_NAME5 between", value1, value2, "infoName5");
+/* 659 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoName5NotBetween(String value1, String value2) {
+/* 663 */       addCriterion("INFO_NAME5 not between", value1, value2, "infoName5");
+/* 664 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoFuncIdIsNull() {
+/* 668 */       addCriterion("INFO_FUNC_ID is null");
+/* 669 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoFuncIdIsNotNull() {
+/* 673 */       addCriterion("INFO_FUNC_ID is not null");
+/* 674 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoFuncIdEqualTo(Integer value) {
+/* 678 */       addCriterion("INFO_FUNC_ID =", value, "infoFuncId");
+/* 679 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoFuncIdNotEqualTo(Integer value) {
+/* 683 */       addCriterion("INFO_FUNC_ID <>", value, "infoFuncId");
+/* 684 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoFuncIdGreaterThan(Integer value) {
+/* 688 */       addCriterion("INFO_FUNC_ID >", value, "infoFuncId");
+/* 689 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoFuncIdGreaterThanOrEqualTo(Integer value) {
+/* 693 */       addCriterion("INFO_FUNC_ID >=", value, "infoFuncId");
+/* 694 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoFuncIdLessThan(Integer value) {
+/* 698 */       addCriterion("INFO_FUNC_ID <", value, "infoFuncId");
+/* 699 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoFuncIdLessThanOrEqualTo(Integer value) {
+/* 703 */       addCriterion("INFO_FUNC_ID <=", value, "infoFuncId");
+/* 704 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoFuncIdIn(List<Integer> values) {
+/* 708 */       addCriterion("INFO_FUNC_ID in", values, "infoFuncId");
+/* 709 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoFuncIdNotIn(List<Integer> values) {
+/* 713 */       addCriterion("INFO_FUNC_ID not in", values, "infoFuncId");
+/* 714 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoFuncIdBetween(Integer value1, Integer value2) {
+/* 718 */       addCriterion("INFO_FUNC_ID between", value1, value2, "infoFuncId");
+/* 719 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public InfoCenterExample.Criteria andInfoFuncIdNotBetween(Integer value1, Integer value2) {
+/* 723 */       addCriterion("INFO_FUNC_ID not between", value1, value2, "infoFuncId");
+/* 724 */       return (InfoCenterExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.infoCenter.InfoCenterExample
+ * JD-Core Version:    0.6.0
+ */

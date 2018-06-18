@@ -1,0 +1,39 @@
+/*    */ package com.xoa.util.netdisk;
+/*    */ 
+/*    */ import java.io.File;
+/*    */ import java.util.ArrayList;
+/*    */ import java.util.List;
+/*    */ 
+/*    */ public class SearchFile
+/*    */ {
+/*    */   public static List<String> searchFile(String path, String fileName)
+/*    */   {
+/* 13 */     if ((path != null) && (fileName != null)) {
+/* 14 */       File file = new File(path);
+/* 15 */       List list = new ArrayList();
+/* 16 */       getFilesList(file, fileName, list);
+/* 17 */       return list;
+/*    */     }
+/* 19 */     return null;
+/*    */   }
+/*    */ 
+/*    */   public static void getFilesList(File file, String fileName, List<String> list) {
+/* 23 */     if (file.exists())
+/* 24 */       if (file.isDirectory()) {
+/* 25 */         File[] files = file.listFiles();
+/* 26 */         if ((files != null) && (files.length > 0)) {
+/* 27 */           for (File f : files)
+/* 28 */             getFilesList(f, fileName, list);
+/*    */         }
+/*    */       }
+/* 31 */       else if ((file.isFile()) && 
+/* 32 */         (file.getName().contains(fileName))) {
+/* 33 */         list.add(file.getPath());
+/*    */       }
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.netdisk.SearchFile
+ * JD-Core Version:    0.6.0
+ */

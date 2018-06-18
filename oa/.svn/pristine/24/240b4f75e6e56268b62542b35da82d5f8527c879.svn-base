@@ -1,0 +1,688 @@
+/*     */ package com.xoa.model.meet;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class MeetingRoomExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public MeetingRoomExample()
+/*     */   {
+/*  38 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  48 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  58 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  68 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  78 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  88 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  98 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 108 */     Criteria criteria = createCriteriaInternal();
+/* 109 */     this.oredCriteria.add(criteria);
+/* 110 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 120 */     Criteria criteria = createCriteriaInternal();
+/* 121 */     if (this.oredCriteria.size() == 0) {
+/* 122 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 124 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 134 */     Criteria criteria = new Criteria();
+/* 135 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 145 */     this.oredCriteria.clear();
+/* 146 */     this.orderByClause = null;
+/* 147 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 715 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 719 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 723 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 727 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 731 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 735 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 739 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 743 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 748 */       this.condition = condition;
+/* 749 */       this.typeHandler = null;
+/* 750 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 755 */       this.condition = condition;
+/* 756 */       this.value = value;
+/* 757 */       this.typeHandler = typeHandler;
+/* 758 */       if ((value instanceof List))
+/* 759 */         this.listValue = true;
+/*     */       else
+/* 761 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 766 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 771 */       this.condition = condition;
+/* 772 */       this.value = value;
+/* 773 */       this.secondValue = secondValue;
+/* 774 */       this.typeHandler = typeHandler;
+/* 775 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 779 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends MeetingRoomExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<MeetingRoomExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 161 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 165 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<MeetingRoomExample.Criterion> getAllCriteria() {
+/* 169 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<MeetingRoomExample.Criterion> getCriteria() {
+/* 173 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 177 */       if (condition == null) {
+/* 178 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 180 */       this.criteria.add(new MeetingRoomExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 184 */       if (value == null) {
+/* 185 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 187 */       this.criteria.add(new MeetingRoomExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 191 */       if ((value1 == null) || (value2 == null)) {
+/* 192 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 194 */       this.criteria.add(new MeetingRoomExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andSidIsNull() {
+/* 198 */       addCriterion("SID is null");
+/* 199 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andSidIsNotNull() {
+/* 203 */       addCriterion("SID is not null");
+/* 204 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andSidEqualTo(Integer value) {
+/* 208 */       addCriterion("SID =", value, "sid");
+/* 209 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andSidNotEqualTo(Integer value) {
+/* 213 */       addCriterion("SID <>", value, "sid");
+/* 214 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andSidGreaterThan(Integer value) {
+/* 218 */       addCriterion("SID >", value, "sid");
+/* 219 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andSidGreaterThanOrEqualTo(Integer value) {
+/* 223 */       addCriterion("SID >=", value, "sid");
+/* 224 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andSidLessThan(Integer value) {
+/* 228 */       addCriterion("SID <", value, "sid");
+/* 229 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andSidLessThanOrEqualTo(Integer value) {
+/* 233 */       addCriterion("SID <=", value, "sid");
+/* 234 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andSidIn(List<Integer> values) {
+/* 238 */       addCriterion("SID in", values, "sid");
+/* 239 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andSidNotIn(List<Integer> values) {
+/* 243 */       addCriterion("SID not in", values, "sid");
+/* 244 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andSidBetween(Integer value1, Integer value2) {
+/* 248 */       addCriterion("SID between", value1, value2, "sid");
+/* 249 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andSidNotBetween(Integer value1, Integer value2) {
+/* 253 */       addCriterion("SID not between", value1, value2, "sid");
+/* 254 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andManageridsIsNull() {
+/* 258 */       addCriterion("managerIds is null");
+/* 259 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andManageridsIsNotNull() {
+/* 263 */       addCriterion("managerIds is not null");
+/* 264 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andManageridsEqualTo(String value) {
+/* 268 */       addCriterion("managerIds =", value, "managerids");
+/* 269 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andManageridsNotEqualTo(String value) {
+/* 273 */       addCriterion("managerIds <>", value, "managerids");
+/* 274 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andManageridsGreaterThan(String value) {
+/* 278 */       addCriterion("managerIds >", value, "managerids");
+/* 279 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andManageridsGreaterThanOrEqualTo(String value) {
+/* 283 */       addCriterion("managerIds >=", value, "managerids");
+/* 284 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andManageridsLessThan(String value) {
+/* 288 */       addCriterion("managerIds <", value, "managerids");
+/* 289 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andManageridsLessThanOrEqualTo(String value) {
+/* 293 */       addCriterion("managerIds <=", value, "managerids");
+/* 294 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andManageridsLike(String value) {
+/* 298 */       addCriterion("managerIds like", value, "managerids");
+/* 299 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andManageridsNotLike(String value) {
+/* 303 */       addCriterion("managerIds not like", value, "managerids");
+/* 304 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andManageridsIn(List<String> values) {
+/* 308 */       addCriterion("managerIds in", values, "managerids");
+/* 309 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andManageridsNotIn(List<String> values) {
+/* 313 */       addCriterion("managerIds not in", values, "managerids");
+/* 314 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andManageridsBetween(String value1, String value2) {
+/* 318 */       addCriterion("managerIds between", value1, value2, "managerids");
+/* 319 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andManageridsNotBetween(String value1, String value2) {
+/* 323 */       addCriterion("managerIds not between", value1, value2, "managerids");
+/* 324 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrCapacityIsNull() {
+/* 328 */       addCriterion("MR_CAPACITY is null");
+/* 329 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrCapacityIsNotNull() {
+/* 333 */       addCriterion("MR_CAPACITY is not null");
+/* 334 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrCapacityEqualTo(String value) {
+/* 338 */       addCriterion("MR_CAPACITY =", value, "mrCapacity");
+/* 339 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrCapacityNotEqualTo(String value) {
+/* 343 */       addCriterion("MR_CAPACITY <>", value, "mrCapacity");
+/* 344 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrCapacityGreaterThan(String value) {
+/* 348 */       addCriterion("MR_CAPACITY >", value, "mrCapacity");
+/* 349 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrCapacityGreaterThanOrEqualTo(String value) {
+/* 353 */       addCriterion("MR_CAPACITY >=", value, "mrCapacity");
+/* 354 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrCapacityLessThan(String value) {
+/* 358 */       addCriterion("MR_CAPACITY <", value, "mrCapacity");
+/* 359 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrCapacityLessThanOrEqualTo(String value) {
+/* 363 */       addCriterion("MR_CAPACITY <=", value, "mrCapacity");
+/* 364 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrCapacityLike(String value) {
+/* 368 */       addCriterion("MR_CAPACITY like", value, "mrCapacity");
+/* 369 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrCapacityNotLike(String value) {
+/* 373 */       addCriterion("MR_CAPACITY not like", value, "mrCapacity");
+/* 374 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrCapacityIn(List<String> values) {
+/* 378 */       addCriterion("MR_CAPACITY in", values, "mrCapacity");
+/* 379 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrCapacityNotIn(List<String> values) {
+/* 383 */       addCriterion("MR_CAPACITY not in", values, "mrCapacity");
+/* 384 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrCapacityBetween(String value1, String value2) {
+/* 388 */       addCriterion("MR_CAPACITY between", value1, value2, "mrCapacity");
+/* 389 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrCapacityNotBetween(String value1, String value2) {
+/* 393 */       addCriterion("MR_CAPACITY not between", value1, value2, "mrCapacity");
+/* 394 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrNameIsNull() {
+/* 398 */       addCriterion("MR_NAME is null");
+/* 399 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrNameIsNotNull() {
+/* 403 */       addCriterion("MR_NAME is not null");
+/* 404 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrNameEqualTo(String value) {
+/* 408 */       addCriterion("MR_NAME =", value, "mrName");
+/* 409 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrNameNotEqualTo(String value) {
+/* 413 */       addCriterion("MR_NAME <>", value, "mrName");
+/* 414 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrNameGreaterThan(String value) {
+/* 418 */       addCriterion("MR_NAME >", value, "mrName");
+/* 419 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrNameGreaterThanOrEqualTo(String value) {
+/* 423 */       addCriterion("MR_NAME >=", value, "mrName");
+/* 424 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrNameLessThan(String value) {
+/* 428 */       addCriterion("MR_NAME <", value, "mrName");
+/* 429 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrNameLessThanOrEqualTo(String value) {
+/* 433 */       addCriterion("MR_NAME <=", value, "mrName");
+/* 434 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrNameLike(String value) {
+/* 438 */       addCriterion("MR_NAME like", value, "mrName");
+/* 439 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrNameNotLike(String value) {
+/* 443 */       addCriterion("MR_NAME not like", value, "mrName");
+/* 444 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrNameIn(List<String> values) {
+/* 448 */       addCriterion("MR_NAME in", values, "mrName");
+/* 449 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrNameNotIn(List<String> values) {
+/* 453 */       addCriterion("MR_NAME not in", values, "mrName");
+/* 454 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrNameBetween(String value1, String value2) {
+/* 458 */       addCriterion("MR_NAME between", value1, value2, "mrName");
+/* 459 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrNameNotBetween(String value1, String value2) {
+/* 463 */       addCriterion("MR_NAME not between", value1, value2, "mrName");
+/* 464 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrPlaceIsNull() {
+/* 468 */       addCriterion("MR_PLACE is null");
+/* 469 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrPlaceIsNotNull() {
+/* 473 */       addCriterion("MR_PLACE is not null");
+/* 474 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrPlaceEqualTo(String value) {
+/* 478 */       addCriterion("MR_PLACE =", value, "mrPlace");
+/* 479 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrPlaceNotEqualTo(String value) {
+/* 483 */       addCriterion("MR_PLACE <>", value, "mrPlace");
+/* 484 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrPlaceGreaterThan(String value) {
+/* 488 */       addCriterion("MR_PLACE >", value, "mrPlace");
+/* 489 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrPlaceGreaterThanOrEqualTo(String value) {
+/* 493 */       addCriterion("MR_PLACE >=", value, "mrPlace");
+/* 494 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrPlaceLessThan(String value) {
+/* 498 */       addCriterion("MR_PLACE <", value, "mrPlace");
+/* 499 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrPlaceLessThanOrEqualTo(String value) {
+/* 503 */       addCriterion("MR_PLACE <=", value, "mrPlace");
+/* 504 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrPlaceLike(String value) {
+/* 508 */       addCriterion("MR_PLACE like", value, "mrPlace");
+/* 509 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrPlaceNotLike(String value) {
+/* 513 */       addCriterion("MR_PLACE not like", value, "mrPlace");
+/* 514 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrPlaceIn(List<String> values) {
+/* 518 */       addCriterion("MR_PLACE in", values, "mrPlace");
+/* 519 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrPlaceNotIn(List<String> values) {
+/* 523 */       addCriterion("MR_PLACE not in", values, "mrPlace");
+/* 524 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrPlaceBetween(String value1, String value2) {
+/* 528 */       addCriterion("MR_PLACE between", value1, value2, "mrPlace");
+/* 529 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andMrPlaceNotBetween(String value1, String value2) {
+/* 533 */       addCriterion("MR_PLACE not between", value1, value2, "mrPlace");
+/* 534 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentIdsIsNull() {
+/* 538 */       addCriterion("EQUIPMENT_IDS is null");
+/* 539 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentIdsIsNotNull() {
+/* 543 */       addCriterion("EQUIPMENT_IDS is not null");
+/* 544 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentIdsEqualTo(String value) {
+/* 548 */       addCriterion("EQUIPMENT_IDS =", value, "equipmentIds");
+/* 549 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentIdsNotEqualTo(String value) {
+/* 553 */       addCriterion("EQUIPMENT_IDS <>", value, "equipmentIds");
+/* 554 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentIdsGreaterThan(String value) {
+/* 558 */       addCriterion("EQUIPMENT_IDS >", value, "equipmentIds");
+/* 559 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentIdsGreaterThanOrEqualTo(String value) {
+/* 563 */       addCriterion("EQUIPMENT_IDS >=", value, "equipmentIds");
+/* 564 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentIdsLessThan(String value) {
+/* 568 */       addCriterion("EQUIPMENT_IDS <", value, "equipmentIds");
+/* 569 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentIdsLessThanOrEqualTo(String value) {
+/* 573 */       addCriterion("EQUIPMENT_IDS <=", value, "equipmentIds");
+/* 574 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentIdsLike(String value) {
+/* 578 */       addCriterion("EQUIPMENT_IDS like", value, "equipmentIds");
+/* 579 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentIdsNotLike(String value) {
+/* 583 */       addCriterion("EQUIPMENT_IDS not like", value, "equipmentIds");
+/* 584 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentIdsIn(List<String> values) {
+/* 588 */       addCriterion("EQUIPMENT_IDS in", values, "equipmentIds");
+/* 589 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentIdsNotIn(List<String> values) {
+/* 593 */       addCriterion("EQUIPMENT_IDS not in", values, "equipmentIds");
+/* 594 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentIdsBetween(String value1, String value2) {
+/* 598 */       addCriterion("EQUIPMENT_IDS between", value1, value2, "equipmentIds");
+/* 599 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentIdsNotBetween(String value1, String value2) {
+/* 603 */       addCriterion("EQUIPMENT_IDS not between", value1, value2, "equipmentIds");
+/* 604 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentNamesIsNull() {
+/* 608 */       addCriterion("EQUIPMENT_NAMES is null");
+/* 609 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentNamesIsNotNull() {
+/* 613 */       addCriterion("EQUIPMENT_NAMES is not null");
+/* 614 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentNamesEqualTo(String value) {
+/* 618 */       addCriterion("EQUIPMENT_NAMES =", value, "equipmentNames");
+/* 619 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentNamesNotEqualTo(String value) {
+/* 623 */       addCriterion("EQUIPMENT_NAMES <>", value, "equipmentNames");
+/* 624 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentNamesGreaterThan(String value) {
+/* 628 */       addCriterion("EQUIPMENT_NAMES >", value, "equipmentNames");
+/* 629 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentNamesGreaterThanOrEqualTo(String value) {
+/* 633 */       addCriterion("EQUIPMENT_NAMES >=", value, "equipmentNames");
+/* 634 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentNamesLessThan(String value) {
+/* 638 */       addCriterion("EQUIPMENT_NAMES <", value, "equipmentNames");
+/* 639 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentNamesLessThanOrEqualTo(String value) {
+/* 643 */       addCriterion("EQUIPMENT_NAMES <=", value, "equipmentNames");
+/* 644 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentNamesLike(String value) {
+/* 648 */       addCriterion("EQUIPMENT_NAMES like", value, "equipmentNames");
+/* 649 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentNamesNotLike(String value) {
+/* 653 */       addCriterion("EQUIPMENT_NAMES not like", value, "equipmentNames");
+/* 654 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentNamesIn(List<String> values) {
+/* 658 */       addCriterion("EQUIPMENT_NAMES in", values, "equipmentNames");
+/* 659 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentNamesNotIn(List<String> values) {
+/* 663 */       addCriterion("EQUIPMENT_NAMES not in", values, "equipmentNames");
+/* 664 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentNamesBetween(String value1, String value2) {
+/* 668 */       addCriterion("EQUIPMENT_NAMES between", value1, value2, "equipmentNames");
+/* 669 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public MeetingRoomExample.Criteria andEquipmentNamesNotBetween(String value1, String value2) {
+/* 673 */       addCriterion("EQUIPMENT_NAMES not between", value1, value2, "equipmentNames");
+/* 674 */       return (MeetingRoomExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.meet.MeetingRoomExample
+ * JD-Core Version:    0.6.0
+ */

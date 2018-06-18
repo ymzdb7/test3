@@ -1,0 +1,506 @@
+/*    */ package com.xoa.util;
+/*    */ 
+/*    */ import com.xoa.model.timedTaskManagement.TimedTaskManagement;
+/*    */ import com.xoa.model.timedTaskManagement.TimedTaskRecord;
+/*    */ import com.xoa.service.timedTaskManagement.TimedTaskManagementService;
+/*    */ import com.xoa.service.timedTaskManagement.TimedTaskRecordService;
+/*    */ import java.io.PrintStream;
+/*    */ import java.text.SimpleDateFormat;
+/*    */ import java.util.Calendar;
+/*    */ import java.util.Date;
+/*    */ import java.util.List;
+/*    */ import java.util.TimerTask;
+/*    */ import org.springframework.beans.factory.annotation.Autowired;
+/*    */ import org.springframework.stereotype.Component;
+/*    */ 
+/*    */ @Component
+/*    */ public class TimedManagerSeTi extends TimerTask
+/*    */ {
+/*    */ 
+/*    */   @Autowired
+/*    */   private TimedTaskManagementService timedTaskManagementService;
+/*    */ 
+/*    */   @Autowired
+/*    */   private TimedTaskRecordService timedTaskRecordService;
+/*    */ 
+/*    */   public void run()
+/*    */   {
+/* 26 */     Date date = new Date();
+/* 27 */     Date date1 = null;
+/* 28 */     TimedTaskRecord timedTaskRecord = new TimedTaskRecord();
+/* 29 */     Calendar calendar = Calendar.getInstance();
+/* 30 */     TimedTaskManagement timedTaskManagement1 = null;
+/* 31 */     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/* 32 */     SimpleDateFormat dfs = new SimpleDateFormat("yyyy-MM-dd");
+/* 33 */     SimpleDateFormat dft = new SimpleDateFormat("HH:mm:ss");
+/*    */ 
+/* 36 */     List<TimedTaskManagement> list = this.timedTaskManagementService.selectTimeManagerTo();
+/* 37 */     for (TimedTaskManagement timedTaskManagement : list)
+/* 38 */       if (timedTaskManagement.getTypeMet().intValue() == 1) {
+/*    */         try {
+/* 40 */           date = df.parse(df.format(date));
+/*    */         } catch (Exception e) {
+/* 42 */           e.printStackTrace();
+/*    */         }
+/* 44 */         if ((timedTaskManagement.getTaskType().intValue() != 0) && (timedTaskManagement.getTaskType() != null)) {
+/* 45 */           switch (timedTaskManagement.getTaskType().intValue()) {
+/*    */           case 1:
+/* 47 */             System.out.println("方法一---------------------------------------------");
+/* 48 */             if ((timedTaskManagement.getExecute() == null) || 
+/* 49 */               (timedTaskManagement.getExecute().intValue() != 1))
+/*    */               break;
+/* 51 */             timedTaskManagement1 = this.timedTaskManagementService.selectTimedTaskOne(timedTaskManagement.getTtmId(), timedTaskManagement.getTaskType());
+/* 52 */             if (timedTaskManagement1 != null) {
+/* 53 */               if (timedTaskManagement1.getLishiTime() == null) break;
+/* 54 */               calendar.setTime(timedTaskManagement1.getLishiTime());
+/* 55 */               if (timedTaskManagement1.getIntwevalTime() == null) {
+/* 56 */                 timedTaskManagement1.setIntwevalTime("0");
+/*    */               }
+/* 58 */               calendar.add(12, Integer.valueOf(timedTaskManagement1.getIntwevalTime()).intValue());
+/* 59 */               date1 = calendar.getTime();
+/*    */ 
+/* 61 */               if (date.getTime() - date1.getTime() / 1000L > 30L) break;
+/* 62 */               Integer result = null;
+/*    */ 
+/* 65 */               result = Integer.valueOf(0);
+/*    */ 
+/* 70 */               timedTaskRecord.setResult(result);
+/*    */ 
+/* 72 */               timedTaskRecord.setUserId("无");
+/* 73 */               timedTaskRecord.setExecutionTime(date);
+/* 74 */               timedTaskRecord.setLishiTime(timedTaskManagement1.getExecutionTime());
+/* 75 */               timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 77 */               this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/* 78 */               break;
+/*    */             }
+/*    */ 
+/* 81 */             Integer result = null;
+/*    */ 
+/* 84 */             result = Integer.valueOf(0);
+/*    */ 
+/* 89 */             timedTaskRecord.setResult(result);
+/*    */ 
+/* 91 */             timedTaskRecord.setUserId("无");
+/* 92 */             timedTaskRecord.setExecutionTime(date);
+/* 93 */             timedTaskRecord.setLishiTime(date);
+/* 94 */             timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 96 */             this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/* 97 */             break;
+/*    */           case 2:
+/* 102 */             System.out.println("方法二----------------------------------------------------------------");
+/* 103 */             if ((timedTaskManagement.getExecute() == null) || 
+/* 104 */               (timedTaskManagement.getExecute().intValue() != 1))
+/*    */               break;
+/* 106 */             timedTaskManagement1 = this.timedTaskManagementService.selectTimedTaskOne(timedTaskManagement.getTtmId(), timedTaskManagement.getTaskType());
+/* 107 */             if (timedTaskManagement1 != null) {
+/* 108 */               if (timedTaskManagement1.getLishiTime() == null) break;
+/* 109 */               calendar.setTime(timedTaskManagement1.getLishiTime());
+/* 110 */               if (timedTaskManagement1.getIntwevalTime() == null) {
+/* 111 */                 timedTaskManagement1.setIntwevalTime("0");
+/*    */               }
+/* 113 */               calendar.add(12, Integer.valueOf(timedTaskManagement1.getIntwevalTime()).intValue());
+/* 114 */               date1 = calendar.getTime();
+/*    */ 
+/* 116 */               if (date.getTime() - date1.getTime() / 1000L > 30L) break;
+/*    */ 
+/* 120 */               result = Integer.valueOf(0);
+/*    */ 
+/* 125 */               timedTaskRecord.setResult(result);
+/*    */ 
+/* 127 */               timedTaskRecord.setUserId("无");
+/* 128 */               timedTaskRecord.setExecutionTime(date);
+/* 129 */               timedTaskRecord.setLishiTime(timedTaskManagement1.getExecutionTime());
+/* 130 */               timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 132 */               this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/* 133 */               break;
+/*    */             }
+/*    */ 
+/*    */ 
+/* 139 */             result = Integer.valueOf(0);
+/*    */ 
+/* 144 */             timedTaskRecord.setResult(result);
+/*    */ 
+/* 146 */             timedTaskRecord.setUserId("无");
+/* 147 */             timedTaskRecord.setExecutionTime(date);
+/* 148 */             timedTaskRecord.setLishiTime(date);
+/* 149 */             timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 151 */             this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/* 152 */             break;
+/*    */           case 3:
+/* 157 */             System.out.println("方法三---------------------------------------------------------------------------");
+/* 158 */             if ((timedTaskManagement.getExecute() == null) || 
+/* 159 */               (timedTaskManagement.getExecute().intValue() != 1))
+/*    */               break;
+/* 161 */             timedTaskManagement1 = this.timedTaskManagementService.selectTimedTaskOne(timedTaskManagement.getTtmId(), timedTaskManagement.getTaskType());
+/* 162 */             if (timedTaskManagement1 != null) {
+/* 163 */               if (timedTaskManagement1.getLishiTime() == null) break;
+/* 164 */               calendar.setTime(timedTaskManagement1.getLishiTime());
+/* 165 */               if (timedTaskManagement1.getIntwevalTime() == null) {
+/* 166 */                 timedTaskManagement1.setIntwevalTime("0");
+/*    */               }
+/* 168 */               calendar.add(12, Integer.valueOf(timedTaskManagement1.getIntwevalTime()).intValue());
+/* 169 */               date1 = calendar.getTime();
+/*    */ 
+/* 171 */               if (date.getTime() - date1.getTime() / 1000L > 30L) break;
+/*    */ 
+/* 175 */               result = Integer.valueOf(0);
+/*    */ 
+/* 180 */               timedTaskRecord.setResult(result);
+/*    */ 
+/* 182 */               timedTaskRecord.setUserId("无");
+/* 183 */               timedTaskRecord.setExecutionTime(date);
+/* 184 */               timedTaskRecord.setLishiTime(timedTaskManagement1.getExecutionTime());
+/* 185 */               timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 187 */               this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/* 188 */               break;
+/*    */             }
+/*    */ 
+/*    */ 
+/* 194 */             result = Integer.valueOf(0);
+/*    */ 
+/* 199 */             timedTaskRecord.setResult(result);
+/*    */ 
+/* 201 */             timedTaskRecord.setUserId("无");
+/* 202 */             timedTaskRecord.setExecutionTime(date);
+/* 203 */             timedTaskRecord.setLishiTime(date);
+/* 204 */             timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 206 */             this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/* 207 */             break;
+/*    */           default:
+/* 212 */             System.out.println("没用该方法-------------------------------------------------------------");
+/* 213 */             if ((timedTaskManagement.getExecute() == null) || 
+/* 214 */               (timedTaskManagement.getExecute().intValue() != 1))
+/*    */               break;
+/* 216 */             timedTaskManagement1 = this.timedTaskManagementService.selectTimedTaskOne(timedTaskManagement.getTtmId(), timedTaskManagement.getTaskType());
+/* 217 */             if (timedTaskManagement1 != null) {
+/* 218 */               if (timedTaskManagement1.getLishiTime() == null) break;
+/* 219 */               calendar.setTime(timedTaskManagement1.getLishiTime());
+/* 220 */               if (timedTaskManagement1.getIntwevalTime() == null) {
+/* 221 */                 timedTaskManagement1.setIntwevalTime("0");
+/*    */               }
+/* 223 */               calendar.add(12, Integer.valueOf(timedTaskManagement1.getIntwevalTime()).intValue());
+/* 224 */               date1 = calendar.getTime();
+/*    */ 
+/* 226 */               if (date.getTime() - date1.getTime() / 1000L > 30L) break;
+/*    */ 
+/* 230 */               result = Integer.valueOf(0);
+/*    */ 
+/* 235 */               timedTaskRecord.setResult(result);
+/*    */ 
+/* 237 */               timedTaskRecord.setUserId("无");
+/* 238 */               timedTaskRecord.setExecutionTime(date);
+/* 239 */               timedTaskRecord.setLishiTime(timedTaskManagement1.getExecutionTime());
+/* 240 */               timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 242 */               this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/* 243 */               break;
+/*    */             }
+/*    */ 
+/*    */ 
+/* 249 */             result = Integer.valueOf(0);
+/*    */ 
+/* 254 */             timedTaskRecord.setResult(result);
+/*    */ 
+/* 256 */             timedTaskRecord.setUserId("无");
+/* 257 */             timedTaskRecord.setExecutionTime(date);
+/* 258 */             timedTaskRecord.setLishiTime(date);
+/* 259 */             timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 261 */             this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/* 262 */             break;
+/*    */           }
+/*    */ 
+/*    */         }
+/*    */ 
+/*    */       }
+/* 268 */       else if (timedTaskManagement.getTypeMet().intValue() == 0) {
+/*    */         try {
+/* 270 */           date = df.parse(df.format(date));
+/*    */         } catch (Exception e) {
+/* 272 */           e.printStackTrace();
+/*    */         }
+/* 274 */         if ((timedTaskManagement.getTaskType().intValue() != 0) && (timedTaskManagement.getTaskType() != null))
+/* 275 */           switch (timedTaskManagement.getTaskType().intValue()) {
+/*    */           case 1:
+/* 277 */             System.out.println("定点任务 方法一》》》》》》》》》》》》》》》》》》》》》》》》》");
+/* 278 */             if ((timedTaskManagement.getExecute() == null) || 
+/* 279 */               (timedTaskManagement.getExecute().intValue() != 1))
+/*    */               break;
+/* 281 */             timedTaskManagement1 = this.timedTaskManagementService.selectTimedTaskOne(timedTaskManagement.getTtmId(), timedTaskManagement.getTaskType());
+/* 282 */             if (timedTaskManagement1 != null) {
+/* 283 */               if (timedTaskManagement1.getExecutionTimeat() == null) break;
+/*    */               try {
+/* 285 */                 Date date2 = dfs.parse(dfs.format(timedTaskManagement1.getExecutionTimeat()));
+/* 286 */                 calendar.setTime(date2);
+/*    */ 
+/* 288 */                 if (timedTaskManagement1.getIntwevalTime() == null) {
+/* 289 */                   timedTaskManagement1.setIntwevalTime("0");
+/*    */                 }
+/* 291 */                 calendar.add(5, Integer.valueOf(timedTaskManagement1.getIntwevalTime()).intValue());
+/* 292 */                 date1 = calendar.getTime();
+/* 293 */                 String StringDate = dfs.format(date1);
+/* 294 */                 StringDate = StringDate + timedTaskManagement1.getIntwevalTime();
+/* 295 */                 date1 = df.parse(StringDate);
+/*    */               } catch (Exception e) {
+/* 297 */                 e.printStackTrace();
+/*    */               }
+/*    */ 
+/* 300 */               if (date.getTime() - date1.getTime() / 1000L > 30L) break;
+/* 301 */               Integer result = null;
+/*    */ 
+/* 304 */               result = Integer.valueOf(0);
+/*    */ 
+/* 309 */               timedTaskRecord.setResult(result);
+/*    */ 
+/* 311 */               timedTaskRecord.setUserId("无");
+/* 312 */               timedTaskRecord.setExecutionTime(date);
+/* 313 */               timedTaskRecord.setLishiTime(timedTaskManagement1.getExecutionTime());
+/* 314 */               timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 316 */               this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/*    */             }
+/*    */             else
+/*    */             {
+/* 320 */               Integer result = null;
+/*    */ 
+/* 323 */               result = Integer.valueOf(0);
+/*    */ 
+/* 328 */               timedTaskRecord.setResult(result);
+/*    */ 
+/* 330 */               timedTaskRecord.setUserId("无");
+/* 331 */               timedTaskRecord.setExecutionTime(date);
+/* 332 */               timedTaskRecord.setLishiTime(date);
+/* 333 */               timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 335 */               this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/* 336 */             }break;
+/*    */           case 2:
+/* 341 */             System.out.println("定点任务 方法一》》》》》》》》》》》》》》》》》》》》》》》》》");
+/* 342 */             if ((timedTaskManagement.getExecute() == null) || 
+/* 343 */               (timedTaskManagement.getExecute().intValue() != 1))
+/*    */               break;
+/* 345 */             timedTaskManagement1 = this.timedTaskManagementService.selectTimedTaskOne(timedTaskManagement.getTtmId(), timedTaskManagement.getTaskType());
+/* 346 */             if (timedTaskManagement1 != null) {
+/* 347 */               if (timedTaskManagement1.getExecutionTimeat() == null) break;
+/*    */               try {
+/* 349 */                 Date date2 = dfs.parse(dfs.format(timedTaskManagement1.getExecutionTimeat()));
+/* 350 */                 calendar.setTime(date2);
+/*    */ 
+/* 352 */                 if (timedTaskManagement1.getIntwevalTime() == null) {
+/* 353 */                   timedTaskManagement1.setIntwevalTime("0");
+/*    */                 }
+/* 355 */                 calendar.add(5, Integer.valueOf(timedTaskManagement1.getIntwevalTime()).intValue());
+/* 356 */                 date1 = calendar.getTime();
+/* 357 */                 String StringDate = dfs.format(date1);
+/* 358 */                 StringDate = StringDate + timedTaskManagement1.getIntwevalTime();
+/* 359 */                 date1 = df.parse(StringDate);
+/*    */               } catch (Exception e) {
+/* 361 */                 e.printStackTrace();
+/*    */               }
+/*    */ 
+/* 364 */               if (date.getTime() - date1.getTime() / 1000L > 30L) break;
+/* 365 */               Integer result = null;
+/*    */ 
+/* 368 */               result = Integer.valueOf(0);
+/*    */ 
+/* 373 */               timedTaskRecord.setResult(result);
+/*    */ 
+/* 375 */               timedTaskRecord.setUserId("无");
+/* 376 */               timedTaskRecord.setExecutionTime(date);
+/* 377 */               timedTaskRecord.setLishiTime(timedTaskManagement1.getExecutionTime());
+/* 378 */               timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 380 */               this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/*    */             }
+/*    */             else
+/*    */             {
+/* 384 */               Integer result = null;
+/*    */ 
+/* 387 */               result = Integer.valueOf(0);
+/*    */ 
+/* 392 */               timedTaskRecord.setResult(result);
+/*    */ 
+/* 394 */               timedTaskRecord.setUserId("无");
+/* 395 */               timedTaskRecord.setExecutionTime(date);
+/* 396 */               timedTaskRecord.setLishiTime(date);
+/* 397 */               timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 399 */               this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/* 400 */             }break;
+/*    */           case 3:
+/* 405 */             System.out.println("定点任务 方法一》》》》》》》》》》》》》》》》》》》》》》》》》");
+/* 406 */             System.out.println("定点任务 方法一》》》》》》》》》》》》》》》》》》》》》》》》》");
+/* 407 */             if ((timedTaskManagement.getExecute() == null) || 
+/* 408 */               (timedTaskManagement.getExecute().intValue() != 1))
+/*    */               break;
+/* 410 */             timedTaskManagement1 = this.timedTaskManagementService.selectTimedTaskOne(timedTaskManagement.getTtmId(), timedTaskManagement.getTaskType());
+/* 411 */             if (timedTaskManagement1 != null) {
+/* 412 */               if (timedTaskManagement1.getExecutionTimeat() == null) break;
+/*    */               try {
+/* 414 */                 Date date2 = dfs.parse(dfs.format(timedTaskManagement1.getExecutionTimeat()));
+/* 415 */                 calendar.setTime(date2);
+/*    */ 
+/* 417 */                 if (timedTaskManagement1.getIntwevalTime() == null) {
+/* 418 */                   timedTaskManagement1.setIntwevalTime("0");
+/*    */                 }
+/* 420 */                 calendar.add(5, Integer.valueOf(timedTaskManagement1.getIntwevalTime()).intValue());
+/* 421 */                 date1 = calendar.getTime();
+/* 422 */                 String StringDate = dfs.format(date1);
+/* 423 */                 StringDate = StringDate + timedTaskManagement1.getIntwevalTime();
+/* 424 */                 date1 = df.parse(StringDate);
+/*    */               } catch (Exception e) {
+/* 426 */                 e.printStackTrace();
+/*    */               }
+/*    */ 
+/* 429 */               if (date.getTime() - date1.getTime() / 1000L > 30L) break;
+/* 430 */               Integer result = null;
+/*    */ 
+/* 433 */               result = Integer.valueOf(0);
+/*    */ 
+/* 438 */               timedTaskRecord.setResult(result);
+/*    */ 
+/* 440 */               timedTaskRecord.setUserId("无");
+/* 441 */               timedTaskRecord.setExecutionTime(date);
+/* 442 */               timedTaskRecord.setLishiTime(timedTaskManagement1.getExecutionTime());
+/* 443 */               timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 445 */               this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/*    */             }
+/*    */             else
+/*    */             {
+/* 449 */               Integer result = null;
+/*    */ 
+/* 452 */               result = Integer.valueOf(0);
+/*    */ 
+/* 457 */               timedTaskRecord.setResult(result);
+/*    */ 
+/* 459 */               timedTaskRecord.setUserId("无");
+/* 460 */               timedTaskRecord.setExecutionTime(date);
+/* 461 */               timedTaskRecord.setLishiTime(date);
+/* 462 */               timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 464 */               this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/* 465 */             }break;
+/*    */           case 4:
+/* 470 */             System.out.println("定点任务 方法一》》》》》》》》》》》》》》》》》》》》》》》》》");
+/* 471 */             System.out.println("定点任务 方法一》》》》》》》》》》》》》》》》》》》》》》》》》");
+/* 472 */             if ((timedTaskManagement.getExecute() == null) || 
+/* 473 */               (timedTaskManagement.getExecute().intValue() != 1))
+/*    */               break;
+/* 475 */             timedTaskManagement1 = this.timedTaskManagementService.selectTimedTaskOne(timedTaskManagement.getTtmId(), timedTaskManagement.getTaskType());
+/* 476 */             if (timedTaskManagement1 != null) {
+/* 477 */               if (timedTaskManagement1.getExecutionTimeat() == null) break;
+/*    */               try {
+/* 479 */                 Date date2 = dfs.parse(dfs.format(timedTaskManagement1.getExecutionTimeat()));
+/* 480 */                 calendar.setTime(date2);
+/*    */ 
+/* 482 */                 if (timedTaskManagement1.getIntwevalTime() == null) {
+/* 483 */                   timedTaskManagement1.setIntwevalTime("0");
+/*    */                 }
+/* 485 */                 calendar.add(5, Integer.valueOf(timedTaskManagement1.getIntwevalTime()).intValue());
+/* 486 */                 date1 = calendar.getTime();
+/* 487 */                 String StringDate = dfs.format(date1);
+/* 488 */                 StringDate = StringDate + timedTaskManagement1.getIntwevalTime();
+/* 489 */                 date1 = df.parse(StringDate);
+/*    */               } catch (Exception e) {
+/* 491 */                 e.printStackTrace();
+/*    */               }
+/*    */ 
+/* 494 */               if (date.getTime() - date1.getTime() / 1000L > 30L) break;
+/* 495 */               Integer result = null;
+/*    */ 
+/* 498 */               result = Integer.valueOf(0);
+/*    */ 
+/* 503 */               timedTaskRecord.setResult(result);
+/*    */ 
+/* 505 */               timedTaskRecord.setUserId("无");
+/* 506 */               timedTaskRecord.setExecutionTime(date);
+/* 507 */               timedTaskRecord.setLishiTime(timedTaskManagement1.getExecutionTime());
+/* 508 */               timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 510 */               this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/*    */             }
+/*    */             else
+/*    */             {
+/* 514 */               Integer result = null;
+/*    */ 
+/* 517 */               result = Integer.valueOf(0);
+/*    */ 
+/* 522 */               timedTaskRecord.setResult(result);
+/*    */ 
+/* 524 */               timedTaskRecord.setUserId("无");
+/* 525 */               timedTaskRecord.setExecutionTime(date);
+/* 526 */               timedTaskRecord.setLishiTime(date);
+/* 527 */               timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 529 */               this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/* 530 */             }break;
+/*    */           default:
+/* 535 */             System.out.println("定点任务 方法一》》》》》》》》》》》》》》》》》》》》》》》》》");
+/* 536 */             System.out.println("定点任务 方法一》》》》》》》》》》》》》》》》》》》》》》》》》");
+/* 537 */             if ((timedTaskManagement.getExecute() == null) || 
+/* 538 */               (timedTaskManagement.getExecute().intValue() != 1))
+/*    */               break;
+/* 540 */             timedTaskManagement1 = this.timedTaskManagementService.selectTimedTaskOne(timedTaskManagement.getTtmId(), timedTaskManagement.getTaskType());
+/* 541 */             if (timedTaskManagement1 != null) {
+/* 542 */               if (timedTaskManagement1.getExecutionTimeat() == null) break;
+/*    */               try {
+/* 544 */                 Date date2 = dfs.parse(dfs.format(timedTaskManagement1.getExecutionTimeat()));
+/* 545 */                 calendar.setTime(date2);
+/*    */ 
+/* 547 */                 if (timedTaskManagement1.getIntwevalTime() == null) {
+/* 548 */                   timedTaskManagement1.setIntwevalTime("0");
+/*    */                 }
+/* 550 */                 calendar.add(5, Integer.valueOf(timedTaskManagement1.getIntwevalTime()).intValue());
+/* 551 */                 date1 = calendar.getTime();
+/* 552 */                 String StringDate = dfs.format(date1);
+/* 553 */                 StringDate = StringDate + timedTaskManagement1.getIntwevalTime();
+/* 554 */                 date1 = df.parse(StringDate);
+/*    */               } catch (Exception e) {
+/* 556 */                 e.printStackTrace();
+/*    */               }
+/*    */ 
+/* 559 */               if (date.getTime() - date1.getTime() / 1000L > 30L) break;
+/* 560 */               Integer result = null;
+/*    */ 
+/* 563 */               result = Integer.valueOf(0);
+/*    */ 
+/* 568 */               timedTaskRecord.setResult(result);
+/*    */ 
+/* 570 */               timedTaskRecord.setUserId("无");
+/* 571 */               timedTaskRecord.setExecutionTime(date);
+/* 572 */               timedTaskRecord.setLishiTime(timedTaskManagement1.getExecutionTime());
+/* 573 */               timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 575 */               this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/*    */             }
+/*    */             else
+/*    */             {
+/* 579 */               Integer result = null;
+/*    */ 
+/* 582 */               result = Integer.valueOf(0);
+/*    */ 
+/* 587 */               timedTaskRecord.setResult(result);
+/*    */ 
+/* 589 */               timedTaskRecord.setUserId("无");
+/* 590 */               timedTaskRecord.setExecutionTime(date);
+/* 591 */               timedTaskRecord.setLishiTime(date);
+/* 592 */               timedTaskRecord.setTtmId(timedTaskManagement.getTtmId());
+/*    */ 
+/* 594 */               this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/*    */             }
+/*    */           }
+/*    */       }
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.TimedManagerSeTi
+ * JD-Core Version:    0.6.0
+ */

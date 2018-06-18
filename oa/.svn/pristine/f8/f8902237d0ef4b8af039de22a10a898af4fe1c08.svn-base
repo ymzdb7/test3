@@ -1,0 +1,134 @@
+package com.xoa.controller.rms.file;
+
+import com.xoa.model.enclosure.Attachment;
+import com.xoa.model.rms.RmsFileWithBLOBs;
+import com.xoa.service.rms.RmsFileService;
+import com.xoa.util.ToJson;
+import com.xoa.util.page.PageParams;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+@Controller
+@RequestMapping({ "/rmsFile" })
+public class RmsFileController {
+
+	@Autowired
+	private RmsFileService rmsFileService;
+
+	@RequestMapping({ "/index" })
+	public String toIndex() {
+		return "app/rms/file/index";
+	}
+
+	@RequestMapping({ "/toAdd" })
+	public String toAddPage() {
+		return "app/rms/file/addRmsFile";
+	}
+
+	@RequestMapping({ "/toManage" })
+	public String toManage() {
+		return "app/rms/file/manageRmsFile";
+	}
+
+	@RequestMapping({ "/toQuery" })
+	public String toQuery() {
+		return "app/rms/file/queryRmsFile";
+	}
+
+	@RequestMapping({ "/toImport" })
+	public String toImport() {
+		return "app/rms/file/import";
+	}
+
+	@RequestMapping({ "/detail" })
+	public String detail() {
+		return "app/rms/file/detail";
+	}
+
+	@RequestMapping({ "/toDestroyed" })
+	public String toDestroyed() {
+		return "app/rms/file/destroyed";
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/save" })
+	public ToJson<RmsFileWithBLOBs> save(RmsFileWithBLOBs rmsFileWithBLOBs,
+			HttpServletRequest request) {
+		return this.rmsFileService.save(rmsFileWithBLOBs, request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/update" })
+	public ToJson<RmsFileWithBLOBs> update(RmsFileWithBLOBs rmsFileWithBLOBs,
+			HttpServletRequest request) {
+		return this.rmsFileService.update(rmsFileWithBLOBs, request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/destroy" })
+	public ToJson<RmsFileWithBLOBs> destroy(String fileIds,
+			HttpServletRequest request) {
+		return this.rmsFileService.destroy(fileIds, request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/query" })
+	public ToJson<RmsFileWithBLOBs> query(RmsFileWithBLOBs rmsFileWithBLOBs,
+			PageParams pageParams) {
+		return this.rmsFileService.query(rmsFileWithBLOBs, pageParams);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selectById" })
+	public ToJson<RmsFileWithBLOBs> selectById(Integer fileId,
+			HttpServletRequest request) {
+		return this.rmsFileService.selectById(fileId, request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/import" })
+	public ToJson<RmsFileWithBLOBs> importFile(HttpServletRequest request,
+			HttpServletResponse response, MultipartFile file) {
+		return this.rmsFileService.importFile(request, response, file);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/delete" })
+	public ToJson<RmsFileWithBLOBs> deleteFiles(String fileIds) {
+		return this.rmsFileService.deleteFiles(fileIds);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/restore" })
+	public ToJson<RmsFileWithBLOBs> restore(String fileIds) {
+		return this.rmsFileService.restore(fileIds);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/updateRollBath" })
+	public ToJson<RmsFileWithBLOBs> updateRollBath(String fileIds,
+			Integer rollId) {
+		return this.rmsFileService.updateRollBath(fileIds, rollId);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/export" })
+	public ToJson<RmsFileWithBLOBs> export(String fileIds,
+			HttpServletRequest request, HttpServletResponse response) {
+		return this.rmsFileService.export(fileIds, request, response);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/createFormHtml" })
+	public ToJson<Attachment> createFormHtml(String htmlContent, String module,
+			HttpServletResponse response, HttpServletRequest request,
+			String typeFlag) {
+		return this.rmsFileService.createFormHtml(htmlContent, module,
+				response, request, typeFlag);
+	}
+}

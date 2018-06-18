@@ -1,0 +1,19 @@
+package com.myoa.dao.edu.eduStudentExt;
+
+import com.baomidou.mybatisplus.mapper.BaseMapper;
+import com.myoa.model.edu.eduStudentExt.EduStudentExt;
+
+import java.util.List;
+
+public abstract interface EduStudentExtMapper extends BaseMapper<EduStudentExt> {
+	public abstract List<EduStudentExt> getSemeter(
+			EduStudentExt paramEduStudentExt);
+
+	public abstract int addStudentExt(EduStudentExt paramEduStudentExt);
+
+	public abstract int updateStudentExt(EduStudentExt paramEduStudentExt);
+
+	public abstract int editStudent(EduStudentExt paramEduStudentExt);
+
+	public abstract EduStudentExt getStudentInfor(String paramString);
+}

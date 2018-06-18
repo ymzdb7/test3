@@ -1,0 +1,263 @@
+/*     */ package com.xoa.service.edu.eduElectiveStudentCount.impl;
+/*     */ 
+/*     */ import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+/*     */ import com.xoa.dao.edu.eduElectivePublish.EduElectivePublishMapper;
+/*     */ import com.xoa.dao.edu.eduElectiveStudentCount.EduElectiveStudentCountMapper;
+/*     */ import com.xoa.dao.edu.eduStudent.EduStudentMapper;
+/*     */ import com.xoa.model.edu.eduElectiveStudentCount.EduElectiveStudentCount;
+/*     */ import com.xoa.service.edu.eduElectiveStudentCount.IEduElectiveStudentCountService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduElectiveStudentCountServiceImpl extends ServiceImpl<EduElectiveStudentCountMapper, EduElectiveStudentCount>
+/*     */   implements IEduElectiveStudentCountService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private EduElectiveStudentCountMapper eduElectiveStudentCountMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private EduElectivePublishMapper eduElectivePublishMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private EduStudentMapper eduStudentMapper;
+/*     */ 
+/*     */   public ToJson<EduElectiveStudentCount> eudSelectStudentCount(EduElectiveStudentCount eduElectiveStudentCount)
+/*     */   {
+/*  45 */     ToJson json = new ToJson();
+/*  46 */     int contsum = 0;
+/*     */     try {
+/*  48 */       List<EduElectiveStudentCount> list = this.eduElectiveStudentCountMapper.eudSelectStudentCount(eduElectiveStudentCount);
+/*  49 */       if (list.size() > 0) {
+/*  50 */         for (EduElectiveStudentCount eduElectiveStudentCount1 : list)
+/*     */         {
+/*  52 */           contsum = this.eduStudentMapper.studentSelectSum(eduElectiveStudentCount1.getClassId());
+/*  53 */           eduElectiveStudentCount1.setContsum(Integer.valueOf(contsum));
+/*  54 */           eduElectiveStudentCount1.setDeptFunc(this.eduElectiveStudentCountMapper.classIDName(eduElectiveStudentCount1.getClassId()));
+/*  55 */           json.setObj(list);
+/*  56 */           json.setMsg("ok");
+/*  57 */           json.setFlag(0);
+/*     */         }
+/*     */       } else {
+/*  60 */         json.setMsg("err");
+/*  61 */         json.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  64 */       e.printStackTrace();
+/*     */     }
+/*  66 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson eudSelectClassStudentCount(Map<String, Object> map)
+/*     */   {
+/*  78 */     ToJson json = new ToJson();
+/*     */     try {
+/*  80 */       List list = this.eduElectiveStudentCountMapper.eudSelectClassStudentCount(map);
+/*  81 */       if (list.size() > 0) {
+/*  82 */         json.setObject(list);
+/*  83 */         json.setMsg("ok");
+/*  84 */         json.setFlag(0);
+/*     */       } else {
+/*  86 */         json.setMsg("err");
+/*  87 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  90 */       e.printStackTrace();
+/*     */     }
+/*  92 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson eduElecctiveStudentCountSum(Map<String, Object> map)
+/*     */   {
+/* 104 */     ToJson json = new ToJson();
+/*     */     try {
+/* 106 */       List list = this.eduElectiveStudentCountMapper.eduElecctiveStudentCountSum(map);
+/* 107 */       if (list.size() > 0) {
+/* 108 */         json.setObject(list);
+/* 109 */         json.setMsg("ok");
+/* 110 */         json.setFlag(0);
+/*     */       } else {
+/* 112 */         json.setMsg("err");
+/* 113 */         json.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 116 */       e.printStackTrace();
+/*     */     }
+/* 118 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson eduElecctiveStudentCountUpdate(Integer id)
+/*     */   {
+/* 130 */     ToJson json = new ToJson();
+/*     */     try {
+/* 132 */       int count = this.eduElectiveStudentCountMapper.eduElecctiveStudentCountUpdate(id);
+/* 133 */       if (count > 0) {
+/* 134 */         json.setMsg("ok");
+/* 135 */         json.setFlag(0);
+/*     */       } else {
+/* 137 */         json.setMsg("err");
+/* 138 */         json.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 141 */       e.printStackTrace();
+/*     */     }
+/* 143 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson eduElecctiveStudentCountUpdateAccumulation(Integer id)
+/*     */   {
+/* 155 */     ToJson json = new ToJson();
+/*     */     try {
+/* 157 */       int count = this.eduElectiveStudentCountMapper.eduElecctiveStudentCountUpdateAccumulation(id);
+/* 158 */       if (count > 0) {
+/* 159 */         json.setMsg("ok");
+/* 160 */         json.setFlag(0);
+/*     */       } else {
+/* 162 */         json.setMsg("err");
+/* 163 */         json.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 166 */       e.printStackTrace();
+/*     */     }
+/* 168 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson eduElecctiveStudentCountInsert(EduElectiveStudentCount eduElectiveStudentCount)
+/*     */   {
+/* 180 */     ToJson json = new ToJson();
+/*     */     try {
+/* 182 */       int count = this.eduElectiveStudentCountMapper.eduElecctiveStudentCountInsert(eduElectiveStudentCount);
+/* 183 */       if (count > 0) {
+/* 184 */         json.setMsg("ok");
+/* 185 */         json.setFlag(0);
+/*     */       } else {
+/* 187 */         json.setMsg("err");
+/* 188 */         json.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 191 */       e.printStackTrace();
+/*     */     }
+/* 193 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduElectiveStudentCount> eduElectiveOneSelect(String id)
+/*     */   {
+/* 202 */     ToJson json = new ToJson();
+/*     */     try {
+/* 204 */       EduElectiveStudentCount eduElectiveStudentCount = this.eduElectiveStudentCountMapper.eduElectiveOneSelect(id);
+/* 205 */       if ((eduElectiveStudentCount != null) && 
+/* 206 */         (eduElectiveStudentCount.getNidCount() != null) && (eduElectiveStudentCount.getNidCount().intValue() != 0)) {
+/* 207 */         json.setMsg("ok");
+/* 208 */         json.setFlag(0);
+/* 209 */         json.setObject(eduElectiveStudentCount);
+/* 210 */         return json;
+/*     */       }
+/*     */ 
+/* 213 */       json.setMsg("err");
+/* 214 */       json.setFlag(1);
+/*     */     } catch (Exception e) {
+/* 216 */       e.printStackTrace();
+/*     */     }
+/* 218 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson eduClassStudent(HttpServletRequest request)
+/*     */   {
+/* 230 */     ToJson json = new ToJson();
+/* 231 */     int classId = Integer.parseInt(request.getParameter("classId"));
+/* 232 */     int sid = Integer.parseInt(request.getParameter("sid"));
+/*     */ 
+/* 234 */     Map hashMap = new HashMap();
+/* 235 */     Map hamap = new HashMap();
+/*     */     try {
+/* 237 */       List<Map<String,Object>> list = this.eduElectiveStudentCountMapper.eduClassStudent(Integer.valueOf(classId));
+/* 238 */       if (list != null) {
+/* 239 */         for (Map map : list) {
+/* 240 */           String studentId = map.get("userId").toString();
+/* 241 */           hashMap.put("sid", Integer.valueOf(sid));
+/* 242 */           hashMap.put("classId", Integer.valueOf(classId));
+/* 243 */           hashMap.put("studentId", studentId);
+/* 244 */           Integer nidCount = this.eduElectiveStudentCountMapper.eduMaxElective(hashMap);
+/* 245 */           if (nidCount == null) {
+/* 246 */             nidCount = Integer.valueOf(0);
+/*     */           }
+/* 248 */           hamap.put("nid", Integer.valueOf(sid));
+/* 249 */           hamap.put("classId", Integer.valueOf(classId));
+/* 250 */           Integer maxClass = this.eduElectivePublishMapper.studentIDClassID(hamap);
+/* 251 */           if (maxClass == null) {
+/* 252 */             maxClass = Integer.valueOf(0);
+/*     */           }
+/* 254 */           map.put("maxClass", maxClass);
+/* 255 */           map.put("nidCount", nidCount);
+/*     */         }
+/* 257 */         json.setObj(list);
+/* 258 */         json.setFlag(1);
+/* 259 */         json.setMsg("ok");
+/*     */       } else {
+/* 261 */         json.setFlag(1);
+/* 262 */         json.setMsg("eer");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 265 */       e.printStackTrace();
+/*     */     }
+/* 267 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson eduMaxElective(Map<String, Object> map)
+/*     */   {
+/* 272 */     return null;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Map<String, Object>> studentClassIdName(Integer sid)
+/*     */   {
+/* 282 */     ToJson json = new ToJson();
+/*     */     try {
+/* 284 */       List<Map<String, Object>> list = this.eduElectiveStudentCountMapper.studentClassIdName(sid);
+/* 285 */       for (Map map : list) {
+/* 286 */         String classStudentName = this.eduElectiveStudentCountMapper.classIDName((Integer)map.get("classId"));
+/* 287 */         map.put("classStudentName", classStudentName);
+/*     */       }
+/* 289 */       if (list.size() > 0) {
+/* 290 */         json.setMsg("ok");
+/* 291 */         json.setFlag(0);
+/* 292 */         json.setObj(list);
+/* 293 */         return json;
+/*     */       }
+/* 295 */       json.setMsg("err");
+/* 296 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 298 */       e.printStackTrace();
+/*     */     }
+/* 300 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson eduClassIdXuanKeId(Map<String, Object> map)
+/*     */   {
+/* 312 */     ToJson json = new ToJson();
+/*     */     try {
+/* 314 */       List list = this.eduElectiveStudentCountMapper.eduClassIdXuanKeId(map);
+/* 315 */       if (list.size() > 0) {
+/* 316 */         json.setFlag(0);
+/* 317 */         json.setMsg("ok");
+/* 318 */         json.setObj(list);
+/* 319 */         return json;
+/*     */       }
+/* 321 */       json.setFlag(0);
+/* 322 */       json.setMsg("err");
+/*     */     } catch (Exception e) {
+/* 324 */       e.printStackTrace();
+/*     */     }
+/* 326 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduElectiveStudentCount.impl.EduElectiveStudentCountServiceImpl
+ * JD-Core Version:    0.6.0
+ */

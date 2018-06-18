@@ -1,0 +1,402 @@
+/*     */ package com.xoa.service.supervision.impl;
+/*     */ 
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.supervision.SupervisionMapper;
+/*     */ import com.xoa.dao.supervision.SupervisionTypeMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.department.Department;
+/*     */ import com.xoa.model.supervision.Supervision;
+/*     */ import com.xoa.model.supervision.SupervisionType;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.supervision.SupervisionService;
+/*     */ import com.xoa.service.users.UsersService;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.treeUtil.CheckTree;
+/*     */ import com.xoa.util.treeUtil.SuperviseTreeUtil;
+/*     */ import com.xoa.util.treeUtil.TreeGirdNode;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.LinkedList;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class SupervisionServiceImpl
+/*     */   implements SupervisionService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   SupervisionMapper supervisionMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   SupervisionTypeMapper supervisionTypeMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   UsersMapper usersMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersService usersService;
+/*     */ 
+/*     */   public ToJson<Supervision> getSupManageByTypeId(HttpServletRequest request, Integer typeId)
+/*     */   {
+/*  55 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  57 */       List<Supervision> list = this.supervisionMapper.getSupManageByTypeId(typeId);
+/*  58 */       if (list != null) {
+/*  59 */         for (Supervision supervision : list)
+/*     */         {
+/*  61 */           if (!StringUtils.checkNull(supervision.getEndTime()).booleanValue()) {
+/*  62 */             supervision.setEndTime(supervision.getEndTime().substring(0, supervision.getEndTime().length() - 2));
+/*     */           }
+/*     */ 
+/*  65 */           String nameStrings = checkAll(supervision.getUserId());
+/*  66 */           supervision.setUserPrivName(nameStrings);
+/*     */         }
+/*  68 */         toJson.setObj(list);
+/*  69 */         toJson.setMsg("ok");
+/*     */       } else {
+/*  71 */         toJson.setMsg("数据信息为空");
+/*     */       }
+/*  73 */       toJson.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e) {
+/*  76 */       e.printStackTrace();
+/*  77 */       toJson.setMsg(e.getMessage());
+/*  78 */       toJson.setFlag(1);
+/*     */     }
+/*  80 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TreeGirdNode> getSupManageMenu(HttpServletRequest request, Supervision supervision)
+/*     */   {
+/*  86 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  88 */       Map map = new HashMap();
+/*  89 */       map.put("userId", request.getSession().getAttribute("userId"));
+/*  90 */       map.put("userPriv", request.getSession().getAttribute("userPriv"));
+/*  91 */       map.put("deptId", request.getSession().getAttribute("deptId"));
+/*  92 */       List list = new LinkedList();
+/*  93 */       list = this.supervisionTypeMapper.getSupManageMenu(supervision);
+/*  94 */       List rootList = new ArrayList();
+/*  95 */       Iterator total = list.iterator();
+/*  96 */       String userId = (String)map.get("userId");
+/*  97 */       while (total.hasNext()) {
+/*  98 */         SupervisionType type = (SupervisionType)total.next();
+/*     */ 
+/* 100 */         if ((type.getParentId() == null) || (type.getParentId().intValue() == 0)) {
+/* 101 */           if ("admin".equals(userId)) {
+/* 102 */             rootList.add(type);
+/* 103 */             total.remove();
+/* 104 */             continue;
+/*     */           }
+/* 106 */           boolean flag = CheckTree.checkAll(type.getUserId(), map);
+/* 107 */           if (flag) {
+/* 108 */             rootList.add(type);
+/* 109 */             total.remove();
+/*     */           }
+/*     */         }
+/*     */       }
+/* 113 */       SuperviseTreeUtil sup = new SuperviseTreeUtil(rootList, list, map);
+/* 114 */       List totalListAdmin = new LinkedList();
+/* 115 */       totalListAdmin = sup.getTreeGirdNode();
+/*     */ 
+/* 121 */       toJson.setObj(totalListAdmin);
+/* 122 */       toJson.setMsg("ok");
+/* 123 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 125 */       e.printStackTrace();
+/* 126 */       toJson.setMsg(e.getMessage());
+/* 127 */       toJson.setFlag(1);
+/*     */     }
+/* 129 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Supervision> addSupervision(HttpServletRequest request, Supervision supervision)
+/*     */   {
+/* 141 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 143 */       supervision.setManagerId(supervision.getManagerId().substring(0, supervision.getManagerId().length() - 1));
+/* 144 */       supervision.setLeaderId(supervision.getLeaderId().substring(0, supervision.getLeaderId().length() - 1));
+/* 145 */       supervision.setCreaterId((String)request.getSession().getAttribute("userId"));
+/* 146 */       supervision.setCreaterTime(DateFormat.getCurrentTime());
+/* 147 */       int a = this.supervisionMapper.addSupervision(supervision);
+/* 148 */       if (a > 0) {
+/* 149 */         toJson.setObject(supervision);
+/* 150 */         toJson.setMsg("ok");
+/* 151 */         toJson.setFlag(0);
+/*     */       } else {
+/* 153 */         toJson.setMsg("err");
+/* 154 */         throw new Exception();
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 157 */       e.printStackTrace();
+/* 158 */       toJson.setMsg(e.getMessage());
+/* 159 */       toJson.setFlag(1);
+/*     */     }
+/* 161 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Supervision> deleteSupervisionBySid(HttpServletRequest request, Integer sid)
+/*     */   {
+/* 173 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 175 */       this.supervisionMapper.deleteSupervisionBySid(sid);
+/* 176 */       if (sid != null)
+/* 177 */         toJson.setMsg("ok");
+/*     */       else {
+/* 179 */         toJson.setMsg("err");
+/*     */       }
+/* 181 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 183 */       e.printStackTrace();
+/* 184 */       toJson.setMsg(e.getMessage());
+/* 185 */       toJson.setFlag(1);
+/*     */     }
+/* 187 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Supervision> selectCountList(Map<String, String> mapParamter, Integer sid, String beginDate, String endDate, String typeId)
+/*     */   {
+/* 201 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 203 */       String type1 = (String)mapParamter.get("type1");
+/* 204 */       String type2 = (String)mapParamter.get("type2");
+/* 205 */       String type3 = (String)mapParamter.get("type3");
+/* 206 */       String deptId = (String)mapParamter.get("deptId");
+/*     */ 
+/* 208 */       Map objectMap = new HashMap();
+/* 209 */       if ((!StringUtils.checkNull(beginDate).booleanValue()) && (!StringUtils.checkNull(endDate).booleanValue())) {
+/* 210 */         objectMap.put("beginDate", beginDate);
+/* 211 */         objectMap.put("endDate", endDate);
+/*     */       }
+/* 213 */       if (!StringUtils.checkNull(typeId).booleanValue()) {
+/* 214 */         objectMap.put("typeId", typeId);
+/*     */       }
+/*     */ 
+/* 217 */       objectMap.put("deptId", deptId);
+/*     */ 
+/* 219 */       switch (Integer.parseInt(type1)) {
+/*     */       case 1:
+/* 221 */         List<Department> deptList = this.departmentMapper.getAllDepartment();
+/* 222 */         List maplist = new LinkedList();
+/* 223 */         for (Department dept : deptList) {
+/* 224 */           Supervision map = queryCountByDept(dept.getDeptId(), objectMap);
+/* 225 */           map.setDeptName(dept.getDeptName());
+/* 226 */           maplist.add(map);
+/*     */         }
+/* 228 */         toJson.setObj(maplist);
+/* 229 */         break;
+/*     */       case 2:
+/* 231 */         List<SupervisionType> list = this.supervisionTypeMapper.selectAll();
+/* 232 */         List maplist2 = new LinkedList();
+/* 233 */         for (SupervisionType s : list) {
+/* 234 */           Supervision sp = queryCountByType(s.getSid(), objectMap);
+/* 235 */           sp.setTypeId(s.getSid());
+/* 236 */           sp.setDeptName(s.getTypeName());
+/* 237 */           maplist2.add(sp);
+/*     */         }
+/* 239 */         toJson.setObj(maplist2);
+/* 240 */         break;
+/*     */       case 3:
+/* 242 */         Supervision sp = queryCount(objectMap);
+/* 243 */         toJson.setObject(sp);
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 249 */       e.printStackTrace();
+/* 250 */       toJson.setMsg(e.getMessage());
+/* 251 */       L.e(new Object[] { "Supervision selectCountList" + e });
+/*     */     }
+/* 253 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Supervision> getSupAssistDetail(HttpServletRequest request, Integer sid)
+/*     */   {
+/* 259 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 261 */       Supervision supervision2 = new Supervision();
+/* 262 */       supervision2.setSid(sid);
+/* 263 */       supervision2.setManagerId((String)request.getSession().getAttribute("userId"));
+/* 264 */       Supervision supervision = this.supervisionMapper.getSupAssistDetail(supervision2);
+/*     */ 
+/* 269 */       if (supervision != null) {
+/* 270 */         if (!StringUtils.checkNull(supervision.getBeginTime()).booleanValue()) {
+/* 271 */           supervision.setBeginTime(supervision.getBeginTime().substring(0, supervision.getBeginTime().length() - 2));
+/*     */         }
+/* 273 */         if (!StringUtils.checkNull(supervision.getEndTime()).booleanValue()) {
+/* 274 */           supervision.setEndTime(supervision.getEndTime().substring(0, supervision.getEndTime().length() - 2));
+/*     */         }
+/* 276 */         String userId = checkAll(supervision.getUserId() == null ? "" : supervision.getUserId());
+/* 277 */         supervision.setUserPrivName(userId);
+/* 278 */         toJson.setObject(supervision);
+/* 279 */         toJson.setMsg("ok");
+/*     */       } else {
+/* 281 */         toJson.setMsg("数据为空");
+/*     */       }
+/* 283 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 285 */       e.printStackTrace();
+/* 286 */       toJson.setMsg(e.getMessage());
+/* 287 */       L.e(new Object[] { "SupervisionServiceImpl getSupAssistDetail:" + e });
+/*     */     }
+/* 289 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public String checkAll(String checkString)
+/*     */   {
+/* 300 */     StringBuffer sb = new StringBuffer("");
+/* 301 */     Map mapParam = new HashMap();
+/*     */ 
+/* 307 */     if (checkString != null)
+/*     */     {
+/* 310 */       String checkUserId = checkString.substring(0, checkString.length() == 0 ? 0 : checkString.length() - 1);
+/* 311 */       if ((checkUserId != null) && (!"".equals(checkUserId))) {
+/* 312 */         checkUserId = "'" + checkUserId.replace(",", "','") + "'";
+/* 313 */         mapParam.put("checkUserId", checkUserId);
+/* 314 */         List<String> listCheckUserId = this.usersMapper.getUserNames(mapParam);
+/* 315 */         sb.append(getString(listCheckUserId));
+/* 316 */         for (String s : listCheckUserId)
+/* 317 */           sb.append("");
+/*     */       }
+/*     */       else {
+/* 320 */         sb.append("");
+/*     */       }
+/*     */     }
+/* 323 */     return sb.toString();
+/*     */   }
+/*     */ 
+/*     */   private Supervision queryCount(Map<String, Object> objectMap)
+/*     */   {
+/* 345 */     Supervision sp = this.supervisionMapper.queryCount();
+/* 346 */     return sp;
+/*     */   }
+/*     */ 
+/*     */   public Supervision queryCountByDept(Integer deptId, Map<String, Object> map)
+/*     */   {
+/* 351 */     Supervision paraSup = new Supervision();
+/* 352 */     paraSup.setDeptId(deptId);
+/* 353 */     if ((!StringUtils.checkNull((String)map.get("beginDate")).booleanValue()) && (!StringUtils.checkNull((String)map.get("endDate")).booleanValue())) {
+/* 354 */       paraSup.setBeginDate((String)map.get("beginDate"));
+/* 355 */       paraSup.setEndDate((String)map.get("endDate"));
+/*     */     }
+/* 357 */     if (!StringUtils.checkNull((String)map.get("typeId")).booleanValue()) {
+/* 358 */       paraSup.setTypeId(Integer.valueOf(Integer.parseInt((String)map.get("typeId"))));
+/*     */     }
+/* 360 */     paraSup = this.supervisionMapper.queryCountSupervisionByStatus(paraSup);
+/* 361 */     return paraSup;
+/*     */   }
+/*     */   public Supervision queryCountByType(Integer typeId, Map<String, Object> objectMap) {
+/* 364 */     objectMap.put("typeId", typeId);
+/* 365 */     Supervision paraSup = new Supervision();
+/* 366 */     paraSup = this.supervisionMapper.queryCountByType(paraSup);
+/* 367 */     return paraSup;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Supervision> queryCountSupervisionByStatus()
+/*     */   {
+/* 372 */     ToJson toJson = new ToJson(1, "error");
+/* 373 */     Supervision supervision = new Supervision();
+/* 374 */     Supervision paraSup = new Supervision();
+/*     */     try {
+/* 376 */       int count = this.supervisionMapper.queryCountSupervisionByStatus();
+/* 377 */       toJson.setTotleNum(Integer.valueOf(count));
+/* 378 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 380 */       e.printStackTrace();
+/* 381 */       toJson.setFlag(1);
+/*     */     }
+/* 383 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Supervision> getSupApplyTaskList(Integer status, Integer sid, HttpServletRequest request)
+/*     */   {
+/* 394 */     ToJson toJson = new ToJson(1, "error");
+/* 395 */     Supervision supervision = new Supervision();
+/* 396 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 397 */     supervision.setUserId(user.getUserId());
+/* 398 */     supervision.setManagerId(user.getUserId());
+/* 399 */     supervision.setStatus(status);
+/*     */     try {
+/* 401 */       List<Supervision> list = this.supervisionMapper.getSupApplyTaskList1(supervision);
+/* 402 */       if (list != null) {
+/* 403 */         for (Supervision supervision1 : list) {
+/* 404 */           if (!StringUtils.checkNull(supervision1.getRealEndTime()).booleanValue())
+/* 405 */             supervision1.setRealEndTime(supervision1.getRealEndTime().substring(0, supervision1.getRealEndTime().length() - 2));
+/* 406 */           if (!StringUtils.checkNull(supervision1.getEndTime()).booleanValue())
+/* 407 */             supervision1.setEndTime(supervision1.getEndTime().substring(0, supervision1.getEndTime().length() - 2));
+/* 408 */           String userid = checkAll(supervision1.getUserId());
+/* 409 */           supervision1.setUserPrivName(userid);
+/*     */         }
+/* 411 */         toJson.setObject(list);
+/* 412 */         toJson.setMsg("ok");
+/*     */       } else {
+/* 414 */         toJson.setMsg("空");
+/*     */       }
+/* 416 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 418 */       e.printStackTrace();
+/* 419 */       toJson.setMsg(e.getMessage());
+/* 420 */       toJson.setFlag(1);
+/*     */     }
+/* 422 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public String getString(List<String> Strings) {
+/* 426 */     StringBuffer sb = new StringBuffer("");
+/* 427 */     for (String s : Strings) {
+/* 428 */       sb.append(s);
+/* 429 */       sb.append(",");
+/*     */     }
+/* 431 */     return sb.toString();
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Supervision> updateSupStatus(Supervision supervision, HttpServletRequest request)
+/*     */   {
+/* 442 */     ToJson tojson = new ToJson(1, "修改失败！");
+/* 443 */     int a = this.supervisionMapper.updateByPrimaryKeySelective(supervision);
+/* 444 */     if (a > 0) {
+/* 445 */       tojson.setFlag(0);
+/* 446 */       tojson.setMsg("操作成功");
+/*     */     }
+/* 448 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Supervision> updateSupervision(HttpServletRequest request, Supervision supervision)
+/*     */   {
+/* 453 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 455 */       supervision.setManagerId(supervision.getManagerId().substring(0, supervision.getManagerId().length() - 1));
+/* 456 */       supervision.setLeaderId(supervision.getLeaderId().substring(0, supervision.getLeaderId().length() - 1));
+/* 457 */       int a = this.supervisionMapper.updateSupervision(supervision);
+/* 458 */       if (a > 0) {
+/* 459 */         toJson.setMsg("ok");
+/* 460 */         toJson.setFlag(0);
+/*     */       } else {
+/* 462 */         toJson.setMsg("更新失败");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 465 */       e.printStackTrace();
+/* 466 */       toJson.setMsg(e.getMessage());
+/*     */     }
+/* 468 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.supervision.impl.SupervisionServiceImpl
+ * JD-Core Version:    0.6.0
+ */

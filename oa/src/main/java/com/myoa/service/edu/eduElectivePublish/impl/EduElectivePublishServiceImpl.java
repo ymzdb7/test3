@@ -1,0 +1,131 @@
+ package com.myoa.service.edu.eduElectivePublish.impl;
+ 
+ import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.myoa.dao.common.SysCodeMapper;
+import com.myoa.dao.edu.eduElectiveDetail.EduElectiveDetailMapper;
+import com.myoa.dao.edu.eduElectivePublish.EduElectivePublishMapper;
+import com.myoa.model.common.SysCode;
+import com.myoa.model.edu.eduElectivePublish.EduElectivePublish;
+import com.myoa.service.edu.eduElectivePublish.IEduElectivePublishService;
+import com.myoa.util.ToJson;
+
+ import java.beans.Transient;
+ import java.util.Iterator;
+ import java.util.List;
+ import javax.annotation.Resource;
+ import javax.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Service;
+ 
+ @Service
+ public class EduElectivePublishServiceImpl extends ServiceImpl<EduElectivePublishMapper, EduElectivePublish>
+   implements IEduElectivePublishService
+ {
+ 
+   @Resource
+   private SysCodeMapper sysCodeMapper;
+ 
+   @Resource
+   private EduElectivePublishMapper eduElectivePublishMapper;
+ 
+   @Resource
+   private EduElectiveDetailMapper eduElectiveDetailMapper;
+ 
+   public ToJson<EduElectivePublish> selectEduPublish(EduElectivePublish eduElectivePublish, HttpServletRequest request, Integer page, Integer pageSize, boolean useFlag)
+   {
+     ToJson json = new ToJson();
+     try {
+       List<EduElectivePublish>  list = this.eduElectivePublishMapper.selectEduPublish(eduElectivePublish);
+       for (Iterator<EduElectivePublish>  i$ = list.iterator(); i$.hasNext(); ) {EduElectivePublish eduElectivePublish1 = i$.next();
+         List<SysCode> code = this.sysCodeMapper.getSysCode("EDU_YEAR_NO");
+         for (SysCode sysCode : code)
+           if (sysCode.getCodeNo().equals(eduElectivePublish1.getYear()))
+             eduElectivePublish1.setYearName(sysCode.getCodeName());
+       }
+       EduElectivePublish eduElectivePublish1;
+       if (list.size() > 0) {
+         json.setObj(list);
+         json.setFlag(0);
+         json.setMsg("ok");
+       } else {
+         json.setMsg("err");
+         json.setFlag(1);
+       }
+     } catch (Exception e) {
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   @Transient
+   public ToJson insertEduEPublish(EduElectivePublish eduElectivePublish)
+   {
+     ToJson json = new ToJson();
+     try {
+       eduElectivePublish.setCreateUser("admin");
+       eduElectivePublish.setAttachmentId("无");
+       eduElectivePublish.setAttachmentName("无");
+       int count = this.eduElectivePublishMapper.insertEduEPublish(eduElectivePublish);
+       if (count > 0) {
+         json.setFlag(count);
+         json.setMsg("ok");
+       } else {
+         json.setMsg("err");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   @Transient
+   public ToJson updateEduPublish(EduElectivePublish eduElectivePublish)
+   {
+     ToJson json = new ToJson();
+     try {
+       int count = this.eduElectivePublishMapper.updateEduPublish(eduElectivePublish);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(count);
+       } else {
+         json.setMsg("err");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   @Transient
+   public ToJson deleteEduPublish(HttpServletRequest request)
+   {
+     ToJson json = new ToJson();
+     String[] id = request.getParameterValues("id[]");
+     int t = 0; int count = 0; int to = 0;
+     try {
+       for (int i = 0; i < id.length; i++) {
+         int tid = Integer.parseInt(id[i].trim());
+         to = this.eduElectiveDetailMapper.deleteElectiveDetaim(Integer.valueOf(tid));
+         if (to > 0) {
+           count = this.eduElectivePublishMapper.deleteEduPublish(Integer.valueOf(tid));
+           t += count; } else {
+           json.setMsg("err");
+           json.setFlag(1);
+           return json;
+         }
+       }
+       if (t > 0) {
+         json.setMsg("ok" + count);
+         json.setFlag(0);
+         return json;
+       }
+       json.setMsg("err");
+       json.setFlag(1);
+     } catch (Exception e) {
+       e.printStackTrace();
+     }
+     return json;
+   }
+ }
+

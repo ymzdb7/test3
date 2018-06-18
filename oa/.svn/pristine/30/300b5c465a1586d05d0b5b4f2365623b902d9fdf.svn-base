@@ -1,0 +1,119 @@
+/*     */ package com.xoa.controller.common;
+/*     */ 
+/*     */ import com.xoa.util.Constant;
+import com.xoa.util.dataSource.ContextHolder;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.log4j.Logger;
+/*     */ import org.springframework.context.annotation.Scope;
+/*     */ import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ 
+/*     */ @Controller
+/*     */ @Scope("prototype")
+/*     */ @RequestMapping({"/common"})
+/*     */ public class CommonController
+/*     */ {
+/*  31 */   private Logger loger = Logger.getLogger(CommonController.class);
+/*     */ 
+/*     */   @RequestMapping({"/selectUser"})
+/*     */   public String addboxPage(HttpServletRequest request) {
+/*  36 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  38 */     return "app/common/selectUser";
+/*     */   }
+/*  42 */   @RequestMapping({"/hierarchicalselectDept"})
+/*     */   public String hierarchicalselectDept(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  44 */     return "app/common/hierarchicalselectDept"; } 
+/*     */   @RequestMapping({"/ntko"})
+/*     */   public String ntko(HttpServletRequest request) {
+/*  48 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  50 */     return "app/common/ntko";
+/*     */   }
+/*  54 */   @RequestMapping({"/ntkoPreview"})
+/*     */   public String ntkoPreview(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  56 */     return "app/common/ntkoPreview"; } 
+/*     */   @RequestMapping({"/selectUserWorkFlow"})
+/*     */   public String selectUserWorkFlow(HttpServletRequest request) {
+/*  60 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  62 */     return "app/common/selectUserWorkFlow";
+/*     */   }
+/*  66 */   @RequestMapping({"/selectPriv"})
+/*     */   public String addPrivPage(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  68 */     return "app/common/selectPriv"; } 
+/*     */   @RequestMapping({"/selectDept"})
+/*     */   public String addDeptPage(HttpServletRequest request) {
+/*  72 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  74 */     return "app/common/selectDept";
+/*     */   }
+/*  78 */   @RequestMapping({"/addPageDemo"})
+/*     */   public String addPageDemo(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  80 */     return "app/common/addPageDemo"; } 
+/*     */   @RequestMapping({"/deptManagement"})
+/*     */   public String divisionalManagement(HttpServletRequest request) {
+/*  84 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  86 */     return "app/sys/deptManagement";
+/*     */   }
+/*  90 */   @RequestMapping({"/roleManagement"})
+/*     */   public String roleManagement(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  92 */     return "app/sys/roleManagement"; } 
+/*     */   @RequestMapping({"/userManagement"})
+/*     */   public String userManagement(HttpServletRequest request) {
+/*  96 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  98 */     return "app/sys/userManagement";
+/*     */   }
+/* 102 */   @RequestMapping({"/systemCode"})
+/*     */   public String systemCode(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 104 */     return "app/sys/sysCode"; }
+/*     */ 
+/*     */   @RequestMapping({"/selectEduDept"})
+/*     */   public String selectEduDep(HttpServletRequest request) {
+/* 109 */     return "app/common/selectEduDept";
+/*     */   }
+/*     */   @RequestMapping({"/selectEduPriv"})
+/*     */   public String addEduPrivPage(HttpServletRequest request) {
+/* 114 */     return "app/common/selectEduPriv";
+/*     */   }
+/*     */   @RequestMapping({"/selectEduUser"})
+/*     */   public String addEduUserPage(HttpServletRequest request) {
+/* 119 */     return "app/common/selectEduUser";
+/*     */   }
+/*     */   @RequestMapping({"/selectGrade"})
+/*     */   public String selectGrade(HttpServletRequest request) {
+/* 124 */     return "app/common/selectGrade";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/selectClazz"})
+/*     */   public String selectClazz(HttpServletRequest request) {
+/* 130 */     return "app/common/selectClazz";
+/*     */   }
+/*     */   @RequestMapping({"/selectAddDept"})
+/*     */   public String addEduDept(HttpServletRequest request) {
+/* 135 */     return "app/common/selectDeptAdd";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/managementPortal"})
+/*     */   public String managementPortal(HttpServletRequest request) {
+/* 141 */     return "app/main/managementPortal";
+/*     */   }
+/*     */   @RequestMapping({"/selectSchool"})
+/*     */   public String selectSchool(HttpServletRequest request) {
+/* 146 */     return "app/common/selectSchool";
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.common.CommonController
+ * JD-Core Version:    0.6.0
+ */

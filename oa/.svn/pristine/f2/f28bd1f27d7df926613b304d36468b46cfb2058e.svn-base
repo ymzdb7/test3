@@ -1,0 +1,688 @@
+ package com.myoa.service.sys.impl;
+ 
+ import com.myoa.dao.common.SysParaMapper;
+import com.myoa.dao.unitmanagement.UnitManageMapper;
+import com.myoa.model.common.SysPara;
+import com.myoa.model.users.OrgManage;
+import com.myoa.service.sys.SystemInfoService;
+import com.myoa.service.users.OrgManageService;
+import com.myoa.service.users.UsersService;
+import com.myoa.util.common.L;
+import com.myoa.util.ipUtil.MachineCode;
+import com.myoa.util.systeminfo.DESUtils;
+import com.myoa.util.systeminfo.MachineUtil;
+
+ import java.io.BufferedReader;
+ import java.io.File;
+ import java.io.FileInputStream;
+ import java.io.FileReader;
+ import java.io.FileWriter;
+ import java.io.IOException;
+ import java.io.InputStreamReader;
+ import java.io.PrintStream;
+ import java.text.ParseException;
+ import java.text.SimpleDateFormat;
+ import java.util.Date;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.Properties;
+ import java.util.ResourceBundle;
+ import javax.annotation.Resource;
+ import javax.servlet.ServletContext;
+ import javax.servlet.http.HttpServletRequest;
+ import javax.servlet.http.HttpSession;
+import org.springframework.stereotype.Service;
+ 
+ @Service
+ public class SystemInfoServiceImpl
+   implements SystemInfoService
+ {
+ 
+   @Resource
+   private UnitManageMapper unitManageMapper;
+ 
+   @Resource
+   private UsersService usersService;
+ 
+   @Resource
+   private OrgManageService orgManageService;
+ 
+   @Resource
+   private SysParaMapper sysParaMapper;
+   public static final String MY_KEY = DESUtils.MY_KEY;
+   public String softName = "智能OA办公系统";
+   public static final String softVersion = "2018.03.16.1";
+   public static final String softVersionNO = "1.7";
+   public static final String cpright = "oa领跑者";
+   public static final String weblocation = "www.baidu.com";
+   public static final String webPort = "8080";
+   public static final String webServer = "apache-tomcat-7.0.53";
+   public static String dbName = "Mysql";
+   public static final String dbVersion = "5.6";
+   public static final String timezone = "中国标准时间 (8 GMT)";
+   public static String isSoftAuth = "未授权";
+   public static String useCom = "5";
+   public static String dbMysql = "com.mysql.jdbc.Driver";
+   public static String dbOracle = "oracle.jdbc.driver.OracleDriver";
+ 
+   public static String serverPath = "";
+   public static final String reloadAuthorizationstr = "正式授权信息（正式授权信息，需校验组织机构名称、机器码和软件序列号，务必与授权文件中的信息一致）";
+ 
+   public Map<String, String> getSystemInfo(String path, Object locale)
+     throws ParseException
+   {
+     ResourceBundle rb = ResourceBundle.getBundle("jdbc-sql");
+     System.out.println("driver=" + rb.getString("driverClassName"));
+     if (dbOracle.equals(rb.getString("driverClassName")))
+       dbName = "Oracle";
+     else if (dbMysql.equals(rb.getString("driverClassName"))) {
+       dbName = "Mysql";
+     }
+     Map<String,String> map = new HashMap<String,String>();
+ 
+     map.put("cpright", "oa");
+ 
+     map.put("weblocation", "www.baidu.com");
+ 
+     map.put("webPort", "8080");
+ 
+     map.put("webServer", "apache-tomcat-7.0.53");
+ 
+     map.put("dbName", dbName);
+ 
+     map.put("dbVersion", "5.6");
+ 
+     if (locale == null)
+       map.put("language", "zh_CN");
+     else {
+       map.put("language", locale.toString());
+     }
+ 
+     map.put("timezone", "中国标准时间 (8 GMT)");
+ 
+     List<OrgManage> orgManageList = this.orgManageService.getOrgManage();
+ 
+     if (orgManageList != null) {
+       useCom = orgManageList.size() + "";
+     }
+ 
+     map.put("useCom", useCom);
+ 
+     map.put("softVersion", "2018.03.16.1");
+ 
+     map.put("operationSystem", getOperationSystem());
+ 
+     map.put("jdkVersion", getJdkVersion());
+ 
+     int usercount = this.usersService.getUserCount();
+ 
+     int canLoginUser = this.usersService.getCanLoginUser();
+     int notLoginUser = usercount - canLoginUser;
+ 
+     map.put("userInfo", "总用户" + usercount + "  (允许登录用户数" + canLoginUser + "人，  禁止登录用户数" + notLoginUser + ")");
+ 
+     map.put("reloadAuthorizationstr", "正式授权信息（正式授权信息，需校验组织机构名称、机器码和软件序列号，务必与授权文件中的信息一致）");
+ 
+     Map<String,String> infoMap = getAuthInfo(path);
+ 
+     if ("true".equals(infoMap.get("isAuthStr"))) {
+       map.put("softName", getSoftName(true));
+ 
+       map.put("softSerialNo", infoMap.get("sn_no"));
+     } else {
+       map.put("softName", getSoftName(false));
+ 
+       map.put("softSerialNo", "无");
+     }
+ 
+     map.put("company_num", infoMap.get("company_num"));
+ 
+     map.put("authorizationUnit", infoMap.get("company"));
+ 
+     map.put("oaUserLimit", infoMap.get("users"));
+ 
+     if ((MachineCode.get16CharMacsType() != null) && (MachineCode.get16CharMacsType().size() > 0)) {
+       String str = (String)MachineCode.get16CharMacsType().get(0);
+       map.put("authorizationCode", str);
+     } else {
+       map.put("authorizationCode", "");
+     }
+ 
+     map.put("installDate", infoMap.get("installDate"));
+ 
+     String isAuthStr = (String)infoMap.get("isAuthStr");
+     if ("true".equals(isAuthStr)) {
+       map.put("isSoftAuth", "已注册");
+     }
+     else {
+       map.put("isSoftAuth", "未注册（采用系统默认注册文件）");
+     }
+ 
+     if ("true".equals(isAuthStr))
+     {
+       map.put("useEndDate", null);
+     } else {
+       String installDateStr = (String)infoMap.get("installDate");
+       installDateStr = installDateStr + " 00:00:00";
+       SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+       Date startDate = sdf1.parse(installDateStr);
+       String tryDay = (String)infoMap.get("tryDay");
+       int trydayTime = 30;
+       try {
+         trydayTime = Integer.parseInt(tryDay);
+       }
+       catch (Exception e) {
+       }
+       Long addTime = Long.valueOf(trydayTime * 24 * 60 * 60 * 2000L);
+       Long time = Long.valueOf(startDate.getTime() + addTime.longValue());
+       Date endDate = new Date(time.longValue());
+       String endDateStr = sdf1.format(endDate);
+       endDateStr = endDateStr.substring(0, 10);
+       map.put("useEndDate", endDateStr);
+     }
+ 
+     String lecDateStr = (String)infoMap.get("lecDateStr");
+     lecDateStr = lecDateStr + " 00:00:00";
+     SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+     Date startDate = sdf2.parse(lecDateStr);
+     Long addTime = Long.valueOf(31536000000L);
+     Long time = Long.valueOf(startDate.getTime() + addTime.longValue());
+     Date endDate = new Date(time.longValue());
+     String endDateStr = sdf2.format(endDate);
+     endDateStr = endDateStr.substring(0, 10);
+ 
+     map.put("endLecDateStr", infoMap.get("endDay"));
+ 
+     map.put("lecDateStr", infoMap.get("lecDateStr"));
+ 
+     return map;
+   }
+ 
+   public String getOperationSystem()
+   {
+     Properties prop = System.getProperties();
+     String osName = (String)prop.get("os.name");
+     if ((osName.startsWith("Windows")) || (osName.startsWith("windows"))) {
+       osName = "Windows";
+     }
+     return osName;
+   }
+ 
+   public String getJdkVersion()
+   {
+     return System.getProperty("java.version");
+   }
+ 
+   public Map<String, String> getAuthInfo(String path)
+   {
+     StringBuffer sb = new StringBuffer();
+     File file = new File(path.concat("lec.txt"));
+ 
+     BufferedReader br = null;
+     Map<String,String> hashMap = null;
+     try
+     {
+       br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+       String s;
+       while ((s = br.readLine()) != null) {
+         sb.append(s);
+       }
+ 
+       String decryptData = DESUtils.finalDec(sb.toString());
+ 
+       String[] infoArr = decryptData.split(",");
+ 
+       String company = infoArr[0];
+       String company_num = infoArr[1];
+       String users = infoArr[2];
+       String startTimeInfo = infoArr[3];
+       String endDay = infoArr[4];
+       String snno = infoArr[5];
+       String machineCode = infoArr[6];
+ 
+       writeTimeToFile(infoArr[7], path);
+ 
+       String tryTime = infoArr[7];
+       hashMap = new HashMap<String,String>();
+ 
+       hashMap.put("tryDay", tryTime);
+ 
+       File file1 = new File(path.concat("temp"));
+       long lastModified1 = file1.lastModified();
+       Date installDate1 = new Date(lastModified1);
+       SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+       String installDateStr = sdf1.format(installDate1);
+       hashMap.put("installDate", installDateStr);
+ 
+       long lastModified = file.lastModified();
+       Date installDate = new Date(lastModified);
+       String lecDateStr = sdf1.format(installDate);
+       hashMap.put("lecDateStr", lecDateStr);
+ 
+       hashMap.put("company", company);
+       hashMap.put("company_num", company_num);
+ 
+       if (Integer.parseInt(users) == 0) {
+         users = "不限制";
+       }
+       hashMap.put("users", users);
+ 
+       Date date = new Date();
+       hashMap.put("startTime", startTimeInfo);
+ 
+       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+       String startTimeStr = sdf.format(date);
+       String startDay = null;
+ 
+       boolean isAuth = checkMachineCode(machineCode);
+ 
+       if (isAuth)
+         hashMap.put("isAuthStr", "true");
+       else {
+         hashMap.put("isAuthStr", "false");
+       }
+ 
+       if (!isAuth)
+         startDay = startTimeStr.substring(0, 10);
+       else {
+         startDay = getStartTime(path);
+       }
+ 
+       startTimeStr = startDay.concat(" 00:00:00");
+       Date startTime = sdf.parse(startTimeStr);
+       long todayTime = startTime.getTime();
+ 
+       if (endDay.equals("0000-00-00")) {
+         endDay = "永久使用";
+         hashMap.put("endDay", endDay);
+       } else {
+         String endTime = getEndTime(path);
+         hashMap.put("endDay", endDay);
+       }
+ 
+       hashMap.put("sn_no", snno);
+ 
+       String encryptMaCode = DESUtils.encrypt(machineCode, "gaosuboisnumber1");
+ 
+       while (encryptMaCode.length() < 16) {
+         encryptMaCode = encryptMaCode.concat("A");
+       }
+       while (encryptMaCode.length() > 16) {
+         encryptMaCode = encryptMaCode.substring(0, 16);
+       }
+ 
+       hashMap.put("ma_code", encryptMaCode);
+     }
+     catch (Exception e)
+     {
+       L.e(new Object[] { "sys getAuthInfo:" + e });
+     } finally {
+       try {
+         br.close();
+       } catch (IOException e) {
+         L.e(new Object[] { "sys getAuthInfo:" + e });
+       }
+ 
+     }
+ 
+     return hashMap;
+   }
+ 
+   public Map<String, String> getAuthInfo(HttpServletRequest request)
+   {
+     String path = request.getSession().getServletContext().getRealPath("/");
+ 
+     StringBuffer sb = new StringBuffer();
+     File file = new File(path.concat("lec.txt"));
+ 
+     BufferedReader br = null;
+     Map<String,String> hashMap = null;
+     try
+     {
+       br = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+       String s;
+       while ((s = br.readLine()) != null) {
+         sb.append(s);
+       }
+ 
+       Map<String,String> map = new HashMap<String,String>();
+       String decryptData = DESUtils.finalDec(sb.toString());
+ 
+       String[] infoArr = decryptData.split(",");
+ 
+       String company = infoArr[0];
+       String company_num = infoArr[1];
+       String users = infoArr[2];
+       String startTimeInfo = infoArr[3];
+       String endDay = infoArr[4];
+       String snno = infoArr[5];
+       String machineCode = infoArr[6];
+ 
+       writeTimeToFile(infoArr[7], path);
+ 
+       String tryTime = infoArr[7];
+       hashMap = new HashMap<String,String>();
+ 
+       hashMap.put("tryDay", tryTime);
+ 
+       File file1 = new File(path.concat("temp"));
+       long lastModified1 = file1.lastModified();
+       Date installDate1 = new Date(lastModified1);
+       SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+       String installDateStr = sdf1.format(installDate1);
+       hashMap.put("installDate", installDateStr);
+ 
+       long lastModified = file.lastModified();
+       Date installDate = new Date(lastModified);
+       String lecDateStr = sdf1.format(installDate);
+       hashMap.put("lecDateStr", lecDateStr);
+ 
+       hashMap.put("company", company);
+       hashMap.put("company_num", company_num);
+ 
+       if (Integer.parseInt(users) == 0) {
+         users = "不限制";
+       }
+       hashMap.put("users", users);
+ 
+       Date date = new Date();
+       hashMap.put("startTime", startTimeInfo);
+ 
+       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+       String startTimeStr = sdf.format(date);
+       String startDay = null;
+ 
+       boolean isAuth = checkMachineCode(machineCode);
+ 
+       if (isAuth) {
+         hashMap.put("isAuthStr", "true");
+       }
+       else {
+         hashMap.put("isAuthStr", "false");
+       }
+ 
+       if (!isAuth)
+         startDay = startTimeStr.substring(0, 10);
+       else {
+         startDay = getStartTime(path);
+       }
+ 
+       startTimeStr = startDay.concat(" 00:00:00");
+       Date startTime = sdf.parse(startTimeStr);
+       long todayTime = startTime.getTime();
+ 
+       if (endDay.equals("0000-00-00")) {
+         endDay = "永久使用";
+         hashMap.put("endDay", endDay);
+       } else {
+         String endTime = getEndTime(path);
+         hashMap.put("endDay", endDay);
+       }
+ 
+       hashMap.put("sn_no", snno);
+ 
+       String encryptMaCode = DESUtils.encrypt(machineCode, "gaosuboisnumber1");
+ 
+       while (encryptMaCode.length() < 16) {
+         StringBuffer stringBuffer = new StringBuffer();
+         stringBuffer.append(encryptMaCode);
+         stringBuffer.append(encryptMaCode.substring(0, 1));
+         stringBuffer.append(encryptMaCode.substring(2, 3));
+         stringBuffer.append(encryptMaCode.substring(4, 5));
+         stringBuffer.append(encryptMaCode.substring(6, 7));
+         encryptMaCode = stringBuffer.toString();
+       }
+       while (encryptMaCode.length() > 16) {
+         encryptMaCode = encryptMaCode.substring(0, 16);
+       }
+ 
+       hashMap.put("ma_code", encryptMaCode);
+     }
+     catch (Exception e)
+     {
+       L.e(new Object[] { "sys getAuthInfo:" + e });
+     } finally {
+       try {
+         br.close();
+       } catch (IOException e) {
+         L.e(new Object[] { "sys getAuthInfo:" + e });
+       }
+ 
+     }
+ 
+     return hashMap;
+   }
+ 
+   public Map<String, String> getEndLecDate(HttpServletRequest request) throws ParseException
+   {
+     Map<String,String> map = new HashMap<String,String>();
+ 
+     Map<String,String> authInfoMap = getAuthInfo(request);
+     String endLecDateStr = (String)authInfoMap.get("endLecDateStr");
+ 
+     String lecDateStr = (String)authInfoMap.get("lecDateStr");
+     lecDateStr = lecDateStr + " 00:00:00";
+     SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+     Date startDate1 = sdf2.parse(lecDateStr);
+     Long addTime = Long.valueOf(31536000000L);
+     Long time = Long.valueOf(startDate1.getTime() + addTime.longValue());
+     Date endDate = new Date(time.longValue());
+     String endDateStr = sdf2.format(endDate);
+     endDateStr = endDateStr.substring(0, 10);
+ 
+     String isAuthStr = (String)authInfoMap.get("isAuthStr");
+ 
+     if ("true".equals(isAuthStr))
+     {
+       String str1 = "0000-00-00";
+     }
+ 
+     if ("true".equals(isAuthStr))
+     {
+       map.put("useEndDate", "0000-00-00");
+     }
+     else {
+       String installDateStr = (String)authInfoMap.get("installDate");
+       installDateStr = installDateStr + " 00:00:00";
+       SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+       Date startDate = sdf1.parse(installDateStr);
+       String tryDay = (String)authInfoMap.get("tryDay");
+ 
+       int trydayTime = 30;
+       try {
+         trydayTime = Integer.parseInt(tryDay);
+       }
+       catch (Exception e) {
+       }
+       Long addTime1 = Long.valueOf(trydayTime * 24 * 60 * 60 * 2000L);
+       Long time1 = Long.valueOf(startDate.getTime() + addTime1.longValue());
+       Date endDate1 = new Date(time1.longValue());
+       String endDateStr1 = sdf1.format(endDate1);
+       String useEndDate = endDateStr1.substring(0, 10);
+       map.put("useEndDate", useEndDate);
+     }
+ 
+     map.put("endLecDateStr", authInfoMap.get("endDay"));
+ 
+     return map;
+   }
+ 
+   public Map<String, String> getAPPMessage()
+   {
+     Map<String, String> maps = new HashMap<String, String>();
+     SysPara sysPara = this.sysParaMapper.querySysPara("APP_Android_Version");
+     SysPara sysPara1 = this.sysParaMapper.querySysPara("APP_IOS_Version");
+     SysPara sysPcVesison = this.sysParaMapper.querySysPara("APP_PC_Version");
+     SysPara sysPcUrl = this.sysParaMapper.querySysPara("APP_PC_DownUrl");
+     maps.put("softVersionAndroidNO", sysPara.getParaValue());
+     maps.put("softVersionIOSNO", sysPara1.getParaValue());
+     maps.put("filePath", "fileandroid/Xoa.apk");
+     maps.put("softVersionPCNO", sysPcVesison.getParaValue());
+     maps.put("pcfilePath", sysPcUrl.getParaValue());
+     return maps;
+   }
+ 
+   public Map<String, String> getAuthorization(HttpServletRequest request)
+   {
+     Map<String, String> maps = getAuthInfo(request);
+ 
+     return maps;
+   }
+ 
+   public boolean checkMachineCode(String authMachineCode)
+     throws Exception
+   {
+     List<String> encryptMacCodeList = MachineUtil.getEncryptMacCode();
+     for (String s : encryptMacCodeList) {
+       if ((s != null) && (s.equals(DESUtils.encrypt(authMachineCode, DESUtils.MY_KEY)))) {
+         return true;
+       }
+     }
+     return false;
+   }
+ 
+   public int getAuthUser(HttpServletRequest request)
+   {
+     StringBuffer sb = new StringBuffer();
+     String realPath = request.getSession().getServletContext().getRealPath("/");
+ 
+     File file = new File(realPath.concat("lec.txt"));
+     BufferedReader br = null;
+     Map<String, String> hashMap = null;
+     try {
+       FileReader fileReader = new FileReader(file);
+       br = new BufferedReader(fileReader);
+       String s;
+       while ((s = br.readLine()) != null) {
+         sb.append(s);
+       }
+ 
+       String decryptData = DESUtils.finalDec(sb.toString());
+ 
+       String[] infoArr = decryptData.split(",");
+ 
+       String userCount = infoArr[2];
+ 
+       if (Integer.parseInt(userCount) == 0) {
+         return 99999999;
+       }
+       return Integer.parseInt(userCount);
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+     }
+ 
+     return 0;
+   }
+ 
+   public int getOrgManage(HttpServletRequest request)
+   {
+     StringBuffer sb = new StringBuffer();
+     String realPath = request.getSession().getServletContext().getRealPath("/");
+ 
+     File file = new File(realPath.concat("lec.txt"));
+     BufferedReader br = null;
+     Map<String, String> hashMap = null;
+     try {
+       FileReader fileReader = new FileReader(file);
+       br = new BufferedReader(fileReader);
+       String s;
+       while ((s = br.readLine()) != null) {
+         sb.append(s);
+       }
+ 
+       String decryptData = DESUtils.finalDec(sb.toString());
+ 
+       String[] infoArr = decryptData.split(",");
+ 
+       String userCount = infoArr[1];
+ 
+       if (Integer.parseInt(userCount) == 0) {
+         return 99999999;
+       }
+       return Integer.parseInt(userCount);
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+     }
+ 
+     return 0;
+   }
+ 
+   public String getSoftName(boolean isAuth)
+   {
+     if (isAuth) {
+       if (!"OA网络智能办公系统".equals(this.softName)) {
+         this.softName = "OA网络智能办公系统";
+       }
+ 
+     }
+     else
+     {
+       if (!"OA网络智能办公系统".equals(this.softName)) {
+         this.softName = "OA网络智能办公系统";
+       }
+     }
+     return this.softName;
+   }
+ 
+   public void writeTimeToFile(String tryTime, String path)
+     throws ParseException, IOException
+   {
+     String end = getStartTime(path);
+     if (end == null)
+     {
+       int tryDay = Integer.parseInt(tryTime);
+       Long millisecond = Long.valueOf(tryDay * 24 * 60 * 60 * 1000L);
+ 
+       long time = new Date().getTime();
+ 
+       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+       String startDay = sdf.format(new Date());
+       startDay = startDay.substring(0, 10);
+       Date startDayTime = sdf.parse(startDay.concat(" 00:00:00"));
+ 
+       long totalMillisecond = time + millisecond.longValue();
+       Date endTime = new Date(totalMillisecond);
+ 
+       String endDay = sdf.format(endTime);
+       endDay = endDay.substring(0, 10);
+       File file = new File(path.concat("endday.txt"));
+       FileWriter fileWriter = new FileWriter(file);
+       String startEndDay = startDay + "," + endDay;
+       fileWriter.write(startEndDay);
+       fileWriter.close();
+     }
+   }
+ 
+   public String getEndTime(String path)
+     throws IOException
+   {
+     File file = new File(path.concat("endday.txt"));
+     FileReader fileReader = new FileReader(file);
+     BufferedReader bufferedReader = new BufferedReader(fileReader);
+     String s = bufferedReader.readLine();
+     if ((s == null) || (s.length() == 0)) {
+       return null;
+     }
+     String[] startEndDay = s.split(",");
+     String endDay = startEndDay[1];
+     return endDay;
+   }
+ 
+   public String getStartTime(String path)
+     throws IOException
+   {
+     File file = new File(path.concat("authfiles/endday.txt"));
+     FileReader fileReader = new FileReader(file);
+     BufferedReader bufferedReader = new BufferedReader(fileReader);
+     String s = bufferedReader.readLine();
+     if ((s == null) || (s.length() == 0)) {
+       return null;
+     }
+     String[] startEndDay = s.split(",");
+     String startDay = startEndDay[0];
+     return startDay;
+   }
+ } 

@@ -1,0 +1,29 @@
+/*    */ package com.xoa.controller.menu;
+/*    */ 
+/*    */ import com.xoa.service.menu.MenuService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import javax.annotation.Resource;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.stereotype.Controller;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ 
+/*    */ @Controller
+/*    */ public class MenuFindIdController
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   private MenuService menuService;
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping(value={"/getMenuId"}, produces={"application/json;charset=UTF-8"})
+/*    */   public ToJson<Integer> findMaxId(HttpServletRequest request)
+/*    */   {
+/* 28 */     return this.menuService.findMaxId();
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.menu.MenuFindIdController
+ * JD-Core Version:    0.6.0
+ */

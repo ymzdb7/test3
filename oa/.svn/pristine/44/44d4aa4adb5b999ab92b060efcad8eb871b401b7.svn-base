@@ -1,0 +1,253 @@
+/*     */ package com.xoa.util;
+/*     */ 
+/*     */ import com.xoa.util.common.session.SessionException;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.io.File;
+/*     */ import java.io.PrintStream;
+/*     */ import java.lang.reflect.Field;
+/*     */ import java.lang.reflect.InvocationTargetException;
+/*     */ import java.lang.reflect.Method;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import org.apache.commons.beanutils.BeanUtils;
+/*     */ import org.apache.commons.beanutils.PropertyUtils;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFCell;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFDateUtil;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFFont;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFRow;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.apache.poi.ss.usermodel.Cell;
+/*     */ import org.apache.poi.ss.usermodel.Row;
+/*     */ import org.apache.poi.ss.usermodel.Sheet;
+/*     */ import org.apache.poi.ss.usermodel.Workbook;
+/*     */ import org.apache.poi.ss.usermodel.WorkbookFactory;
+/*     */ import org.apache.poi.ss.util.CellRangeAddress;
+/*     */ 
+/*     */ public class ExcelUtil
+/*     */ {
+/*     */   public static HSSFWorkbook makeExcelHead(String title, int cellRangeAddressLength)
+/*     */   {
+/*  42 */     HSSFWorkbook workbook = new HSSFWorkbook();
+/*  43 */     HSSFCellStyle styleTitle = createStyle(workbook, 16);
+/*  44 */     HSSFSheet sheet = workbook.createSheet(title);
+/*  45 */     sheet.setDefaultColumnWidth(25);
+/*  46 */     CellRangeAddress cellRangeAddress = new CellRangeAddress(0, 0, 0, cellRangeAddressLength);
+/*  47 */     sheet.addMergedRegion(cellRangeAddress);
+/*  48 */     HSSFRow rowTitle = sheet.createRow(0);
+/*  49 */     HSSFCell cellTitle = rowTitle.createCell(0);
+/*     */ 
+/*  51 */     styleTitle.setFillPattern((short)1);
+/*  52 */     styleTitle.setFillForegroundColor((short)22);
+/*  53 */     cellTitle.setCellValue(title);
+/*  54 */     cellTitle.setCellStyle(styleTitle);
+/*  55 */     return workbook;
+/*     */   }
+/*     */ 
+/*     */   public static HSSFWorkbook makeSecondHead(HSSFWorkbook workbook, String[] secondTitles)
+/*     */   {
+/*  65 */     HSSFSheet sheet = workbook.getSheetAt(0);
+/*  66 */     HSSFRow rowField = sheet.createRow(1);
+/*  67 */     HSSFCellStyle styleField = createStyle(workbook, 13);
+/*  68 */     for (int i = 0; i < secondTitles.length; i++) {
+/*  69 */       HSSFCell cell = rowField.createCell(i);
+/*  70 */       cell.setCellValue(secondTitles[i]);
+/*  71 */       cell.setCellStyle(styleField);
+/*     */     }
+/*  73 */     return workbook;
+/*     */   }
+/*     */ 
+/*     */   public static <T> HSSFWorkbook exportExcelData(HSSFWorkbook workbook, List<T> dataList, String[] beanPropertys)
+/*     */     throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
+/*     */   {
+/*  86 */     HSSFSheet sheet = workbook.getSheetAt(0);
+/*     */ 
+/*  88 */     HSSFCellStyle styleData = workbook.createCellStyle();
+/*  89 */     styleData.setAlignment((short)2);
+/*  90 */     styleData.setVerticalAlignment((short)1);
+/*     */ 
+/*  92 */     for (int j = 0; j < dataList.size(); j++) {
+/*  93 */       HSSFRow rowData = sheet.createRow(j + 2);
+/*  94 */       Object t = dataList.get(j);
+/*  95 */       for (int k = 0; k < beanPropertys.length; k++) {
+/*  96 */         System.out.println(t);
+/*  97 */         System.out.println(beanPropertys[k]);
+/*  98 */         Object value = PropertyUtils.getSimpleProperty(t, beanPropertys[k]);
+/*     */ 
+/* 100 */         HSSFCell cellData = rowData.createCell(k);
+/*     */         try {
+/* 102 */           if ((!value.equals("")) && (value != null)) {
+/* 103 */             cellData.setCellValue(value.toString());
+/*     */           }
+/*     */           else {
+/* 106 */             cellData.setCellValue("");
+/*     */           }
+/*     */ 
+/* 111 */           cellData.setCellStyle(styleData);
+/*     */         }
+/*     */         catch (Exception e)
+/*     */         {
+/*     */         }
+/*     */       }
+/*     */     }
+/* 118 */     return workbook;
+/*     */   }
+/*     */ 
+/*     */   public static <T> List<T> parserExcel(Class<T> clazz, File file, String[] beanPropertys)
+/*     */   {
+/* 129 */     List list = new ArrayList();
+/*     */     try {
+/* 131 */       Workbook workbook = WorkbookFactory.create(file);
+/* 132 */       Sheet sheet = workbook.getSheetAt(0);
+/*     */ 
+/* 134 */       int rowSize = sheet.getPhysicalNumberOfRows();
+/* 135 */       if (rowSize > 2) {
+/* 136 */         for (int i = 2; i < rowSize; i++) {
+/* 137 */           Object t = clazz.newInstance();
+/* 138 */           Row row = sheet.getRow(i);
+/* 139 */           int cellSize = row.getPhysicalNumberOfCells();
+/* 140 */           for (int j = 0; j < cellSize; j++)
+/*     */           {
+/* 142 */             Object cellValue = getCellValue(row.getCell(j));
+/* 143 */             BeanUtils.copyProperty(t, beanPropertys[j], cellValue);
+/*     */           }
+/*     */ 
+/* 146 */           list.add(t);
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 152 */       e.printStackTrace();
+/*     */     }
+/* 154 */     return list;
+/*     */   }
+/*     */ 
+/*     */   private static Object getCellValue(Cell cell)
+/*     */   {
+/* 163 */     Object result = null;
+/* 164 */     if (cell != null) {
+/* 165 */       switch (cell.getCellType()) {
+/*     */       case 1:
+/* 167 */         result = cell.getStringCellValue();
+/* 168 */         break;
+/*     */       case 0:
+/* 171 */         if (!HSSFDateUtil.isCellDateFormatted(cell)) break;
+/* 172 */         double cellValue = cell.getNumericCellValue();
+/* 173 */         result = HSSFDateUtil.getJavaDate(cellValue);
+/* 174 */         break;
+/*     */       case 4:
+/* 178 */         result = Boolean.valueOf(cell.getBooleanCellValue());
+/* 179 */         break;
+/*     */       case 2:
+/* 181 */         result = cell.getCellFormula();
+/* 182 */         break;
+/*     */       case 5:
+/* 184 */         result = Byte.valueOf(cell.getErrorCellValue());
+/* 185 */         break;
+/*     */       case 3:
+/* 187 */         break;
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 192 */     return result;
+/*     */   }
+/*     */ 
+/*     */   private static HSSFCellStyle createStyle(HSSFWorkbook workbook, int fontSize)
+/*     */   {
+/* 202 */     HSSFCellStyle style = workbook.createCellStyle();
+/* 203 */     style.setAlignment((short)2);
+/* 204 */     style.setVerticalAlignment((short)1);
+/*     */ 
+/* 206 */     HSSFFont font = workbook.createFont();
+/* 207 */     font.setFontHeightInPoints((short)fontSize);
+/* 208 */     font.setBoldweight((short)700);
+/* 209 */     style.setFont(font);
+/* 210 */     return style;
+/*     */   }
+/*     */ 
+/*     */   public static <T> T setCellInfoToModel(Row row, Class<T> clazz, T deffault, Map<String, Integer> param)
+/*     */   {
+/* 225 */     Object ret = null;
+/* 226 */     if (deffault == null)
+/* 227 */       return null;
+/*     */     try {
+/* 229 */       Field[] fields = Class.forName(clazz.getName()).getDeclaredFields();
+/* 230 */       ret = clazz.cast(deffault);
+/* 231 */       for (int i = 0; i < fields.length; i++) {
+/* 232 */         fields[i].setAccessible(true);
+/* 233 */         String methodName = "";
+/* 234 */         if (fields[i].getName().equals("eMail"))
+/* 235 */           methodName = "eMail";
+/*     */         else {
+/* 237 */           methodName = SessionUtils.getMethodName(fields[i].getName());
+/*     */         }
+/* 239 */         Method set_Method = clazz.getMethod("set" + methodName, new Class[] { fields[i].getType() });
+/*     */ 
+/* 242 */         set_Method.setAccessible(true);
+/* 243 */         for (int j = 0; j < row.getPhysicalNumberOfCells(); j++) {
+/* 244 */           Cell cell = row.getCell(j);
+/* 245 */           if ((cell == null) || 
+/* 246 */             (param.get(fields[i].getName()) == null) || (j != ((Integer)param.get(fields[i].getName())).intValue())) continue;
+/* 247 */           Object value = null;
+/* 248 */           switch (cell.getCellType()) {
+/*     */           case 1:
+/* 250 */             if (fields[i].getGenericType().toString().equals("class java.util.Date"))
+/*     */             {
+/* 252 */               value = DateFormat.DateToStr(cell.getStringCellValue());
+/* 253 */             } else if (fields[i].getGenericType().toString().equals("class java.util.Integer"))
+/*     */             {
+/* 255 */               value = Integer.valueOf(cell.getStringCellValue());
+/*     */             }
+/* 257 */             else value = cell.getStringCellValue();
+/*     */ 
+/* 259 */             break;
+/*     */           case 0:
+/* 262 */             if (HSSFDateUtil.isCellDateFormatted(cell)) {
+/* 263 */               double cellValue = cell.getNumericCellValue();
+/* 264 */               value = HSSFDateUtil.getJavaDate(cellValue);
+/*     */             } else {
+/* 266 */               value = Integer.valueOf((int)cell.getNumericCellValue());
+/*     */             }
+/* 268 */             break;
+/*     */           case 4:
+/* 270 */             value = Boolean.valueOf(cell.getBooleanCellValue());
+/* 271 */             break;
+/*     */           case 2:
+/* 273 */             value = cell.getCellFormula();
+/* 274 */             break;
+/*     */           case 5:
+/* 276 */             value = Byte.valueOf(cell.getErrorCellValue());
+/* 277 */             value = DateFormat.DateToStr(String.valueOf(value));
+/* 278 */             break;
+/*     */           case 3:
+/* 280 */             break;
+/*     */           }
+/*     */ 
+/* 284 */           if (value == null) continue;
+/*     */           try {
+/* 286 */             set_Method.invoke(ret, new Object[] { value });
+/*     */           } catch (Exception e) {
+/* 288 */             set_Method.invoke(ret, new Object[] { String.valueOf(value) });
+/*     */           }
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 297 */       e.printStackTrace();
+/* 298 */       throw new SessionException("value is null");
+/*     */     }
+/* 300 */     return (T)ret;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.ExcelUtil
+ * JD-Core Version:    0.6.0
+ */

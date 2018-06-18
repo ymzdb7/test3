@@ -1,0 +1,121 @@
+/*     */ package com.xoa.service.edu.eduLearnPhase;
+/*     */ 
+/*     */ import com.xoa.dao.edu.eduLearnPhase.EduLearnPhaseMapper;
+/*     */ import com.xoa.model.edu.eduLearnPhase.EduLearnPhase;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduLearnPhaseService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private EduLearnPhaseMapper eduLearnPhaseMapper;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<EduLearnPhase> addEduLearnPhase(EduLearnPhase eduLearnPhase)
+/*     */   {
+/*  35 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  37 */       int count = this.eduLearnPhaseMapper.insertSelective(eduLearnPhase);
+/*  38 */       if (count > 0) {
+/*  39 */         json.setMsg("ok");
+/*  40 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  43 */       json.setMsg(e.getMessage());
+/*  44 */       e.printStackTrace();
+/*  45 */       L.e(new Object[] { "EduLearnPhaseService eduLearnPhase:" + e });
+/*     */     }
+/*  47 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<EduLearnPhase> delEduLearnPhase(int id)
+/*     */   {
+/*  59 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  61 */       int count = this.eduLearnPhaseMapper.deleteByPrimaryKey(Integer.valueOf(id));
+/*  62 */       if (count > 0) {
+/*  63 */         json.setMsg("ok");
+/*  64 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  67 */       json.setMsg(e.getMessage());
+/*  68 */       e.printStackTrace();
+/*  69 */       L.e(new Object[] { "EduLearnPhaseService EduLearnPhase:" + e });
+/*     */     }
+/*  71 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<EduLearnPhase> updateEduLearnPhase(EduLearnPhase eduLearnPhase)
+/*     */   {
+/*  83 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  85 */       int count = this.eduLearnPhaseMapper.updateByPrimaryKeySelective(eduLearnPhase);
+/*  86 */       if (count > 0) {
+/*  87 */         json.setMsg("ok");
+/*  88 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  91 */       json.setMsg(e.getMessage());
+/*  92 */       e.printStackTrace();
+/*  93 */       L.e(new Object[] { "EduLearnPhaseService updateEduLearnPhase:" + e });
+/*     */     }
+/*  95 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduLearnPhase> selEduLearnPhaseById(int id)
+/*     */   {
+/* 106 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 108 */       EduLearnPhase eduLearnPhase = this.eduLearnPhaseMapper.selectByPrimaryKey(Integer.valueOf(id));
+/* 109 */       json.setFlag(0);
+/* 110 */       json.setMsg("ok");
+/* 111 */       json.setObject(eduLearnPhase);
+/*     */     } catch (Exception e) {
+/* 113 */       json.setMsg(e.getMessage());
+/* 114 */       e.printStackTrace();
+/* 115 */       L.e(new Object[] { "EduLearnPhaseService selEduLearnPhaseById:" + e });
+/*     */     }
+/* 117 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduLearnPhase> selEduLearnPhase(EduLearnPhase eduLearnPhase, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 128 */     ToJson json = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 131 */       PageParams pageParams = new PageParams();
+/* 132 */       pageParams.setPage(page);
+/* 133 */       pageParams.setPageSize(pageSize);
+/* 134 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 135 */       Map map = new HashMap();
+/* 136 */       map.put("page", pageParams);
+/* 137 */       map.put("eduLearnPhase", eduLearnPhase);
+/* 138 */       List list = this.eduLearnPhaseMapper.selEduLearnPhase(map);
+/* 139 */       json.setTotleNum(pageParams.getTotal());
+/* 140 */       json.setFlag(0);
+/* 141 */       json.setMsg("ok");
+/* 142 */       json.setObj(list);
+/*     */     } catch (Exception e) {
+/* 144 */       json.setMsg(e.getMessage());
+/* 145 */       e.printStackTrace();
+/* 146 */       L.e(new Object[] { "EduLearnPhaseService selEduLearnPhase:" + e });
+/*     */     }
+/* 148 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduLearnPhase.EduLearnPhaseService
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,19 @@
+ package com.xoa.util.dataSource;
+ 
+ public class ContextHolder
+ {
+   private static final ThreadLocal<String> context = new ThreadLocal();
+ 
+   public static void setConsumerType(String consumerType) {
+     context.set(consumerType);
+   }
+ 
+   public static String getConsumerType() {
+     return (String)context.get();
+   }
+ 
+   public static void clearConsumerType() {
+     context.remove();
+   }
+ }
+

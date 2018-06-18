@@ -1,0 +1,337 @@
+ package com.xoa.service.ThreadSerivice;
+ 
+ import com.xoa.dao.common.SysCodeMapper;
+ import com.xoa.dao.department.DepartmentMapper;
+ import com.xoa.dao.meet.MeetingRoomMapper;
+ import com.xoa.model.common.SysCode;
+ import com.xoa.model.department.Department;
+ import com.xoa.model.meet.MeetingRoomWithBLOBs;
+ import com.xoa.model.meet.MeetingWithBLOBs;
+ import com.xoa.model.notify.Notify;
+ import com.xoa.model.sms.SmsBody;
+ import com.xoa.model.sms2.Sms2Priv;
+ import com.xoa.model.users.Users;
+ import com.xoa.model.worldnews.News;
+ import com.xoa.service.sms.SmsService;
+ import com.xoa.service.smsDelivery.Sms2PrivService;
+ import com.xoa.service.users.UsersService;
+import com.xoa.util.Constant;
+ import com.xoa.util.DateFormat;
+ import com.xoa.util.common.L;
+ import com.xoa.util.common.StringUtils;
+ import com.xoa.util.dataSource.ContextHolder;
+ import java.util.ArrayList;
+ import java.util.Date;
+ import java.util.List;
+ import javax.annotation.Resource;
+ import javax.servlet.http.HttpServletRequest;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Service;
+ 
+ @Service
+ public class ThreadService
+ {
+ 
+   @Autowired
+   ThreadPoolTaskExecutor threadPoolTaskExecutor;
+ 
+   @Resource
+   private UsersService usersService;
+ 
+   @Resource
+   private SysCodeMapper sysCodeMapper;
+ 
+   @Resource
+   private SmsService smsService;
+ 
+   @Resource
+   private DepartmentMapper departmentMapper;
+ 
+   @Resource
+   private MeetingRoomMapper meetingRoomMapper;
+ 
+   @Resource
+   private Sms2PrivService sms2PrivService;
+ 
+   public void addNotify(final Notify notify,final String tuisong, final String re,final String sqlType)
+   {
+       threadPoolTaskExecutor.execute(new Runnable(){
+       public void run() {
+         ContextHolder.setConsumerType(Constant.MYOA + sqlType);
+         String[] userIdList = notify.getUserId().split(",");
+         List<String> userArray = new ArrayList<String>();
+         for (String userId : userIdList) {
+           userArray.add(userId);
+         }
+ 
+         List<Users> deptList = new ArrayList();
+         if (!StringUtils.checkNull(notify.getToId()).booleanValue()) {
+           if ("ALL_DEPT".trim().equals(notify.getToId())) {
+             List<Department> deptListArr = ThreadService.this.departmentMapper.getAllDepartment();
+             StringBuffer stringBuffer = new StringBuffer();
+             for (Department department : deptListArr) {
+               stringBuffer.append(department.getDeptId());
+               stringBuffer.append(",");
+             }
+             deptList = ThreadService.this.usersService.getUserByDeptIds(stringBuffer.toString(), Integer.valueOf(1));
+           } else {
+             deptList = ThreadService.this.usersService.getUserByDeptIds(notify.getToId(), Integer.valueOf(1));
+           }
+         }
+ 
+         List<String> deptArray = new ArrayList<String>();
+         for (Users users : deptList) {
+           deptArray.add(users.getUserId());
+         }
+ 
+         List<Users> privList = new ArrayList();
+         if (!StringUtils.checkNull(notify.getPrivId()).booleanValue()) {
+           privList = ThreadService.this.usersService.getUserByDeptIds(notify.getPrivId(), Integer.valueOf(2));
+         }
+         List<String> privArray = new ArrayList<String>();
+         for (Users users : privList) {
+           privArray.add(users.getUserId());
+         }
+ 
+         for (String userId : userArray) {
+           int f1 = 0;
+           for (String deptUser : deptArray) {
+             if (userId.equals(deptUser)) {
+               f1 = 1;
+               break;
+             }
+           }
+           if (f1 == 0) {
+             deptArray.add(userId);
+           }
+         }
+         for (String temp1 : deptArray) {
+           int f2 = 0;
+           for (String privUser : privArray) {
+             if (temp1.equals(privUser)) {
+               f2 = 1;
+               break;
+             }
+           }
+           if (f2 == 0) {
+             privArray.add(temp1);
+           }
+         }
+         StringBuffer userStr = new StringBuffer();
+         for (String tempUser : privArray) {
+           userStr.append(tempUser + ",");
+         }
+         SmsBody smsBody = new SmsBody();
+         smsBody.setFromId(notify.getFromId());
+         smsBody.setContent("请查看公告通知！标题：" + notify.getSubject());
+         smsBody.setSendTime(Integer.valueOf((int)(notify.getSendTime().getTime() / 1000L)));
+         SysCode sysCode = new SysCode();
+         sysCode.setCodeName("公告通知");
+         sysCode.setParentNo("SMS_REMIND");
+         if ((!StringUtils.checkNull(notify.getAttachmentId()).booleanValue()) && (!StringUtils.checkNull(notify.getAttachmentName()).booleanValue())) {
+           smsBody.setIsAttach("1");
+         }
+         if (ThreadService.this.sysCodeMapper.getCodeNoByNameAndParentNo(sysCode) != null) {
+           smsBody.setSmsType(ThreadService.this.sysCodeMapper.getCodeNoByNameAndParentNo(sysCode).getCodeNo());
+         }
+         smsBody.setRemindUrl("detail?notifyId=" + notify.getNotifyId());
+         String title = "您有新的公告通知";
+         String typeName = "无类型";
+         L.s(new Object[] { "您有新的公告通知" });
+         if ((notify.getTypeId() != null) && (!notify.getTypeId().equals(""))) {
+           String name11 = ThreadService.this.sysCodeMapper.getNotifyNameByNo(notify.getTypeId());
+           if (!StringUtils.checkNull(name11).booleanValue())
+           {
+             typeName = name11;
+           }
+         }
+         String context = typeName + ":" + notify.getSubject();
+         ThreadService.this.smsService.saveSms(smsBody, userStr.toString(), re, tuisong, title, context, sqlType);
+       }
+     });
+   }
+ 
+   public void addNew(final News news,final String remind,final String tuisong,final String sqlType)
+   {
+     this.threadPoolTaskExecutor.execute(new Runnable()
+     {
+       public void run()
+       {
+         ContextHolder.setConsumerType(Constant.MYOA + sqlType);
+         String[] userIdList = news.getUserId().split(",");
+         List<String> userArray = new ArrayList<String>();
+         for (String userId : userIdList) {
+           userArray.add(userId);
+         }
+ 
+         List<Users> deptList = new ArrayList<Users>();
+         if ("ALL_DEPT".trim().equals(news.getToId())) {
+           List<Department> deptListArr = ThreadService.this.departmentMapper.getAllDepartment();
+           StringBuffer stringBuffer = new StringBuffer();
+           for (Department department : deptListArr) {
+             stringBuffer.append(department.getDeptId());
+             stringBuffer.append(",");
+           }
+           deptList = ThreadService.this.usersService.getUserByDeptIds(stringBuffer.toString(), Integer.valueOf(1));
+         } else {
+           deptList = ThreadService.this.usersService.getUserByDeptIds(news.getToId(), Integer.valueOf(1));
+         }
+         List<String> deptArray = new ArrayList<String>();
+         if (deptList != null) {
+           for (Users users : deptList) {
+             deptArray.add(users.getUserId());
+           }
+ 
+         }
+ 
+         List<Users> privList = new ArrayList<Users>();
+         if (!StringUtils.checkNull(news.getPrivId()).booleanValue()) {
+           privList = ThreadService.this.usersService.getUserByDeptIds(news.getPrivId(), Integer.valueOf(2));
+         }
+         List<String> privArray = new ArrayList<String>();
+         for (Users users : privList) {
+           privArray.add(users.getUserId());
+         }
+ 
+         for (String userId : userArray) {
+           int f1 = 0;
+           for (String deptUser : deptArray) {
+             if (userId.equals(deptUser)) {
+               f1 = 1;
+               break;
+             }
+           }
+           if (f1 == 0) {
+             deptArray.add(userId);
+           }
+         }
+         for (String temp1 : deptArray) {
+           int f2 = 0;
+           for (String privUser : privArray) {
+             if (temp1.equals(privUser)) {
+               f2 = 1;
+               break;
+             }
+           }
+           if (f2 == 0) {
+             privArray.add(temp1);
+           }
+         }
+         StringBuffer userStr = new StringBuffer();
+         for (String tempUser : privArray) {
+           userStr.append(tempUser + ",");
+         }
+         SmsBody smsBody = new SmsBody();
+         smsBody.setFromId(news.getProvider());
+         smsBody.setContent("请查看新闻！标题：" + news.getSubject());
+         smsBody.setSendTime(DateFormat.getTime(DateFormat.getStrDate(news.getNewsTime())));
+         SysCode sysCode = new SysCode();
+         sysCode.setCodeName("新闻");
+         sysCode.setParentNo("SMS_REMIND");
+         if ((!StringUtils.checkNull(news.getAttachmentId()).booleanValue()) && (!StringUtils.checkNull(news.getAttachmentName()).booleanValue())) {
+           smsBody.setIsAttach("1");
+         }
+         if (ThreadService.this.sysCodeMapper.getCodeNoByNameAndParentNo(sysCode) != null) {
+           smsBody.setSmsType(ThreadService.this.sysCodeMapper.getCodeNoByNameAndParentNo(sysCode).getCodeNo());
+         }
+         String title = "您有新的新闻消息";
+         String typeName = "无类型";
+         if ((news.getTypeId() != null) && (!news.getTypeId().equals(""))) {
+           String name11 = ThreadService.this.sysCodeMapper.getNewsNameByNo(news.getTypeId());
+           if (!StringUtils.checkNull(name11).booleanValue())
+           {
+             typeName = name11;
+           }
+         }
+         String context = typeName + ":" + news.getSubject();
+ 
+         smsBody.setRemindUrl("detail?newsId=" + news.getNewsId());
+         ThreadService.this.smsService.saveSms(smsBody, userStr.toString(), remind, tuisong, title, context, sqlType);
+       } } );
+   }
+ 
+   public void addNewworkFastAdd(final Users users,final int flowId,final int prcsId,final String flowPrcs,final String id,final String tableName,final String tabId,final String sqlType) {
+     this.threadPoolTaskExecutor.execute(new Runnable()
+     {
+       public void run() {
+         ContextHolder.setConsumerType(sqlType);
+         String smsUrl = "work/workformPreView?flowId=" + flowId + "&flowStep=" + prcsId + "&runId=" + id + "&prcsId=" + flowPrcs;
+ 
+         if ("document".equals(tableName)) {
+           smsUrl = "work/workformPreView?flowId=" + flowId + "&flowStep=" + prcsId + "&tableName=" + tableName + "&tabId=" + tabId + "&runId=" + id + "&prcsId=" + flowPrcs + "&isNomalType=false&hidden=true";
+           ThreadService.this.smsService.updatequerySmsByType("70", users.getUserId(), smsUrl.trim());
+         } else {
+           ThreadService.this.smsService.updatequerySmsByType("7", users.getUserId(), smsUrl.trim());
+         }
+       }
+     });
+   }
+ 
+   public void add0pflagNewWorkFastAdd(final Users users,final int flowId,final int prcsId,final String flowPrcs,final String id,final String tableName,final String tabId,final String sqlType)
+   {
+     this.threadPoolTaskExecutor.execute(new Runnable()
+     {
+       public void run() {
+         ContextHolder.setConsumerType(sqlType);
+         String smsUrl = "work/workform?opflag=0&flowId=" + flowId + "&flowStep=" + prcsId + "&runId=" + id + "&prcsId=" + flowPrcs;
+ 
+         if ("document".equals(tableName)) {
+           smsUrl = "work/workform?opflag=0&flowId=" + flowId + "&flowStep=" + prcsId + "&tableName=" + tableName + "&tabId=" + tabId + "&runId=" + id + "&prcsId=" + flowPrcs + "&isNomalType=false&hidden=true";
+           ThreadService.this.smsService.updatequerySmsByType("70", users.getUserId(), smsUrl.trim());
+         } else {
+           ThreadService.this.smsService.updatequerySmsByType("7", users.getUserId(), smsUrl.trim());
+         }
+       }
+     });
+   }
+ 
+   public void addMeeting(final Users users,final MeetingWithBLOBs attendEdd,final String sqlType)
+   {
+     this.threadPoolTaskExecutor.execute(new Runnable()
+     {
+       public void run() {
+         ContextHolder.setConsumerType(sqlType);
+         Users users1 = ThreadService.this.usersService.findUserByuid(attendEdd.getUid().intValue());
+         SmsBody smsBody = new SmsBody();
+         smsBody.setFromId(users1.getUserId());
+         smsBody.setContent(attendEdd.getMeetDesc());
+         smsBody.setSendTime(Integer.valueOf((int)(DateFormat.getDate(attendEdd.getCreateTime()).getTime() / 1000L)));
+         SysCode sysCode = new SysCode();
+         sysCode.setCodeName("会议申请");
+         sysCode.setParentNo("SMS_REMIND");
+         if (ThreadService.this.sysCodeMapper.getCodeNoByNameAndParentNo(sysCode) != null) {
+           smsBody.setSmsType(ThreadService.this.sysCodeMapper.getCodeNoByNameAndParentNo(sysCode).getCodeNo());
+         }
+         smsBody.setRemindUrl("detail?meetingId=" + attendEdd.getSid());
+         MeetingRoomWithBLOBs meetingRoom = ThreadService.this.meetingRoomMapper.selectByPrimaryKey(attendEdd.getMeetRoomId());
+         String title = "会议通知";
+         String context = "请于" + DateFormat.getDatestrTimes(DateFormat.getDate(attendEdd.getStartTime())) + "到" + meetingRoom.getMrName() + "参加会议";
+         String[] str = attendEdd.getAttendee().split(",");
+         StringBuffer stringBuffer = new StringBuffer();
+         for (int i = 0; i < str.length; i++)
+           if (ThreadService.this.usersService.findUserByuid(Integer.parseInt(str[i])) != null) {
+             stringBuffer.append(ThreadService.this.usersService.findUserByuid(Integer.parseInt(str[i])).getUserId());
+             stringBuffer.append(",");
+           }
+       }
+     });
+   }
+ 
+   public void addNotifyMessageSendering(final Notify notify,final HttpServletRequest request)
+   {
+     this.threadPoolTaskExecutor.execute(new Runnable()
+     {
+       public void run() {
+         if ((notify.getSmsDefault().equals("0")) && (!notify.getSubject().equals(""))) {
+           Sms2Priv sms2Priv = new Sms2Priv();
+           sms2Priv.setUserId(notify.getUserId());
+           sms2Priv.setToId(notify.getToId());
+           sms2Priv.setPrivId(notify.getPrivId());
+           StringBuffer contextString = new StringBuffer("请查看公告通知！标题：" + notify.getSubject());
+           ThreadService.this.sms2PrivService.selSenderMobile(notify.getSmsDefault(), sms2Priv, contextString, request);
+         }
+       }
+     });
+   }
+ }

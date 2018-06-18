@@ -1,0 +1,215 @@
+/*     */ package com.xoa.controller.workflow;
+/*     */ 
+/*     */ import com.alibaba.fastjson.JSONObject;
+/*     */ import com.xoa.model.workflow.FlowFormType;
+/*     */ import com.xoa.model.workflow.TMacroCtrl;
+/*     */ import com.xoa.service.workflow.flowformtype.FlowFormService;
+/*     */ import com.xoa.service.workflow.flowtype.FlowFormTypeService;
+/*     */ import com.xoa.service.workflow.wrapper.FlowFormWrappers;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import com.xoa.util.netdisk.ReadFile;
+/*     */ import java.io.BufferedReader;
+/*     */ import java.io.InputStream;
+/*     */ import java.io.InputStreamReader;
+/*     */ import java.io.OutputStream;
+/*     */ import java.io.OutputStreamWriter;
+/*     */ import java.net.URLEncoder;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.ServletOutputStream;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.context.annotation.Scope;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.ui.Model;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Controller
+/*     */ @Scope("prototype")
+/*     */ @RequestMapping({"/form"})
+/*     */ public class FlowFormTypeController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowFormTypeService flowFormTypeService;
+/*     */ 
+/*     */   @Autowired
+/*     */   FlowFormService flowFormService;
+/*     */ 
+/*     */   @RequestMapping(value={"formType"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowFormType> qureyItemMax(@RequestParam("fromId") String fromId, HttpServletRequest request)
+/*     */   {
+/*  44 */     ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)request.getSession().getAttribute("loginDateSouse")).toString());
+/*     */ 
+/*  46 */     return this.flowFormTypeService.qureyItemMax(Integer.valueOf(Integer.parseInt(fromId)));
+/*     */   }
+/*  50 */   @RequestMapping({"/designer"})
+/*     */   public String designer(Model model, HttpServletRequest request, Integer formId) { ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)request.getSession().getAttribute("loginDateSouse")).toString());
+/*     */ 
+/*  52 */     model.addAttribute("formId", formId);
+/*  53 */     return "app/workflow/formtype/formDesigner"; } 
+/*     */   @RequestMapping({"/previews"})
+/*     */   public String previews(Model model, HttpServletRequest request, Integer formId) {
+/*  57 */     ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)request.getSession().getAttribute("loginDateSouse")).toString());
+/*     */ 
+/*  60 */     model.addAttribute("formId", formId);
+/*  61 */     return "app/workflow/formtype/formUseView";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/formlistbysort"})
+/*     */   @ResponseBody
+/*     */   public FlowFormWrappers formBysort(Integer sortId)
+/*     */   {
+/*  75 */     return this.flowFormService.getFormBySortId(sortId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/allformlist"})
+/*     */   @ResponseBody
+/*     */   public FlowFormWrappers formByAll() {
+/*  83 */     return this.flowFormService.getFormByAll();
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/formBySearch"})
+/*     */   @ResponseBody
+/*     */   public FlowFormWrappers formBySearch(String searchValue, Integer sortId)
+/*     */   {
+/*  95 */     return this.flowFormService.seachForm(searchValue, sortId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/newForm"})
+/*     */   @ResponseBody
+/*     */   public void newForm(String formName, Integer deptId, Integer formSort, @RequestParam(name="file", required=false) MultipartFile file, HttpServletResponse response)
+/*     */   {
+/* 112 */     BaseWrapper wrapper = new BaseWrapper();
+/* 113 */     if (file != null) {
+/* 114 */       InputStream in = null;
+/*     */       try {
+/* 116 */         String fileSuffix = ReadFile.getFileType(file.getOriginalFilename());
+/* 117 */         if ((!StringUtils.checkNull(fileSuffix).booleanValue()) && (fileSuffix.equals("HTML"))) {
+/* 118 */           in = file.getInputStream();
+/*     */ 
+/* 121 */           BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+/* 122 */           StringBuilder sb = new StringBuilder();
+/* 123 */           String line = null;
+/* 124 */           while ((line = reader.readLine()) != null) {
+/* 125 */             sb.append(new StringBuilder().append(line).append("\n").toString());
+/*     */           }
+/* 127 */           wrapper = this.flowFormService.newForm(formName, deptId, formSort, sb.toString());
+/*     */         } else {
+/* 129 */           wrapper.setFlag(false);
+/* 130 */           wrapper.setMsg("导入类型不正确,请选择正确的导入类型!");
+/*     */         }
+/*     */       } catch (Exception p) {
+/* 133 */         p.printStackTrace();
+/* 134 */         wrapper.setFlag(false);
+/* 135 */         wrapper.setMsg("文件读取异常");
+/*     */       } finally {
+/*     */         try {
+/* 138 */           if (in != null)
+/* 139 */             in.close();
+/*     */         }
+/*     */         catch (Exception p) {
+/* 142 */           p.printStackTrace();
+/* 143 */           wrapper.setFlag(false);
+/* 144 */           wrapper.setMsg("文件读取异常");
+/*     */         }
+/*     */       }
+/*     */     } else {
+/* 148 */       wrapper = this.flowFormService.newForm(formName, deptId, formSort, "");
+/*     */     }
+/* 150 */     response.setContentType("text/html; charset=utf-8");
+/*     */     try {
+/* 152 */       ServletOutputStream servletOutputStream = response.getOutputStream();
+/* 153 */       OutputStreamWriter ow = new OutputStreamWriter(servletOutputStream, "UTF-8");
+/* 154 */       ow.write(JSONObject.toJSONString(wrapper));
+/* 155 */       ow.flush();
+/* 156 */       ow.close();
+/*     */     } catch (Exception e) {
+/* 158 */       e.printStackTrace();
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/updateForm"})
+/*     */   @ResponseBody
+/*     */   public BaseWrapper updateForm(Integer formId, String formName, Integer deptId, Integer formSort)
+/*     */   {
+/* 176 */     BaseWrapper wrapper = new BaseWrapper();
+/*     */ 
+/* 210 */     wrapper = this.flowFormService.updateForm(formId, formName, deptId, formSort, "");
+/*     */ 
+/* 214 */     return wrapper;
+/*     */   }
+/* 220 */   @RequestMapping({"/updateFormType"})
+/*     */   @ResponseBody
+/*     */   public BaseWrapper updateFormType(Integer formId, String formName, Integer deptId, Integer formSort, String printModel, Integer itemMax, String script, String css) { return this.flowFormService.updateFormType(formId, formName, deptId, formSort, printModel, itemMax, script, css);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/deleteForm"})
+/*     */   @ResponseBody
+/*     */   public BaseWrapper deleteForm(Integer formId)
+/*     */   {
+/* 233 */     return this.flowFormService.deleteForm(formId);
+/*     */   }
+/*     */   @RequestMapping(value={"qureyCtrl"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<TMacroCtrl> qureyCtrl(String controlId, String option, HttpServletRequest request, Integer fromId, Integer folwId, String runId, String prcsId, String flowPrcs, String signlock) {
+/* 240 */     String company = new StringBuilder().append(Constant.MYOA).append((String)request.getSession().getAttribute("loginDateSouse")).toString();
+/*     */ 
+/* 242 */     ContextHolder.setConsumerType(company);
+/* 243 */     return this.flowFormTypeService.qureyCtrl(controlId, option, request, fromId, folwId, runId, prcsId, flowPrcs, company, signlock);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/outForm"})
+/*     */   @ResponseBody
+/*     */   public void outForm(HttpServletRequest request, HttpServletResponse response, Integer formId)
+/*     */   {
+/* 256 */     response.setCharacterEncoding("utf-8");
+/* 257 */     response.setContentType("multipart/form-data");
+/* 258 */     ToJson toJson = this.flowFormTypeService.qureyItemMax(formId);
+/* 259 */     OutputStream os = null;
+/*     */     try {
+/* 261 */       if (toJson.isFlag()) {
+/* 262 */         FlowFormType flowFormType = (FlowFormType)toJson.getObject();
+/* 263 */         if (flowFormType != null) {
+/* 264 */           String fileName = new StringBuilder().append(flowFormType.getFormName()).append(".html").toString();
+/* 265 */           String userAgent = request.getHeader("User-Agent").toUpperCase();
+/* 266 */           if ((userAgent.contains("MSIE")) || (userAgent.contains("TRIDENT")))
+/*     */           {
+/* 268 */             fileName = URLEncoder.encode(fileName, "UTF-8");
+/*     */           }
+/*     */           else {
+/* 271 */             fileName = new String(fileName.getBytes("utf-8"), "iso-8859-1");
+/*     */           }
+/* 273 */           response.setHeader("Content-Disposition", new StringBuilder().append("attachment;fileName=").append(fileName).toString());
+/*     */ 
+/* 275 */           os = response.getOutputStream();
+/* 276 */           os.write(flowFormType.getPrintModel().getBytes());
+/*     */         }
+/*     */ 
+/* 279 */         os.close();
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 282 */       e.printStackTrace();
+/* 283 */       if (os != null)
+/*     */         try {
+/* 285 */           os.close();
+/*     */         } catch (Exception p) {
+/* 287 */           p.printStackTrace();
+/*     */         }
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.workflow.FlowFormTypeController
+ * JD-Core Version:    0.6.0
+ */

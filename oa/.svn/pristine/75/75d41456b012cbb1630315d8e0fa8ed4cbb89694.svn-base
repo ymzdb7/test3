@@ -1,0 +1,64 @@
+/*    */ package com.xoa.service.event.impl;
+/*    */ 
+/*    */ import com.xoa.dao.event.TimeLinePostDeptMapper;
+/*    */ import com.xoa.model.event.TimeLinePostDept;
+/*    */ import com.xoa.service.event.TimeLinePostDeptService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import com.xoa.util.common.L;
+/*    */ import javax.annotation.Resource;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.stereotype.Service;
+/*    */ 
+/*    */ @Service
+/*    */ public class TimeLinePostDeptServiceImpl
+/*    */   implements TimeLinePostDeptService
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   TimeLinePostDeptMapper timeLinePostDeptMapper;
+/*    */ 
+/*    */   public ToJson<TimeLinePostDept> updateTimeLinePostDept(HttpServletRequest request, TimeLinePostDept timeLinePostDept)
+/*    */   {
+/* 25 */     ToJson toJson = new ToJson(1, "error");
+/*    */     try {
+/* 27 */       int a = this.timeLinePostDeptMapper.updateTimeLinePostDept(timeLinePostDept);
+/* 28 */       if (a > 0) {
+/* 29 */         toJson.setMsg("ok");
+/* 30 */         toJson.setFlag(0);
+/*    */       } else {
+/* 32 */         toJson.setMsg("修改失败");
+/* 33 */         toJson.setFlag(1);
+/*    */       }
+/*    */     } catch (Exception e) {
+/* 36 */       e.printStackTrace();
+/* 37 */       toJson.setMsg(e.getMessage());
+/* 38 */       L.e(new Object[] { "TimeLinePostDeptServiceImpl updateTimeLinePostDept:" + e });
+/*    */     }
+/* 40 */     return toJson;
+/*    */   }
+/*    */ 
+/*    */   public ToJson<TimeLinePostDept> addTimeLinePostDept(HttpServletRequest request, TimeLinePostDept timeLinePostDept)
+/*    */   {
+/* 45 */     ToJson toJson = new ToJson(1, "error");
+/*    */     try {
+/* 47 */       int b = this.timeLinePostDeptMapper.addTimeLinePostDept(timeLinePostDept);
+/* 48 */       if (b > 0) {
+/* 49 */         toJson.setMsg("ok");
+/* 50 */         toJson.setFlag(0);
+/*    */       } else {
+/* 52 */         toJson.setMsg("新建失败");
+/* 53 */         toJson.setFlag(1);
+/*    */       }
+/*    */     } catch (Exception e) {
+/* 56 */       e.printStackTrace();
+/* 57 */       toJson.setMsg(e.getMessage());
+/* 58 */       L.e(new Object[] { "TimeLinePostDeptServiceImpl addTimeLinePostDept:" + e });
+/*    */     }
+/* 60 */     return toJson;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.event.impl.TimeLinePostDeptServiceImpl
+ * JD-Core Version:    0.6.0
+ */

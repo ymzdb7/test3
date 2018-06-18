@@ -1,0 +1,98 @@
+package com.myoa.dao.hr;
+
+import com.myoa.model.hr.HrStaffInfo;
+import com.myoa.model.hr.HrStaffInfoExample;
+import com.myoa.model.hr.HrStaffInfoWithBLOBs;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface HrStaffInfoMapper {
+	public abstract int countByExample(
+			HrStaffInfoExample paramHrStaffInfoExample);
+
+	public abstract int deleteByExample(
+			HrStaffInfoExample paramHrStaffInfoExample);
+
+	public abstract int deleteByPrimaryKey(Integer paramInteger);
+
+	public abstract int insert(HrStaffInfo paramHrStaffInfo);
+
+	public abstract int insertSelective(HrStaffInfo paramHrStaffInfo);
+
+	public abstract List<HrStaffInfo> selectRetireeInfo(
+			Map<String, Date> paramMap);
+
+	public abstract List<HrStaffInfo> selectPersonFileByDeptId(
+			Integer paramInteger);
+
+	public abstract HrStaffInfo selectPersonFileByUserId(Integer paramInteger);
+
+	public abstract int updatePersonFile(HrStaffInfo paramHrStaffInfo);
+
+	public abstract List<HrStaffInfo> selectOnLinePerson(
+			HrStaffInfo paramHrStaffInfo);
+
+	public abstract List<HrStaffInfo> selectLeavePerson(
+			HrStaffInfo paramHrStaffInfo);
+
+	public abstract List<HrStaffInfo> selStaffByCondi(
+			HrStaffInfo paramHrStaffInfo);
+
+	public abstract int savePersonFile(HrStaffInfo paramHrStaffInfo);
+
+	public abstract HrStaffInfo selectStaffInfoById(Integer paramInteger);
+
+	public abstract int deletePersonById(String paramString);
+
+	public abstract int queryCountNoDocument(String paramString);
+
+	public abstract List<HrStaffInfo> getUserByDeptId(Integer paramInteger);
+
+	public abstract List<HrStaffInfo> selectLeavePersonByDeptId(
+			Integer paramInteger);
+
+	public abstract List<HrStaffInfoWithBLOBs> selectByExampleWithBLOBs(
+			HrStaffInfoExample paramHrStaffInfoExample);
+
+	public abstract List<HrStaffInfo> selectByExample(
+			HrStaffInfoExample paramHrStaffInfoExample);
+
+	public abstract HrStaffInfoWithBLOBs selectByPrimaryKey(Integer paramInteger);
+
+	public abstract int updateByExampleSelective(
+			@Param("record") HrStaffInfoWithBLOBs paramHrStaffInfoWithBLOBs,
+			@Param("example") HrStaffInfoExample paramHrStaffInfoExample);
+
+	public abstract int updateByExampleWithBLOBs(
+			@Param("record") HrStaffInfoWithBLOBs paramHrStaffInfoWithBLOBs,
+			@Param("example") HrStaffInfoExample paramHrStaffInfoExample);
+
+	public abstract int updateByExample(
+			@Param("record") HrStaffInfo paramHrStaffInfo,
+			@Param("example") HrStaffInfoExample paramHrStaffInfoExample);
+
+	public abstract int updateByPrimaryKeySelective(HrStaffInfo paramHrStaffInfo);
+
+	public abstract int updateByPrimaryKeyWithBLOBs(
+			HrStaffInfoWithBLOBs paramHrStaffInfoWithBLOBs);
+
+	public abstract int updateByPrimaryKey(HrStaffInfo paramHrStaffInfo);
+
+	public abstract HrStaffInfo getStaffByUserId(String paramString);
+
+	public abstract HrStaffInfo getStaffByStaffId(String paramString);
+
+	public abstract List<HrStaffInfo> getAllWorkYearsInfo();
+
+	public abstract HrStaffInfo getSingleHrStaffInfo(
+			HrStaffInfo paramHrStaffInfo);
+
+	public abstract List<HrStaffInfo> getHrStaffInfoNews(
+			@Param("month") String paramString1,
+			@Param("year") String paramString2);
+
+	public abstract List<HrStaffInfo> getHrStaffInfoCount();
+}

@@ -1,0 +1,1045 @@
+ package com.myoa.model.officesupplies;
+ 
+ import java.math.BigDecimal;
+ import java.util.ArrayList;
+ import java.util.List;
+ 
+ public class OfficeProductsExample
+ {
+   protected String orderByClause;
+   protected boolean distinct;
+   protected List<Criteria> oredCriteria;
+ 
+   public OfficeProductsExample()
+   {
+     this.oredCriteria = new ArrayList();
+   }
+ 
+   public void setOrderByClause(String orderByClause)
+   {
+     this.orderByClause = orderByClause;
+   }
+ 
+   public String getOrderByClause()
+   {
+     return this.orderByClause;
+   }
+ 
+   public void setDistinct(boolean distinct)
+   {
+     this.distinct = distinct;
+   }
+ 
+   public boolean isDistinct()
+   {
+     return this.distinct;
+   }
+ 
+   public List<Criteria> getOredCriteria()
+   {
+     return this.oredCriteria;
+   }
+ 
+   public void or(Criteria criteria)
+   {
+     this.oredCriteria.add(criteria);
+   }
+ 
+   public Criteria or()
+   {
+     Criteria criteria = createCriteriaInternal();
+     this.oredCriteria.add(criteria);
+     return criteria;
+   }
+ 
+   public Criteria createCriteria()
+   {
+     Criteria criteria = createCriteriaInternal();
+     if (this.oredCriteria.size() == 0) {
+       this.oredCriteria.add(criteria);
+     }
+     return criteria;
+   }
+ 
+   protected Criteria createCriteriaInternal()
+   {
+     Criteria criteria = new Criteria();
+     return criteria;
+   }
+ 
+   public void clear()
+   {
+     this.oredCriteria.clear();
+     this.orderByClause = null;
+     this.distinct = false;
+   }
+ 
+   public static class Criterion
+   {
+     private String condition;
+     private Object value;
+     private Object secondValue;
+     private boolean noValue;
+     private boolean singleValue;
+     private boolean betweenValue;
+     private boolean listValue;
+     private String typeHandler;
+ 
+     public String getCondition()
+     {
+       return this.condition;
+     }
+ 
+     public Object getValue() {
+       return this.value;
+     }
+ 
+     public Object getSecondValue() {
+       return this.secondValue;
+     }
+ 
+     public boolean isNoValue() {
+       return this.noValue;
+     }
+ 
+     public boolean isSingleValue() {
+       return this.singleValue;
+     }
+ 
+     public boolean isBetweenValue() {
+       return this.betweenValue;
+     }
+ 
+     public boolean isListValue() {
+       return this.listValue;
+     }
+ 
+     public String getTypeHandler() {
+       return this.typeHandler;
+     }
+ 
+     protected Criterion(String condition)
+     {
+       this.condition = condition;
+       this.typeHandler = null;
+       this.noValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value, String typeHandler)
+     {
+       this.condition = condition;
+       this.value = value;
+       this.typeHandler = typeHandler;
+       if ((value instanceof List))
+         this.listValue = true;
+       else
+         this.singleValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value)
+     {
+       this(condition, value, null);
+     }
+ 
+     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+     {
+       this.condition = condition;
+       this.value = value;
+       this.secondValue = secondValue;
+       this.typeHandler = typeHandler;
+       this.betweenValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value, Object secondValue) {
+       this(condition, value, secondValue, null);
+     }
+   }
+ 
+   public static class Criteria extends OfficeProductsExample.GeneratedCriteria
+   {
+   }
+ 
+   protected static abstract class GeneratedCriteria
+   {
+     protected List<OfficeProductsExample.Criterion> criteria;
+ 
+     protected GeneratedCriteria()
+     {
+       this.criteria = new ArrayList();
+     }
+ 
+     public boolean isValid() {
+       return this.criteria.size() > 0;
+     }
+ 
+     public List<OfficeProductsExample.Criterion> getAllCriteria() {
+       return this.criteria;
+     }
+ 
+     public List<OfficeProductsExample.Criterion> getCriteria() {
+       return this.criteria;
+     }
+ 
+     protected void addCriterion(String condition) {
+       if (condition == null) {
+         throw new RuntimeException("Value for condition cannot be null");
+       }
+       this.criteria.add(new OfficeProductsExample.Criterion(condition));
+     }
+ 
+     protected void addCriterion(String condition, Object value, String property) {
+       if (value == null) {
+         throw new RuntimeException("Value for " + property + " cannot be null");
+       }
+       this.criteria.add(new OfficeProductsExample.Criterion(condition, value));
+     }
+ 
+     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+       if ((value1 == null) || (value2 == null)) {
+         throw new RuntimeException("Between values for " + property + " cannot be null");
+       }
+       this.criteria.add(new OfficeProductsExample.Criterion(condition, value1, value2));
+     }
+ 
+     public OfficeProductsExample.Criteria andProIdIsNull() {
+       addCriterion("PRO_ID is null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProIdIsNotNull() {
+       addCriterion("PRO_ID is not null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProIdEqualTo(Integer value) {
+       addCriterion("PRO_ID =", value, "proId");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProIdNotEqualTo(Integer value) {
+       addCriterion("PRO_ID <>", value, "proId");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProIdGreaterThan(Integer value) {
+       addCriterion("PRO_ID >", value, "proId");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProIdGreaterThanOrEqualTo(Integer value) {
+       addCriterion("PRO_ID >=", value, "proId");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProIdLessThan(Integer value) {
+       addCriterion("PRO_ID <", value, "proId");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProIdLessThanOrEqualTo(Integer value) {
+       addCriterion("PRO_ID <=", value, "proId");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProIdIn(List<Integer> values) {
+       addCriterion("PRO_ID in", values, "proId");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProIdNotIn(List<Integer> values) {
+       addCriterion("PRO_ID not in", values, "proId");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProIdBetween(Integer value1, Integer value2) {
+       addCriterion("PRO_ID between", value1, value2, "proId");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProIdNotBetween(Integer value1, Integer value2) {
+       addCriterion("PRO_ID not between", value1, value2, "proId");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProNameIsNull() {
+       addCriterion("PRO_NAME is null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProNameIsNotNull() {
+       addCriterion("PRO_NAME is not null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProNameEqualTo(String value) {
+       addCriterion("PRO_NAME =", value, "proName");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProNameNotEqualTo(String value) {
+       addCriterion("PRO_NAME <>", value, "proName");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProNameGreaterThan(String value) {
+       addCriterion("PRO_NAME >", value, "proName");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProNameGreaterThanOrEqualTo(String value) {
+       addCriterion("PRO_NAME >=", value, "proName");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProNameLessThan(String value) {
+       addCriterion("PRO_NAME <", value, "proName");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProNameLessThanOrEqualTo(String value) {
+       addCriterion("PRO_NAME <=", value, "proName");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProNameLike(String value) {
+       addCriterion("PRO_NAME like", value, "proName");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProNameNotLike(String value) {
+       addCriterion("PRO_NAME not like", value, "proName");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProNameIn(List<String> values) {
+       addCriterion("PRO_NAME in", values, "proName");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProNameNotIn(List<String> values) {
+       addCriterion("PRO_NAME not in", values, "proName");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProNameBetween(String value1, String value2) {
+       addCriterion("PRO_NAME between", value1, value2, "proName");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProNameNotBetween(String value1, String value2) {
+       addCriterion("PRO_NAME not between", value1, value2, "proName");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProtypeIsNull() {
+       addCriterion("OFFICE_PROTYPE is null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProtypeIsNotNull() {
+       addCriterion("OFFICE_PROTYPE is not null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProtypeEqualTo(String value) {
+       addCriterion("OFFICE_PROTYPE =", value, "officeProtype");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProtypeNotEqualTo(String value) {
+       addCriterion("OFFICE_PROTYPE <>", value, "officeProtype");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProtypeGreaterThan(String value) {
+       addCriterion("OFFICE_PROTYPE >", value, "officeProtype");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProtypeGreaterThanOrEqualTo(String value) {
+       addCriterion("OFFICE_PROTYPE >=", value, "officeProtype");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProtypeLessThan(String value) {
+       addCriterion("OFFICE_PROTYPE <", value, "officeProtype");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProtypeLessThanOrEqualTo(String value) {
+       addCriterion("OFFICE_PROTYPE <=", value, "officeProtype");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProtypeLike(String value) {
+       addCriterion("OFFICE_PROTYPE like", value, "officeProtype");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProtypeNotLike(String value) {
+       addCriterion("OFFICE_PROTYPE not like", value, "officeProtype");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProtypeIn(List<String> values) {
+       addCriterion("OFFICE_PROTYPE in", values, "officeProtype");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProtypeNotIn(List<String> values) {
+       addCriterion("OFFICE_PROTYPE not in", values, "officeProtype");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProtypeBetween(String value1, String value2) {
+       addCriterion("OFFICE_PROTYPE between", value1, value2, "officeProtype");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProtypeNotBetween(String value1, String value2) {
+       addCriterion("OFFICE_PROTYPE not between", value1, value2, "officeProtype");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCodeIsNull() {
+       addCriterion("PRO_CODE is null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCodeIsNotNull() {
+       addCriterion("PRO_CODE is not null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCodeEqualTo(String value) {
+       addCriterion("PRO_CODE =", value, "proCode");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCodeNotEqualTo(String value) {
+       addCriterion("PRO_CODE <>", value, "proCode");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCodeGreaterThan(String value) {
+       addCriterion("PRO_CODE >", value, "proCode");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCodeGreaterThanOrEqualTo(String value) {
+       addCriterion("PRO_CODE >=", value, "proCode");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCodeLessThan(String value) {
+       addCriterion("PRO_CODE <", value, "proCode");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCodeLessThanOrEqualTo(String value) {
+       addCriterion("PRO_CODE <=", value, "proCode");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCodeLike(String value) {
+       addCriterion("PRO_CODE like", value, "proCode");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCodeNotLike(String value) {
+       addCriterion("PRO_CODE not like", value, "proCode");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCodeIn(List<String> values) {
+       addCriterion("PRO_CODE in", values, "proCode");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCodeNotIn(List<String> values) {
+       addCriterion("PRO_CODE not in", values, "proCode");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCodeBetween(String value1, String value2) {
+       addCriterion("PRO_CODE between", value1, value2, "proCode");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCodeNotBetween(String value1, String value2) {
+       addCriterion("PRO_CODE not between", value1, value2, "proCode");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProUnitIsNull() {
+       addCriterion("PRO_UNIT is null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProUnitIsNotNull() {
+       addCriterion("PRO_UNIT is not null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProUnitEqualTo(String value) {
+       addCriterion("PRO_UNIT =", value, "proUnit");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProUnitNotEqualTo(String value) {
+       addCriterion("PRO_UNIT <>", value, "proUnit");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProUnitGreaterThan(String value) {
+       addCriterion("PRO_UNIT >", value, "proUnit");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProUnitGreaterThanOrEqualTo(String value) {
+       addCriterion("PRO_UNIT >=", value, "proUnit");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProUnitLessThan(String value) {
+       addCriterion("PRO_UNIT <", value, "proUnit");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProUnitLessThanOrEqualTo(String value) {
+       addCriterion("PRO_UNIT <=", value, "proUnit");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProUnitLike(String value) {
+       addCriterion("PRO_UNIT like", value, "proUnit");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProUnitNotLike(String value) {
+       addCriterion("PRO_UNIT not like", value, "proUnit");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProUnitIn(List<String> values) {
+       addCriterion("PRO_UNIT in", values, "proUnit");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProUnitNotIn(List<String> values) {
+       addCriterion("PRO_UNIT not in", values, "proUnit");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProUnitBetween(String value1, String value2) {
+       addCriterion("PRO_UNIT between", value1, value2, "proUnit");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProUnitNotBetween(String value1, String value2) {
+       addCriterion("PRO_UNIT not between", value1, value2, "proUnit");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProPriceIsNull() {
+       addCriterion("PRO_PRICE is null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProPriceIsNotNull() {
+       addCriterion("PRO_PRICE is not null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProPriceEqualTo(BigDecimal value) {
+       addCriterion("PRO_PRICE =", value, "proPrice");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProPriceNotEqualTo(BigDecimal value) {
+       addCriterion("PRO_PRICE <>", value, "proPrice");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProPriceGreaterThan(BigDecimal value) {
+       addCriterion("PRO_PRICE >", value, "proPrice");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProPriceGreaterThanOrEqualTo(BigDecimal value) {
+       addCriterion("PRO_PRICE >=", value, "proPrice");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProPriceLessThan(BigDecimal value) {
+       addCriterion("PRO_PRICE <", value, "proPrice");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProPriceLessThanOrEqualTo(BigDecimal value) {
+       addCriterion("PRO_PRICE <=", value, "proPrice");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProPriceIn(List<BigDecimal> values) {
+       addCriterion("PRO_PRICE in", values, "proPrice");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProPriceNotIn(List<BigDecimal> values) {
+       addCriterion("PRO_PRICE not in", values, "proPrice");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProPriceBetween(BigDecimal value1, BigDecimal value2) {
+       addCriterion("PRO_PRICE between", value1, value2, "proPrice");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProPriceNotBetween(BigDecimal value1, BigDecimal value2) {
+       addCriterion("PRO_PRICE not between", value1, value2, "proPrice");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProLowstockIsNull() {
+       addCriterion("PRO_LOWSTOCK is null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProLowstockIsNotNull() {
+       addCriterion("PRO_LOWSTOCK is not null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProLowstockEqualTo(Integer value) {
+       addCriterion("PRO_LOWSTOCK =", value, "proLowstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProLowstockNotEqualTo(Integer value) {
+       addCriterion("PRO_LOWSTOCK <>", value, "proLowstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProLowstockGreaterThan(Integer value) {
+       addCriterion("PRO_LOWSTOCK >", value, "proLowstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProLowstockGreaterThanOrEqualTo(Integer value) {
+       addCriterion("PRO_LOWSTOCK >=", value, "proLowstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProLowstockLessThan(Integer value) {
+       addCriterion("PRO_LOWSTOCK <", value, "proLowstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProLowstockLessThanOrEqualTo(Integer value) {
+       addCriterion("PRO_LOWSTOCK <=", value, "proLowstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProLowstockIn(List<Integer> values) {
+       addCriterion("PRO_LOWSTOCK in", values, "proLowstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProLowstockNotIn(List<Integer> values) {
+       addCriterion("PRO_LOWSTOCK not in", values, "proLowstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProLowstockBetween(Integer value1, Integer value2) {
+       addCriterion("PRO_LOWSTOCK between", value1, value2, "proLowstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProLowstockNotBetween(Integer value1, Integer value2) {
+       addCriterion("PRO_LOWSTOCK not between", value1, value2, "proLowstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProMaxstockIsNull() {
+       addCriterion("PRO_MAXSTOCK is null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProMaxstockIsNotNull() {
+       addCriterion("PRO_MAXSTOCK is not null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProMaxstockEqualTo(Integer value) {
+       addCriterion("PRO_MAXSTOCK =", value, "proMaxstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProMaxstockNotEqualTo(Integer value) {
+       addCriterion("PRO_MAXSTOCK <>", value, "proMaxstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProMaxstockGreaterThan(Integer value) {
+       addCriterion("PRO_MAXSTOCK >", value, "proMaxstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProMaxstockGreaterThanOrEqualTo(Integer value) {
+       addCriterion("PRO_MAXSTOCK >=", value, "proMaxstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProMaxstockLessThan(Integer value) {
+       addCriterion("PRO_MAXSTOCK <", value, "proMaxstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProMaxstockLessThanOrEqualTo(Integer value) {
+       addCriterion("PRO_MAXSTOCK <=", value, "proMaxstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProMaxstockIn(List<Integer> values) {
+       addCriterion("PRO_MAXSTOCK in", values, "proMaxstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProMaxstockNotIn(List<Integer> values) {
+       addCriterion("PRO_MAXSTOCK not in", values, "proMaxstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProMaxstockBetween(Integer value1, Integer value2) {
+       addCriterion("PRO_MAXSTOCK between", value1, value2, "proMaxstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProMaxstockNotBetween(Integer value1, Integer value2) {
+       addCriterion("PRO_MAXSTOCK not between", value1, value2, "proMaxstock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProStockIsNull() {
+       addCriterion("PRO_STOCK is null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProStockIsNotNull() {
+       addCriterion("PRO_STOCK is not null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProStockEqualTo(Integer value) {
+       addCriterion("PRO_STOCK =", value, "proStock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProStockNotEqualTo(Integer value) {
+       addCriterion("PRO_STOCK <>", value, "proStock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProStockGreaterThan(Integer value) {
+       addCriterion("PRO_STOCK >", value, "proStock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProStockGreaterThanOrEqualTo(Integer value) {
+       addCriterion("PRO_STOCK >=", value, "proStock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProStockLessThan(Integer value) {
+       addCriterion("PRO_STOCK <", value, "proStock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProStockLessThanOrEqualTo(Integer value) {
+       addCriterion("PRO_STOCK <=", value, "proStock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProStockIn(List<Integer> values) {
+       addCriterion("PRO_STOCK in", values, "proStock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProStockNotIn(List<Integer> values) {
+       addCriterion("PRO_STOCK not in", values, "proStock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProStockBetween(Integer value1, Integer value2) {
+       addCriterion("PRO_STOCK between", value1, value2, "proStock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProStockNotBetween(Integer value1, Integer value2) {
+       addCriterion("PRO_STOCK not between", value1, value2, "proStock");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCreatorIsNull() {
+       addCriterion("PRO_CREATOR is null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCreatorIsNotNull() {
+       addCriterion("PRO_CREATOR is not null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCreatorEqualTo(String value) {
+       addCriterion("PRO_CREATOR =", value, "proCreator");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCreatorNotEqualTo(String value) {
+       addCriterion("PRO_CREATOR <>", value, "proCreator");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCreatorGreaterThan(String value) {
+       addCriterion("PRO_CREATOR >", value, "proCreator");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCreatorGreaterThanOrEqualTo(String value) {
+       addCriterion("PRO_CREATOR >=", value, "proCreator");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCreatorLessThan(String value) {
+       addCriterion("PRO_CREATOR <", value, "proCreator");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCreatorLessThanOrEqualTo(String value) {
+       addCriterion("PRO_CREATOR <=", value, "proCreator");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCreatorLike(String value) {
+       addCriterion("PRO_CREATOR like", value, "proCreator");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCreatorNotLike(String value) {
+       addCriterion("PRO_CREATOR not like", value, "proCreator");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCreatorIn(List<String> values) {
+       addCriterion("PRO_CREATOR in", values, "proCreator");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCreatorNotIn(List<String> values) {
+       addCriterion("PRO_CREATOR not in", values, "proCreator");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCreatorBetween(String value1, String value2) {
+       addCriterion("PRO_CREATOR between", value1, value2, "proCreator");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProCreatorNotBetween(String value1, String value2) {
+       addCriterion("PRO_CREATOR not between", value1, value2, "proCreator");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProOrderIsNull() {
+       addCriterion("PRO_ORDER is null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProOrderIsNotNull() {
+       addCriterion("PRO_ORDER is not null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProOrderEqualTo(String value) {
+       addCriterion("PRO_ORDER =", value, "proOrder");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProOrderNotEqualTo(String value) {
+       addCriterion("PRO_ORDER <>", value, "proOrder");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProOrderGreaterThan(String value) {
+       addCriterion("PRO_ORDER >", value, "proOrder");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProOrderGreaterThanOrEqualTo(String value) {
+       addCriterion("PRO_ORDER >=", value, "proOrder");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProOrderLessThan(String value) {
+       addCriterion("PRO_ORDER <", value, "proOrder");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProOrderLessThanOrEqualTo(String value) {
+       addCriterion("PRO_ORDER <=", value, "proOrder");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProOrderLike(String value) {
+       addCriterion("PRO_ORDER like", value, "proOrder");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProOrderNotLike(String value) {
+       addCriterion("PRO_ORDER not like", value, "proOrder");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProOrderIn(List<String> values) {
+       addCriterion("PRO_ORDER in", values, "proOrder");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProOrderNotIn(List<String> values) {
+       addCriterion("PRO_ORDER not in", values, "proOrder");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProOrderBetween(String value1, String value2) {
+       addCriterion("PRO_ORDER between", value1, value2, "proOrder");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andProOrderNotBetween(String value1, String value2) {
+       addCriterion("PRO_ORDER not between", value1, value2, "proOrder");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProductTypeIsNull() {
+       addCriterion("OFFICE_PRODUCT_TYPE is null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProductTypeIsNotNull() {
+       addCriterion("OFFICE_PRODUCT_TYPE is not null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProductTypeEqualTo(Integer value) {
+       addCriterion("OFFICE_PRODUCT_TYPE =", value, "officeProductType");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProductTypeNotEqualTo(Integer value) {
+       addCriterion("OFFICE_PRODUCT_TYPE <>", value, "officeProductType");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProductTypeGreaterThan(Integer value) {
+       addCriterion("OFFICE_PRODUCT_TYPE >", value, "officeProductType");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProductTypeGreaterThanOrEqualTo(Integer value) {
+       addCriterion("OFFICE_PRODUCT_TYPE >=", value, "officeProductType");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProductTypeLessThan(Integer value) {
+       addCriterion("OFFICE_PRODUCT_TYPE <", value, "officeProductType");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProductTypeLessThanOrEqualTo(Integer value) {
+       addCriterion("OFFICE_PRODUCT_TYPE <=", value, "officeProductType");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProductTypeIn(List<Integer> values) {
+       addCriterion("OFFICE_PRODUCT_TYPE in", values, "officeProductType");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProductTypeNotIn(List<Integer> values) {
+       addCriterion("OFFICE_PRODUCT_TYPE not in", values, "officeProductType");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProductTypeBetween(Integer value1, Integer value2) {
+       addCriterion("OFFICE_PRODUCT_TYPE between", value1, value2, "officeProductType");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andOfficeProductTypeNotBetween(Integer value1, Integer value2) {
+       addCriterion("OFFICE_PRODUCT_TYPE not between", value1, value2, "officeProductType");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andAllocationIsNull() {
+       addCriterion("ALLOCATION is null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andAllocationIsNotNull() {
+       addCriterion("ALLOCATION is not null");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andAllocationEqualTo(Boolean value) {
+       addCriterion("ALLOCATION =", value, "allocation");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andAllocationNotEqualTo(Boolean value) {
+       addCriterion("ALLOCATION <>", value, "allocation");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andAllocationGreaterThan(Boolean value) {
+       addCriterion("ALLOCATION >", value, "allocation");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andAllocationGreaterThanOrEqualTo(Boolean value) {
+       addCriterion("ALLOCATION >=", value, "allocation");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andAllocationLessThan(Boolean value) {
+       addCriterion("ALLOCATION <", value, "allocation");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andAllocationLessThanOrEqualTo(Boolean value) {
+       addCriterion("ALLOCATION <=", value, "allocation");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andAllocationIn(List<Boolean> values) {
+       addCriterion("ALLOCATION in", values, "allocation");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andAllocationNotIn(List<Boolean> values) {
+       addCriterion("ALLOCATION not in", values, "allocation");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andAllocationBetween(Boolean value1, Boolean value2) {
+       addCriterion("ALLOCATION between", value1, value2, "allocation");
+       return (OfficeProductsExample.Criteria)this;
+     }
+ 
+     public OfficeProductsExample.Criteria andAllocationNotBetween(Boolean value1, Boolean value2) {
+       addCriterion("ALLOCATION not between", value1, value2, "allocation");
+       return (OfficeProductsExample.Criteria)this;
+     }
+   }
+ }
+

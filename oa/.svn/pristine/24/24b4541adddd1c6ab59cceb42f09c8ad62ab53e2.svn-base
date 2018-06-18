@@ -1,0 +1,146 @@
+/*     */ package com.xoa.global.intercptor;
+/*     */ 
+/*     */ import com.xoa.dao.menu.SysFunctionMapper;
+/*     */ import com.xoa.model.menu.SysFunction;
+/*     */ import com.xoa.util.common.L;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.HashSet;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.Map.Entry;
+/*     */ import java.util.Set;
+/*     */ import org.springframework.beans.factory.InitializingBean;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Component;
+/*     */ 
+/*     */ @Component
+/*     */ public class CommonFunctionMemory
+/*     */   implements InitializingBean
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   SysFunctionMapper mapper;
+/*     */   private Map<String, String> reflectMaps;
+/*     */   private List<SysFunction> functionIds;
+/*     */   private static Map<String, String> userSessionMaps;
+/*     */   private static Map<String, String> jsession_sessionIdMaps;
+/*     */ 
+/*     */   public List<SysFunction> getFunctionIds()
+/*     */   {
+/*  28 */     return this.functionIds;
+/*     */   }
+/*     */ 
+/*     */   public Map<String, String> getReflectMaps() {
+/*  32 */     return this.reflectMaps;
+/*     */   }
+/*     */ 
+/*     */   public String getSession(String userName) {
+/*  36 */     if (userSessionMaps != null) {
+/*  37 */       return (String)userSessionMaps.get(userName);
+/*     */     }
+/*  39 */     return null;
+/*     */   }
+/*     */   public void putReflectSession(String jsessionId, String sessionId) {
+/*  42 */     if (jsession_sessionIdMaps == null) {
+/*  43 */       jsession_sessionIdMaps = new HashMap();
+/*     */     }
+/*  45 */     jsession_sessionIdMaps.put(jsessionId, sessionId);
+/*     */   }
+/*     */   public String getSessionIdByJessionId(String jessionId) {
+/*  48 */     if (jsession_sessionIdMaps != null) {
+/*  49 */       return (String)jsession_sessionIdMaps.get(jessionId);
+/*     */     }
+/*  51 */     return null;
+/*     */   }
+/*     */ 
+/*     */   public void putSession(String userName, String sessionId) {
+/*  55 */     if (userSessionMaps == null) {
+/*  56 */       userSessionMaps = new HashMap();
+/*     */     }
+/*  58 */     userSessionMaps.put(userName, sessionId);
+/*     */   }
+/*     */   public Set<String> getUserName(String seesion) {
+/*  61 */     Set userSet = new HashSet();
+/*  62 */     if (userSessionMaps != null) {
+/*  63 */       for (Map.Entry entry : userSessionMaps.entrySet()) {
+/*  64 */         entry.getKey();
+/*  65 */         if (seesion.equals(entry.getValue())) {
+/*  66 */           userSet.add(entry.getKey());
+/*     */         }
+/*     */       }
+/*     */     }
+/*  70 */     return userSet;
+/*     */   }
+/*     */ 
+/*     */   public void setReflectMaps(Map<String, String> reflectMaps) {
+/*  74 */     this.reflectMaps = reflectMaps;
+/*     */   }
+/*     */ 
+/*     */   public void setFunctionIds(List<SysFunction> functionIds) {
+/*  78 */     this.functionIds = functionIds;
+/*     */   }
+/*     */ 
+/*     */   public void afterPropertiesSet() throws Exception
+/*     */   {
+/*  83 */     L.w(new Object[] { "ceshi" });
+/*     */ 
+/*  85 */     List<SysFunction> functions = this.mapper.getAll();
+/*     */     int i;
+/*  86 */     if ((functions != null) && (functions.size() > 0)) {
+/*  87 */       this.functionIds = new ArrayList();
+/*  88 */       i = 0;
+/*  89 */       for (SysFunction function : functions) {
+/*  90 */         if (!function.getUrl().contains("@")) {
+/*  91 */           this.functionIds.add(function);
+/*     */         }
+/*  93 */         i++;
+/*     */       }
+/*     */     }
+/*  96 */     this.reflectMaps = new HashMap();
+/*  97 */     jsession_sessionIdMaps = new HashMap();
+/*  98 */     this.reflectMaps.put("email", "email/index");
+/*  99 */     this.reflectMaps.put("notify/show", "notice/index");
+/* 100 */     this.reflectMaps.put("news/show", "news/index");
+/* 101 */     this.reflectMaps.put("file_folder/index2.php", "file/persionBox");
+/* 102 */     this.reflectMaps.put("system/file_folder", "showFileBySort_id");
+/* 103 */     this.reflectMaps.put("diary/show", "diary/index");
+/* 104 */     this.reflectMaps.put("news/manage", "news/manage");
+/* 105 */     this.reflectMaps.put("notify/manage", "notice/manage");
+/* 106 */     this.reflectMaps.put("knowledge/management", "file/home");
+/* 107 */     this.reflectMaps.put("system/file/folder", "file/setIndex");
+/* 108 */     this.reflectMaps.put("system/workflow/flow_guide", "flow/type/index");
+/* 109 */     this.reflectMaps.put("system/workflow/flow_form", "workflow/formtype/index");
+/* 110 */     this.reflectMaps.put("system/workflow/flow_sort", "workflow/flowclassify/index");
+/*     */ 
+/* 112 */     this.reflectMaps.put("system/unit", "sys/companyInfo");
+/* 113 */     this.reflectMaps.put("system/dept", "common/deptManagement");
+/* 114 */     this.reflectMaps.put("system/org_manage", "sys/organizational");
+/* 115 */     this.reflectMaps.put("workflow/new", "workflow/work/addwork");
+/* 116 */     this.reflectMaps.put("workflow/list", "workflow/work/workList");
+/* 117 */     this.reflectMaps.put("system/user", "common/userManagement");
+/* 118 */     this.reflectMaps.put("system/user_priv", "roleAuthorization");
+/* 119 */     this.reflectMaps.put("system/status_text", "sys/statusBar");
+/* 120 */     this.reflectMaps.put("system/interface", "sys/interfaceSettings");
+/* 121 */     this.reflectMaps.put("system/reg_view", "sys/sysInfo");
+/* 122 */     this.reflectMaps.put("system/menu", "sys/menuSetting");
+/* 123 */     this.reflectMaps.put("system/log", "sys/journal");
+/* 124 */     this.reflectMaps.put("system/code", "common/systemCode");
+/* 125 */     this.reflectMaps.put("info/unit", "sys/unitInfor");
+/* 126 */     this.reflectMaps.put("info/dept", "department/deptQuery");
+/* 127 */     this.reflectMaps.put("info/user", "sys/userInfor");
+/* 128 */     this.reflectMaps.put("calendar", "schedule/index");
+/* 129 */     this.reflectMaps.put("system/netdisk", "netdiskSettings/netdisksetting");
+/* 130 */     this.reflectMaps.put("document/mine", "document/mine");
+/* 131 */     this.reflectMaps.put("person/info", "controlpanel/index");
+/* 132 */     this.reflectMaps.put("workflow/rule", "workflow/work/workDelegate");
+/* 133 */     L.s(new Object[] { "0=||======================================>", this.functionIds });
+/*     */ 
+/* 135 */     userSessionMaps = new HashMap();
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.global.intercptor.CommonFunctionMemory
+ * JD-Core Version:    0.6.0
+ */

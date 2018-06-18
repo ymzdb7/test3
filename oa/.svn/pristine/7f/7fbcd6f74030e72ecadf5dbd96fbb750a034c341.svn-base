@@ -1,0 +1,182 @@
+package com.myoa.controller.meeting;
+
+import com.myoa.model.meet.Meeting;
+import com.myoa.model.meet.MeetingAttendConfirm;
+import com.myoa.model.meet.MeetingWithBLOBs;
+import com.myoa.model.users.Users;
+import com.myoa.service.meeting.MeetingService;
+import com.myoa.util.Constant;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.session.SessionUtils;
+import com.myoa.util.dataSource.ContextHolder;
+
+import java.util.Map;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import org.apache.commons.collections.map.HashedMap;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@RequestMapping({ "/meeting" })
+public class MeetingController {
+
+	@Resource
+	private MeetingService meetingService;
+
+	@ResponseBody
+	@RequestMapping(value = { "/queryMeeting" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<MeetingWithBLOBs> queryMeeting(
+			MeetingWithBLOBs meetingWithBLOBs, Integer page, Integer pageSize,
+			boolean useFlag) {
+		return this.meetingService.queryMeeting(meetingWithBLOBs, page,
+				pageSize, useFlag);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/getMyMeeting" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<MeetingWithBLOBs> getMyMeeting(HttpServletRequest request,
+			MeetingWithBLOBs meetingWithBLOBs, Integer page, Integer pageSize,
+			boolean useFlag) {
+		return this.meetingService.getMyMeeting(request, meetingWithBLOBs,
+				page, pageSize, useFlag);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/queryMeetingById" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<MeetingWithBLOBs> queryMeetingById(
+			HttpServletRequest request, HttpServletResponse response, String sid) {
+		return this.meetingService.queryMeetingById(request, response, sid, 0);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/updateMeetingById" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<MeetingWithBLOBs> updateMeetingById(
+			MeetingWithBLOBs meetingWithBLOBs) {
+		return this.meetingService.updateMeetingById(meetingWithBLOBs);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/updMeetStatusById" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<MeetingWithBLOBs> updMeetStatusById(
+			HttpServletRequest request, Meeting meeting) {
+		return this.meetingService.updMeetStatusById(request, meeting);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/insertMeeting" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<MeetingWithBLOBs> insertMeeting(
+			MeetingWithBLOBs meetingWithBLOB, HttpServletRequest request) {
+		return this.meetingService.insertMeeting(meetingWithBLOB, request);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/delMeetingById" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<MeetingWithBLOBs> delMeetingById(String sid) {
+		return this.meetingService.delMeetingById(sid);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/queryAttendConfirm" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<MeetingAttendConfirm> queryAttendConfirm(String meetingId) {
+		return this.meetingService.queryAttendConfirm(meetingId);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/queryCountByStatus" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<Meeting> queryCountByStatus(HttpServletRequest request) {
+		return this.meetingService.queryCountByStatus(request);
+	}
+
+	@RequestMapping(value = { "/outMeetingMsg" }, produces = { "application/json;charset=UTF-8" })
+	public void outMeetingMsg(HttpServletRequest request,
+			HttpServletResponse response, String sid) {
+		this.meetingService.queryMeetingById(request, response, sid, 1);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/readMeeting" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<MeetingWithBLOBs> readMeeting(
+			MeetingAttendConfirm meetingAttendConfirm,
+			HttpServletRequest request) {
+		return this.meetingService.updateConfirmReadStatusBySId(
+				meetingAttendConfirm, request);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/attendMeeting" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<Users> attendMeeting(
+			MeetingAttendConfirm meetingAttendConfirm,
+			HttpServletRequest request) {
+		return this.meetingService.updateConfirmAttendStatusBySId(
+				meetingAttendConfirm, request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/MeetingAttend" })
+	public Map meetingApply(HttpServletRequest request,
+			HttpServletResponse response, String meetingId,
+			Map<String, Object> map) {
+		ToJson toJson = this.meetingService.queryMeetingById(request, response,
+				meetingId, 0);
+		Map tempMap = new HashedMap();
+		tempMap.put("mark", "SID_MEETING");
+		tempMap.put("toJson", toJson);
+		return tempMap;
+	}
+
+	@RequestMapping({ "/checkAttend" })
+	@ResponseBody
+	public ToJson<Users> checkAttend(HttpServletRequest request) {
+		ToJson toJson = new ToJson(0, "ok");
+		String attendFlag = (String) SessionUtils.getSessionInfo(
+				request.getSession(), "attendFlag", String.class);
+		String avatar = (String) SessionUtils.getSessionInfo(
+				request.getSession(), "avatar", String.class);
+		String photoName = (String) SessionUtils.getSessionInfo(
+				request.getSession(), "photoName", String.class);
+		String userName = (String) SessionUtils.getSessionInfo(
+				request.getSession(), "userName", String.class);
+		String deptName = (String) SessionUtils.getSessionInfo(
+				request.getSession(), "deptName", String.class);
+		String userPrivName = (String) SessionUtils.getSessionInfo(
+				request.getSession(), "userPrivName", String.class);
+		Users users = new Users();
+		users.setMyStatus(attendFlag);
+		users.setAvatar(avatar);
+		users.setPhotoName(photoName);
+		users.setUserName(userName);
+		users.setDeptName(deptName);
+		users.setUserPrivName(userPrivName);
+		toJson.setObject(users);
+		return toJson;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/getMeetingNotify" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<MeetingWithBLOBs> getMeetingNotify(
+			HttpServletRequest request, MeetingWithBLOBs meetingWithBLOBs,
+			Integer page, Integer pageSize, boolean useFlag) {
+		return this.meetingService.getMeetingNotify(request, meetingWithBLOBs,
+				page, pageSize, useFlag);
+	}
+
+	@RequestMapping({ "/meetingList" })
+	public String meetingList(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/meeting/meetingList";
+	}
+
+	@RequestMapping({ "/detail" })
+	public String detail(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/meeting/detail";
+	}
+}

@@ -1,0 +1,151 @@
+/*     */ package com.xoa.controller.netdisk;
+/*     */ 
+/*     */ import com.alibaba.fastjson.JSONArray;
+/*     */ import com.xoa.model.netdisk.Netdisk;
+/*     */ import com.xoa.model.netdisk.NetdiskWrapper;
+/*     */ import com.xoa.service.netdisk.NetdiskService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.log4j.Logger;
+/*     */ import org.springframework.context.annotation.Scope;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @Scope("prototype")
+/*     */ @RequestMapping({"/netdiskSettings"})
+/*     */ public class NetdiskSettingsController
+/*     */ {
+/*  40 */   private Logger loger = Logger.getLogger(NetdiskSettingsController.class);
+/*     */ 
+/*     */   @Resource
+/*     */   private NetdiskService netdiskService;
+/*     */ 
+/*  47 */   @RequestMapping({"/netdisksetting"})
+/*     */   public String netdisksetting() { return "app/netdesk/netdisksetting"; }
+/*     */ 
+/*     */   @RequestMapping({"/netdisksetpower"})
+/*     */   public String netdisksetpower() {
+/*  52 */     return "app/netdesk/netdisksetpower";
+/*     */   }
+/*     */ 
+/*     */   public String netdesk()
+/*     */   {
+/*  57 */     return "app/netdesk/netdesk";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/networkHardDisk"})
+/*     */   public String networkHardDisk()
+/*     */   {
+/*  64 */     return "app/netdesk/networkHardDisk";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/selectNetdiskSettings"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Netdisk> selectNetdiskSettings(HttpServletRequest request)
+/*     */   {
+/*  80 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  82 */     ToJson tojson = new ToJson(0, "");
+/*     */     try {
+/*  84 */       List list = this.netdiskService.selectNetdisk();
+/*  85 */       tojson.setObject(list);
+/*  86 */       tojson.setMsg("ok");
+/*  87 */       tojson.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  89 */       tojson.setMsg(e.getMessage());
+/*     */     }
+/*  91 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/addNetdiskSettings"}, produces={"application/json;charset=UTF-8"})
+/*     */   public BaseWrapper addNetdisk(Netdisk netdisk, HttpServletRequest request)
+/*     */   {
+/* 113 */     return this.netdiskService.addNetdisk(netdisk);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/editNetdiskSettings"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Netdisk> editNetdisk(String auth, Netdisk netdisk, HttpServletRequest request)
+/*     */   {
+/* 138 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 140 */     ToJson json = new ToJson();
+/*     */     try
+/*     */     {
+/* 143 */       int a = this.netdiskService.editNetdisk(netdisk);
+/* 144 */       if (a > 0) {
+/* 145 */         json.setFlag(0);
+/* 146 */         json.setMsg("ok");
+/*     */       } else {
+/* 148 */         json.setFlag(1);
+/* 149 */         json.setMsg("err");
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 154 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 156 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/editNetdiskJurisdictionSettings"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Netdisk> editNetdiskJurisdiction(@RequestParam(name="auth") String auth, HttpServletRequest request)
+/*     */   {
+/* 165 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 167 */     ToJson json = new ToJson();
+/* 168 */     Map mmp = (Map)JSONArray.parseObject(auth, Map.class);
+/*     */     try {
+/* 170 */       int a = this.netdiskService.editNetdiskJurisdiction(mmp);
+/* 171 */       if (a > 0) {
+/* 172 */         json.setFlag(0);
+/* 173 */         json.setMsg("ok");
+/*     */       } else {
+/* 175 */         json.setFlag(1);
+/* 176 */         json.setMsg("err");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 179 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 181 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/deleteByDiskId"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Netdisk> deleteByDiskId(@RequestParam("diskId") Integer diskId, HttpServletRequest request)
+/*     */   {
+/* 201 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 203 */     ToJson tojson = new ToJson(0, "");
+/* 204 */     this.loger.debug("message" + diskId);
+/*     */     try {
+/* 206 */       this.netdiskService.delete(diskId);
+/* 207 */       tojson.setMsg("ok");
+/* 208 */       return tojson;
+/*     */     } catch (Exception e) {
+/* 210 */       tojson.setMsg(e.getMessage());
+/* 211 */     }return tojson;
+/*     */   }
+/*     */   @RequestMapping({"/getNetiskBySortId"})
+/*     */   @ResponseBody
+/*     */   public NetdiskWrapper getAuthBySortId(Integer diskId) {
+/* 218 */     return this.netdiskService.queryById(diskId);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.netdisk.NetdiskSettingsController
+ * JD-Core Version:    0.6.0
+ */

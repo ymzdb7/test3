@@ -1,0 +1,1016 @@
+/*      */ package com.xoa.service.widget.impl;
+/*      */ 
+/*      */ import com.xoa.dao.calendar.CalendarMapper;
+/*      */ import com.xoa.dao.diary.DiaryModelMapper;
+/*      */ import com.xoa.dao.document.DocumentModelMapper;
+/*      */ import com.xoa.dao.email.EmailBodyMapper;
+/*      */ import com.xoa.dao.notify.NotifyMapper;
+/*      */ import com.xoa.dao.users.UsersMapper;
+/*      */ import com.xoa.dao.widget.WidgetModuleMapper;
+/*      */ import com.xoa.dao.widget.WidgetSetMapper;
+/*      */ import com.xoa.dao.workflow.FlowRunMapper;
+/*      */ import com.xoa.dao.workflow.FlowRunPrcsMapper;
+/*      */ import com.xoa.dao.worldnews.NewsMapper;
+/*      */ import com.xoa.model.calender.CalendarAll;
+/*      */ import com.xoa.model.diary.DiaryModel;
+/*      */ import com.xoa.model.document.DocumentModelFlowRunPrcs;
+/*      */ import com.xoa.model.email.EmailBodyModel;
+/*      */ import com.xoa.model.users.Users;
+/*      */ import com.xoa.model.weather.OneDayWeatherInf;
+/*      */ import com.xoa.model.weather.WeatherInf;
+/*      */ import com.xoa.model.widget.WidgetDataModel;
+/*      */ import com.xoa.model.widget.WidgetModel;
+/*      */ import com.xoa.model.widget.WidgetSetModel;
+/*      */ import com.xoa.model.workflow.FlowRun;
+/*      */ import com.xoa.model.workflow.FlowRunPrcs;
+/*      */ import com.xoa.service.calender.CalenderService;
+/*      */ import com.xoa.service.email.EmailService;
+/*      */ import com.xoa.service.notify.NotifyService;
+/*      */ import com.xoa.service.users.UsersService;
+/*      */ import com.xoa.service.widget.WidgetService;
+/*      */ import com.xoa.service.workflow.flowtype.FlowRunPrcsService;
+/*      */ import com.xoa.service.worldnews.NewService;
+import com.xoa.util.Constant;
+/*      */ import com.xoa.util.PinYinUtil;
+/*      */ import com.xoa.util.ToJson;
+/*      */ import com.xoa.util.WeatherUtil;
+/*      */ import com.xoa.util.common.StringUtils;
+/*      */ import com.xoa.util.common.session.SessionUtils;
+/*      */ import com.xoa.util.page.PageParams;
+/*      */ import java.text.SimpleDateFormat;
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.Arrays;
+/*      */ import java.util.Date;
+/*      */ import java.util.HashMap;
+/*      */ import java.util.List;
+/*      */ import java.util.Map;
+/*      */ import javax.annotation.Resource;
+/*      */ import javax.servlet.http.HttpServletRequest;
+/*      */ import javax.servlet.http.HttpSession;
+import org.springframework.stereotype.Service;
+/*      */ 
+/*      */ @Service
+/*      */ public class WidgetServiceImpl
+/*      */   implements WidgetService
+/*      */ {
+/*      */ 
+/*      */   @Resource
+/*      */   private EmailBodyMapper emailBodyMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private EmailService emailService;
+/*      */ 
+/*      */   @Resource
+/*      */   private NotifyMapper notifyMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private NotifyService notifyService;
+/*      */ 
+/*      */   @Resource
+/*      */   private NewsMapper newsMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private NewService newService;
+/*      */ 
+/*      */   @Resource
+/*      */   private DiaryModelMapper diaryModelMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private CalendarMapper calendarMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private CalenderService calenderService;
+/*      */ 
+/*      */   @Resource
+/*      */   private FlowRunPrcsMapper flowRunPrcsMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private FlowRunPrcsService flowRunPrcsService;
+/*      */ 
+/*      */   @Resource
+/*      */   private WidgetModuleMapper widgetModuleMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private WidgetSetMapper widgetSetMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private DocumentModelMapper documentModelMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersMapper usersMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private FlowRunMapper flowRunMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   UsersService usersService;
+/*      */   private static final int WEATHER_ID = 1;
+/*      */   private static final int CALENDAR_ID = 2;
+/*      */   private static final int DIARY_ID = 3;
+/*      */   private static final int EMAIL_ID = 4;
+/*      */   private static final int NOTIFY_ID = 5;
+/*      */   private static final int FLOWRUNPRCS_ID = 6;
+/*      */   private static final int NEWS_ID = 7;
+/*      */   private static final int DOCTMENT_ID = 8;
+/*      */ 
+/*      */   public ToJson<WidgetSetModel> getWidgetToDoMsg(HttpServletRequest request, String cityName)
+/*      */   {
+/*  115 */     ToJson json = new ToJson();
+/*  116 */     List dataList = new ArrayList();
+/*  117 */     WidgetSetModel widgetSetModel = null;
+/*  118 */     PageParams pageParams = new PageParams();
+/*  119 */     pageParams.setPage(Integer.valueOf(1));
+/*  120 */     pageParams.setPageSize(Integer.valueOf(5));
+/*  121 */     pageParams.setUseFlag(Boolean.valueOf(true));
+/*      */     try
+/*      */     {
+/*  124 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*      */ 
+/*  127 */       String local = getNowLanguage(request);
+/*      */ 
+/*  129 */       widgetSetModel = this.widgetSetMapper.getWidgetSetByUid(user.getUid());
+/*      */ 
+/*  131 */       if (widgetSetModel == null) {
+/*  132 */         widgetSetModel = new WidgetSetModel();
+/*  133 */         widgetSetModel.setUid(user.getUid());
+/*  134 */         widgetSetModel.setBg("8");
+/*  135 */         widgetSetModel.setModuleIds("1,2,4,5,");
+/*  136 */         widgetSetModel.setType("1");
+/*  137 */         this.widgetSetMapper.saveWidgetSet(widgetSetModel);
+/*      */       }
+/*  139 */       List<String> moduleIds = null;
+/*  140 */       if ((widgetSetModel != null) && (!StringUtils.checkNull(widgetSetModel.getModuleIds()).booleanValue()))
+/*  141 */         moduleIds = Arrays.asList(widgetSetModel.getModuleIds().split(","));
+/*      */       Map maps;
+/*  144 */       if ((moduleIds != null) && (moduleIds.size() > 0))
+/*      */       {
+/*  146 */         maps = new HashMap();
+/*  147 */         maps.put("pageParams", pageParams);
+/*  148 */         maps.put("fromId", user.getUserId());
+/*  149 */         maps.put("userId", user.getUserId());
+/*  150 */         maps.put("name", user.getUserId());
+/*  151 */         maps.put("userPriv", user.getUserPriv());
+/*  152 */         maps.put("deptId", user.getDeptId());
+/*  153 */         for (String id : moduleIds) {
+/*  154 */           switch (Integer.valueOf(id).intValue())
+/*      */           {
+/*      */           case 1:
+/*  157 */             if (StringUtils.checkNull(cityName).booleanValue()) break;
+/*  158 */             WidgetDataModel widgetDataModel = new WidgetDataModel();
+/*  159 */             OneDayWeatherInf oneDayWeatherInf = null;
+/*      */             try {
+/*  161 */               WeatherInf weatherInf = WeatherUtil.resolveWeatherInf(cityName);
+/*  162 */               if ((weatherInf != null) && (weatherInf.getWeatherInfs() != null) && (weatherInf.getWeatherInfs().length != 0)) {
+/*  163 */                 oneDayWeatherInf = weatherInf.getWeatherInfs()[0];
+/*      */               } else {
+/*  165 */                 weatherInf = WeatherUtil.resolveWeatherInf("北京");
+/*  166 */                 if ((weatherInf != null) && (weatherInf.getWeatherInfs() != null) && (weatherInf.getWeatherInfs().length != 0))
+/*  167 */                   oneDayWeatherInf = weatherInf.getWeatherInfs()[0];
+/*      */                 else {
+/*  169 */                   break;
+/*      */                 }
+/*      */               }
+/*  172 */               String weather = PinYinUtil.getPingYin(oneDayWeatherInf.getWeather());
+/*  173 */               oneDayWeatherInf.setPicture("/img/weather/" + weather + ".png");
+/*      */ 
+/*  175 */               setWeiHao(oneDayWeatherInf);
+/*      */             } catch (Exception e) {
+/*  177 */               e.printStackTrace();
+/*      */             }
+/*  179 */             widgetDataModel.setData("weather");
+/*  180 */             if (local.equals("zh_CN"))
+/*  181 */               widgetDataModel.setName("天气");
+/*  182 */             else if (local.equals("zh_tw"))
+/*  183 */               widgetDataModel.setName("天氣");
+/*  184 */             else if (local.equals("en_US")) {
+/*  185 */               widgetDataModel.setName("Weather");
+/*      */             }
+/*  187 */             widgetDataModel.setObject(oneDayWeatherInf);
+/*  188 */             dataList.add(widgetDataModel);
+/*  189 */             break;
+/*      */           case 4:
+/*  193 */             maps.put("fromId", user.getUserId());
+/*  194 */             String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  196 */             List<EmailBodyModel> emailBodyModels = new ArrayList<EmailBodyModel>();
+/*      */             try {
+/*  198 */               ToJson emailBodyModelToJson = this.emailService.selectInbox(maps, Integer.valueOf(1), Integer.valueOf(5), true, sqlType);
+/*  199 */               emailBodyModels = emailBodyModelToJson.getObj();
+/*      */             } catch (Exception e) {
+/*  201 */               e.printStackTrace();
+/*      */             }
+/*  203 */             if (emailBodyModels == null) break;
+/*  204 */             if (emailBodyModels.size() > 0) {
+/*  205 */               for (EmailBodyModel e : emailBodyModels) {
+/*  206 */                 if (e.getUsers() == null) {
+/*  207 */                   e.setUsers(new Users());
+/*      */                 }
+/*      */               }
+/*      */             }
+/*  211 */               widgetDataModel = new WidgetDataModel();
+/*  212 */             widgetDataModel.setData("email");
+/*  213 */             if (local.equals("zh_CN"))
+/*  214 */               widgetDataModel.setName("邮件");
+/*  215 */             else if (local.equals("zh_tw"))
+/*  216 */               widgetDataModel.setName("郵件");
+/*  217 */             else if (local.equals("en_US")) {
+/*  218 */               widgetDataModel.setName("E-mail");
+/*      */             }
+/*  220 */             widgetDataModel.setImg("/img/widget/email.png");
+/*  221 */             widgetDataModel.setData_info(emailBodyModels);
+/*  222 */             dataList.add(widgetDataModel);
+/*  223 */             break;
+/*      */           case 5:
+/*  227 */             maps.remove("fromId");
+/*  228 */             List notifies = new ArrayList();
+/*      */             try {
+/*  230 */               ToJson json1 = this.notifyService.selectNotifyManage(maps, Integer.valueOf(1), Integer.valueOf(5), true, user.getUserId(), null);
+/*  231 */               notifies = json1.getObj();
+/*      */             } catch (Exception e) {
+/*  233 */               e.printStackTrace();
+/*      */             }
+/*  235 */             if (notifies == null) break;
+/*  236 */               widgetDataModel = new WidgetDataModel();
+/*  237 */             widgetDataModel.setData("notify");
+/*  238 */             if (local.equals("zh_CN"))
+/*  239 */               widgetDataModel.setName("公告");
+/*  240 */             else if (local.equals("zh_tw"))
+/*  241 */               widgetDataModel.setName("公告");
+/*  242 */             else if (local.equals("en_US")) {
+/*  243 */               widgetDataModel.setName("Notice");
+/*      */             }
+/*  245 */             widgetDataModel.setImg("/img/widget/notify.png");
+/*  246 */             widgetDataModel.setData_info(notifies);
+/*  247 */             dataList.add(widgetDataModel);
+/*  248 */             break;
+/*      */           case 7:
+/*  252 */             List news = new ArrayList();
+/*      */             try {
+/*  254 */               ToJson newsToJson = this.newService.selectNewsManage(maps, Integer.valueOf(1), Integer.valueOf(5), true, user.getUserId(), null);
+/*  255 */               news = newsToJson.getObj();
+/*      */             } catch (Exception e) {
+/*  257 */               e.printStackTrace();
+/*      */             }
+/*  259 */             if (news == null) break;
+/*  260 */               widgetDataModel = new WidgetDataModel();
+/*  261 */             widgetDataModel.setData("news");
+/*  262 */             if (local.equals("zh_CN"))
+/*  263 */               widgetDataModel.setName("新闻");
+/*  264 */             else if (local.equals("zh_tw"))
+/*  265 */               widgetDataModel.setName("新聞");
+/*  266 */             else if (local.equals("en_US")) {
+/*  267 */               widgetDataModel.setName("News");
+/*      */             }
+/*  269 */             widgetDataModel.setImg("/img/widget/news.png");
+/*  270 */             widgetDataModel.setData_info(news);
+/*  271 */             dataList.add(widgetDataModel);
+/*  272 */             break;
+/*      */           case 3:
+/*  276 */             List diaryList = new ArrayList();
+/*      */             try {
+/*  278 */               diaryList = this.diaryModelMapper.getDiarySelf(maps);
+/*      */             } catch (Exception e) {
+/*  280 */               e.printStackTrace();
+/*      */             }
+/*  282 */             if (dataList == null) break;
+/*  283 */               widgetDataModel = new WidgetDataModel();
+/*  284 */             widgetDataModel.setData("diary");
+/*  285 */             if (local.equals("zh_CN"))
+/*  286 */               widgetDataModel.setName("日志");
+/*  287 */             else if (local.equals("zh_tw"))
+/*  288 */               widgetDataModel.setName("日誌");
+/*  289 */             else if (local.equals("en_US")) {
+/*  290 */               widgetDataModel.setName("Diary");
+/*      */             }
+/*  292 */             widgetDataModel.setImg("/img/widget/diary.png");
+/*  293 */             widgetDataModel.setData_info(diaryList);
+/*  294 */             dataList.add(widgetDataModel);
+/*  295 */             break;
+/*      */           case 2:
+/*  299 */             java.util.Calendar cal = java.util.Calendar.getInstance();
+/*  300 */             cal.set(11, 0);
+/*  301 */             cal.set(13, 0);
+/*  302 */             cal.set(12, 0);
+/*  303 */             cal.set(14, 0);
+/*  304 */             int calTime = (int)(cal.getTimeInMillis() / 1000L);
+/*  305 */             maps.put("calTime", Integer.valueOf(calTime));
+/*  306 */             List calendarList = this.calendarMapper.getscheduleBycId(maps);
+/*  307 */             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+/*  308 */             SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/*  309 */             List listAll = new ArrayList();
+/*  310 */             com.xoa.model.calender.Calendar Allcal = new com.xoa.model.calender.Calendar();
+/*  311 */             List list1 = new ArrayList();
+/*  312 */             String data = format.format(new Date());
+/*  313 */             for (int j = 0; j < calendarList.size(); j++) {
+/*  314 */               com.xoa.model.calender.Calendar calendar = (com.xoa.model.calender.Calendar)calendarList.get(j);
+/*  315 */               CalendarAll ca = new CalendarAll();
+/*  316 */               int cT = calendar.getCalTime().intValue();
+/*  317 */               int eT = calendar.getEndTime().intValue();
+/*  318 */               Long ct = Long.valueOf(cT * 1000L);
+/*  319 */               Long et = Long.valueOf(eT * 1000L);
+/*  320 */               String s = f.format(ct);
+/*  321 */               String e = f.format(et);
+/*  322 */               calendar.setStim(s);
+/*  323 */               calendar.setEtim(e);
+/*  324 */               ca.setAddTime(calendar.getAddTime());
+/*  325 */               ca.setCalId(calendar.getCalId());
+/*  326 */               ca.setCalType(calendar.getCalType());
+/*  327 */               ca.setEndTime(calendar.getEndTime());
+/*  328 */               ca.setContent(calendar.getContent());
+/*  329 */               ca.setCalLevel(calendar.getCalLevel());
+/*  330 */               ca.setCalTime(calendar.getCalTime());
+/*  331 */               ca.setTaker(calendar.getTaker());
+/*  332 */               ca.setStim(calendar.getStim());
+/*  333 */               ca.setEtim(calendar.getEtim());
+/*  334 */               ca.setOwner(calendar.getOwner());
+/*  335 */               list1.add(ca);
+/*      */             }
+/*  337 */             Allcal.setCalData(data);
+/*  338 */             Allcal.setCalMessage(list1);
+/*  339 */             listAll.add(Allcal);
+/*      */ 
+/*  341 */             if (calendarList == null) break;
+/*  342 */               widgetDataModel = new WidgetDataModel();
+/*  343 */             widgetDataModel.setData("calendar");
+/*  344 */             if (local.equals("zh_CN"))
+/*  345 */               widgetDataModel.setName("日程");
+/*  346 */             else if (local.equals("zh_tw"))
+/*  347 */               widgetDataModel.setName("日程");
+/*  348 */             else if (local.equals("en_US")) {
+/*  349 */               widgetDataModel.setName("Schedule");
+/*      */             }
+/*  351 */             widgetDataModel.setImg("/img/widget/calendar.png");
+/*  352 */             widgetDataModel.setData_info(listAll);
+/*  353 */             dataList.add(widgetDataModel);
+/*  354 */             break;
+/*      */           case 6:
+/*  358 */             List flowRunPrcs = new ArrayList();
+/*      */             try {
+/*  360 */               ToJson flowRunPrcsToJson = this.flowRunPrcsService.selectObject(maps, Integer.valueOf(1), Integer.valueOf(5), true);
+/*  361 */               flowRunPrcs = flowRunPrcsToJson.getObj();
+/*      */             } catch (Exception e) {
+/*  363 */               e.printStackTrace();
+/*      */             }
+/*  365 */             if (flowRunPrcs == null) break;
+/*  366 */               widgetDataModel = new WidgetDataModel();
+/*  367 */             widgetDataModel.setData("flowRunPrcs");
+/*  368 */             if (local.equals("zh_CN"))
+/*  369 */               widgetDataModel.setName("工作流");
+/*  370 */             else if (local.equals("zh_tw"))
+/*  371 */               widgetDataModel.setName("工作流");
+/*  372 */             else if (local.equals("en_US")) {
+/*  373 */               widgetDataModel.setName("Workflow");
+/*      */             }
+/*  375 */             widgetDataModel.setImg("/img/widget/flowRunPrcs.png");
+/*  376 */             widgetDataModel.setData_info(flowRunPrcs);
+/*  377 */             dataList.add(widgetDataModel);
+/*  378 */             break;
+/*      */           case 8:
+/*  382 */             Map param = new HashMap();
+/*  383 */             param.put("documentType", Integer.valueOf(0));
+/*  384 */             param.put("page", Integer.valueOf(0));
+/*  385 */             param.put("pageSize", Integer.valueOf(5));
+/*  386 */             param.put("userId", user.getUserId());
+/*  387 */             param.put("prcsFlag", Integer.valueOf(1));
+/*  388 */             List<DocumentModelFlowRunPrcs> datas = new ArrayList<DocumentModelFlowRunPrcs>();
+/*      */             try {
+/*  390 */               datas = this.documentModelMapper.selWillDocSendOrReceive(param);
+/*      */             } catch (Exception e) {
+/*  392 */               e.printStackTrace();
+/*      */             }
+/*  394 */             for (DocumentModelFlowRunPrcs doc : datas) {
+/*  395 */               if (!StringUtils.checkNull(doc.getCreateTime()).booleanValue()) {
+/*  396 */                 doc.setCreateTime(doc.getCreateTime().substring(0, doc.getCreateTime().length() - 2));
+/*      */               }
+/*  398 */               if (!StringUtils.checkNull(doc.getPrcsTime()).booleanValue()) {
+/*  399 */                 doc.setPrcsTime(doc.getPrcsTime().substring(0, doc.getPrcsTime().length() - 2));
+/*      */               }
+/*      */             }
+/*  402 */             if (datas == null) break;
+/*  403 */               widgetDataModel = new WidgetDataModel();
+/*  404 */             widgetDataModel.setData("doctment");
+/*  405 */             if (local.equals("zh_CN"))
+/*  406 */               widgetDataModel.setName("公文");
+/*  407 */             else if (local.equals("zh_tw"))
+/*  408 */               widgetDataModel.setName("公文");
+/*  409 */             else if (local.equals("en_US")) {
+/*  410 */               widgetDataModel.setName("officialdocument");
+/*      */             }
+/*  412 */             widgetDataModel.setImg("/img/widget/document.png");
+/*  413 */             widgetDataModel.setData_info(datas);
+/*  414 */             dataList.add(widgetDataModel);
+/*      */           }
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  420 */       widgetSetModel.setData(dataList);
+/*  421 */       widgetSetModel.setCount(this.widgetModuleMapper.getAllCount());
+/*  422 */       json.setObject(widgetSetModel);
+/*  423 */       json.setMsg("ok");
+/*  424 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  426 */       e.printStackTrace();
+/*  427 */       json.setMsg("err");
+/*  428 */       json.setFlag(1);
+/*      */     }
+/*  430 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<WidgetSetModel> getWeather(HttpServletRequest request, String cityName)
+/*      */   {
+/*  435 */     ToJson json = new ToJson();
+/*  436 */     List dataList = new ArrayList();
+/*  437 */     WidgetSetModel widgetSetModel = null;
+/*      */     try
+/*      */     {
+/*  440 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*      */ 
+/*  442 */       String local = getNowLanguage(request);
+/*  443 */       widgetSetModel = this.widgetSetMapper.getWidgetSetByUid(user.getUid());
+/*      */ 
+/*  445 */       if (widgetSetModel == null) {
+/*  446 */         widgetSetModel = new WidgetSetModel();
+/*  447 */         widgetSetModel.setUid(user.getUid());
+/*  448 */         widgetSetModel.setBg("8");
+/*  449 */         widgetSetModel.setModuleIds("1,2,4,5,");
+/*  450 */         widgetSetModel.setType("1");
+/*  451 */         this.widgetSetMapper.saveWidgetSet(widgetSetModel);
+/*      */       }
+/*  453 */       List<String> moduleIds = null;
+/*  454 */       if ((widgetSetModel != null) && (!StringUtils.checkNull(widgetSetModel.getModuleIds()).booleanValue())) {
+/*  455 */         moduleIds = Arrays.asList(widgetSetModel.getModuleIds().split(","));
+/*      */       }
+/*      */ 
+/*  458 */       if ((moduleIds != null) && (moduleIds.size() > 0)) {
+/*  459 */         for (String id : moduleIds) {
+/*  460 */           switch (Integer.valueOf(id).intValue())
+/*      */           {
+/*      */           case 1:
+/*  463 */             if (!StringUtils.checkNull(cityName).booleanValue()) {
+/*  464 */               WidgetDataModel widgetDataModel = new WidgetDataModel();
+/*  465 */               OneDayWeatherInf oneDayWeatherInf = null;
+/*      */               try {
+/*  467 */                 WeatherInf weatherInf = WeatherUtil.resolveWeatherInf(cityName);
+/*  468 */                 if ((weatherInf != null) && (weatherInf.getWeatherInfs() != null) && (weatherInf.getWeatherInfs().length != 0)) {
+/*  469 */                   oneDayWeatherInf = weatherInf.getWeatherInfs()[0];
+/*      */                 } else {
+/*  471 */                   weatherInf = WeatherUtil.resolveWeatherInf("北京");
+/*  472 */                   if ((weatherInf != null) && (weatherInf.getWeatherInfs() != null) && (weatherInf.getWeatherInfs().length != 0))
+/*  473 */                     oneDayWeatherInf = weatherInf.getWeatherInfs()[0];
+/*      */                   else {
+/*  475 */                     break;
+/*      */                   }
+/*      */                 }
+/*  478 */                 String weather = PinYinUtil.getPingYin(oneDayWeatherInf.getWeather());
+/*  479 */                 oneDayWeatherInf.setPicture("/img/weather/" + weather + ".png");
+/*      */ 
+/*  481 */                 setWeiHao(oneDayWeatherInf);
+/*      */               } catch (Exception e) {
+/*  483 */                 e.printStackTrace();
+/*      */               }
+/*  485 */               widgetDataModel.setData("weather");
+/*  486 */               if (local.equals("zh_CN"))
+/*  487 */                 widgetDataModel.setName("天气");
+/*  488 */               else if (local.equals("zh_tw"))
+/*  489 */                 widgetDataModel.setName("天氣");
+/*  490 */               else if (local.equals("en_US")) {
+/*  491 */                 widgetDataModel.setName("Weather");
+/*      */               }
+/*  493 */               widgetDataModel.setObject(oneDayWeatherInf);
+/*  494 */               dataList.add(widgetDataModel);
+/*      */             }
+/*      */           }
+/*      */ 
+/*      */         }
+/*      */ 
+/*  500 */         label475: widgetSetModel.setData(dataList);
+/*  501 */         widgetSetModel.setCount(this.widgetModuleMapper.getAllCount());
+/*  502 */         json.setObject(widgetSetModel);
+/*  503 */         json.setMsg("ok");
+/*  504 */         json.setFlag(0);
+/*      */       }
+/*      */     } catch (Exception e) {
+/*  507 */       e.printStackTrace();
+/*  508 */       json.setMsg("err");
+/*  509 */       json.setFlag(1);
+/*      */     }
+/*  511 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<WidgetSetModel> getWidgetMsg(HttpServletRequest request)
+/*      */   {
+/*  516 */     ToJson json = new ToJson();
+/*  517 */     List dataList = new ArrayList();
+/*  518 */     WidgetSetModel widgetSetModel = null;
+/*  519 */     PageParams pageParams = new PageParams();
+/*  520 */     pageParams.setPage(Integer.valueOf(1));
+/*  521 */     pageParams.setPageSize(Integer.valueOf(5));
+/*  522 */     pageParams.setUseFlag(Boolean.valueOf(true));
+/*      */     try
+/*      */     {
+/*  525 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*      */ 
+/*  528 */       String local = getNowLanguage(request);
+/*      */ 
+/*  530 */       widgetSetModel = this.widgetSetMapper.getWidgetSetByUid(user.getUid());
+/*      */ 
+/*  532 */       if (widgetSetModel == null) {
+/*  533 */         widgetSetModel = new WidgetSetModel();
+/*  534 */         widgetSetModel.setUid(user.getUid());
+/*  535 */         widgetSetModel.setBg("8");
+/*  536 */         widgetSetModel.setModuleIds("1,2,4,5,");
+/*  537 */         widgetSetModel.setType("1");
+/*  538 */         this.widgetSetMapper.saveWidgetSet(widgetSetModel);
+/*      */       }
+/*  540 */       List<String> moduleIds = null;
+/*  541 */       if ((widgetSetModel != null) && (!StringUtils.checkNull(widgetSetModel.getModuleIds()).booleanValue()))
+/*  542 */         moduleIds = Arrays.asList(widgetSetModel.getModuleIds().split(","));
+/*      */       Map maps;
+/*  545 */       if ((moduleIds != null) && (moduleIds.size() > 0))
+/*      */       {
+/*  547 */         maps = new HashMap();
+/*  548 */         maps.put("pageParams", pageParams);
+/*  549 */         maps.put("fromId", user.getUserId());
+/*  550 */         maps.put("userId", user.getUserId());
+/*  551 */         maps.put("name", user.getUserId());
+/*  552 */         maps.put("userPriv", user.getUserPriv());
+/*  553 */         maps.put("deptId", user.getDeptId());
+/*  554 */         for (String id : moduleIds) {
+/*  555 */           switch (Integer.valueOf(id).intValue()) {
+/*      */           case 1:
+/*  557 */             WidgetDataModel widgetDataModel1 = new WidgetDataModel();
+/*  558 */             OneDayWeatherInf oneDayWeatherInf = null;
+/*  559 */             widgetDataModel1.setData("weather");
+/*  560 */             if (local.equals("zh_CN"))
+/*  561 */               widgetDataModel1.setName("天气");
+/*  562 */             else if (local.equals("zh_tw"))
+/*  563 */               widgetDataModel1.setName("天氣");
+/*  564 */             else if (local.equals("en_US")) {
+/*  565 */               widgetDataModel1.setName("Weather");
+/*      */             }
+/*  567 */             widgetDataModel1.setObject(oneDayWeatherInf);
+/*  568 */             dataList.add(widgetDataModel1);
+/*      */ 
+/*  570 */             break;
+/*      */           case 4:
+/*  573 */             maps.put("fromId", user.getUserId());
+/*  574 */             String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  576 */             List<EmailBodyModel> emailBodyModels = new ArrayList<EmailBodyModel>();
+/*      */             try {
+/*  578 */               ToJson emailBodyModelToJson = this.emailService.selectInbox(maps, Integer.valueOf(1), Integer.valueOf(5), true, sqlType);
+/*  579 */               emailBodyModels = emailBodyModelToJson.getObj();
+/*      */             } catch (Exception e) {
+/*  581 */               e.printStackTrace();
+/*      */             }
+/*  583 */             if (emailBodyModels == null) break;
+/*  584 */             if (emailBodyModels.size() > 0) {
+/*  585 */               for (EmailBodyModel e : emailBodyModels) {
+/*  586 */                 if (e.getUsers() == null) {
+/*  587 */                   e.setUsers(new Users());
+/*      */                 }
+/*      */               }
+/*      */             }
+/*  591 */             WidgetDataModel widgetDataModel = new WidgetDataModel();
+/*  592 */             widgetDataModel.setData("email");
+/*  593 */             if (local.equals("zh_CN"))
+/*  594 */               widgetDataModel.setName("邮件");
+/*  595 */             else if (local.equals("zh_tw"))
+/*  596 */               widgetDataModel.setName("郵件");
+/*  597 */             else if (local.equals("en_US")) {
+/*  598 */               widgetDataModel.setName("E-mail");
+/*      */             }
+/*  600 */             widgetDataModel.setImg("/img/widget/email.png");
+/*  601 */             widgetDataModel.setData_info(emailBodyModels);
+/*  602 */             dataList.add(widgetDataModel);
+/*  603 */             break;
+/*      */           case 5:
+/*  607 */             maps.remove("fromId");
+/*  608 */             List notifies = new ArrayList();
+/*      */             try {
+/*  610 */               ToJson json1 = this.notifyService.selectNotifyManage(maps, Integer.valueOf(1), Integer.valueOf(5), true, user.getUserId(), null);
+/*  611 */               notifies = json1.getObj();
+/*      */             } catch (Exception e) {
+/*  613 */               e.printStackTrace();
+/*      */             }
+/*  615 */             if (notifies == null) break;
+/*  616 */              widgetDataModel = new WidgetDataModel();
+/*  617 */             widgetDataModel.setData("notify");
+/*  618 */             if (local.equals("zh_CN"))
+/*  619 */               widgetDataModel.setName("公告");
+/*  620 */             else if (local.equals("zh_tw"))
+/*  621 */               widgetDataModel.setName("公告");
+/*  622 */             else if (local.equals("en_US")) {
+/*  623 */               widgetDataModel.setName("Notice");
+/*      */             }
+/*  625 */             widgetDataModel.setImg("/img/widget/notify.png");
+/*  626 */             widgetDataModel.setData_info(notifies);
+/*  627 */             dataList.add(widgetDataModel);
+/*  628 */             break;
+/*      */           case 7:
+/*  632 */             List news = new ArrayList();
+/*      */             try {
+/*  634 */               ToJson newsToJson = this.newService.selectNewsManage(maps, Integer.valueOf(1), Integer.valueOf(5), true, user.getUserId(), null);
+/*  635 */               news = newsToJson.getObj();
+/*      */             } catch (Exception e) {
+/*  637 */               e.printStackTrace();
+/*      */             }
+/*  639 */             if (news == null) break;
+/*  640 */             widgetDataModel = new WidgetDataModel();
+/*  641 */             widgetDataModel.setData("news");
+/*  642 */             if (local.equals("zh_CN"))
+/*  643 */               widgetDataModel.setName("新闻");
+/*  644 */             else if (local.equals("zh_tw"))
+/*  645 */               widgetDataModel.setName("新聞");
+/*  646 */             else if (local.equals("en_US")) {
+/*  647 */               widgetDataModel.setName("News");
+/*      */             }
+/*  649 */             widgetDataModel.setImg("/img/widget/news.png");
+/*  650 */             widgetDataModel.setData_info(news);
+/*  651 */             dataList.add(widgetDataModel);
+/*  652 */             break;
+/*      */           case 3:
+/*  656 */             maps.put("diaType", "1");
+/*  657 */             List<DiaryModel> diaryList = new ArrayList<DiaryModel>();
+/*      */             try {
+/*  659 */               diaryList = this.diaryModelMapper.getDiaryList(maps);
+/*  660 */               if ((diaryList != null) && (diaryList.size() > 0)) {
+/*  661 */                 for (DiaryModel diaryModel : diaryList)
+/*  662 */                   if (!StringUtils.checkNull(diaryModel.getToId()).booleanValue()) {
+/*  663 */                     String toIdName = this.usersService.getUserNameById(diaryModel.getToId());
+/*  664 */                     diaryModel.setToIdName(toIdName);
+/*      */                   }
+/*      */               }
+/*      */             }
+/*      */             catch (Exception e)
+/*      */             {
+/*  670 */               e.printStackTrace();
+/*      */             }
+/*  672 */             if (dataList == null) break;
+/*  673 */             widgetDataModel = new WidgetDataModel();
+/*  674 */             widgetDataModel.setData("diary");
+/*  675 */             if (local.equals("zh_CN"))
+/*  676 */               widgetDataModel.setName("日志");
+/*  677 */             else if (local.equals("zh_tw"))
+/*  678 */               widgetDataModel.setName("日誌");
+/*  679 */             else if (local.equals("en_US")) {
+/*  680 */               widgetDataModel.setName("Diary");
+/*      */             }
+/*  682 */             widgetDataModel.setImg("/img/widget/diary.png");
+/*  683 */             widgetDataModel.setData_info(diaryList);
+/*  684 */             dataList.add(widgetDataModel);
+/*  685 */             break;
+/*      */           case 2:
+/*  689 */             List calendarList = new ArrayList();
+/*  690 */             List listAll = new ArrayList();
+/*      */             try {
+/*  692 */               java.util.Calendar cal = java.util.Calendar.getInstance();
+/*  693 */               cal.set(11, 0);
+/*  694 */               cal.set(13, 0);
+/*  695 */               cal.set(12, 0);
+/*  696 */               cal.set(14, 0);
+/*  697 */               int calTime = (int)(cal.getTimeInMillis() / 1000L);
+/*  698 */               maps.put("starTime", Integer.valueOf(calTime));
+/*  699 */               calendarList = this.calendarMapper.getscheduleBycId(maps);
+/*  700 */               SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+/*  701 */               SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/*  702 */               com.xoa.model.calender.Calendar Allcal = new com.xoa.model.calender.Calendar();
+/*  703 */               List list1 = new ArrayList();
+/*  704 */               String data = format.format(new Date());
+/*  705 */               for (int j = 0; j < calendarList.size(); j++) {
+/*  706 */                 com.xoa.model.calender.Calendar calendar = (com.xoa.model.calender.Calendar)calendarList.get(j);
+/*  707 */                 CalendarAll ca = new CalendarAll();
+/*  708 */                 int cT = calendar.getCalTime().intValue();
+/*  709 */                 int eT = calendar.getEndTime().intValue();
+/*  710 */                 Long ct = Long.valueOf(cT * 1000L);
+/*  711 */                 Long et = Long.valueOf(eT * 1000L);
+/*  712 */                 String s = f.format(ct);
+/*  713 */                 String e = f.format(et);
+/*  714 */                 calendar.setStim(s);
+/*  715 */                 calendar.setEtim(e);
+/*  716 */                 ca.setAddTime(calendar.getAddTime());
+/*  717 */                 ca.setCalId(calendar.getCalId());
+/*  718 */                 ca.setCalType(calendar.getCalType());
+/*  719 */                 ca.setEndTime(calendar.getEndTime());
+/*  720 */                 ca.setContent(calendar.getContent());
+/*  721 */                 ca.setCalLevel(calendar.getCalLevel());
+/*  722 */                 ca.setCalTime(calendar.getCalTime());
+/*  723 */                 ca.setTaker(calendar.getTaker());
+/*  724 */                 ca.setStim(calendar.getStim());
+/*  725 */                 ca.setEtim(calendar.getEtim());
+/*  726 */                 ca.setOwner(calendar.getOwner());
+/*  727 */                 Users users = this.usersMapper.findUsersByuserId(calendar.getUserId());
+/*  728 */                 if (users != null)
+/*  729 */                   ca.setUid(users.getUid());
+/*      */                 else {
+/*  731 */                   ca.setUid(null);
+/*      */                 }
+/*  733 */                 list1.add(ca);
+/*      */               }
+/*  735 */               Allcal.setCalData(data);
+/*  736 */               Allcal.setCalMessage(list1);
+/*  737 */               listAll.add(Allcal);
+/*      */             } catch (Exception e) {
+/*  739 */               e.printStackTrace();
+/*      */             }
+/*  741 */             if (calendarList == null) break;
+/*  742 */             widgetDataModel = new WidgetDataModel();
+/*  743 */             widgetDataModel.setData("calendar");
+/*  744 */             if (local.equals("zh_CN"))
+/*  745 */               widgetDataModel.setName("日程");
+/*  746 */             else if (local.equals("zh_tw"))
+/*  747 */               widgetDataModel.setName("日程");
+/*  748 */             else if (local.equals("en_US")) {
+/*  749 */               widgetDataModel.setName("Schedule");
+/*      */             }
+/*  751 */             widgetDataModel.setImg("/img/widget/calendar.png");
+/*  752 */             widgetDataModel.setData_info(listAll);
+/*  753 */             dataList.add(widgetDataModel);
+/*  754 */             break;
+/*      */           case 6:
+/*  758 */             List<FlowRunPrcs> flowRunPrcs = new ArrayList();
+/*      */             try {
+/*  760 */               ToJson flowRunPrcsToJson = this.flowRunPrcsService.selectObject(maps, Integer.valueOf(1), Integer.valueOf(5), true);
+/*  761 */               flowRunPrcs = flowRunPrcsToJson.getObj();
+/*      */             } catch (Exception e) {
+/*  763 */               e.printStackTrace();
+/*      */             }
+/*  765 */             if (flowRunPrcs == null) break;
+/*  766 */             for (FlowRunPrcs flowRunPrcs1 : flowRunPrcs) {
+/*  767 */               FlowRun flowRun = this.flowRunMapper.find(flowRunPrcs1.getRunId());
+/*  768 */               flowRunPrcs1.setAvatar(this.usersMapper.findUsersByuserId(flowRun.getBeginUser()).getAvatar());
+/*      */             }
+/*  770 */             widgetDataModel = new WidgetDataModel();
+/*  771 */             widgetDataModel.setData("flowRunPrcs");
+/*  772 */             if (local.equals("zh_CN"))
+/*  773 */               widgetDataModel.setName("工作流");
+/*  774 */             else if (local.equals("zh_tw"))
+/*  775 */               widgetDataModel.setName("工作流");
+/*  776 */             else if (local.equals("en_US")) {
+/*  777 */               widgetDataModel.setName("Workflow");
+/*      */             }
+/*  779 */             widgetDataModel.setImg("/img/widget/flowRunPrcs.png");
+/*  780 */             widgetDataModel.setData_info(flowRunPrcs);
+/*  781 */             dataList.add(widgetDataModel);
+/*  782 */             break;
+/*      */           case 8:
+/*  786 */             Map param = new HashMap();
+/*  787 */             param.put("documentType", Integer.valueOf(0));
+/*  788 */             param.put("page", Integer.valueOf(0));
+/*  789 */             param.put("pageSize", Integer.valueOf(5));
+/*  790 */             param.put("userId", user.getUserId());
+/*  791 */             param.put("prcsFlag", Integer.valueOf(1));
+/*  792 */             List<DocumentModelFlowRunPrcs> datas = new ArrayList<DocumentModelFlowRunPrcs>();
+/*      */             try {
+/*  794 */               datas = this.documentModelMapper.selWillDocSendOrReceive(param);
+/*      */             } catch (Exception e) {
+/*  796 */               e.printStackTrace();
+/*      */             }
+/*  798 */             for (DocumentModelFlowRunPrcs doc : datas) {
+/*  799 */               if (!StringUtils.checkNull(doc.getCreateTime()).booleanValue()) {
+/*  800 */                 doc.setCreateTime(doc.getCreateTime().substring(0, doc.getCreateTime().length() - 2));
+/*      */               }
+/*  802 */               if (!StringUtils.checkNull(doc.getPrcsTime()).booleanValue()) {
+/*  803 */                 doc.setPrcsTime(doc.getPrcsTime().substring(0, doc.getPrcsTime().length() - 2));
+/*      */               }
+/*  805 */               Users users = this.usersMapper.findUsersByuserId(doc.getCreater());
+/*  806 */               if (users != null) {
+/*  807 */                 doc.setAvatar(users.getAvatar());
+/*  808 */                 doc.setUid(users.getUid());
+/*      */               } else {
+/*  810 */                 doc.setAvatar("0");
+/*  811 */                 doc.setUid(null);
+/*  812 */                 doc.setCreaterName("此用户已禁用");
+/*      */               }
+/*      */             }
+/*  815 */             if (datas == null) break;
+/*  816 */             widgetDataModel = new WidgetDataModel();
+/*  817 */             widgetDataModel.setData("doctment");
+/*  818 */             if (local.equals("zh_CN"))
+/*  819 */               widgetDataModel.setName("公文");
+/*  820 */             else if (local.equals("zh_tw"))
+/*  821 */               widgetDataModel.setName("公文");
+/*  822 */             else if (local.equals("en_US")) {
+/*  823 */               widgetDataModel.setName("officialdocument");
+/*      */             }
+/*  825 */             widgetDataModel.setImg("/img/widget/document.png");
+/*  826 */             widgetDataModel.setData_info(datas);
+/*  827 */             dataList.add(widgetDataModel);
+/*      */           }
+/*      */         }
+/*      */ 
+/*      */       }
+/*      */ 
+/*  833 */       widgetSetModel.setData(dataList);
+/*  834 */       widgetSetModel.setCount(this.widgetModuleMapper.getAllCount());
+/*  835 */       json.setObject(widgetSetModel);
+/*  836 */       json.setMsg("ok");
+/*  837 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  839 */       e.printStackTrace();
+/*  840 */       json.setMsg("err");
+/*  841 */       json.setFlag(1);
+/*      */     }
+/*  843 */     return json;
+/*      */   }
+/*      */ 
+/*      */   public ToJson<WidgetSetModel> getUserSetByUid(HttpServletRequest request)
+/*      */   {
+/*  855 */     ToJson json = new ToJson();
+/*      */     try
+/*      */     {
+/*  858 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*      */ 
+/*  861 */       String local = getNowLanguage(request);
+/*      */ 
+/*  864 */       WidgetSetModel dataByUid = this.widgetSetMapper.getWidgetSetByUid(user.getUid());
+/*      */ 
+/*  866 */       List<WidgetModel> on_module = this.widgetModuleMapper.getModelByIds(dataByUid.getModuleIds().split(","));
+/*      */ 
+/*  868 */       List<WidgetModel> allModel = this.widgetModuleMapper.getAllModel();
+/*      */ 
+/*  870 */       allModel.removeAll(on_module);
+/*      */ 
+/*  873 */       for (WidgetModel widgetModel : allModel) {
+/*  874 */         widgetModel.setAid(null);
+/*  875 */         widgetModel.setTid(null);
+/*  876 */         widgetModel.setNo(null);
+/*  877 */         widgetModel.setIsOn(null);
+/*  878 */         widgetModel.setIsSet(null);
+/*  879 */         setImg(widgetModel);
+/*  880 */         setLanguage(local, widgetModel);
+/*      */       }
+/*  882 */       dataByUid.setOff(allModel);
+/*      */ 
+/*  885 */       for (WidgetModel widgetModel : on_module) {
+/*  886 */         widgetModel.setAid(null);
+/*  887 */         widgetModel.setTid(null);
+/*  888 */         widgetModel.setNo(null);
+/*  889 */         widgetModel.setIsOn(null);
+/*  890 */         widgetModel.setIsSet(null);
+/*  891 */         setImg(widgetModel);
+/*  892 */         setLanguage(local, widgetModel);
+/*      */       }
+/*  894 */       dataByUid.setOn(on_module);
+/*      */ 
+/*  897 */       dataByUid.setId(null);
+/*  898 */       dataByUid.setType(null);
+/*  899 */       dataByUid.setModuleIds(null);
+/*      */ 
+/*  901 */       json.setObject(dataByUid);
+/*  902 */       json.setMsg("ok");
+/*  903 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  905 */       e.printStackTrace();
+/*  906 */       json.setMsg("err");
+/*  907 */       json.setFlag(1);
+/*      */     }
+/*  909 */     return json;
+/*      */   }
+/*      */ 
+/*      */   private String getNowLanguage(HttpServletRequest request) {
+/*  913 */     Object localObj = SessionUtils.getSessionInfo(request.getSession(), "LOCALE_SESSION_ATTRIBUTE_NAME", Object.class);
+/*  914 */     String local = "";
+/*  915 */     if (localObj != null) {
+/*  916 */       if (StringUtils.checkNull(localObj.toString()).booleanValue()) {
+/*  917 */         local = "zh_CN";
+/*  918 */         SessionUtils.putSession(request.getSession(), "LOCALE_SESSION_ATTRIBUTE_NAME", "zh_CN");
+/*      */       } else {
+/*  920 */         local = localObj.toString();
+/*      */       }
+/*      */     } else {
+/*  923 */       local = "zh_CN";
+/*  924 */       SessionUtils.putSession(request.getSession(), "LOCALE_SESSION_ATTRIBUTE_NAME", "zh_CN");
+/*      */     }
+/*  926 */     return local;
+/*      */   }
+/*      */ 
+/*      */   private void setLanguage(String local, WidgetModel widgetModel) {
+/*  930 */     if (widgetModel.getName().equals("天气")) {
+/*  931 */       if (local.equals("zh_tw"))
+/*  932 */         widgetModel.setName("天氣");
+/*  933 */       else if (local.equals("en_US"))
+/*  934 */         widgetModel.setName("Weather");
+/*      */     }
+/*  936 */     else if (widgetModel.getName().equals("邮件")) {
+/*  937 */       if (local.equals("zh_tw"))
+/*  938 */         widgetModel.setName("郵件");
+/*  939 */       else if (local.equals("en_US"))
+/*  940 */         widgetModel.setName("E-mail");
+/*      */     }
+/*  942 */     else if (widgetModel.getName().equals("公告")) {
+/*  943 */       if (local.equals("zh_tw"))
+/*  944 */         widgetModel.setName("公告");
+/*  945 */       else if (local.equals("en_US"))
+/*  946 */         widgetModel.setName("Notice");
+/*      */     }
+/*  948 */     else if (widgetModel.getName().equals("新闻")) {
+/*  949 */       if (local.equals("zh_tw"))
+/*  950 */         widgetModel.setName("新聞");
+/*  951 */       else if (local.equals("en_US"))
+/*  952 */         widgetModel.setName("News");
+/*      */     }
+/*  954 */     else if (widgetModel.getName().equals("日志")) {
+/*  955 */       if (local.equals("zh_tw"))
+/*  956 */         widgetModel.setName("日誌");
+/*  957 */       else if (local.equals("en_US"))
+/*  958 */         widgetModel.setName("Diary");
+/*      */     }
+/*  960 */     else if (widgetModel.getName().equals("日程")) {
+/*  961 */       if (local.equals("zh_tw"))
+/*  962 */         widgetModel.setName("日程");
+/*  963 */       else if (local.equals("en_US"))
+/*  964 */         widgetModel.setName("Schedule");
+/*      */     }
+/*  966 */     else if (widgetModel.getName().equals("工作流待办")) {
+/*  967 */       if (local.equals("zh_tw"))
+/*  968 */         widgetModel.setName("工作流待辦");
+/*  969 */       else if (local.equals("en_US"))
+/*  970 */         widgetModel.setName("Workflow");
+/*      */     }
+/*  972 */     else if (widgetModel.getName().equals("待办公文"))
+/*  973 */       if (local.equals("zh_tw"))
+/*  974 */         widgetModel.setName("待办公文");
+/*  975 */       else if (local.equals("en_US"))
+/*  976 */         widgetModel.setName("officialdocument");
+/*      */   }
+/*      */ 
+/*      */   public ToJson<WidgetSetModel> editWidgetSetModel(HttpServletRequest request, WidgetSetModel widgetSetModel)
+/*      */   {
+/*  990 */     ToJson json = new ToJson();
+/*      */     try
+/*      */     {
+/*  993 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  994 */       widgetSetModel.setUid(user.getUid());
+/*  995 */       this.widgetSetMapper.updateWidgetSet(widgetSetModel);
+/*  996 */       json.setMsg("ok");
+/*  997 */       json.setFlag(0);
+/*      */     } catch (Exception e) {
+/*  999 */       e.printStackTrace();
+/* 1000 */       json.setMsg("err");
+/* 1001 */       json.setFlag(1);
+/*      */     }
+/* 1003 */     return json;
+/*      */   }
+/*      */ 
+/*      */   private static void setImg(WidgetModel widgetModel)
+/*      */   {
+/* 1018 */     switch (widgetModel.getId().intValue()) {
+/*      */     case 1:
+/* 1020 */       widgetModel.setImg("/img/widget/weather.png");
+/* 1021 */       break;
+/*      */     case 2:
+/* 1023 */       widgetModel.setImg("/img/widget/calendar.png");
+/* 1024 */       break;
+/*      */     case 3:
+/* 1026 */       widgetModel.setImg("/img/widget/diary.png");
+/* 1027 */       break;
+/*      */     case 4:
+/* 1029 */       widgetModel.setImg("/img/widget/email.png");
+/* 1030 */       break;
+/*      */     case 5:
+/* 1032 */       widgetModel.setImg("/img/widget/notify.png");
+/* 1033 */       break;
+/*      */     case 6:
+/* 1035 */       widgetModel.setImg("/img/widget/flowRunPrcs.png");
+/* 1036 */       break;
+/*      */     case 7:
+/* 1038 */       widgetModel.setImg("/img/widget/news.png");
+/* 1039 */       break;
+/*      */     case 8:
+/* 1041 */       widgetModel.setImg("/img/widget/doctment.png");
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   private void setWeiHao(OneDayWeatherInf oneDayWeatherInf)
+/*      */   {
+/* 1049 */     switch (oneDayWeatherInf.getWeek()) {
+/*      */     case "周一":
+/* 1051 */       oneDayWeatherInf.setWeihao("0,5");
+/* 1052 */       break;
+/*      */     case "周二":
+/* 1054 */       oneDayWeatherInf.setWeihao("1,6");
+/* 1055 */       break;
+/*      */     case "周三":
+/* 1057 */       oneDayWeatherInf.setWeihao("2,7");
+/* 1058 */       break;
+/*      */     case "周四":
+/* 1060 */       oneDayWeatherInf.setWeihao("3,8");
+/* 1061 */       break;
+/*      */     case "周五":
+/* 1063 */       oneDayWeatherInf.setWeihao("4,9");
+/* 1064 */       break;
+/*      */     case "周六":
+/* 1066 */       oneDayWeatherInf.setWeihao("不限行");
+/* 1067 */       break;
+/*      */     case "周日":
+/* 1069 */       oneDayWeatherInf.setWeihao("不限行");
+/*      */     }
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.widget.impl.WidgetServiceImpl
+ * JD-Core Version:    0.6.0
+ */

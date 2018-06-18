@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>日历控件</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <link rel="stylesheet" href="../formdesign/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="../../../css/ueditor/site.css">
+    <link rel="stylesheet" href="../themes/default/css/ueditor.css">
+    <script type="text/javascript" src="../dialogs/internal.js"></script>
+    <script type="text/javascript" src="../../../js/jquery/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="../../../js/base/base.js"></script>
+    <!--&lt;!&ndash; 配置文件 &ndash;&gt;-->
+    <!--<script type="text/javascript" src="../ueditor.config.js"></script>-->
+    <!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash; 编辑器源码文件 &ndash;&gt;&ndash;&gt;&ndash;&gt;-->
+    <!--<script type="text/javascript" src="../ueditor.all.js"></script>-->
+    <!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash; 语言包文件 &ndash;&gt;&ndash;&gt;&ndash;&gt;-->
+    <!--<script type="text/javascript" src="../lang/zh-cn/zh-cn.js"></script>-->
+    <link rel="stylesheet" href="leipi.style.css">
+    <script type="text/javascript">
+function createElement(type, name)
+{     
+    var element = null;     
+    try {        
+        element = document.createElement('<'+type+' name="'+name+'">');     
+    } catch (e) {}   
+    if(element==null) {     
+        element = document.createElement(type);     
+        element.name = name;     
+    } 
+    return element;     
+}
+//    window.um = UE.getEditor('container', {
+//        /* 传入配置参数,可配参数列表看umeditor.config.js */
+//        toolbars:[['FullScreen', 'Source','bold','italic','underline','justifyleft', 'justifycenter', 'justifyright', 'justifyjustify','table','fontfamily', 'fontsize','inserttable']]
+//    });
+//    um.ready(function(){//初始化方法
+//        um.setHeight(100);
+//    });
+
+    </script>
+
+</head>
+<body>
+<div class="content">
+    <table class="table table-bordered table-striped table-hover">
+     <tr>
+        <th ><span>控件名称</span><span class="label label-important">*</span></th>
+        <th ><span>输入框样式</span></th>
+    </tr>
+    <tr>
+        <td ><input id="orgname" placeholder="必填项" type="text"/> </td><input type="hidden" id="fielid" placeholder="必填项">
+        <td>
+            宽 <input id="orgwidth" type="text" value="200" class="input-small span1" placeholder="auto"> px
+            &nbsp;&nbsp;
+            高 <input id="orgheight" type="text" value="50" class="input-small span1" placeholder="auto"> px
+        </td>
+    </tr>
+    <tr>
+        <th colspan = "2"><span>会签模板</span><span class="label label-important">*</span></th>
+    </tr>
+    <tr>
+        <td colspan = "2">
+            <textarea id="orgtempl" name="content"  style="width:565px;height:150px;">
+{{C}}
+
+                {{U}}  {{T}}
+            </textarea>
+        </td>
+    </tr>
+    <tr>
+        <th colspan = "2"><span>会签控件数据显示格式，{{C}}=会签内容，{{U}}=会签用户名，{{D}}=用户所属部门，{{R}}=用户所属角色，{{T}}=会签时间，{{P}}=签章位置，{{O}}=操作位置</span></th>
+    </tr>
+    </table>
+</div>
+<script type="text/javascript">
+    $(function () {
+        console.log(UE);
+
+        var dataid = $.getQueryString('dataid');
+        var dataNumber=parent.pluginId;
+        var oNode = null,thePlugins = 'sign';
+
+            if( UE.plugins[thePlugins].editdom ){
+                oNode = UE.plugins[thePlugins].editdom;
+                var gTitle=oNode.getAttribute('title').replace(/&quot;/g,"\"");
+                var templ=oNode.getAttribute('orgtempl');
+                var gWidth=oNode.getAttribute('gWidth');
+                var gHeight=oNode.getAttribute('gHeight');
+                var templ=oNode.getAttribute('orgtempl');
+
+                $G('orgname').value = gTitle;
+                $G('orgtempl').value = templ;
+                $G('orgwidth').value = gWidth;
+                $G('orgheight').value = gHeight;
+
+            }
+
+        dialog.oncancel = function () {
+            if( UE.plugins[thePlugins].editdom ) {
+                delete UE.plugins[thePlugins].editdom;
+            }
+        };
+        dialog.onok = function (){
+            if( $G('orgname').value == '') {
+                alert('控件名称不能为空');
+                return false;
+            }
+            var gTitle=$G('orgname').value.replace(/\"/g,"&quot;"),gWidth = $G('orgwidth').value,
+                gHeight = $G('orgheight').value ;
+            var templ=$G('orgtempl').value;
+
+            if( !oNode ) {
+                try {
+                    var html = '<textarea ';
+                    html += ' name =  "' + 'DATA_'+dataNumber + '"';
+                    html += ' id =  "' + 'DATA_'+dataNumber + '"';
+                    html += ' class = "' + 'form_item sign' + '"';
+                    html += ' data-type = "' + 'sign' + '"';
+                    html += ' title = "' + gTitle + '"';
+                    html += ' orgtempl = "' + templ + '"';
+
+                    if( gWidth != '' ) {
+                        html += ' gWidth = "' + gWidth + '"';
+                    } else {
+                        html += ' gWidth = ""';
+                    }
+                    if(gHeight != '') {
+                        html += ' gHeight = "' + gHeight + '"';
+                    } else {
+                        html += ' gHeight = ""';
+                    }
+                    html += '></textarea>';
+                    html = $(html);
+                    html.attr("style",'height:'+gHeight+'px;width:'+gWidth+'px;');
+//                    oNode = createElement('input','DATA_' + dataNumber);
+//                    oNode.setAttribute('title',gTitle);
+//                    oNode.setAttribute('class', "form_item sign");
+//                    oNode.setAttribute('data-type', "sign");
+//                    oNode.setAttribute('id', 'DATA_' + dataNumber);
+//                    oNode.setAttribute('orgtempl', templ);
+//                    oNode.setAttribute('gWidth', gWidth);
+//                    oNode.setAttribute('gHeight', gHeight);
+//
+//                    if(gWidth != ''){
+//                        oNode.style.width = gWidth+'px';
+//                    }
+//                    if(gHeight != ''){
+//                        oNode.style.height = gHeight+'px';
+//                    }
+
+                    editor.execCommand('insertHtml',html.prop("outerHTML"));
+                    return true ;
+                } catch ( e ) {
+                    try {
+                        editor.execCommand('error');
+                    } catch ( e ) {
+                        alert('控件异常');
+                    }
+                    return false;
+                }
+            } else {
+                oNode.setAttribute('title',gTitle);
+                oNode.setAttribute('class', "form_item sign");
+                oNode.setAttribute('data-type', "sign");
+                oNode.setAttribute('orgtempl',  templ);
+                oNode.setAttribute('gWidth', gWidth);
+                oNode.setAttribute('gHeight', gHeight);
+
+                if(gWidth != ''){
+                    oNode.style.width = gWidth+'px';
+                }
+                if(gHeight != ''){
+                    oNode.style.height = gHeight+'px';
+                }
+
+                delete UE.plugins[thePlugins].editdom;
+                return true;
+            }
+        };
+
+    });
+
+</script>
+
+</body>
+</html>

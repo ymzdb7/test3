@@ -1,0 +1,156 @@
+/*     */ package com.xoa.service.salary.bonusmsg;
+/*     */ 
+/*     */ import com.xoa.dao.salary.bonus.BonusMapper;
+/*     */ import com.xoa.dao.salary.bonusmsg.BonusMsgMapper;
+/*     */ import com.xoa.model.salary.bonusmsg.BonusMsg;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.apache.poi.ss.usermodel.Cell;
+/*     */ import org.apache.poi.ss.usermodel.Row;
+/*     */ import org.apache.poi.ss.usermodel.Sheet;
+/*     */ import org.apache.poi.ss.usermodel.Workbook;
+/*     */ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Service
+/*     */ public class BonusMsgService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private BonusMsgMapper bonusMsgMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private BonusMapper bonusMapper;
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson bmImport(MultipartFile mFile, HttpServletRequest request, HttpServletResponse response, String time, Integer type)
+/*     */   {
+/*  39 */     ToJson toJson = new ToJson(1, "err");
+/*  40 */     int totalRows = 0;
+/*  41 */     int totalCells = 0;
+/*  42 */     List bonusmsg = new ArrayList();
+/*  43 */     String fileName = mFile.getOriginalFilename();
+/*  44 */     Workbook wb = null;
+/*     */     try {
+/*  46 */       if (fileName.matches("^.+\\.(?i)(xls)$")) {
+/*  47 */         wb = new HSSFWorkbook(mFile.getInputStream());
+/*     */       }
+/*  49 */       else if (fileName.matches("^.+\\.(?i)(xlsx)$"))
+/*  50 */         wb = new XSSFWorkbook(mFile.getInputStream());
+/*     */       else {
+/*  52 */         return null;
+/*     */       }
+/*     */ 
+/*  55 */       Sheet sheet = wb.getSheetAt(0);
+/*     */ 
+/*  57 */       totalRows = sheet.getPhysicalNumberOfRows();
+/*     */ 
+/*  59 */       if ((totalRows > 1) && (sheet.getRow(0) != null)) {
+/*  60 */         totalCells = sheet.getRow(0).getPhysicalNumberOfCells();
+/*     */       }
+/*  62 */       String[] datas = new String[totalCells + 1];
+/*  63 */       String[] head = new String[totalCells + 1];
+/*  64 */       datas[0] = "HEAD_ID";
+/*  65 */       head[0] = ("'" + time + "'");
+/*  66 */       Row row1 = sheet.getRow(0);
+/*  67 */       for (int c = 0; c < totalCells; c++) {
+/*  68 */         head[(c + 1)] = ("'" + row1.getCell(c).getStringCellValue() + "'");
+/*  69 */         datas[(c + 1)] = ("DATA_" + String.valueOf(c + 1));
+/*     */       }
+/*  71 */       for (int r = 1; r < totalRows; r++) {
+/*  72 */         Row row = sheet.getRow(r);
+/*  73 */         if (row == null) {
+/*     */           continue;
+/*     */         }
+/*  76 */         String[] bm = new String[totalCells + 1];
+/*  77 */         bm[0] = ("'" + time + "'");
+/*  78 */         for (int c = 0; c < totalCells; c++) {
+/*  79 */           bm[(c + 1)] = ("'" + row.getCell(c).getStringCellValue() + "'");
+/*     */         }
+/*  81 */         bonusmsg.add(bm);
+/*     */       }
+/*     */ 
+/*  84 */       boolean condition = this.bonusMapper.selectByType(1) == null;
+/*  85 */       if (condition)
+/*     */       {
+/*  87 */         Map map = new HashMap();
+/*  88 */         map.put("datas", datas);
+/*  89 */         map.put("head", head);
+/*  90 */         map.put("type", type);
+/*  91 */         this.bonusMapper.insertHead(map);
+/*     */       }
+/*     */ 
+/*  94 */       Map map1 = new HashMap();
+/*  95 */       map1.put("bonusmsg", bonusmsg);
+/*  96 */       datas[0] = "HEAD";
+/*  97 */       map1.put("datas", datas);
+/*  98 */       map1.put("type", type);
+/*  99 */       int succ = this.bonusMsgMapper.inserMsg(map1);
+/* 100 */       if (succ > 0) {
+/* 101 */         toJson.setFlag(0);
+/* 102 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 105 */       toJson.setMsg(e.getMessage());
+/* 106 */       L.e(new Object[] { e });
+/* 107 */       e.printStackTrace();
+/*     */     }
+/* 109 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<BonusMsg> queryBMsg(BonusMsg bonusMsg, Integer page, Integer pageSize, boolean useFlag, HttpServletRequest request) {
+/* 115 */     ToJson toJson = new ToJson(1, "err");
+/* 116 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/* 122 */     bonusMsg.setData2(null);
+/* 123 */     PageParams pageParams = new PageParams();
+/* 124 */     pageParams.setPage(page);
+/* 125 */     pageParams.setPageSize(pageSize);
+/* 126 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 127 */     Map map = new HashMap();
+/* 128 */     map.put("page", pageParams);
+/* 129 */     map.put("bg", bonusMsg);
+/* 130 */     if ("admin".equals(user.getUserId()))
+/* 131 */       map.put("userName", null);
+/*     */     else {
+/* 133 */       map.put("userName", user.getUserName());
+/*     */     }
+/* 135 */     List relist = new ArrayList();
+/*     */     try {
+/* 137 */       if ("1".equals(bonusMsg.getData50()))
+/* 138 */         relist = this.bonusMsgMapper.queryBo(map);
+/*     */       else {
+/* 140 */         relist = this.bonusMsgMapper.queryBo2(map);
+/*     */       }
+/* 142 */       toJson.setFlag(0);
+/* 143 */       toJson.setMsg("ok");
+/* 144 */       toJson.setObj(relist);
+/* 145 */       toJson.setTotleNum(pageParams.getTotal());
+/*     */     } catch (Exception e) {
+/* 147 */       toJson.setMsg(e.getMessage());
+/* 148 */       L.e(new Object[] { e });
+/* 149 */       e.printStackTrace();
+/*     */     }
+/*     */ 
+/* 152 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.salary.bonusmsg.BonusMsgService
+ * JD-Core Version:    0.6.0
+ */

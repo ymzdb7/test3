@@ -1,0 +1,116 @@
+ package com.xoa.util.email;
+ 
+ import java.io.PrintStream;
+ import java.util.Properties;
+ import javax.mail.Folder;
+ import javax.mail.Message;
+ import javax.mail.MessagingException;
+ import javax.mail.NoSuchProviderException;
+ import javax.mail.Session;
+ import javax.mail.Store;
+ import javax.mail.internet.MimeMessage;
+ 
+ public class RevEmailUtil
+ {
+   public static void main(String[] args)
+   {
+     try
+     {
+       String host = "pop.163.com";
+       String username = "zy6054726@163.com";
+       String password = "zhangyong138";
+ 
+       Properties props = new Properties();
+ 
+       Properties p = new Properties();
+       if (host.equals("pop.qq.com")) {
+         p.setProperty("mail.pop3.host", "pop.qq.com");
+         p.setProperty("mail.pop3.port", "995");
+ 
+         p.setProperty("mail.pop3.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+         p.setProperty("mail.pop3.socketFactory.fallback", "true");
+         p.setProperty("mail.pop3.socketFactory.port", "995");
+       } else {
+         p.setProperty("mail.pop3.host", "pop.163.com");
+         p.setProperty("mail.pop3.port", "995");
+ 
+         p.setProperty("mail.pop3.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+         p.setProperty("mail.pop3.socketFactory.fallback", "false");
+         p.setProperty("mail.pop3.socketFactory.port", "995");
+       }
+       Session session = Session.getDefaultInstance(p, null);
+       session.setDebug(true);
+       Store store = session.getStore("pop3");
+       store.connect(host, username, password);
+ 
+       Folder folder = store.getFolder("INBOX");
+       folder.open(1);
+ 
+       Message[] message = folder.getMessages();
+ 
+       new getMailInfo(message).start();
+     }
+     catch (NoSuchProviderException e) {
+       e.printStackTrace();
+     }
+     catch (MessagingException e) {
+       e.printStackTrace();
+     }
+   }
+ 
+   public static class getMailInfo extends Thread
+   {
+     Message[] message = null;
+     EmailUtils re = null;
+ 
+     public getMailInfo(Message[] message) {
+       this.message = message;
+     }
+ 
+     public void run()
+     {
+       super.run();
+       if (null != this.message)
+         for (int i = 0; i < this.message.length; i++)
+           try {
+             this.re = new EmailUtils((MimeMessage)this.message[i]);
+             System.out.println("邮件　" + i + "　主题:　" + this.re.getSubject());
+             System.out.println("邮件　" + i + "　是否需要回复:　" + this.re.getReplySign());
+             System.out.println("邮件　" + i + "　是否已读:　" + this.re.isNew());
+             System.out.println("邮件　" + i + "　是否包含附件:　" + this.re.isContainAttach(this.message[i]));
+             System.out.println("邮件　" + i + "　发送时间:　" + this.re.getSentDate());
+             System.out.println("邮件　" + i + "　发送人地址:　" + this.re.getFrom());
+             System.out.println("邮件　" + i + "　收信人地址:　" + this.re.getMailAddress("to"));
+             System.out.println("邮件　" + i + "　抄送:　" + this.re.getMailAddress("cc"));
+             System.out.println("邮件　" + i + "　暗抄:　" + this.re.getMailAddress("bcc"));
+             this.re.setDateFormat("yyyy年MM月dd日");
+             System.out.println("邮件　" + i + "　发送时间:　" + this.re.getSentDate());
+             System.out.println("邮件　" + i + "　邮件ID:　" + this.re.getMessageId());
+             this.re.getMailContent(this.message[i]);
+             System.out.println("邮件　" + i + "　正文内容:　\r\n" + this.re.getBodyText());
+             System.out.println("邮件　　主题:　" + this.re.getSubject());
+             System.out.println("邮件　　是否需要回复:　" + this.re.getReplySign());
+             System.out.println("邮件　" + i + "　是否已读:　" + this.re.isNew());
+             System.out.println("邮件　" + i + "　是否包含附件:　" + this.re.isContainAttach(this.message[i]));
+             System.out.println("邮件　　发送时间:　" + this.re.getSentDate());
+             System.out.println("邮件　　发送人地址:　" + this.re.getFrom().getClass().getName());
+             System.out.println("邮件　" + i + "　收信人地址:　" + this.re.getMailAddress("to"));
+             System.out.println("邮件　" + i + "　抄送:　" + this.re.getMailAddress("cc"));
+             System.out.println("邮件　" + i + "　暗抄:　" + this.re.getMailAddress("bcc"));
+             this.re.setDateFormat("yyyy年MM月dd日");
+             System.out.println("邮件　" + i + "　发送时间:　" + this.re.getSentDate());
+             System.out.println("邮件　　邮件ID:　" + this.re.getMessageId());
+ 
+             System.out.println("邮件　　正文内容:　\r\n" + this.re.getBodyText());
+           }
+           catch (MessagingException e)
+           {
+             e.printStackTrace();
+           }
+           catch (Exception e) {
+             e.printStackTrace();
+           }
+     }
+   }
+ }
+

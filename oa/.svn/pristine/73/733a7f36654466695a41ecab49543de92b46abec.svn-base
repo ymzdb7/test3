@@ -1,0 +1,540 @@
+/*     */ package com.xoa.service.users.impl;
+/*     */ 
+/*     */ import com.alibaba.fastjson.JSONArray;
+/*     */ import com.alibaba.fastjson.JSONObject;
+/*     */ import com.xoa.dao.users.UserFunctionMapper;
+/*     */ import com.xoa.dao.users.UserPrivMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.users.RoleManager;
+/*     */ import com.xoa.model.users.UserPriv;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.users.UsersPrivService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.encrypt.EncryptSalt;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.TreeSet;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.apache.commons.codec.digest.Md5Crypt;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class UsersPrivServiceImpl
+/*     */   implements UsersPrivService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private UserPrivMapper userPrivMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   UserFunctionMapper userFunctionMaper;
+/*     */ 
+/*     */   @Resource
+/*     */   UsersMapper usersMapper;
+/*     */ 
+/*     */   public String getPrivNameById(int[] privId)
+/*     */   {
+/*  51 */     if (privId == null) {
+/*  52 */       return null;
+/*     */     }
+/*     */ 
+/*  55 */     StringBuffer sb = new StringBuffer();
+/*  56 */     for (int i = 0; i < privId.length; i++) {
+/*  57 */       if (privId.length == 1) {
+/*  58 */         String privName = this.userPrivMapper.getPrivNameById(Integer.valueOf(privId[i]));
+/*  59 */         return privName;
+/*     */       }
+/*  61 */       String privName = this.userPrivMapper.getPrivNameById(Integer.valueOf(privId[i]));
+/*  62 */       if (i < privId.length - 1)
+/*  63 */         sb.append(privName).append(",");
+/*     */       else {
+/*  65 */         sb.append(privName);
+/*     */       }
+/*     */     }
+/*     */ 
+/*  69 */     return sb.toString();
+/*     */   }
+/*     */ 
+/*     */   public String getPrivNameByPrivId(String privId, String flag)
+/*     */   {
+/*  84 */     if (StringUtils.checkNull(privId).booleanValue()) {
+/*  85 */       return null;
+/*     */     }
+/*     */ 
+/*  88 */     StringBuffer sb = new StringBuffer();
+/*  89 */     String[] temp = privId.split(flag);
+/*  90 */     int i = 0; for (int len = temp.length; i < len; i++) {
+/*  91 */       if (!StringUtils.checkNull(temp[i]).booleanValue()) {
+/*  92 */         String userName = this.userPrivMapper.getPrivNameById(Integer.valueOf(Integer.parseInt(temp[i])));
+/*  93 */         if (!StringUtils.checkNull(userName).booleanValue()) {
+/*  94 */           if (i < len - 1)
+/*  95 */             sb.append(userName).append(",");
+/*     */           else {
+/*  97 */             sb.append(userName);
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */     }
+/* 102 */     return sb.toString();
+/*     */   }
+/*     */ 
+/*     */   public UserPriv selectByPrimaryKey(int up)
+/*     */   {
+/* 116 */     UserPriv userPriv = this.userPrivMapper.selectByPrimaryKey(up);
+/* 117 */     return userPriv;
+/*     */   }
+/*     */ 
+/*     */   public void deleteByPrimaryKey(int userPriv)
+/*     */   {
+/* 130 */     this.userPrivMapper.deleteByPrimaryKey(Integer.valueOf(userPriv));
+/*     */   }
+/*     */ 
+/*     */   public int insertSelective(UserPriv record)
+/*     */   {
+/* 144 */     int count = 0;
+/* 145 */     if (!StringUtils.checkNull(record.getPrivName()).booleanValue()) {
+/* 146 */       UserPriv priv = this.userPrivMapper.getUserPrivByName(record.getPrivName());
+/* 147 */       if (priv != null)
+/* 148 */         count = 2;
+/*     */       else {
+/* 150 */         count = this.userPrivMapper.insertSelective(record);
+/*     */       }
+/*     */     }
+/* 153 */     return count;
+/*     */   }
+/*     */ 
+/*     */   public List<UserPriv> getAllPriv(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 171 */     PageParams pageParams = new PageParams();
+/* 172 */     pageParams.setPage(page);
+/* 173 */     pageParams.setPageSize(pageSize);
+/* 174 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 175 */     maps.put("page", pageParams);
+/* 176 */     List list = this.userPrivMapper.getAlluserPriv(maps);
+/* 177 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public List<UserPriv> getPrivByMany(UserPriv priv)
+/*     */   {
+/* 191 */     List list = this.userPrivMapper.getPrivByMany(priv);
+/* 192 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public List<UserPriv> getAllUserPriv()
+/*     */   {
+/* 203 */     Map map = new HashMap();
+/* 204 */     List<UserPriv>userPrivList = this.userPrivMapper.getAlluserPriv(map);
+/* 205 */     for (UserPriv userPriv : userPrivList) {
+/* 206 */       if ((userPriv.getPrivDeptId() != null) && (userPriv.getPrivDeptId().intValue() != 0))
+/* 207 */         userPriv.setPrivDeptName(this.userPrivMapper.getDeptNameById(userPriv.getPrivDeptId().intValue()));
+/*     */       else {
+/* 209 */         userPriv.setPrivDeptName("");
+/*     */       }
+/* 211 */       int userPrivId = userPriv.getUserPriv().intValue();
+/*     */ 
+/* 213 */       userPriv.setShowCount(new StringBuilder().append(this.userPrivMapper.getRoleLoginCount(userPrivId)).append("(").append(this.userPrivMapper.getRoleNoLoginCount(userPrivId)).append(")/").append(this.userPrivMapper.getUserRoleCount(userPrivId)).toString());
+/*     */     }
+/* 215 */     return userPrivList;
+/*     */   }
+/*     */ 
+/*     */   public List<UserPriv> getUserPrivNameByFuncId(String fid)
+/*     */   {
+/* 227 */     List userPrivList = this.userPrivMapper.getUserPrivNameByFuncId(fid);
+/* 228 */     return userPrivList;
+/*     */   }
+/*     */ 
+/*     */   public void updateUserPrivfuncIdStr(String privids, String funcId)
+/*     */   {
+/* 241 */     String[] prividArr = null;
+/* 242 */     if ((privids != null) && (privids != "")) {
+/* 243 */       prividArr = privids.split(",");
+/*     */     }
+/*     */ 
+/* 246 */     if ((prividArr != null) && (prividArr.length > 0)) {
+/* 247 */       for (String id : prividArr) {
+/* 248 */         String funcIdStr = this.userPrivMapper.getUserPrivfuncIdStr(id);
+/* 249 */         if ((funcIdStr != null) && (!"".equals(funcIdStr)) && (funcId != null))
+/*     */         {
+/* 251 */           if ((funcIdStr.contains("".concat(funcId).concat(","))) || (funcIdStr.startsWith(funcId.concat(","))))
+/*     */           {
+/*     */             continue;
+/*     */           }
+/* 255 */           funcIdStr = funcIdStr.concat(funcId).concat(",");
+/* 256 */           Map hashMap = new HashMap();
+/* 257 */           hashMap.put("id", id);
+/* 258 */           hashMap.put("funcIdStr", funcIdStr);
+/* 259 */           this.userPrivMapper.updateUserPrivFuncIdStr(hashMap);
+/*     */         }
+/* 262 */         else if ((funcId != null) && ("".equals(funcIdStr))) {
+/* 263 */           funcIdStr = ",";
+/* 264 */           funcIdStr = funcIdStr.concat(funcId).concat(",");
+/* 265 */           Map hashMap = new HashMap();
+/* 266 */           hashMap.put("id", id);
+/* 267 */           hashMap.put("funcIdStr", funcIdStr);
+/* 268 */           this.userPrivMapper.updateUserPrivFuncIdStr(hashMap);
+/* 269 */         } else if (funcId != null) {
+/* 270 */           funcIdStr = "";
+/* 271 */           Map hashMap = new HashMap();
+/* 272 */           hashMap.put("id", id);
+/* 273 */           funcIdStr = funcIdStr.concat(funcId).concat(",");
+/* 274 */           hashMap.put("funcIdStr", funcIdStr);
+/* 275 */           this.userPrivMapper.updateUserPrivFuncIdStr(hashMap);
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 280 */     List<Users> users = this.usersMapper.getUsersByPrivIds(prividArr);
+/* 281 */     if ((users != null) && (users.size() > 0))
+/* 282 */       for (Users user : users)
+/*     */       {
+/* 288 */         getFuncByuserPrivOther(new StringBuilder().append(user.getUserPriv()).append(",").toString(), user.getUserId());
+/*     */       }
+/*     */   }
+/*     */ 
+/*     */   public void deleteUserPriv(String privids, String funcIds)
+/*     */   {
+/* 305 */     String[] prividArr = null;
+/* 306 */     if ((privids != null) && (privids != "")) {
+/* 307 */       prividArr = privids.split(",");
+/*     */     }
+/* 309 */     if ((prividArr != null) && (prividArr.length > 0)) {
+/* 310 */       for (String id : prividArr) {
+/* 311 */         String funcIdStr = this.userPrivMapper.getUserPrivfuncIdStr(id);
+/* 312 */         if ((funcIdStr != null) && (!"".equals(funcIdStr)) && (funcIds != null)) {
+/* 313 */           String[] funcIdArray = funcIds.split(",");
+/* 314 */           for (String funcId : funcIdArray)
+/*     */           {
+/* 316 */             if ((funcIdStr.contains(",".concat(funcId).concat(","))) || (funcIdStr.startsWith(funcId.concat(","))) || (funcIdStr.endsWith(",".concat(funcId)))) {
+/* 317 */               if (funcIdStr.endsWith(",".concat(funcId)))
+/* 318 */                 funcIdStr = funcIdStr.replace(",".concat(funcId), "");
+/*     */               else {
+/* 320 */                 funcIdStr = funcIdStr.replace(funcId.concat(","), "");
+/*     */               }
+/* 322 */               Map hashMap = new HashMap();
+/* 323 */               hashMap.put("id", id);
+/* 324 */               hashMap.put("funcIdStr", funcIdStr);
+/* 325 */               this.userPrivMapper.updateUserPrivFuncIdStr(hashMap);
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 332 */     List<Users> users = this.usersMapper.getUsersByPrivIds(prividArr);
+/* 333 */     if ((users != null) && (users.size() > 0))
+/* 334 */       for (Users user : users)
+/*     */       {
+/* 340 */         getFuncByuserPrivOther(new StringBuilder().append(user.getUserPriv()).append(",").toString(), user.getUserId());
+/*     */       }
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public int updateUserPriv(UserPriv record)
+/*     */   {
+/* 356 */     int count = 0;
+/* 357 */     if (record.getFuncIdStr() == null) {
+/* 358 */       UserPriv oldPriv = this.userPrivMapper.selectByPrimaryKey(record.getUserPriv().intValue());
+/* 359 */       UserPriv newPriv = this.userPrivMapper.getUserPrivByName(record.getPrivName());
+/* 360 */       if ((newPriv != null) && (!oldPriv.getPrivName().equals(newPriv.getPrivName()))) {
+/* 361 */         count = 2;
+/* 362 */         return count;
+/*     */       }
+/*     */     }
+/* 365 */     count = this.userPrivMapper.updateByPrimaryKeySelective(record);
+/* 366 */     String[] privs = new String[1];
+/* 367 */     privs[0] = new StringBuilder().append(record.getUserPriv()).append("").toString();
+/* 368 */     if (!StringUtils.checkNull(record.getFuncIdStr()).booleanValue()) {
+/* 369 */       List<Users> users = this.usersMapper.getUsersByPrivIds(privs);
+/* 370 */       if ((users != null) && (users.size() > 0)) {
+/* 371 */         for (Users user : users)
+/*     */         {
+/* 377 */           getFuncByuserPrivOther(new StringBuilder().append(record.getUserPriv()).append(",").toString(), user.getUserId());
+/*     */         }
+/*     */       }
+/*     */     }
+/* 381 */     return count;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public void copyUserPriv(UserPriv record)
+/*     */   {
+/* 393 */     UserPriv userPriv = this.userPrivMapper.selectByPrimaryKey(record.getUserPriv().intValue());
+/* 394 */     userPriv.setPrivName(record.getPrivName());
+/* 395 */     userPriv.setPrivNo(record.getPrivNo());
+/* 396 */     UserPriv newUserPriv1 = new UserPriv();
+/* 397 */     newUserPriv1.setPrivNo(userPriv.getPrivNo());
+/* 398 */     newUserPriv1.setPrivName(userPriv.getPrivName());
+/* 399 */     newUserPriv1.setFuncIdStr(userPriv.getFuncIdStr());
+/* 400 */     newUserPriv1.setIsGlobal(userPriv.getIsGlobal());
+/* 401 */     newUserPriv1.setPrivDeptId(userPriv.getPrivDeptId());
+/* 402 */     newUserPriv1.setPrivType(userPriv.getPrivType());
+/*     */ 
+/* 404 */     this.userPrivMapper.insertSelective(newUserPriv1);
+/*     */   }
+/*     */ 
+/*     */   public int checkSuperPass(String password)
+/*     */   {
+/* 414 */     if ((password != null) && (password != "")) {
+/* 415 */       String truePassword = this.userPrivMapper.getSuperPass();
+/* 416 */       String md5Password = Md5Crypt.md5Crypt(password.getBytes(), truePassword);
+/* 417 */       if ((md5Password != null) && (md5Password.equals(truePassword))) {
+/* 418 */         return 1;
+/*     */       }
+/*     */     }
+/* 421 */     return 0;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public void updateSuperPass(String newPwd)
+/*     */   {
+/* 433 */     String md5Pwd = getEncryptString(newPwd);
+/* 434 */     this.userPrivMapper.updateSuperPass(md5Pwd);
+/*     */   }
+/*     */ 
+/*     */   public String getEncryptString(String password)
+/*     */   {
+/* 447 */     String md5WithSalt = null;
+/*     */ 
+/* 449 */     if ((password != null) && (!"".equals(password.trim()))) {
+/* 450 */       md5WithSalt = Md5Crypt.md5Crypt(password.trim().getBytes(), "$1$".concat(EncryptSalt.getRandomSalt(12)));
+/*     */     }
+/*     */ 
+/* 453 */     if ((password != null) && ("".equals(password.trim()))) {
+/* 454 */       md5WithSalt = "tVHbkPWW57Hw.";
+/*     */     }
+/* 456 */     return md5WithSalt;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public void delPriByName(String privName)
+/*     */   {
+/* 468 */     this.userPrivMapper.delPriByName(privName);
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<UserPriv> updNoByPrivId(UserPriv userPrivs)
+/*     */   {
+/* 481 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 483 */       JSONArray jsonArray = JSONArray.parseArray(userPrivs.getMapList());
+/* 484 */       int i = 0; for (int len = jsonArray.size(); i < len; i++) {
+/* 485 */         JSONObject jsonJ = jsonArray.getJSONObject(i);
+/*     */ 
+/* 487 */         String userPriv = jsonJ.getString("userPriv");
+/* 488 */         String privNo = jsonJ.getString("privNo");
+/* 489 */         if ((!StringUtils.checkNull(userPriv).booleanValue()) && (!StringUtils.checkNull(privNo).booleanValue())) {
+/* 490 */           userPrivs.setUserPriv(Integer.valueOf(userPriv));
+/* 491 */           userPrivs.setPrivNo(Short.valueOf(privNo));
+/* 492 */           this.userPrivMapper.updateByPrimaryKeySelective(userPrivs);
+/*     */         } else {
+/* 494 */           return toJson;
+/*     */         }
+/*     */       }
+/* 497 */       toJson.setFlag(0);
+/* 498 */       toJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 500 */       L.e(new Object[] { new StringBuilder().append("UsersPrivServiceImpl updNoByPrivId:").append(e).toString() });
+/*     */     }
+/* 502 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson addUserFunByUID(String userId, String funcIds)
+/*     */   {
+/* 513 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 515 */       String[] userIdArr = null;
+/* 516 */       if (!StringUtils.checkNull(userId).booleanValue()) {
+/* 517 */         userIdArr = userId.split(",");
+/*     */       }
+/* 519 */       Map hashMap = new HashMap();
+/* 520 */       if ((userIdArr != null) && (userIdArr.length > 0)) {
+/* 521 */         for (String id : userIdArr) {
+/* 522 */           String userPrivOther = this.userPrivMapper.getUserFunByUserId(id);
+/*     */ 
+/* 537 */           String newPriv = new StringBuilder().append(userPrivOther).append(funcIds).toString();
+/*     */ 
+/* 539 */           TreeSet ts = new TreeSet();
+/* 540 */           int len = newPriv.split(",").length;
+/* 541 */           String[] ss = newPriv.split(",");
+/* 542 */           for (int i = 0; i < len; i++) {
+/* 543 */             ts.add(new StringBuilder().append(ss[i]).append("").toString());
+/*     */           }
+/*     */ 
+/* 547 */           Iterator i = ts.iterator();
+/* 548 */           StringBuilder sb = new StringBuilder();
+/* 549 */           while (i.hasNext()) {
+/* 550 */             sb.append(new StringBuilder().append((String)i.next()).append(",").toString());
+/*     */           }
+/*     */ 
+/* 553 */           hashMap.put("id", id);
+/* 554 */           hashMap.put("funcIdStr", sb.toString());
+/* 555 */           this.userPrivMapper.updateFunByUserId(hashMap);
+/* 556 */           getFuncByuserPrivOther(sb.toString(), id);
+/*     */         }
+/* 558 */         toJson.setFlag(0);
+/* 559 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 562 */       L.e(new Object[] { new StringBuilder().append("UserPrivServiceImpl addUserFunByUID:").append(e).toString() });
+/*     */     }
+/* 564 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public void deleteUserFunByUID(String userId, String funcIds)
+/*     */   {
+/* 577 */     String[] userIdArr = null;
+/* 578 */     String[] funcIdArr = null;
+/* 579 */     if ((userId != null) && (userId != "")) {
+/* 580 */       userIdArr = userId.split(",");
+/*     */     }
+/* 582 */     if ((userIdArr != null) && (userIdArr.length > 0))
+/* 583 */       for (String id : userIdArr) {
+/* 584 */         String funcIdStr = this.userPrivMapper.getUserFunByUserId(id);
+/* 585 */         if ((!StringUtils.checkNull(funcIdStr).booleanValue()) && (!StringUtils.checkNull(funcIds).booleanValue())) {
+/* 586 */           String[] funcIdArray = funcIds.split(",");
+/* 587 */           for (String funcId : funcIdArray)
+/*     */           {
+/* 589 */             if ((funcIdStr.contains(",".concat(funcId).concat(","))) || (funcIdStr.startsWith(funcId.concat(","))) || (funcIdStr.endsWith(",".concat(funcId)))) {
+/* 590 */               if (funcIdStr.endsWith(",".concat(funcId)))
+/* 591 */                 funcIdStr = funcIdStr.replace(",".concat(funcId), ",");
+/*     */               else {
+/* 593 */                 funcIdStr = funcIdStr.replace(funcId.concat(","), "");
+/*     */               }
+/*     */             }
+/*     */           }
+/* 597 */           Map hashMap = new HashMap();
+/* 598 */           hashMap.put("id", id);
+/* 599 */           hashMap.put("funcIdStr", funcIdStr);
+/* 600 */           this.userPrivMapper.updateFunByUserId(hashMap);
+/* 601 */           getFuncByuserPrivOther(funcIdStr, id);
+/*     */         }
+/*     */       }
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public int insertRoleManager(RoleManager roleManager)
+/*     */   {
+/* 619 */     int count = 0;
+/* 620 */     count = this.userPrivMapper.insertRoleManager(roleManager);
+/* 621 */     return count;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public int updateRoleManager(RoleManager roleManager)
+/*     */   {
+/* 635 */     int count = 0;
+/* 636 */     count = this.userPrivMapper.updateRoleManager(roleManager);
+/* 637 */     return count;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public int deleteRoleManagerById(int roleManagerId)
+/*     */   {
+/* 651 */     int count = 0;
+/* 652 */     count = this.userPrivMapper.deleteRoleManagerById(roleManagerId);
+/* 653 */     return count;
+/*     */   }
+/*     */ 
+/*     */   public RoleManager getRoleManagerById(int roleManagerId)
+/*     */   {
+/* 666 */     RoleManager roleManager = new RoleManager();
+/* 667 */     roleManager = this.userPrivMapper.getRoleManagerById(roleManagerId);
+/* 668 */     return roleManager;
+/*     */   }
+/*     */ 
+/*     */   public List<RoleManager> getAllRoleManager()
+/*     */   {
+/* 682 */     List<RoleManager> roleManagerList = this.userPrivMapper.getAllRoleManager();
+/* 683 */     for (RoleManager roleManager : roleManagerList) {
+/* 684 */       String[] roleManagerArray = roleManager.getRoleManager().split(",");
+/* 685 */       StringBuffer userName = new StringBuffer();
+/* 686 */       for (String str : roleManagerArray) {
+/* 687 */         String userName1 = this.userPrivMapper.getUserNameByUserId(str);
+/* 688 */         if (userName1 != null) {
+/* 689 */           userName.append(new StringBuilder().append(userName1).append(",").toString());
+/*     */         }
+/*     */       }
+/* 692 */       roleManager.setRoleManagerText(userName.toString());
+/* 693 */       String[] hrPrivArray = roleManager.getUserPriv().split(",");
+/* 694 */       StringBuffer privName = new StringBuffer();
+/* 695 */       for (String str : hrPrivArray) {
+/* 696 */         String privName1 = this.userPrivMapper.getPrivNameByPrivId(Integer.valueOf(str));
+/* 697 */         if (privName1 != null) {
+/* 698 */           privName.append(new StringBuilder().append(privName1).append(",").toString());
+/*     */         }
+/*     */       }
+/* 701 */       roleManager.setUserPrivText(privName.toString());
+/*     */     }
+/* 703 */     return roleManagerList;
+/*     */   }
+/*     */ 
+/*     */   public String getFunNameByFunId(String funcId)
+/*     */   {
+/* 716 */     return this.userPrivMapper.getFunNameByFunId(funcId);
+/*     */   }
+/*     */ 
+/*     */   public List<String> getFunIdByFunName(String funcName)
+/*     */   {
+/* 728 */     return this.userPrivMapper.getFunIdByFunName(funcName);
+/*     */   }
+/*     */ 
+/*     */   public UserPriv getUserPriv(Integer userPriv)
+/*     */   {
+/* 742 */     return this.userPrivMapper.getUserPriv(userPriv);
+/*     */   }
+/*     */ 
+/*     */   public List<UserPriv> getPrivBySearch(Map<String, Object> maps)
+/*     */   {
+/* 747 */     return this.userPrivMapper.getPrivBySearch(maps);
+/*     */   }
+/*     */ 
+/*     */   public void getFuncByuserPrivOther(String userPriv, String userId)
+/*     */   {
+/* 754 */     String[] userPrivArray = userPriv.split(",");
+/* 755 */     StringBuffer buf = new StringBuffer();
+/*     */ 
+/* 757 */     for (int i = 0; i < userPrivArray.length; i++) {
+/* 758 */       String funStr = this.userPrivMapper.getUserPrivfuncIdStr(userPrivArray[i]);
+/* 759 */       if (!StringUtils.checkNull(funStr).booleanValue()) {
+/* 760 */         buf.append(funStr);
+/*     */       }
+/*     */     }
+/*     */ 
+/* 764 */     UserPriv temp = this.userPrivMapper.getUserPrivByUserId(userId);
+/* 765 */     if (temp != null) {
+/* 766 */       buf.append(temp.getFuncIdStr());
+/*     */     }
+/* 768 */     TreeSet ts = new TreeSet();
+/* 769 */     int len1 = buf.toString().split(",").length;
+/* 770 */     String[] ss = buf.toString().split(",");
+/* 771 */     for (int i1 = 0; i1 < len1; i1++) {
+/* 772 */       ts.add(new StringBuilder().append(ss[i1]).append("").toString());
+/*     */     }
+/*     */ 
+/* 776 */     Iterator i1 = ts.iterator();
+/* 777 */     StringBuilder sb1 = new StringBuilder();
+/* 778 */     while (i1.hasNext()) {
+/* 779 */       sb1.append(new StringBuilder().append((String)i1.next()).append(",").toString());
+/*     */     }
+/* 781 */     Users user = this.usersMapper.findUsersByuserId(userId);
+/*     */     int b;
+/*     */     int a;
+/* 782 */     if (StringUtils.checkNull(this.userFunctionMaper.getUid(userId)).booleanValue())
+/* 783 */       b = this.userFunctionMaper.addByUserId(user.getUid().intValue(), userId, sb1.toString());
+/*     */     else
+/* 785 */       a = this.userFunctionMaper.updateByUserId(userId, sb1.toString());
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.users.impl.UsersPrivServiceImpl
+ * JD-Core Version:    0.6.0
+ */

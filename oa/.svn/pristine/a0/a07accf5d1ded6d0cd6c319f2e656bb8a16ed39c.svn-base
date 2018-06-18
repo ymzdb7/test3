@@ -1,0 +1,249 @@
+package com.myoa.controller.workflow;
+
+import com.alibaba.fastjson.JSONObject;
+import com.myoa.model.workflow.FlowFormType;
+import com.myoa.model.workflow.TMacroCtrl;
+import com.myoa.service.workflow.flowformtype.FlowFormService;
+import com.myoa.service.workflow.flowtype.FlowFormTypeService;
+import com.myoa.service.workflow.wrapper.FlowFormWrappers;
+import com.myoa.util.Constant;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.common.wrapper.BaseWrapper;
+import com.myoa.util.dataSource.ContextHolder;
+import com.myoa.util.netdisk.ReadFile;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.URLEncoder;
+import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+@Controller
+@Scope("prototype")
+@RequestMapping({ "/form" })
+public class FlowFormTypeController {
+
+	@Resource
+	private FlowFormTypeService flowFormTypeService;
+
+	@Autowired
+	FlowFormService flowFormService;
+
+	@RequestMapping(value = { "formType" }, produces = { "application/json;charset=UTF-8" })
+	@ResponseBody
+	public ToJson<FlowFormType> qureyItemMax(
+			@RequestParam("fromId") String fromId, HttpServletRequest request) {
+		ContextHolder.setConsumerType(new StringBuilder()
+				.append(Constant.MYOA)
+				.append((String) request.getSession().getAttribute(
+						"loginDateSouse")).toString());
+
+		return this.flowFormTypeService.qureyItemMax(Integer.valueOf(Integer
+				.parseInt(fromId)));
+	}
+
+	@RequestMapping({ "/designer" })
+	public String designer(Model model, HttpServletRequest request,
+			Integer formId) {
+		ContextHolder.setConsumerType(new StringBuilder()
+				.append(Constant.MYOA)
+				.append((String) request.getSession().getAttribute(
+						"loginDateSouse")).toString());
+
+		model.addAttribute("formId", formId);
+		return "app/workflow/formtype/formDesigner";
+	}
+
+	@RequestMapping({ "/previews" })
+	public String previews(Model model, HttpServletRequest request,
+			Integer formId) {
+		ContextHolder.setConsumerType(new StringBuilder()
+				.append(Constant.MYOA)
+				.append((String) request.getSession().getAttribute(
+						"loginDateSouse")).toString());
+
+		model.addAttribute("formId", formId);
+		return "app/workflow/formtype/formUseView";
+	}
+
+	@RequestMapping({ "/formlistbysort" })
+	@ResponseBody
+	public FlowFormWrappers formBysort(Integer sortId) {
+		return this.flowFormService.getFormBySortId(sortId);
+	}
+
+	@RequestMapping({ "/allformlist" })
+	@ResponseBody
+	public FlowFormWrappers formByAll() {
+		return this.flowFormService.getFormByAll();
+	}
+
+	@RequestMapping({ "/formBySearch" })
+	@ResponseBody
+	public FlowFormWrappers formBySearch(String searchValue, Integer sortId) {
+		return this.flowFormService.seachForm(searchValue, sortId);
+	}
+
+	@RequestMapping({ "/newForm" })
+	@ResponseBody
+	public void newForm(String formName, Integer deptId, Integer formSort,
+			@RequestParam(name = "file", required = false) MultipartFile file,
+			HttpServletResponse response) {
+		BaseWrapper wrapper = new BaseWrapper();
+		if (file != null) {
+			InputStream in = null;
+			try {
+				String fileSuffix = ReadFile.getFileType(file
+						.getOriginalFilename());
+				if ((!StringUtils.checkNull(fileSuffix).booleanValue())
+						&& (fileSuffix.equals("HTML"))) {
+					in = file.getInputStream();
+
+					BufferedReader reader = new BufferedReader(
+							new InputStreamReader(in));
+					StringBuilder sb = new StringBuilder();
+					String line = null;
+					while ((line = reader.readLine()) != null) {
+						sb.append(new StringBuilder().append(line).append("\n")
+								.toString());
+					}
+					wrapper = this.flowFormService.newForm(formName, deptId,
+							formSort, sb.toString());
+				} else {
+					wrapper.setFlag(false);
+					wrapper.setMsg("导入类型不正确,请选择正确的导入类型!");
+				}
+			} catch (Exception p) {
+				p.printStackTrace();
+				wrapper.setFlag(false);
+				wrapper.setMsg("文件读取异常");
+			} finally {
+				try {
+					if (in != null)
+						in.close();
+				} catch (Exception p) {
+					p.printStackTrace();
+					wrapper.setFlag(false);
+					wrapper.setMsg("文件读取异常");
+				}
+			}
+		} else {
+			wrapper = this.flowFormService.newForm(formName, deptId, formSort,
+					"");
+		}
+		response.setContentType("text/html; charset=utf-8");
+		try {
+			ServletOutputStream servletOutputStream = response
+					.getOutputStream();
+			OutputStreamWriter ow = new OutputStreamWriter(servletOutputStream,
+					"UTF-8");
+			ow.write(JSONObject.toJSONString(wrapper));
+			ow.flush();
+			ow.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@RequestMapping({ "/updateForm" })
+	@ResponseBody
+	public BaseWrapper updateForm(Integer formId, String formName,
+			Integer deptId, Integer formSort) {
+		BaseWrapper wrapper = new BaseWrapper();
+
+		wrapper = this.flowFormService.updateForm(formId, formName, deptId,
+				formSort, "");
+
+		return wrapper;
+	}
+
+	@RequestMapping({ "/updateFormType" })
+	@ResponseBody
+	public BaseWrapper updateFormType(Integer formId, String formName,
+			Integer deptId, Integer formSort, String printModel,
+			Integer itemMax, String script, String css) {
+		return this.flowFormService.updateFormType(formId, formName, deptId,
+				formSort, printModel, itemMax, script, css);
+	}
+
+	@RequestMapping({ "/deleteForm" })
+	@ResponseBody
+	public BaseWrapper deleteForm(Integer formId) {
+		return this.flowFormService.deleteForm(formId);
+	}
+
+	@RequestMapping(value = { "qureyCtrl" }, produces = { "application/json;charset=UTF-8" })
+	@ResponseBody
+	public ToJson<TMacroCtrl> qureyCtrl(String controlId, String option,
+			HttpServletRequest request, Integer fromId, Integer folwId,
+			String runId, String prcsId, String flowPrcs, String signlock) {
+		String company = new StringBuilder()
+				.append(Constant.MYOA)
+				.append((String) request.getSession().getAttribute(
+						"loginDateSouse")).toString();
+
+		ContextHolder.setConsumerType(company);
+		return this.flowFormTypeService.qureyCtrl(controlId, option, request,
+				fromId, folwId, runId, prcsId, flowPrcs, company, signlock);
+	}
+
+	@RequestMapping({ "/outForm" })
+	@ResponseBody
+	public void outForm(HttpServletRequest request,
+			HttpServletResponse response, Integer formId) {
+		response.setCharacterEncoding("utf-8");
+		response.setContentType("multipart/form-data");
+		ToJson toJson = this.flowFormTypeService.qureyItemMax(formId);
+		OutputStream os = null;
+		try {
+			if (toJson.isFlag()) {
+				FlowFormType flowFormType = (FlowFormType) toJson.getObject();
+				if (flowFormType != null) {
+					String fileName = new StringBuilder()
+							.append(flowFormType.getFormName()).append(".html")
+							.toString();
+					String userAgent = request.getHeader("User-Agent")
+							.toUpperCase();
+					if ((userAgent.contains("MSIE"))
+							|| (userAgent.contains("TRIDENT"))) {
+						fileName = URLEncoder.encode(fileName, "UTF-8");
+					} else {
+						fileName = new String(fileName.getBytes("utf-8"),
+								"iso-8859-1");
+					}
+					response.setHeader("Content-Disposition",
+							new StringBuilder().append("attachment;fileName=")
+									.append(fileName).toString());
+
+					os = response.getOutputStream();
+					os.write(flowFormType.getPrintModel().getBytes());
+				}
+
+				os.close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (os != null)
+				try {
+					os.close();
+				} catch (Exception p) {
+					p.printStackTrace();
+				}
+		}
+	}
+}

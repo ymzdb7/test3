@@ -1,0 +1,140 @@
+/*     */ package com.xoa.service.edu.voteItem.impl;
+/*     */ 
+/*     */ import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+/*     */ import com.xoa.dao.edu.voteItem.VoteItemMapper;
+/*     */ import com.xoa.dao.edu.voteTitle.VoteTitleMapper;
+/*     */ import com.xoa.model.edu.voteItem.VoteItem;
+/*     */ import com.xoa.service.edu.voteItem.IVoteItemService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class VoteItemServiceImpl extends ServiceImpl<VoteItemMapper, VoteItem>
+/*     */   implements IVoteItemService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   VoteItemMapper voteItemMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   VoteTitleMapper voteTitleMapper;
+/*     */ 
+/*     */   public ToJson<VoteItem> addVoteItem(HttpServletRequest request, VoteItem voteItem)
+/*     */   {
+/*  36 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  38 */       VoteItem voteItem1 = this.voteItemMapper.getOneVoteItem(voteItem);
+/*  39 */       if (voteItem1 == null) {
+/*  40 */         int a = this.voteItemMapper.addVoteItem(voteItem);
+/*  41 */         if (a > 0) {
+/*  42 */           toJson.setMsg("新建成功");
+/*  43 */           toJson.setFlag(0);
+/*     */         } else {
+/*  45 */           toJson.setMsg("新建失败");
+/*  46 */           toJson.setFlag(1);
+/*     */         }
+/*     */       } else {
+/*  49 */         toJson.setMsg("新建失败,该名称已存在");
+/*  50 */         toJson.setFlag(1);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/*  54 */       e.printStackTrace();
+/*  55 */       toJson.setMsg(e.getMessage());
+/*  56 */       L.e(new Object[] { "VoteItemServiceImpl addvoteItem:" + e });
+/*     */     }
+/*  58 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<VoteItem> updateVoteItem(HttpServletRequest request, VoteItem voteItem)
+/*     */   {
+/*  63 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  65 */       int a = this.voteItemMapper.updateVoteItem(voteItem);
+/*  66 */       if (a > 0) {
+/*  67 */         toJson.setMsg("修改成功");
+/*  68 */         toJson.setFlag(0);
+/*     */       } else {
+/*  70 */         toJson.setMsg("修改失败");
+/*  71 */         toJson.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  74 */       e.printStackTrace();
+/*  75 */       toJson.setMsg(e.getMessage());
+/*  76 */       L.e(new Object[] { "VoteItemServiceImpl updateVoteItem:" + e });
+/*     */     }
+/*  78 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<VoteItem> deleteByItemId(HttpServletRequest request, Integer itemId)
+/*     */   {
+/*  83 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  85 */       int a = this.voteItemMapper.deleteByItemId(itemId);
+/*  86 */       if (a > 0) {
+/*  87 */         toJson.setMsg("删除成功");
+/*  88 */         toJson.setFlag(0);
+/*     */       } else {
+/*  90 */         toJson.setMsg("删除失败");
+/*  91 */         toJson.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  94 */       e.printStackTrace();
+/*  95 */       toJson.setMsg(e.getMessage());
+/*  96 */       L.e(new Object[] { "VoteItemServiceImpl deleteByItemId:" + e });
+/*     */     }
+/*  98 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<VoteItem> getVoteItemList(HttpServletRequest request, Integer voteId)
+/*     */   {
+/* 111 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 113 */       List list = this.voteItemMapper.getVoteItemList(voteId);
+/* 114 */       if (list != null) {
+/* 115 */         toJson.setObj(list);
+/* 116 */         toJson.setMsg("ok");
+/*     */       } else {
+/* 118 */         toJson.setMsg("空");
+/*     */       }
+/* 120 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 122 */       e.printStackTrace();
+/* 123 */       toJson.setMsg(e.getMessage());
+/* 124 */       L.e(new Object[] { "VoteItemServiceImpl getVoteItemList:" + e });
+/*     */     }
+/* 126 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<VoteItem> updateVoteCount(HttpServletRequest request, VoteItem voteItem)
+/*     */   {
+/* 131 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 133 */       voteItem.getItemId();
+/* 134 */       int con = voteItem.getVoteCount().intValue();
+/* 135 */       voteItem.setVoteCount(Integer.valueOf(con + 1));
+/* 136 */       int a = this.voteItemMapper.updateVoteCount(voteItem);
+/* 137 */       if (a > 0) {
+/* 138 */         toJson.setMsg("ok");
+/* 139 */         toJson.setFlag(0);
+/*     */       } else {
+/* 141 */         toJson.setMsg("error");
+/* 142 */         toJson.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 145 */       e.printStackTrace();
+/* 146 */       toJson.setMsg(e.getMessage());
+/* 147 */       L.e(new Object[] { "VoteItemServiceImpl updateVoteCount:" + e });
+/*     */     }
+/* 149 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.voteItem.impl.VoteItemServiceImpl
+ * JD-Core Version:    0.6.0
+ */

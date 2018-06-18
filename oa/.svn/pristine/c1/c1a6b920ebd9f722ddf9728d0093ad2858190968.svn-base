@@ -1,0 +1,547 @@
+/*     */ package com.xoa.service.rms.impl;
+/*     */ 
+/*     */ import com.xoa.dao.enclosure.AttachmentMapper;
+/*     */ import com.xoa.dao.rms.RmsFileMapper;
+/*     */ import com.xoa.dao.rms.RmsRollMapper;
+/*     */ import com.xoa.model.enclosure.Attachment;
+/*     */ import com.xoa.model.rms.RmsFileWithBLOBs;
+/*     */ import com.xoa.model.rms.RmsRollWithBLOBs;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.rms.RmsFileService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ExcelUtil;
+/*     */ import com.xoa.util.GetAttachmentListUtil;
+/*     */ import com.xoa.util.ModuleEnum;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.netdisk.ZipUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.FileOutputStream;
+/*     */ import java.io.InputStream;
+/*     */ import java.io.OutputStreamWriter;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.ResourceBundle;
+/*     */ import java.util.UUID;
+/*     */ import javax.servlet.ServletOutputStream;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.apache.poi.ss.usermodel.Cell;
+/*     */ import org.apache.poi.ss.usermodel.Row;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Service
+/*     */ public class RmsFileServiceImpl
+/*     */   implements RmsFileService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private RmsFileMapper rmsFileMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private RmsRollMapper rmsRollMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private AttachmentMapper attachmentMapper;
+/* 573 */   final String HTML_STYLE = "<style id=\"css_index\" index=\"index\" type=\"text/css\">@charset \"utf-8\";\n\nbody,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\nhr,\np,\nblockquote,\ndl,\ndt,\ndd,\nul,\nol,\nli,\npre,\nform,\nfieldset,\nlegend,\nbutton,\ninput,\ntextarea,\nth,\ntd {\n    margin:0;\n    padding:0;\n}\n\nbody,\nbutton,\ninput,\nselect,\ntextarea {\n    font:12px/1.5 \"\\5FAE\\8F6F\\96C5\\9ED1\", arial ;\n    *line-height:1.5;\n}\n\nh1,\nh2,\nh3,\nh4,\nh5,\nh6 {\n    font-size:100%;\n    font-weight: normal;\n}\n\naddress,\ncite,\ndfn,\nem,\nvar {\n    font-style:normal;\n}\n\ncode,\nkbd,\npre,\nsamp {\n    font-family:courier new, courier, monospace;\n}\n\nul,\nol {\n    list-style:none;\n}\n\nfieldset,\nimg {\n    border:0;\n}\n\ntable {\n    border-collapse:collapse;\n    border-spacing:0;\n}\n\ninput,\nbutton,\ntextarea,\nselect,\noptgroup,\noption {\n    font-family: inherit;\n    font-size: inherit;\n    font-style: inherit;\n    font-weight: inherit;\n    font-size:100%;\n}\n\ndiv:after,\nul:after,\ndl:after,\n.clearfix:after {\n    content:\"\";\n    display:block;\n    clear:both;\n    height:0;\n    visibility:hidden;\n}\n\n/****/\nabbr,\narticle,\naside,\naudio,\ncanvas,\ndatalist,\ndetails,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nprogress,\nsection,\nvideo {\n    display:block;\n    margin:0;\n    padding:0;\n}\n\ni,\nu,\nb,\nem,\nspan,\nsmall{\n    font-weight:normal;\n    font-style:normal;\n}\n\nhtml,\nbody {\n    height: 100%;\n}\n\n/****/\nhtml {\n    font-size: 62.5%;\n}\n\nbody {\n    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);\n    -webkit-user-select: none;\n    user-select: none;\n    -moz-user-focus: none;\n    -moz-user-select: none;\n}\n\na{\n    text-decoration: none;\n}\n\nh2{\n    margin:0;\n    padding: 0;\n}\n\nul{\n    word-spacing: -4px;\n}\n\n.body{\n    width:100%;\n//height:100%;\n//overflow: hidden;\n}\n.head{\n    width:100%;\n    height:45px;\n    border-bottom:1px solid #999;\n    background-color:#f8f8f8;\n    overflow:hidden;\n}\n.abs_left,.abs_right{\n    height:100%;\n    float:left;\n\n}\n.abs_right{\n    width:auto;\n    position: absolute;\n    right: 24px;\n}\n.abs_left{\n    width: auto;\n}\n.num,.step{\n    float:left;\n}\n.num{\n    font-size: 12pt;\n    font-weight: bold;\n    margin-left: 17px;\n    line-height: 45px;\n}\n.step{\n    color: #4b4b4b;\n    line-height: 45px;\n    margin-left: 13px;\n    font-size: 10pt;\n}\n.opt{\n    margin-top: 10px !important;\n    margin-left: 17px !important;\n    color: #205f82;\n    width: 62px;\n    height: 28px;\n    border-radius: 3px;\n    background: #f6f6f6;\n}\n.abs_right ul {\n    width: 275px;\n    height: 28px;\n    border: 1px solid #4889f0;\n    border-radius: 5px;\n    margin:7px auto;\n}\n.check{\n    background: #4889f0 ;\n    color:#fff ;\n}\n.abs_right{\n    color:#4889f0;\n}\n#tab_t ul li{\n    float:left;\n    width: 68px;\n    height:100%;\n    border-right:1px solid #4889f0;\n    text-align: center;\n    line-height: 28px;\n}\n.abs_right ul li:nth-child(4){\n    border:none !important;\n}\n\n.cont{\n}\n.cont_form{\n    width: 100%;\n//background: #e6ebef;\n    height: 99%;\n    margin: auto;\n    overflow-x: hidden;\n    overflow-y: scroll;\n}\n.foot{\n    width:100%;\n    height:52px;\n    background-color: #eaeaea;\n    position: fixed;\n    bottom: 0px;\n    z-index: 9999;\n}\n.foot_left,.foot_rig{\n    height:100%;\n}\n.foot_left{\n    float:left;\n    margin-left: 36px;\n    width:310px;\n}\n.foot_rig{\n    float:right;\n    width:685px;\n    margin-right: 24px;\n}\n.foot_left ul,.foot_rig ul{\n    margin-top:11px;\n}\n.foot_left ul li,.foot_rig ul li{\n    float:left;\n    width: 70px;\n    height:28px;\n    /*border:1px solid #4889f0;*/\n    text-align: center;\n    line-height: 28px;\n    color:#4889f0;\n    border-radius: 5px;\n}\n\n.rig_h1onexiayibu{\n    background:url(\"/img/workflow/work/zhuanjiao.png\") no-repeat ;\n    color: #fff!important;\n    width: 80px!important;\n}\n.saveformlo{\n    background:url(\"/img/workflow/work/huitui.png\") no-repeat ;\n    /*color: #fff!important;*/\n    width: 73px!important;\n}\n.baocunfanhui{\n    background:url(\"/img/workflow/work/baocunfanhui.png\") no-repeat ;\n    /*color: #fff!important;*/\n    width: 76px!important;\n}\n.foot_left ul li,.foot_rig ul li.active{\n//color:#fff;\n}\n.foot_left ul li{\n    margin-left: 3%;\n}\n.foot_rig ul li{\n    float: right;\n    margin-left: 2%;\n}\n.foot_rig ul li:nth-child(1){\n    width: 90px !important;\n}\n.foot_rig ul li:nth-child(3){\n    width: 90px !important;\n}\n.backbtn{\n    cursor: pointer;\n}\n.left_img,.left_h1,.rig_img,.rig_h1{\n    float:left;\n}\n.left_img,.rig_img{\n    margin-left: 5px;\n    margin-top: 4px;\n    margin-right: 3px;\n}\n.left_h1{\n    margin-left: 1px;\n}\n/*select{\n\tmargin-top: 10px !important;\n}*/\n/*注意*/\n.rig_h1{\n    width: 100%;\n    text-align: center;\n}\n#tab_t ul li,.foot ul li{\n    cursor: pointer;\n}\n/*定义滚动条宽高及背景，宽高分别对应横竖滚动条的尺寸*/\n.cont_form::-webkit-scrollbar{\n    width: 0px;\n    height: 16px;\n    background-color: #f5f5f5;\n}\n/*定义滚动条的轨道，内阴影及圆角*/\n.cont_form::-webkit-scrollbar-track{\n    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);\n    border-radius: 10px;\n    background-color: #f5f5f5;\n}\n/*定义滑块，内阴影及圆角*/\n.cont_form::-webkit-scrollbar-thumb{\n    /*width: 10px;*/\n    height: 20px;\n    border-radius: 10px;\n    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);\n    background-color: #555;\n}\n\nbody, button, select, textarea, input, label, option, fieldset, legend{font-family: 微软雅黑E\\8F6F\\96C5\\9ED1,Tahoma,Verdana;font-size: 12px;line-height: 18px;color: #444;}\nbody, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, legend, textarea, button, p, blockquote{margin: 0;padding: 0;}\ntextarea{resize: none}\na,img{border:0;}\na{color: #666;text-decoration: none;}\nli{list-style-type:none;}\n.fl{float:left;}\n.fr{float:right;}\n.nf{clear:both;}\n.red{color:red;font-weight:bold;}\n.green{color:#00b500;font-weight:bold;}\n.ds{display:block;}\n.hid{overflow:hidden;}\n.clearfix{*zoom:1}\n.clearfix:after{display:block;visibility:hidden;clear:both;height:0;content:'.';font-size:0}\n.jianbian{background: -webkit-gradient(linear,left top,left bottom,color-stop(0%,#f4f4f4),color-stop(100%,#eee));background: -webkit-linear-gradient(top,#f4f4f4 0,#eee 100%);background: linear-gradient(to bottom,#f4f4f4 0,#eee 100%);}\n.bottomshadow{border-bottom: solid 1px #B3B3B3;-webkit-box-shadow: 0 1px 1px 0 #DFDFDF;box-shadow: 0 1px 1px 0 #DFDFDF;}\n.TableBlock{\n    border: 1px solid #dddddd;\n    line-height: 20px;\n    font-size: 9pt;\n    border-collapse: collapse;\n}\ntable{\n    border-collapse: collapse;\n    border-spacing: 0;\n}\n.TableBlock .TableContent td, .TableBlock td.TableContent{\n    background: #f2f2f2;\n    border: 1px #dddddd solid;\n    border-right: 1px #dddddd solid;\n    padding: 3px;\n    height: 37px;\n}\ninput.BigInput{\n    height: 20px;\n}\ninput,select,textarea{\n    outline:none;\n}\ninput.BigStatic, textarea.BigStatic {\n    font-size: 9pt;\n    padding: 1px 5px;\n    border: 1px solid #C0BBB4;\n    background: #E0E0E0;\n}\ntextarea {\n    overflow: auto;\n    /* vertical-align: top; */\n    white-space: pre-wrap;\n}\n.MessageBox .msg .center {\n    padding-left: 90px;\n    font-size: 16px;\n    background-color: #357ece;\n}\n.MessageBox .msg td {\n    height: 90px;\n}\n.MessageBox .head-no-title td {\n    height: 16px;\n}\n.bodycolor{\n    BACKGROUND: #f6f7f9;\n    padding-top: 5px;\n}\ninput.BigInput, textarea.BigInput{\n    font-size: 10pt;\n    padding: 1px 5px;\n    line-height: 20px;\n    border: 1px solid #C0BBB4;\n    background: white url(/img/app/bg_input_text_hover.png) top left repeat-x;\n    background-position: 0 -1px;\n}\n.TableBlock .TableFooter td, .TableBlock .TableControl td, .TableBlock td.TableFooter, .TableBlock td.TableControl{\n    background: #FFFFFF;\n    border: 1px #dddddd solid;\n    /*padding: 3px;*/\n    height: 37px;\n}\ninput.BigButton{\n    background-color: #fafafa;\n    background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fafafa), color-stop(100%, #f1f1f1));\n    background: -webkit-linear-gradient(top, #fafafa, #f1f1f1);\n    background: -moz-linear-gradient(top, #fafafa, #f1f1f1);\n    background: -o-linear-gradient(top, #fafafa, #f1f1f1);\n    background: linear-gradient(top, #fafafa, #f1f1f1);\n    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fffafafa',endColorstr='#fff1f1f1',GradientType=0);\n    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);\n    border: 1px solid #ddd;\n    -webkit-border-radius: 3px;\n    -moz-border-radius: 3px;\n    -ms-border-radius: 3px;\n    -o-border-radius: 3px;\n    border-radius: 3px;\n    height: 24px;\n    line-height: 14px;\n    padding: 4px 10px;\n    font-size: 14px;\n    color: #333;\n    margin: 1px;\n    text-decoration: none;\n    text-align: center;\n    cursor: pointer;\n    -webkit-appearance: none;\n}\na.BigButton{\n    background-color: #fafafa;\n    background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fafafa), color-stop(100%, #f1f1f1));\n    background: -webkit-linear-gradient(top, #fafafa, #f1f1f1);\n    background: -moz-linear-gradient(top, #fafafa, #f1f1f1);\n    background: -o-linear-gradient(top, #fafafa, #f1f1f1);\n    background: linear-gradient(top, #fafafa, #f1f1f1);\n    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fffafafa',endColorstr='#fff1f1f1',GradientType=0);\n    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);\n    border: 1px solid #ddd;\n    -webkit-border-radius: 3px;\n    -moz-border-radius: 3px;\n    -ms-border-radius: 3px;\n    -o-border-radius: 3px;\n    border-radius: 3px;\n    height: 24px;\n    line-height: 14px;\n    padding: 4px 10px;\n    font-size: 12px;\n    color: #111!important;\n    color: #333;\n    margin: 1px;\n    text-decoration: none;\n    text-align: center;\n    cursor: pointer;\n    -webkit-appearance: none;\n}\ninput.BigButton:hover{\n    background: #fafafa;\n    box-shadow: 0px -12px 5px 0px #C8F1FE inset;\n}\na.BigButton:hover{\n    background: #fafafa;\n    box-shadow: 0px -12px 5px 0px #C8F1FE inset;\n}\nbody {\n\n    line-height: 1;\n}\n#navMenu a.active span, #navMenu a:hover span{\n    height: 28px;\n    background: url(/img/app/menu_top_hover_r.png) no-repeat top right;\n}\n#navPanel {\n    width: 100%;\n    height: 30px;\n    padding-top: 2px;\n    font-size: 10pt;\n    background: #D6E4EF url(/img/app/menu_top_bg.png) left -30px repeat-x;\n}\n#navMenu {\n    float: left;\n    white-space: nowrap;\n    padding: 0px 20px;\n    height: 30px;\n    overflow: hidden;\n}\n#navMenu a.active, #navMenu a:hover {\n    color: #FFFFFF;\n    font-weight: bold;\n    background: url(/img/app/menu_top_hover_l.png) no-repeat top left;\n}\n#navMenu a {\n    float: left;\n    overflow: hidden;\n    color: #000000;\n    text-decoration: none;\n    padding-left: 5px;\n    background: url(/img/app/menu_top_line.png) no-repeat top right;\n    height: 30px;\n}\n#navMenu a span {\n    float: left;\n    cursor: pointer;\n    padding: 6px 5px 6px 5px;\n}\n.mainLeft{\n    width: 19%;\n    float: left;\n    height: 100%;\n}\n.mainRight{\n    width: 100%;\n    float: left;\n}\n.TableList {\n    border: 1px #dddddd solid;\n    line-height: 21px;\n    font-size: 9pt;\n    border-collapse: collapse;\n    padding: 3px;\n    margin-top: 8px;\n}\n.TableHeader {\n    COLOR: #383838;\n    FONT-WEIGHT: bold;\n    FONT-SIZE: 9pt;\n    background: #fff;\n    line-height: 40px;\n    border-bottom: 1px #c0c0c0 solid;\n}\n.TableList .TableHeader td, .TableList td.TableHeader {\n    height: 30px;\n    background: #ffffff;\n    font-weight: bold;\n    text-align: center;\n    color: #383838;\n    padding: 0px;\n}\n.fileload{\n    position: absolute;\n    filter:alpha(opacity=0);\n    -moz-opacity:0;\n    -khtml-opacity: 0;\n    opacity: 0;\n    width: 84px;\n    right: 108px;\n    height: 30px;\n}\n.TableLine1 {\n    BACKGROUND: #F3F3F3;\n}\n.TableLine2 {\n    BACKGROUND: #FFFFFF;\n}\n.TableList .TableLine1 td, .TableList td.TableLine1 {\n\n    border-bottom: 1px #dddddd solid;\n    border-bottom-width: 1px;\n    border-bottom-style: solid;\n    border-bottom-color: rgb(221, 221, 221);\n    padding: 3px;\n    height: 30px;\n    text-align: center;\n}\n.TableList .TableLine2 td, .TableList td.TableLine2 {\n    background: #FFFFFF;\n    border-bottom: 1px #dddddd solid;\n    padding: 3px;\n    height: 30px;\n    text-align: center;\n}\na:visited {\n    color: #1687cb;\n    text-decoration: none;\n}\na:link {\n    color: #1687cb;\n    text-decoration: none;\n}\n.big3 {\n    font-size: 12pt;\n    COLOR: #124164;\n    FONT-WEIGHT: bold;\n}\n.MessageBox {\n    margin: 0px auto;\n}\n.MessageBox .head .left {\n    width: 20px;\n    background: url(/img/app/message_bg.png) left 0px no-repeat;\n}\n.MessageBox .head .right {\n    width: 20px;\n    background: url(/img/app/message_bg.png) right 0px no-repeat;\n}\n.MessageBox .head .center {\n    padding: 0px;\n    background: url(/img/app/message_bg.png) 0px -32px repeat-x;\n}\n.MessageBox .head .center .title {\n    float: left;\n    color: #fff;\n    font-size: 16px;\n    font-weight: bold;\n}\n.MessageBox .head td {\n    height: 32px;\n    overflow: hidden;\n}\n.MessageBox .msg .left {\n    width: 20px;\n    background: url(/img/app/message_center_bg.png) left top repeat-y;\n}\n.MessageBox .msg .info {\n    background-image: url(/img/app/icon64_info.png);\n    background-position: 0px 10px;\n    background-repeat: no-repeat;\n}\n.MessageBox .msg .center .msg-content {\n    color: #fff;\n    margin: 20px 12px 20px 6px;\n}\n.MessageBox .msg .right {\n    width: 20px;\n    background: url(/img/app/message_center_bg.png) right top repeat-y;\n}\n.MessageBox .foot .left {\n    width: 20px;\n    background: url(/img/app/message_bg.png) left -64px no-repeat;\n}\n.MessageBox .foot .center {\n    background: url(/img/app/message_bg.png) 0px -80px repeat-x;\n    position: relative;\n}\n.MessageBox .foot .right {\n    width: 20px;\n    background: url(/img/app/message_bg.png) right -64px no-repeat;\n}\n.MessageBox .foot td {\n    height: 16px;\n}\n.MessageBox .msg .center {\n    padding-left: 90px;\n    font-size: 16px;\n    background-color: #357ece;\n}\n.TableBlock .TableData td, .TableBlock td.TableData {\n    background: #FFFFFF;\n    border-bottom: 1px #dddddd solid;\n    border-top: 1px #dddddd solid;\n    border-right: 1px #dddddd solid;\n    padding: 3px;\n    height: 37px;\n}\n.MessageBox .head-no-title .left {\n    width: 20px;\n    background: url(/img/app/message_bg.png) left -96px no-repeat;\n}\n.MessageBox .head-no-title .center {\n    background: url(/img/app/message_bg.png) 0px -112px repeat-x;\n}\n.MessageBox .head-no-title .right {\n    width: 20px;\n    background: url(/img/app/message_bg.png) right -96px no-repeat;\n}\n.w {\n    width: 100%;\n    margin: 0 auto;\n}\n.head {\n    border-bottom: 1px solid #9E9E9E;\n    padding-bottom: 3px;\n    height: 43px;\n}\n.head li {\n    /*width: 120px;*/\n    /* text-align: center; */\n    height: 28px;\n    line-height: 28px;\n    display: inline-block;\n    float: left;\n    font-family: \"微软雅黑\";\n    font-size: 14px;\n    margin-left: 20px;\n    margin-top: 6px;\n    cursor: pointer;\n}\n.head .headli1_1 {\n    /*width: 90px;*/\n    padding:0 14px;\n    display: inline-block;\n    text-align: center;\n}\n.head .headli1_2 {\n    width: 2px;\n    width: 2px;\n    /* margin: 0 10px; */\n    margin-left: 26px;\n}\nimg {\n    border: 0;\n    vertical-align: middle;\n}\n.head .one {\n    background-color: #2F8AE3;\n    font-size: 14px;\n    color: #ffffff;\n    border-radius: 20px;\n}\n.headli1_1:hover{\n    background-color: #2F8AE3;\n    border-radius: 20px;\n    color: #ffffff;\n}\n.headli1_1:hover a{\n    color: #ffffff!important;\n}\n.headli1_1 a{\n    color: #444!important;\n}\n.headli1_1.one a{\n    color: #fff!important;\n}\n.head .headli2_1 {\n    width: 90px;\n    display: inline-block;\n    text-align: center;\n}\n.head .headli3 {\n    width: 90px;\n    display: inline-block;\n    text-align: center;\n    margin-top: 4px;\n}\n.clearfix:after{\n    content: '';\n    display: block;\n    clear: both;\n}\n.navigation {\n    heihgt: 70px;\n    display: inline-block;\n    float: left;\n    width: 100%;\n    /*margin-top: 47px;*/\n}\n.navigation .left {\n    float: left;\n    line-height: 71px;\n}\n.navigation .left img {\n    float: left;\n    margin-top: 19px;\n    margin-right: 5px;\n    padding-left: 30px;\n}\n.tr_td tbody tr:hover {\n    background-color: #D3E7FA;\n}\n.navigation .left .news {\n    /* font-size: 14px; */\n    margin-left: 2px;\n    font-family: \"微软雅黑\";\n    margin-top: -3px;\n    margin-right: 40px;\n    font-size: 20px;\n    color: #333;\n}\n.navigation .left div {\n    float: left;\n}\ntr{\n    border: 1px solid #c0c0c0;\n}\n.tr_td  tr:nth-child(odd){\n    background-color: #F6F7F9;\n}\ntr td {\n    font-size: 13px;\n}\ntd {\n    color: #404060;\n    padding: 10px;\n    font: 14px \"微软雅黑\";\n}\n.th {\n    background-color: #fff;\n    font-size: 15px;\n    color: #2F5C8F!important;\n    font-weight: bold;\n    border: 0px;\n}\n#north{\n    position: fixed;\n    top:0;\n    left: 0;\n    background: #f5f5f5;\n    width:100%;\n}\n.th, td {\n    color: #404060;\n    padding: 10px;\n}\n.inp {\n    width: 200px;\n    height: 27px;\n    border-radius: 6px;\n    border:1px solid #ddd;\n    padding-left: 5px;\n    margin-left: 97px;\n}\n.inp:focus{\n    border-color: #00a0e9;\n}\n.import{\n    width: 70px;\n    height: 28px;\n    font-size: 13px !important;\n    cursor: pointer;\n    background-repeat: no-repeat;\n    background-image: url(../../img/sys/confirm.png);\n    padding-left: 25px;\n    border:none;\n}\n.exportsss{\n    width: 80px;\n    height: 30px;\n    font-size: 13px !important;\n    cursor: pointer;\n    background-repeat: no-repeat;\n    background-image: url(../../img/import.png);\n    padding-left: 25px;\n    border:none;\n}\n.importTwo{\n    width: 80px;\n    height: 30px;\n    font-size: 13px !important;\n    cursor: pointer;\n    background-repeat: no-repeat;\n    background-image: url(../../img/export.png);\n    padding-left: 9px;\n    border:none;\n    text-align: center;\n    line-height: 30px;\n    color: #444!important;\n}\n\n.cont_left {\n    border-right: 1px solid #000;\n    overflow-y: auto;\n    height: 100%;\n}\n.cont_left .dept_li {\n    display: block;\n    width: 86%;\n    padding-left: 30px;\n    font-size: 14px;\n    height: 40px;\n    line-height: 40px;\n    border-bottom: #ddd 1px solid;\n    cursor: pointer;\n}\n.cont_left .pick {\n    border-bottom: 1px solid #ddd;\n    padding-left: 12%;\n}\n.liUp {\n    background: url(../../img/sys/icon_rightarrow_03.png) no-repeat 91% center;\n}\n.cont_left .liUp:hover {\n    background-color: #add2f8;\n}\n.backCanBtn {\n    background-image: url(../../img/sys/return.png);\n    width: 70px;\n    height: 28px;\n    border:none;\n    text-align: center;\n    padding-left:27px;\n    font-style: 13px!important;\n}\n.cont_left .pick a {\n    font-size: 14px;\n    height: 40px;\n    line-height: 40px;\n    vertical-align: middle;\n}\n.liDown {\n    background: url(../../img/sys/icon_downarrow_03.png) no-repeat 91% center;\n}\n.trtd_d tbody tr td{\n    padding-top: 13px;\n    padding-bottom: 13px;\n}\n</style>\n";
+/*     */ 
+/*     */   public ToJson<RmsFileWithBLOBs> save(RmsFileWithBLOBs rmsFileWithBLOBs, HttpServletRequest request)
+/*     */   {
+/*  52 */     ToJson json = new ToJson();
+/*     */     try {
+/*  54 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  55 */       rmsFileWithBLOBs.setAddUser(user.getUserId());
+/*  56 */       rmsFileWithBLOBs.setAddTime(new Date());
+/*  57 */       this.rmsFileMapper.insertSelective(rmsFileWithBLOBs);
+/*  58 */       json.setFlag(0);
+/*  59 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/*  61 */       e.printStackTrace();
+/*  62 */       json.setFlag(1);
+/*  63 */       json.setMsg("err");
+/*     */     }
+/*  65 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<RmsFileWithBLOBs> update(RmsFileWithBLOBs rmsFileWithBLOBs, HttpServletRequest request)
+/*     */   {
+/*  70 */     ToJson json = new ToJson();
+/*     */     try {
+/*  72 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  73 */       rmsFileWithBLOBs.setModTime(new Date());
+/*  74 */       rmsFileWithBLOBs.setModUser(user.getUserId());
+/*  75 */       this.rmsFileMapper.updateByPrimaryKeySelective(rmsFileWithBLOBs);
+/*  76 */       json.setFlag(0);
+/*  77 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/*  79 */       e.printStackTrace();
+/*  80 */       json.setFlag(1);
+/*  81 */       json.setMsg("err");
+/*     */     }
+/*  83 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<RmsFileWithBLOBs> destroy(String fileIds, HttpServletRequest request)
+/*     */   {
+/*  88 */     ToJson json = new ToJson();
+/*     */     try {
+/*  90 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  91 */       if (!StringUtils.checkNull(fileIds).booleanValue()) {
+/*  92 */         this.rmsFileMapper.destroy(fileIds.split(","), user.getUserId(), new Date());
+/*     */       }
+/*  94 */       json.setFlag(0);
+/*  95 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/*  97 */       e.printStackTrace();
+/*  98 */       json.setFlag(1);
+/*  99 */       json.setMsg("err");
+/*     */     }
+/* 101 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<RmsFileWithBLOBs> query(RmsFileWithBLOBs rmsFileWithBLOBs, PageParams pageParams)
+/*     */   {
+/* 106 */     ToJson json = new ToJson();
+/*     */     try {
+/* 108 */       Map map = new HashMap();
+/* 109 */       map.put("page", pageParams);
+/*     */ 
+/* 111 */       map.put("fileCode", rmsFileWithBLOBs.getFileCode());
+/* 112 */       map.put("fileSubject", rmsFileWithBLOBs.getFileSubject());
+/*     */ 
+/* 114 */       map.put("fileTitle", rmsFileWithBLOBs.getFileTitle());
+/* 115 */       map.put("fileTitle0", rmsFileWithBLOBs.getFileTitle0());
+/*     */ 
+/* 117 */       map.put("sendUnit", rmsFileWithBLOBs.getSendUnit());
+/* 118 */       map.put("sendDate", rmsFileWithBLOBs.getSendDate());
+/* 119 */       map.put("sendDate2", rmsFileWithBLOBs.getSendDate2());
+/*     */ 
+/* 121 */       map.put("roomId", rmsFileWithBLOBs.getRoomId());
+/* 122 */       map.put("rollId", rmsFileWithBLOBs.getRollId());
+/*     */ 
+/* 124 */       map.put("secret", rmsFileWithBLOBs.getSecret());
+/* 125 */       map.put("urgency", rmsFileWithBLOBs.getUrgency());
+/*     */ 
+/* 127 */       map.put("fileType", rmsFileWithBLOBs.getFileType());
+/* 128 */       map.put("fileKind", rmsFileWithBLOBs.getFileKind());
+/*     */ 
+/* 130 */       map.put("filePage", rmsFileWithBLOBs.getFilePage());
+/* 131 */       map.put("filePage2", rmsFileWithBLOBs.getFilePage2());
+/* 132 */       map.put("printPage", rmsFileWithBLOBs.getPrintPage());
+/* 133 */       map.put("printPage2", rmsFileWithBLOBs.getPrintPage2());
+/*     */ 
+/* 135 */       map.put("remark", rmsFileWithBLOBs.getRemark());
+/*     */ 
+/* 137 */       map.put("delStatus", rmsFileWithBLOBs.getDelStatus());
+/*     */ 
+/* 139 */       List query = this.rmsFileMapper.query(map);
+/* 140 */       json.setObj(query);
+/* 141 */       json.setTotleNum(pageParams.getTotal());
+/* 142 */       json.setFlag(0);
+/* 143 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 145 */       e.printStackTrace();
+/* 146 */       json.setFlag(1);
+/* 147 */       json.setMsg("err");
+/*     */     }
+/* 149 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<RmsFileWithBLOBs> selectById(Integer fileId, HttpServletRequest request)
+/*     */   {
+/* 154 */     ToJson json = new ToJson();
+/*     */     try {
+/* 156 */       RmsFileWithBLOBs rmsFileWithBLOBs = this.rmsFileMapper.selectByPrimaryKey(fileId);
+/* 157 */       List attachmentList = new ArrayList();
+/* 158 */       if (!StringUtils.checkNull(rmsFileWithBLOBs.getAttachmentId()).booleanValue()) {
+/* 159 */         attachmentList = GetAttachmentListUtil.returnAttachment(rmsFileWithBLOBs.getAttachmentName(), rmsFileWithBLOBs.getAttachmentId(), Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "roll_manage");
+/*     */       }
+/* 161 */       rmsFileWithBLOBs.setAttachmentList(attachmentList);
+/*     */ 
+/* 163 */       json.setObject(rmsFileWithBLOBs);
+/* 164 */       json.setFlag(0);
+/* 165 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 167 */       e.printStackTrace();
+/* 168 */       json.setFlag(1);
+/* 169 */       json.setMsg("err");
+/*     */     }
+/* 171 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<RmsFileWithBLOBs> importFile(HttpServletRequest request, HttpServletResponse response, MultipartFile file)
+/*     */   {
+/* 176 */     ToJson json = new ToJson();
+/*     */     try
+/*     */     {
+/* 180 */       ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 181 */       String osName = System.getProperty("os.name");
+/* 182 */       StringBuffer path = new StringBuffer();
+/* 183 */       if (osName.toLowerCase().startsWith("win"))
+/* 184 */         path = path.append(rb.getString("upload.win"));
+/*     */       else {
+/* 186 */         path = path.append(rb.getString("upload.linux"));
+/*     */       }
+/*     */ 
+/* 189 */       if (file.isEmpty()) {
+/* 190 */         json.setMsg("请上传文件！");
+/* 191 */         json.setFlag(1);
+/* 192 */         return json;
+/*     */       }
+/* 194 */       String fileName = file.getOriginalFilename();
+/* 195 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 196 */         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+/* 197 */         int pos = fileName.indexOf(".");
+/* 198 */         String extName = fileName.substring(pos);
+/* 199 */         String newFileName = uuid + extName;
+/* 200 */         File dest = new File(path.toString(), newFileName);
+/* 201 */         file.transferTo(dest);
+/*     */ 
+/* 204 */         String readPath = path.append(System.getProperty("file.separator")).append(newFileName).toString();
+/* 205 */         InputStream in = new FileInputStream(readPath);
+/* 206 */         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+/* 207 */         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+/* 208 */         Row row = sheetObj.getRow(0);
+/* 209 */         int colNum = row.getPhysicalNumberOfCells();
+/* 210 */         int lastRowNum = sheetObj.getLastRowNum();
+/* 211 */         RmsFileWithBLOBs rmsFileWithBLOBs = null;
+/* 212 */         List list = new ArrayList();
+/* 213 */         for (int i = 1; i <= lastRowNum; i++) {
+/* 214 */           row = sheetObj.getRow(i);
+/* 215 */           if (row != null) {
+/* 216 */             rmsFileWithBLOBs = new RmsFileWithBLOBs();
+/* 217 */             for (int j = 0; j < colNum; j++) {
+/* 218 */               Cell cell = row.getCell(j);
+/* 219 */               if (cell != null) {
+/* 220 */                 switch (j) {
+/*     */                 case 0:
+/* 222 */                   rmsFileWithBLOBs.setFileCode(cell.getStringCellValue());
+/* 223 */                   break;
+/*     */                 case 1:
+/* 225 */                   rmsFileWithBLOBs.setFileSubject(cell.getStringCellValue());
+/* 226 */                   break;
+/*     */                 case 2:
+/* 228 */                   rmsFileWithBLOBs.setFileTitle(cell.getStringCellValue());
+/* 229 */                   break;
+/*     */                 case 3:
+/* 231 */                   rmsFileWithBLOBs.setFileTitle0(cell.getStringCellValue());
+/* 232 */                   break;
+/*     */                 case 4:
+/* 234 */                   rmsFileWithBLOBs.setSendUnit(cell.getStringCellValue());
+/* 235 */                   break;
+/*     */                 case 5:
+/* 237 */                   rmsFileWithBLOBs.setSendDate(cell.getDateCellValue());
+/* 238 */                   break;
+/*     */                 case 6:
+/* 241 */                   if ("普密".equals(cell.getStringCellValue()))
+/* 242 */                     rmsFileWithBLOBs.setSecret("1");
+/* 243 */                   else if ("秘密".equals(cell.getStringCellValue()))
+/* 244 */                     rmsFileWithBLOBs.setSecret("4");
+/* 245 */                   else if ("机密".equals(cell.getStringCellValue()))
+/* 246 */                     rmsFileWithBLOBs.setSecret("3");
+/* 247 */                   else if ("绝密".equals(cell.getStringCellValue()))
+/* 248 */                     rmsFileWithBLOBs.setSecret("2");
+/*     */                   else {
+/* 250 */                     rmsFileWithBLOBs.setSecret("1");
+/*     */                   }
+/* 252 */                   break;
+/*     */                 case 7:
+/* 255 */                   if ("员工类型".equals(cell.getStringCellValue())) {
+/* 256 */                     rmsFileWithBLOBs.setUrgency("1"); } else {
+/* 257 */                     if (!"普级".equals(cell.getStringCellValue())) continue;
+/* 258 */                     rmsFileWithBLOBs.setUrgency("2"); } break;
+/*     */                 case 8:
+/* 263 */                   if ("公文".equals(cell.getStringCellValue())) {
+/* 264 */                     rmsFileWithBLOBs.setFileType("1"); } else {
+/* 265 */                     if (!"资料".equals(cell.getStringCellValue())) continue;
+/* 266 */                     rmsFileWithBLOBs.setFileType("2"); } break;
+/*     */                 case 9:
+/* 271 */                   if ("A".equals(cell.getStringCellValue())) {
+/* 272 */                     rmsFileWithBLOBs.setFileKind("1");
+/* 273 */                   } else if ("B".equals(cell.getStringCellValue())) {
+/* 274 */                     rmsFileWithBLOBs.setFileKind("2");
+/* 275 */                   } else if ("C".equals(cell.getStringCellValue())) {
+/* 276 */                     rmsFileWithBLOBs.setFileKind("3"); } else {
+/* 277 */                     if (!"D".equals(cell.getStringCellValue())) continue;
+/* 278 */                     rmsFileWithBLOBs.setFileKind("4"); } break;
+/*     */                 case 10:
+/* 282 */                   rmsFileWithBLOBs.setFilePage(cell.getStringCellValue());
+/* 283 */                   break;
+/*     */                 case 11:
+/* 285 */                   rmsFileWithBLOBs.setPrintPage(cell.getStringCellValue());
+/* 286 */                   break;
+/*     */                 case 12:
+/* 288 */                   rmsFileWithBLOBs.setRemark(cell.getStringCellValue());
+/* 289 */                   break;
+/*     */                 case 13:
+/* 292 */                   String rollName = cell.getStringCellValue();
+/* 293 */                   List rmsRollWithBLOBs = this.rmsRollMapper.selectByName(rollName);
+/* 294 */                   if (rmsRollWithBLOBs.size() > 0)
+/* 295 */                     rmsFileWithBLOBs.setRollId(((RmsRollWithBLOBs)rmsRollWithBLOBs.get(0)).getRollId());
+/*     */                   else {
+/* 297 */                     rmsFileWithBLOBs.setRollId(Integer.valueOf(0));
+/*     */                   }
+/*     */                 }
+/*     */               }
+/*     */             }
+/*     */ 
+/* 303 */             if (rmsFileWithBLOBs.getRollId().equals(Integer.valueOf(0))) {
+/* 304 */               rmsFileWithBLOBs.setImportStatus("导入失败，无该卷库");
+/*     */             } else {
+/* 306 */               rmsFileWithBLOBs.setAttachmentId("");
+/* 307 */               rmsFileWithBLOBs.setAttachmentName("");
+/*     */               try {
+/* 309 */                 this.rmsFileMapper.insertSelective(rmsFileWithBLOBs);
+/* 310 */                 rmsFileWithBLOBs.setImportStatus("导入成功");
+/*     */               } catch (Exception e) {
+/* 312 */                 rmsFileWithBLOBs.setImportStatus("导入失败，数据异常");
+/* 313 */                 e.printStackTrace();
+/*     */               }
+/*     */             }
+/*     */ 
+/* 317 */             list.add(rmsFileWithBLOBs);
+/*     */           }
+/*     */         }
+/* 320 */         json.setObj(list);
+/*     */       }
+/*     */ 
+/* 323 */       json.setMsg("ok");
+/* 324 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 326 */       e.printStackTrace();
+/* 327 */       json.setMsg("err");
+/* 328 */       json.setFlag(1);
+/*     */     }
+/* 330 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<RmsFileWithBLOBs> deleteFiles(String fileIds)
+/*     */   {
+/* 335 */     ToJson json = new ToJson();
+/*     */     try {
+/* 337 */       if (!StringUtils.checkNull(fileIds).booleanValue()) {
+/* 338 */         this.rmsFileMapper.delete(fileIds.split(","));
+/*     */       }
+/* 340 */       json.setFlag(0);
+/* 341 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 343 */       e.printStackTrace();
+/* 344 */       json.setFlag(1);
+/* 345 */       json.setMsg("err");
+/*     */     }
+/* 347 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<RmsFileWithBLOBs> restore(String fileIds)
+/*     */   {
+/* 352 */     ToJson json = new ToJson();
+/*     */     try {
+/* 354 */       if (!StringUtils.checkNull(fileIds).booleanValue()) {
+/* 355 */         this.rmsFileMapper.restore(fileIds.split(","));
+/* 356 */         json.setFlag(0);
+/* 357 */         json.setMsg("ok");
+/* 358 */         return json;
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 362 */       e.printStackTrace();
+/* 363 */       json.setFlag(1);
+/* 364 */       json.setMsg("err");
+/*     */     }
+/* 366 */     json.setFlag(1);
+/* 367 */     json.setMsg("err");
+/* 368 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<RmsFileWithBLOBs> export(String fileIds, HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/* 373 */     ToJson json = new ToJson();
+/*     */     try {
+/* 375 */       List list = this.rmsFileMapper.selectByFileIds(fileIds.split(","));
+/*     */ 
+/* 377 */       HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("文件档案信息", 9);
+/* 378 */       String[] secondTitles = { "文件号", "文件主题词", "文件标题", "文件辅标题", "发文单位", "发文日期", "密级", "紧急等级", "文件分类", "公文类别", "文件页数", "打印页数", "备注" };
+/* 379 */       HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/* 380 */       String[] beanProperty = { "fileCode", "fileSubject", "fileTitle", "fileTitle0", "sendUnit", "sendDate", "secretName", "urgencyName", "fileTypeName", "fileKindName", "filePage", "printPage", "remark" };
+/*     */ 
+/* 382 */       HSSFWorkbook workbook = ExcelUtil.exportExcelData(workbook2, list, beanProperty);
+/* 383 */       ServletOutputStream out = response.getOutputStream();
+/*     */ 
+/* 385 */       String filename = "文件档案.xls";
+/* 386 */       filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/* 387 */       response.setContentType("application/vnd.ms-excel");
+/* 388 */       response.setHeader("content-disposition", "attachment;filename=" + filename);
+/* 389 */       workbook.write(out);
+/* 390 */       out.close();
+/*     */     } catch (Exception e) {
+/* 392 */       e.printStackTrace();
+/* 393 */       json.setMsg("err");
+/* 394 */       json.setFlag(1);
+/*     */     }
+/* 396 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<RmsFileWithBLOBs> updateRollBath(String fileIds, Integer rollId)
+/*     */   {
+/* 402 */     ToJson json = new ToJson();
+/*     */     try {
+/* 404 */       if (!StringUtils.checkNull(fileIds).booleanValue()) {
+/* 405 */         this.rmsFileMapper.updateRollBath(fileIds.split(","), rollId);
+/*     */       }
+/* 407 */       json.setFlag(0);
+/* 408 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 410 */       e.printStackTrace();
+/* 411 */       json.setFlag(1);
+/* 412 */       json.setMsg("err");
+/*     */     }
+/* 414 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Attachment> createFormHtml(String content, String module, HttpServletResponse response, HttpServletRequest request, String typeFlag)
+/*     */   {
+/* 419 */     ToJson json = new ToJson();
+/*     */     try
+/*     */     {
+/* 422 */       String company = Constant.MYOA + (String)SessionUtils.getSessionInfo(request.getSession(), "loginDateSouse", String.class);
+/*     */ 
+/* 424 */       ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 425 */       String os = System.getProperty("os.name");
+/* 426 */       StringBuffer sb = new StringBuffer();
+/* 427 */       if (os.toLowerCase().startsWith("win"))
+/* 428 */         sb = sb.append(rb.getString("upload.win"));
+/*     */       else {
+/* 430 */         sb = sb.append(rb.getString("upload.linux"));
+/*     */       }
+/*     */ 
+/* 433 */       String ym = new SimpleDateFormat("yyMM").format(new Date());
+/*     */ 
+/* 435 */       if (StringUtils.checkNull(module).booleanValue()) {
+/* 436 */         module = "roll_manage";
+/*     */       }
+/*     */ 
+/* 440 */       if (StringUtils.checkNull(sb.toString()).booleanValue()) {
+/* 441 */         String a = request.getRealPath("");
+/* 442 */         sb.append(a);
+/* 443 */         sb.append(System.getProperty("file.separator")).append("attach").append(System.getProperty("file.separator")).append(company).append(System.getProperty("file.separator")).append(module).append(System.getProperty("file.separator")).append(ym);
+/*     */       }
+/*     */       else
+/*     */       {
+/* 448 */         sb.append(System.getProperty("file.separator")).append("attach").append(System.getProperty("file.separator")).append(company).append(System.getProperty("file.separator")).append(module).append(System.getProperty("file.separator")).append(ym);
+/*     */       }
+/*     */ 
+/* 454 */       String path = sb.toString();
+/*     */ 
+/* 456 */       new File(path).mkdirs();
+/*     */ 
+/* 459 */       String fileName = "工作流表单.html";
+/*     */ 
+/* 461 */       int attachID = Math.abs((int)System.currentTimeMillis());
+/* 462 */       String newFileName = Integer.toString(attachID) + "." + fileName.toString();
+/*     */ 
+/* 465 */       String filePath = path + System.getProperty("file.separator") + newFileName;
+/* 466 */       File f = new File(filePath);
+/* 467 */       if (!f.exists()) {
+/* 468 */         f.createNewFile();
+/*     */       }
+/* 470 */       OutputStreamWriter pw = new OutputStreamWriter(new FileOutputStream(filePath), "UTF-8");
+/* 471 */       pw.write("<html><head><meta charset=\"UTF-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge,chrome=1\"></head>");
+/* 472 */       pw.write("<style id=\"css_index\" index=\"index\" type=\"text/css\">@charset \"utf-8\";\n\nbody,\nh1,\nh2,\nh3,\nh4,\nh5,\nh6,\nhr,\np,\nblockquote,\ndl,\ndt,\ndd,\nul,\nol,\nli,\npre,\nform,\nfieldset,\nlegend,\nbutton,\ninput,\ntextarea,\nth,\ntd {\n    margin:0;\n    padding:0;\n}\n\nbody,\nbutton,\ninput,\nselect,\ntextarea {\n    font:12px/1.5 \"\\5FAE\\8F6F\\96C5\\9ED1\", arial ;\n    *line-height:1.5;\n}\n\nh1,\nh2,\nh3,\nh4,\nh5,\nh6 {\n    font-size:100%;\n    font-weight: normal;\n}\n\naddress,\ncite,\ndfn,\nem,\nvar {\n    font-style:normal;\n}\n\ncode,\nkbd,\npre,\nsamp {\n    font-family:courier new, courier, monospace;\n}\n\nul,\nol {\n    list-style:none;\n}\n\nfieldset,\nimg {\n    border:0;\n}\n\ntable {\n    border-collapse:collapse;\n    border-spacing:0;\n}\n\ninput,\nbutton,\ntextarea,\nselect,\noptgroup,\noption {\n    font-family: inherit;\n    font-size: inherit;\n    font-style: inherit;\n    font-weight: inherit;\n    font-size:100%;\n}\n\ndiv:after,\nul:after,\ndl:after,\n.clearfix:after {\n    content:\"\";\n    display:block;\n    clear:both;\n    height:0;\n    visibility:hidden;\n}\n\n/****/\nabbr,\narticle,\naside,\naudio,\ncanvas,\ndatalist,\ndetails,\nfigure,\nfooter,\nheader,\nhgroup,\nmenu,\nnav,\noutput,\nprogress,\nsection,\nvideo {\n    display:block;\n    margin:0;\n    padding:0;\n}\n\ni,\nu,\nb,\nem,\nspan,\nsmall{\n    font-weight:normal;\n    font-style:normal;\n}\n\nhtml,\nbody {\n    height: 100%;\n}\n\n/****/\nhtml {\n    font-size: 62.5%;\n}\n\nbody {\n    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);\n    -webkit-user-select: none;\n    user-select: none;\n    -moz-user-focus: none;\n    -moz-user-select: none;\n}\n\na{\n    text-decoration: none;\n}\n\nh2{\n    margin:0;\n    padding: 0;\n}\n\nul{\n    word-spacing: -4px;\n}\n\n.body{\n    width:100%;\n//height:100%;\n//overflow: hidden;\n}\n.head{\n    width:100%;\n    height:45px;\n    border-bottom:1px solid #999;\n    background-color:#f8f8f8;\n    overflow:hidden;\n}\n.abs_left,.abs_right{\n    height:100%;\n    float:left;\n\n}\n.abs_right{\n    width:auto;\n    position: absolute;\n    right: 24px;\n}\n.abs_left{\n    width: auto;\n}\n.num,.step{\n    float:left;\n}\n.num{\n    font-size: 12pt;\n    font-weight: bold;\n    margin-left: 17px;\n    line-height: 45px;\n}\n.step{\n    color: #4b4b4b;\n    line-height: 45px;\n    margin-left: 13px;\n    font-size: 10pt;\n}\n.opt{\n    margin-top: 10px !important;\n    margin-left: 17px !important;\n    color: #205f82;\n    width: 62px;\n    height: 28px;\n    border-radius: 3px;\n    background: #f6f6f6;\n}\n.abs_right ul {\n    width: 275px;\n    height: 28px;\n    border: 1px solid #4889f0;\n    border-radius: 5px;\n    margin:7px auto;\n}\n.check{\n    background: #4889f0 ;\n    color:#fff ;\n}\n.abs_right{\n    color:#4889f0;\n}\n#tab_t ul li{\n    float:left;\n    width: 68px;\n    height:100%;\n    border-right:1px solid #4889f0;\n    text-align: center;\n    line-height: 28px;\n}\n.abs_right ul li:nth-child(4){\n    border:none !important;\n}\n\n.cont{\n}\n.cont_form{\n    width: 100%;\n//background: #e6ebef;\n    height: 99%;\n    margin: auto;\n    overflow-x: hidden;\n    overflow-y: scroll;\n}\n.foot{\n    width:100%;\n    height:52px;\n    background-color: #eaeaea;\n    position: fixed;\n    bottom: 0px;\n    z-index: 9999;\n}\n.foot_left,.foot_rig{\n    height:100%;\n}\n.foot_left{\n    float:left;\n    margin-left: 36px;\n    width:310px;\n}\n.foot_rig{\n    float:right;\n    width:685px;\n    margin-right: 24px;\n}\n.foot_left ul,.foot_rig ul{\n    margin-top:11px;\n}\n.foot_left ul li,.foot_rig ul li{\n    float:left;\n    width: 70px;\n    height:28px;\n    /*border:1px solid #4889f0;*/\n    text-align: center;\n    line-height: 28px;\n    color:#4889f0;\n    border-radius: 5px;\n}\n\n.rig_h1onexiayibu{\n    background:url(\"/img/workflow/work/zhuanjiao.png\") no-repeat ;\n    color: #fff!important;\n    width: 80px!important;\n}\n.saveformlo{\n    background:url(\"/img/workflow/work/huitui.png\") no-repeat ;\n    /*color: #fff!important;*/\n    width: 73px!important;\n}\n.baocunfanhui{\n    background:url(\"/img/workflow/work/baocunfanhui.png\") no-repeat ;\n    /*color: #fff!important;*/\n    width: 76px!important;\n}\n.foot_left ul li,.foot_rig ul li.active{\n//color:#fff;\n}\n.foot_left ul li{\n    margin-left: 3%;\n}\n.foot_rig ul li{\n    float: right;\n    margin-left: 2%;\n}\n.foot_rig ul li:nth-child(1){\n    width: 90px !important;\n}\n.foot_rig ul li:nth-child(3){\n    width: 90px !important;\n}\n.backbtn{\n    cursor: pointer;\n}\n.left_img,.left_h1,.rig_img,.rig_h1{\n    float:left;\n}\n.left_img,.rig_img{\n    margin-left: 5px;\n    margin-top: 4px;\n    margin-right: 3px;\n}\n.left_h1{\n    margin-left: 1px;\n}\n/*select{\n\tmargin-top: 10px !important;\n}*/\n/*注意*/\n.rig_h1{\n    width: 100%;\n    text-align: center;\n}\n#tab_t ul li,.foot ul li{\n    cursor: pointer;\n}\n/*定义滚动条宽高及背景，宽高分别对应横竖滚动条的尺寸*/\n.cont_form::-webkit-scrollbar{\n    width: 0px;\n    height: 16px;\n    background-color: #f5f5f5;\n}\n/*定义滚动条的轨道，内阴影及圆角*/\n.cont_form::-webkit-scrollbar-track{\n    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);\n    border-radius: 10px;\n    background-color: #f5f5f5;\n}\n/*定义滑块，内阴影及圆角*/\n.cont_form::-webkit-scrollbar-thumb{\n    /*width: 10px;*/\n    height: 20px;\n    border-radius: 10px;\n    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);\n    background-color: #555;\n}\n\nbody, button, select, textarea, input, label, option, fieldset, legend{font-family: 微软雅黑E\\8F6F\\96C5\\9ED1,Tahoma,Verdana;font-size: 12px;line-height: 18px;color: #444;}\nbody, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, legend, textarea, button, p, blockquote{margin: 0;padding: 0;}\ntextarea{resize: none}\na,img{border:0;}\na{color: #666;text-decoration: none;}\nli{list-style-type:none;}\n.fl{float:left;}\n.fr{float:right;}\n.nf{clear:both;}\n.red{color:red;font-weight:bold;}\n.green{color:#00b500;font-weight:bold;}\n.ds{display:block;}\n.hid{overflow:hidden;}\n.clearfix{*zoom:1}\n.clearfix:after{display:block;visibility:hidden;clear:both;height:0;content:'.';font-size:0}\n.jianbian{background: -webkit-gradient(linear,left top,left bottom,color-stop(0%,#f4f4f4),color-stop(100%,#eee));background: -webkit-linear-gradient(top,#f4f4f4 0,#eee 100%);background: linear-gradient(to bottom,#f4f4f4 0,#eee 100%);}\n.bottomshadow{border-bottom: solid 1px #B3B3B3;-webkit-box-shadow: 0 1px 1px 0 #DFDFDF;box-shadow: 0 1px 1px 0 #DFDFDF;}\n.TableBlock{\n    border: 1px solid #dddddd;\n    line-height: 20px;\n    font-size: 9pt;\n    border-collapse: collapse;\n}\ntable{\n    border-collapse: collapse;\n    border-spacing: 0;\n}\n.TableBlock .TableContent td, .TableBlock td.TableContent{\n    background: #f2f2f2;\n    border: 1px #dddddd solid;\n    border-right: 1px #dddddd solid;\n    padding: 3px;\n    height: 37px;\n}\ninput.BigInput{\n    height: 20px;\n}\ninput,select,textarea{\n    outline:none;\n}\ninput.BigStatic, textarea.BigStatic {\n    font-size: 9pt;\n    padding: 1px 5px;\n    border: 1px solid #C0BBB4;\n    background: #E0E0E0;\n}\ntextarea {\n    overflow: auto;\n    /* vertical-align: top; */\n    white-space: pre-wrap;\n}\n.MessageBox .msg .center {\n    padding-left: 90px;\n    font-size: 16px;\n    background-color: #357ece;\n}\n.MessageBox .msg td {\n    height: 90px;\n}\n.MessageBox .head-no-title td {\n    height: 16px;\n}\n.bodycolor{\n    BACKGROUND: #f6f7f9;\n    padding-top: 5px;\n}\ninput.BigInput, textarea.BigInput{\n    font-size: 10pt;\n    padding: 1px 5px;\n    line-height: 20px;\n    border: 1px solid #C0BBB4;\n    background: white url(/img/app/bg_input_text_hover.png) top left repeat-x;\n    background-position: 0 -1px;\n}\n.TableBlock .TableFooter td, .TableBlock .TableControl td, .TableBlock td.TableFooter, .TableBlock td.TableControl{\n    background: #FFFFFF;\n    border: 1px #dddddd solid;\n    /*padding: 3px;*/\n    height: 37px;\n}\ninput.BigButton{\n    background-color: #fafafa;\n    background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fafafa), color-stop(100%, #f1f1f1));\n    background: -webkit-linear-gradient(top, #fafafa, #f1f1f1);\n    background: -moz-linear-gradient(top, #fafafa, #f1f1f1);\n    background: -o-linear-gradient(top, #fafafa, #f1f1f1);\n    background: linear-gradient(top, #fafafa, #f1f1f1);\n    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fffafafa',endColorstr='#fff1f1f1',GradientType=0);\n    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);\n    border: 1px solid #ddd;\n    -webkit-border-radius: 3px;\n    -moz-border-radius: 3px;\n    -ms-border-radius: 3px;\n    -o-border-radius: 3px;\n    border-radius: 3px;\n    height: 24px;\n    line-height: 14px;\n    padding: 4px 10px;\n    font-size: 14px;\n    color: #333;\n    margin: 1px;\n    text-decoration: none;\n    text-align: center;\n    cursor: pointer;\n    -webkit-appearance: none;\n}\na.BigButton{\n    background-color: #fafafa;\n    background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #fafafa), color-stop(100%, #f1f1f1));\n    background: -webkit-linear-gradient(top, #fafafa, #f1f1f1);\n    background: -moz-linear-gradient(top, #fafafa, #f1f1f1);\n    background: -o-linear-gradient(top, #fafafa, #f1f1f1);\n    background: linear-gradient(top, #fafafa, #f1f1f1);\n    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fffafafa',endColorstr='#fff1f1f1',GradientType=0);\n    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);\n    border: 1px solid #ddd;\n    -webkit-border-radius: 3px;\n    -moz-border-radius: 3px;\n    -ms-border-radius: 3px;\n    -o-border-radius: 3px;\n    border-radius: 3px;\n    height: 24px;\n    line-height: 14px;\n    padding: 4px 10px;\n    font-size: 12px;\n    color: #111!important;\n    color: #333;\n    margin: 1px;\n    text-decoration: none;\n    text-align: center;\n    cursor: pointer;\n    -webkit-appearance: none;\n}\ninput.BigButton:hover{\n    background: #fafafa;\n    box-shadow: 0px -12px 5px 0px #C8F1FE inset;\n}\na.BigButton:hover{\n    background: #fafafa;\n    box-shadow: 0px -12px 5px 0px #C8F1FE inset;\n}\nbody {\n\n    line-height: 1;\n}\n#navMenu a.active span, #navMenu a:hover span{\n    height: 28px;\n    background: url(/img/app/menu_top_hover_r.png) no-repeat top right;\n}\n#navPanel {\n    width: 100%;\n    height: 30px;\n    padding-top: 2px;\n    font-size: 10pt;\n    background: #D6E4EF url(/img/app/menu_top_bg.png) left -30px repeat-x;\n}\n#navMenu {\n    float: left;\n    white-space: nowrap;\n    padding: 0px 20px;\n    height: 30px;\n    overflow: hidden;\n}\n#navMenu a.active, #navMenu a:hover {\n    color: #FFFFFF;\n    font-weight: bold;\n    background: url(/img/app/menu_top_hover_l.png) no-repeat top left;\n}\n#navMenu a {\n    float: left;\n    overflow: hidden;\n    color: #000000;\n    text-decoration: none;\n    padding-left: 5px;\n    background: url(/img/app/menu_top_line.png) no-repeat top right;\n    height: 30px;\n}\n#navMenu a span {\n    float: left;\n    cursor: pointer;\n    padding: 6px 5px 6px 5px;\n}\n.mainLeft{\n    width: 19%;\n    float: left;\n    height: 100%;\n}\n.mainRight{\n    width: 100%;\n    float: left;\n}\n.TableList {\n    border: 1px #dddddd solid;\n    line-height: 21px;\n    font-size: 9pt;\n    border-collapse: collapse;\n    padding: 3px;\n    margin-top: 8px;\n}\n.TableHeader {\n    COLOR: #383838;\n    FONT-WEIGHT: bold;\n    FONT-SIZE: 9pt;\n    background: #fff;\n    line-height: 40px;\n    border-bottom: 1px #c0c0c0 solid;\n}\n.TableList .TableHeader td, .TableList td.TableHeader {\n    height: 30px;\n    background: #ffffff;\n    font-weight: bold;\n    text-align: center;\n    color: #383838;\n    padding: 0px;\n}\n.fileload{\n    position: absolute;\n    filter:alpha(opacity=0);\n    -moz-opacity:0;\n    -khtml-opacity: 0;\n    opacity: 0;\n    width: 84px;\n    right: 108px;\n    height: 30px;\n}\n.TableLine1 {\n    BACKGROUND: #F3F3F3;\n}\n.TableLine2 {\n    BACKGROUND: #FFFFFF;\n}\n.TableList .TableLine1 td, .TableList td.TableLine1 {\n\n    border-bottom: 1px #dddddd solid;\n    border-bottom-width: 1px;\n    border-bottom-style: solid;\n    border-bottom-color: rgb(221, 221, 221);\n    padding: 3px;\n    height: 30px;\n    text-align: center;\n}\n.TableList .TableLine2 td, .TableList td.TableLine2 {\n    background: #FFFFFF;\n    border-bottom: 1px #dddddd solid;\n    padding: 3px;\n    height: 30px;\n    text-align: center;\n}\na:visited {\n    color: #1687cb;\n    text-decoration: none;\n}\na:link {\n    color: #1687cb;\n    text-decoration: none;\n}\n.big3 {\n    font-size: 12pt;\n    COLOR: #124164;\n    FONT-WEIGHT: bold;\n}\n.MessageBox {\n    margin: 0px auto;\n}\n.MessageBox .head .left {\n    width: 20px;\n    background: url(/img/app/message_bg.png) left 0px no-repeat;\n}\n.MessageBox .head .right {\n    width: 20px;\n    background: url(/img/app/message_bg.png) right 0px no-repeat;\n}\n.MessageBox .head .center {\n    padding: 0px;\n    background: url(/img/app/message_bg.png) 0px -32px repeat-x;\n}\n.MessageBox .head .center .title {\n    float: left;\n    color: #fff;\n    font-size: 16px;\n    font-weight: bold;\n}\n.MessageBox .head td {\n    height: 32px;\n    overflow: hidden;\n}\n.MessageBox .msg .left {\n    width: 20px;\n    background: url(/img/app/message_center_bg.png) left top repeat-y;\n}\n.MessageBox .msg .info {\n    background-image: url(/img/app/icon64_info.png);\n    background-position: 0px 10px;\n    background-repeat: no-repeat;\n}\n.MessageBox .msg .center .msg-content {\n    color: #fff;\n    margin: 20px 12px 20px 6px;\n}\n.MessageBox .msg .right {\n    width: 20px;\n    background: url(/img/app/message_center_bg.png) right top repeat-y;\n}\n.MessageBox .foot .left {\n    width: 20px;\n    background: url(/img/app/message_bg.png) left -64px no-repeat;\n}\n.MessageBox .foot .center {\n    background: url(/img/app/message_bg.png) 0px -80px repeat-x;\n    position: relative;\n}\n.MessageBox .foot .right {\n    width: 20px;\n    background: url(/img/app/message_bg.png) right -64px no-repeat;\n}\n.MessageBox .foot td {\n    height: 16px;\n}\n.MessageBox .msg .center {\n    padding-left: 90px;\n    font-size: 16px;\n    background-color: #357ece;\n}\n.TableBlock .TableData td, .TableBlock td.TableData {\n    background: #FFFFFF;\n    border-bottom: 1px #dddddd solid;\n    border-top: 1px #dddddd solid;\n    border-right: 1px #dddddd solid;\n    padding: 3px;\n    height: 37px;\n}\n.MessageBox .head-no-title .left {\n    width: 20px;\n    background: url(/img/app/message_bg.png) left -96px no-repeat;\n}\n.MessageBox .head-no-title .center {\n    background: url(/img/app/message_bg.png) 0px -112px repeat-x;\n}\n.MessageBox .head-no-title .right {\n    width: 20px;\n    background: url(/img/app/message_bg.png) right -96px no-repeat;\n}\n.w {\n    width: 100%;\n    margin: 0 auto;\n}\n.head {\n    border-bottom: 1px solid #9E9E9E;\n    padding-bottom: 3px;\n    height: 43px;\n}\n.head li {\n    /*width: 120px;*/\n    /* text-align: center; */\n    height: 28px;\n    line-height: 28px;\n    display: inline-block;\n    float: left;\n    font-family: \"微软雅黑\";\n    font-size: 14px;\n    margin-left: 20px;\n    margin-top: 6px;\n    cursor: pointer;\n}\n.head .headli1_1 {\n    /*width: 90px;*/\n    padding:0 14px;\n    display: inline-block;\n    text-align: center;\n}\n.head .headli1_2 {\n    width: 2px;\n    width: 2px;\n    /* margin: 0 10px; */\n    margin-left: 26px;\n}\nimg {\n    border: 0;\n    vertical-align: middle;\n}\n.head .one {\n    background-color: #2F8AE3;\n    font-size: 14px;\n    color: #ffffff;\n    border-radius: 20px;\n}\n.headli1_1:hover{\n    background-color: #2F8AE3;\n    border-radius: 20px;\n    color: #ffffff;\n}\n.headli1_1:hover a{\n    color: #ffffff!important;\n}\n.headli1_1 a{\n    color: #444!important;\n}\n.headli1_1.one a{\n    color: #fff!important;\n}\n.head .headli2_1 {\n    width: 90px;\n    display: inline-block;\n    text-align: center;\n}\n.head .headli3 {\n    width: 90px;\n    display: inline-block;\n    text-align: center;\n    margin-top: 4px;\n}\n.clearfix:after{\n    content: '';\n    display: block;\n    clear: both;\n}\n.navigation {\n    heihgt: 70px;\n    display: inline-block;\n    float: left;\n    width: 100%;\n    /*margin-top: 47px;*/\n}\n.navigation .left {\n    float: left;\n    line-height: 71px;\n}\n.navigation .left img {\n    float: left;\n    margin-top: 19px;\n    margin-right: 5px;\n    padding-left: 30px;\n}\n.tr_td tbody tr:hover {\n    background-color: #D3E7FA;\n}\n.navigation .left .news {\n    /* font-size: 14px; */\n    margin-left: 2px;\n    font-family: \"微软雅黑\";\n    margin-top: -3px;\n    margin-right: 40px;\n    font-size: 20px;\n    color: #333;\n}\n.navigation .left div {\n    float: left;\n}\ntr{\n    border: 1px solid #c0c0c0;\n}\n.tr_td  tr:nth-child(odd){\n    background-color: #F6F7F9;\n}\ntr td {\n    font-size: 13px;\n}\ntd {\n    color: #404060;\n    padding: 10px;\n    font: 14px \"微软雅黑\";\n}\n.th {\n    background-color: #fff;\n    font-size: 15px;\n    color: #2F5C8F!important;\n    font-weight: bold;\n    border: 0px;\n}\n#north{\n    position: fixed;\n    top:0;\n    left: 0;\n    background: #f5f5f5;\n    width:100%;\n}\n.th, td {\n    color: #404060;\n    padding: 10px;\n}\n.inp {\n    width: 200px;\n    height: 27px;\n    border-radius: 6px;\n    border:1px solid #ddd;\n    padding-left: 5px;\n    margin-left: 97px;\n}\n.inp:focus{\n    border-color: #00a0e9;\n}\n.import{\n    width: 70px;\n    height: 28px;\n    font-size: 13px !important;\n    cursor: pointer;\n    background-repeat: no-repeat;\n    background-image: url(../../img/sys/confirm.png);\n    padding-left: 25px;\n    border:none;\n}\n.exportsss{\n    width: 80px;\n    height: 30px;\n    font-size: 13px !important;\n    cursor: pointer;\n    background-repeat: no-repeat;\n    background-image: url(../../img/import.png);\n    padding-left: 25px;\n    border:none;\n}\n.importTwo{\n    width: 80px;\n    height: 30px;\n    font-size: 13px !important;\n    cursor: pointer;\n    background-repeat: no-repeat;\n    background-image: url(../../img/export.png);\n    padding-left: 9px;\n    border:none;\n    text-align: center;\n    line-height: 30px;\n    color: #444!important;\n}\n\n.cont_left {\n    border-right: 1px solid #000;\n    overflow-y: auto;\n    height: 100%;\n}\n.cont_left .dept_li {\n    display: block;\n    width: 86%;\n    padding-left: 30px;\n    font-size: 14px;\n    height: 40px;\n    line-height: 40px;\n    border-bottom: #ddd 1px solid;\n    cursor: pointer;\n}\n.cont_left .pick {\n    border-bottom: 1px solid #ddd;\n    padding-left: 12%;\n}\n.liUp {\n    background: url(../../img/sys/icon_rightarrow_03.png) no-repeat 91% center;\n}\n.cont_left .liUp:hover {\n    background-color: #add2f8;\n}\n.backCanBtn {\n    background-image: url(../../img/sys/return.png);\n    width: 70px;\n    height: 28px;\n    border:none;\n    text-align: center;\n    padding-left:27px;\n    font-style: 13px!important;\n}\n.cont_left .pick a {\n    font-size: 14px;\n    height: 40px;\n    line-height: 40px;\n    vertical-align: middle;\n}\n.liDown {\n    background: url(../../img/sys/icon_downarrow_03.png) no-repeat 91% center;\n}\n.trtd_d tbody tr td{\n    padding-top: 13px;\n    padding-bottom: 13px;\n}\n</style>\n");
+/* 473 */       pw.write("<body>");
+/* 474 */       pw.write(content);
+/* 475 */       pw.write("</body></html>");
+/* 476 */       pw.close();
+/*     */ 
+/* 479 */       int moduleID = 0;
+/* 480 */       for (ModuleEnum em : ModuleEnum.values()) {
+/* 481 */         if (em.getName().equals(module.trim())) {
+/* 482 */           moduleID = em.getIndex();
+/*     */         }
+/*     */       }
+/*     */ 
+/* 486 */       byte mid = (byte)moduleID;
+/*     */ 
+/* 488 */       if ("1".equals(typeFlag))
+/*     */       {
+/* 490 */         Attachment attachment = new Attachment();
+/* 491 */         attachment = new Attachment();
+/* 492 */         attachment.setAttachId(Integer.valueOf(attachID));
+/* 493 */         attachment.setModule(Byte.valueOf(mid));
+/* 494 */         attachment.setAttachFile(fileName);
+/* 495 */         attachment.setAttachName(fileName);
+/* 496 */         attachment.setYm(ym);
+/* 497 */         attachment.setAttachSign(new Long(0L));
+/* 498 */         attachment.setDelFlag(Byte.valueOf("0"));
+/* 499 */         attachment.setPosition(Byte.valueOf("2"));
+/* 500 */         attachment.setIsImage(Byte.valueOf("0"));
+/* 501 */         attachment.setFileSize(String.valueOf(f.length()));
+/* 502 */         attachment.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+/*     */ 
+/* 504 */         this.attachmentMapper.insertSelective(attachment);
+/* 505 */         json.setObject(attachment);
+/* 506 */       } else if ("2".equals(typeFlag))
+/*     */       {
+/* 508 */         String zipPath = filePath.replace("工作流表单.html", "工作流表单.zip");
+/*     */ 
+/* 510 */         ZipUtils.zip(filePath, zipPath);
+/*     */ 
+/* 512 */         File zipFile = new File(zipPath);
+/*     */ 
+/* 514 */         if (!zipFile.exists()) {
+/* 515 */           json.setFlag(1);
+/* 516 */           json.setMsg("zip文件不存在");
+/* 517 */           return json;
+/*     */         }
+/*     */ 
+/* 520 */         fileName = "工作流表单.zip";
+/*     */ 
+/* 522 */         Attachment attachment = new Attachment();
+/* 523 */         attachment = new Attachment();
+/* 524 */         attachment.setAttachId(Integer.valueOf(attachID));
+/* 525 */         attachment.setModule(Byte.valueOf(mid));
+/* 526 */         attachment.setAttachFile(fileName);
+/* 527 */         attachment.setAttachName(fileName);
+/* 528 */         attachment.setYm(ym);
+/* 529 */         attachment.setAttachSign(new Long(0L));
+/* 530 */         attachment.setDelFlag(Byte.valueOf("0"));
+/* 531 */         attachment.setPosition(Byte.valueOf("2"));
+/* 532 */         attachment.setIsImage(Byte.valueOf("0"));
+/* 533 */         attachment.setFileSize(String.valueOf(f.length()));
+/* 534 */         attachment.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+/*     */ 
+/* 536 */         this.attachmentMapper.insertSelective(attachment);
+/* 537 */         json.setObject(attachment);
+/*     */ 
+/* 539 */         String attUrl = "AID=" + attachment.getAid() + "&" + "MODULE=" + module + "&" + "COMPANY=" + company + "&" + "YM=" + attachment.getYm() + "&" + "ATTACHMENT_ID=" + attachment.getAttachId() + "&" + "ATTACHMENT_NAME=" + attachment.getAttachName() + "&" + "FILESIZE=" + attachment.getFileSize();
+/*     */ 
+/* 542 */         attachment.setAttUrl(attUrl);
+/*     */       }
+/*     */ 
+/* 562 */       json.setFlag(0);
+/* 563 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 565 */       e.printStackTrace();
+/* 566 */       json.setFlag(1);
+/* 567 */       json.setMsg("err");
+/*     */     }
+/* 569 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.rms.impl.RmsFileServiceImpl
+ * JD-Core Version:    0.6.0
+ */

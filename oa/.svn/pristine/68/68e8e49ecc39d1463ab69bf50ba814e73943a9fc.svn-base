@@ -1,0 +1,1105 @@
+/*      */ package com.xoa.model.book;
+/*      */ 
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.Iterator;
+/*      */ import java.util.List;
+/*      */ 
+/*      */ public class BookManageExample
+/*      */ {
+/*      */   protected String orderByClause;
+/*      */   protected boolean distinct;
+/*      */   protected List<Criteria> oredCriteria;
+/*      */ 
+/*      */   public BookManageExample()
+/*      */   {
+/*   41 */     this.oredCriteria = new ArrayList();
+/*      */   }
+/*      */ 
+/*      */   public void setOrderByClause(String orderByClause)
+/*      */   {
+/*   51 */     this.orderByClause = orderByClause;
+/*      */   }
+/*      */ 
+/*      */   public String getOrderByClause()
+/*      */   {
+/*   61 */     return this.orderByClause;
+/*      */   }
+/*      */ 
+/*      */   public void setDistinct(boolean distinct)
+/*      */   {
+/*   71 */     this.distinct = distinct;
+/*      */   }
+/*      */ 
+/*      */   public boolean isDistinct()
+/*      */   {
+/*   81 */     return this.distinct;
+/*      */   }
+/*      */ 
+/*      */   public List<Criteria> getOredCriteria()
+/*      */   {
+/*   91 */     return this.oredCriteria;
+/*      */   }
+/*      */ 
+/*      */   public void or(Criteria criteria)
+/*      */   {
+/*  101 */     this.oredCriteria.add(criteria);
+/*      */   }
+/*      */ 
+/*      */   public Criteria or()
+/*      */   {
+/*  111 */     Criteria criteria = createCriteriaInternal();
+/*  112 */     this.oredCriteria.add(criteria);
+/*  113 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   public Criteria createCriteria()
+/*      */   {
+/*  123 */     Criteria criteria = createCriteriaInternal();
+/*  124 */     if (this.oredCriteria.size() == 0) {
+/*  125 */       this.oredCriteria.add(criteria);
+/*      */     }
+/*  127 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   protected Criteria createCriteriaInternal()
+/*      */   {
+/*  137 */     Criteria criteria = new Criteria();
+/*  138 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   public void clear()
+/*      */   {
+/*  148 */     this.oredCriteria.clear();
+/*  149 */     this.orderByClause = null;
+/*  150 */     this.distinct = false;
+/*      */   }
+/*      */ 
+/*      */   public static class Criterion
+/*      */   {
+/*      */     private String condition;
+/*      */     private Object value;
+/*      */     private Object secondValue;
+/*      */     private boolean noValue;
+/*      */     private boolean singleValue;
+/*      */     private boolean betweenValue;
+/*      */     private boolean listValue;
+/*      */     private String typeHandler;
+/*      */ 
+/*      */     public String getCondition()
+/*      */     {
+/* 1134 */       return this.condition;
+/*      */     }
+/*      */ 
+/*      */     public Object getValue() {
+/* 1138 */       return this.value;
+/*      */     }
+/*      */ 
+/*      */     public Object getSecondValue() {
+/* 1142 */       return this.secondValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isNoValue() {
+/* 1146 */       return this.noValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isSingleValue() {
+/* 1150 */       return this.singleValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isBetweenValue() {
+/* 1154 */       return this.betweenValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isListValue() {
+/* 1158 */       return this.listValue;
+/*      */     }
+/*      */ 
+/*      */     public String getTypeHandler() {
+/* 1162 */       return this.typeHandler;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition)
+/*      */     {
+/* 1167 */       this.condition = condition;
+/* 1168 */       this.typeHandler = null;
+/* 1169 */       this.noValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, String typeHandler)
+/*      */     {
+/* 1174 */       this.condition = condition;
+/* 1175 */       this.value = value;
+/* 1176 */       this.typeHandler = typeHandler;
+/* 1177 */       if ((value instanceof List))
+/* 1178 */         this.listValue = true;
+/*      */       else
+/* 1180 */         this.singleValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value)
+/*      */     {
+/* 1185 */       this(condition, value, null);
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*      */     {
+/* 1190 */       this.condition = condition;
+/* 1191 */       this.value = value;
+/* 1192 */       this.secondValue = secondValue;
+/* 1193 */       this.typeHandler = typeHandler;
+/* 1194 */       this.betweenValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 1198 */       this(condition, value, secondValue, null);
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public static class Criteria extends BookManageExample.GeneratedCriteria
+/*      */   {
+/*      */   }
+/*      */ 
+/*      */   protected static abstract class GeneratedCriteria
+/*      */   {
+/*      */     protected List<BookManageExample.Criterion> criteria;
+/*      */ 
+/*      */     protected GeneratedCriteria()
+/*      */     {
+/*  164 */       this.criteria = new ArrayList();
+/*      */     }
+/*      */ 
+/*      */     public boolean isValid() {
+/*  168 */       return this.criteria.size() > 0;
+/*      */     }
+/*      */ 
+/*      */     public List<BookManageExample.Criterion> getAllCriteria() {
+/*  172 */       return this.criteria;
+/*      */     }
+/*      */ 
+/*      */     public List<BookManageExample.Criterion> getCriteria() {
+/*  176 */       return this.criteria;
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition) {
+/*  180 */       if (condition == null) {
+/*  181 */         throw new RuntimeException("Value for condition cannot be null");
+/*      */       }
+/*  183 */       this.criteria.add(new BookManageExample.Criterion(condition));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition, Object value, String property) {
+/*  187 */       if (value == null) {
+/*  188 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*      */       }
+/*  190 */       this.criteria.add(new BookManageExample.Criterion(condition, value));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/*  194 */       if ((value1 == null) || (value2 == null)) {
+/*  195 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*      */       }
+/*  197 */       this.criteria.add(new BookManageExample.Criterion(condition, value1, value2));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterionForJDBCDate(String condition, java.util.Date value, String property) {
+/*  201 */       if (value == null) {
+/*  202 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*      */       }
+/*  204 */       addCriterion(condition, new java.sql.Date(value.getTime()), property);
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterionForJDBCDate(String condition, List<java.util.Date> values, String property) {
+/*  208 */       if ((values == null) || (values.size() == 0)) {
+/*  209 */         throw new RuntimeException("Value list for " + property + " cannot be null or empty");
+/*      */       }
+/*  211 */       List dateList = new ArrayList();
+/*  212 */       Iterator iter = values.iterator();
+/*  213 */       while (iter.hasNext()) {
+/*  214 */         dateList.add(new java.sql.Date(((java.util.Date)iter.next()).getTime()));
+/*      */       }
+/*  216 */       addCriterion(condition, dateList, property);
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterionForJDBCDate(String condition, java.util.Date value1, java.util.Date value2, String property) {
+/*  220 */       if ((value1 == null) || (value2 == null)) {
+/*  221 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*      */       }
+/*  223 */       addCriterion(condition, new java.sql.Date(value1.getTime()), new java.sql.Date(value2.getTime()), property);
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowIdIsNull() {
+/*  227 */       addCriterion("BORROW_ID is null");
+/*  228 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowIdIsNotNull() {
+/*  232 */       addCriterion("BORROW_ID is not null");
+/*  233 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowIdEqualTo(Integer value) {
+/*  237 */       addCriterion("BORROW_ID =", value, "borrowId");
+/*  238 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowIdNotEqualTo(Integer value) {
+/*  242 */       addCriterion("BORROW_ID <>", value, "borrowId");
+/*  243 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowIdGreaterThan(Integer value) {
+/*  247 */       addCriterion("BORROW_ID >", value, "borrowId");
+/*  248 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowIdGreaterThanOrEqualTo(Integer value) {
+/*  252 */       addCriterion("BORROW_ID >=", value, "borrowId");
+/*  253 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowIdLessThan(Integer value) {
+/*  257 */       addCriterion("BORROW_ID <", value, "borrowId");
+/*  258 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowIdLessThanOrEqualTo(Integer value) {
+/*  262 */       addCriterion("BORROW_ID <=", value, "borrowId");
+/*  263 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowIdIn(List<Integer> values) {
+/*  267 */       addCriterion("BORROW_ID in", values, "borrowId");
+/*  268 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowIdNotIn(List<Integer> values) {
+/*  272 */       addCriterion("BORROW_ID not in", values, "borrowId");
+/*  273 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowIdBetween(Integer value1, Integer value2) {
+/*  277 */       addCriterion("BORROW_ID between", value1, value2, "borrowId");
+/*  278 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowIdNotBetween(Integer value1, Integer value2) {
+/*  282 */       addCriterion("BORROW_ID not between", value1, value2, "borrowId");
+/*  283 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBuserIdIsNull() {
+/*  287 */       addCriterion("BUSER_ID is null");
+/*  288 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBuserIdIsNotNull() {
+/*  292 */       addCriterion("BUSER_ID is not null");
+/*  293 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBuserIdEqualTo(String value) {
+/*  297 */       addCriterion("BUSER_ID =", value, "buserId");
+/*  298 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBuserIdNotEqualTo(String value) {
+/*  302 */       addCriterion("BUSER_ID <>", value, "buserId");
+/*  303 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBuserIdGreaterThan(String value) {
+/*  307 */       addCriterion("BUSER_ID >", value, "buserId");
+/*  308 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBuserIdGreaterThanOrEqualTo(String value) {
+/*  312 */       addCriterion("BUSER_ID >=", value, "buserId");
+/*  313 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBuserIdLessThan(String value) {
+/*  317 */       addCriterion("BUSER_ID <", value, "buserId");
+/*  318 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBuserIdLessThanOrEqualTo(String value) {
+/*  322 */       addCriterion("BUSER_ID <=", value, "buserId");
+/*  323 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBuserIdLike(String value) {
+/*  327 */       addCriterion("BUSER_ID like", value, "buserId");
+/*  328 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBuserIdNotLike(String value) {
+/*  332 */       addCriterion("BUSER_ID not like", value, "buserId");
+/*  333 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBuserIdIn(List<String> values) {
+/*  337 */       addCriterion("BUSER_ID in", values, "buserId");
+/*  338 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBuserIdNotIn(List<String> values) {
+/*  342 */       addCriterion("BUSER_ID not in", values, "buserId");
+/*  343 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBuserIdBetween(String value1, String value2) {
+/*  347 */       addCriterion("BUSER_ID between", value1, value2, "buserId");
+/*  348 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBuserIdNotBetween(String value1, String value2) {
+/*  352 */       addCriterion("BUSER_ID not between", value1, value2, "buserId");
+/*  353 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookNoIsNull() {
+/*  357 */       addCriterion("BOOK_NO is null");
+/*  358 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookNoIsNotNull() {
+/*  362 */       addCriterion("BOOK_NO is not null");
+/*  363 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookNoEqualTo(String value) {
+/*  367 */       addCriterion("BOOK_NO =", value, "bookNo");
+/*  368 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookNoNotEqualTo(String value) {
+/*  372 */       addCriterion("BOOK_NO <>", value, "bookNo");
+/*  373 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookNoGreaterThan(String value) {
+/*  377 */       addCriterion("BOOK_NO >", value, "bookNo");
+/*  378 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookNoGreaterThanOrEqualTo(String value) {
+/*  382 */       addCriterion("BOOK_NO >=", value, "bookNo");
+/*  383 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookNoLessThan(String value) {
+/*  387 */       addCriterion("BOOK_NO <", value, "bookNo");
+/*  388 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookNoLessThanOrEqualTo(String value) {
+/*  392 */       addCriterion("BOOK_NO <=", value, "bookNo");
+/*  393 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookNoLike(String value) {
+/*  397 */       addCriterion("BOOK_NO like", value, "bookNo");
+/*  398 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookNoNotLike(String value) {
+/*  402 */       addCriterion("BOOK_NO not like", value, "bookNo");
+/*  403 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookNoIn(List<String> values) {
+/*  407 */       addCriterion("BOOK_NO in", values, "bookNo");
+/*  408 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookNoNotIn(List<String> values) {
+/*  412 */       addCriterion("BOOK_NO not in", values, "bookNo");
+/*  413 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookNoBetween(String value1, String value2) {
+/*  417 */       addCriterion("BOOK_NO between", value1, value2, "bookNo");
+/*  418 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookNoNotBetween(String value1, String value2) {
+/*  422 */       addCriterion("BOOK_NO not between", value1, value2, "bookNo");
+/*  423 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowDateIsNull() {
+/*  427 */       addCriterion("BORROW_DATE is null");
+/*  428 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowDateIsNotNull() {
+/*  432 */       addCriterion("BORROW_DATE is not null");
+/*  433 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowDateEqualTo(java.util.Date value) {
+/*  437 */       addCriterionForJDBCDate("BORROW_DATE =", value, "borrowDate");
+/*  438 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowDateNotEqualTo(java.util.Date value) {
+/*  442 */       addCriterionForJDBCDate("BORROW_DATE <>", value, "borrowDate");
+/*  443 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowDateGreaterThan(java.util.Date value) {
+/*  447 */       addCriterionForJDBCDate("BORROW_DATE >", value, "borrowDate");
+/*  448 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowDateGreaterThanOrEqualTo(java.util.Date value) {
+/*  452 */       addCriterionForJDBCDate("BORROW_DATE >=", value, "borrowDate");
+/*  453 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowDateLessThan(java.util.Date value) {
+/*  457 */       addCriterionForJDBCDate("BORROW_DATE <", value, "borrowDate");
+/*  458 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowDateLessThanOrEqualTo(java.util.Date value) {
+/*  462 */       addCriterionForJDBCDate("BORROW_DATE <=", value, "borrowDate");
+/*  463 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowDateIn(List<java.util.Date> values) {
+/*  467 */       addCriterionForJDBCDate("BORROW_DATE in", values, "borrowDate");
+/*  468 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowDateNotIn(List<java.util.Date> values) {
+/*  472 */       addCriterionForJDBCDate("BORROW_DATE not in", values, "borrowDate");
+/*  473 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowDateBetween(java.util.Date value1, java.util.Date value2) {
+/*  477 */       addCriterionForJDBCDate("BORROW_DATE between", value1, value2, "borrowDate");
+/*  478 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBorrowDateNotBetween(java.util.Date value1, java.util.Date value2) {
+/*  482 */       addCriterionForJDBCDate("BORROW_DATE not between", value1, value2, "borrowDate");
+/*  483 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRuserIdIsNull() {
+/*  487 */       addCriterion("RUSER_ID is null");
+/*  488 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRuserIdIsNotNull() {
+/*  492 */       addCriterion("RUSER_ID is not null");
+/*  493 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRuserIdEqualTo(String value) {
+/*  497 */       addCriterion("RUSER_ID =", value, "ruserId");
+/*  498 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRuserIdNotEqualTo(String value) {
+/*  502 */       addCriterion("RUSER_ID <>", value, "ruserId");
+/*  503 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRuserIdGreaterThan(String value) {
+/*  507 */       addCriterion("RUSER_ID >", value, "ruserId");
+/*  508 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRuserIdGreaterThanOrEqualTo(String value) {
+/*  512 */       addCriterion("RUSER_ID >=", value, "ruserId");
+/*  513 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRuserIdLessThan(String value) {
+/*  517 */       addCriterion("RUSER_ID <", value, "ruserId");
+/*  518 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRuserIdLessThanOrEqualTo(String value) {
+/*  522 */       addCriterion("RUSER_ID <=", value, "ruserId");
+/*  523 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRuserIdLike(String value) {
+/*  527 */       addCriterion("RUSER_ID like", value, "ruserId");
+/*  528 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRuserIdNotLike(String value) {
+/*  532 */       addCriterion("RUSER_ID not like", value, "ruserId");
+/*  533 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRuserIdIn(List<String> values) {
+/*  537 */       addCriterion("RUSER_ID in", values, "ruserId");
+/*  538 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRuserIdNotIn(List<String> values) {
+/*  542 */       addCriterion("RUSER_ID not in", values, "ruserId");
+/*  543 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRuserIdBetween(String value1, String value2) {
+/*  547 */       addCriterion("RUSER_ID between", value1, value2, "ruserId");
+/*  548 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRuserIdNotBetween(String value1, String value2) {
+/*  552 */       addCriterion("RUSER_ID not between", value1, value2, "ruserId");
+/*  553 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andReturnDateIsNull() {
+/*  557 */       addCriterion("RETURN_DATE is null");
+/*  558 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andReturnDateIsNotNull() {
+/*  562 */       addCriterion("RETURN_DATE is not null");
+/*  563 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andReturnDateEqualTo(java.util.Date value) {
+/*  567 */       addCriterionForJDBCDate("RETURN_DATE =", value, "returnDate");
+/*  568 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andReturnDateNotEqualTo(java.util.Date value) {
+/*  572 */       addCriterionForJDBCDate("RETURN_DATE <>", value, "returnDate");
+/*  573 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andReturnDateGreaterThan(java.util.Date value) {
+/*  577 */       addCriterionForJDBCDate("RETURN_DATE >", value, "returnDate");
+/*  578 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andReturnDateGreaterThanOrEqualTo(java.util.Date value) {
+/*  582 */       addCriterionForJDBCDate("RETURN_DATE >=", value, "returnDate");
+/*  583 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andReturnDateLessThan(java.util.Date value) {
+/*  587 */       addCriterionForJDBCDate("RETURN_DATE <", value, "returnDate");
+/*  588 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andReturnDateLessThanOrEqualTo(java.util.Date value) {
+/*  592 */       addCriterionForJDBCDate("RETURN_DATE <=", value, "returnDate");
+/*  593 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andReturnDateIn(List<java.util.Date> values) {
+/*  597 */       addCriterionForJDBCDate("RETURN_DATE in", values, "returnDate");
+/*  598 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andReturnDateNotIn(List<java.util.Date> values) {
+/*  602 */       addCriterionForJDBCDate("RETURN_DATE not in", values, "returnDate");
+/*  603 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andReturnDateBetween(java.util.Date value1, java.util.Date value2) {
+/*  607 */       addCriterionForJDBCDate("RETURN_DATE between", value1, value2, "returnDate");
+/*  608 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andReturnDateNotBetween(java.util.Date value1, java.util.Date value2) {
+/*  612 */       addCriterionForJDBCDate("RETURN_DATE not between", value1, value2, "returnDate");
+/*  613 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookStatusIsNull() {
+/*  617 */       addCriterion("BOOK_STATUS is null");
+/*  618 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookStatusIsNotNull() {
+/*  622 */       addCriterion("BOOK_STATUS is not null");
+/*  623 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookStatusEqualTo(String value) {
+/*  627 */       addCriterion("BOOK_STATUS =", value, "bookStatus");
+/*  628 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookStatusNotEqualTo(String value) {
+/*  632 */       addCriterion("BOOK_STATUS <>", value, "bookStatus");
+/*  633 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookStatusGreaterThan(String value) {
+/*  637 */       addCriterion("BOOK_STATUS >", value, "bookStatus");
+/*  638 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookStatusGreaterThanOrEqualTo(String value) {
+/*  642 */       addCriterion("BOOK_STATUS >=", value, "bookStatus");
+/*  643 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookStatusLessThan(String value) {
+/*  647 */       addCriterion("BOOK_STATUS <", value, "bookStatus");
+/*  648 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookStatusLessThanOrEqualTo(String value) {
+/*  652 */       addCriterion("BOOK_STATUS <=", value, "bookStatus");
+/*  653 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookStatusLike(String value) {
+/*  657 */       addCriterion("BOOK_STATUS like", value, "bookStatus");
+/*  658 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookStatusNotLike(String value) {
+/*  662 */       addCriterion("BOOK_STATUS not like", value, "bookStatus");
+/*  663 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookStatusIn(List<String> values) {
+/*  667 */       addCriterion("BOOK_STATUS in", values, "bookStatus");
+/*  668 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookStatusNotIn(List<String> values) {
+/*  672 */       addCriterion("BOOK_STATUS not in", values, "bookStatus");
+/*  673 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookStatusBetween(String value1, String value2) {
+/*  677 */       addCriterion("BOOK_STATUS between", value1, value2, "bookStatus");
+/*  678 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andBookStatusNotBetween(String value1, String value2) {
+/*  682 */       addCriterion("BOOK_STATUS not between", value1, value2, "bookStatus");
+/*  683 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRealReturnTimeIsNull() {
+/*  687 */       addCriterion("REAL_RETURN_TIME is null");
+/*  688 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRealReturnTimeIsNotNull() {
+/*  692 */       addCriterion("REAL_RETURN_TIME is not null");
+/*  693 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRealReturnTimeEqualTo(java.util.Date value) {
+/*  697 */       addCriterionForJDBCDate("REAL_RETURN_TIME =", value, "realReturnTime");
+/*  698 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRealReturnTimeNotEqualTo(java.util.Date value) {
+/*  702 */       addCriterionForJDBCDate("REAL_RETURN_TIME <>", value, "realReturnTime");
+/*  703 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRealReturnTimeGreaterThan(java.util.Date value) {
+/*  707 */       addCriterionForJDBCDate("REAL_RETURN_TIME >", value, "realReturnTime");
+/*  708 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRealReturnTimeGreaterThanOrEqualTo(java.util.Date value) {
+/*  712 */       addCriterionForJDBCDate("REAL_RETURN_TIME >=", value, "realReturnTime");
+/*  713 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRealReturnTimeLessThan(java.util.Date value) {
+/*  717 */       addCriterionForJDBCDate("REAL_RETURN_TIME <", value, "realReturnTime");
+/*  718 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRealReturnTimeLessThanOrEqualTo(java.util.Date value) {
+/*  722 */       addCriterionForJDBCDate("REAL_RETURN_TIME <=", value, "realReturnTime");
+/*  723 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRealReturnTimeIn(List<java.util.Date> values) {
+/*  727 */       addCriterionForJDBCDate("REAL_RETURN_TIME in", values, "realReturnTime");
+/*  728 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRealReturnTimeNotIn(List<java.util.Date> values) {
+/*  732 */       addCriterionForJDBCDate("REAL_RETURN_TIME not in", values, "realReturnTime");
+/*  733 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRealReturnTimeBetween(java.util.Date value1, java.util.Date value2) {
+/*  737 */       addCriterionForJDBCDate("REAL_RETURN_TIME between", value1, value2, "realReturnTime");
+/*  738 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRealReturnTimeNotBetween(java.util.Date value1, java.util.Date value2) {
+/*  742 */       addCriterionForJDBCDate("REAL_RETURN_TIME not between", value1, value2, "realReturnTime");
+/*  743 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andDeleteFlagIsNull() {
+/*  747 */       addCriterion("DELETE_FLAG is null");
+/*  748 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andDeleteFlagIsNotNull() {
+/*  752 */       addCriterion("DELETE_FLAG is not null");
+/*  753 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andDeleteFlagEqualTo(String value) {
+/*  757 */       addCriterion("DELETE_FLAG =", value, "deleteFlag");
+/*  758 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andDeleteFlagNotEqualTo(String value) {
+/*  762 */       addCriterion("DELETE_FLAG <>", value, "deleteFlag");
+/*  763 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andDeleteFlagGreaterThan(String value) {
+/*  767 */       addCriterion("DELETE_FLAG >", value, "deleteFlag");
+/*  768 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andDeleteFlagGreaterThanOrEqualTo(String value) {
+/*  772 */       addCriterion("DELETE_FLAG >=", value, "deleteFlag");
+/*  773 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andDeleteFlagLessThan(String value) {
+/*  777 */       addCriterion("DELETE_FLAG <", value, "deleteFlag");
+/*  778 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andDeleteFlagLessThanOrEqualTo(String value) {
+/*  782 */       addCriterion("DELETE_FLAG <=", value, "deleteFlag");
+/*  783 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andDeleteFlagLike(String value) {
+/*  787 */       addCriterion("DELETE_FLAG like", value, "deleteFlag");
+/*  788 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andDeleteFlagNotLike(String value) {
+/*  792 */       addCriterion("DELETE_FLAG not like", value, "deleteFlag");
+/*  793 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andDeleteFlagIn(List<String> values) {
+/*  797 */       addCriterion("DELETE_FLAG in", values, "deleteFlag");
+/*  798 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andDeleteFlagNotIn(List<String> values) {
+/*  802 */       addCriterion("DELETE_FLAG not in", values, "deleteFlag");
+/*  803 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andDeleteFlagBetween(String value1, String value2) {
+/*  807 */       addCriterion("DELETE_FLAG between", value1, value2, "deleteFlag");
+/*  808 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andDeleteFlagNotBetween(String value1, String value2) {
+/*  812 */       addCriterion("DELETE_FLAG not between", value1, value2, "deleteFlag");
+/*  813 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andStatusIsNull() {
+/*  817 */       addCriterion("STATUS is null");
+/*  818 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andStatusIsNotNull() {
+/*  822 */       addCriterion("STATUS is not null");
+/*  823 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andStatusEqualTo(String value) {
+/*  827 */       addCriterion("STATUS =", value, "status");
+/*  828 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andStatusNotEqualTo(String value) {
+/*  832 */       addCriterion("STATUS <>", value, "status");
+/*  833 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andStatusGreaterThan(String value) {
+/*  837 */       addCriterion("STATUS >", value, "status");
+/*  838 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andStatusGreaterThanOrEqualTo(String value) {
+/*  842 */       addCriterion("STATUS >=", value, "status");
+/*  843 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andStatusLessThan(String value) {
+/*  847 */       addCriterion("STATUS <", value, "status");
+/*  848 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andStatusLessThanOrEqualTo(String value) {
+/*  852 */       addCriterion("STATUS <=", value, "status");
+/*  853 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andStatusLike(String value) {
+/*  857 */       addCriterion("STATUS like", value, "status");
+/*  858 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andStatusNotLike(String value) {
+/*  862 */       addCriterion("STATUS not like", value, "status");
+/*  863 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andStatusIn(List<String> values) {
+/*  867 */       addCriterion("STATUS in", values, "status");
+/*  868 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andStatusNotIn(List<String> values) {
+/*  872 */       addCriterion("STATUS not in", values, "status");
+/*  873 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andStatusBetween(String value1, String value2) {
+/*  877 */       addCriterion("STATUS between", value1, value2, "status");
+/*  878 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andStatusNotBetween(String value1, String value2) {
+/*  882 */       addCriterion("STATUS not between", value1, value2, "status");
+/*  883 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRegFlagIsNull() {
+/*  887 */       addCriterion("REG_FLAG is null");
+/*  888 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRegFlagIsNotNull() {
+/*  892 */       addCriterion("REG_FLAG is not null");
+/*  893 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRegFlagEqualTo(String value) {
+/*  897 */       addCriterion("REG_FLAG =", value, "regFlag");
+/*  898 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRegFlagNotEqualTo(String value) {
+/*  902 */       addCriterion("REG_FLAG <>", value, "regFlag");
+/*  903 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRegFlagGreaterThan(String value) {
+/*  907 */       addCriterion("REG_FLAG >", value, "regFlag");
+/*  908 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRegFlagGreaterThanOrEqualTo(String value) {
+/*  912 */       addCriterion("REG_FLAG >=", value, "regFlag");
+/*  913 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRegFlagLessThan(String value) {
+/*  917 */       addCriterion("REG_FLAG <", value, "regFlag");
+/*  918 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRegFlagLessThanOrEqualTo(String value) {
+/*  922 */       addCriterion("REG_FLAG <=", value, "regFlag");
+/*  923 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRegFlagLike(String value) {
+/*  927 */       addCriterion("REG_FLAG like", value, "regFlag");
+/*  928 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRegFlagNotLike(String value) {
+/*  932 */       addCriterion("REG_FLAG not like", value, "regFlag");
+/*  933 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRegFlagIn(List<String> values) {
+/*  937 */       addCriterion("REG_FLAG in", values, "regFlag");
+/*  938 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRegFlagNotIn(List<String> values) {
+/*  942 */       addCriterion("REG_FLAG not in", values, "regFlag");
+/*  943 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRegFlagBetween(String value1, String value2) {
+/*  947 */       addCriterion("REG_FLAG between", value1, value2, "regFlag");
+/*  948 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRegFlagNotBetween(String value1, String value2) {
+/*  952 */       addCriterion("REG_FLAG not between", value1, value2, "regFlag");
+/*  953 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRenewFlagIsNull() {
+/*  957 */       addCriterion("RENEW_FLAG is null");
+/*  958 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRenewFlagIsNotNull() {
+/*  962 */       addCriterion("RENEW_FLAG is not null");
+/*  963 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRenewFlagEqualTo(String value) {
+/*  967 */       addCriterion("RENEW_FLAG =", value, "renewFlag");
+/*  968 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRenewFlagNotEqualTo(String value) {
+/*  972 */       addCriterion("RENEW_FLAG <>", value, "renewFlag");
+/*  973 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRenewFlagGreaterThan(String value) {
+/*  977 */       addCriterion("RENEW_FLAG >", value, "renewFlag");
+/*  978 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRenewFlagGreaterThanOrEqualTo(String value) {
+/*  982 */       addCriterion("RENEW_FLAG >=", value, "renewFlag");
+/*  983 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRenewFlagLessThan(String value) {
+/*  987 */       addCriterion("RENEW_FLAG <", value, "renewFlag");
+/*  988 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRenewFlagLessThanOrEqualTo(String value) {
+/*  992 */       addCriterion("RENEW_FLAG <=", value, "renewFlag");
+/*  993 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRenewFlagLike(String value) {
+/*  997 */       addCriterion("RENEW_FLAG like", value, "renewFlag");
+/*  998 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRenewFlagNotLike(String value) {
+/* 1002 */       addCriterion("RENEW_FLAG not like", value, "renewFlag");
+/* 1003 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRenewFlagIn(List<String> values) {
+/* 1007 */       addCriterion("RENEW_FLAG in", values, "renewFlag");
+/* 1008 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRenewFlagNotIn(List<String> values) {
+/* 1012 */       addCriterion("RENEW_FLAG not in", values, "renewFlag");
+/* 1013 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRenewFlagBetween(String value1, String value2) {
+/* 1017 */       addCriterion("RENEW_FLAG between", value1, value2, "renewFlag");
+/* 1018 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andRenewFlagNotBetween(String value1, String value2) {
+/* 1022 */       addCriterion("RENEW_FLAG not between", value1, value2, "renewFlag");
+/* 1023 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andWhoConfirmIsNull() {
+/* 1027 */       addCriterion("WHO_CONFIRM is null");
+/* 1028 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andWhoConfirmIsNotNull() {
+/* 1032 */       addCriterion("WHO_CONFIRM is not null");
+/* 1033 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andWhoConfirmEqualTo(String value) {
+/* 1037 */       addCriterion("WHO_CONFIRM =", value, "whoConfirm");
+/* 1038 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andWhoConfirmNotEqualTo(String value) {
+/* 1042 */       addCriterion("WHO_CONFIRM <>", value, "whoConfirm");
+/* 1043 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andWhoConfirmGreaterThan(String value) {
+/* 1047 */       addCriterion("WHO_CONFIRM >", value, "whoConfirm");
+/* 1048 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andWhoConfirmGreaterThanOrEqualTo(String value) {
+/* 1052 */       addCriterion("WHO_CONFIRM >=", value, "whoConfirm");
+/* 1053 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andWhoConfirmLessThan(String value) {
+/* 1057 */       addCriterion("WHO_CONFIRM <", value, "whoConfirm");
+/* 1058 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andWhoConfirmLessThanOrEqualTo(String value) {
+/* 1062 */       addCriterion("WHO_CONFIRM <=", value, "whoConfirm");
+/* 1063 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andWhoConfirmLike(String value) {
+/* 1067 */       addCriterion("WHO_CONFIRM like", value, "whoConfirm");
+/* 1068 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andWhoConfirmNotLike(String value) {
+/* 1072 */       addCriterion("WHO_CONFIRM not like", value, "whoConfirm");
+/* 1073 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andWhoConfirmIn(List<String> values) {
+/* 1077 */       addCriterion("WHO_CONFIRM in", values, "whoConfirm");
+/* 1078 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andWhoConfirmNotIn(List<String> values) {
+/* 1082 */       addCriterion("WHO_CONFIRM not in", values, "whoConfirm");
+/* 1083 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andWhoConfirmBetween(String value1, String value2) {
+/* 1087 */       addCriterion("WHO_CONFIRM between", value1, value2, "whoConfirm");
+/* 1088 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public BookManageExample.Criteria andWhoConfirmNotBetween(String value1, String value2) {
+/* 1092 */       addCriterion("WHO_CONFIRM not between", value1, value2, "whoConfirm");
+/* 1093 */       return (BookManageExample.Criteria)this;
+/*      */     }
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.book.BookManageExample
+ * JD-Core Version:    0.6.0
+ */

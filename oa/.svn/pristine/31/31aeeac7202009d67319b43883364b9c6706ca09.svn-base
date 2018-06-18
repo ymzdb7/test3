@@ -1,0 +1,126 @@
+/*     */ package com.xoa.controller.event;
+/*     */ 
+/*     */ import com.xoa.model.event.TimeLine;
+/*     */ import com.xoa.model.event.TimeLinePostDept;
+/*     */ import com.xoa.model.event.TimeLinePostRole;
+/*     */ import com.xoa.model.event.TimeLinePostUser;
+/*     */ import com.xoa.model.event.TimeLineViewDept;
+/*     */ import com.xoa.model.event.TimeLineViewRole;
+/*     */ import com.xoa.model.event.TimeLineViewUser;
+/*     */ import com.xoa.service.event.TimeLineService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.UnsupportedEncodingException;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ import org.springframework.web.bind.annotation.RestController;
+/*     */ 
+/*     */ @RestController
+/*     */ @RequestMapping({"/timeLine"})
+/*     */ public class TimeLineController
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   TimeLineService timeLineService;
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getDetailByUuid"})
+/*     */   public ToJson<TimeLine> getDetailByUuid(HttpServletRequest request, String uuid)
+/*     */   {
+/*  39 */     return this.timeLineService.getDetailByUuid(request, uuid);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getTimeLineByUuid"})
+/*     */   public ToJson<TimeLine> getTimeLineByUuid(HttpServletRequest request, String uuid)
+/*     */   {
+/*  53 */     return this.timeLineService.getTimeLineByUuid(request, uuid);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getTimeLineCode"})
+/*     */   public ToJson<Object> getTimeLineCode(HttpServletRequest request, String uuid)
+/*     */   {
+/*  67 */     return this.timeLineService.getTimelineCode(request, uuid);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getInforList"})
+/*     */   public ToJson<TimeLine> getInforList(HttpServletRequest request, TimeLine timeLine)
+/*     */   {
+/*  81 */     return this.timeLineService.getInforList(request, timeLine);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getInforList1"})
+/*     */   public ToJson<TimeLine> getInforList1(HttpServletRequest request, TimeLine timeLine)
+/*     */   {
+/*  95 */     return this.timeLineService.getInforList1(request, timeLine);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/updateData"})
+/*     */   public ToJson<TimeLine> updateData(HttpServletRequest request, TimeLine timeLine, TimeLinePostDept timeLinePostDept, TimeLinePostRole timeLinePostRole, TimeLinePostUser timeLinePostUser, TimeLineViewDept timeLineViewDept, TimeLineViewRole timeLineViewRole, TimeLineViewUser timeLineViewUser, String post1, String post2, String post3, String view1, String view2, String view3)
+/*     */   {
+/* 118 */     return this.timeLineService.updateData(request, timeLine, timeLinePostDept, timeLinePostRole, timeLinePostUser, timeLineViewDept, timeLineViewRole, timeLineViewUser, post1, post2, post3, view1, view2, view3);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/addData"})
+/*     */   public ToJson<TimeLine> addData(HttpServletRequest request, TimeLine timeLine, String post1, String post2, String post3, String view1, String view2, String view3)
+/*     */   {
+/* 138 */     return this.timeLineService.addData(request, timeLine, post1, post2, post3, view1, view2, view3);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deleteByUuid"})
+/*     */   public ToJson<TimeLine> deleteByUuid(HttpServletRequest request, String uuid)
+/*     */   {
+/* 152 */     return this.timeLineService.deleteByUuid(request, uuid);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getTimelines"})
+/*     */   public ToJson<TimeLine> getTimelines(HttpServletRequest request)
+/*     */     throws UnsupportedEncodingException
+/*     */   {
+/* 165 */     ToJson json = new ToJson();
+/* 166 */     json.setObj(this.timeLineService.getTimelines(request));
+/* 167 */     json.setFlag(0);
+/* 168 */     json.setMsg("ok");
+/* 169 */     return json;
+/*     */   }
+/* 175 */   @ResponseBody
+/*     */   @RequestMapping({"/getPageTimelines"})
+/*     */   public ToJson<TimeLine> getPageTimelines(HttpServletRequest request, PageParams page, String title, String tag) throws UnsupportedEncodingException { ToJson json = new ToJson();
+/* 176 */     Map map = new HashMap();
+/* 177 */     map.put("title", title);
+/* 178 */     map.put("tag", tag);
+/* 179 */     json.setObj(this.timeLineService.getPageTimelines(request, page, map));
+/* 180 */     json.setFlag(0);
+/* 181 */     json.setMsg("ok");
+/* 182 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/postPageTimelines"})
+/*     */   public ToJson<TimeLine> postPageTimelines(HttpServletRequest request, PageParams page, String title, String tag)
+/*     */     throws UnsupportedEncodingException
+/*     */   {
+/* 195 */     ToJson json = new ToJson();
+/* 196 */     Map map = new HashMap();
+/* 197 */     json.setObj(this.timeLineService.postTimelines(request, page, null));
+/* 198 */     json.setFlag(0);
+/* 199 */     json.setMsg("ok");
+/* 200 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.event.TimeLineController
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,170 @@
+/*     */ package com.xoa.util.netdisk;
+/*     */ 
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import java.util.Map;
+/*     */ 
+/*     */ public class CheckAll
+/*     */ {
+/*     */   public static boolean checkDeptPriv(String DeptId, String deptIdOfuser_Id)
+/*     */   {
+/*  25 */     if (("ALL_DEPT".equals(DeptId)) || ("ALL_DEPT" == DeptId)) {
+/*  26 */       return true;
+/*     */     }
+/*     */ 
+/*  29 */     if ((DeptId != null) && (!"".equals(DeptId))) {
+/*  30 */       String[] deptIds = DeptId.split(",");
+/*  31 */       for (int i = 0; i < deptIds.length; i++) {
+/*  32 */         if (deptIdOfuser_Id.equals(deptIds[i])) {
+/*  33 */           return true;
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/*  38 */     return false;
+/*     */   }
+/*     */ 
+/*     */   public static boolean checkUserPriv(String userPriv, String userPrivOfuser_Id)
+/*     */   {
+/*  53 */     if ((userPriv != null) && (!"".equals(userPriv))) {
+/*  54 */       String[] deptIds = userPriv.split(",");
+/*  55 */       for (int i = 0; i < deptIds.length; i++) {
+/*  56 */         if (deptIds[i].equals(userPrivOfuser_Id)) {
+/*  57 */           return true;
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/*  62 */     return false;
+/*     */   }
+/*     */ 
+/*     */   public static boolean checkUserId(String userId, String userIdOfuser_Id)
+/*     */   {
+/*  76 */     if ((userId != null) && (!"".equals(userId))) {
+/*  77 */       String[] deptIds = userId.split(",");
+/*  78 */       for (int i = 0; i < deptIds.length; i++) {
+/*  79 */         if (deptIds[i].equals(userIdOfuser_Id)) {
+/*  80 */           return true;
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/*  85 */     return false;
+/*     */   }
+/*     */ 
+/*     */   public static boolean checkAll(String checkString, Map<String, Object> map)
+/*     */   {
+/*  90 */     if (StringUtils.checkNull(checkString).booleanValue()) {
+/*  91 */       return false;
+/*     */     }
+/*  93 */     String[] checkStrings = checkString.split("\\|");
+/*  94 */     if (checkStrings.length == 0) {
+/*  95 */       return false;
+/*     */     }
+/*     */ 
+/*  98 */     if (checkStrings.length == 1) {
+/*  99 */       if ("ALL_DEPT".equals(checkStrings)) {
+/* 100 */         return true;
+/*     */       }
+/*     */ 
+/* 103 */       String[] checkDept = checkStrings[0].split(",");
+/* 104 */       if (!StringUtils.checkNull(checkDept[0]).booleanValue()) {
+/* 105 */         for (int i = 0; i < checkDept.length; i++)
+/*     */         {
+/* 107 */           if (map.get("deptId") != null) {
+/* 108 */             String depId = map.get("deptId").toString();
+/* 109 */             if (checkDeptPriv(checkDept[i], depId))
+/* 110 */               return true;
+/*     */           }
+/*     */           else {
+/* 113 */             return false;
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 119 */     if (checkStrings.length == 2) {
+/* 120 */       String[] checkDept = checkStrings[0].split(",");
+/* 121 */       if (!StringUtils.checkNull(checkDept[0]).booleanValue()) {
+/* 122 */         for (int i = 0; i < checkDept.length; i++)
+/*     */         {
+/* 124 */           if (map.get("deptId") != null) {
+/* 125 */             String depId = map.get("deptId").toString();
+/* 126 */             if (checkDeptPriv(checkDept[i], depId))
+/* 127 */               return true;
+/*     */           }
+/*     */           else {
+/* 130 */             return false;
+/*     */           }
+/*     */         }
+/*     */       }
+/* 134 */       String[] checkUserPriv = checkStrings[1].split(",");
+/* 135 */       if (!StringUtils.checkNull(checkUserPriv[0]).booleanValue()) {
+/* 136 */         for (int i = 0; i < checkUserPriv.length; i++)
+/*     */         {
+/* 138 */           if (map.get("userPriv") != null) {
+/* 139 */             String userPrivId = map.get("userPriv").toString();
+/* 140 */             if (checkUserPriv(checkUserPriv[i], userPrivId))
+/* 141 */               return true;
+/*     */           }
+/*     */           else {
+/* 144 */             return false;
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 150 */     if (checkStrings.length == 3) {
+/* 151 */       String[] checkDept = checkStrings[0].split(",");
+/* 152 */       if (!StringUtils.checkNull(checkDept[0]).booleanValue()) {
+/* 153 */         for (int i = 0; i < checkDept.length; i++) {
+/* 154 */           if (map.get("deptId") != null) {
+/* 155 */             String depId = map.get("deptId").toString();
+/* 156 */             if (checkDeptPriv(checkDept[i], depId))
+/* 157 */               return true;
+/*     */           }
+/*     */           else {
+/* 160 */             return false;
+/*     */           }
+/*     */         }
+/*     */       }
+/* 164 */       String[] checkUserPriv = checkStrings[1].split(",");
+/* 165 */       if (!StringUtils.checkNull(checkUserPriv[0]).booleanValue()) {
+/* 166 */         for (int i = 0; i < checkUserPriv.length; i++)
+/*     */         {
+/* 168 */           if (map.get("userPriv") != null) {
+/* 169 */             String userPrivId = map.get("userPriv").toString();
+/* 170 */             if (checkUserPriv(checkUserPriv[i], userPrivId))
+/* 171 */               return true;
+/*     */           }
+/*     */           else {
+/* 174 */             return false;
+/*     */           }
+/*     */         }
+/*     */       }
+/* 178 */       String[] checkUserId = checkStrings[2].split(",");
+/* 179 */       if (!StringUtils.checkNull(checkUserId[0]).booleanValue()) {
+/* 180 */         for (int i = 0; i < checkUserId.length; i++)
+/*     */         {
+/* 182 */           if (map.get("userId") != null) {
+/* 183 */             String userId = map.get("userId").toString();
+/* 184 */             if (checkUserId(checkUserId[i], userId))
+/* 185 */               return true;
+/*     */           }
+/*     */           else
+/*     */           {
+/* 189 */             return false;
+/*     */           }
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 197 */     return false;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.netdisk.CheckAll
+ * JD-Core Version:    0.6.0
+ */

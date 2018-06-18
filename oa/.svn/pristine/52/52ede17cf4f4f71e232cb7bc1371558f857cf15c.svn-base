@@ -1,0 +1,125 @@
+/*     */ package com.xoa.service.timedTaskManagement.imp;
+/*     */ 
+/*     */ import com.xoa.dao.timedTaskManagement.TimedTaskManagementMapper;
+/*     */ import com.xoa.dao.timedTaskManagement.TimedTaskRecordMapper;
+/*     */ import com.xoa.model.timedTaskManagement.TimedTaskManagement;
+/*     */ import com.xoa.service.timedTaskManagement.TimedTaskManagementService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class TimedTaskManagementServiceImp
+/*     */   implements TimedTaskManagementService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private TimedTaskManagementMapper timedTaskManagementMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private TimedTaskRecordMapper timedTaskRecordMapper;
+/*     */ 
+/*     */   public ToJson selectTimedTask()
+/*     */   {
+/*  30 */     SimpleDateFormat dft = new SimpleDateFormat("HH:mm:ss");
+/*  31 */     ToJson json = new ToJson();
+/*  32 */     List timeTos = new ArrayList();
+/*  33 */     TimedTaskManagement timedTaskManagement = null;
+/*  34 */     TimedTaskManagement timedTaskManagement1 = null;
+/*  35 */     TimedTaskManagement timedTaskManagement2 = null;
+/*     */ 
+/*  37 */     Integer[] ttmids = this.timedTaskManagementMapper.selectTimedTaskId();
+/*  38 */     for (int i = 0; i < ttmids.length; i++) {
+/*  39 */       List list = this.timedTaskManagementMapper.selectTimedTask(ttmids[i]);
+/*  40 */       timedTaskManagement1 = (TimedTaskManagement)list.get(0);
+/*  41 */       for (int t = 0; t < list.size(); t++) {
+/*     */         try {
+/*  43 */           timedTaskManagement2 = (TimedTaskManagement)list.get(t + 1);
+/*  44 */           if (!dft.parse(timedTaskManagement1.getExecutionTimeat()).after(dft.parse(timedTaskManagement2.getExecutionTimeat())))
+/*     */           {
+/*  46 */             timedTaskManagement1 = timedTaskManagement2;
+/*     */           }
+/*  48 */           timedTaskManagement = timedTaskManagement1;
+/*     */         } catch (Exception e) {
+/*  50 */           e.printStackTrace();
+/*     */         }
+/*     */       }
+/*     */ 
+/*  54 */       timeTos.add(timedTaskManagement);
+/*     */     }
+/*  56 */     if (timeTos.size() > 0) {
+/*  57 */       json.setObj(timeTos);
+/*  58 */       json.setMsg("ok");
+/*  59 */       json.setFlag(0);
+/*  60 */       return json;
+/*     */     }
+/*  62 */     json.setMsg("err");
+/*  63 */     json.setFlag(0);
+/*  64 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public TimedTaskManagement selectTimedTaskOne(Integer tmmid, Integer taskType)
+/*     */   {
+/*  77 */     SimpleDateFormat dft = new SimpleDateFormat("HH:mm:ss");
+/*  78 */     TimedTaskManagement timedTaskManagement = null;
+/*  79 */     TimedTaskManagement timedTaskManagement1 = null;
+/*  80 */     TimedTaskManagement timedTaskManagement2 = null;
+/*  81 */     Map map = new HashMap();
+/*  82 */     map.put("tmmid", tmmid);
+/*  83 */     map.put("taskType", taskType);
+/*     */ 
+/*  85 */     List timedTaskRecordlist = this.timedTaskRecordMapper.selectTimedTaskTypese(tmmid);
+/*  86 */     if (timedTaskRecordlist.size() > 1) {
+/*  87 */       List list = this.timedTaskManagementMapper.selectTimedTaskType(map);
+/*  88 */       timedTaskManagement1 = (TimedTaskManagement)list.get(0);
+/*  89 */       for (int t = 0; t < list.size(); t++)
+/*     */         try {
+/*  91 */           timedTaskManagement2 = (TimedTaskManagement)list.get(t + 1);
+/*  92 */           if (!dft.parse(timedTaskManagement1.getExecutionTimeat()).after(dft.parse(timedTaskManagement2.getExecutionTimeat())))
+/*     */           {
+/*  94 */             timedTaskManagement1 = timedTaskManagement2;
+/*     */           }
+/*  96 */           timedTaskManagement = timedTaskManagement1;
+/*     */         } catch (Exception e) {
+/*  98 */           e.printStackTrace();
+/*     */         }
+/*     */     }
+/* 101 */     else if (timedTaskRecordlist.size() == 1) {
+/* 102 */       List list = this.timedTaskManagementMapper.selectTimedTaskType(map);
+/* 103 */       timedTaskManagement = (TimedTaskManagement)list.get(0);
+/*     */     }
+/*     */ 
+/* 106 */     return timedTaskManagement;
+/*     */   }
+/*     */ 
+/*     */   public List<TimedTaskManagement> selectTimeManagerTo()
+/*     */   {
+/* 118 */     return this.timedTaskManagementMapper.selectTimeManager();
+/*     */   }
+/*     */ 
+/*     */   public Integer[] selectTimedTaskId()
+/*     */   {
+/* 129 */     return this.timedTaskManagementMapper.selectTimedTaskId();
+/*     */   }
+/*     */ 
+/*     */   public TimedTaskManagement selectTimedTaskKey(Integer ttmId)
+/*     */   {
+/* 139 */     return this.timedTaskManagementMapper.selectTimedTaskKey(ttmId);
+/*     */   }
+/*     */ 
+/*     */   public int updateTimedTaskManagement(Map<String, Object> map)
+/*     */   {
+/* 151 */     return this.timedTaskManagementMapper.updateTimedTaskManagement(map);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.timedTaskManagement.imp.TimedTaskManagementServiceImp
+ * JD-Core Version:    0.6.0
+ */

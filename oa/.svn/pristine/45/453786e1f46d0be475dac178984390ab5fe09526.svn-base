@@ -1,0 +1,357 @@
+package com.myoa.model.flowxml;
+
+import java.util.Date;
+
+public class FlowTypeXml {
+	Integer FLOW_ID;
+	String FLOW_NAME;
+	Integer FORM_ID;
+	String FLOW_DOC;
+	String FLOW_TYPE;
+	String MANAGE_USER;
+	Integer FLOW_NO;
+	Integer FLOW_SORT;
+	String AUTO_NAME;
+	Integer AUTO_NUM;
+	Integer AUTO_LEN;
+	String QUERY_USER;
+	String FLOW_DESC;
+	String AUTO_EDIT;
+	String NEW_USER;
+	String QUERY_ITEM;
+	String COMMENT_PRIV;
+	Integer DEPT_ID;
+	String FREE_PRESET;
+	String FREE_OTHER;
+	String QUERY_USER_DEPT;
+	String MANAGE_USER_DEPT;
+	String EDIT_PRIV;
+	String LIST_FLDS_STR;
+	String ALLOW_PRE_SET;
+	String FORCE_PRE_SET;
+	String MODEL_ID;
+	String MODEL_NAME;
+	String ATTACHMENT_ID;
+	String ATTACHMENT_NAME;
+	String VIEW_USER;
+	String VIEW_DEPT;
+	String VIEW_ROLE;
+	Integer VIEW_PRIV;
+	Integer IS_VERSION;
+	String FLOW_ACTION;
+	Integer AUTO_NUM_YEAR;
+	Integer AUTO_NUM_MONTH;
+	Date AUTO_NUM_TIME;
+
+	public Integer getFLOW_ID() {
+		return this.FLOW_ID;
+	}
+
+	public void setFLOW_ID(Integer FLOW_ID) {
+		this.FLOW_ID = FLOW_ID;
+	}
+
+	public String getFLOW_NAME() {
+		return this.FLOW_NAME;
+	}
+
+	public void setFLOW_NAME(String FLOW_NAME) {
+		this.FLOW_NAME = FLOW_NAME;
+	}
+
+	public Integer getFORM_ID() {
+		return this.FORM_ID;
+	}
+
+	public void setFORM_ID(Integer FORM_ID) {
+		this.FORM_ID = FORM_ID;
+	}
+
+	public String getFLOW_DOC() {
+		return this.FLOW_DOC;
+	}
+
+	public void setFLOW_DOC(String FLOW_DOC) {
+		this.FLOW_DOC = FLOW_DOC;
+	}
+
+	public String getFLOW_TYPE() {
+		return this.FLOW_TYPE;
+	}
+
+	public void setFLOW_TYPE(String FLOW_TYPE) {
+		this.FLOW_TYPE = FLOW_TYPE;
+	}
+
+	public String getMANAGE_USER() {
+		return this.MANAGE_USER;
+	}
+
+	public void setMANAGE_USER(String MANAGE_USER) {
+		this.MANAGE_USER = MANAGE_USER;
+	}
+
+	public Integer getFLOW_NO() {
+		return this.FLOW_NO;
+	}
+
+	public void setFLOW_NO(Integer FLOW_NO) {
+		this.FLOW_NO = FLOW_NO;
+	}
+
+	public Integer getFLOW_SORT() {
+		return this.FLOW_SORT;
+	}
+
+	public void setFLOW_SORT(Integer FLOW_SORT) {
+		this.FLOW_SORT = FLOW_SORT;
+	}
+
+	public String getAUTO_NAME() {
+		return this.AUTO_NAME;
+	}
+
+	public void setAUTO_NAME(String AUTO_NAME) {
+		this.AUTO_NAME = AUTO_NAME;
+	}
+
+	public Integer getAUTO_NUM() {
+		return this.AUTO_NUM;
+	}
+
+	public void setAUTO_NUM(Integer AUTO_NUM) {
+		this.AUTO_NUM = AUTO_NUM;
+	}
+
+	public Integer getAUTO_LEN() {
+		return this.AUTO_LEN;
+	}
+
+	public void setAUTO_LEN(Integer AUTO_LEN) {
+		this.AUTO_LEN = AUTO_LEN;
+	}
+
+	public String getQUERY_USER() {
+		return this.QUERY_USER;
+	}
+
+	public void setQUERY_USER(String QUERY_USER) {
+		this.QUERY_USER = QUERY_USER;
+	}
+
+	public String getFLOW_DESC() {
+		return this.FLOW_DESC;
+	}
+
+	public void setFLOW_DESC(String FLOW_DESC) {
+		this.FLOW_DESC = FLOW_DESC;
+	}
+
+	public String getAUTO_EDIT() {
+		return this.AUTO_EDIT;
+	}
+
+	public void setAUTO_EDIT(String AUTO_EDIT) {
+		this.AUTO_EDIT = AUTO_EDIT;
+	}
+
+	public String getNEW_USER() {
+		return this.NEW_USER;
+	}
+
+	public void setNEW_USER(String NEW_USER) {
+		this.NEW_USER = NEW_USER;
+	}
+
+	public String getQUERY_ITEM() {
+		return this.QUERY_ITEM;
+	}
+
+	public void setQUERY_ITEM(String QUERY_ITEM) {
+		this.QUERY_ITEM = QUERY_ITEM;
+	}
+
+	public String getCOMMENT_PRIV() {
+		return this.COMMENT_PRIV;
+	}
+
+	public void setCOMMENT_PRIV(String COMMENT_PRIV) {
+		this.COMMENT_PRIV = COMMENT_PRIV;
+	}
+
+	public Integer getDEPT_ID() {
+		return this.DEPT_ID;
+	}
+
+	public void setDEPT_ID(Integer DEPT_ID) {
+		this.DEPT_ID = DEPT_ID;
+	}
+
+	public String getFREE_PRESET() {
+		return this.FREE_PRESET;
+	}
+
+	public void setFREE_PRESET(String FREE_PRESET) {
+		this.FREE_PRESET = FREE_PRESET;
+	}
+
+	public String getFREE_OTHER() {
+		return this.FREE_OTHER;
+	}
+
+	public void setFREE_OTHER(String FREE_OTHER) {
+		this.FREE_OTHER = FREE_OTHER;
+	}
+
+	public String getQUERY_USER_DEPT() {
+		return this.QUERY_USER_DEPT;
+	}
+
+	public void setQUERY_USER_DEPT(String QUERY_USER_DEPT) {
+		this.QUERY_USER_DEPT = QUERY_USER_DEPT;
+	}
+
+	public String getMANAGE_USER_DEPT() {
+		return this.MANAGE_USER_DEPT;
+	}
+
+	public void setMANAGE_USER_DEPT(String MANAGE_USER_DEPT) {
+		this.MANAGE_USER_DEPT = MANAGE_USER_DEPT;
+	}
+
+	public String getEDIT_PRIV() {
+		return this.EDIT_PRIV;
+	}
+
+	public void setEDIT_PRIV(String EDIT_PRIV) {
+		this.EDIT_PRIV = EDIT_PRIV;
+	}
+
+	public String getLIST_FLDS_STR() {
+		return this.LIST_FLDS_STR;
+	}
+
+	public void setLIST_FLDS_STR(String LIST_FLDS_STR) {
+		this.LIST_FLDS_STR = LIST_FLDS_STR;
+	}
+
+	public String getALLOW_PRE_SET() {
+		return this.ALLOW_PRE_SET;
+	}
+
+	public void setALLOW_PRE_SET(String ALLOW_PRE_SET) {
+		this.ALLOW_PRE_SET = ALLOW_PRE_SET;
+	}
+
+	public String getFORCE_PRE_SET() {
+		return this.FORCE_PRE_SET;
+	}
+
+	public void setFORCE_PRE_SET(String FORCE_PRE_SET) {
+		this.FORCE_PRE_SET = FORCE_PRE_SET;
+	}
+
+	public String getMODEL_ID() {
+		return this.MODEL_ID;
+	}
+
+	public void setMODEL_ID(String MODEL_ID) {
+		this.MODEL_ID = MODEL_ID;
+	}
+
+	public String getMODEL_NAME() {
+		return this.MODEL_NAME;
+	}
+
+	public void setMODEL_NAME(String MODEL_NAME) {
+		this.MODEL_NAME = MODEL_NAME;
+	}
+
+	public String getATTACHMENT_ID() {
+		return this.ATTACHMENT_ID;
+	}
+
+	public void setATTACHMENT_ID(String ATTACHMENT_ID) {
+		this.ATTACHMENT_ID = ATTACHMENT_ID;
+	}
+
+	public String getATTACHMENT_NAME() {
+		return this.ATTACHMENT_NAME;
+	}
+
+	public void setATTACHMENT_NAME(String ATTACHMENT_NAME) {
+		this.ATTACHMENT_NAME = ATTACHMENT_NAME;
+	}
+
+	public String getVIEW_USER() {
+		return this.VIEW_USER;
+	}
+
+	public void setVIEW_USER(String VIEW_USER) {
+		this.VIEW_USER = VIEW_USER;
+	}
+
+	public String getVIEW_DEPT() {
+		return this.VIEW_DEPT;
+	}
+
+	public void setVIEW_DEPT(String VIEW_DEPT) {
+		this.VIEW_DEPT = VIEW_DEPT;
+	}
+
+	public String getVIEW_ROLE() {
+		return this.VIEW_ROLE;
+	}
+
+	public void setVIEW_ROLE(String VIEW_ROLE) {
+		this.VIEW_ROLE = VIEW_ROLE;
+	}
+
+	public Integer getVIEW_PRIV() {
+		return this.VIEW_PRIV;
+	}
+
+	public void setVIEW_PRIV(Integer VIEW_PRIV) {
+		this.VIEW_PRIV = VIEW_PRIV;
+	}
+
+	public Integer getIS_VERSION() {
+		return this.IS_VERSION;
+	}
+
+	public void setIS_VERSION(Integer IS_VERSION) {
+		this.IS_VERSION = IS_VERSION;
+	}
+
+	public String getFLOW_ACTION() {
+		return this.FLOW_ACTION;
+	}
+
+	public void setFLOW_ACTION(String FLOW_ACTION) {
+		this.FLOW_ACTION = FLOW_ACTION;
+	}
+
+	public Integer getAUTO_NUM_YEAR() {
+		return this.AUTO_NUM_YEAR;
+	}
+
+	public void setAUTO_NUM_YEAR(Integer AUTO_NUM_YEAR) {
+		this.AUTO_NUM_YEAR = AUTO_NUM_YEAR;
+	}
+
+	public Integer getAUTO_NUM_MONTH() {
+		return this.AUTO_NUM_MONTH;
+	}
+
+	public void setAUTO_NUM_MONTH(Integer AUTO_NUM_MONTH) {
+		this.AUTO_NUM_MONTH = AUTO_NUM_MONTH;
+	}
+
+	public Date getAUTO_NUM_TIME() {
+		return this.AUTO_NUM_TIME;
+	}
+
+	public void setAUTO_NUM_TIME(Date AUTO_NUM_TIME) {
+		this.AUTO_NUM_TIME = AUTO_NUM_TIME;
+	}
+}

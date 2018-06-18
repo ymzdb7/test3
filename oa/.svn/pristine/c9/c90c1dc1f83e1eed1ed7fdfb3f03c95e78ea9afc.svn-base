@@ -1,0 +1,130 @@
+/*     */ package com.xoa.service.event.impl;
+/*     */ 
+/*     */ import com.xoa.dao.event.TimelineEventMapper;
+/*     */ import com.xoa.model.event.TimeLine;
+/*     */ import com.xoa.model.event.TimelineEvent;
+/*     */ import com.xoa.service.event.TimeLineEventService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import java.util.List;
+/*     */ import java.util.UUID;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class TimeLineEventServiceImpl
+/*     */   implements TimeLineEventService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   TimelineEventMapper timelineEventMapper;
+/*     */ 
+/*     */   public ToJson<TimelineEvent> getEventList(HttpServletRequest request, TimelineEvent timelineEvent, TimeLine timeLine)
+/*     */   {
+/*  26 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  28 */       timeLine.getUuid();
+/*  29 */       List list = this.timelineEventMapper.getEventList(timelineEvent);
+/*  30 */       if (list != null) {
+/*  31 */         toJson.setObj(list);
+/*  32 */         toJson.setMsg("ok");
+/*     */       } else {
+/*  34 */         toJson.setMsg("列表为空");
+/*     */       }
+/*  36 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  38 */       e.printStackTrace();
+/*  39 */       toJson.setMsg(e.getMessage());
+/*  40 */       L.e(new Object[] { "TimeLineEventServiceImpl getEventList:" + e });
+/*     */     }
+/*  42 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TimelineEvent> getEventDetailByUuid(HttpServletRequest request, String uuid)
+/*     */   {
+/*  47 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  49 */       TimelineEvent timelineEvent = this.timelineEventMapper.getEventDetailByUuid(uuid);
+/*  50 */       if (timelineEvent != null) {
+/*  51 */         toJson.setObject(timelineEvent);
+/*  52 */         toJson.setMsg("ok");
+/*     */       } else {
+/*  54 */         toJson.setMsg("数据为空");
+/*     */       }
+/*  56 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  58 */       e.printStackTrace();
+/*  59 */       toJson.setMsg(e.getMessage());
+/*  60 */       L.e(new Object[] { "TimeLineEventServiceImpl getDetailByUuid:" + e });
+/*     */     }
+/*  62 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TimelineEvent> updateInfor(HttpServletRequest request, TimelineEvent timelineEvent)
+/*     */   {
+/*  67 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  69 */       int a = this.timelineEventMapper.updateInfor(timelineEvent);
+/*  70 */       if (a > 0) {
+/*  71 */         toJson.setMsg("ok");
+/*  72 */         toJson.setFlag(0);
+/*     */       } else {
+/*  74 */         toJson.setMsg("更新失败");
+/*  75 */         toJson.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  78 */       e.printStackTrace();
+/*  79 */       toJson.setMsg(e.getMessage());
+/*  80 */       L.e(new Object[] { "TimeLineEventServiceImpl updateInfor:" + e });
+/*     */     }
+/*  82 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TimelineEvent> addEventInfor(HttpServletRequest request, TimelineEvent timelineEvent, TimeLine timeLine)
+/*     */   {
+/*  88 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  90 */       String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+/*  91 */       timelineEvent.setUuid(uuid);
+/*  92 */       timelineEvent.setTimelineUuid(timeLine.getUuid());
+/*  93 */       int c = this.timelineEventMapper.addEventInfor(timelineEvent);
+/*  94 */       if (c > 0) {
+/*  95 */         toJson.setMsg("ok");
+/*  96 */         toJson.setFlag(0);
+/*     */       } else {
+/*  98 */         toJson.setMsg("新建失败");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 101 */       e.printStackTrace();
+/* 102 */       toJson.setMsg(e.getMessage());
+/* 103 */       L.e(new Object[] { "TimeLineEventServiceImpl addEventInfor:" + e });
+/*     */     }
+/* 105 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TimelineEvent> deleteEventByUuid(HttpServletRequest request, String uuid)
+/*     */   {
+/* 112 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 114 */       int b = this.timelineEventMapper.deleteEventByUuid(uuid);
+/* 115 */       if (b > 0) {
+/* 116 */         toJson.setMsg("ok");
+/* 117 */         toJson.setFlag(0);
+/*     */       } else {
+/* 119 */         toJson.setMsg("删除失败");
+/* 120 */         toJson.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 123 */       e.printStackTrace();
+/* 124 */       toJson.setMsg(e.getMessage());
+/* 125 */       L.e(new Object[] { "TimeLineEventServiceImpl deleteEventByUuid:" + e });
+/*     */     }
+/* 127 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.event.impl.TimeLineEventServiceImpl
+ * JD-Core Version:    0.6.0
+ */

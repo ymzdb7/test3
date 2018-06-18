@@ -1,0 +1,50 @@
+ package com.xoa.util.cms.directive;
+ 
+ import com.xoa.util.DateFormat;
+ import com.xoa.util.common.StringUtils;
+ import freemarker.core.Environment;
+ import freemarker.template.TemplateDirectiveBody;
+ import freemarker.template.TemplateDirectiveModel;
+ import freemarker.template.TemplateException;
+ import freemarker.template.TemplateModel;
+ import java.io.IOException;
+ import java.io.Writer;
+ import java.util.Calendar;
+ import java.util.Date;
+ import java.util.Map;
+ import java.util.zip.DataFormatException;
+ 
+ public class CMSOutDirective
+   implements TemplateDirectiveModel
+ {
+   public void execute(Environment environment, Map map, TemplateModel[] templateModels, TemplateDirectiveBody templateDirectiveBody)
+     throws TemplateException, IOException
+   {
+     String name = StringUtils.getString(map.get("name"));
+     String dataFormate = StringUtils.getString(map.get("dataFormate"));
+ 
+     Map loopObj = (Map)environment.getCustomAttribute("loopObj");
+     Writer w = environment.getOut();
+ 
+     if (loopObj != null) {
+       if ("".equals(dataFormate))
+       {
+         w.write(loopObj.get(name) + "");
+       }
+       else try {
+           Object o = loopObj.get(name);
+ 
+           if (((o instanceof Date)) || ((o instanceof Calendar)))
+             w.write(DateFormat.getFormatByUse(dataFormate, o));
+         }
+         catch (DataFormatException e) {
+           e.printStackTrace();
+         }
+ 
+     }
+ 
+     if (templateDirectiveBody != null)
+       templateDirectiveBody.render(w);
+   }
+ }
+

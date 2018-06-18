@@ -1,0 +1,152 @@
+/*     */ package com.xoa.service.vehicle;
+/*     */ 
+/*     */ import com.xoa.dao.common.SysCodeMapper;
+/*     */ import com.xoa.dao.vehicle.VehicleMaintenanceMapper;
+/*     */ import com.xoa.dao.vehicle.VehicleMapper;
+/*     */ import com.xoa.model.common.SysCode;
+/*     */ import com.xoa.model.vehicle.VehicleMaintenanceWithBLOBs;
+/*     */ import com.xoa.model.vehicle.VehicleWithBLOBs;
+/*     */ import com.xoa.util.ExcelUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import java.io.OutputStream;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class VehicleMaintenanceService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   VehicleMaintenanceMapper vehicleMaintenanceMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   VehicleMapper vehicleMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   SysCodeMapper sysCodeMapper;
+/*     */ 
+/*     */   public ToJson<Object> addMaintenance(VehicleMaintenanceWithBLOBs vehicleMaintenanceWithBLOBs)
+/*     */   {
+/*  49 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/*  51 */       int i = this.vehicleMaintenanceMapper.insertSelective(vehicleMaintenanceWithBLOBs);
+/*  52 */       if (i > 0) {
+/*  53 */         json.setMsg("ok");
+/*  54 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  57 */       json.setMsg(e.getMessage());
+/*  58 */       e.printStackTrace();
+/*     */     }
+/*  60 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<VehicleMaintenanceWithBLOBs> selectAllMaintenance(HttpServletRequest request, HttpServletResponse response, VehicleMaintenanceWithBLOBs vehicleMaintenanceWithBLOBs, String startTime, String endTime, String startFee, String endFee, String export)
+/*     */   {
+/*  70 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/*  72 */       if (export == null) {
+/*  73 */         export = "0";
+/*     */       }
+/*  75 */       Map map = new HashMap();
+/*  76 */       map.put("startTime", startTime);
+/*  77 */       map.put("endTime", endTime);
+/*  78 */       map.put("vehicleMaintenanceWithBLOBs", vehicleMaintenanceWithBLOBs);
+/*  79 */       List <VehicleMaintenanceWithBLOBs> vehicleMaintenanceWithBLOBs1 = this.vehicleMaintenanceMapper.selectAllMaintenance(map);
+/*  80 */       for (VehicleMaintenanceWithBLOBs vehicleMaintenanceWithBLOBs2 : vehicleMaintenanceWithBLOBs1) {
+/*  81 */         if ((vehicleMaintenanceWithBLOBs2.getvId() != null) && (vehicleMaintenanceWithBLOBs2.getvId() != "")) {
+/*  82 */           VehicleWithBLOBs vehicleWithBLOBs = this.vehicleMapper.selectByPrimaryKey(Integer.valueOf(vehicleMaintenanceWithBLOBs2.getvId()));
+/*     */ 
+/*  84 */           if (vehicleWithBLOBs != null) {
+/*  85 */             vehicleMaintenanceWithBLOBs2.setvIdNumber(vehicleWithBLOBs.getvNum());
+/*     */           }
+/*     */ 
+/*     */         }
+/*     */ 
+/*  90 */         SysCode sysCode = this.sysCodeMapper.getSingleCode("FIX_TYPE", vehicleMaintenanceWithBLOBs2.getVmType());
+/*  91 */         if (sysCode != null) {
+/*  92 */           vehicleMaintenanceWithBLOBs2.setVmTypeName(sysCode.getCodeName());
+/*     */         }
+/*     */       }
+/*  95 */       json.setFlag(0);
+/*  96 */       json.setMsg("ok");
+/*  97 */       json.setObj(vehicleMaintenanceWithBLOBs1);
+/*     */ 
+/*  99 */       if (export.equals("1")) {
+/* 100 */         HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("车辆维护记录表", 9);
+/* 101 */         String[] secondTitles = { "车牌号", "维护日期", "维护类型", "维护原因", "维护费用", "经办人", "备注" };
+/* 102 */         HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/* 103 */         String[] beanProperty = { "vIdNumber", "vmRequestDate", "vmTypeName", "vmReason", "vmFee", "vmPerson", "vmRemark" };
+/* 104 */         HSSFWorkbook workbook = null;
+/* 105 */         workbook = ExcelUtil.exportExcelData(workbook2, vehicleMaintenanceWithBLOBs1, beanProperty);
+/* 106 */         OutputStream out = response.getOutputStream();
+/* 107 */         String filename = "车辆维护记录表.xls";
+/* 108 */         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/* 109 */         response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+/* 110 */         response.setHeader("content-disposition", "attachment;filename=" + filename);
+/* 111 */         workbook.write(out);
+/* 112 */         out.close();
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 115 */       json.setMsg(e.getMessage());
+/* 116 */       e.printStackTrace();
+/*     */     }
+/* 118 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> editMaintenance(VehicleMaintenanceWithBLOBs vehicleMaintenanceWithBLOBs)
+/*     */   {
+/* 127 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 129 */       int i = this.vehicleMaintenanceMapper.updateByPrimaryKeySelective(vehicleMaintenanceWithBLOBs);
+/* 130 */       json.setMsg("ok");
+/* 131 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 133 */       json.setMsg(e.getMessage());
+/* 134 */       e.printStackTrace();
+/*     */     }
+/* 136 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<VehicleMaintenanceWithBLOBs> deleteMaintenance(Integer vmId)
+/*     */   {
+/* 146 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 148 */       int i = this.vehicleMaintenanceMapper.deleteByPrimaryKey(vmId);
+/* 149 */       json.setMsg("ok");
+/* 150 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 152 */       json.setMsg(e.getMessage());
+/* 153 */       e.printStackTrace();
+/*     */     }
+/* 155 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<VehicleMaintenanceWithBLOBs> getdetail(Integer vmId)
+/*     */   {
+/* 164 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 166 */       VehicleMaintenanceWithBLOBs vehicleMaintenanceWithBLOBs = this.vehicleMaintenanceMapper.selectByPrimaryKey(vmId);
+/* 167 */       json.setMsg("ok");
+/* 168 */       json.setFlag(0);
+/* 169 */       json.setObject(vehicleMaintenanceWithBLOBs);
+/*     */     } catch (Exception e) {
+/* 171 */       json.setFlag(1);
+/* 172 */       json.setMsg(e.getMessage());
+/* 173 */       e.printStackTrace();
+/*     */     }
+/* 175 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.vehicle.VehicleMaintenanceService
+ * JD-Core Version:    0.6.0
+ */

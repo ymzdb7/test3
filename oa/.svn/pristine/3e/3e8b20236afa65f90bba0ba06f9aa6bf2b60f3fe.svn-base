@@ -1,0 +1,42 @@
+/*    */ package com.xoa.util;
+/*    */ 
+/*    */ import com.xoa.model.footprint.LngLat;
+/*    */ import java.io.PrintStream;
+/*    */ import java.math.BigDecimal;
+/*    */ 
+/*    */ public class CoodinateCovertor
+/*    */ {
+/* 11 */   private static double x_pi = 52.359877559829883D;
+/*    */ 
+/*    */   static double dataDigit(int digit, double in)
+/*    */   {
+/* 21 */     return new BigDecimal(in).setScale(6, 4).doubleValue();
+/*    */   }
+/*    */ 
+/*    */   public static LngLat bd_encrypt(LngLat lngLat_gd)
+/*    */   {
+/* 33 */     double x = lngLat_gd.getLongitude(); double y = lngLat_gd.getLantitude();
+/* 34 */     double z = Math.sqrt(x * x + y * y) + 2.E-005D * Math.sin(y * x_pi);
+/* 35 */     double theta = Math.atan2(y, x) + 3.E-006D * Math.cos(x * x_pi);
+/* 36 */     return new LngLat(dataDigit(6, z * Math.cos(theta) + 0.0065D), dataDigit(6, z * Math.sin(theta) + 0.006D));
+/*    */   }
+/*    */ 
+/*    */   static LngLat bd_decrypt(LngLat lngLat_bd)
+/*    */   {
+/* 46 */     double x = lngLat_bd.getLongitude() - 0.0065D; double y = lngLat_bd.getLantitude() - 0.006D;
+/* 47 */     double z = Math.sqrt(x * x + y * y) - 2.E-005D * Math.sin(y * x_pi);
+/* 48 */     double theta = Math.atan2(y, x) - 3.E-006D * Math.cos(x * x_pi);
+/* 49 */     return new LngLat(dataDigit(6, z * Math.cos(theta)), dataDigit(6, z * Math.sin(theta)));
+/*    */   }
+/*    */ 
+/*    */   public static void main(String[] args)
+/*    */   {
+/* 55 */     LngLat lngLat_bd = new LngLat(120.153192D, 30.258970000000001D);
+/* 56 */     System.out.println(bd_encrypt(lngLat_bd));
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.CoodinateCovertor
+ * JD-Core Version:    0.6.0
+ */

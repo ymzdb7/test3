@@ -1,0 +1,54 @@
+/*    */ package com.xoa.global.Xss;
+/*    */ 
+/*    */ import java.io.IOException;
+/*    */ import javax.servlet.Filter;
+/*    */ import javax.servlet.FilterChain;
+/*    */ import javax.servlet.FilterConfig;
+/*    */ import javax.servlet.ServletException;
+/*    */ import javax.servlet.ServletRequest;
+/*    */ import javax.servlet.ServletResponse;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ 
+/*    */ public class XssFilter
+/*    */   implements Filter
+/*    */ {
+/*    */   public void destroy()
+/*    */   {
+/*    */   }
+/*    */ 
+/*    */   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+/*    */     throws IOException, ServletException
+/*    */   {
+/* 32 */     String path = ((HttpServletRequest)request).getContextPath();
+/* 33 */     String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + path + "/";
+/*    */ 
+/* 35 */     String strBackUrl = "http://" + request.getServerName();
+/* 36 */     int serverPort = request.getServerPort();
+/* 37 */     String contextPath = ((HttpServletRequest)request).getContextPath();
+/* 38 */     String servletPath = ((HttpServletRequest)request).getServletPath();
+/* 39 */     String d = ((HttpServletRequest)request).getQueryString();
+/*    */ 
+/* 41 */     String[] url = { "/workflow/work", "/netdiskSettings/editNetdiskJurisdictionSettings", "/flowProcess/saveFlow", "/form/", "/flowSetting", "/flowhook", "/document" };
+/*    */ 
+/* 43 */     int length = url.length;
+/* 44 */     boolean check = true;
+/* 45 */     for (int i = 0; i < length; i++) {
+/* 46 */       if (servletPath.contains(url[i])) {
+/* 47 */         chain.doFilter(request, response);
+/* 48 */         check = false;
+/*    */       }
+/*    */     }
+/* 51 */     if (check)
+/* 52 */       chain.doFilter(new XssHttpServletRequestWrapper((HttpServletRequest)request), response);
+/*    */   }
+/*    */ 
+/*    */   public void init(FilterConfig arg0)
+/*    */     throws ServletException
+/*    */   {
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.global.Xss.XssFilter
+ * JD-Core Version:    0.6.0
+ */

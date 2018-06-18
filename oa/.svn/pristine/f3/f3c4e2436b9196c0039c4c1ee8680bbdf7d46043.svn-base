@@ -1,0 +1,330 @@
+/*     */ package com.xoa.service.edu.eduTerm;
+/*     */ 
+/*     */ import com.xoa.dao.edu.eduTerm.EduTermMapper;
+/*     */ import com.xoa.dao.edu.eduYear.EduYearMapper;
+/*     */ import com.xoa.model.edu.eduTerm.EduTerm;
+/*     */ import com.xoa.model.edu.eduYear.EduYear;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.util.ExcelUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.InputStream;
+/*     */ import java.io.OutputStream;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.ResourceBundle;
+/*     */ import java.util.UUID;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.apache.poi.ss.usermodel.Cell;
+/*     */ import org.apache.poi.ss.usermodel.Row;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduTermService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private EduTermMapper eduTermMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private EduYearMapper eduYearMapper;
+/*     */ 
+/*     */   public ToJson<EduTerm> addEduTerm(HttpServletRequest request, EduTerm eduTerm)
+/*     */   {
+/*  51 */     ToJson json = new ToJson();
+/*     */     try {
+/*  53 */       Map map = new HashMap();
+/*  54 */       EduTerm term = new EduTerm();
+/*  55 */       if ((eduTerm.getTermCode() != null) && (!"".equals(eduTerm.getTermCode()))) {
+/*  56 */         term.setTermCode(eduTerm.getTermCode());
+/*  57 */         map.put("eduTerm", term);
+/*  58 */         List eduTermList = this.eduTermMapper.selectList(map);
+/*  59 */         if ((eduTermList != null) && (eduTermList.size() > 0)) {
+/*  60 */           json.setFlag(1);
+/*  61 */           json.setMsg("编号重复");
+/*  62 */           return json;
+/*     */         }
+/*     */       }
+/*  65 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  66 */       eduTerm.setCreateUser(user.getUserId());
+/*  67 */       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+/*  68 */       Date date = new Date();
+/*  69 */       String dateStr = sdf.format(date);
+/*  70 */       Date mydate = sdf.parse(dateStr);
+/*  71 */       eduTerm.setCreateTime(mydate);
+/*  72 */       int count = this.eduTermMapper.insertSelective(eduTerm);
+/*  73 */       if (count > 0) {
+/*  74 */         json.setMsg("ok");
+/*  75 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  78 */       e.printStackTrace();
+/*  79 */       json.setMsg(e.getMessage());
+/*  80 */       json.setFlag(1);
+/*     */     }
+/*  82 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduTerm> deleteEduTerm(Integer termId)
+/*     */   {
+/*  92 */     ToJson json = new ToJson();
+/*     */     try {
+/*  94 */       int count = this.eduTermMapper.deleteByPrimaryKey(termId);
+/*  95 */       if (count > 0) {
+/*  96 */         json.setMsg("ok");
+/*  97 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 100 */       e.printStackTrace();
+/* 101 */       json.setMsg(e.getMessage());
+/* 102 */       json.setFlag(1);
+/*     */     }
+/* 104 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduTerm> selectEduTerm(Integer termId)
+/*     */   {
+/* 114 */     ToJson json = new ToJson();
+/*     */     try {
+/* 116 */       EduTerm eduTerm = this.eduTermMapper.selectByPrimaryKey(termId);
+/* 117 */       json.setObject(eduTerm);
+/* 118 */       json.setMsg("ok");
+/* 119 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 121 */       e.printStackTrace();
+/* 122 */       json.setMsg(e.getMessage());
+/* 123 */       json.setFlag(1);
+/*     */     }
+/* 125 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduTerm> updateEduTerm(HttpServletRequest request, EduTerm eduTerm)
+/*     */   {
+/* 135 */     ToJson json = new ToJson();
+/*     */     try {
+/* 137 */       Map map = new HashMap();
+/* 138 */       EduTerm term = new EduTerm();
+/* 139 */       if ((eduTerm.getTermCode() != null) && (!"".equals(eduTerm.getTermCode()))) {
+/* 140 */         term.setTermCode(eduTerm.getTermCode());
+/* 141 */         map.put("eduTerm", term);
+/* 142 */         List eduTermList = this.eduTermMapper.selectList(map);
+/* 143 */         if ((eduTermList != null) && (eduTermList.size() > 0) && 
+/* 144 */           (((EduTerm)eduTermList.get(0)).getTermId() != eduTerm.getTermId())) {
+/* 145 */           json.setFlag(1);
+/* 146 */           json.setMsg("编号重复");
+/* 147 */           return json;
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 152 */       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+/* 153 */       Date date = new Date();
+/* 154 */       String dateStr = sdf.format(date);
+/* 155 */       Date mydate = sdf.parse(dateStr);
+/* 156 */       eduTerm.setUpdateTime(mydate);
+/* 157 */       int count = this.eduTermMapper.updateByPrimaryKeySelective(eduTerm);
+/* 158 */       if (count > 0) {
+/* 159 */         json.setMsg("ok");
+/* 160 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 163 */       e.printStackTrace();
+/* 164 */       json.setMsg(e.getMessage());
+/* 165 */       json.setFlag(1);
+/*     */     }
+/* 167 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduTerm> selectAll(Integer page, Integer pageSize, boolean useFlag, EduTerm eduTerm, String export, HttpServletResponse response, HttpServletRequest request)
+/*     */   {
+/* 178 */     ToJson json = new ToJson();
+/*     */     try {
+/* 180 */       Map map = new HashMap();
+/* 181 */       PageParams pageParams = new PageParams();
+/* 182 */       pageParams.setPage(page);
+/* 183 */       pageParams.setPageSize(pageSize);
+/* 184 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 185 */       map.put("page", pageParams);
+/* 186 */       map.put("eduTerm", eduTerm);
+/* 187 */       List<EduTerm> eduTermList = this.eduTermMapper.selectList(map);
+/* 188 */       if ((eduTermList != null) && (eduTermList.size() > 0)) {
+/* 189 */         for (EduTerm term : eduTermList) {
+/* 190 */           if ((term.getTermYear() != null) && (!"".equals(term.getTermYear()))) {
+/* 191 */             EduYear eduYear = this.eduYearMapper.selectByPrimaryKey(Integer.valueOf(Integer.parseInt(term.getTermYear())));
+/* 192 */             term.setYearText(eduYear.getYearName());
+/*     */           } else {
+/* 194 */             term.setYearText("");
+/*     */           }
+/*     */         }
+/*     */       }
+/* 198 */       if (export == null) {
+/* 199 */         export = "0";
+/*     */       }
+/* 201 */       if ("1".equals(export)) {
+/* 202 */         HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("学期信息", 11);
+/* 203 */         String[] secondTitles = { "学期名称", "学期编号", "学年", "默认学期", "第几学期", "开始日期", "结束日期", "上课天数", "激活", "显示位置", "备注" };
+/*     */ 
+/* 205 */         HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/* 206 */         String[] beanProperty = { "termName", "termCode", "yearText", "defaultTerm", "whichTerm", "startTime", "endTime", "classDay", "activate", "position", "remark" };
+/*     */ 
+/* 208 */         HSSFWorkbook workbook = null;
+/* 209 */         workbook = ExcelUtil.exportExcelData(workbook2, eduTermList, beanProperty);
+/* 210 */         OutputStream out = response.getOutputStream();
+/* 211 */         String filename = "学期.xls";
+/* 212 */         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/* 213 */         response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+/* 214 */         response.setHeader("content-disposition", "attachment;filename=" + filename);
+/* 215 */         workbook.write(out);
+/* 216 */         out.close();
+/*     */       }
+/* 218 */       json.setObj(eduTermList);
+/* 219 */       json.setTotleNum(Integer.valueOf(this.eduTermMapper.selectCount(eduTerm)));
+/* 220 */       json.setMsg("ok");
+/* 221 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 223 */       e.printStackTrace();
+/* 224 */       json.setMsg(e.getMessage());
+/* 225 */       json.setFlag(1);
+/*     */     }
+/* 227 */     return json;
+/*     */   }
+/*     */   public ToJson<EduTerm> importEduTerm(MultipartFile file, HttpServletRequest request, HttpServletResponse response) {
+/* 230 */     ToJson json = new ToJson();
+/*     */ 
+/* 232 */     Integer successCount = Integer.valueOf(0);
+/*     */     try
+/*     */     {
+/* 236 */       ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 237 */       String osName = System.getProperty("os.name");
+/* 238 */       StringBuffer path = new StringBuffer();
+/* 239 */       if (osName.toLowerCase().startsWith("win"))
+/* 240 */         path = path.append(rb.getString("upload.win"));
+/*     */       else {
+/* 242 */         path = path.append(rb.getString("upload.linux"));
+/*     */       }
+/*     */ 
+/* 245 */       if (file.isEmpty()) {
+/* 246 */         json.setMsg("请上传文件！");
+/* 247 */         json.setFlag(1);
+/* 248 */         return json;
+/*     */       }
+/* 250 */       String fileName = file.getOriginalFilename();
+/* 251 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 252 */         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+/* 253 */         int pos = fileName.indexOf(".");
+/* 254 */         String extName = fileName.substring(pos);
+/* 255 */         String newFileName = uuid + extName;
+/* 256 */         File dest = new File(path.toString(), newFileName);
+/* 257 */         file.transferTo(dest);
+/*     */ 
+/* 260 */         String readPath = path.append(System.getProperty("file.separator")).append(newFileName).toString();
+/* 261 */         InputStream in = new FileInputStream(readPath);
+/* 262 */         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+/* 263 */         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+/* 264 */         Row row = sheetObj.getRow(0);
+/* 265 */         int colNum = row.getPhysicalNumberOfCells();
+/* 266 */         int lastRowNum = sheetObj.getLastRowNum();
+/* 267 */         EduTerm eduTerm = null;
+/* 268 */         for (int i = 1; i <= lastRowNum; i++) {
+/* 269 */           eduTerm = new EduTerm();
+/* 270 */           row = sheetObj.getRow(i);
+/* 271 */           if (row != null) {
+/* 272 */             for (int j = 0; j < colNum; j++) {
+/* 273 */               Cell cell = row.getCell(j);
+/* 274 */               String value = "";
+/* 275 */               if (cell != null) {
+/* 276 */                 switch (j)
+/*     */                 {
+/*     */                 case 0:
+/* 279 */                   eduTerm.setTermName(cell.getStringCellValue());
+/* 280 */                   break;
+/*     */                 case 1:
+/* 283 */                   eduTerm.setTermCode(cell.getStringCellValue());
+/* 284 */                   break;
+/*     */                 case 2:
+/* 287 */                   if (!StringUtils.checkNull(cell.getStringCellValue().trim()).booleanValue()) {
+/* 288 */                     EduYear eduYear = this.eduYearMapper.selectBySchoolYear(cell.getStringCellValue().trim());
+/* 289 */                     eduTerm.setTermYear(eduYear.getYearId() + "");
+/*     */                   } else {
+/* 291 */                     eduTerm.setTermYear("");
+/*     */                   }
+/* 293 */                   break;
+/*     */                 case 3:
+/* 296 */                   eduTerm.setDefaultTerm(cell.getStringCellValue());
+/* 297 */                   break;
+/*     */                 case 4:
+/* 300 */                   if (cell.getCellType() == 0) {
+/* 301 */                     cell.setCellType(1);
+/*     */                   }
+/* 303 */                   eduTerm.setWhichTerm(cell.getStringCellValue());
+/* 304 */                   break;
+/*     */                 case 5:
+/* 307 */                   eduTerm.setStartTime(cell.getDateCellValue());
+/* 308 */                   break;
+/*     */                 case 6:
+/* 311 */                   eduTerm.setEndTime(cell.getDateCellValue());
+/* 312 */                   break;
+/*     */                 case 7:
+/* 315 */                   if (cell.getCellType() == 0) {
+/* 316 */                     cell.setCellType(1);
+/*     */                   }
+/* 318 */                   eduTerm.setClassDay(cell.getStringCellValue());
+/* 319 */                   break;
+/*     */                 case 8:
+/* 322 */                   eduTerm.setActivate(cell.getStringCellValue());
+/* 323 */                   break;
+/*     */                 case 9:
+/* 326 */                   eduTerm.setPosition(cell.getStringCellValue());
+/* 327 */                   break;
+/*     */                 case 10:
+/* 330 */                   eduTerm.setRemark(cell.getStringCellValue());
+/*     */                 }
+/*     */               }
+/*     */ 
+/*     */             }
+/*     */ 
+/* 336 */             Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 337 */             eduTerm.setCreateUser(user.getUserId());
+/* 338 */             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+/* 339 */             Date date = new Date();
+/* 340 */             String dateStr = sdf.format(date);
+/* 341 */             Date mydate = sdf.parse(dateStr);
+/* 342 */             eduTerm.setCreateTime(mydate);
+/* 343 */             int count = this.eduTermMapper.insertSelective(eduTerm);
+/* 344 */             if (count > 0) {
+/* 345 */               successCount = Integer.valueOf(successCount.intValue() + count);
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 351 */       if (successCount.intValue() > 0) {
+/* 352 */         json.setMsg(successCount + "");
+/* 353 */         json.setFlag(0);
+/* 354 */         return json;
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 357 */       e.printStackTrace();
+/* 358 */       json.setMsg("err");
+/*     */     }
+/* 360 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduTerm.EduTermService
+ * JD-Core Version:    0.6.0
+ */

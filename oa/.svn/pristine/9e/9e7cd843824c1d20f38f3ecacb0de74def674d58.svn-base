@@ -1,0 +1,2175 @@
+/*      */ package com.xoa.model.rms;
+/*      */ 
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.Iterator;
+/*      */ import java.util.List;
+/*      */ 
+/*      */ public class RmsFileExample
+/*      */ {
+/*      */   protected String orderByClause;
+/*      */   protected boolean distinct;
+/*      */   protected List<Criteria> oredCriteria;
+/*      */ 
+/*      */   public RmsFileExample()
+/*      */   {
+/*   40 */     this.oredCriteria = new ArrayList();
+/*      */   }
+/*      */ 
+/*      */   public void setOrderByClause(String orderByClause)
+/*      */   {
+/*   50 */     this.orderByClause = orderByClause;
+/*      */   }
+/*      */ 
+/*      */   public String getOrderByClause()
+/*      */   {
+/*   60 */     return this.orderByClause;
+/*      */   }
+/*      */ 
+/*      */   public void setDistinct(boolean distinct)
+/*      */   {
+/*   70 */     this.distinct = distinct;
+/*      */   }
+/*      */ 
+/*      */   public boolean isDistinct()
+/*      */   {
+/*   80 */     return this.distinct;
+/*      */   }
+/*      */ 
+/*      */   public List<Criteria> getOredCriteria()
+/*      */   {
+/*   90 */     return this.oredCriteria;
+/*      */   }
+/*      */ 
+/*      */   public void or(Criteria criteria)
+/*      */   {
+/*  100 */     this.oredCriteria.add(criteria);
+/*      */   }
+/*      */ 
+/*      */   public Criteria or()
+/*      */   {
+/*  110 */     Criteria criteria = createCriteriaInternal();
+/*  111 */     this.oredCriteria.add(criteria);
+/*  112 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   public Criteria createCriteria()
+/*      */   {
+/*  122 */     Criteria criteria = createCriteriaInternal();
+/*  123 */     if (this.oredCriteria.size() == 0) {
+/*  124 */       this.oredCriteria.add(criteria);
+/*      */     }
+/*  126 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   protected Criteria createCriteriaInternal()
+/*      */   {
+/*  136 */     Criteria criteria = new Criteria();
+/*  137 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   public void clear()
+/*      */   {
+/*  147 */     this.oredCriteria.clear();
+/*  148 */     this.orderByClause = null;
+/*  149 */     this.distinct = false;
+/*      */   }
+/*      */ 
+/*      */   public static class Criterion
+/*      */   {
+/*      */     private String condition;
+/*      */     private Object value;
+/*      */     private Object secondValue;
+/*      */     private boolean noValue;
+/*      */     private boolean singleValue;
+/*      */     private boolean betweenValue;
+/*      */     private boolean listValue;
+/*      */     private String typeHandler;
+/*      */ 
+/*      */     public String getCondition()
+/*      */     {
+/* 2203 */       return this.condition;
+/*      */     }
+/*      */ 
+/*      */     public Object getValue() {
+/* 2207 */       return this.value;
+/*      */     }
+/*      */ 
+/*      */     public Object getSecondValue() {
+/* 2211 */       return this.secondValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isNoValue() {
+/* 2215 */       return this.noValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isSingleValue() {
+/* 2219 */       return this.singleValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isBetweenValue() {
+/* 2223 */       return this.betweenValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isListValue() {
+/* 2227 */       return this.listValue;
+/*      */     }
+/*      */ 
+/*      */     public String getTypeHandler() {
+/* 2231 */       return this.typeHandler;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition)
+/*      */     {
+/* 2236 */       this.condition = condition;
+/* 2237 */       this.typeHandler = null;
+/* 2238 */       this.noValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, String typeHandler)
+/*      */     {
+/* 2243 */       this.condition = condition;
+/* 2244 */       this.value = value;
+/* 2245 */       this.typeHandler = typeHandler;
+/* 2246 */       if ((value instanceof List))
+/* 2247 */         this.listValue = true;
+/*      */       else
+/* 2249 */         this.singleValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value)
+/*      */     {
+/* 2254 */       this(condition, value, null);
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*      */     {
+/* 2259 */       this.condition = condition;
+/* 2260 */       this.value = value;
+/* 2261 */       this.secondValue = secondValue;
+/* 2262 */       this.typeHandler = typeHandler;
+/* 2263 */       this.betweenValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 2267 */       this(condition, value, secondValue, null);
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public static class Criteria extends RmsFileExample.GeneratedCriteria
+/*      */   {
+/*      */   }
+/*      */ 
+/*      */   protected static abstract class GeneratedCriteria
+/*      */   {
+/*      */     protected List<RmsFileExample.Criterion> criteria;
+/*      */ 
+/*      */     protected GeneratedCriteria()
+/*      */     {
+/*  163 */       this.criteria = new ArrayList();
+/*      */     }
+/*      */ 
+/*      */     public boolean isValid() {
+/*  167 */       return this.criteria.size() > 0;
+/*      */     }
+/*      */ 
+/*      */     public List<RmsFileExample.Criterion> getAllCriteria() {
+/*  171 */       return this.criteria;
+/*      */     }
+/*      */ 
+/*      */     public List<RmsFileExample.Criterion> getCriteria() {
+/*  175 */       return this.criteria;
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition) {
+/*  179 */       if (condition == null) {
+/*  180 */         throw new RuntimeException("Value for condition cannot be null");
+/*      */       }
+/*  182 */       this.criteria.add(new RmsFileExample.Criterion(condition));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition, Object value, String property) {
+/*  186 */       if (value == null) {
+/*  187 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*      */       }
+/*  189 */       this.criteria.add(new RmsFileExample.Criterion(condition, value));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/*  193 */       if ((value1 == null) || (value2 == null)) {
+/*  194 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*      */       }
+/*  196 */       this.criteria.add(new RmsFileExample.Criterion(condition, value1, value2));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterionForJDBCDate(String condition, java.util.Date value, String property) {
+/*  200 */       if (value == null) {
+/*  201 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*      */       }
+/*  203 */       addCriterion(condition, new java.sql.Date(value.getTime()), property);
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterionForJDBCDate(String condition, List<java.util.Date> values, String property) {
+/*  207 */       if ((values == null) || (values.size() == 0)) {
+/*  208 */         throw new RuntimeException("Value list for " + property + " cannot be null or empty");
+/*      */       }
+/*  210 */       List dateList = new ArrayList();
+/*  211 */       Iterator iter = values.iterator();
+/*  212 */       while (iter.hasNext()) {
+/*  213 */         dateList.add(new java.sql.Date(((java.util.Date)iter.next()).getTime()));
+/*      */       }
+/*  215 */       addCriterion(condition, dateList, property);
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterionForJDBCDate(String condition, java.util.Date value1, java.util.Date value2, String property) {
+/*  219 */       if ((value1 == null) || (value2 == null)) {
+/*  220 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*      */       }
+/*  222 */       addCriterion(condition, new java.sql.Date(value1.getTime()), new java.sql.Date(value2.getTime()), property);
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileIdIsNull() {
+/*  226 */       addCriterion("FILE_ID is null");
+/*  227 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileIdIsNotNull() {
+/*  231 */       addCriterion("FILE_ID is not null");
+/*  232 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileIdEqualTo(Integer value) {
+/*  236 */       addCriterion("FILE_ID =", value, "fileId");
+/*  237 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileIdNotEqualTo(Integer value) {
+/*  241 */       addCriterion("FILE_ID <>", value, "fileId");
+/*  242 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileIdGreaterThan(Integer value) {
+/*  246 */       addCriterion("FILE_ID >", value, "fileId");
+/*  247 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileIdGreaterThanOrEqualTo(Integer value) {
+/*  251 */       addCriterion("FILE_ID >=", value, "fileId");
+/*  252 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileIdLessThan(Integer value) {
+/*  256 */       addCriterion("FILE_ID <", value, "fileId");
+/*  257 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileIdLessThanOrEqualTo(Integer value) {
+/*  261 */       addCriterion("FILE_ID <=", value, "fileId");
+/*  262 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileIdIn(List<Integer> values) {
+/*  266 */       addCriterion("FILE_ID in", values, "fileId");
+/*  267 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileIdNotIn(List<Integer> values) {
+/*  271 */       addCriterion("FILE_ID not in", values, "fileId");
+/*  272 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileIdBetween(Integer value1, Integer value2) {
+/*  276 */       addCriterion("FILE_ID between", value1, value2, "fileId");
+/*  277 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileIdNotBetween(Integer value1, Integer value2) {
+/*  281 */       addCriterion("FILE_ID not between", value1, value2, "fileId");
+/*  282 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRollIdIsNull() {
+/*  286 */       addCriterion("ROLL_ID is null");
+/*  287 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRollIdIsNotNull() {
+/*  291 */       addCriterion("ROLL_ID is not null");
+/*  292 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRollIdEqualTo(Integer value) {
+/*  296 */       addCriterion("ROLL_ID =", value, "rollId");
+/*  297 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRollIdNotEqualTo(Integer value) {
+/*  301 */       addCriterion("ROLL_ID <>", value, "rollId");
+/*  302 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRollIdGreaterThan(Integer value) {
+/*  306 */       addCriterion("ROLL_ID >", value, "rollId");
+/*  307 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRollIdGreaterThanOrEqualTo(Integer value) {
+/*  311 */       addCriterion("ROLL_ID >=", value, "rollId");
+/*  312 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRollIdLessThan(Integer value) {
+/*  316 */       addCriterion("ROLL_ID <", value, "rollId");
+/*  317 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRollIdLessThanOrEqualTo(Integer value) {
+/*  321 */       addCriterion("ROLL_ID <=", value, "rollId");
+/*  322 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRollIdIn(List<Integer> values) {
+/*  326 */       addCriterion("ROLL_ID in", values, "rollId");
+/*  327 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRollIdNotIn(List<Integer> values) {
+/*  331 */       addCriterion("ROLL_ID not in", values, "rollId");
+/*  332 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRollIdBetween(Integer value1, Integer value2) {
+/*  336 */       addCriterion("ROLL_ID between", value1, value2, "rollId");
+/*  337 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRollIdNotBetween(Integer value1, Integer value2) {
+/*  341 */       addCriterion("ROLL_ID not between", value1, value2, "rollId");
+/*  342 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddUserIsNull() {
+/*  346 */       addCriterion("ADD_USER is null");
+/*  347 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddUserIsNotNull() {
+/*  351 */       addCriterion("ADD_USER is not null");
+/*  352 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddUserEqualTo(String value) {
+/*  356 */       addCriterion("ADD_USER =", value, "addUser");
+/*  357 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddUserNotEqualTo(String value) {
+/*  361 */       addCriterion("ADD_USER <>", value, "addUser");
+/*  362 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddUserGreaterThan(String value) {
+/*  366 */       addCriterion("ADD_USER >", value, "addUser");
+/*  367 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddUserGreaterThanOrEqualTo(String value) {
+/*  371 */       addCriterion("ADD_USER >=", value, "addUser");
+/*  372 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddUserLessThan(String value) {
+/*  376 */       addCriterion("ADD_USER <", value, "addUser");
+/*  377 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddUserLessThanOrEqualTo(String value) {
+/*  381 */       addCriterion("ADD_USER <=", value, "addUser");
+/*  382 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddUserLike(String value) {
+/*  386 */       addCriterion("ADD_USER like", value, "addUser");
+/*  387 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddUserNotLike(String value) {
+/*  391 */       addCriterion("ADD_USER not like", value, "addUser");
+/*  392 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddUserIn(List<String> values) {
+/*  396 */       addCriterion("ADD_USER in", values, "addUser");
+/*  397 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddUserNotIn(List<String> values) {
+/*  401 */       addCriterion("ADD_USER not in", values, "addUser");
+/*  402 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddUserBetween(String value1, String value2) {
+/*  406 */       addCriterion("ADD_USER between", value1, value2, "addUser");
+/*  407 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddUserNotBetween(String value1, String value2) {
+/*  411 */       addCriterion("ADD_USER not between", value1, value2, "addUser");
+/*  412 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddTimeIsNull() {
+/*  416 */       addCriterion("ADD_TIME is null");
+/*  417 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddTimeIsNotNull() {
+/*  421 */       addCriterion("ADD_TIME is not null");
+/*  422 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddTimeEqualTo(java.util.Date value) {
+/*  426 */       addCriterion("ADD_TIME =", value, "addTime");
+/*  427 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddTimeNotEqualTo(java.util.Date value) {
+/*  431 */       addCriterion("ADD_TIME <>", value, "addTime");
+/*  432 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddTimeGreaterThan(java.util.Date value) {
+/*  436 */       addCriterion("ADD_TIME >", value, "addTime");
+/*  437 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddTimeGreaterThanOrEqualTo(java.util.Date value) {
+/*  441 */       addCriterion("ADD_TIME >=", value, "addTime");
+/*  442 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddTimeLessThan(java.util.Date value) {
+/*  446 */       addCriterion("ADD_TIME <", value, "addTime");
+/*  447 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddTimeLessThanOrEqualTo(java.util.Date value) {
+/*  451 */       addCriterion("ADD_TIME <=", value, "addTime");
+/*  452 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddTimeIn(List<java.util.Date> values) {
+/*  456 */       addCriterion("ADD_TIME in", values, "addTime");
+/*  457 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddTimeNotIn(List<java.util.Date> values) {
+/*  461 */       addCriterion("ADD_TIME not in", values, "addTime");
+/*  462 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddTimeBetween(java.util.Date value1, java.util.Date value2) {
+/*  466 */       addCriterion("ADD_TIME between", value1, value2, "addTime");
+/*  467 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andAddTimeNotBetween(java.util.Date value1, java.util.Date value2) {
+/*  471 */       addCriterion("ADD_TIME not between", value1, value2, "addTime");
+/*  472 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelUserIsNull() {
+/*  476 */       addCriterion("DEL_USER is null");
+/*  477 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelUserIsNotNull() {
+/*  481 */       addCriterion("DEL_USER is not null");
+/*  482 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelUserEqualTo(String value) {
+/*  486 */       addCriterion("DEL_USER =", value, "delUser");
+/*  487 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelUserNotEqualTo(String value) {
+/*  491 */       addCriterion("DEL_USER <>", value, "delUser");
+/*  492 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelUserGreaterThan(String value) {
+/*  496 */       addCriterion("DEL_USER >", value, "delUser");
+/*  497 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelUserGreaterThanOrEqualTo(String value) {
+/*  501 */       addCriterion("DEL_USER >=", value, "delUser");
+/*  502 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelUserLessThan(String value) {
+/*  506 */       addCriterion("DEL_USER <", value, "delUser");
+/*  507 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelUserLessThanOrEqualTo(String value) {
+/*  511 */       addCriterion("DEL_USER <=", value, "delUser");
+/*  512 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelUserLike(String value) {
+/*  516 */       addCriterion("DEL_USER like", value, "delUser");
+/*  517 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelUserNotLike(String value) {
+/*  521 */       addCriterion("DEL_USER not like", value, "delUser");
+/*  522 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelUserIn(List<String> values) {
+/*  526 */       addCriterion("DEL_USER in", values, "delUser");
+/*  527 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelUserNotIn(List<String> values) {
+/*  531 */       addCriterion("DEL_USER not in", values, "delUser");
+/*  532 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelUserBetween(String value1, String value2) {
+/*  536 */       addCriterion("DEL_USER between", value1, value2, "delUser");
+/*  537 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelUserNotBetween(String value1, String value2) {
+/*  541 */       addCriterion("DEL_USER not between", value1, value2, "delUser");
+/*  542 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelTimeIsNull() {
+/*  546 */       addCriterion("DEL_TIME is null");
+/*  547 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelTimeIsNotNull() {
+/*  551 */       addCriterion("DEL_TIME is not null");
+/*  552 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelTimeEqualTo(java.util.Date value) {
+/*  556 */       addCriterion("DEL_TIME =", value, "delTime");
+/*  557 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelTimeNotEqualTo(java.util.Date value) {
+/*  561 */       addCriterion("DEL_TIME <>", value, "delTime");
+/*  562 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelTimeGreaterThan(java.util.Date value) {
+/*  566 */       addCriterion("DEL_TIME >", value, "delTime");
+/*  567 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelTimeGreaterThanOrEqualTo(java.util.Date value) {
+/*  571 */       addCriterion("DEL_TIME >=", value, "delTime");
+/*  572 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelTimeLessThan(java.util.Date value) {
+/*  576 */       addCriterion("DEL_TIME <", value, "delTime");
+/*  577 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelTimeLessThanOrEqualTo(java.util.Date value) {
+/*  581 */       addCriterion("DEL_TIME <=", value, "delTime");
+/*  582 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelTimeIn(List<java.util.Date> values) {
+/*  586 */       addCriterion("DEL_TIME in", values, "delTime");
+/*  587 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelTimeNotIn(List<java.util.Date> values) {
+/*  591 */       addCriterion("DEL_TIME not in", values, "delTime");
+/*  592 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelTimeBetween(java.util.Date value1, java.util.Date value2) {
+/*  596 */       addCriterion("DEL_TIME between", value1, value2, "delTime");
+/*  597 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDelTimeNotBetween(java.util.Date value1, java.util.Date value2) {
+/*  601 */       addCriterion("DEL_TIME not between", value1, value2, "delTime");
+/*  602 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModUserIsNull() {
+/*  606 */       addCriterion("MOD_USER is null");
+/*  607 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModUserIsNotNull() {
+/*  611 */       addCriterion("MOD_USER is not null");
+/*  612 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModUserEqualTo(String value) {
+/*  616 */       addCriterion("MOD_USER =", value, "modUser");
+/*  617 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModUserNotEqualTo(String value) {
+/*  621 */       addCriterion("MOD_USER <>", value, "modUser");
+/*  622 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModUserGreaterThan(String value) {
+/*  626 */       addCriterion("MOD_USER >", value, "modUser");
+/*  627 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModUserGreaterThanOrEqualTo(String value) {
+/*  631 */       addCriterion("MOD_USER >=", value, "modUser");
+/*  632 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModUserLessThan(String value) {
+/*  636 */       addCriterion("MOD_USER <", value, "modUser");
+/*  637 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModUserLessThanOrEqualTo(String value) {
+/*  641 */       addCriterion("MOD_USER <=", value, "modUser");
+/*  642 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModUserLike(String value) {
+/*  646 */       addCriterion("MOD_USER like", value, "modUser");
+/*  647 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModUserNotLike(String value) {
+/*  651 */       addCriterion("MOD_USER not like", value, "modUser");
+/*  652 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModUserIn(List<String> values) {
+/*  656 */       addCriterion("MOD_USER in", values, "modUser");
+/*  657 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModUserNotIn(List<String> values) {
+/*  661 */       addCriterion("MOD_USER not in", values, "modUser");
+/*  662 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModUserBetween(String value1, String value2) {
+/*  666 */       addCriterion("MOD_USER between", value1, value2, "modUser");
+/*  667 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModUserNotBetween(String value1, String value2) {
+/*  671 */       addCriterion("MOD_USER not between", value1, value2, "modUser");
+/*  672 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModTimeIsNull() {
+/*  676 */       addCriterion("MOD_TIME is null");
+/*  677 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModTimeIsNotNull() {
+/*  681 */       addCriterion("MOD_TIME is not null");
+/*  682 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModTimeEqualTo(java.util.Date value) {
+/*  686 */       addCriterion("MOD_TIME =", value, "modTime");
+/*  687 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModTimeNotEqualTo(java.util.Date value) {
+/*  691 */       addCriterion("MOD_TIME <>", value, "modTime");
+/*  692 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModTimeGreaterThan(java.util.Date value) {
+/*  696 */       addCriterion("MOD_TIME >", value, "modTime");
+/*  697 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModTimeGreaterThanOrEqualTo(java.util.Date value) {
+/*  701 */       addCriterion("MOD_TIME >=", value, "modTime");
+/*  702 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModTimeLessThan(java.util.Date value) {
+/*  706 */       addCriterion("MOD_TIME <", value, "modTime");
+/*  707 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModTimeLessThanOrEqualTo(java.util.Date value) {
+/*  711 */       addCriterion("MOD_TIME <=", value, "modTime");
+/*  712 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModTimeIn(List<java.util.Date> values) {
+/*  716 */       addCriterion("MOD_TIME in", values, "modTime");
+/*  717 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModTimeNotIn(List<java.util.Date> values) {
+/*  721 */       addCriterion("MOD_TIME not in", values, "modTime");
+/*  722 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModTimeBetween(java.util.Date value1, java.util.Date value2) {
+/*  726 */       addCriterion("MOD_TIME between", value1, value2, "modTime");
+/*  727 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andModTimeNotBetween(java.util.Date value1, java.util.Date value2) {
+/*  731 */       addCriterion("MOD_TIME not between", value1, value2, "modTime");
+/*  732 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmUserIsNull() {
+/*  736 */       addCriterion("CONFIRM_USER is null");
+/*  737 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmUserIsNotNull() {
+/*  741 */       addCriterion("CONFIRM_USER is not null");
+/*  742 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmUserEqualTo(String value) {
+/*  746 */       addCriterion("CONFIRM_USER =", value, "confirmUser");
+/*  747 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmUserNotEqualTo(String value) {
+/*  751 */       addCriterion("CONFIRM_USER <>", value, "confirmUser");
+/*  752 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmUserGreaterThan(String value) {
+/*  756 */       addCriterion("CONFIRM_USER >", value, "confirmUser");
+/*  757 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmUserGreaterThanOrEqualTo(String value) {
+/*  761 */       addCriterion("CONFIRM_USER >=", value, "confirmUser");
+/*  762 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmUserLessThan(String value) {
+/*  766 */       addCriterion("CONFIRM_USER <", value, "confirmUser");
+/*  767 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmUserLessThanOrEqualTo(String value) {
+/*  771 */       addCriterion("CONFIRM_USER <=", value, "confirmUser");
+/*  772 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmUserLike(String value) {
+/*  776 */       addCriterion("CONFIRM_USER like", value, "confirmUser");
+/*  777 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmUserNotLike(String value) {
+/*  781 */       addCriterion("CONFIRM_USER not like", value, "confirmUser");
+/*  782 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmUserIn(List<String> values) {
+/*  786 */       addCriterion("CONFIRM_USER in", values, "confirmUser");
+/*  787 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmUserNotIn(List<String> values) {
+/*  791 */       addCriterion("CONFIRM_USER not in", values, "confirmUser");
+/*  792 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmUserBetween(String value1, String value2) {
+/*  796 */       addCriterion("CONFIRM_USER between", value1, value2, "confirmUser");
+/*  797 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmUserNotBetween(String value1, String value2) {
+/*  801 */       addCriterion("CONFIRM_USER not between", value1, value2, "confirmUser");
+/*  802 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileCodeIsNull() {
+/*  806 */       addCriterion("FILE_CODE is null");
+/*  807 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileCodeIsNotNull() {
+/*  811 */       addCriterion("FILE_CODE is not null");
+/*  812 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileCodeEqualTo(String value) {
+/*  816 */       addCriterion("FILE_CODE =", value, "fileCode");
+/*  817 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileCodeNotEqualTo(String value) {
+/*  821 */       addCriterion("FILE_CODE <>", value, "fileCode");
+/*  822 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileCodeGreaterThan(String value) {
+/*  826 */       addCriterion("FILE_CODE >", value, "fileCode");
+/*  827 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileCodeGreaterThanOrEqualTo(String value) {
+/*  831 */       addCriterion("FILE_CODE >=", value, "fileCode");
+/*  832 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileCodeLessThan(String value) {
+/*  836 */       addCriterion("FILE_CODE <", value, "fileCode");
+/*  837 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileCodeLessThanOrEqualTo(String value) {
+/*  841 */       addCriterion("FILE_CODE <=", value, "fileCode");
+/*  842 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileCodeLike(String value) {
+/*  846 */       addCriterion("FILE_CODE like", value, "fileCode");
+/*  847 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileCodeNotLike(String value) {
+/*  851 */       addCriterion("FILE_CODE not like", value, "fileCode");
+/*  852 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileCodeIn(List<String> values) {
+/*  856 */       addCriterion("FILE_CODE in", values, "fileCode");
+/*  857 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileCodeNotIn(List<String> values) {
+/*  861 */       addCriterion("FILE_CODE not in", values, "fileCode");
+/*  862 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileCodeBetween(String value1, String value2) {
+/*  866 */       addCriterion("FILE_CODE between", value1, value2, "fileCode");
+/*  867 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileCodeNotBetween(String value1, String value2) {
+/*  871 */       addCriterion("FILE_CODE not between", value1, value2, "fileCode");
+/*  872 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitleIsNull() {
+/*  876 */       addCriterion("FILE_TITLE is null");
+/*  877 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitleIsNotNull() {
+/*  881 */       addCriterion("FILE_TITLE is not null");
+/*  882 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitleEqualTo(String value) {
+/*  886 */       addCriterion("FILE_TITLE =", value, "fileTitle");
+/*  887 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitleNotEqualTo(String value) {
+/*  891 */       addCriterion("FILE_TITLE <>", value, "fileTitle");
+/*  892 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitleGreaterThan(String value) {
+/*  896 */       addCriterion("FILE_TITLE >", value, "fileTitle");
+/*  897 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitleGreaterThanOrEqualTo(String value) {
+/*  901 */       addCriterion("FILE_TITLE >=", value, "fileTitle");
+/*  902 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitleLessThan(String value) {
+/*  906 */       addCriterion("FILE_TITLE <", value, "fileTitle");
+/*  907 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitleLessThanOrEqualTo(String value) {
+/*  911 */       addCriterion("FILE_TITLE <=", value, "fileTitle");
+/*  912 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitleLike(String value) {
+/*  916 */       addCriterion("FILE_TITLE like", value, "fileTitle");
+/*  917 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitleNotLike(String value) {
+/*  921 */       addCriterion("FILE_TITLE not like", value, "fileTitle");
+/*  922 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitleIn(List<String> values) {
+/*  926 */       addCriterion("FILE_TITLE in", values, "fileTitle");
+/*  927 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitleNotIn(List<String> values) {
+/*  931 */       addCriterion("FILE_TITLE not in", values, "fileTitle");
+/*  932 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitleBetween(String value1, String value2) {
+/*  936 */       addCriterion("FILE_TITLE between", value1, value2, "fileTitle");
+/*  937 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitleNotBetween(String value1, String value2) {
+/*  941 */       addCriterion("FILE_TITLE not between", value1, value2, "fileTitle");
+/*  942 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitle0IsNull() {
+/*  946 */       addCriterion("FILE_TITLE0 is null");
+/*  947 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitle0IsNotNull() {
+/*  951 */       addCriterion("FILE_TITLE0 is not null");
+/*  952 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitle0EqualTo(String value) {
+/*  956 */       addCriterion("FILE_TITLE0 =", value, "fileTitle0");
+/*  957 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitle0NotEqualTo(String value) {
+/*  961 */       addCriterion("FILE_TITLE0 <>", value, "fileTitle0");
+/*  962 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitle0GreaterThan(String value) {
+/*  966 */       addCriterion("FILE_TITLE0 >", value, "fileTitle0");
+/*  967 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitle0GreaterThanOrEqualTo(String value) {
+/*  971 */       addCriterion("FILE_TITLE0 >=", value, "fileTitle0");
+/*  972 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitle0LessThan(String value) {
+/*  976 */       addCriterion("FILE_TITLE0 <", value, "fileTitle0");
+/*  977 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitle0LessThanOrEqualTo(String value) {
+/*  981 */       addCriterion("FILE_TITLE0 <=", value, "fileTitle0");
+/*  982 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitle0Like(String value) {
+/*  986 */       addCriterion("FILE_TITLE0 like", value, "fileTitle0");
+/*  987 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitle0NotLike(String value) {
+/*  991 */       addCriterion("FILE_TITLE0 not like", value, "fileTitle0");
+/*  992 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitle0In(List<String> values) {
+/*  996 */       addCriterion("FILE_TITLE0 in", values, "fileTitle0");
+/*  997 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitle0NotIn(List<String> values) {
+/* 1001 */       addCriterion("FILE_TITLE0 not in", values, "fileTitle0");
+/* 1002 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitle0Between(String value1, String value2) {
+/* 1006 */       addCriterion("FILE_TITLE0 between", value1, value2, "fileTitle0");
+/* 1007 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTitle0NotBetween(String value1, String value2) {
+/* 1011 */       addCriterion("FILE_TITLE0 not between", value1, value2, "fileTitle0");
+/* 1012 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileSubjectIsNull() {
+/* 1016 */       addCriterion("FILE_SUBJECT is null");
+/* 1017 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileSubjectIsNotNull() {
+/* 1021 */       addCriterion("FILE_SUBJECT is not null");
+/* 1022 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileSubjectEqualTo(String value) {
+/* 1026 */       addCriterion("FILE_SUBJECT =", value, "fileSubject");
+/* 1027 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileSubjectNotEqualTo(String value) {
+/* 1031 */       addCriterion("FILE_SUBJECT <>", value, "fileSubject");
+/* 1032 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileSubjectGreaterThan(String value) {
+/* 1036 */       addCriterion("FILE_SUBJECT >", value, "fileSubject");
+/* 1037 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileSubjectGreaterThanOrEqualTo(String value) {
+/* 1041 */       addCriterion("FILE_SUBJECT >=", value, "fileSubject");
+/* 1042 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileSubjectLessThan(String value) {
+/* 1046 */       addCriterion("FILE_SUBJECT <", value, "fileSubject");
+/* 1047 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileSubjectLessThanOrEqualTo(String value) {
+/* 1051 */       addCriterion("FILE_SUBJECT <=", value, "fileSubject");
+/* 1052 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileSubjectLike(String value) {
+/* 1056 */       addCriterion("FILE_SUBJECT like", value, "fileSubject");
+/* 1057 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileSubjectNotLike(String value) {
+/* 1061 */       addCriterion("FILE_SUBJECT not like", value, "fileSubject");
+/* 1062 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileSubjectIn(List<String> values) {
+/* 1066 */       addCriterion("FILE_SUBJECT in", values, "fileSubject");
+/* 1067 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileSubjectNotIn(List<String> values) {
+/* 1071 */       addCriterion("FILE_SUBJECT not in", values, "fileSubject");
+/* 1072 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileSubjectBetween(String value1, String value2) {
+/* 1076 */       addCriterion("FILE_SUBJECT between", value1, value2, "fileSubject");
+/* 1077 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileSubjectNotBetween(String value1, String value2) {
+/* 1081 */       addCriterion("FILE_SUBJECT not between", value1, value2, "fileSubject");
+/* 1082 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendUnitIsNull() {
+/* 1086 */       addCriterion("SEND_UNIT is null");
+/* 1087 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendUnitIsNotNull() {
+/* 1091 */       addCriterion("SEND_UNIT is not null");
+/* 1092 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendUnitEqualTo(String value) {
+/* 1096 */       addCriterion("SEND_UNIT =", value, "sendUnit");
+/* 1097 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendUnitNotEqualTo(String value) {
+/* 1101 */       addCriterion("SEND_UNIT <>", value, "sendUnit");
+/* 1102 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendUnitGreaterThan(String value) {
+/* 1106 */       addCriterion("SEND_UNIT >", value, "sendUnit");
+/* 1107 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendUnitGreaterThanOrEqualTo(String value) {
+/* 1111 */       addCriterion("SEND_UNIT >=", value, "sendUnit");
+/* 1112 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendUnitLessThan(String value) {
+/* 1116 */       addCriterion("SEND_UNIT <", value, "sendUnit");
+/* 1117 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendUnitLessThanOrEqualTo(String value) {
+/* 1121 */       addCriterion("SEND_UNIT <=", value, "sendUnit");
+/* 1122 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendUnitLike(String value) {
+/* 1126 */       addCriterion("SEND_UNIT like", value, "sendUnit");
+/* 1127 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendUnitNotLike(String value) {
+/* 1131 */       addCriterion("SEND_UNIT not like", value, "sendUnit");
+/* 1132 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendUnitIn(List<String> values) {
+/* 1136 */       addCriterion("SEND_UNIT in", values, "sendUnit");
+/* 1137 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendUnitNotIn(List<String> values) {
+/* 1141 */       addCriterion("SEND_UNIT not in", values, "sendUnit");
+/* 1142 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendUnitBetween(String value1, String value2) {
+/* 1146 */       addCriterion("SEND_UNIT between", value1, value2, "sendUnit");
+/* 1147 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendUnitNotBetween(String value1, String value2) {
+/* 1151 */       addCriterion("SEND_UNIT not between", value1, value2, "sendUnit");
+/* 1152 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendDateIsNull() {
+/* 1156 */       addCriterion("SEND_DATE is null");
+/* 1157 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendDateIsNotNull() {
+/* 1161 */       addCriterion("SEND_DATE is not null");
+/* 1162 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendDateEqualTo(java.util.Date value) {
+/* 1166 */       addCriterionForJDBCDate("SEND_DATE =", value, "sendDate");
+/* 1167 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendDateNotEqualTo(java.util.Date value) {
+/* 1171 */       addCriterionForJDBCDate("SEND_DATE <>", value, "sendDate");
+/* 1172 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendDateGreaterThan(java.util.Date value) {
+/* 1176 */       addCriterionForJDBCDate("SEND_DATE >", value, "sendDate");
+/* 1177 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendDateGreaterThanOrEqualTo(java.util.Date value) {
+/* 1181 */       addCriterionForJDBCDate("SEND_DATE >=", value, "sendDate");
+/* 1182 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendDateLessThan(java.util.Date value) {
+/* 1186 */       addCriterionForJDBCDate("SEND_DATE <", value, "sendDate");
+/* 1187 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendDateLessThanOrEqualTo(java.util.Date value) {
+/* 1191 */       addCriterionForJDBCDate("SEND_DATE <=", value, "sendDate");
+/* 1192 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendDateIn(List<java.util.Date> values) {
+/* 1196 */       addCriterionForJDBCDate("SEND_DATE in", values, "sendDate");
+/* 1197 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendDateNotIn(List<java.util.Date> values) {
+/* 1201 */       addCriterionForJDBCDate("SEND_DATE not in", values, "sendDate");
+/* 1202 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendDateBetween(java.util.Date value1, java.util.Date value2) {
+/* 1206 */       addCriterionForJDBCDate("SEND_DATE between", value1, value2, "sendDate");
+/* 1207 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSendDateNotBetween(java.util.Date value1, java.util.Date value2) {
+/* 1211 */       addCriterionForJDBCDate("SEND_DATE not between", value1, value2, "sendDate");
+/* 1212 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSecretIsNull() {
+/* 1216 */       addCriterion("SECRET is null");
+/* 1217 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSecretIsNotNull() {
+/* 1221 */       addCriterion("SECRET is not null");
+/* 1222 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSecretEqualTo(String value) {
+/* 1226 */       addCriterion("SECRET =", value, "secret");
+/* 1227 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSecretNotEqualTo(String value) {
+/* 1231 */       addCriterion("SECRET <>", value, "secret");
+/* 1232 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSecretGreaterThan(String value) {
+/* 1236 */       addCriterion("SECRET >", value, "secret");
+/* 1237 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSecretGreaterThanOrEqualTo(String value) {
+/* 1241 */       addCriterion("SECRET >=", value, "secret");
+/* 1242 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSecretLessThan(String value) {
+/* 1246 */       addCriterion("SECRET <", value, "secret");
+/* 1247 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSecretLessThanOrEqualTo(String value) {
+/* 1251 */       addCriterion("SECRET <=", value, "secret");
+/* 1252 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSecretLike(String value) {
+/* 1256 */       addCriterion("SECRET like", value, "secret");
+/* 1257 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSecretNotLike(String value) {
+/* 1261 */       addCriterion("SECRET not like", value, "secret");
+/* 1262 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSecretIn(List<String> values) {
+/* 1266 */       addCriterion("SECRET in", values, "secret");
+/* 1267 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSecretNotIn(List<String> values) {
+/* 1271 */       addCriterion("SECRET not in", values, "secret");
+/* 1272 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSecretBetween(String value1, String value2) {
+/* 1276 */       addCriterion("SECRET between", value1, value2, "secret");
+/* 1277 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andSecretNotBetween(String value1, String value2) {
+/* 1281 */       addCriterion("SECRET not between", value1, value2, "secret");
+/* 1282 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andUrgencyIsNull() {
+/* 1286 */       addCriterion("URGENCY is null");
+/* 1287 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andUrgencyIsNotNull() {
+/* 1291 */       addCriterion("URGENCY is not null");
+/* 1292 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andUrgencyEqualTo(String value) {
+/* 1296 */       addCriterion("URGENCY =", value, "urgency");
+/* 1297 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andUrgencyNotEqualTo(String value) {
+/* 1301 */       addCriterion("URGENCY <>", value, "urgency");
+/* 1302 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andUrgencyGreaterThan(String value) {
+/* 1306 */       addCriterion("URGENCY >", value, "urgency");
+/* 1307 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andUrgencyGreaterThanOrEqualTo(String value) {
+/* 1311 */       addCriterion("URGENCY >=", value, "urgency");
+/* 1312 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andUrgencyLessThan(String value) {
+/* 1316 */       addCriterion("URGENCY <", value, "urgency");
+/* 1317 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andUrgencyLessThanOrEqualTo(String value) {
+/* 1321 */       addCriterion("URGENCY <=", value, "urgency");
+/* 1322 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andUrgencyLike(String value) {
+/* 1326 */       addCriterion("URGENCY like", value, "urgency");
+/* 1327 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andUrgencyNotLike(String value) {
+/* 1331 */       addCriterion("URGENCY not like", value, "urgency");
+/* 1332 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andUrgencyIn(List<String> values) {
+/* 1336 */       addCriterion("URGENCY in", values, "urgency");
+/* 1337 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andUrgencyNotIn(List<String> values) {
+/* 1341 */       addCriterion("URGENCY not in", values, "urgency");
+/* 1342 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andUrgencyBetween(String value1, String value2) {
+/* 1346 */       addCriterion("URGENCY between", value1, value2, "urgency");
+/* 1347 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andUrgencyNotBetween(String value1, String value2) {
+/* 1351 */       addCriterion("URGENCY not between", value1, value2, "urgency");
+/* 1352 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileKindIsNull() {
+/* 1356 */       addCriterion("FILE_KIND is null");
+/* 1357 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileKindIsNotNull() {
+/* 1361 */       addCriterion("FILE_KIND is not null");
+/* 1362 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileKindEqualTo(String value) {
+/* 1366 */       addCriterion("FILE_KIND =", value, "fileKind");
+/* 1367 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileKindNotEqualTo(String value) {
+/* 1371 */       addCriterion("FILE_KIND <>", value, "fileKind");
+/* 1372 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileKindGreaterThan(String value) {
+/* 1376 */       addCriterion("FILE_KIND >", value, "fileKind");
+/* 1377 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileKindGreaterThanOrEqualTo(String value) {
+/* 1381 */       addCriterion("FILE_KIND >=", value, "fileKind");
+/* 1382 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileKindLessThan(String value) {
+/* 1386 */       addCriterion("FILE_KIND <", value, "fileKind");
+/* 1387 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileKindLessThanOrEqualTo(String value) {
+/* 1391 */       addCriterion("FILE_KIND <=", value, "fileKind");
+/* 1392 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileKindLike(String value) {
+/* 1396 */       addCriterion("FILE_KIND like", value, "fileKind");
+/* 1397 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileKindNotLike(String value) {
+/* 1401 */       addCriterion("FILE_KIND not like", value, "fileKind");
+/* 1402 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileKindIn(List<String> values) {
+/* 1406 */       addCriterion("FILE_KIND in", values, "fileKind");
+/* 1407 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileKindNotIn(List<String> values) {
+/* 1411 */       addCriterion("FILE_KIND not in", values, "fileKind");
+/* 1412 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileKindBetween(String value1, String value2) {
+/* 1416 */       addCriterion("FILE_KIND between", value1, value2, "fileKind");
+/* 1417 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileKindNotBetween(String value1, String value2) {
+/* 1421 */       addCriterion("FILE_KIND not between", value1, value2, "fileKind");
+/* 1422 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTypeIsNull() {
+/* 1426 */       addCriterion("FILE_TYPE is null");
+/* 1427 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTypeIsNotNull() {
+/* 1431 */       addCriterion("FILE_TYPE is not null");
+/* 1432 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTypeEqualTo(String value) {
+/* 1436 */       addCriterion("FILE_TYPE =", value, "fileType");
+/* 1437 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTypeNotEqualTo(String value) {
+/* 1441 */       addCriterion("FILE_TYPE <>", value, "fileType");
+/* 1442 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTypeGreaterThan(String value) {
+/* 1446 */       addCriterion("FILE_TYPE >", value, "fileType");
+/* 1447 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTypeGreaterThanOrEqualTo(String value) {
+/* 1451 */       addCriterion("FILE_TYPE >=", value, "fileType");
+/* 1452 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTypeLessThan(String value) {
+/* 1456 */       addCriterion("FILE_TYPE <", value, "fileType");
+/* 1457 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTypeLessThanOrEqualTo(String value) {
+/* 1461 */       addCriterion("FILE_TYPE <=", value, "fileType");
+/* 1462 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTypeLike(String value) {
+/* 1466 */       addCriterion("FILE_TYPE like", value, "fileType");
+/* 1467 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTypeNotLike(String value) {
+/* 1471 */       addCriterion("FILE_TYPE not like", value, "fileType");
+/* 1472 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTypeIn(List<String> values) {
+/* 1476 */       addCriterion("FILE_TYPE in", values, "fileType");
+/* 1477 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTypeNotIn(List<String> values) {
+/* 1481 */       addCriterion("FILE_TYPE not in", values, "fileType");
+/* 1482 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTypeBetween(String value1, String value2) {
+/* 1486 */       addCriterion("FILE_TYPE between", value1, value2, "fileType");
+/* 1487 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFileTypeNotBetween(String value1, String value2) {
+/* 1491 */       addCriterion("FILE_TYPE not between", value1, value2, "fileType");
+/* 1492 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFilePageIsNull() {
+/* 1496 */       addCriterion("FILE_PAGE is null");
+/* 1497 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFilePageIsNotNull() {
+/* 1501 */       addCriterion("FILE_PAGE is not null");
+/* 1502 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFilePageEqualTo(String value) {
+/* 1506 */       addCriterion("FILE_PAGE =", value, "filePage");
+/* 1507 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFilePageNotEqualTo(String value) {
+/* 1511 */       addCriterion("FILE_PAGE <>", value, "filePage");
+/* 1512 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFilePageGreaterThan(String value) {
+/* 1516 */       addCriterion("FILE_PAGE >", value, "filePage");
+/* 1517 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFilePageGreaterThanOrEqualTo(String value) {
+/* 1521 */       addCriterion("FILE_PAGE >=", value, "filePage");
+/* 1522 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFilePageLessThan(String value) {
+/* 1526 */       addCriterion("FILE_PAGE <", value, "filePage");
+/* 1527 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFilePageLessThanOrEqualTo(String value) {
+/* 1531 */       addCriterion("FILE_PAGE <=", value, "filePage");
+/* 1532 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFilePageLike(String value) {
+/* 1536 */       addCriterion("FILE_PAGE like", value, "filePage");
+/* 1537 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFilePageNotLike(String value) {
+/* 1541 */       addCriterion("FILE_PAGE not like", value, "filePage");
+/* 1542 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFilePageIn(List<String> values) {
+/* 1546 */       addCriterion("FILE_PAGE in", values, "filePage");
+/* 1547 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFilePageNotIn(List<String> values) {
+/* 1551 */       addCriterion("FILE_PAGE not in", values, "filePage");
+/* 1552 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFilePageBetween(String value1, String value2) {
+/* 1556 */       addCriterion("FILE_PAGE between", value1, value2, "filePage");
+/* 1557 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andFilePageNotBetween(String value1, String value2) {
+/* 1561 */       addCriterion("FILE_PAGE not between", value1, value2, "filePage");
+/* 1562 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintPageIsNull() {
+/* 1566 */       addCriterion("PRINT_PAGE is null");
+/* 1567 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintPageIsNotNull() {
+/* 1571 */       addCriterion("PRINT_PAGE is not null");
+/* 1572 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintPageEqualTo(String value) {
+/* 1576 */       addCriterion("PRINT_PAGE =", value, "printPage");
+/* 1577 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintPageNotEqualTo(String value) {
+/* 1581 */       addCriterion("PRINT_PAGE <>", value, "printPage");
+/* 1582 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintPageGreaterThan(String value) {
+/* 1586 */       addCriterion("PRINT_PAGE >", value, "printPage");
+/* 1587 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintPageGreaterThanOrEqualTo(String value) {
+/* 1591 */       addCriterion("PRINT_PAGE >=", value, "printPage");
+/* 1592 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintPageLessThan(String value) {
+/* 1596 */       addCriterion("PRINT_PAGE <", value, "printPage");
+/* 1597 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintPageLessThanOrEqualTo(String value) {
+/* 1601 */       addCriterion("PRINT_PAGE <=", value, "printPage");
+/* 1602 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintPageLike(String value) {
+/* 1606 */       addCriterion("PRINT_PAGE like", value, "printPage");
+/* 1607 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintPageNotLike(String value) {
+/* 1611 */       addCriterion("PRINT_PAGE not like", value, "printPage");
+/* 1612 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintPageIn(List<String> values) {
+/* 1616 */       addCriterion("PRINT_PAGE in", values, "printPage");
+/* 1617 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintPageNotIn(List<String> values) {
+/* 1621 */       addCriterion("PRINT_PAGE not in", values, "printPage");
+/* 1622 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintPageBetween(String value1, String value2) {
+/* 1626 */       addCriterion("PRINT_PAGE between", value1, value2, "printPage");
+/* 1627 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintPageNotBetween(String value1, String value2) {
+/* 1631 */       addCriterion("PRINT_PAGE not between", value1, value2, "printPage");
+/* 1632 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowIsNull() {
+/* 1636 */       addCriterion("BORROW is null");
+/* 1637 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowIsNotNull() {
+/* 1641 */       addCriterion("BORROW is not null");
+/* 1642 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowEqualTo(String value) {
+/* 1646 */       addCriterion("BORROW =", value, "borrow");
+/* 1647 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowNotEqualTo(String value) {
+/* 1651 */       addCriterion("BORROW <>", value, "borrow");
+/* 1652 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowGreaterThan(String value) {
+/* 1656 */       addCriterion("BORROW >", value, "borrow");
+/* 1657 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowGreaterThanOrEqualTo(String value) {
+/* 1661 */       addCriterion("BORROW >=", value, "borrow");
+/* 1662 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowLessThan(String value) {
+/* 1666 */       addCriterion("BORROW <", value, "borrow");
+/* 1667 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowLessThanOrEqualTo(String value) {
+/* 1671 */       addCriterion("BORROW <=", value, "borrow");
+/* 1672 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowLike(String value) {
+/* 1676 */       addCriterion("BORROW like", value, "borrow");
+/* 1677 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowNotLike(String value) {
+/* 1681 */       addCriterion("BORROW not like", value, "borrow");
+/* 1682 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowIn(List<String> values) {
+/* 1686 */       addCriterion("BORROW in", values, "borrow");
+/* 1687 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowNotIn(List<String> values) {
+/* 1691 */       addCriterion("BORROW not in", values, "borrow");
+/* 1692 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowBetween(String value1, String value2) {
+/* 1696 */       addCriterion("BORROW between", value1, value2, "borrow");
+/* 1697 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowNotBetween(String value1, String value2) {
+/* 1701 */       addCriterion("BORROW not between", value1, value2, "borrow");
+/* 1702 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRemarkIsNull() {
+/* 1706 */       addCriterion("REMARK is null");
+/* 1707 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRemarkIsNotNull() {
+/* 1711 */       addCriterion("REMARK is not null");
+/* 1712 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRemarkEqualTo(String value) {
+/* 1716 */       addCriterion("REMARK =", value, "remark");
+/* 1717 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRemarkNotEqualTo(String value) {
+/* 1721 */       addCriterion("REMARK <>", value, "remark");
+/* 1722 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRemarkGreaterThan(String value) {
+/* 1726 */       addCriterion("REMARK >", value, "remark");
+/* 1727 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRemarkGreaterThanOrEqualTo(String value) {
+/* 1731 */       addCriterion("REMARK >=", value, "remark");
+/* 1732 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRemarkLessThan(String value) {
+/* 1736 */       addCriterion("REMARK <", value, "remark");
+/* 1737 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRemarkLessThanOrEqualTo(String value) {
+/* 1741 */       addCriterion("REMARK <=", value, "remark");
+/* 1742 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRemarkLike(String value) {
+/* 1746 */       addCriterion("REMARK like", value, "remark");
+/* 1747 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRemarkNotLike(String value) {
+/* 1751 */       addCriterion("REMARK not like", value, "remark");
+/* 1752 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRemarkIn(List<String> values) {
+/* 1756 */       addCriterion("REMARK in", values, "remark");
+/* 1757 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRemarkNotIn(List<String> values) {
+/* 1761 */       addCriterion("REMARK not in", values, "remark");
+/* 1762 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRemarkBetween(String value1, String value2) {
+/* 1766 */       addCriterion("REMARK between", value1, value2, "remark");
+/* 1767 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andRemarkNotBetween(String value1, String value2) {
+/* 1771 */       addCriterion("REMARK not between", value1, value2, "remark");
+/* 1772 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowStatusIsNull() {
+/* 1776 */       addCriterion("BORROW_STATUS is null");
+/* 1777 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowStatusIsNotNull() {
+/* 1781 */       addCriterion("BORROW_STATUS is not null");
+/* 1782 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowStatusEqualTo(String value) {
+/* 1786 */       addCriterion("BORROW_STATUS =", value, "borrowStatus");
+/* 1787 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowStatusNotEqualTo(String value) {
+/* 1791 */       addCriterion("BORROW_STATUS <>", value, "borrowStatus");
+/* 1792 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowStatusGreaterThan(String value) {
+/* 1796 */       addCriterion("BORROW_STATUS >", value, "borrowStatus");
+/* 1797 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowStatusGreaterThanOrEqualTo(String value) {
+/* 1801 */       addCriterion("BORROW_STATUS >=", value, "borrowStatus");
+/* 1802 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowStatusLessThan(String value) {
+/* 1806 */       addCriterion("BORROW_STATUS <", value, "borrowStatus");
+/* 1807 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowStatusLessThanOrEqualTo(String value) {
+/* 1811 */       addCriterion("BORROW_STATUS <=", value, "borrowStatus");
+/* 1812 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowStatusLike(String value) {
+/* 1816 */       addCriterion("BORROW_STATUS like", value, "borrowStatus");
+/* 1817 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowStatusNotLike(String value) {
+/* 1821 */       addCriterion("BORROW_STATUS not like", value, "borrowStatus");
+/* 1822 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowStatusIn(List<String> values) {
+/* 1826 */       addCriterion("BORROW_STATUS in", values, "borrowStatus");
+/* 1827 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowStatusNotIn(List<String> values) {
+/* 1831 */       addCriterion("BORROW_STATUS not in", values, "borrowStatus");
+/* 1832 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowStatusBetween(String value1, String value2) {
+/* 1836 */       addCriterion("BORROW_STATUS between", value1, value2, "borrowStatus");
+/* 1837 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andBorrowStatusNotBetween(String value1, String value2) {
+/* 1841 */       addCriterion("BORROW_STATUS not between", value1, value2, "borrowStatus");
+/* 1842 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmStatusIsNull() {
+/* 1846 */       addCriterion("CONFIRM_STATUS is null");
+/* 1847 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmStatusIsNotNull() {
+/* 1851 */       addCriterion("CONFIRM_STATUS is not null");
+/* 1852 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmStatusEqualTo(String value) {
+/* 1856 */       addCriterion("CONFIRM_STATUS =", value, "confirmStatus");
+/* 1857 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmStatusNotEqualTo(String value) {
+/* 1861 */       addCriterion("CONFIRM_STATUS <>", value, "confirmStatus");
+/* 1862 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmStatusGreaterThan(String value) {
+/* 1866 */       addCriterion("CONFIRM_STATUS >", value, "confirmStatus");
+/* 1867 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmStatusGreaterThanOrEqualTo(String value) {
+/* 1871 */       addCriterion("CONFIRM_STATUS >=", value, "confirmStatus");
+/* 1872 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmStatusLessThan(String value) {
+/* 1876 */       addCriterion("CONFIRM_STATUS <", value, "confirmStatus");
+/* 1877 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmStatusLessThanOrEqualTo(String value) {
+/* 1881 */       addCriterion("CONFIRM_STATUS <=", value, "confirmStatus");
+/* 1882 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmStatusLike(String value) {
+/* 1886 */       addCriterion("CONFIRM_STATUS like", value, "confirmStatus");
+/* 1887 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmStatusNotLike(String value) {
+/* 1891 */       addCriterion("CONFIRM_STATUS not like", value, "confirmStatus");
+/* 1892 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmStatusIn(List<String> values) {
+/* 1896 */       addCriterion("CONFIRM_STATUS in", values, "confirmStatus");
+/* 1897 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmStatusNotIn(List<String> values) {
+/* 1901 */       addCriterion("CONFIRM_STATUS not in", values, "confirmStatus");
+/* 1902 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmStatusBetween(String value1, String value2) {
+/* 1906 */       addCriterion("CONFIRM_STATUS between", value1, value2, "confirmStatus");
+/* 1907 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andConfirmStatusNotBetween(String value1, String value2) {
+/* 1911 */       addCriterion("CONFIRM_STATUS not between", value1, value2, "confirmStatus");
+/* 1912 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadYnIsNull() {
+/* 1916 */       addCriterion("DOWNLOAD_YN is null");
+/* 1917 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadYnIsNotNull() {
+/* 1921 */       addCriterion("DOWNLOAD_YN is not null");
+/* 1922 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadYnEqualTo(Integer value) {
+/* 1926 */       addCriterion("DOWNLOAD_YN =", value, "downloadYn");
+/* 1927 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadYnNotEqualTo(Integer value) {
+/* 1931 */       addCriterion("DOWNLOAD_YN <>", value, "downloadYn");
+/* 1932 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadYnGreaterThan(Integer value) {
+/* 1936 */       addCriterion("DOWNLOAD_YN >", value, "downloadYn");
+/* 1937 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadYnGreaterThanOrEqualTo(Integer value) {
+/* 1941 */       addCriterion("DOWNLOAD_YN >=", value, "downloadYn");
+/* 1942 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadYnLessThan(Integer value) {
+/* 1946 */       addCriterion("DOWNLOAD_YN <", value, "downloadYn");
+/* 1947 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadYnLessThanOrEqualTo(Integer value) {
+/* 1951 */       addCriterion("DOWNLOAD_YN <=", value, "downloadYn");
+/* 1952 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadYnIn(List<Integer> values) {
+/* 1956 */       addCriterion("DOWNLOAD_YN in", values, "downloadYn");
+/* 1957 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadYnNotIn(List<Integer> values) {
+/* 1961 */       addCriterion("DOWNLOAD_YN not in", values, "downloadYn");
+/* 1962 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadYnBetween(Integer value1, Integer value2) {
+/* 1966 */       addCriterion("DOWNLOAD_YN between", value1, value2, "downloadYn");
+/* 1967 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadYnNotBetween(Integer value1, Integer value2) {
+/* 1971 */       addCriterion("DOWNLOAD_YN not between", value1, value2, "downloadYn");
+/* 1972 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andIsauditIsNull() {
+/* 1976 */       addCriterion("ISAUDIT is null");
+/* 1977 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andIsauditIsNotNull() {
+/* 1981 */       addCriterion("ISAUDIT is not null");
+/* 1982 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andIsauditEqualTo(String value) {
+/* 1986 */       addCriterion("ISAUDIT =", value, "isaudit");
+/* 1987 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andIsauditNotEqualTo(String value) {
+/* 1991 */       addCriterion("ISAUDIT <>", value, "isaudit");
+/* 1992 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andIsauditGreaterThan(String value) {
+/* 1996 */       addCriterion("ISAUDIT >", value, "isaudit");
+/* 1997 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andIsauditGreaterThanOrEqualTo(String value) {
+/* 2001 */       addCriterion("ISAUDIT >=", value, "isaudit");
+/* 2002 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andIsauditLessThan(String value) {
+/* 2006 */       addCriterion("ISAUDIT <", value, "isaudit");
+/* 2007 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andIsauditLessThanOrEqualTo(String value) {
+/* 2011 */       addCriterion("ISAUDIT <=", value, "isaudit");
+/* 2012 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andIsauditLike(String value) {
+/* 2016 */       addCriterion("ISAUDIT like", value, "isaudit");
+/* 2017 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andIsauditNotLike(String value) {
+/* 2021 */       addCriterion("ISAUDIT not like", value, "isaudit");
+/* 2022 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andIsauditIn(List<String> values) {
+/* 2026 */       addCriterion("ISAUDIT in", values, "isaudit");
+/* 2027 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andIsauditNotIn(List<String> values) {
+/* 2031 */       addCriterion("ISAUDIT not in", values, "isaudit");
+/* 2032 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andIsauditBetween(String value1, String value2) {
+/* 2036 */       addCriterion("ISAUDIT between", value1, value2, "isaudit");
+/* 2037 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andIsauditNotBetween(String value1, String value2) {
+/* 2041 */       addCriterion("ISAUDIT not between", value1, value2, "isaudit");
+/* 2042 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadIsNull() {
+/* 2046 */       addCriterion("DOWNLOAD is null");
+/* 2047 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadIsNotNull() {
+/* 2051 */       addCriterion("DOWNLOAD is not null");
+/* 2052 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadEqualTo(Integer value) {
+/* 2056 */       addCriterion("DOWNLOAD =", value, "download");
+/* 2057 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadNotEqualTo(Integer value) {
+/* 2061 */       addCriterion("DOWNLOAD <>", value, "download");
+/* 2062 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadGreaterThan(Integer value) {
+/* 2066 */       addCriterion("DOWNLOAD >", value, "download");
+/* 2067 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadGreaterThanOrEqualTo(Integer value) {
+/* 2071 */       addCriterion("DOWNLOAD >=", value, "download");
+/* 2072 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadLessThan(Integer value) {
+/* 2076 */       addCriterion("DOWNLOAD <", value, "download");
+/* 2077 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadLessThanOrEqualTo(Integer value) {
+/* 2081 */       addCriterion("DOWNLOAD <=", value, "download");
+/* 2082 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadIn(List<Integer> values) {
+/* 2086 */       addCriterion("DOWNLOAD in", values, "download");
+/* 2087 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadNotIn(List<Integer> values) {
+/* 2091 */       addCriterion("DOWNLOAD not in", values, "download");
+/* 2092 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadBetween(Integer value1, Integer value2) {
+/* 2096 */       addCriterion("DOWNLOAD between", value1, value2, "download");
+/* 2097 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andDownloadNotBetween(Integer value1, Integer value2) {
+/* 2101 */       addCriterion("DOWNLOAD not between", value1, value2, "download");
+/* 2102 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintIsNull() {
+/* 2106 */       addCriterion("PRINT is null");
+/* 2107 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintIsNotNull() {
+/* 2111 */       addCriterion("PRINT is not null");
+/* 2112 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintEqualTo(Integer value) {
+/* 2116 */       addCriterion("PRINT =", value, "print");
+/* 2117 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintNotEqualTo(Integer value) {
+/* 2121 */       addCriterion("PRINT <>", value, "print");
+/* 2122 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintGreaterThan(Integer value) {
+/* 2126 */       addCriterion("PRINT >", value, "print");
+/* 2127 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintGreaterThanOrEqualTo(Integer value) {
+/* 2131 */       addCriterion("PRINT >=", value, "print");
+/* 2132 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintLessThan(Integer value) {
+/* 2136 */       addCriterion("PRINT <", value, "print");
+/* 2137 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintLessThanOrEqualTo(Integer value) {
+/* 2141 */       addCriterion("PRINT <=", value, "print");
+/* 2142 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintIn(List<Integer> values) {
+/* 2146 */       addCriterion("PRINT in", values, "print");
+/* 2147 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintNotIn(List<Integer> values) {
+/* 2151 */       addCriterion("PRINT not in", values, "print");
+/* 2152 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintBetween(Integer value1, Integer value2) {
+/* 2156 */       addCriterion("PRINT between", value1, value2, "print");
+/* 2157 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public RmsFileExample.Criteria andPrintNotBetween(Integer value1, Integer value2) {
+/* 2161 */       addCriterion("PRINT not between", value1, value2, "print");
+/* 2162 */       return (RmsFileExample.Criteria)this;
+/*      */     }
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.rms.RmsFileExample
+ * JD-Core Version:    0.6.0
+ */

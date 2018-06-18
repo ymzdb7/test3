@@ -1,0 +1,329 @@
+/*     */ package com.xoa.controller.edu.eduSchoolBusiness;
+/*     */ 
+/*     */ import com.xoa.model.edu.eduSchoolBusiness.EduSchoolBusiness;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.edu.eduSchoolBusiness.EduSchoolBusinessService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/eduSchoolBusiness"})
+/*     */ public class EduSchoolBusinessController
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   EduSchoolBusinessService eduSchoolBusinessService;
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/addEduSchoolBus"})
+/*     */   public ToJson<EduSchoolBusiness> addEduSchoolBus(HttpServletRequest request, EduSchoolBusiness eduSchoolBusiness)
+/*     */   {
+/*  48 */     return this.eduSchoolBusinessService.addEduSchoolBus(request, eduSchoolBusiness);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/updateEduSchoolBus"})
+/*     */   public ToJson<EduSchoolBusiness> updateEduSchoolBus(HttpServletRequest request, EduSchoolBusiness eduSchoolBusiness)
+/*     */   {
+/*  62 */     return this.eduSchoolBusinessService.updateEduSchoolBus(request, eduSchoolBusiness);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/eduSchoolBusList"})
+/*     */   public ToJson<EduSchoolBusiness> eduSchoolBusList(Map<String, Object> maps, @RequestParam(value="page", required=false) Integer page, @RequestParam(value="pageSize", required=false) Integer pageSize, @RequestParam(value="useFlag", required=false) boolean useFlag)
+/*     */   {
+/*  78 */     return this.eduSchoolBusinessService.eduSchoolBusList(maps, page, pageSize, useFlag);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/eduSchoolBusExport"})
+/*     */   public ToJson<EduSchoolBusiness> eduSchoolBusExport(HttpServletRequest request, HttpServletResponse response, @RequestParam String exportId)
+/*     */   {
+/*  93 */     return this.eduSchoolBusinessService.eduSchoolBusExport(request, response, exportId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/eduSchoolConunt"})
+/*     */   @ResponseBody
+/*     */   public ToJson eduSchoolConunt(HttpServletRequest request)
+/*     */   {
+/* 106 */     Map map = new HashMap();
+/* 107 */     String fromDept = request.getParameter("fromDept");
+/* 108 */     if ((fromDept != null) && (!fromDept.equals(""))) {
+/* 109 */       map.put("fromDept", Integer.valueOf(fromDept));
+/*     */     }
+/* 111 */     map.put("beginTime", request.getParameter("beginTime"));
+/* 112 */     map.put("endTime", request.getParameter("endTime"));
+/* 113 */     return this.eduSchoolBusinessService.eduSchoolConunt(map);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/eduSchoolDelete"})
+/*     */   @ResponseBody
+/*     */   public ToJson eduSchoolDelete(HttpServletRequest request)
+/*     */   {
+/* 126 */     String[] notifyId = request.getParameterValues("notifyIds[]");
+/* 127 */     return this.eduSchoolBusinessService.eduSchoolDelete(notifyId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/eduSchoolOnerSelect"})
+/*     */   @ResponseBody
+/*     */   public ToJson eduSchoolOnerSelect(HttpServletRequest request)
+/*     */   {
+/* 139 */     Integer notifyId = Integer.valueOf(request.getParameter("notifyId"));
+/* 140 */     return this.eduSchoolBusinessService.eduSchoolOnerSelect(notifyId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/eduSchoolYuangong"})
+/*     */   @ResponseBody
+/*     */   public ToJson eduSchoolYuangong(HttpServletRequest request)
+/*     */   {
+/* 153 */     Map map = new HashMap();
+/* 154 */     String fromDept = request.getParameter("deptId");
+/* 155 */     if ((fromDept != null) && (!fromDept.equals(""))) {
+/* 156 */       map.put("deptId", Integer.valueOf(fromDept));
+/*     */     }
+/* 158 */     map.put("beginTime", request.getParameter("beginTime"));
+/* 159 */     map.put("endTime", request.getParameter("endTime"));
+/* 160 */     return this.eduSchoolBusinessService.eduSchoolYuangong(map);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/eduSchoolYuanggongXiangqing"})
+/*     */   @ResponseBody
+/*     */   public ToJson eduSchoolYuanggongXiangqing(HttpServletRequest request)
+/*     */   {
+/* 173 */     Map map = new HashMap();
+/* 174 */     String fromDept = request.getParameter("fromDept");
+/* 175 */     if ((fromDept != null) && (!fromDept.equals(""))) {
+/* 176 */       map.put("fromDept", Integer.valueOf(fromDept));
+/*     */     }
+/* 178 */     map.put("userId", request.getParameter("fromId"));
+/* 179 */     map.put("beginTime", request.getParameter("beginTime"));
+/* 180 */     map.put("endTime", request.getParameter("endTime"));
+/* 181 */     return this.eduSchoolBusinessService.eduSchoolYuanggongXiangqing(map);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/eduSchoolIndex"})
+/*     */   public String eduSchoolIndex()
+/*     */   {
+/* 191 */     return "app/edu/eduSchoolBusiness/eduSchoolBusiness";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/eduSubjectDetail"})
+/*     */   public String eduSubjectDetail()
+/*     */   {
+/* 201 */     return "app/edu/eduSchoolBusiness/eduSubjectDetail";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/eduSchoolShow"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<EduSchoolBusiness> eduSchoolShow(@RequestParam(value="format", required=false) String format, @RequestParam(value="typeId", required=false) String typeId, @RequestParam(value="top", required=false) String top, @RequestParam(value="publish", required=false) String publish, @RequestParam(value="subject", required=false) String subject, @RequestParam(value="lastEditTime", required=false) String lastEditTime, @RequestParam(value="content", required=false) String content, @RequestParam(value="fromDept", required=false) String fromDept, @RequestParam(value="sendTime", required=false) String sendTime, @RequestParam(value="fromId", required=false) String fromId, @RequestParam(value="toId", required=false) String toId, @RequestParam(value="beginDate", required=false) String beginDate, @RequestParam(value="endDate", required=false) String endDate, @RequestParam(value="read", required=false) String read, @RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam("useFlag") Boolean useFlag, HttpServletRequest request)
+/*     */   {
+/* 232 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 234 */     ContextHolder.setConsumerType(sqlType);
+/* 235 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 236 */     String userId = null;
+/* 237 */     String userPriv = null;
+/* 238 */     String deptId = null;
+/* 239 */     if ((users != null) && (users.getUserId() != null)) {
+/* 240 */       userId = users.getUserId();
+/* 241 */       userPriv = users.getUserPriv() + "";
+/* 242 */       deptId = users.getDeptId() + "";
+/*     */     }
+/* 244 */     Map maps = new HashMap();
+/* 245 */     maps.put("format", format);
+/* 246 */     if ("0".equals(typeId))
+/* 247 */       typeId = null;
+/*     */     else {
+/* 249 */       maps.put("typeId", typeId);
+/*     */     }
+/* 251 */     if ((!"".equals(fromId)) && (fromId != null)) {
+/* 252 */       fromId = fromId.substring(0, fromId.length() - 1);
+/*     */     }
+/* 254 */     Date dt = new Date();
+/* 255 */     SimpleDateFormat matter1 = new SimpleDateFormat("yyyy-MM-dd");
+/* 256 */     String data = matter1.format(dt);
+/*     */ 
+/* 258 */     maps.put("top", top);
+/* 259 */     maps.put("publish", publish);
+/* 260 */     maps.put("subject", subject);
+/* 261 */     maps.put("lastEditTime", lastEditTime);
+/* 262 */     maps.put("content", content);
+/* 263 */     maps.put("fromDept", fromDept);
+/* 264 */     maps.put("sendTime", sendTime);
+/* 265 */     maps.put("fromId", fromId);
+/* 266 */     maps.put("toId", toId);
+/* 267 */     maps.put("beginDate", beginDate);
+/* 268 */     maps.put("endDate", endDate);
+/* 269 */     maps.put("userId", userId);
+/* 270 */     maps.put("userPriv", userPriv);
+/* 271 */     maps.put("deptId", deptId);
+/* 272 */     maps.put("notifyTime", data);
+/*     */ 
+/* 274 */     String name = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/* 275 */     maps.put("name", name);
+/* 276 */     ToJson tojson = new ToJson(0, "");
+/*     */     try {
+/* 278 */       if ("0".equals(read)) {
+/* 279 */         ToJson tojson1 = this.eduSchoolBusinessService.unreadEduSchool(maps, page, pageSize, useFlag, name, sqlType);
+/*     */ 
+/* 281 */         if (tojson1.getObj().size() > 0) {
+/* 282 */           tojson1.setFlag(0);
+/* 283 */           tojson1.setMsg("ok");
+/* 284 */           tojson = tojson1;
+/*     */         } else {
+/* 286 */           tojson1.setFlag(1);
+/* 287 */           tojson1.setMsg("err");
+/* 288 */           tojson = tojson1;
+/*     */         }
+/* 290 */       } else if ("1".equals(read)) {
+/* 291 */         ToJson tojson2 = this.eduSchoolBusinessService.readEduSchool(maps, page, pageSize, useFlag, name, sqlType);
+/*     */ 
+/* 293 */         if (tojson2.getObj().size() > 0) {
+/* 294 */           tojson2.setFlag(0);
+/* 295 */           tojson2.setMsg("ok");
+/* 296 */           tojson = tojson2;
+/*     */         } else {
+/* 298 */           tojson2.setFlag(1);
+/* 299 */           tojson2.setMsg("err");
+/* 300 */           tojson = tojson2;
+/*     */         }
+/*     */       } else {
+/* 303 */         ToJson list = this.eduSchoolBusinessService.eduSchoolShow(maps, page, pageSize, useFlag, name, sqlType);
+/*     */ 
+/* 305 */         if (list.getObj().size() > 0) {
+/* 306 */           list.setFlag(0);
+/* 307 */           list.setMsg("ok");
+/* 308 */           tojson = list;
+/*     */         } else {
+/* 310 */           list.setFlag(1);
+/* 311 */           list.setMsg("err");
+/* 312 */           tojson = list;
+/*     */         }
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 316 */       e.printStackTrace();
+/* 317 */       tojson.setMsg(e.getMessage());
+/* 318 */       tojson.setFlag(1);
+/*     */     }
+/* 320 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/statisticalDerivation"})
+/*     */   @ResponseBody
+/*     */   public ToJson statisticalDerivation(HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/* 334 */     return this.eduSchoolBusinessService.statisticalDerivation(request, response);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/noticeIndex"})
+/*     */   public String noticeIndex()
+/*     */   {
+/* 344 */     return "app/edu/eduSchoolBusiness/eduSchoolOpen/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/detail"})
+/*     */   public String details()
+/*     */   {
+/* 357 */     return "app/edu/eduSchoolBusiness/eduSchoolOpen/details";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/eudSchollTop"})
+/*     */   @ResponseBody
+/*     */   public ToJson eudSchollTop(HttpServletRequest request)
+/*     */   {
+/* 371 */     ToJson json = new ToJson();
+/* 372 */     Map map = new HashMap();
+/* 373 */     String[] notifyIds = request.getParameterValues("notifyIds[]");
+/* 374 */     Integer notifyId = null;
+/* 375 */     for (int i = 0; i < notifyIds.length; i++) {
+/* 376 */       notifyId = Integer.valueOf(notifyIds[i]);
+/* 377 */       map.put("notifyId", notifyId);
+/* 378 */       map.put("top", Integer.valueOf(request.getParameter("top")));
+/* 379 */       json = this.eduSchoolBusinessService.eudSchollTop(map);
+/*     */     }
+/* 381 */     if (json.getMsg().equals("err")) {
+/* 382 */       json.setFlag(1);
+/* 383 */       json.setMsg("err");
+/*     */     }
+/* 385 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/eduSchollPublish"})
+/*     */   @ResponseBody
+/*     */   public ToJson eduSchollPublish(HttpServletRequest request)
+/*     */   {
+/* 398 */     Map map = new HashMap();
+/* 399 */     map.put("publish", Integer.valueOf(request.getParameter("publish")));
+/* 400 */     map.put("notifyId", Integer.valueOf(request.getParameter("notifyId")));
+/* 401 */     return this.eduSchoolBusinessService.eduSchollPublish(map);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/EduQuerySituation"})
+/*     */   @ResponseBody
+/*     */   public ToJson<EduSchoolBusiness> EduQuerySituation(String notifyId)
+/*     */   {
+/* 415 */     return this.eduSchoolBusinessService.EduConsultTheSituationNotify(notifyId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/eduFinddetail"})
+/*     */   public String eduFinddetail()
+/*     */   {
+/* 426 */     return "app/edu/eduSchoolBusiness/eduFinddetail";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/eduGetOneById"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<EduSchoolBusiness> getOneById(@RequestParam("notifyId") Integer notifyId, Integer permissionId, String changId, HttpServletRequest request)
+/*     */   {
+/* 444 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 446 */     ContextHolder.setConsumerType(sqlType);
+/*     */ 
+/* 448 */     Map maps = new HashMap();
+/* 449 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 450 */     String userId = null;
+/* 451 */     String userPriv = null;
+/* 452 */     String deptId = null;
+/* 453 */     if ((users != null) && (users.getUserId() != null)) {
+/* 454 */       userId = users.getUserId();
+/* 455 */       userPriv = users.getUserPriv() + "";
+/* 456 */       deptId = users.getDeptId() + "";
+/*     */     }
+/* 458 */     maps.put("userId", userId);
+/* 459 */     maps.put("userPriv", userPriv);
+/* 460 */     maps.put("deptId", deptId);
+/* 461 */     maps.put("notifyId", notifyId);
+/* 462 */     ToJson toJson = new ToJson(0, "");
+/* 463 */     String name = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/*     */     try
+/*     */     {
+/* 466 */       EduSchoolBusiness notify = this.eduSchoolBusinessService.queryById(maps, Integer.valueOf(1), Integer.valueOf(20), false, name, sqlType, changId);
+/* 467 */       toJson.setMsg("success");
+/* 468 */       toJson.setObject(notify);
+/* 469 */       return toJson;
+/*     */     } catch (Exception e) {
+/* 471 */       toJson.setMsg("fail");
+/*     */     }
+/* 473 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.edu.eduSchoolBusiness.EduSchoolBusinessController
+ * JD-Core Version:    0.6.0
+ */

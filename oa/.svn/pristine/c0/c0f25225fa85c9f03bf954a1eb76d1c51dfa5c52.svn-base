@@ -1,0 +1,604 @@
+/*     */ package com.xoa.service.sms.impl;
+/*     */ 
+/*     */ import com.tencent.xinge.ClickAction;
+/*     */ import com.tencent.xinge.Message;
+/*     */ import com.tencent.xinge.MessageIOS;
+/*     */ import com.tencent.xinge.Style;
+/*     */ import com.tencent.xinge.XingeApp;
+/*     */ import com.xoa.dao.common.SysCodeMapper;
+/*     */ import com.xoa.dao.edu.voteItem.VoteItemMapper;
+/*     */ import com.xoa.dao.notify.NotifyMapper;
+/*     */ import com.xoa.dao.sms.SmsBodyMapper;
+/*     */ import com.xoa.dao.sms.SmsMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.common.SysCode;
+/*     */ import com.xoa.model.edu.voteItem.VoteItem;
+/*     */ import com.xoa.model.notify.Notify;
+/*     */ import com.xoa.model.sms.Sms;
+/*     */ import com.xoa.model.sms.SmsBody;
+/*     */ import com.xoa.model.sms.SmsBodyExtend;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.sms.SmsService;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ExcelUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.ipUtil.MachineCode;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.PrintStream;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.ServletOutputStream;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.json.JSONObject;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.beans.factory.annotation.Value;
+/*     */ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class SmsServiceImpl
+/*     */   implements SmsService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private SmsMapper smsMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SmsBodyMapper smsBodyMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SysCodeMapper sysCodeMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private HttpServletRequest request;
+/*     */ 
+/*     */   @Resource
+/*     */   private NotifyMapper notifyMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private VoteItemMapper voteItemMapper;
+/*     */ 
+/*     */   @Value("${xg_push_msg_android_key}")
+/*     */   String androidKey;
+/*     */ 
+/*     */   @Value("${xg_push_msg_android_sercetkey}")
+/*     */   String androidSercetKey;
+/*     */ 
+/*     */   @Value("${xg_push_msg_ios_key}")
+/*     */   String iosKey;
+/*     */ 
+/*     */   @Value("${xg_push_msg_ios_sercetkey}")
+/*     */   String iosSercetKey;
+/*     */ 
+/*     */   @Autowired
+/*     */   ThreadPoolTaskExecutor threadPoolTaskExecutor;
+/*     */ 
+/*     */   public ToJson<SmsBody> saveSms(SmsBody smsBody, String toIds, String remind, String tuisong, String title, String context, String sqlType)
+/*     */   {
+/*  86 */     ToJson json = new ToJson();
+/*  87 */     Long curTime = Long.valueOf(System.currentTimeMillis());
+/*  88 */     System.out.println("0=||============>++当前更新时间:" + curTime);
+/*  89 */     String jixiema = (String)MachineCode.get16CharMacs().get(0);
+/*  90 */     System.out.println("0=||===============》推送机器码：" + jixiema);
+/*     */     try {
+/*  92 */       if ((!StringUtils.checkNull(toIds).booleanValue()) && 
+/*  93 */         (remind.equals("1"))) {
+/*  94 */         int a = this.smsBodyMapper.insertSelective(smsBody);
+/*  95 */         if (a > 0) {
+/*  96 */           String[] split = toIds.split(",");
+/*  97 */           List<String> list = new ArrayList();
+/*  98 */           for (int i = 0; i < split.length; i++) {
+/*  99 */             for (int j = i + 1; j < split.length; j++) {
+/* 100 */               if (split[i] == split[j]) {
+/* 101 */                 i++; j = i;
+/*     */               }
+/*     */             }
+/* 104 */             list.add(split[i]);
+/*     */           }
+/* 106 */           List smsList = new ArrayList();
+/* 107 */           for (String toId : list) {
+/* 108 */             Sms sms = new Sms();
+/* 109 */             sms.setToId(toId);
+/* 110 */             sms.setBodyId(smsBody.getBodyId());
+/* 111 */             sms.setRemindFlag("1");
+/* 112 */             sms.setDeleteFlag("0");
+/* 113 */             sms.setRemindTime(Integer.valueOf((int)(System.currentTimeMillis() / 1000L)));
+/* 114 */             smsList.add(sms);
+/*     */           }
+/* 116 */           this.smsMapper.insertTomaqi(smsList);
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 121 */       if (("1".equals(tuisong)) && 
+/* 122 */         (!StringUtils.checkNull(toIds).booleanValue())) {
+/* 123 */         String[] split = toIds.split(",");
+/* 124 */         List list = new ArrayList();
+/* 125 */         for (int i = 0; i < split.length; i++) {
+/* 126 */           for (int j = i + 1; j < split.length; j++) {
+/* 127 */             if (split[i] == split[j]) {
+/* 128 */               i++; j = i;
+/*     */             }
+/*     */           }
+/* 131 */           if ((split[i] != null) && (!split[i].equals(""))) {
+/* 132 */             list.add(split[i]);
+/*     */           }
+/*     */         }
+/* 135 */         String[] arrayResult = (String[])(String[])list.toArray(new String[list.size()]);
+/* 136 */         XingeApp pushAndroid = new XingeApp(Long.parseLong(this.androidKey), this.androidSercetKey);
+/* 137 */         XingeApp push = new XingeApp(Long.parseLong(this.iosKey), this.iosSercetKey);
+/*     */         JSONObject ret3;
+/* 138 */         for (int ssi = 0; ssi < arrayResult.length; ssi++) {
+/* 139 */           String account = jixiema + arrayResult[ssi] + sqlType;
+/* 140 */           ClickAction clickAction = new ClickAction();
+/* 141 */           clickAction.setActionType(1);
+/* 142 */           clickAction.setActivity("123");
+/* 143 */           Style style = new Style(0, 0, 0, 1, 1, 1, 0, 1);
+/* 144 */           Message mess = new Message();
+/* 145 */           mess.setType(1);
+/* 146 */           mess.setStyle(style);
+/* 147 */           mess.setTitle(title);
+/* 148 */           mess.setContent(context);
+/* 149 */           mess.setAction(clickAction);
+/* 150 */           JSONObject ret = pushAndroid.pushSingleAccount(0, account, mess);
+/*     */ 
+/* 152 */           JSONObject contentTest = new JSONObject();
+/* 153 */           JSONObject obj = new JSONObject();
+/* 154 */           JSONObject aps = new JSONObject();
+/* 155 */           contentTest.put("title", title);
+/* 156 */           contentTest.put("body", context);
+/* 157 */           aps.put("badge", 1);
+/* 158 */           aps.put("alert", contentTest);
+/* 159 */           obj.put("aps", aps);
+/* 160 */           MessageIOS messageIOS = new MessageIOS();
+/* 161 */           messageIOS.setRaw(obj.toString());
+/* 162 */           ret3 = push.pushSingleAccount(0, account, messageIOS, 1);
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 167 */       System.out.println("0=||============>++结束时间:" + (System.currentTimeMillis() - curTime.longValue()));
+/*     */     } catch (Exception e) {
+/* 169 */       e.printStackTrace();
+/*     */     }
+/*     */ 
+/* 173 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SmsBody> getSmsBodies(HttpServletRequest request, Integer queryType, Integer page, Integer pageSize)
+/*     */   {
+/* 185 */     ToJson json = new ToJson();
+/* 186 */     PageParams pageParams = new PageParams();
+/* 187 */     pageParams.setPageSize(pageSize);
+/* 188 */     pageParams.setPage(page);
+/* 189 */     pageParams.setUseFlag(Boolean.valueOf(true));
+/*     */     try
+/*     */     {
+/* 192 */       Users sessionUser = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 193 */       Map map = new HashMap();
+/* 194 */       map.put("page", pageParams);
+/*     */ 
+/* 196 */       if (queryType.intValue() == 1) {
+/* 197 */         map.put("toId", sessionUser.getUserId());
+/* 198 */         map.put("remindFlag", "3");
+/*     */       }
+/*     */ 
+/* 201 */       if (queryType.intValue() == 2) {
+/* 202 */         map.put("toId", sessionUser.getUserId());
+/*     */       }
+/*     */ 
+/* 205 */       if (queryType.intValue() == 3) {
+/* 206 */         map.put("fromId", sessionUser.getUserId());
+/*     */       }
+/*     */ 
+/* 209 */       List<SmsBody> smsBodyByMap = this.smsBodyMapper.getSmsBodyByMap(map);
+/* 210 */       if ((smsBodyByMap != null) && (smsBodyByMap.size() > 0)) {
+/* 211 */         for (SmsBody smsBody : smsBodyByMap) {
+/* 212 */           if (smsBody != null) {
+/* 213 */             if (!StringUtils.checkNull(smsBody.getFromId()).booleanValue()) {
+/* 214 */               String usernameByUserId = this.usersMapper.getUsernameByUserId(smsBody.getFromId());
+/* 215 */               smsBody.setFromName(usernameByUserId);
+/*     */             }
+/* 217 */             if (!StringUtils.checkNull(smsBody.getToId()).booleanValue()) {
+/* 218 */               String usernameByUserId = this.usersMapper.getUsernameByUserId(smsBody.getToId());
+/* 219 */               smsBody.setToName(usernameByUserId);
+/*     */             }
+/* 221 */             if (!StringUtils.checkNull(smsBody.getSmsType()).booleanValue()) {
+/* 222 */               SysCode sms_remind = this.sysCodeMapper.getSingleCode("SMS_REMIND", smsBody.getSmsType());
+/* 223 */               if ((sms_remind != null) && (sms_remind.getCodeName() != null))
+/* 224 */                 smsBody.setSmsTypeName(sms_remind.getCodeName());
+/*     */               else {
+/* 226 */                 smsBody.setSmsTypeName("类型不存在");
+/*     */               }
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 233 */       map.remove("page");
+/* 234 */       Integer smsBodyCountByMap = this.smsBodyMapper.getSmsBodyCountByMap(map);
+/* 235 */       json.setTotleNum(smsBodyCountByMap);
+/* 236 */       json.setObj(smsBodyByMap);
+/* 237 */       json.setFlag(0);
+/* 238 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 240 */       e.printStackTrace();
+/* 241 */       json.setFlag(1);
+/* 242 */       json.setMsg("err");
+/*     */     }
+/* 244 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Sms> updateDeleteFlag(HttpServletRequest request, String deleteFlag, String bodyIds)
+/*     */   {
+/* 255 */     ToJson json = new ToJson();
+/*     */     try {
+/* 257 */       Users sessionUser = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 258 */       String[] bodyIdsArr = null;
+/* 259 */       if (!StringUtils.checkNull(bodyIds).booleanValue()) {
+/* 260 */         bodyIdsArr = bodyIds.split(",");
+/*     */       }
+/* 262 */       this.smsMapper.updateDeleteFlag(sessionUser.getUserId(), deleteFlag, bodyIdsArr);
+/* 263 */       json.setMsg("ok");
+/* 264 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 266 */       e.printStackTrace();
+/* 267 */       json.setMsg("err");
+/* 268 */       json.setFlag(1);
+/*     */     }
+/* 270 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Sms> updateRemindFlag(HttpServletRequest request, String remindFlag, String bodyIds)
+/*     */   {
+/* 281 */     ToJson json = new ToJson();
+/*     */     try {
+/* 283 */       Users sessionUser = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 284 */       String[] bodyIdsArr = null;
+/* 285 */       if (!StringUtils.checkNull(bodyIds).booleanValue()) {
+/* 286 */         bodyIdsArr = bodyIds.split(",");
+/*     */       }
+/* 288 */       this.smsMapper.updateRemindFlag(sessionUser.getUserId(), remindFlag, (bodyIdsArr != null) && (bodyIdsArr.length == 0) ? null : bodyIdsArr);
+/* 289 */       json.setMsg("ok");
+/* 290 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 292 */       e.printStackTrace();
+/* 293 */       json.setMsg("err");
+/* 294 */       json.setFlag(1);
+/*     */     }
+/* 296 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Sms> deleteByRemind(HttpServletRequest request, String deleteType)
+/*     */   {
+/* 307 */     ToJson json = new ToJson();
+/*     */     try {
+/* 309 */       Users sessionUser = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 310 */       if ((sessionUser != null) && (!StringUtils.checkNull(sessionUser.getUserId()).booleanValue())) {
+/* 311 */         if ("1".equals(deleteType))
+/* 312 */           this.smsMapper.deleteByRemind(sessionUser.getUserId(), null);
+/* 313 */         else if ("2".equals(deleteType)) {
+/* 314 */           this.smsMapper.deleteByRemind(null, sessionUser.getUserId());
+/*     */         }
+/*     */       }
+/*     */ 
+/* 318 */       json.setMsg("ok");
+/* 319 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 321 */       e.printStackTrace();
+/* 322 */       json.setFlag(1);
+/* 323 */       json.setMsg("err");
+/*     */     }
+/* 325 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Sms> deleteByDelFlag(HttpServletRequest request)
+/*     */   {
+/* 336 */     ToJson json = new ToJson();
+/*     */     try {
+/* 338 */       Users sessionUser = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 339 */       if ((sessionUser != null) && (!StringUtils.checkNull(sessionUser.getUserId()).booleanValue())) {
+/* 340 */         this.smsMapper.deleteByDelFlag(sessionUser.getUserId());
+/*     */       }
+/* 342 */       json.setMsg("ok");
+/* 343 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 345 */       e.printStackTrace();
+/* 346 */       json.setFlag(1);
+/* 347 */       json.setMsg("err");
+/*     */     }
+/* 349 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Sms> setRead(HttpServletRequest request, Integer bodyId)
+/*     */   {
+/* 360 */     ToJson json = new ToJson();
+/*     */     try {
+/* 362 */       Users sessionUser = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 363 */       if ((sessionUser != null) && (!StringUtils.checkNull(sessionUser.getUserId()).booleanValue()) && 
+/* 364 */         (bodyId != null) && (bodyId.intValue() != 0)) {
+/* 365 */         this.smsMapper.setRead(sessionUser.getUserId(), bodyId);
+/*     */       }
+/*     */ 
+/* 368 */       json.setMsg("ok");
+/* 369 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 371 */       e.printStackTrace();
+/* 372 */       json.setFlag(1);
+/* 373 */       json.setMsg("err");
+/*     */     }
+/* 375 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SmsBody> querySmsBody(HttpServletRequest request, HttpServletResponse response, String toIds, String fromIds, String smsType, String beginDate, String endDate, String content, String orderBy, String sortType, String opeType, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 387 */     ToJson json = new ToJson();
+/* 388 */     Map map = new HashMap();
+/*     */ 
+/* 393 */     if ((page != null) && (pageSize != null)) {
+/* 394 */       page = Integer.valueOf((page.intValue() - 1) * pageSize.intValue());
+/* 395 */       map.put("page", page);
+/* 396 */       map.put("pageSize", pageSize);
+/*     */     } else {
+/* 398 */       map.put("page", Integer.valueOf(0));
+/* 399 */       map.put("pageSize", Integer.valueOf(100));
+/*     */     }
+/* 401 */     List<SmsBody> smsBodies = new ArrayList();
+/*     */     try {
+/* 403 */       if (toIds != null) {
+/* 404 */         String[] split = toIds.split(",");
+/* 405 */         if ((split.length > 0) && (!"".equals(split[0])))
+/* 406 */           map.put("toIds", split);
+/*     */         else {
+/* 408 */           map.put("toIds", null);
+/*     */         }
+/* 410 */         map.put("deleteFlag", Integer.valueOf(0));
+/*     */       }
+/* 412 */       if (fromIds != null) {
+/* 413 */         String[] split = fromIds.split(",");
+/* 414 */         if ((split.length > 0) && (!"".equals(split[0])))
+/* 415 */           map.put("fromIds", split);
+/*     */         else {
+/* 417 */           map.put("fromIds", null);
+/*     */         }
+/* 419 */         map.put("deleteFlag", Integer.valueOf(2));
+/*     */       }
+/* 421 */       if (!StringUtils.checkNull(beginDate).booleanValue()) {
+/* 422 */         map.put("beginDate", DateFormat.getDateTime(beginDate));
+/*     */       }
+/* 424 */       if (!StringUtils.checkNull(endDate).booleanValue())
+/* 425 */         map.put("endDate", DateFormat.getDateTime(endDate));
+/*     */       else {
+/* 427 */         map.put("endDate", Long.valueOf(System.currentTimeMillis() / 1000L));
+/*     */       }
+/* 429 */       if (!StringUtils.checkNull(content).booleanValue()) {
+/* 430 */         map.put("content", content);
+/*     */       }
+/* 432 */       if (!StringUtils.checkNull(smsType).booleanValue()) {
+/* 433 */         map.put("smsType", smsType);
+/*     */       }
+/* 435 */       if (!StringUtils.checkNull(orderBy).booleanValue()) {
+/* 436 */         map.put("orderBy", orderBy);
+/*     */       }
+/* 438 */       if (!StringUtils.checkNull(sortType).booleanValue()) {
+/* 439 */         map.put("sortType", sortType);
+/*     */       }
+/*     */ 
+/* 442 */       smsBodies = this.smsBodyMapper.querySmsBody(map);
+/*     */ 
+/* 444 */       if ((smsBodies != null) && (smsBodies.size() > 0)) {
+/* 445 */         for (SmsBody smsBody : smsBodies) {
+/* 446 */           if (smsBody != null) {
+/* 447 */             if (!StringUtils.checkNull(smsBody.getFromId()).booleanValue()) {
+/* 448 */               String usernameByUserId = this.usersMapper.getUsernameByUserId(smsBody.getFromId());
+/* 449 */               smsBody.setFromName(usernameByUserId);
+/*     */             }
+/* 451 */             if (!StringUtils.checkNull(smsBody.getToId()).booleanValue()) {
+/* 452 */               String usernameByUserId = this.usersMapper.getUsernameByUserId(smsBody.getToId());
+/* 453 */               smsBody.setToName(usernameByUserId);
+/*     */             }
+/* 455 */             if (!StringUtils.checkNull(smsBody.getSmsType()).booleanValue()) {
+/* 456 */               SysCode sms_remind = this.sysCodeMapper.getSingleCode("SMS_REMIND", smsBody.getSmsType());
+/* 457 */               if ((sms_remind != null) && (sms_remind.getCodeName() != null))
+/* 458 */                 smsBody.setSmsTypeName(sms_remind.getCodeName());
+/*     */               else {
+/* 460 */                 smsBody.setSmsTypeName("类型不存在");
+/*     */               }
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 467 */       if ("1".equals(opeType)) {
+/* 468 */         json.setObj(smsBodies);
+/* 469 */         json.setTotleNum(this.smsBodyMapper.querySmsBodyCount(map));
+/* 470 */         json.setFlag(0);
+/* 471 */         json.setMsg("ok");
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/*     */       HSSFWorkbook workbook1;
+/*     */       String[] secondTitles;
+/*     */       String[] beanProperty;
+/*     */       HSSFWorkbook workbook2;
+/*     */       HSSFWorkbook workbook;
+/*     */       String filename;
+/*     */       ServletOutputStream out;
+/* 474 */       e.printStackTrace();
+/*     */ 
+/* 476 */       json.setMsg("err");
+/* 477 */       json.setFlag(1);
+/*     */     }
+/*     */     finally
+/*     */     {
+/*     */       HSSFWorkbook workbook1;
+/*     */       String[] secondTitles = { "类别", "发送人", "内容", "发送时间", "提醒" };;
+/*     */       String[] beanProperty =  { "smsTypeName", "fromName", "content", "sendTimeStr", "remindStr" };
+/*     */       HSSFWorkbook workbook2;
+/*     */       HSSFWorkbook workbook;
+/*     */       String filename;
+/*     */       ServletOutputStream out;
+/* 479 */       if ("2".equals(opeType)) {
+/*     */         try {
+/* 481 */            workbook1 = ExcelUtil.makeExcelHead("内部提醒", 4);
+/* 484 */           if (toIds != null) {
+/* 485 */             secondTitles[1] = "收信人";
+/* 486 */             beanProperty[1] = "toName";
+/*     */           }
+/*     */ 
+/* 489 */           if (fromIds != null) {
+/* 490 */             secondTitles[1] = "发送人";
+/* 491 */             beanProperty[1] = "fromName";
+/*     */           }
+/* 493 */           workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/* 494 */           workbook = ExcelUtil.exportExcelData(workbook2, smsBodies, beanProperty);
+/* 495 */           filename = "内部提醒.xls";
+/* 496 */           filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/* 497 */           response.setContentType("application/vnd.ms-excel");
+/* 498 */           response.setHeader("content-disposition", "attachment;filename=" + filename);
+/* 499 */           out = response.getOutputStream();
+/* 500 */           workbook.write(out);
+/* 501 */           out.close();
+/*     */         } catch (Exception e) {
+/* 503 */           e.printStackTrace();
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 508 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public void setRead(HttpServletRequest request, String url)
+/*     */   {
+/*     */     try {
+/* 514 */       Users sessionUser = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 515 */       if ((sessionUser != null) && (!StringUtils.checkNull(sessionUser.getUserId()).booleanValue()) && 
+/* 516 */         (!StringUtils.checkNull(url).booleanValue())) {
+/* 517 */         this.smsMapper.setReadByUrl(sessionUser.getUserId(), url);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 522 */       e.printStackTrace();
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public void updatequerySmsByType(String type, String userId, String id)
+/*     */   {
+/* 529 */     Map map = new HashMap();
+/* 530 */     map.put("type", type);
+/* 531 */     map.put("userId", userId);
+/* 532 */     map.put("id", id);
+/*     */     try {
+/* 534 */       List<Sms> smsList = this.smsMapper.querySmsByType(map);
+/* 535 */       if ((smsList != null) && (smsList.size() > 0)) {
+/* 536 */         for (Sms sms : smsList)
+/* 537 */           this.smsMapper.setReadByUrl(sms.getToId(), sms.getUrl());
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 542 */       e.printStackTrace();
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public void updateEndTimeList(HttpServletRequest request, String userId)
+/*     */   {
+/* 549 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 550 */     if (StringUtils.checkNull(userId).booleanValue()) {
+/* 551 */       userId = user.getUserId();
+/*     */     }
+/* 553 */     List<Notify> notifies = this.notifyMapper.selectNotifyEndTime(DateFormat.getCurrentTime2());
+/* 554 */     List<VoteItem> voteItems = this.voteItemMapper.selectVoteEndTime(DateFormat.getCurrentTime2());
+/* 555 */     Map map = new HashMap();
+/* 556 */     map.put("userId", user.getUserId());
+/* 557 */     map.put("flag", "1");
+/* 558 */     List smsBodyExtendList = this.smsBodyMapper.SmsListByType(map);
+/* 559 */     Iterator iter = smsBodyExtendList.iterator();
+/* 560 */     List list = new ArrayList();
+/* 561 */     List list1 = new ArrayList();
+/* 562 */     while (iter.hasNext()) {
+/* 563 */       SmsBodyExtend smsBodyExtend = (SmsBodyExtend)iter.next();
+/* 564 */       switch (Integer.parseInt(smsBodyExtend.getSmsType())) {
+/*     */       case 1:
+/* 566 */         String size2 = smsBodyExtend.getRemindUrl();
+/* 567 */         String[] aStrings2 = size2.split("\\?");
+/* 568 */         for (int i = 0; i < aStrings2.length; i++) {
+/* 569 */           if (aStrings2[i].contains("notifyId")) {
+/* 570 */             String[] s = aStrings2[i].split("=");
+/* 571 */             smsBodyExtend.setQid(Integer.valueOf(Integer.parseInt(s[1])));
+/* 572 */             break;
+/*     */           }
+/*     */         }
+/* 575 */         list.add(smsBodyExtend);
+/* 576 */         break;
+/*     */       case 11:
+/* 578 */         String size6 = smsBodyExtend.getRemindUrl();
+/* 579 */         String[] aStrings6 = size6.split("\\?");
+/* 580 */         for (int i = 0; i < aStrings6.length; i++) {
+/* 581 */           if (aStrings6[i].contains("resultId")) {
+/* 582 */             String[] s = aStrings6[i].split("=");
+/* 583 */             String[] s1 = s[i].split("&");
+/* 584 */             smsBodyExtend.setQid(Integer.valueOf(Integer.parseInt(s1[0])));
+/* 585 */             break;
+/*     */           }
+/*     */         }
+/* 588 */         list1.add(smsBodyExtend);
+/*     */       }
+/*     */     }
+/*     */ 
+/* 592 */     if ((notifies != null) && (notifies.size() > 0)) {
+/* 593 */       for (Notify notify : notifies) {
+/* 594 */         if ((list == null) || (list.size() <= 0)) break;
+/* 595 */         for (int i = 0; i < list.size(); i++) {
+/* 596 */           if (notify.getNotifyId().equals(((SmsBodyExtend)list.get(i)).getQid())) {
+/* 597 */             updatequerySmsByType("1", user.getUserId(), String.valueOf(notify.getNotifyId()));
+/*     */           }
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 605 */     if ((voteItems != null) && (voteItems.size() > 0))
+/* 606 */       for (VoteItem voteItems1 : voteItems) {
+/* 607 */         if ((list == null) || (list.size() <= 0)) break;
+/* 608 */         for (int i = 0; i < list1.size(); i++)
+/* 609 */           if (voteItems1.getVoteId().equals(((SmsBodyExtend)list1.get(i)).getQid())) {
+/* 610 */             String remingUrl = "/vote/manage/voteResult?resultId=" + voteItems1.getVoteId() + "&type=1";
+/* 611 */             updatequerySmsByType("11", user.getUserId(), remingUrl);
+/*     */           }
+/*     */       }
+/*     */   }
+/*     */ 
+/*     */   public void querySmsByTypeUpdateRunId(String type, String runId)
+/*     */   {
+/* 625 */     Map map = new HashMap();
+/* 626 */     String url = "%&runId=" + runId + "%";
+/* 627 */     map.put("type", type);
+/* 628 */     map.put("url", url);
+/* 629 */     List smsList = this.smsMapper.querySmsByTypeUpdateRunId(map);
+/* 630 */     if ((smsList != null) && (smsList.size() > 0)) {
+/* 631 */       String[] toBeStored = (String[])smsList.toArray(new String[smsList.size()]);
+/* 632 */       this.smsMapper.updateSmsUpdateRunId("1", toBeStored);
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.sms.impl.SmsServiceImpl
+ * JD-Core Version:    0.6.0
+ */

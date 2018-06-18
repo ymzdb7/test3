@@ -1,0 +1,378 @@
+ package com.myoa.service.address.impl;
+ 
+ import com.myoa.dao.address.AddressGroupMapper;
+import com.myoa.dao.address.AddressMapper;
+import com.myoa.model.addressGroup.AddressGroup;
+import com.myoa.model.addressGroup.AddressGroupWithBLOBs;
+import com.myoa.model.users.Users;
+import com.myoa.service.address.AddressGroupService;
+import com.myoa.service.department.DepartmentService;
+import com.myoa.service.users.UsersPrivService;
+import com.myoa.service.users.UsersService;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.common.session.SessionUtils;
+import com.myoa.util.common.wrapper.BaseWrapper;
+import com.myoa.util.page.PageParams;
+
+ import java.util.ArrayList;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import javax.annotation.Resource;
+ import javax.servlet.http.HttpServletRequest;
+ import org.apache.commons.collections.map.HashedMap;
+ import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+ 
+ @Service
+ public class AddressGroupServiceImpl
+   implements AddressGroupService
+ {
+ 
+   @Autowired
+   private AddressGroupMapper addressGroupMapper;
+ 
+   @Autowired
+   private AddressMapper addressMapper;
+ 
+   @Resource
+   private DepartmentService departmentService;
+ 
+   @Resource
+   private UsersPrivService usersPrivService;
+ 
+   @Resource
+   private UsersService usersService;
+ 
+   public BaseWrapper isExis(HttpServletRequest request, String groupName)
+   {
+     BaseWrapper baseWrapper = new BaseWrapper();
+    Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+    Map param = new HashMap();
+    param.put("groupName", groupName);
+   param.put("usersId", users.getUserId());
+    List addressGroups = this.addressGroupMapper.selectGroupsByName(param);
+     if (addressGroups.size() > 0)
+      baseWrapper.setData(Boolean.valueOf(true));
+     else {
+     baseWrapper.setData(Boolean.valueOf(false));
+     }
+   return baseWrapper;
+   }
+ 
+   public BaseWrapper isPublicExis(HttpServletRequest request, String groupName) {
+     BaseWrapper baseWrapper = new BaseWrapper();
+   Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+     Map param = new HashMap();
+    param.put("groupName", groupName);
+   param.put("usersId", "");
+     List<AddressGroup> addressGroups = this.addressGroupMapper.selectGroupsByName(param);
+     if (addressGroups.size() > 0) {
+      for (AddressGroup addressGroup1 : addressGroups) {
+       if ((addressGroup1.getUserId() == null) || (addressGroup1.getUserId() == ""))
+           baseWrapper.setData(Boolean.valueOf(true));
+         else
+           baseWrapper.setData(Boolean.valueOf(false));
+       }
+     }
+     else {
+     baseWrapper.setData(Boolean.valueOf(false));
+     }
+    return baseWrapper;
+   }
+ 
+   public BaseWrapper addGroup(HttpServletRequest request, String groupName, String ids)
+   {
+     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+ 
+   BaseWrapper baseWrapper = new BaseWrapper();
+ 
+  BaseWrapper isexis = isExis(request, groupName);
+   if (((Boolean)isexis.getData()).booleanValue()) {
+      baseWrapper.setFlag(false);
+     baseWrapper.setMsg("分组已存在");
+      return baseWrapper;
+     }
+ 
+  AddressGroupWithBLOBs addressGroupWithBLOBs = new AddressGroupWithBLOBs();
+    addressGroupWithBLOBs.setGroupName(groupName);
+    addressGroupWithBLOBs.setUserId(users.getUserId());
+    addressGroupWithBLOBs.setShareGroupId(Integer.valueOf(0));
+    int count = this.addressGroupMapper.insertSelective(addressGroupWithBLOBs);
+      if ((ids != null) && (!"".equals(ids)));
+      baseWrapper.setData(addressGroupWithBLOBs);
+      baseWrapper.setFlag(true);
+      baseWrapper.setStatus(true);
+      return baseWrapper;
+   }
+ 
+   public ToJson<AddressGroupWithBLOBs> addPublicGroup(HttpServletRequest request, AddressGroupWithBLOBs addressGroupWithBLOBs)
+   {
+      ToJson json = new ToJson();
+     try
+     {
+        BaseWrapper isexis = isPublicExis(request, addressGroupWithBLOBs.getGroupName());
+        if (((Boolean)isexis.getData()).booleanValue()) {
+          json.setFlag(1);
+          json.setMsg("分组已存在");
+          return json;
+       }
+ 
+        addressGroupWithBLOBs.setShareGroupId(Integer.valueOf(0));
+        int count = this.addressGroupMapper.insertSelective(addressGroupWithBLOBs);
+        json.setFlag(0);
+        json.setMsg("ok");
+     } catch (Exception e) {
+        e.printStackTrace();
+        json.setMsg("err");
+        json.setFlag(1);
+     }
+ 
+      return json;
+   }
+ 
+   public ToJson<AddressGroupWithBLOBs> getPublicGroups(HttpServletRequest request, Integer page, Integer pageSize, boolean useFlag)
+   {
+      ToJson json = new ToJson();
+     try {
+        PageParams pageParams = new PageParams();
+        pageParams.setPage(page);
+        pageParams.setPageSize(pageSize);
+        pageParams.setUseFlag(Boolean.valueOf(useFlag));
+        Map map = new HashMap();
+        map.put("page", pageParams);
+        map.put("userId", "");
+        List<AddressGroupWithBLOBs> addressGroupWithBLOBsList = this.addressGroupMapper.selectPublicGroup(map);
+        for (AddressGroupWithBLOBs addressGroupWithBLOBs : addressGroupWithBLOBsList) {
+          String privDept = addressGroupWithBLOBs.getPrivDept();
+          if (!StringUtils.checkNull(privDept).booleanValue()) {
+            String depName = this.departmentService.getDeptNameByDeptId(privDept, ",");
+            if (!"ALL_DEPT".trim().equals(addressGroupWithBLOBs.getPrivDept()))
+              addressGroupWithBLOBs.setDeptRange(depName + ",");
+           else {
+              addressGroupWithBLOBs.setDeptRange(depName);
+           }
+         }
+ 
+          String privRole = addressGroupWithBLOBs.getPrivRole();
+          if (!StringUtils.checkNull(privRole).booleanValue()) {
+            String roleName = this.usersPrivService.getPrivNameByPrivId(privRole, ",");
+            addressGroupWithBLOBs.setRoleRange(roleName + ",");
+         }
+          String privUser = addressGroupWithBLOBs.getPrivUser();
+          if (!StringUtils.checkNull(privUser).booleanValue()) {
+            String userName = this.usersService.getUserNameById(privUser);
+            addressGroupWithBLOBs.setUserRange(userName + ",");
+         }
+       }
+ 
+        json.setObj(addressGroupWithBLOBsList);
+        json.setTotleNum(pageParams.getTotal());
+        json.setFlag(0);
+        json.setMsg("ok");
+     } catch (Exception e) {
+        e.printStackTrace();
+        json.setFlag(1);
+        json.setMsg("err");
+     }
+      return json;
+   }
+ 
+   public ToJson<AddressGroupWithBLOBs> updatePublicGroup(HttpServletRequest request, AddressGroupWithBLOBs addressGroupWithBLOBs)
+   {
+      ToJson json = new ToJson();
+     try
+     {
+        Map map = new HashMap();
+        map.put("groupName", addressGroupWithBLOBs.getGroupName());
+        map.put("userId", "");
+        List<AddressGroup> addressGroupList = this.addressGroupMapper.selectGroupsByName(map);
+        if (addressGroupList.size() > 0) {
+          for (AddressGroup addressGroup : addressGroupList) {
+            if (addressGroup.getGroupId() != addressGroupWithBLOBs.getGroupId()) {
+              json.setMsg("分组已存在");
+              json.setFlag(1);
+              return json;
+           }
+         }
+       }
+        this.addressGroupMapper.updateByPrimaryKeySelective(addressGroupWithBLOBs);
+        json.setFlag(0);
+        json.setMsg("ok");
+     }
+     catch (Exception e) {
+        e.printStackTrace();
+        json.setFlag(1);
+     }
+      return json;
+   }
+ 
+   public ToJson<AddressGroupWithBLOBs> selectPublicGroupInfo(Integer groupId)
+   {
+      ToJson json = new ToJson();
+     try {
+        AddressGroupWithBLOBs addressGroupWithBLOBs = this.addressGroupMapper.selectPublicGroupInfo(groupId);
+        String privDept = addressGroupWithBLOBs.getPrivDept();
+        if (!StringUtils.checkNull(privDept).booleanValue()) {
+          String depName = this.departmentService.getDeptNameByDeptId(privDept, ",");
+          if (!"ALL_DEPT".trim().equals(addressGroupWithBLOBs.getPrivDept()))
+            addressGroupWithBLOBs.setDeptRange(depName + ",");
+         else {
+            addressGroupWithBLOBs.setDeptRange(depName);
+         }
+       }
+ 
+        String privRole = addressGroupWithBLOBs.getPrivRole();
+        if (!StringUtils.checkNull(privRole).booleanValue()) {
+          String roleName = this.usersPrivService.getPrivNameByPrivId(privRole, ",");
+          addressGroupWithBLOBs.setRoleRange(roleName + ",");
+       }
+        String privUser = addressGroupWithBLOBs.getPrivUser();
+        if (!StringUtils.checkNull(privUser).booleanValue()) {
+          String userName = this.usersService.getUserNameById(privUser);
+          addressGroupWithBLOBs.setUserRange(userName + ",");
+       }
+        json.setObject(addressGroupWithBLOBs);
+        json.setFlag(0);
+        json.setMsg("ok");
+     }
+     catch (Exception e) {
+        e.printStackTrace();
+        json.setMsg(e.getMessage());
+        json.setFlag(1);
+     }
+      return json;
+   }
+ 
+   public BaseWrapper getGroups(HttpServletRequest request)
+   {
+      BaseWrapper baseWrapper = new BaseWrapper();
+ 
+      Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+      Map param = new HashMap();
+      param.put("userId", users.getUserId());
+      baseWrapper.setData(this.addressGroupMapper.selectGroupsByName(param));
+      baseWrapper.setFlag(true);
+      baseWrapper.setStatus(true);
+      return baseWrapper;
+   }
+ 
+   public BaseWrapper selectAllAddressGroup(HttpServletRequest request)
+   {
+      BaseWrapper baseWrapper = new BaseWrapper();
+ 
+      Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+      Map param = new HashMap();
+      param.put("userId", users.getUserId());
+      List<AddressGroupWithBLOBs> addressGroupWithBLOBs1 = this.addressGroupMapper.selectPublicGroup(param);
+      String privDept = null;
+      String privRole = null;
+      String privUser = null;
+      Map maps = new HashMap();
+      if ((users != null) && (users.getUserId() != null)) {
+        privUser = users.getUserId();
+        privRole = users.getUserPriv() + "";
+        privDept = users.getDeptId() + "";
+     }
+      maps.put("userId", "");
+      maps.put("privDept", privDept);
+      maps.put("privRole", privRole);
+      maps.put("privUser", privUser);
+      List<AddressGroupWithBLOBs> addressGroupWithBLOBs2 = new ArrayList<AddressGroupWithBLOBs>();
+      List<AddressGroupWithBLOBs> addressGroupWithBLOBsList = this.addressGroupMapper.selectAllAddressGroup(maps);
+ 
+      if (addressGroupWithBLOBs1.size() > 0) {
+        for (AddressGroupWithBLOBs addressGroupWithBLOBs4 : addressGroupWithBLOBs1) {
+          addressGroupWithBLOBs2.add(addressGroupWithBLOBs4);
+       }
+     }
+      if (addressGroupWithBLOBsList.size() > 0) {
+        for (AddressGroupWithBLOBs addressGroupWithBLOBs3 : addressGroupWithBLOBsList) {
+          addressGroupWithBLOBs2.add(addressGroupWithBLOBs3);
+       }
+ 
+     }
+ 
+      baseWrapper.setData(addressGroupWithBLOBs2);
+      baseWrapper.setFlag(true);
+      baseWrapper.setStatus(true);
+      return baseWrapper;
+   }
+ 
+   public BaseWrapper deleteGroups(HttpServletRequest request, String groupId)
+   {
+      BaseWrapper baseWrapper = new BaseWrapper();
+ 
+      Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+ 
+      Map param = new HashedMap();
+      param.put("userId", users.getUserId());
+ 
+      param.put("groupId", Integer.valueOf(0));
+ 
+      param.put("oldId", groupId);
+      this.addressMapper.updateUserGroup(param);
+ 
+      int status = this.addressGroupMapper.deleteByPrimaryKey(Integer.valueOf(groupId));
+      baseWrapper.setStatus(status > 0);
+      baseWrapper.setFlag(status > 0);
+      return baseWrapper;
+   }
+ 
+   public BaseWrapper getGroupInfo(HttpServletRequest request, String groupId)
+   {
+      BaseWrapper baseWrapper = new BaseWrapper();
+      baseWrapper.setData(this.addressGroupMapper.selectByPrimaryKey(Integer.valueOf(groupId)));
+      baseWrapper.setStatus(true);
+      baseWrapper.setFlag(true);
+      return baseWrapper;
+   }
+ 
+   public BaseWrapper putGroup(HttpServletRequest request, String groupId, String group_name, String FLD_STR)
+   {
+      BaseWrapper baseWrapper = new BaseWrapper();
+ 
+      Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+ 
+      if (groupId == null) {
+        baseWrapper.setMsg("分组i的错误");
+        baseWrapper.setStatus(false);
+        return baseWrapper;
+     }
+ 
+      Map map = new HashMap();
+      map.put("groupName", group_name);
+      map.put("userId", users.getUserId());
+      List<AddressGroup> addressGroupList = this.addressGroupMapper.selectGroupsByName(map);
+      if (addressGroupList.size() > 0) {
+        for (AddressGroup addressGroup : addressGroupList) {
+          if (addressGroup.getGroupId().intValue() != Integer.parseInt(groupId)) {
+            baseWrapper.setFlag(false);
+            baseWrapper.setMsg("分组已存在");
+            return baseWrapper;
+         }
+       }
+     }
+ 
+      if ((group_name != null) && (!"".equals(group_name))) {
+        AddressGroupWithBLOBs addressGroupWithBLOBs = new AddressGroupWithBLOBs();
+        addressGroupWithBLOBs.setGroupId(Integer.valueOf(groupId));
+        addressGroupWithBLOBs.setGroupName(group_name);
+        this.addressGroupMapper.updateByPrimaryKeySelective(addressGroupWithBLOBs);
+     }
+ 
+      if ((FLD_STR != null) && (!"".equals(FLD_STR))) {
+        Map param = new HashedMap();
+        param.put("groupId", groupId);
+        param.put("fldStr", FLD_STR + "0");
+        param.put("userId", users.getUserId());
+        this.addressMapper.putUser(param);
+     }
+      baseWrapper.setData(this.addressGroupMapper.selectByPrimaryKey(Integer.valueOf(groupId)));
+      baseWrapper.setStatus(true);
+      baseWrapper.setFlag(true);
+      return baseWrapper;
+   }
+ }
+

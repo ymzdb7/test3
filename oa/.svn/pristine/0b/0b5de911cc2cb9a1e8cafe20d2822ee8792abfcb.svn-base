@@ -1,0 +1,81 @@
+/*     */ package com.xoa.service.sysUserPush;
+/*     */ 
+/*     */ import com.tencent.xinge.XingeApp;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.sysUserPush.SysUserPush;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Map;
+/*     */ import org.json.JSONObject;
+/*     */ 
+/*     */ public class SysUserPushSerive extends SysUserPush
+/*     */ {
+/*     */   public JSONObject pushTokenAndroid(int accessId, String secretKey, String title, String content, String token)
+/*     */   {
+/*  49 */     return XingeApp.pushTokenAndroid(accessId, secretKey, title, content, token);
+/*     */   }
+/*     */ 
+/*     */   public JSONObject pushAccountAndroid(long accessId, String secretKey, String title, String content, String account)
+/*     */   {
+/*  64 */     return XingeApp.pushAccountAndroid(accessId, secretKey, title, content, account);
+/*     */   }
+/*     */ 
+/*     */   public ToJson pushAccountAndroidSum(Long accessId, String secretKey, String title, String content, String[] account)
+/*     */     throws Exception
+/*     */   {
+/*  78 */     ToJson json = new ToJson();
+/*  79 */     int countYes = 0; int countNo = 0; int count = 0;
+/*  80 */     for (int i = 0; i < account.length; i++) {
+/*  81 */       JSONObject jsonObject = XingeApp.pushAccountAndroid(accessId.longValue(), secretKey, title, content, account[i]);
+/*  82 */       if (jsonObject.get("ret_code").equals("0"))
+/*  83 */         countYes++;
+/*     */       else {
+/*  85 */         countNo++;
+/*     */       }
+/*     */     }
+/*  88 */     count = account.length;
+/*  89 */     Map[] map = new Map[3];
+/*  90 */     map[1] = new HashMap();
+/*  91 */     map[1].put("countYes", Integer.valueOf(countYes));
+/*  92 */     map[2] = new HashMap();
+/*  93 */     map[2].put("countNo", Integer.valueOf(countNo));
+/*  94 */     map[3] = new HashMap();
+/*  95 */     map[3].put("count", Integer.valueOf(count));
+/*  96 */     json.setObject(map);
+/*  97 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public JSONObject pushAllAndroid(int accessId, String secretKey, String title, String content)
+/*     */   {
+/* 111 */     return XingeApp.pushAllAndroid(accessId, secretKey, title, content);
+/*     */   }
+/*     */ 
+/*     */   public JSONObject pushTagAndroid(int accessId, String secretKey, String title, String content, String tag)
+/*     */   {
+/* 126 */     return XingeApp.pushTagAndroid(accessId, secretKey, title, content, tag);
+/*     */   }
+/*     */ 
+/*     */   public JSONObject pushTokenIos(int accessId, String secretKey, String content, String token, int environment)
+/*     */   {
+/* 142 */     return XingeApp.pushTokenIos(accessId, secretKey, content, token, environment);
+/*     */   }
+/*     */ 
+/*     */   public JSONObject pushAccountIos(long accessId, String secretKey, String content, String account, int environment)
+/*     */   {
+/* 158 */     return XingeApp.pushAccountIos(accessId, secretKey, content, account, environment);
+/*     */   }
+/*     */ 
+/*     */   public JSONObject pushAllIos(int accessId, String secretKey, String content, int environment)
+/*     */   {
+/* 173 */     return XingeApp.pushAllIos(accessId, secretKey, content, environment);
+/*     */   }
+/*     */ 
+/*     */   public JSONObject pushTagIos(int accessId, String secretKey, String content, String tag, int environment)
+/*     */   {
+/* 189 */     return XingeApp.pushTagIos(accessId, secretKey, content, tag, environment);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.sysUserPush.SysUserPushSerive
+ * JD-Core Version:    0.6.0
+ */

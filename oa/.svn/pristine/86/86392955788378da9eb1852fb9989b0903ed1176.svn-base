@@ -1,0 +1,249 @@
+/*     */ package com.xoa.service.edu.schoolPriv;
+/*     */ 
+/*     */ import com.xoa.dao.edu.schoolPriv.SchoolPrivMapper;
+/*     */ import com.xoa.dao.edu.schoolRollInfo.SchoolRollInfoMapper;
+/*     */ import com.xoa.dao.edu.teacher.TeacheringInfoMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.edu.schoolPriv.SchoolPriv;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.department.DepartmentService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class SchoolPrivService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private SchoolPrivMapper schoolPrivMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentService departmentService;
+/*     */ 
+/*     */   @Resource
+/*     */   private TeacheringInfoMapper teacheringInfoMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SchoolRollInfoMapper schoolRollInfoMapper;
+/*     */ 
+/*     */   public ToJson<SchoolPriv> addSchoolPriv(HttpServletRequest request, SchoolPriv schoolPriv)
+/*     */   {
+/*  54 */     ToJson json = new ToJson();
+/*     */     try {
+/*  56 */       int count = this.schoolPrivMapper.insertSelective(schoolPriv);
+/*  57 */       if (count > 0) {
+/*  58 */         json.setMsg("ok");
+/*  59 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  62 */       e.printStackTrace();
+/*  63 */       json.setMsg(e.getMessage());
+/*  64 */       json.setFlag(1);
+/*     */     }
+/*  66 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SchoolPriv> deleteSchoolPriv(HttpServletRequest request, Integer id)
+/*     */   {
+/*  76 */     ToJson json = new ToJson();
+/*     */     try {
+/*  78 */       int count = this.schoolPrivMapper.deleteByPrimaryKey(id);
+/*  79 */       if (count > 0) {
+/*  80 */         json.setMsg("ok");
+/*  81 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  84 */       e.printStackTrace();
+/*  85 */       json.setMsg(e.getMessage());
+/*  86 */       json.setFlag(1);
+/*     */     }
+/*  88 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SchoolPriv> selectByPrimaryKey(HttpServletRequest request, Integer id)
+/*     */   {
+/*  98 */     ToJson json = new ToJson();
+/*     */     try {
+/* 100 */       SchoolPriv schoolPriv = this.schoolPrivMapper.selectByPrimaryKey(id);
+/* 101 */       if (schoolPriv != null) {
+/* 102 */         if ((schoolPriv.getPersonUid() != null) && (!"".equals(schoolPriv.getPersonUid()))) {
+/* 103 */           String[] roleManagerArray = schoolPriv.getPersonUid().split(",");
+/* 104 */           StringBuffer userName = new StringBuffer();
+/* 105 */           for (String str : roleManagerArray) {
+/* 106 */             String userName1 = this.usersMapper.getUsernameById(str);
+/* 107 */             if (userName1 != null) {
+/* 108 */               userName.append(userName1 + ",");
+/*     */             }
+/*     */           }
+/* 111 */           schoolPriv.setRoleManagerText(userName.toString());
+/*     */         } else {
+/* 113 */           schoolPriv.setRoleManagerText("");
+/*     */         }
+/* 115 */         if ((schoolPriv.getShcoolNum() != null) && (!"".equals(schoolPriv.getShcoolNum()))) {
+/* 116 */           if (!StringUtils.checkNull(schoolPriv.getShcoolNum()).booleanValue()) {
+/* 117 */             String depName = this.departmentService.getDeptNameByDeptId(schoolPriv.getShcoolNum(), ",");
+/*     */ 
+/* 119 */             schoolPriv.setUserPrivText(depName);
+/*     */           }
+/*     */         }
+/*     */         else {
+/* 123 */           schoolPriv.setUserPrivText("");
+/*     */         }
+/*     */       }
+/* 126 */       json.setObject(schoolPriv);
+/* 127 */       json.setMsg("ok");
+/* 128 */       json.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e) {
+/* 131 */       e.printStackTrace();
+/* 132 */       json.setMsg(e.getMessage());
+/* 133 */       json.setFlag(1);
+/*     */     }
+/* 135 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SchoolPriv> updateSchoolPriv(HttpServletRequest request, SchoolPriv schoolPriv)
+/*     */   {
+/* 145 */     ToJson json = new ToJson();
+/*     */     try {
+/* 147 */       int count = this.schoolPrivMapper.updateByPrimaryKeySelective(schoolPriv);
+/* 148 */       if (count > 0) {
+/* 149 */         json.setMsg("ok");
+/* 150 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 153 */       e.printStackTrace();
+/* 154 */       json.setMsg(e.getMessage());
+/* 155 */       json.setFlag(1);
+/*     */     }
+/* 157 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SchoolPriv> selectAll(HttpServletRequest request, SchoolPriv schoolPriv)
+/*     */   {
+/* 167 */     ToJson json = new ToJson();
+/*     */     try {
+/* 169 */       List<SchoolPriv> schoolPrivList = this.schoolPrivMapper.selectList(schoolPriv);
+/* 170 */       if ((schoolPrivList != null) && (schoolPrivList.size() > 0)) {
+/* 171 */         for (SchoolPriv priv : schoolPrivList) {
+/* 172 */           if ((priv.getPersonUid() != null) && (!"".equals(priv.getPersonUid()))) {
+/* 173 */             String[] roleManagerArray = priv.getPersonUid().split(",");
+/* 174 */             StringBuffer userName = new StringBuffer();
+/* 175 */             for (String str : roleManagerArray) {
+/* 176 */               String userName1 = this.usersMapper.getUsernameById(str);
+/* 177 */               if (userName1 != null) {
+/* 178 */                 userName.append(userName1 + ",");
+/*     */               }
+/*     */             }
+/* 181 */             priv.setRoleManagerText(userName.toString());
+/*     */           } else {
+/* 183 */             priv.setRoleManagerText("");
+/*     */           }
+/* 185 */           if ((priv.getShcoolNum() != null) && (!"".equals(priv.getShcoolNum()))) {
+/* 186 */             if (!StringUtils.checkNull(priv.getShcoolNum()).booleanValue()) {
+/* 187 */               String depName = this.departmentService.getDeptNameByDeptId(priv.getShcoolNum(), ",");
+/*     */ 
+/* 189 */               priv.setUserPrivText(depName);
+/*     */             }
+/*     */           }
+/*     */           else {
+/* 193 */             priv.setUserPrivText("");
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 198 */       json.setObj(schoolPrivList);
+/* 199 */       json.setMsg("ok");
+/* 200 */       json.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e) {
+/* 203 */       e.printStackTrace();
+/* 204 */       json.setMsg(e.getMessage());
+/* 205 */       json.setFlag(1);
+/*     */     }
+/* 207 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SchoolPriv> selectObjectBySelf(HttpServletRequest request, SchoolPriv schoolPriv, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 219 */     ToJson json = new ToJson();
+/*     */ 
+/* 221 */     PageParams pageParams = new PageParams();
+/* 222 */     pageParams.setPage(page);
+/* 223 */     pageParams.setPageSize(pageSize);
+/* 224 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 225 */     Map paramap = new HashMap();
+/* 226 */     paramap.put("page", pageParams);
+/*     */ 
+/* 228 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 229 */     Integer uid = users.getUid();
+/* 230 */     schoolPriv.setPersonUid(String.valueOf(uid));
+/*     */     try {
+/* 232 */       List<SchoolPriv> schoolPrivs = this.schoolPrivMapper.selectList(schoolPriv);
+/* 233 */       StringBuffer numStr = new StringBuffer();
+/* 234 */       for (SchoolPriv temp : schoolPrivs) {
+/* 235 */         if (!StringUtils.checkNull(temp.getShcoolNum()).booleanValue()) {
+/* 236 */           numStr.append(temp.getShcoolNum());
+/*     */         }
+/*     */       }
+/* 239 */       List<String> numList = new ArrayList();
+/* 240 */       boolean result = true;
+/* 241 */       if (!StringUtils.checkNull(numStr.toString()).booleanValue()) {
+/* 242 */         String[] numArray = numStr.toString().split(",");
+/* 243 */         for (String temp1 : numArray) {
+/* 244 */           for (String temp2 : numList) {
+/* 245 */             if ((!StringUtils.checkNull(temp1).booleanValue()) && (temp1.equals(temp2))) {
+/* 246 */               result = false;
+/*     */             }
+/*     */           }
+/* 249 */           if (result) {
+/* 250 */             numList.add(temp1);
+/*     */           }
+/*     */         }
+/*     */       }
+/* 254 */       Map map = new HashMap();
+/* 255 */       if ((!StringUtils.checkNull(schoolPriv.getModularId()).booleanValue()) && ("1".equals(schoolPriv.getModularId())))
+/*     */       {
+/* 258 */         List list = new ArrayList();
+/* 259 */         if ((numList != null) && (numList.size() > 0)) {
+/* 260 */           paramap.put("numList", numList);
+/* 261 */           paramap.put("schoolNum", schoolPriv.getShcoolNum());
+/* 262 */           list = this.teacheringInfoMapper.selectObjectByNo(paramap);
+/*     */         }
+/* 264 */         map.put("object", list);
+/* 265 */       } else if ((!StringUtils.checkNull(schoolPriv.getModularId()).booleanValue()) && (("2".equals(schoolPriv.getModularId())) || ("3".equals(schoolPriv.getModularId())))) {
+/* 266 */         List list = new ArrayList();
+/* 267 */         if ((numList != null) && (numList.size() > 0)) {
+/* 268 */           paramap.put("numList", numList);
+/* 269 */           paramap.put("schoolNum", schoolPriv.getShcoolNum());
+/* 270 */           paramap.put("flag", schoolPriv.getFlag());
+/* 271 */           list = this.schoolRollInfoMapper.selObjBySchoolCode(paramap);
+/*     */         }
+/* 273 */         map.put("object", list);
+/*     */       }
+/* 275 */       json.setObject(map);
+/* 276 */       json.setFlag(0);
+/* 277 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 279 */       e.printStackTrace();
+/*     */     }
+/* 281 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.schoolPriv.SchoolPrivService
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,264 @@
+/*     */ package com.xoa.controller.sys;
+/*     */ 
+/*     */ import com.xoa.model.common.SysPara;
+/*     */ import com.xoa.model.sys.InterfaceModel;
+/*     */ import com.xoa.service.sys.InterFaceService;
+/*     */ import com.xoa.service.syspara.SysParaService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.ServletContext;
+/*     */ import javax.servlet.http.Cookie;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/sys"})
+/*     */ public class InterfaceController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private InterFaceService interfaceService;
+/*     */ 
+/*     */   @Resource
+/*     */   private SysParaService sysParaService;
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getIndexInfo"})
+/*     */   public ToJson<InterfaceModel> getInterfaceInfoIeTitle(HttpServletRequest request)
+/*     */   {
+/*  51 */     ToJson json = new ToJson(0, "");
+/*     */     try {
+/*  53 */       InterfaceModel InterfaceModel = this.interfaceService.getIndexInfo();
+/*  54 */       json.setObject(InterfaceModel);
+/*  55 */       json.setMsg("ok");
+/*  56 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  58 */       json.setFlag(1);
+/*  59 */       json.setMsg("err");
+/*     */     }
+/*  61 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getStatusText"})
+/*     */   public ToJson<InterfaceModel> getStatusText(HttpServletRequest request)
+/*     */   {
+/*  75 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  79 */     ToJson tojson = new ToJson(0, "");
+/*     */     try
+/*     */     {
+/*  82 */       List interfaceModelList = this.interfaceService.getStaTusText();
+/*     */ 
+/*  86 */       if ((interfaceModelList != null) && (interfaceModelList.size() == 1)) {
+/*  87 */         InterfaceModel interfaceModel = (InterfaceModel)interfaceModelList.get(0);
+/*  88 */         String statusText = interfaceModel.getStatusText();
+/*  89 */         String[] statusTextArr = null;
+/*  90 */         if (statusText != null) {
+/*  91 */           statusTextArr = statusText.split("\\n");
+/*     */         } else {
+/*  93 */           statusTextArr = new String[1];
+/*  94 */           statusTextArr[0] = "欢迎使用oa";
+/*     */         }
+/*     */ 
+/*  97 */         tojson.setObject(statusTextArr);
+/*     */       }
+/*  99 */       tojson.setMsg("ok");
+/* 100 */       tojson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 102 */       tojson.setFlag(1);
+/* 103 */       tojson.setMsg("err");
+/*     */     }
+/* 105 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"editStatusText"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<InterfaceModel> editStatusText(InterfaceModel interfaceModel)
+/*     */   {
+/* 121 */     ToJson tojson = new ToJson(0, "");
+/* 122 */     if ((interfaceModel != null) && (interfaceModel.getStatusText() != null)) {
+/* 123 */       this.interfaceService.editStatusText(interfaceModel);
+/*     */       try
+/*     */       {
+/* 126 */         List interfaceModelList = this.interfaceService.getStaTusText();
+/*     */ 
+/* 130 */         if ((interfaceModelList != null) && (interfaceModelList.size() == 1)) {
+/* 131 */           InterfaceModel interfaceModel1 = (InterfaceModel)interfaceModelList.get(0);
+/* 132 */           String statusText = interfaceModel1.getStatusText();
+/* 133 */           String[] statusTextArr = null;
+/* 134 */           if (statusText != null) {
+/* 135 */             statusTextArr = statusText.split("\\n");
+/*     */           } else {
+/* 137 */             statusTextArr = new String[1];
+/* 138 */             statusTextArr[0] = "欢迎使用oa";
+/*     */           }
+/*     */ 
+/* 141 */           tojson.setObject(statusTextArr);
+/*     */         }
+/* 143 */         tojson.setMsg("ok");
+/* 144 */         tojson.setFlag(0);
+/*     */       } catch (Exception e) {
+/* 146 */         tojson.setFlag(1);
+/* 147 */         tojson.setMsg("err");
+/*     */       }
+/*     */     }
+/*     */ 
+/* 151 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getInterfaceInfo"})
+/*     */   public ToJson<InterfaceModel> getInterfaceInfo(HttpServletRequest request)
+/*     */   {
+/* 165 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 167 */     Cookie[] cookies = request.getCookies();
+/* 168 */     if (cookies != null) {
+/* 169 */       for (Cookie cookie : cookies) {
+/* 170 */         if (cookie.getName().equals("company")) {
+/* 171 */           ContextHolder.setConsumerType(Constant.MYOA + cookie.getValue());
+/*     */         }
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 177 */     ToJson tojson = new ToJson(0, "");
+/*     */     try
+/*     */     {
+/* 180 */       List interfaceModelList = this.interfaceService.getInterfaceInfo(request);
+/* 181 */       if ((interfaceModelList != null) && (interfaceModelList.size() == 1))
+/*     */       {
+/* 183 */         tojson.setObject(interfaceModelList.get(0));
+/*     */       }
+/*     */ 
+/* 187 */       tojson.setMsg("ok");
+/* 188 */       tojson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 190 */       tojson.setFlag(1);
+/* 191 */       tojson.setMsg("err");
+/*     */     }
+/*     */ 
+/* 194 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/updateInterfaceInfo"})
+/*     */   public ToJson<Object> updateInterfaceInfo(HttpServletRequest request, InterfaceModel interfaceModel, String LOG_OUT_TEXT, String MIIBEIAN, String IM_WINDOW_CAPTION)
+/*     */   {
+/* 208 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 211 */     ToJson tojson = new ToJson(0, "");
+/*     */     try {
+/* 213 */       String realPath = request.getSession().getServletContext().getRealPath("/");
+/* 214 */       String resourcePath = "ui/img/sys";
+/*     */ 
+/* 230 */       if (!StringUtils.checkNull(MIIBEIAN).booleanValue()) {
+/* 231 */         SysPara sysPara = new SysPara();
+/* 232 */         sysPara.setParaName("MIIBEIAN");
+/* 233 */         sysPara.setParaValue(MIIBEIAN);
+/* 234 */         this.sysParaService.updateSysPara(sysPara);
+/*     */       }
+/*     */ 
+/* 237 */       SysPara sysPara1 = new SysPara();
+/* 238 */       sysPara1.setParaName("LOG_OUT_TEXT");
+/* 239 */       sysPara1.setParaValue(LOG_OUT_TEXT);
+/* 240 */       this.sysParaService.updateSysPara(sysPara1);
+/* 241 */       SysPara sysPara2 = new SysPara();
+/* 242 */       sysPara2.setParaName("IM_WINDOW_CAPTION");
+/* 243 */       sysPara2.setParaValue(IM_WINDOW_CAPTION);
+/* 244 */       this.sysParaService.updateSysPara(sysPara2);
+/* 245 */       this.interfaceService.updateInterfaceInfo(interfaceModel);
+/* 246 */       tojson.setMsg("ok");
+/* 247 */       tojson.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e) {
+/* 250 */       tojson.setMsg("err");
+/* 251 */       tojson.setFlag(1);
+/*     */     }
+/*     */ 
+/* 254 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/addinterfaceinfo"})
+/*     */   public ToJson<InterfaceModel> insertInterfaceInfo(HttpServletRequest request, InterfaceModel interfaceModel)
+/*     */   {
+/* 266 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 268 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 270 */       this.interfaceService.insertInterfaceInfo(interfaceModel);
+/* 271 */       json.setObject(interfaceModel);
+/* 272 */       json.setMsg("OK");
+/* 273 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 275 */       json.setFlag(1);
+/* 276 */       json.setMsg("err");
+/*     */     }
+/* 278 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getThemeSelect"})
+/*     */   public ToJson<InterfaceModel> getThemeSelect()
+/*     */   {
+/* 291 */     ToJson json = new ToJson();
+/*     */     try {
+/* 293 */       InterfaceModel themeSelect = this.interfaceService.getThemeSelect();
+/* 294 */       json.setObject(themeSelect);
+/* 295 */       json.setFlag(0);
+/* 296 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 298 */       json.setMsg("err");
+/* 299 */       json.setFlag(1);
+/*     */     }
+/* 301 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getAvatarUpload"})
+/*     */   public ToJson<InterfaceModel> getAvatarUpload()
+/*     */   {
+/* 313 */     ToJson json = new ToJson();
+/*     */     try {
+/* 315 */       InterfaceModel avatarUpload = this.interfaceService.getAvatarUpload();
+/* 316 */       json.setObject(avatarUpload);
+/* 317 */       json.setFlag(0);
+/* 318 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 320 */       json.setMsg("err");
+/* 321 */       json.setFlag(1);
+/*     */     }
+/* 323 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getTemplate"})
+/*     */   public ToJson<InterfaceModel> getTemplate()
+/*     */   {
+/* 335 */     ToJson json = new ToJson();
+/*     */     try {
+/* 337 */       InterfaceModel template = this.interfaceService.getTemplate();
+/* 338 */       json.setObject(template);
+/* 339 */       json.setFlag(0);
+/* 340 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 342 */       json.setMsg("err");
+/* 343 */       json.setFlag(1);
+/*     */     }
+/* 345 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.sys.InterfaceController
+ * JD-Core Version:    0.6.0
+ */

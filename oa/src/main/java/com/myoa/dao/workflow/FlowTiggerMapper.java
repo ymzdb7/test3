@@ -1,0 +1,23 @@
+package com.myoa.dao.workflow;
+
+import com.myoa.dao.base.BaseMapper;
+import com.myoa.model.workflow.FlowTiggerModel;
+
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface FlowTiggerMapper extends BaseMapper<FlowTiggerModel> {
+	public abstract List<FlowTiggerModel> selectFlowTigger(
+			@Param("flowId") Integer paramInteger1,
+			@Param("flowPrcs") Integer paramInteger2);
+
+	public abstract void deleteTigger(@Param("id") Integer paramInteger);
+
+	public abstract int updateTigger(FlowTiggerModel paramFlowTiggerModel);
+
+	public abstract List<FlowTiggerModel> selectTiggerId(
+			@Param("flowId") Integer paramInteger);
+
+	public abstract FlowTiggerModel selectTiggerById(
+			@Param("id") Integer paramInteger);
+}

@@ -1,0 +1,103 @@
+package com.myoa.controller.sys;
+
+import com.myoa.controller.news.NewsController;
+import com.myoa.model.unitmanagement.UnitManage;
+import com.myoa.service.unitmanagement.UnitManageService;
+import com.myoa.util.Constant;
+import com.myoa.util.ToJson;
+import com.myoa.util.dataSource.ContextHolder;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import org.apache.log4j.Logger;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@Scope("prototype")
+@RequestMapping({ "/sys" })
+public class UnitManagementController {
+	private Logger loger = Logger.getLogger(NewsController.class);
+
+	@Resource
+	private UnitManageService unitManageService;
+
+	@RequestMapping({ "/companyInfo" })
+	public String companyInfo(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/sys/companyInfo";
+	}
+
+	@RequestMapping({ "/unitInfor" })
+	public String unitInfor(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/sys/unitInfor";
+	}
+
+	@RequestMapping(value = { "/showUnitManage" }, produces = { "application/json;charset=UTF-8" })
+	@ResponseBody
+	public ToJson<UnitManage> showUnitManage(HttpServletRequest request) {
+		String sqlType = Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse");
+
+		ContextHolder.setConsumerType(sqlType);
+		ToJson json = new ToJson(0, null);
+		try {
+			UnitManage um = this.unitManageService.showUnitManage(sqlType,
+					request);
+			json.setObject(um);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setFlag(1);
+			json.setMsg("err");
+		}
+		return json;
+	}
+
+	@RequestMapping(value = { "/addUnitMnaage" }, produces = { "application/json;charset=UTF-8" })
+	@ResponseBody
+	public ToJson<UnitManage> addUnitMnaage(UnitManage unitManage,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		ToJson json = new ToJson(0, null);
+		try {
+			this.unitManageService.addUnitManage(unitManage);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setFlag(1);
+			json.setMsg("err");
+		}
+		return json;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/updateUnit" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson<UnitManage> updateUnit(UnitManage unitManage,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		ToJson json = new ToJson(0, null);
+		try {
+			this.unitManageService.update(unitManage);
+			json.setObject(unitManage);
+			json.setMsg("OK");
+			json.setFlag(0);
+		} catch (Exception e) {
+			json.setFlag(1);
+			json.setMsg("err");
+		}
+		return json;
+	}
+}

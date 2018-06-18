@@ -1,0 +1,73 @@
+/*    */ package com.xoa.controller.rms.rollRoom;
+/*    */ 
+/*    */ import com.xoa.model.rms.RmsRollRoom;
+/*    */ import com.xoa.service.rms.RmsRollRoomService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import com.xoa.util.page.PageParams;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.beans.factory.annotation.Autowired;
+/*    */ import org.springframework.stereotype.Controller;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"/rmsRollRoom"})
+/*    */ public class RmsRollRoomController
+/*    */ {
+/*    */ 
+/*    */   @Autowired
+/*    */   private RmsRollRoomService rmsRollRoomService;
+/*    */ 
+/*    */   @RequestMapping({"/manage"})
+/*    */   public String toManage()
+/*    */   {
+/* 32 */     return "/app/rms/rollRoom/manage";
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/save"})
+/*    */   public ToJson<RmsRollRoom> save(RmsRollRoom rmsRollRoom, HttpServletRequest request)
+/*    */   {
+/* 43 */     return this.rmsRollRoomService.save(rmsRollRoom, request);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/selectById"})
+/*    */   public ToJson<RmsRollRoom> selectById(Integer roomId)
+/*    */   {
+/* 54 */     return this.rmsRollRoomService.selectById(roomId);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/update"})
+/*    */   public ToJson<RmsRollRoom> update(RmsRollRoom rmsRollRoom, HttpServletRequest request)
+/*    */   {
+/* 65 */     return this.rmsRollRoomService.update(rmsRollRoom, request);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/delete"})
+/*    */   public ToJson<RmsRollRoom> delete(RmsRollRoom rmsRollRoom, HttpServletRequest request)
+/*    */   {
+/* 76 */     return this.rmsRollRoomService.delete(rmsRollRoom, request);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/query"})
+/*    */   public ToJson<RmsRollRoom> query(RmsRollRoom rmsRollRoom, PageParams pageParams)
+/*    */   {
+/* 87 */     return this.rmsRollRoomService.query(rmsRollRoom, pageParams);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/selectAll"})
+/*    */   public ToJson<RmsRollRoom> selectAll()
+/*    */   {
+/* 98 */     return this.rmsRollRoomService.selectAll();
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.rms.rollRoom.RmsRollRoomController
+ * JD-Core Version:    0.6.0
+ */

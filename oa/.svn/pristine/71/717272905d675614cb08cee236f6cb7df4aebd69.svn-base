@@ -1,0 +1,440 @@
+/*     */ package com.xoa.service.fixAssets;
+/*     */ 
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.fixAssets.EduFixAssetsMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.department.Department;
+/*     */ import com.xoa.model.fixAssets.EduFixAssets;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.ExcelUtil;
+/*     */ import com.xoa.util.FileUploadUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.InputStream;
+/*     */ import java.io.OutputStream;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.ResourceBundle;
+/*     */ import java.util.UUID;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.ServletContext;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.apache.poi.ss.usermodel.Cell;
+/*     */ import org.apache.poi.ss.usermodel.Row;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduFixAssetsService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private EduFixAssetsMapper eduFixAssetsMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   public ToJson<EduFixAssets> selFixAssetsByCond(int condition, int output, EduFixAssets eduFixAssets, HttpServletRequest request, HttpServletResponse response, HttpSession session, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  55 */     ToJson json = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/*  58 */       PageParams pageParams = new PageParams();
+/*  59 */       pageParams.setPage(page);
+/*  60 */       pageParams.setPageSize(pageSize);
+/*  61 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  62 */       Map map = new HashMap();
+/*  63 */       map.put("page", pageParams);
+/*  64 */       map.put("eduFixAssets", eduFixAssets);
+/*  65 */       List<EduFixAssets> eduFixAssetsList = new ArrayList();
+/*  66 */       if (condition == 1) {
+/*  67 */         eduFixAssetsList = this.eduFixAssetsMapper.selFixAssetsByNameLike(map);
+/*  68 */         json.setTotleNum(Integer.valueOf(this.eduFixAssetsMapper.selFixAssetsTotalByNameLike(eduFixAssets)));
+/*  69 */       } else if (condition == 2) {
+/*  70 */         eduFixAssetsList = this.eduFixAssetsMapper.selFixAssetsByCond(map);
+/*  71 */         json.setTotleNum(Integer.valueOf(this.eduFixAssetsMapper.selFixAssetsTotalByCond(eduFixAssets)));
+/*     */       } else {
+/*  73 */         eduFixAssetsList = this.eduFixAssetsMapper.selFixAssetsByOrCond(map);
+/*  74 */         json.setTotleNum(Integer.valueOf(this.eduFixAssetsMapper.selFixAssetsTotalByOrCond(eduFixAssets)));
+/*     */       }
+/*     */ 
+/*  77 */       if (eduFixAssetsList.size() > 0) {
+/*  78 */         for (EduFixAssets fixAssets : eduFixAssetsList) {
+/*  79 */           if ((!StringUtils.checkNull(fixAssets.getCustodion()).booleanValue()) && 
+/*  80 */             (this.usersMapper.findUsersByuserId(fixAssets.getCustodion()) != null)) {
+/*  81 */             fixAssets.setCustodionName(this.usersMapper.findUsersByuserId(fixAssets.getCustodion()).getUserName());
+/*     */           }
+/*     */ 
+/*  84 */           if ((!StringUtils.checkNull(fixAssets.getCreater()).booleanValue()) && 
+/*  85 */             (this.usersMapper.findUsersByuserId(fixAssets.getCreater()) != null)) {
+/*  86 */             fixAssets.setCreaterName(this.usersMapper.findUsersByuserId(fixAssets.getCreater()).getUserName());
+/*     */           }
+/*     */ 
+/*  89 */           if ((!StringUtils.checkNull(fixAssets.getLocationAddress()).booleanValue()) && 
+/*  90 */             (this.departmentMapper.getDeptById(Integer.parseInt(fixAssets.getLocationAddress())) != null)) {
+/*  91 */             fixAssets.setLocationAddressName(this.departmentMapper.getDeptById(Integer.parseInt(fixAssets.getLocationAddress())).getDeptName());
+/*     */           }
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/*  97 */       if (output == 1) {
+/*  98 */         HSSFWorkbook tableWork = ExcelUtil.makeExcelHead("固定资产信息表", 12);
+/*  99 */         String[] secondTitles = { "固定资产编号", "资产名称", "购买时间", "品牌—型号", "数量", "所在位置", "使用保管人", "物品状态", "备注", "创建人", "创建时间" };
+/* 100 */         HSSFWorkbook excelWork = ExcelUtil.makeSecondHead(tableWork, secondTitles);
+/* 101 */         String[] beanProperty = { "id", "assetsName", "buyTime", "info", "number", "locationAddressName", "custodionName", "status", "remake", "creater", "createrTime" };
+/* 102 */         HSSFWorkbook workbook = ExcelUtil.exportExcelData(excelWork, eduFixAssetsList, beanProperty);
+/* 103 */         response.setContentType("text/html;charset=UTF-8");
+/* 104 */         OutputStream out = response.getOutputStream();
+/*     */ 
+/* 106 */         String filename = "固定资产信息表.xls";
+/* 107 */         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/*     */ 
+/* 109 */         response.setContentType("application/vnd.ms-excel");
+/* 110 */         response.setHeader("content-disposition", "attachment;filename=" + filename);
+/*     */ 
+/* 112 */         workbook.write(out);
+/* 113 */         out.flush();
+/* 114 */         out.close();
+/*     */       }
+/* 116 */       json.setObj(eduFixAssetsList);
+/* 117 */       json.setMsg("ok");
+/* 118 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 120 */       json.setMsg(e.getMessage());
+/* 121 */       L.e(new Object[] { "EduFixAssetsService selFixAssetsByCond:" + e });
+/* 122 */       e.printStackTrace();
+/*     */     }
+/* 124 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public synchronized ToJson<EduFixAssets> insertFixAssets(HttpServletRequest request, MultipartFile imageFile, MultipartFile QRcodeFile, EduFixAssets eduFixAssets)
+/*     */   {
+/* 137 */     ToJson json = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 140 */       int imgResult = uploadImg(request, eduFixAssets, imageFile, QRcodeFile);
+/* 141 */       if (imgResult != 0) {
+/* 142 */         json.setMsg(String.valueOf(imgResult));
+/* 143 */         return json;
+/*     */       }
+/* 145 */       int count = this.eduFixAssetsMapper.insertFixAssets(eduFixAssets);
+/* 146 */       if (count > 0) {
+/* 147 */         json.setObject(eduFixAssets);
+/* 148 */         json.setMsg("ok");
+/* 149 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 152 */       json.setMsg(e.getMessage());
+/* 153 */       L.e(new Object[] { "EduFixAssetsService insertFixAssets:" + e });
+/* 154 */       e.printStackTrace();
+/*     */     }
+/* 156 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<EduFixAssets> updateFixAssetsById(HttpServletRequest request, MultipartFile imageFile, MultipartFile QRcodeFile, EduFixAssets eduFixAssets)
+/*     */   {
+/* 168 */     ToJson json = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 171 */       int imgResult = uploadImg(request, eduFixAssets, imageFile, QRcodeFile);
+/* 172 */       if (imgResult != 0) {
+/* 173 */         json.setMsg(String.valueOf(imgResult));
+/* 174 */         return json;
+/*     */       }
+/* 176 */       int count = this.eduFixAssetsMapper.updateFixAssetsById(eduFixAssets);
+/* 177 */       if (count > 0) {
+/* 178 */         json.setObject(eduFixAssets);
+/* 179 */         json.setMsg("ok");
+/* 180 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 183 */       json.setMsg(e.getMessage());
+/* 184 */       L.e(new Object[] { "EduFixAssetsService updateFixAssetsById:" + e });
+/* 185 */       e.printStackTrace();
+/*     */     }
+/* 187 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<EduFixAssets> deleteFixAssetsById(String id)
+/*     */   {
+/* 199 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 201 */       int count = this.eduFixAssetsMapper.deleteFixAssetsById(id);
+/* 202 */       if (count > 0) {
+/* 203 */         json.setMsg("ok");
+/* 204 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 207 */       json.setMsg(e.getMessage());
+/* 208 */       L.e(new Object[] { "EduFixAssetsService deleteFixAssetsById:" + e });
+/* 209 */       e.printStackTrace();
+/*     */     }
+/* 211 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson<EduFixAssets> inputFixAsserts(HttpServletRequest request, HttpServletResponse response, MultipartFile file, HttpSession session)
+/*     */   {
+/* 224 */     ToJson json = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 228 */       ResourceBundle rb = ResourceBundle.getBundle("upload");
+/*     */ 
+/* 230 */       String osName = System.getProperty("os.name");
+/* 231 */       StringBuffer path = new StringBuffer();
+/* 232 */       if (osName.toLowerCase().startsWith("win"))
+/* 233 */         path = path.append(rb.getString("upload.win"));
+/*     */       else {
+/* 235 */         path = path.append(rb.getString("upload.linux"));
+/*     */       }
+/* 237 */       if (file.isEmpty()) {
+/* 238 */         json.setMsg("请上传文件！");
+/* 239 */         return json;
+/*     */       }
+/* 241 */       String fileName = file.getOriginalFilename();
+/* 242 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 243 */         String uuid = UUID.randomUUID().toString();
+/* 244 */         uuid = uuid.replaceAll("-", "");
+/* 245 */         int pos = fileName.indexOf(".");
+/* 246 */         String extName = fileName.substring(pos);
+/* 247 */         String newFileName = uuid + extName;
+/* 248 */         File dest = new File(path.toString(), newFileName);
+/*     */ 
+/* 252 */         String readPath = path.append(newFileName).toString();
+/* 253 */         InputStream in = new FileInputStream(readPath);
+/* 254 */         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+/* 255 */         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+/* 256 */         Row rowObj = null;
+/* 257 */         int lastRowNum = sheetObj.getLastRowNum();
+/* 258 */         int inputFail = 0;
+/* 259 */         int inputSuccess = 0;
+/* 260 */         String faillReason = "";
+/* 261 */         for (int i = 2; i <= lastRowNum; i++) {
+/* 262 */           rowObj = sheetObj.getRow(i);
+/* 263 */           if (rowObj != null) {
+/* 264 */             Cell c0 = rowObj.getCell(0);
+/* 265 */             Cell c1 = rowObj.getCell(1);
+/* 266 */             Cell c2 = rowObj.getCell(2);
+/* 267 */             Cell c3 = rowObj.getCell(3);
+/* 268 */             Cell c4 = rowObj.getCell(4);
+/* 269 */             Cell c5 = rowObj.getCell(5);
+/* 270 */             Cell c6 = rowObj.getCell(6);
+/* 271 */             Cell c7 = rowObj.getCell(7);
+/* 272 */             Cell c8 = rowObj.getCell(8);
+/* 273 */             Cell c9 = rowObj.getCell(9);
+/* 274 */             Cell c10 = rowObj.getCell(10);
+/* 275 */             if ((c0.getStringCellValue() != "") && (c1.getStringCellValue() != "") && (c2.getStringCellValue() != "")) {
+/* 276 */               EduFixAssets eduFixAssets = new EduFixAssets();
+/* 277 */               eduFixAssets.setId(c0.getStringCellValue());
+/* 278 */               eduFixAssets.setAssetsName(c1.getStringCellValue());
+/* 279 */               eduFixAssets.setBuyTime(DateFormat.DateToStr(c2.getStringCellValue()));
+/* 280 */               eduFixAssets.setInfo(c3.getStringCellValue());
+/* 281 */               if (!StringUtils.checkNull(c4.getStringCellValue()).booleanValue()) {
+/* 282 */                 eduFixAssets.setNumber(Integer.valueOf(c4.getStringCellValue()));
+/*     */               }
+/* 284 */               if ((!StringUtils.checkNull(c5.getStringCellValue()).booleanValue()) && 
+/* 285 */                 (this.departmentMapper.getDeptById(Integer.parseInt(c5.getStringCellValue())) != null)) {
+/* 286 */                 eduFixAssets.setLocationAddress(this.departmentMapper.getDeptById(Integer.parseInt(c5.getStringCellValue())).getDeptName());
+/*     */               }
+/*     */ 
+/* 289 */               if ((!StringUtils.checkNull(c6.getStringCellValue()).booleanValue()) && 
+/* 290 */                 (this.usersMapper.findUsersByuserId(c6.getStringCellValue()) != null)) {
+/* 291 */                 eduFixAssets.setCustodion(this.usersMapper.findUsersByuserId(c6.getStringCellValue()).getUserId());
+/*     */               }
+/*     */ 
+/* 294 */               eduFixAssets.setInfo(c7.getStringCellValue());
+/* 295 */               eduFixAssets.setRemake(c8.getStringCellValue());
+/* 296 */               if ((!StringUtils.checkNull(c9.getStringCellValue()).booleanValue()) && 
+/* 297 */                 (this.usersMapper.findUsersByuserId(c9.getStringCellValue()) != null)) {
+/* 298 */                 eduFixAssets.setCreater(this.usersMapper.findUsersByuserId(c9.getStringCellValue()).getUserId());
+/*     */               }
+/*     */ 
+/* 301 */               if (!StringUtils.checkNull(c10.getStringCellValue()).booleanValue()) {
+/* 302 */                 eduFixAssets.setCreaterTime(DateFormat.DateToStr(c10.getStringCellValue()));
+/*     */               }
+/* 304 */               if (this.eduFixAssetsMapper.selFixAssetsById(c0.getStringCellValue()) != null) {
+/* 305 */                 this.eduFixAssetsMapper.insert(eduFixAssets);
+/* 306 */                 inputSuccess++;
+/*     */               } else {
+/* 308 */                 inputFail++;
+/* 309 */                 faillReason = faillReason + c0.getStringCellValue() + ",";
+/*     */               }
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */ 
+/* 315 */         EduFixAssets temp = new EduFixAssets();
+/* 316 */         temp.setInputFail(inputFail);
+/* 317 */         temp.setInputSuccess(inputSuccess);
+/* 318 */         temp.setInputFailReason(faillReason);
+/* 319 */         json.setFlag(0);
+/* 320 */         json.setMsg("ok");
+/* 321 */         dest.delete();
+/*     */       } else {
+/* 323 */         json.setMsg("0");
+/* 324 */         return json;
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 328 */       json.setMsg(e.getMessage());
+/* 329 */       L.e(new Object[] { "EduFixAssetsService inputFixAsserts:" + e });
+/* 330 */       e.printStackTrace();
+/*     */     }
+/* 332 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduFixAssets> selFixAssetsById(String id)
+/*     */   {
+/* 344 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 346 */       EduFixAssets eduFixAssets = this.eduFixAssetsMapper.selFixAssetsById(id);
+/* 347 */       if ((!StringUtils.checkNull(eduFixAssets.getCustodion()).booleanValue()) && 
+/* 348 */         (this.usersMapper.findUsersByuserId(eduFixAssets.getCustodion()) != null)) {
+/* 349 */         eduFixAssets.setCustodionName(this.usersMapper.findUsersByuserId(eduFixAssets.getCustodion()).getUserName());
+/*     */       }
+/*     */ 
+/* 352 */       if ((!StringUtils.checkNull(eduFixAssets.getCreater()).booleanValue()) && 
+/* 353 */         (this.usersMapper.findUsersByuserId(eduFixAssets.getCreater()) != null)) {
+/* 354 */         eduFixAssets.setCreaterName(this.usersMapper.findUsersByuserId(eduFixAssets.getCreater()).getUserName());
+/*     */       }
+/*     */ 
+/* 357 */       if ((!StringUtils.checkNull(eduFixAssets.getLocationAddress()).booleanValue()) && 
+/* 358 */         (this.departmentMapper.getDeptById(Integer.parseInt(eduFixAssets.getLocationAddress())) != null)) {
+/* 359 */         eduFixAssets.setLocationAddressName(this.departmentMapper.getDeptById(Integer.parseInt(eduFixAssets.getLocationAddress())).getDeptName());
+/*     */       }
+/*     */ 
+/* 362 */       json.setObject(eduFixAssets);
+/* 363 */       json.setMsg("ok");
+/* 364 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 366 */       json.setMsg(e.getMessage());
+/* 367 */       L.e(new Object[] { "EduFixAssetsService selFixAssetsById:" + e });
+/* 368 */       e.printStackTrace();
+/*     */     }
+/* 370 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public int uploadImg(HttpServletRequest request, EduFixAssets eduFixAssets, MultipartFile imageFile, MultipartFile QRcodeFile)
+/*     */   {
+/* 379 */     int resultFlag = 0;
+/*     */     try
+/*     */     {
+/* 382 */       if (imageFile != null) {
+/* 383 */         String imageType = imageFile.getContentType();
+/* 384 */         boolean b = FileUploadUtil.allowUpload(imageType);
+/* 385 */         if (!b) {
+/* 386 */           resultFlag = 1;
+/*     */         }
+/*     */       }
+/* 389 */       if (QRcodeFile != null) {
+/* 390 */         String QRcodeType = QRcodeFile.getContentType();
+/* 391 */         boolean b = FileUploadUtil.allowUpload(QRcodeType);
+/* 392 */         if (!b) {
+/* 393 */           resultFlag = 2;
+/*     */         }
+/*     */       }
+/* 396 */       String realPath = request.getSession().getServletContext().getRealPath("/");
+/* 397 */       String resourcePath = "ui/img/edu/eduFixAssets";
+/*     */ 
+/* 399 */       EduFixAssets temp = this.eduFixAssetsMapper.selFixAssetsById(eduFixAssets.getId());
+/* 400 */       if (temp != null) {
+/* 401 */         if (!StringUtils.checkNull(temp.getImage()).booleanValue()) {
+/* 402 */           File temp1 = new File(realPath + resourcePath + temp.getImage());
+/* 403 */           if (temp1.exists()) {
+/* 404 */             temp1.delete();
+/*     */           }
+/*     */         }
+/* 407 */         if (!StringUtils.checkNull(temp.getQrCode()).booleanValue()) {
+/* 408 */           File temp2 = new File(realPath + resourcePath + temp.getQrCode());
+/* 409 */           if (temp2.exists()) {
+/* 410 */             temp2.delete();
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 415 */       if ((imageFile != null) && 
+/* 416 */         (FileUploadUtil.allowUpload(imageFile.getContentType()))) {
+/* 417 */         String fileName = FileUploadUtil.rename(imageFile.getOriginalFilename());
+/* 418 */         File dir = new File(realPath + resourcePath);
+/* 419 */         if (!dir.exists()) {
+/* 420 */           dir.mkdirs();
+/*     */         }
+/* 422 */         File file = new File(dir, fileName);
+/* 423 */         imageFile.transferTo(file);
+/* 424 */         eduFixAssets.setImage(fileName);
+/*     */       }
+/*     */ 
+/* 427 */       if ((QRcodeFile != null) && 
+/* 428 */         (FileUploadUtil.allowUpload(QRcodeFile.getContentType()))) {
+/* 429 */         String fileName = FileUploadUtil.rename(QRcodeFile.getOriginalFilename());
+/* 430 */         File dir = new File(realPath + resourcePath);
+/* 431 */         if (!dir.exists()) {
+/* 432 */           dir.mkdirs();
+/*     */         }
+/* 434 */         File file = new File(dir, fileName);
+/* 435 */         QRcodeFile.transferTo(file);
+/* 436 */         eduFixAssets.setQrCode(fileName);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 440 */       L.e(new Object[] { "EduFixAssetsService selFixAssetsById:" + e });
+/* 441 */       e.printStackTrace();
+/*     */     }
+/* 443 */     return resultFlag;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduFixAssets> getFixAssetsId()
+/*     */   {
+/* 454 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 456 */       String maxId = this.eduFixAssetsMapper.selMaxId();
+/* 457 */       String OriginId = "00001";
+/* 458 */       if (!StringUtils.checkNull(maxId).booleanValue()) {
+/* 459 */         String tempId = String.valueOf(Integer.valueOf(maxId.substring(12, maxId.length())).intValue() + 1);
+/* 460 */         String zeroStr = "";
+/* 461 */         for (int i = tempId.length(); i < 6 - tempId.length(); i++) {
+/* 462 */           zeroStr = zeroStr + "0";
+/*     */         }
+/* 464 */         OriginId = zeroStr + tempId;
+/*     */       }
+/* 466 */       String IdStr = "GDZC" + DateFormat.getDatestr(new Date()) + OriginId;
+/* 467 */       EduFixAssets eduFixAssets = new EduFixAssets();
+/* 468 */       eduFixAssets.setId(IdStr.replaceAll("-", ""));
+/* 469 */       eduFixAssets.setCreaterTime(new Date());
+/* 470 */       json.setMsg("ok");
+/* 471 */       json.setObject(eduFixAssets);
+/* 472 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 474 */       json.setMsg(e.getMessage());
+/* 475 */       L.e(new Object[] { "EduFixAssetsService getFixAssetsId:" + e });
+/* 476 */       e.printStackTrace();
+/*     */     }
+/* 478 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.fixAssets.EduFixAssetsService
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,50 @@
+package com.myoa.controller.seal;
+
+import com.myoa.model.seal.SealJinge;
+import com.myoa.service.seal.SealJingeSevice;
+import com.myoa.util.ToJson;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@RequestMapping({ "/sealJinge" })
+public class SealJingeController {
+
+	@Resource
+	SealJingeSevice sealJingeSevice;
+
+	@ResponseBody
+	@RequestMapping({ "/addSealJinge" })
+	public ToJson<SealJinge> addSealJinge(HttpServletRequest req,
+			SealJinge sealJinge) {
+		return this.sealJingeSevice.addSealJinge(req, sealJinge);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getSealJingeList" })
+	public ToJson<SealJinge> getSealJingeList() {
+		return this.sealJingeSevice.getSealJingeList();
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getSealJinge" })
+	public ToJson<SealJinge> getSealJinge(Integer sealId) {
+		return this.sealJingeSevice.getSealJinge(sealId);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/updateSealJinge" })
+	public ToJson<SealJinge> updateSealJinge(SealJinge sealJinge) {
+		return this.sealJingeSevice.updateSealJinge(sealJinge);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/deleteSealJinge" })
+	public ToJson<SealJinge> deleteSealJinge(Integer sealId) {
+		return this.sealJingeSevice.deleteSealJinge(sealId);
+	}
+}

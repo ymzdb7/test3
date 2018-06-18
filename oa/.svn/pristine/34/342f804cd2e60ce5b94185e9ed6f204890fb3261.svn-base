@@ -1,0 +1,848 @@
+/*     */ package com.xoa.model.common;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class SecureLogExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public SecureLogExample()
+/*     */   {
+/*  38 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  48 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  58 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  68 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  78 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  88 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  98 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 108 */     Criteria criteria = createCriteriaInternal();
+/* 109 */     this.oredCriteria.add(criteria);
+/* 110 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 120 */     Criteria criteria = createCriteriaInternal();
+/* 121 */     if (this.oredCriteria.size() == 0) {
+/* 122 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 124 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 134 */     Criteria criteria = new Criteria();
+/* 135 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 145 */     this.oredCriteria.clear();
+/* 146 */     this.orderByClause = null;
+/* 147 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 875 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 879 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 883 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 887 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 891 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 895 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 899 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 903 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 908 */       this.condition = condition;
+/* 909 */       this.typeHandler = null;
+/* 910 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 915 */       this.condition = condition;
+/* 916 */       this.value = value;
+/* 917 */       this.typeHandler = typeHandler;
+/* 918 */       if ((value instanceof List))
+/* 919 */         this.listValue = true;
+/*     */       else
+/* 921 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 926 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 931 */       this.condition = condition;
+/* 932 */       this.value = value;
+/* 933 */       this.secondValue = secondValue;
+/* 934 */       this.typeHandler = typeHandler;
+/* 935 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 939 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends SecureLogExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<SecureLogExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 161 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 165 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<SecureLogExample.Criterion> getAllCriteria() {
+/* 169 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<SecureLogExample.Criterion> getCriteria() {
+/* 173 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 177 */       if (condition == null) {
+/* 178 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 180 */       this.criteria.add(new SecureLogExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 184 */       if (value == null) {
+/* 185 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 187 */       this.criteria.add(new SecureLogExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 191 */       if ((value1 == null) || (value2 == null)) {
+/* 192 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 194 */       this.criteria.add(new SecureLogExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogIdIsNull() {
+/* 198 */       addCriterion("LOG_ID is null");
+/* 199 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogIdIsNotNull() {
+/* 203 */       addCriterion("LOG_ID is not null");
+/* 204 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogIdEqualTo(Integer value) {
+/* 208 */       addCriterion("LOG_ID =", value, "logId");
+/* 209 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogIdNotEqualTo(Integer value) {
+/* 213 */       addCriterion("LOG_ID <>", value, "logId");
+/* 214 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogIdGreaterThan(Integer value) {
+/* 218 */       addCriterion("LOG_ID >", value, "logId");
+/* 219 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogIdGreaterThanOrEqualTo(Integer value) {
+/* 223 */       addCriterion("LOG_ID >=", value, "logId");
+/* 224 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogIdLessThan(Integer value) {
+/* 228 */       addCriterion("LOG_ID <", value, "logId");
+/* 229 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogIdLessThanOrEqualTo(Integer value) {
+/* 233 */       addCriterion("LOG_ID <=", value, "logId");
+/* 234 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogIdIn(List<Integer> values) {
+/* 238 */       addCriterion("LOG_ID in", values, "logId");
+/* 239 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogIdNotIn(List<Integer> values) {
+/* 243 */       addCriterion("LOG_ID not in", values, "logId");
+/* 244 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogIdBetween(Integer value1, Integer value2) {
+/* 248 */       addCriterion("LOG_ID between", value1, value2, "logId");
+/* 249 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogIdNotBetween(Integer value1, Integer value2) {
+/* 253 */       addCriterion("LOG_ID not between", value1, value2, "logId");
+/* 254 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRuleIdIsNull() {
+/* 258 */       addCriterion("RULE_ID is null");
+/* 259 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRuleIdIsNotNull() {
+/* 263 */       addCriterion("RULE_ID is not null");
+/* 264 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRuleIdEqualTo(Short value) {
+/* 268 */       addCriterion("RULE_ID =", value, "ruleId");
+/* 269 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRuleIdNotEqualTo(Short value) {
+/* 273 */       addCriterion("RULE_ID <>", value, "ruleId");
+/* 274 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRuleIdGreaterThan(Short value) {
+/* 278 */       addCriterion("RULE_ID >", value, "ruleId");
+/* 279 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRuleIdGreaterThanOrEqualTo(Short value) {
+/* 283 */       addCriterion("RULE_ID >=", value, "ruleId");
+/* 284 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRuleIdLessThan(Short value) {
+/* 288 */       addCriterion("RULE_ID <", value, "ruleId");
+/* 289 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRuleIdLessThanOrEqualTo(Short value) {
+/* 293 */       addCriterion("RULE_ID <=", value, "ruleId");
+/* 294 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRuleIdIn(List<Short> values) {
+/* 298 */       addCriterion("RULE_ID in", values, "ruleId");
+/* 299 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRuleIdNotIn(List<Short> values) {
+/* 303 */       addCriterion("RULE_ID not in", values, "ruleId");
+/* 304 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRuleIdBetween(Short value1, Short value2) {
+/* 308 */       addCriterion("RULE_ID between", value1, value2, "ruleId");
+/* 309 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRuleIdNotBetween(Short value1, Short value2) {
+/* 313 */       addCriterion("RULE_ID not between", value1, value2, "ruleId");
+/* 314 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andUidIsNull() {
+/* 318 */       addCriterion("UID is null");
+/* 319 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andUidIsNotNull() {
+/* 323 */       addCriterion("UID is not null");
+/* 324 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andUidEqualTo(Integer value) {
+/* 328 */       addCriterion("UID =", value, "uid");
+/* 329 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andUidNotEqualTo(Integer value) {
+/* 333 */       addCriterion("UID <>", value, "uid");
+/* 334 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andUidGreaterThan(Integer value) {
+/* 338 */       addCriterion("UID >", value, "uid");
+/* 339 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andUidGreaterThanOrEqualTo(Integer value) {
+/* 343 */       addCriterion("UID >=", value, "uid");
+/* 344 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andUidLessThan(Integer value) {
+/* 348 */       addCriterion("UID <", value, "uid");
+/* 349 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andUidLessThanOrEqualTo(Integer value) {
+/* 353 */       addCriterion("UID <=", value, "uid");
+/* 354 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andUidIn(List<Integer> values) {
+/* 358 */       addCriterion("UID in", values, "uid");
+/* 359 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andUidNotIn(List<Integer> values) {
+/* 363 */       addCriterion("UID not in", values, "uid");
+/* 364 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andUidBetween(Integer value1, Integer value2) {
+/* 368 */       addCriterion("UID between", value1, value2, "uid");
+/* 369 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andUidNotBetween(Integer value1, Integer value2) {
+/* 373 */       addCriterion("UID not between", value1, value2, "uid");
+/* 374 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogTimeIsNull() {
+/* 378 */       addCriterion("LOG_TIME is null");
+/* 379 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogTimeIsNotNull() {
+/* 383 */       addCriterion("LOG_TIME is not null");
+/* 384 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogTimeEqualTo(Integer value) {
+/* 388 */       addCriterion("LOG_TIME =", value, "logTime");
+/* 389 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogTimeNotEqualTo(Integer value) {
+/* 393 */       addCriterion("LOG_TIME <>", value, "logTime");
+/* 394 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogTimeGreaterThan(Integer value) {
+/* 398 */       addCriterion("LOG_TIME >", value, "logTime");
+/* 399 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogTimeGreaterThanOrEqualTo(Integer value) {
+/* 403 */       addCriterion("LOG_TIME >=", value, "logTime");
+/* 404 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogTimeLessThan(Integer value) {
+/* 408 */       addCriterion("LOG_TIME <", value, "logTime");
+/* 409 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogTimeLessThanOrEqualTo(Integer value) {
+/* 413 */       addCriterion("LOG_TIME <=", value, "logTime");
+/* 414 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogTimeIn(List<Integer> values) {
+/* 418 */       addCriterion("LOG_TIME in", values, "logTime");
+/* 419 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogTimeNotIn(List<Integer> values) {
+/* 423 */       addCriterion("LOG_TIME not in", values, "logTime");
+/* 424 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogTimeBetween(Integer value1, Integer value2) {
+/* 428 */       addCriterion("LOG_TIME between", value1, value2, "logTime");
+/* 429 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andLogTimeNotBetween(Integer value1, Integer value2) {
+/* 433 */       addCriterion("LOG_TIME not between", value1, value2, "logTime");
+/* 434 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andIpIsNull() {
+/* 438 */       addCriterion("IP is null");
+/* 439 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andIpIsNotNull() {
+/* 443 */       addCriterion("IP is not null");
+/* 444 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andIpEqualTo(String value) {
+/* 448 */       addCriterion("IP =", value, "ip");
+/* 449 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andIpNotEqualTo(String value) {
+/* 453 */       addCriterion("IP <>", value, "ip");
+/* 454 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andIpGreaterThan(String value) {
+/* 458 */       addCriterion("IP >", value, "ip");
+/* 459 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andIpGreaterThanOrEqualTo(String value) {
+/* 463 */       addCriterion("IP >=", value, "ip");
+/* 464 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andIpLessThan(String value) {
+/* 468 */       addCriterion("IP <", value, "ip");
+/* 469 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andIpLessThanOrEqualTo(String value) {
+/* 473 */       addCriterion("IP <=", value, "ip");
+/* 474 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andIpLike(String value) {
+/* 478 */       addCriterion("IP like", value, "ip");
+/* 479 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andIpNotLike(String value) {
+/* 483 */       addCriterion("IP not like", value, "ip");
+/* 484 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andIpIn(List<String> values) {
+/* 488 */       addCriterion("IP in", values, "ip");
+/* 489 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andIpNotIn(List<String> values) {
+/* 493 */       addCriterion("IP not in", values, "ip");
+/* 494 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andIpBetween(String value1, String value2) {
+/* 498 */       addCriterion("IP between", value1, value2, "ip");
+/* 499 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andIpNotBetween(String value1, String value2) {
+/* 503 */       addCriterion("IP not between", value1, value2, "ip");
+/* 504 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRemarkIsNull() {
+/* 508 */       addCriterion("REMARK is null");
+/* 509 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRemarkIsNotNull() {
+/* 513 */       addCriterion("REMARK is not null");
+/* 514 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRemarkEqualTo(String value) {
+/* 518 */       addCriterion("REMARK =", value, "remark");
+/* 519 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRemarkNotEqualTo(String value) {
+/* 523 */       addCriterion("REMARK <>", value, "remark");
+/* 524 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRemarkGreaterThan(String value) {
+/* 528 */       addCriterion("REMARK >", value, "remark");
+/* 529 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRemarkGreaterThanOrEqualTo(String value) {
+/* 533 */       addCriterion("REMARK >=", value, "remark");
+/* 534 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRemarkLessThan(String value) {
+/* 538 */       addCriterion("REMARK <", value, "remark");
+/* 539 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRemarkLessThanOrEqualTo(String value) {
+/* 543 */       addCriterion("REMARK <=", value, "remark");
+/* 544 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRemarkLike(String value) {
+/* 548 */       addCriterion("REMARK like", value, "remark");
+/* 549 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRemarkNotLike(String value) {
+/* 553 */       addCriterion("REMARK not like", value, "remark");
+/* 554 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRemarkIn(List<String> values) {
+/* 558 */       addCriterion("REMARK in", values, "remark");
+/* 559 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRemarkNotIn(List<String> values) {
+/* 563 */       addCriterion("REMARK not in", values, "remark");
+/* 564 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRemarkBetween(String value1, String value2) {
+/* 568 */       addCriterion("REMARK between", value1, value2, "remark");
+/* 569 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andRemarkNotBetween(String value1, String value2) {
+/* 573 */       addCriterion("REMARK not between", value1, value2, "remark");
+/* 574 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromBodyIdIsNull() {
+/* 578 */       addCriterion("FROM_BODY_ID is null");
+/* 579 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromBodyIdIsNotNull() {
+/* 583 */       addCriterion("FROM_BODY_ID is not null");
+/* 584 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromBodyIdEqualTo(Integer value) {
+/* 588 */       addCriterion("FROM_BODY_ID =", value, "fromBodyId");
+/* 589 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromBodyIdNotEqualTo(Integer value) {
+/* 593 */       addCriterion("FROM_BODY_ID <>", value, "fromBodyId");
+/* 594 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromBodyIdGreaterThan(Integer value) {
+/* 598 */       addCriterion("FROM_BODY_ID >", value, "fromBodyId");
+/* 599 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromBodyIdGreaterThanOrEqualTo(Integer value) {
+/* 603 */       addCriterion("FROM_BODY_ID >=", value, "fromBodyId");
+/* 604 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromBodyIdLessThan(Integer value) {
+/* 608 */       addCriterion("FROM_BODY_ID <", value, "fromBodyId");
+/* 609 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromBodyIdLessThanOrEqualTo(Integer value) {
+/* 613 */       addCriterion("FROM_BODY_ID <=", value, "fromBodyId");
+/* 614 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromBodyIdIn(List<Integer> values) {
+/* 618 */       addCriterion("FROM_BODY_ID in", values, "fromBodyId");
+/* 619 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromBodyIdNotIn(List<Integer> values) {
+/* 623 */       addCriterion("FROM_BODY_ID not in", values, "fromBodyId");
+/* 624 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromBodyIdBetween(Integer value1, Integer value2) {
+/* 628 */       addCriterion("FROM_BODY_ID between", value1, value2, "fromBodyId");
+/* 629 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromBodyIdNotBetween(Integer value1, Integer value2) {
+/* 633 */       addCriterion("FROM_BODY_ID not between", value1, value2, "fromBodyId");
+/* 634 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToBodyIdIsNull() {
+/* 638 */       addCriterion("TO_BODY_ID is null");
+/* 639 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToBodyIdIsNotNull() {
+/* 643 */       addCriterion("TO_BODY_ID is not null");
+/* 644 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToBodyIdEqualTo(Integer value) {
+/* 648 */       addCriterion("TO_BODY_ID =", value, "toBodyId");
+/* 649 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToBodyIdNotEqualTo(Integer value) {
+/* 653 */       addCriterion("TO_BODY_ID <>", value, "toBodyId");
+/* 654 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToBodyIdGreaterThan(Integer value) {
+/* 658 */       addCriterion("TO_BODY_ID >", value, "toBodyId");
+/* 659 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToBodyIdGreaterThanOrEqualTo(Integer value) {
+/* 663 */       addCriterion("TO_BODY_ID >=", value, "toBodyId");
+/* 664 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToBodyIdLessThan(Integer value) {
+/* 668 */       addCriterion("TO_BODY_ID <", value, "toBodyId");
+/* 669 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToBodyIdLessThanOrEqualTo(Integer value) {
+/* 673 */       addCriterion("TO_BODY_ID <=", value, "toBodyId");
+/* 674 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToBodyIdIn(List<Integer> values) {
+/* 678 */       addCriterion("TO_BODY_ID in", values, "toBodyId");
+/* 679 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToBodyIdNotIn(List<Integer> values) {
+/* 683 */       addCriterion("TO_BODY_ID not in", values, "toBodyId");
+/* 684 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToBodyIdBetween(Integer value1, Integer value2) {
+/* 688 */       addCriterion("TO_BODY_ID between", value1, value2, "toBodyId");
+/* 689 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToBodyIdNotBetween(Integer value1, Integer value2) {
+/* 693 */       addCriterion("TO_BODY_ID not between", value1, value2, "toBodyId");
+/* 694 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromTableExtendsIsNull() {
+/* 698 */       addCriterion("FROM_TABLE_EXTENDS is null");
+/* 699 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromTableExtendsIsNotNull() {
+/* 703 */       addCriterion("FROM_TABLE_EXTENDS is not null");
+/* 704 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromTableExtendsEqualTo(String value) {
+/* 708 */       addCriterion("FROM_TABLE_EXTENDS =", value, "fromTableExtends");
+/* 709 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromTableExtendsNotEqualTo(String value) {
+/* 713 */       addCriterion("FROM_TABLE_EXTENDS <>", value, "fromTableExtends");
+/* 714 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromTableExtendsGreaterThan(String value) {
+/* 718 */       addCriterion("FROM_TABLE_EXTENDS >", value, "fromTableExtends");
+/* 719 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromTableExtendsGreaterThanOrEqualTo(String value) {
+/* 723 */       addCriterion("FROM_TABLE_EXTENDS >=", value, "fromTableExtends");
+/* 724 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromTableExtendsLessThan(String value) {
+/* 728 */       addCriterion("FROM_TABLE_EXTENDS <", value, "fromTableExtends");
+/* 729 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromTableExtendsLessThanOrEqualTo(String value) {
+/* 733 */       addCriterion("FROM_TABLE_EXTENDS <=", value, "fromTableExtends");
+/* 734 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromTableExtendsLike(String value) {
+/* 738 */       addCriterion("FROM_TABLE_EXTENDS like", value, "fromTableExtends");
+/* 739 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromTableExtendsNotLike(String value) {
+/* 743 */       addCriterion("FROM_TABLE_EXTENDS not like", value, "fromTableExtends");
+/* 744 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromTableExtendsIn(List<String> values) {
+/* 748 */       addCriterion("FROM_TABLE_EXTENDS in", values, "fromTableExtends");
+/* 749 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromTableExtendsNotIn(List<String> values) {
+/* 753 */       addCriterion("FROM_TABLE_EXTENDS not in", values, "fromTableExtends");
+/* 754 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromTableExtendsBetween(String value1, String value2) {
+/* 758 */       addCriterion("FROM_TABLE_EXTENDS between", value1, value2, "fromTableExtends");
+/* 759 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andFromTableExtendsNotBetween(String value1, String value2) {
+/* 763 */       addCriterion("FROM_TABLE_EXTENDS not between", value1, value2, "fromTableExtends");
+/* 764 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToTableExtendsIsNull() {
+/* 768 */       addCriterion("TO_TABLE_EXTENDS is null");
+/* 769 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToTableExtendsIsNotNull() {
+/* 773 */       addCriterion("TO_TABLE_EXTENDS is not null");
+/* 774 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToTableExtendsEqualTo(String value) {
+/* 778 */       addCriterion("TO_TABLE_EXTENDS =", value, "toTableExtends");
+/* 779 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToTableExtendsNotEqualTo(String value) {
+/* 783 */       addCriterion("TO_TABLE_EXTENDS <>", value, "toTableExtends");
+/* 784 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToTableExtendsGreaterThan(String value) {
+/* 788 */       addCriterion("TO_TABLE_EXTENDS >", value, "toTableExtends");
+/* 789 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToTableExtendsGreaterThanOrEqualTo(String value) {
+/* 793 */       addCriterion("TO_TABLE_EXTENDS >=", value, "toTableExtends");
+/* 794 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToTableExtendsLessThan(String value) {
+/* 798 */       addCriterion("TO_TABLE_EXTENDS <", value, "toTableExtends");
+/* 799 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToTableExtendsLessThanOrEqualTo(String value) {
+/* 803 */       addCriterion("TO_TABLE_EXTENDS <=", value, "toTableExtends");
+/* 804 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToTableExtendsLike(String value) {
+/* 808 */       addCriterion("TO_TABLE_EXTENDS like", value, "toTableExtends");
+/* 809 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToTableExtendsNotLike(String value) {
+/* 813 */       addCriterion("TO_TABLE_EXTENDS not like", value, "toTableExtends");
+/* 814 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToTableExtendsIn(List<String> values) {
+/* 818 */       addCriterion("TO_TABLE_EXTENDS in", values, "toTableExtends");
+/* 819 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToTableExtendsNotIn(List<String> values) {
+/* 823 */       addCriterion("TO_TABLE_EXTENDS not in", values, "toTableExtends");
+/* 824 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToTableExtendsBetween(String value1, String value2) {
+/* 828 */       addCriterion("TO_TABLE_EXTENDS between", value1, value2, "toTableExtends");
+/* 829 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureLogExample.Criteria andToTableExtendsNotBetween(String value1, String value2) {
+/* 833 */       addCriterion("TO_TABLE_EXTENDS not between", value1, value2, "toTableExtends");
+/* 834 */       return (SecureLogExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.common.SecureLogExample
+ * JD-Core Version:    0.6.0
+ */

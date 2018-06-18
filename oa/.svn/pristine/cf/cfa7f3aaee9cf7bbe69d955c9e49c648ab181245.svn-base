@@ -1,0 +1,103 @@
+/*     */ package com.xoa.service.menu.impl;
+/*     */ 
+/*     */ import com.xoa.dao.menu.SysFunctionMapper;
+/*     */ import com.xoa.dao.menu.SysMenuMapper;
+/*     */ import com.xoa.model.menu.SysFunction;
+/*     */ import com.xoa.model.menu.SysMenu;
+/*     */ import com.xoa.service.menu.SelectMenuService;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Transactional
+/*     */ @Service
+/*     */ public class SelectMenuServiceImpl
+/*     */   implements SelectMenuService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private SysMenuMapper sysMenuMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SysFunctionMapper sysFunctionMapper;
+/*     */ 
+/*     */   public BaseWrappers getAll(String locale)
+/*     */   {
+/*  35 */     BaseWrappers baseWrappers = new BaseWrappers();
+/*  36 */     baseWrappers.setStatus(true);
+/*  37 */     baseWrappers.setFlag(false);
+/*     */ 
+/*  39 */     List<SysMenu> menus = this.sysMenuMapper.getDatagrid();
+/*  40 */     List newFunctions = new ArrayList();
+/*     */ 
+/*  42 */     List<SysFunction> functions = this.sysFunctionMapper.getAll();
+/*  43 */     if (menus == null) {
+/*  44 */       baseWrappers.setMsg("没有数据");
+/*  45 */       return baseWrappers;
+/*     */     }
+/*  47 */     for (SysMenu menu : menus) {
+/*  48 */       SysFunction function = new SysFunction();
+/*  49 */       function.setId(menu.getId());
+/*  50 */       function.setExt(menu.getExt());
+/*  51 */       function.setName(menu.getName());
+/*  52 */       function.setName1(menu.getName1());
+/*  53 */       function.setName2(menu.getName2());
+/*  54 */       function.setName3(menu.getName3());
+/*  55 */       function.setName4(menu.getName4());
+/*  56 */       function.setName5(menu.getName5());
+/*  57 */       newFunctions.add(function);
+/*     */     }
+/*     */ 
+/*  61 */     if (functions == null) {
+/*  62 */       baseWrappers.setFlag(true);
+/*  63 */       baseWrappers.setMsg("没有合适的子菜单");
+/*  64 */       baseWrappers.setDatas(newFunctions);
+/*  65 */       return baseWrappers;
+/*     */     }
+/*  67 */     for (SysFunction function : functions) {
+/*  68 */       String coreStr = function.getUrl();
+/*  69 */       if ((!StringUtils.checkNull(coreStr).booleanValue()) && 
+/*  70 */         (coreStr.trim().startsWith("@"))) {
+/*  71 */         newFunctions.add(function);
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/*  76 */     List resultData = queryByMenuId(Integer.valueOf(2), newFunctions, "");
+/*  77 */     if (resultData != null) {
+/*  78 */       baseWrappers.setFlag(true);
+/*  79 */       baseWrappers.setMsg("看看结果");
+/*  80 */       baseWrappers.setDatas(resultData);
+/*     */     }
+/*     */     else {
+/*  83 */       baseWrappers.setFlag(false);
+/*  84 */       baseWrappers.setMsg("看看结果");
+/*  85 */       baseWrappers.setDatas(resultData);
+/*     */     }
+/*  87 */     return baseWrappers;
+/*     */   }
+/*     */ 
+/*     */   private List<SysFunction> queryByMenuId(Integer subLength, List<SysFunction> newFunctions, String idParent) {
+/*  91 */     if (newFunctions == null) return null;
+/*  92 */     List datas = new ArrayList();
+/*  93 */     for (SysFunction sort : newFunctions) {
+/*  94 */       String subStr = sort.getId();
+/*  95 */       if ((subStr.length() == subLength.intValue()) && (
+/*  96 */         (subLength.intValue() == 2) || (subStr.startsWith(idParent)))) {
+/*  97 */         sort.setChild(queryByMenuId(Integer.valueOf(subLength.intValue() + 2), newFunctions, subStr));
+/*  98 */         datas.add(sort);
+/*     */       }
+/*     */     }
+/*     */ 
+/* 102 */     return datas;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.menu.impl.SelectMenuServiceImpl
+ * JD-Core Version:    0.6.0
+ */

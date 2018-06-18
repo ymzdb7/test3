@@ -1,0 +1,2835 @@
+/*      */ package com.xoa.model.vehicle;
+/*      */ 
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.Iterator;
+/*      */ import java.util.List;
+/*      */ 
+/*      */ public class VehicleExample
+/*      */ {
+/*      */   protected String orderByClause;
+/*      */   protected boolean distinct;
+/*      */   protected List<Criteria> oredCriteria;
+/*      */ 
+/*      */   public VehicleExample()
+/*      */   {
+/*   40 */     this.oredCriteria = new ArrayList();
+/*      */   }
+/*      */ 
+/*      */   public void setOrderByClause(String orderByClause)
+/*      */   {
+/*   50 */     this.orderByClause = orderByClause;
+/*      */   }
+/*      */ 
+/*      */   public String getOrderByClause()
+/*      */   {
+/*   60 */     return this.orderByClause;
+/*      */   }
+/*      */ 
+/*      */   public void setDistinct(boolean distinct)
+/*      */   {
+/*   70 */     this.distinct = distinct;
+/*      */   }
+/*      */ 
+/*      */   public boolean isDistinct()
+/*      */   {
+/*   80 */     return this.distinct;
+/*      */   }
+/*      */ 
+/*      */   public List<Criteria> getOredCriteria()
+/*      */   {
+/*   90 */     return this.oredCriteria;
+/*      */   }
+/*      */ 
+/*      */   public void or(Criteria criteria)
+/*      */   {
+/*  100 */     this.oredCriteria.add(criteria);
+/*      */   }
+/*      */ 
+/*      */   public Criteria or()
+/*      */   {
+/*  110 */     Criteria criteria = createCriteriaInternal();
+/*  111 */     this.oredCriteria.add(criteria);
+/*  112 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   public Criteria createCriteria()
+/*      */   {
+/*  122 */     Criteria criteria = createCriteriaInternal();
+/*  123 */     if (this.oredCriteria.size() == 0) {
+/*  124 */       this.oredCriteria.add(criteria);
+/*      */     }
+/*  126 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   protected Criteria createCriteriaInternal()
+/*      */   {
+/*  136 */     Criteria criteria = new Criteria();
+/*  137 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   public void clear()
+/*      */   {
+/*  147 */     this.oredCriteria.clear();
+/*  148 */     this.orderByClause = null;
+/*  149 */     this.distinct = false;
+/*      */   }
+/*      */ 
+/*      */   public static class Criterion
+/*      */   {
+/*      */     private String condition;
+/*      */     private Object value;
+/*      */     private Object secondValue;
+/*      */     private boolean noValue;
+/*      */     private boolean singleValue;
+/*      */     private boolean betweenValue;
+/*      */     private boolean listValue;
+/*      */     private String typeHandler;
+/*      */ 
+/*      */     public String getCondition()
+/*      */     {
+/* 2863 */       return this.condition;
+/*      */     }
+/*      */ 
+/*      */     public Object getValue() {
+/* 2867 */       return this.value;
+/*      */     }
+/*      */ 
+/*      */     public Object getSecondValue() {
+/* 2871 */       return this.secondValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isNoValue() {
+/* 2875 */       return this.noValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isSingleValue() {
+/* 2879 */       return this.singleValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isBetweenValue() {
+/* 2883 */       return this.betweenValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isListValue() {
+/* 2887 */       return this.listValue;
+/*      */     }
+/*      */ 
+/*      */     public String getTypeHandler() {
+/* 2891 */       return this.typeHandler;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition)
+/*      */     {
+/* 2896 */       this.condition = condition;
+/* 2897 */       this.typeHandler = null;
+/* 2898 */       this.noValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, String typeHandler)
+/*      */     {
+/* 2903 */       this.condition = condition;
+/* 2904 */       this.value = value;
+/* 2905 */       this.typeHandler = typeHandler;
+/* 2906 */       if ((value instanceof List))
+/* 2907 */         this.listValue = true;
+/*      */       else
+/* 2909 */         this.singleValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value)
+/*      */     {
+/* 2914 */       this(condition, value, null);
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*      */     {
+/* 2919 */       this.condition = condition;
+/* 2920 */       this.value = value;
+/* 2921 */       this.secondValue = secondValue;
+/* 2922 */       this.typeHandler = typeHandler;
+/* 2923 */       this.betweenValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 2927 */       this(condition, value, secondValue, null);
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public static class Criteria extends VehicleExample.GeneratedCriteria
+/*      */   {
+/*      */   }
+/*      */ 
+/*      */   protected static abstract class GeneratedCriteria
+/*      */   {
+/*      */     protected List<VehicleExample.Criterion> criteria;
+/*      */ 
+/*      */     protected GeneratedCriteria()
+/*      */     {
+/*  163 */       this.criteria = new ArrayList();
+/*      */     }
+/*      */ 
+/*      */     public boolean isValid() {
+/*  167 */       return this.criteria.size() > 0;
+/*      */     }
+/*      */ 
+/*      */     public List<VehicleExample.Criterion> getAllCriteria() {
+/*  171 */       return this.criteria;
+/*      */     }
+/*      */ 
+/*      */     public List<VehicleExample.Criterion> getCriteria() {
+/*  175 */       return this.criteria;
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition) {
+/*  179 */       if (condition == null) {
+/*  180 */         throw new RuntimeException("Value for condition cannot be null");
+/*      */       }
+/*  182 */       this.criteria.add(new VehicleExample.Criterion(condition));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition, Object value, String property) {
+/*  186 */       if (value == null) {
+/*  187 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*      */       }
+/*  189 */       this.criteria.add(new VehicleExample.Criterion(condition, value));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/*  193 */       if ((value1 == null) || (value2 == null)) {
+/*  194 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*      */       }
+/*  196 */       this.criteria.add(new VehicleExample.Criterion(condition, value1, value2));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterionForJDBCDate(String condition, java.util.Date value, String property) {
+/*  200 */       if (value == null) {
+/*  201 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*      */       }
+/*  203 */       addCriterion(condition, new java.sql.Date(value.getTime()), property);
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterionForJDBCDate(String condition, List<java.util.Date> values, String property) {
+/*  207 */       if ((values == null) || (values.size() == 0)) {
+/*  208 */         throw new RuntimeException("Value list for " + property + " cannot be null or empty");
+/*      */       }
+/*  210 */       List dateList = new ArrayList();
+/*  211 */       Iterator iter = values.iterator();
+/*  212 */       while (iter.hasNext()) {
+/*  213 */         dateList.add(new java.sql.Date(((java.util.Date)iter.next()).getTime()));
+/*      */       }
+/*  215 */       addCriterion(condition, dateList, property);
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterionForJDBCDate(String condition, java.util.Date value1, java.util.Date value2, String property) {
+/*  219 */       if ((value1 == null) || (value2 == null)) {
+/*  220 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*      */       }
+/*  222 */       addCriterion(condition, new java.sql.Date(value1.getTime()), new java.sql.Date(value2.getTime()), property);
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVIdIsNull() {
+/*  226 */       addCriterion("V_ID is null");
+/*  227 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVIdIsNotNull() {
+/*  231 */       addCriterion("V_ID is not null");
+/*  232 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVIdEqualTo(Integer value) {
+/*  236 */       addCriterion("V_ID =", value, "vId");
+/*  237 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVIdNotEqualTo(Integer value) {
+/*  241 */       addCriterion("V_ID <>", value, "vId");
+/*  242 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVIdGreaterThan(Integer value) {
+/*  246 */       addCriterion("V_ID >", value, "vId");
+/*  247 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVIdGreaterThanOrEqualTo(Integer value) {
+/*  251 */       addCriterion("V_ID >=", value, "vId");
+/*  252 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVIdLessThan(Integer value) {
+/*  256 */       addCriterion("V_ID <", value, "vId");
+/*  257 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVIdLessThanOrEqualTo(Integer value) {
+/*  261 */       addCriterion("V_ID <=", value, "vId");
+/*  262 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVIdIn(List<Integer> values) {
+/*  266 */       addCriterion("V_ID in", values, "vId");
+/*  267 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVIdNotIn(List<Integer> values) {
+/*  271 */       addCriterion("V_ID not in", values, "vId");
+/*  272 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVIdBetween(Integer value1, Integer value2) {
+/*  276 */       addCriterion("V_ID between", value1, value2, "vId");
+/*  277 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVIdNotBetween(Integer value1, Integer value2) {
+/*  281 */       addCriterion("V_ID not between", value1, value2, "vId");
+/*  282 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVModelIsNull() {
+/*  286 */       addCriterion("V_MODEL is null");
+/*  287 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVModelIsNotNull() {
+/*  291 */       addCriterion("V_MODEL is not null");
+/*  292 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVModelEqualTo(String value) {
+/*  296 */       addCriterion("V_MODEL =", value, "vModel");
+/*  297 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVModelNotEqualTo(String value) {
+/*  301 */       addCriterion("V_MODEL <>", value, "vModel");
+/*  302 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVModelGreaterThan(String value) {
+/*  306 */       addCriterion("V_MODEL >", value, "vModel");
+/*  307 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVModelGreaterThanOrEqualTo(String value) {
+/*  311 */       addCriterion("V_MODEL >=", value, "vModel");
+/*  312 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVModelLessThan(String value) {
+/*  316 */       addCriterion("V_MODEL <", value, "vModel");
+/*  317 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVModelLessThanOrEqualTo(String value) {
+/*  321 */       addCriterion("V_MODEL <=", value, "vModel");
+/*  322 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVModelLike(String value) {
+/*  326 */       addCriterion("V_MODEL like", value, "vModel");
+/*  327 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVModelNotLike(String value) {
+/*  331 */       addCriterion("V_MODEL not like", value, "vModel");
+/*  332 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVModelIn(List<String> values) {
+/*  336 */       addCriterion("V_MODEL in", values, "vModel");
+/*  337 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVModelNotIn(List<String> values) {
+/*  341 */       addCriterion("V_MODEL not in", values, "vModel");
+/*  342 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVModelBetween(String value1, String value2) {
+/*  346 */       addCriterion("V_MODEL between", value1, value2, "vModel");
+/*  347 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVModelNotBetween(String value1, String value2) {
+/*  351 */       addCriterion("V_MODEL not between", value1, value2, "vModel");
+/*  352 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumIsNull() {
+/*  356 */       addCriterion("V_NUM is null");
+/*  357 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumIsNotNull() {
+/*  361 */       addCriterion("V_NUM is not null");
+/*  362 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumEqualTo(String value) {
+/*  366 */       addCriterion("V_NUM =", value, "vNum");
+/*  367 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumNotEqualTo(String value) {
+/*  371 */       addCriterion("V_NUM <>", value, "vNum");
+/*  372 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumGreaterThan(String value) {
+/*  376 */       addCriterion("V_NUM >", value, "vNum");
+/*  377 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumGreaterThanOrEqualTo(String value) {
+/*  381 */       addCriterion("V_NUM >=", value, "vNum");
+/*  382 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumLessThan(String value) {
+/*  386 */       addCriterion("V_NUM <", value, "vNum");
+/*  387 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumLessThanOrEqualTo(String value) {
+/*  391 */       addCriterion("V_NUM <=", value, "vNum");
+/*  392 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumLike(String value) {
+/*  396 */       addCriterion("V_NUM like", value, "vNum");
+/*  397 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumNotLike(String value) {
+/*  401 */       addCriterion("V_NUM not like", value, "vNum");
+/*  402 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumIn(List<String> values) {
+/*  406 */       addCriterion("V_NUM in", values, "vNum");
+/*  407 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumNotIn(List<String> values) {
+/*  411 */       addCriterion("V_NUM not in", values, "vNum");
+/*  412 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumBetween(String value1, String value2) {
+/*  416 */       addCriterion("V_NUM between", value1, value2, "vNum");
+/*  417 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumNotBetween(String value1, String value2) {
+/*  421 */       addCriterion("V_NUM not between", value1, value2, "vNum");
+/*  422 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDriverIsNull() {
+/*  426 */       addCriterion("V_DRIVER is null");
+/*  427 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDriverIsNotNull() {
+/*  431 */       addCriterion("V_DRIVER is not null");
+/*  432 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDriverEqualTo(String value) {
+/*  436 */       addCriterion("V_DRIVER =", value, "vDriver");
+/*  437 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDriverNotEqualTo(String value) {
+/*  441 */       addCriterion("V_DRIVER <>", value, "vDriver");
+/*  442 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDriverGreaterThan(String value) {
+/*  446 */       addCriterion("V_DRIVER >", value, "vDriver");
+/*  447 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDriverGreaterThanOrEqualTo(String value) {
+/*  451 */       addCriterion("V_DRIVER >=", value, "vDriver");
+/*  452 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDriverLessThan(String value) {
+/*  456 */       addCriterion("V_DRIVER <", value, "vDriver");
+/*  457 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDriverLessThanOrEqualTo(String value) {
+/*  461 */       addCriterion("V_DRIVER <=", value, "vDriver");
+/*  462 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDriverLike(String value) {
+/*  466 */       addCriterion("V_DRIVER like", value, "vDriver");
+/*  467 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDriverNotLike(String value) {
+/*  471 */       addCriterion("V_DRIVER not like", value, "vDriver");
+/*  472 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDriverIn(List<String> values) {
+/*  476 */       addCriterion("V_DRIVER in", values, "vDriver");
+/*  477 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDriverNotIn(List<String> values) {
+/*  481 */       addCriterion("V_DRIVER not in", values, "vDriver");
+/*  482 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDriverBetween(String value1, String value2) {
+/*  486 */       addCriterion("V_DRIVER between", value1, value2, "vDriver");
+/*  487 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDriverNotBetween(String value1, String value2) {
+/*  491 */       addCriterion("V_DRIVER not between", value1, value2, "vDriver");
+/*  492 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTypeIsNull() {
+/*  496 */       addCriterion("V_TYPE is null");
+/*  497 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTypeIsNotNull() {
+/*  501 */       addCriterion("V_TYPE is not null");
+/*  502 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTypeEqualTo(String value) {
+/*  506 */       addCriterion("V_TYPE =", value, "vType");
+/*  507 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTypeNotEqualTo(String value) {
+/*  511 */       addCriterion("V_TYPE <>", value, "vType");
+/*  512 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTypeGreaterThan(String value) {
+/*  516 */       addCriterion("V_TYPE >", value, "vType");
+/*  517 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTypeGreaterThanOrEqualTo(String value) {
+/*  521 */       addCriterion("V_TYPE >=", value, "vType");
+/*  522 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTypeLessThan(String value) {
+/*  526 */       addCriterion("V_TYPE <", value, "vType");
+/*  527 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTypeLessThanOrEqualTo(String value) {
+/*  531 */       addCriterion("V_TYPE <=", value, "vType");
+/*  532 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTypeLike(String value) {
+/*  536 */       addCriterion("V_TYPE like", value, "vType");
+/*  537 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTypeNotLike(String value) {
+/*  541 */       addCriterion("V_TYPE not like", value, "vType");
+/*  542 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTypeIn(List<String> values) {
+/*  546 */       addCriterion("V_TYPE in", values, "vType");
+/*  547 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTypeNotIn(List<String> values) {
+/*  551 */       addCriterion("V_TYPE not in", values, "vType");
+/*  552 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTypeBetween(String value1, String value2) {
+/*  556 */       addCriterion("V_TYPE between", value1, value2, "vType");
+/*  557 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTypeNotBetween(String value1, String value2) {
+/*  561 */       addCriterion("V_TYPE not between", value1, value2, "vType");
+/*  562 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDateIsNull() {
+/*  566 */       addCriterion("V_DATE is null");
+/*  567 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDateIsNotNull() {
+/*  571 */       addCriterion("V_DATE is not null");
+/*  572 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDateEqualTo(java.util.Date value) {
+/*  576 */       addCriterionForJDBCDate("V_DATE =", value, "vDate");
+/*  577 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDateNotEqualTo(java.util.Date value) {
+/*  581 */       addCriterionForJDBCDate("V_DATE <>", value, "vDate");
+/*  582 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDateGreaterThan(java.util.Date value) {
+/*  586 */       addCriterionForJDBCDate("V_DATE >", value, "vDate");
+/*  587 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDateGreaterThanOrEqualTo(java.util.Date value) {
+/*  591 */       addCriterionForJDBCDate("V_DATE >=", value, "vDate");
+/*  592 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDateLessThan(java.util.Date value) {
+/*  596 */       addCriterionForJDBCDate("V_DATE <", value, "vDate");
+/*  597 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDateLessThanOrEqualTo(java.util.Date value) {
+/*  601 */       addCriterionForJDBCDate("V_DATE <=", value, "vDate");
+/*  602 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDateIn(List<java.util.Date> values) {
+/*  606 */       addCriterionForJDBCDate("V_DATE in", values, "vDate");
+/*  607 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDateNotIn(List<java.util.Date> values) {
+/*  611 */       addCriterionForJDBCDate("V_DATE not in", values, "vDate");
+/*  612 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDateBetween(java.util.Date value1, java.util.Date value2) {
+/*  616 */       addCriterionForJDBCDate("V_DATE between", value1, value2, "vDate");
+/*  617 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDateNotBetween(java.util.Date value1, java.util.Date value2) {
+/*  621 */       addCriterionForJDBCDate("V_DATE not between", value1, value2, "vDate");
+/*  622 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPriceIsNull() {
+/*  626 */       addCriterion("V_PRICE is null");
+/*  627 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPriceIsNotNull() {
+/*  631 */       addCriterion("V_PRICE is not null");
+/*  632 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPriceEqualTo(Integer value) {
+/*  636 */       addCriterion("V_PRICE =", value, "vPrice");
+/*  637 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPriceNotEqualTo(Integer value) {
+/*  641 */       addCriterion("V_PRICE <>", value, "vPrice");
+/*  642 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPriceGreaterThan(Integer value) {
+/*  646 */       addCriterion("V_PRICE >", value, "vPrice");
+/*  647 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPriceGreaterThanOrEqualTo(Integer value) {
+/*  651 */       addCriterion("V_PRICE >=", value, "vPrice");
+/*  652 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPriceLessThan(Integer value) {
+/*  656 */       addCriterion("V_PRICE <", value, "vPrice");
+/*  657 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPriceLessThanOrEqualTo(Integer value) {
+/*  661 */       addCriterion("V_PRICE <=", value, "vPrice");
+/*  662 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPriceIn(List<Integer> values) {
+/*  666 */       addCriterion("V_PRICE in", values, "vPrice");
+/*  667 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPriceNotIn(List<Integer> values) {
+/*  671 */       addCriterion("V_PRICE not in", values, "vPrice");
+/*  672 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPriceBetween(Integer value1, Integer value2) {
+/*  676 */       addCriterion("V_PRICE between", value1, value2, "vPrice");
+/*  677 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPriceNotBetween(Integer value1, Integer value2) {
+/*  681 */       addCriterion("V_PRICE not between", value1, value2, "vPrice");
+/*  682 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVEngineNumIsNull() {
+/*  686 */       addCriterion("V_ENGINE_NUM is null");
+/*  687 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVEngineNumIsNotNull() {
+/*  691 */       addCriterion("V_ENGINE_NUM is not null");
+/*  692 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVEngineNumEqualTo(String value) {
+/*  696 */       addCriterion("V_ENGINE_NUM =", value, "vEngineNum");
+/*  697 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVEngineNumNotEqualTo(String value) {
+/*  701 */       addCriterion("V_ENGINE_NUM <>", value, "vEngineNum");
+/*  702 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVEngineNumGreaterThan(String value) {
+/*  706 */       addCriterion("V_ENGINE_NUM >", value, "vEngineNum");
+/*  707 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVEngineNumGreaterThanOrEqualTo(String value) {
+/*  711 */       addCriterion("V_ENGINE_NUM >=", value, "vEngineNum");
+/*  712 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVEngineNumLessThan(String value) {
+/*  716 */       addCriterion("V_ENGINE_NUM <", value, "vEngineNum");
+/*  717 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVEngineNumLessThanOrEqualTo(String value) {
+/*  721 */       addCriterion("V_ENGINE_NUM <=", value, "vEngineNum");
+/*  722 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVEngineNumLike(String value) {
+/*  726 */       addCriterion("V_ENGINE_NUM like", value, "vEngineNum");
+/*  727 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVEngineNumNotLike(String value) {
+/*  731 */       addCriterion("V_ENGINE_NUM not like", value, "vEngineNum");
+/*  732 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVEngineNumIn(List<String> values) {
+/*  736 */       addCriterion("V_ENGINE_NUM in", values, "vEngineNum");
+/*  737 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVEngineNumNotIn(List<String> values) {
+/*  741 */       addCriterion("V_ENGINE_NUM not in", values, "vEngineNum");
+/*  742 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVEngineNumBetween(String value1, String value2) {
+/*  746 */       addCriterion("V_ENGINE_NUM between", value1, value2, "vEngineNum");
+/*  747 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVEngineNumNotBetween(String value1, String value2) {
+/*  751 */       addCriterion("V_ENGINE_NUM not between", value1, value2, "vEngineNum");
+/*  752 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVStatusIsNull() {
+/*  756 */       addCriterion("V_STATUS is null");
+/*  757 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVStatusIsNotNull() {
+/*  761 */       addCriterion("V_STATUS is not null");
+/*  762 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVStatusEqualTo(String value) {
+/*  766 */       addCriterion("V_STATUS =", value, "vStatus");
+/*  767 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVStatusNotEqualTo(String value) {
+/*  771 */       addCriterion("V_STATUS <>", value, "vStatus");
+/*  772 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVStatusGreaterThan(String value) {
+/*  776 */       addCriterion("V_STATUS >", value, "vStatus");
+/*  777 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVStatusGreaterThanOrEqualTo(String value) {
+/*  781 */       addCriterion("V_STATUS >=", value, "vStatus");
+/*  782 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVStatusLessThan(String value) {
+/*  786 */       addCriterion("V_STATUS <", value, "vStatus");
+/*  787 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVStatusLessThanOrEqualTo(String value) {
+/*  791 */       addCriterion("V_STATUS <=", value, "vStatus");
+/*  792 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVStatusLike(String value) {
+/*  796 */       addCriterion("V_STATUS like", value, "vStatus");
+/*  797 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVStatusNotLike(String value) {
+/*  801 */       addCriterion("V_STATUS not like", value, "vStatus");
+/*  802 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVStatusIn(List<String> values) {
+/*  806 */       addCriterion("V_STATUS in", values, "vStatus");
+/*  807 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVStatusNotIn(List<String> values) {
+/*  811 */       addCriterion("V_STATUS not in", values, "vStatus");
+/*  812 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVStatusBetween(String value1, String value2) {
+/*  816 */       addCriterion("V_STATUS between", value1, value2, "vStatus");
+/*  817 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVStatusNotBetween(String value1, String value2) {
+/*  821 */       addCriterion("V_STATUS not between", value1, value2, "vStatus");
+/*  822 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andUseingFlagIsNull() {
+/*  826 */       addCriterion("USEING_FLAG is null");
+/*  827 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andUseingFlagIsNotNull() {
+/*  831 */       addCriterion("USEING_FLAG is not null");
+/*  832 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andUseingFlagEqualTo(String value) {
+/*  836 */       addCriterion("USEING_FLAG =", value, "useingFlag");
+/*  837 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andUseingFlagNotEqualTo(String value) {
+/*  841 */       addCriterion("USEING_FLAG <>", value, "useingFlag");
+/*  842 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andUseingFlagGreaterThan(String value) {
+/*  846 */       addCriterion("USEING_FLAG >", value, "useingFlag");
+/*  847 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andUseingFlagGreaterThanOrEqualTo(String value) {
+/*  851 */       addCriterion("USEING_FLAG >=", value, "useingFlag");
+/*  852 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andUseingFlagLessThan(String value) {
+/*  856 */       addCriterion("USEING_FLAG <", value, "useingFlag");
+/*  857 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andUseingFlagLessThanOrEqualTo(String value) {
+/*  861 */       addCriterion("USEING_FLAG <=", value, "useingFlag");
+/*  862 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andUseingFlagLike(String value) {
+/*  866 */       addCriterion("USEING_FLAG like", value, "useingFlag");
+/*  867 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andUseingFlagNotLike(String value) {
+/*  871 */       addCriterion("USEING_FLAG not like", value, "useingFlag");
+/*  872 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andUseingFlagIn(List<String> values) {
+/*  876 */       addCriterion("USEING_FLAG in", values, "useingFlag");
+/*  877 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andUseingFlagNotIn(List<String> values) {
+/*  881 */       addCriterion("USEING_FLAG not in", values, "useingFlag");
+/*  882 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andUseingFlagBetween(String value1, String value2) {
+/*  886 */       addCriterion("USEING_FLAG between", value1, value2, "useingFlag");
+/*  887 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andUseingFlagNotBetween(String value1, String value2) {
+/*  891 */       addCriterion("USEING_FLAG not between", value1, value2, "useingFlag");
+/*  892 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andCarUserIsNull() {
+/*  896 */       addCriterion("CAR_USER is null");
+/*  897 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andCarUserIsNotNull() {
+/*  901 */       addCriterion("CAR_USER is not null");
+/*  902 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andCarUserEqualTo(String value) {
+/*  906 */       addCriterion("CAR_USER =", value, "carUser");
+/*  907 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andCarUserNotEqualTo(String value) {
+/*  911 */       addCriterion("CAR_USER <>", value, "carUser");
+/*  912 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andCarUserGreaterThan(String value) {
+/*  916 */       addCriterion("CAR_USER >", value, "carUser");
+/*  917 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andCarUserGreaterThanOrEqualTo(String value) {
+/*  921 */       addCriterion("CAR_USER >=", value, "carUser");
+/*  922 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andCarUserLessThan(String value) {
+/*  926 */       addCriterion("CAR_USER <", value, "carUser");
+/*  927 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andCarUserLessThanOrEqualTo(String value) {
+/*  931 */       addCriterion("CAR_USER <=", value, "carUser");
+/*  932 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andCarUserLike(String value) {
+/*  936 */       addCriterion("CAR_USER like", value, "carUser");
+/*  937 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andCarUserNotLike(String value) {
+/*  941 */       addCriterion("CAR_USER not like", value, "carUser");
+/*  942 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andCarUserIn(List<String> values) {
+/*  946 */       addCriterion("CAR_USER in", values, "carUser");
+/*  947 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andCarUserNotIn(List<String> values) {
+/*  951 */       addCriterion("CAR_USER not in", values, "carUser");
+/*  952 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andCarUserBetween(String value1, String value2) {
+/*  956 */       addCriterion("CAR_USER between", value1, value2, "carUser");
+/*  957 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andCarUserNotBetween(String value1, String value2) {
+/*  961 */       addCriterion("CAR_USER not between", value1, value2, "carUser");
+/*  962 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPhoneNoIsNull() {
+/*  966 */       addCriterion("V_PHONE_NO is null");
+/*  967 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPhoneNoIsNotNull() {
+/*  971 */       addCriterion("V_PHONE_NO is not null");
+/*  972 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPhoneNoEqualTo(String value) {
+/*  976 */       addCriterion("V_PHONE_NO =", value, "vPhoneNo");
+/*  977 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPhoneNoNotEqualTo(String value) {
+/*  981 */       addCriterion("V_PHONE_NO <>", value, "vPhoneNo");
+/*  982 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPhoneNoGreaterThan(String value) {
+/*  986 */       addCriterion("V_PHONE_NO >", value, "vPhoneNo");
+/*  987 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPhoneNoGreaterThanOrEqualTo(String value) {
+/*  991 */       addCriterion("V_PHONE_NO >=", value, "vPhoneNo");
+/*  992 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPhoneNoLessThan(String value) {
+/*  996 */       addCriterion("V_PHONE_NO <", value, "vPhoneNo");
+/*  997 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPhoneNoLessThanOrEqualTo(String value) {
+/* 1001 */       addCriterion("V_PHONE_NO <=", value, "vPhoneNo");
+/* 1002 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPhoneNoLike(String value) {
+/* 1006 */       addCriterion("V_PHONE_NO like", value, "vPhoneNo");
+/* 1007 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPhoneNoNotLike(String value) {
+/* 1011 */       addCriterion("V_PHONE_NO not like", value, "vPhoneNo");
+/* 1012 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPhoneNoIn(List<String> values) {
+/* 1016 */       addCriterion("V_PHONE_NO in", values, "vPhoneNo");
+/* 1017 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPhoneNoNotIn(List<String> values) {
+/* 1021 */       addCriterion("V_PHONE_NO not in", values, "vPhoneNo");
+/* 1022 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPhoneNoBetween(String value1, String value2) {
+/* 1026 */       addCriterion("V_PHONE_NO between", value1, value2, "vPhoneNo");
+/* 1027 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPhoneNoNotBetween(String value1, String value2) {
+/* 1031 */       addCriterion("V_PHONE_NO not between", value1, value2, "vPhoneNo");
+/* 1032 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVManageIsNull() {
+/* 1036 */       addCriterion("V_MANAGE is null");
+/* 1037 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVManageIsNotNull() {
+/* 1041 */       addCriterion("V_MANAGE is not null");
+/* 1042 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVManageEqualTo(String value) {
+/* 1046 */       addCriterion("V_MANAGE =", value, "vManage");
+/* 1047 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVManageNotEqualTo(String value) {
+/* 1051 */       addCriterion("V_MANAGE <>", value, "vManage");
+/* 1052 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVManageGreaterThan(String value) {
+/* 1056 */       addCriterion("V_MANAGE >", value, "vManage");
+/* 1057 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVManageGreaterThanOrEqualTo(String value) {
+/* 1061 */       addCriterion("V_MANAGE >=", value, "vManage");
+/* 1062 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVManageLessThan(String value) {
+/* 1066 */       addCriterion("V_MANAGE <", value, "vManage");
+/* 1067 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVManageLessThanOrEqualTo(String value) {
+/* 1071 */       addCriterion("V_MANAGE <=", value, "vManage");
+/* 1072 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVManageLike(String value) {
+/* 1076 */       addCriterion("V_MANAGE like", value, "vManage");
+/* 1077 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVManageNotLike(String value) {
+/* 1081 */       addCriterion("V_MANAGE not like", value, "vManage");
+/* 1082 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVManageIn(List<String> values) {
+/* 1086 */       addCriterion("V_MANAGE in", values, "vManage");
+/* 1087 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVManageNotIn(List<String> values) {
+/* 1091 */       addCriterion("V_MANAGE not in", values, "vManage");
+/* 1092 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVManageBetween(String value1, String value2) {
+/* 1096 */       addCriterion("V_MANAGE between", value1, value2, "vManage");
+/* 1097 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVManageNotBetween(String value1, String value2) {
+/* 1101 */       addCriterion("V_MANAGE not between", value1, value2, "vManage");
+/* 1102 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotIsNull() {
+/* 1106 */       addCriterion("V_MOT is null");
+/* 1107 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotIsNotNull() {
+/* 1111 */       addCriterion("V_MOT is not null");
+/* 1112 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotEqualTo(java.util.Date value) {
+/* 1116 */       addCriterionForJDBCDate("V_MOT =", value, "vMot");
+/* 1117 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotNotEqualTo(java.util.Date value) {
+/* 1121 */       addCriterionForJDBCDate("V_MOT <>", value, "vMot");
+/* 1122 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotGreaterThan(java.util.Date value) {
+/* 1126 */       addCriterionForJDBCDate("V_MOT >", value, "vMot");
+/* 1127 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotGreaterThanOrEqualTo(java.util.Date value) {
+/* 1131 */       addCriterionForJDBCDate("V_MOT >=", value, "vMot");
+/* 1132 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotLessThan(java.util.Date value) {
+/* 1136 */       addCriterionForJDBCDate("V_MOT <", value, "vMot");
+/* 1137 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotLessThanOrEqualTo(java.util.Date value) {
+/* 1141 */       addCriterionForJDBCDate("V_MOT <=", value, "vMot");
+/* 1142 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotIn(List<java.util.Date> values) {
+/* 1146 */       addCriterionForJDBCDate("V_MOT in", values, "vMot");
+/* 1147 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotNotIn(List<java.util.Date> values) {
+/* 1151 */       addCriterionForJDBCDate("V_MOT not in", values, "vMot");
+/* 1152 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotBetween(java.util.Date value1, java.util.Date value2) {
+/* 1156 */       addCriterionForJDBCDate("V_MOT between", value1, value2, "vMot");
+/* 1157 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotNotBetween(java.util.Date value1, java.util.Date value2) {
+/* 1161 */       addCriterionForJDBCDate("V_MOT not between", value1, value2, "vMot");
+/* 1162 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureIsNull() {
+/* 1166 */       addCriterion("V_INSURE is null");
+/* 1167 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureIsNotNull() {
+/* 1171 */       addCriterion("V_INSURE is not null");
+/* 1172 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureEqualTo(java.util.Date value) {
+/* 1176 */       addCriterionForJDBCDate("V_INSURE =", value, "vInsure");
+/* 1177 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureNotEqualTo(java.util.Date value) {
+/* 1181 */       addCriterionForJDBCDate("V_INSURE <>", value, "vInsure");
+/* 1182 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureGreaterThan(java.util.Date value) {
+/* 1186 */       addCriterionForJDBCDate("V_INSURE >", value, "vInsure");
+/* 1187 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureGreaterThanOrEqualTo(java.util.Date value) {
+/* 1191 */       addCriterionForJDBCDate("V_INSURE >=", value, "vInsure");
+/* 1192 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureLessThan(java.util.Date value) {
+/* 1196 */       addCriterionForJDBCDate("V_INSURE <", value, "vInsure");
+/* 1197 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureLessThanOrEqualTo(java.util.Date value) {
+/* 1201 */       addCriterionForJDBCDate("V_INSURE <=", value, "vInsure");
+/* 1202 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureIn(List<java.util.Date> values) {
+/* 1206 */       addCriterionForJDBCDate("V_INSURE in", values, "vInsure");
+/* 1207 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureNotIn(List<java.util.Date> values) {
+/* 1211 */       addCriterionForJDBCDate("V_INSURE not in", values, "vInsure");
+/* 1212 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureBetween(java.util.Date value1, java.util.Date value2) {
+/* 1216 */       addCriterionForJDBCDate("V_INSURE between", value1, value2, "vInsure");
+/* 1217 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureNotBetween(java.util.Date value1, java.util.Date value2) {
+/* 1221 */       addCriterionForJDBCDate("V_INSURE not between", value1, value2, "vInsure");
+/* 1222 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsIsNull() {
+/* 1226 */       addCriterion("V_MOT_SMS is null");
+/* 1227 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsIsNotNull() {
+/* 1231 */       addCriterion("V_MOT_SMS is not null");
+/* 1232 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsEqualTo(java.util.Date value) {
+/* 1236 */       addCriterionForJDBCDate("V_MOT_SMS =", value, "vMotSms");
+/* 1237 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsNotEqualTo(java.util.Date value) {
+/* 1241 */       addCriterionForJDBCDate("V_MOT_SMS <>", value, "vMotSms");
+/* 1242 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsGreaterThan(java.util.Date value) {
+/* 1246 */       addCriterionForJDBCDate("V_MOT_SMS >", value, "vMotSms");
+/* 1247 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsGreaterThanOrEqualTo(java.util.Date value) {
+/* 1251 */       addCriterionForJDBCDate("V_MOT_SMS >=", value, "vMotSms");
+/* 1252 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsLessThan(java.util.Date value) {
+/* 1256 */       addCriterionForJDBCDate("V_MOT_SMS <", value, "vMotSms");
+/* 1257 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsLessThanOrEqualTo(java.util.Date value) {
+/* 1261 */       addCriterionForJDBCDate("V_MOT_SMS <=", value, "vMotSms");
+/* 1262 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsIn(List<java.util.Date> values) {
+/* 1266 */       addCriterionForJDBCDate("V_MOT_SMS in", values, "vMotSms");
+/* 1267 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsNotIn(List<java.util.Date> values) {
+/* 1271 */       addCriterionForJDBCDate("V_MOT_SMS not in", values, "vMotSms");
+/* 1272 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsBetween(java.util.Date value1, java.util.Date value2) {
+/* 1276 */       addCriterionForJDBCDate("V_MOT_SMS between", value1, value2, "vMotSms");
+/* 1277 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsNotBetween(java.util.Date value1, java.util.Date value2) {
+/* 1281 */       addCriterionForJDBCDate("V_MOT_SMS not between", value1, value2, "vMotSms");
+/* 1282 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsIsNull() {
+/* 1286 */       addCriterion("V_INSURE_SMS is null");
+/* 1287 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsIsNotNull() {
+/* 1291 */       addCriterion("V_INSURE_SMS is not null");
+/* 1292 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsEqualTo(java.util.Date value) {
+/* 1296 */       addCriterionForJDBCDate("V_INSURE_SMS =", value, "vInsureSms");
+/* 1297 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsNotEqualTo(java.util.Date value) {
+/* 1301 */       addCriterionForJDBCDate("V_INSURE_SMS <>", value, "vInsureSms");
+/* 1302 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsGreaterThan(java.util.Date value) {
+/* 1306 */       addCriterionForJDBCDate("V_INSURE_SMS >", value, "vInsureSms");
+/* 1307 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsGreaterThanOrEqualTo(java.util.Date value) {
+/* 1311 */       addCriterionForJDBCDate("V_INSURE_SMS >=", value, "vInsureSms");
+/* 1312 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsLessThan(java.util.Date value) {
+/* 1316 */       addCriterionForJDBCDate("V_INSURE_SMS <", value, "vInsureSms");
+/* 1317 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsLessThanOrEqualTo(java.util.Date value) {
+/* 1321 */       addCriterionForJDBCDate("V_INSURE_SMS <=", value, "vInsureSms");
+/* 1322 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsIn(List<java.util.Date> values) {
+/* 1326 */       addCriterionForJDBCDate("V_INSURE_SMS in", values, "vInsureSms");
+/* 1327 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsNotIn(List<java.util.Date> values) {
+/* 1331 */       addCriterionForJDBCDate("V_INSURE_SMS not in", values, "vInsureSms");
+/* 1332 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsBetween(java.util.Date value1, java.util.Date value2) {
+/* 1336 */       addCriterionForJDBCDate("V_INSURE_SMS between", value1, value2, "vInsureSms");
+/* 1337 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsNotBetween(java.util.Date value1, java.util.Date value2) {
+/* 1341 */       addCriterionForJDBCDate("V_INSURE_SMS not between", value1, value2, "vInsureSms");
+/* 1342 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsTypeIsNull() {
+/* 1346 */       addCriterion("V_MOT_SMS_TYPE is null");
+/* 1347 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsTypeIsNotNull() {
+/* 1351 */       addCriterion("V_MOT_SMS_TYPE is not null");
+/* 1352 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsTypeEqualTo(Integer value) {
+/* 1356 */       addCriterion("V_MOT_SMS_TYPE =", value, "vMotSmsType");
+/* 1357 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsTypeNotEqualTo(Integer value) {
+/* 1361 */       addCriterion("V_MOT_SMS_TYPE <>", value, "vMotSmsType");
+/* 1362 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsTypeGreaterThan(Integer value) {
+/* 1366 */       addCriterion("V_MOT_SMS_TYPE >", value, "vMotSmsType");
+/* 1367 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsTypeGreaterThanOrEqualTo(Integer value) {
+/* 1371 */       addCriterion("V_MOT_SMS_TYPE >=", value, "vMotSmsType");
+/* 1372 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsTypeLessThan(Integer value) {
+/* 1376 */       addCriterion("V_MOT_SMS_TYPE <", value, "vMotSmsType");
+/* 1377 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsTypeLessThanOrEqualTo(Integer value) {
+/* 1381 */       addCriterion("V_MOT_SMS_TYPE <=", value, "vMotSmsType");
+/* 1382 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsTypeIn(List<Integer> values) {
+/* 1386 */       addCriterion("V_MOT_SMS_TYPE in", values, "vMotSmsType");
+/* 1387 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsTypeNotIn(List<Integer> values) {
+/* 1391 */       addCriterion("V_MOT_SMS_TYPE not in", values, "vMotSmsType");
+/* 1392 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsTypeBetween(Integer value1, Integer value2) {
+/* 1396 */       addCriterion("V_MOT_SMS_TYPE between", value1, value2, "vMotSmsType");
+/* 1397 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMotSmsTypeNotBetween(Integer value1, Integer value2) {
+/* 1401 */       addCriterion("V_MOT_SMS_TYPE not between", value1, value2, "vMotSmsType");
+/* 1402 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsTypeIsNull() {
+/* 1406 */       addCriterion("V_INSURE_SMS_TYPE is null");
+/* 1407 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsTypeIsNotNull() {
+/* 1411 */       addCriterion("V_INSURE_SMS_TYPE is not null");
+/* 1412 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsTypeEqualTo(Integer value) {
+/* 1416 */       addCriterion("V_INSURE_SMS_TYPE =", value, "vInsureSmsType");
+/* 1417 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsTypeNotEqualTo(Integer value) {
+/* 1421 */       addCriterion("V_INSURE_SMS_TYPE <>", value, "vInsureSmsType");
+/* 1422 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsTypeGreaterThan(Integer value) {
+/* 1426 */       addCriterion("V_INSURE_SMS_TYPE >", value, "vInsureSmsType");
+/* 1427 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsTypeGreaterThanOrEqualTo(Integer value) {
+/* 1431 */       addCriterion("V_INSURE_SMS_TYPE >=", value, "vInsureSmsType");
+/* 1432 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsTypeLessThan(Integer value) {
+/* 1436 */       addCriterion("V_INSURE_SMS_TYPE <", value, "vInsureSmsType");
+/* 1437 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsTypeLessThanOrEqualTo(Integer value) {
+/* 1441 */       addCriterion("V_INSURE_SMS_TYPE <=", value, "vInsureSmsType");
+/* 1442 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsTypeIn(List<Integer> values) {
+/* 1446 */       addCriterion("V_INSURE_SMS_TYPE in", values, "vInsureSmsType");
+/* 1447 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsTypeNotIn(List<Integer> values) {
+/* 1451 */       addCriterion("V_INSURE_SMS_TYPE not in", values, "vInsureSmsType");
+/* 1452 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsTypeBetween(Integer value1, Integer value2) {
+/* 1456 */       addCriterion("V_INSURE_SMS_TYPE between", value1, value2, "vInsureSmsType");
+/* 1457 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVInsureSmsTypeNotBetween(Integer value1, Integer value2) {
+/* 1461 */       addCriterion("V_INSURE_SMS_TYPE not between", value1, value2, "vInsureSmsType");
+/* 1462 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDisplacementIsNull() {
+/* 1466 */       addCriterion("V_DISPLACEMENT is null");
+/* 1467 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDisplacementIsNotNull() {
+/* 1471 */       addCriterion("V_DISPLACEMENT is not null");
+/* 1472 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDisplacementEqualTo(String value) {
+/* 1476 */       addCriterion("V_DISPLACEMENT =", value, "vDisplacement");
+/* 1477 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDisplacementNotEqualTo(String value) {
+/* 1481 */       addCriterion("V_DISPLACEMENT <>", value, "vDisplacement");
+/* 1482 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDisplacementGreaterThan(String value) {
+/* 1486 */       addCriterion("V_DISPLACEMENT >", value, "vDisplacement");
+/* 1487 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDisplacementGreaterThanOrEqualTo(String value) {
+/* 1491 */       addCriterion("V_DISPLACEMENT >=", value, "vDisplacement");
+/* 1492 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDisplacementLessThan(String value) {
+/* 1496 */       addCriterion("V_DISPLACEMENT <", value, "vDisplacement");
+/* 1497 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDisplacementLessThanOrEqualTo(String value) {
+/* 1501 */       addCriterion("V_DISPLACEMENT <=", value, "vDisplacement");
+/* 1502 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDisplacementLike(String value) {
+/* 1506 */       addCriterion("V_DISPLACEMENT like", value, "vDisplacement");
+/* 1507 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDisplacementNotLike(String value) {
+/* 1511 */       addCriterion("V_DISPLACEMENT not like", value, "vDisplacement");
+/* 1512 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDisplacementIn(List<String> values) {
+/* 1516 */       addCriterion("V_DISPLACEMENT in", values, "vDisplacement");
+/* 1517 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDisplacementNotIn(List<String> values) {
+/* 1521 */       addCriterion("V_DISPLACEMENT not in", values, "vDisplacement");
+/* 1522 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDisplacementBetween(String value1, String value2) {
+/* 1526 */       addCriterion("V_DISPLACEMENT between", value1, value2, "vDisplacement");
+/* 1527 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDisplacementNotBetween(String value1, String value2) {
+/* 1531 */       addCriterion("V_DISPLACEMENT not between", value1, value2, "vDisplacement");
+/* 1532 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVColorIsNull() {
+/* 1536 */       addCriterion("V_COLOR is null");
+/* 1537 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVColorIsNotNull() {
+/* 1541 */       addCriterion("V_COLOR is not null");
+/* 1542 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVColorEqualTo(String value) {
+/* 1546 */       addCriterion("V_COLOR =", value, "vColor");
+/* 1547 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVColorNotEqualTo(String value) {
+/* 1551 */       addCriterion("V_COLOR <>", value, "vColor");
+/* 1552 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVColorGreaterThan(String value) {
+/* 1556 */       addCriterion("V_COLOR >", value, "vColor");
+/* 1557 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVColorGreaterThanOrEqualTo(String value) {
+/* 1561 */       addCriterion("V_COLOR >=", value, "vColor");
+/* 1562 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVColorLessThan(String value) {
+/* 1566 */       addCriterion("V_COLOR <", value, "vColor");
+/* 1567 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVColorLessThanOrEqualTo(String value) {
+/* 1571 */       addCriterion("V_COLOR <=", value, "vColor");
+/* 1572 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVColorLike(String value) {
+/* 1576 */       addCriterion("V_COLOR like", value, "vColor");
+/* 1577 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVColorNotLike(String value) {
+/* 1581 */       addCriterion("V_COLOR not like", value, "vColor");
+/* 1582 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVColorIn(List<String> values) {
+/* 1586 */       addCriterion("V_COLOR in", values, "vColor");
+/* 1587 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVColorNotIn(List<String> values) {
+/* 1591 */       addCriterion("V_COLOR not in", values, "vColor");
+/* 1592 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVColorBetween(String value1, String value2) {
+/* 1596 */       addCriterion("V_COLOR between", value1, value2, "vColor");
+/* 1597 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVColorNotBetween(String value1, String value2) {
+/* 1601 */       addCriterion("V_COLOR not between", value1, value2, "vColor");
+/* 1602 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVSeatingIsNull() {
+/* 1606 */       addCriterion("V_SEATING is null");
+/* 1607 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVSeatingIsNotNull() {
+/* 1611 */       addCriterion("V_SEATING is not null");
+/* 1612 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVSeatingEqualTo(String value) {
+/* 1616 */       addCriterion("V_SEATING =", value, "vSeating");
+/* 1617 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVSeatingNotEqualTo(String value) {
+/* 1621 */       addCriterion("V_SEATING <>", value, "vSeating");
+/* 1622 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVSeatingGreaterThan(String value) {
+/* 1626 */       addCriterion("V_SEATING >", value, "vSeating");
+/* 1627 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVSeatingGreaterThanOrEqualTo(String value) {
+/* 1631 */       addCriterion("V_SEATING >=", value, "vSeating");
+/* 1632 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVSeatingLessThan(String value) {
+/* 1636 */       addCriterion("V_SEATING <", value, "vSeating");
+/* 1637 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVSeatingLessThanOrEqualTo(String value) {
+/* 1641 */       addCriterion("V_SEATING <=", value, "vSeating");
+/* 1642 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVSeatingLike(String value) {
+/* 1646 */       addCriterion("V_SEATING like", value, "vSeating");
+/* 1647 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVSeatingNotLike(String value) {
+/* 1651 */       addCriterion("V_SEATING not like", value, "vSeating");
+/* 1652 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVSeatingIn(List<String> values) {
+/* 1656 */       addCriterion("V_SEATING in", values, "vSeating");
+/* 1657 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVSeatingNotIn(List<String> values) {
+/* 1661 */       addCriterion("V_SEATING not in", values, "vSeating");
+/* 1662 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVSeatingBetween(String value1, String value2) {
+/* 1666 */       addCriterion("V_SEATING between", value1, value2, "vSeating");
+/* 1667 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVSeatingNotBetween(String value1, String value2) {
+/* 1671 */       addCriterion("V_SEATING not between", value1, value2, "vSeating");
+/* 1672 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVFrameIsNull() {
+/* 1676 */       addCriterion("V_FRAME is null");
+/* 1677 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVFrameIsNotNull() {
+/* 1681 */       addCriterion("V_FRAME is not null");
+/* 1682 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVFrameEqualTo(String value) {
+/* 1686 */       addCriterion("V_FRAME =", value, "vFrame");
+/* 1687 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVFrameNotEqualTo(String value) {
+/* 1691 */       addCriterion("V_FRAME <>", value, "vFrame");
+/* 1692 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVFrameGreaterThan(String value) {
+/* 1696 */       addCriterion("V_FRAME >", value, "vFrame");
+/* 1697 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVFrameGreaterThanOrEqualTo(String value) {
+/* 1701 */       addCriterion("V_FRAME >=", value, "vFrame");
+/* 1702 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVFrameLessThan(String value) {
+/* 1706 */       addCriterion("V_FRAME <", value, "vFrame");
+/* 1707 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVFrameLessThanOrEqualTo(String value) {
+/* 1711 */       addCriterion("V_FRAME <=", value, "vFrame");
+/* 1712 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVFrameLike(String value) {
+/* 1716 */       addCriterion("V_FRAME like", value, "vFrame");
+/* 1717 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVFrameNotLike(String value) {
+/* 1721 */       addCriterion("V_FRAME not like", value, "vFrame");
+/* 1722 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVFrameIn(List<String> values) {
+/* 1726 */       addCriterion("V_FRAME in", values, "vFrame");
+/* 1727 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVFrameNotIn(List<String> values) {
+/* 1731 */       addCriterion("V_FRAME not in", values, "vFrame");
+/* 1732 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVFrameBetween(String value1, String value2) {
+/* 1736 */       addCriterion("V_FRAME between", value1, value2, "vFrame");
+/* 1737 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVFrameNotBetween(String value1, String value2) {
+/* 1741 */       addCriterion("V_FRAME not between", value1, value2, "vFrame");
+/* 1742 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCertificationIsNull() {
+/* 1746 */       addCriterion("V_CERTIFICATION is null");
+/* 1747 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCertificationIsNotNull() {
+/* 1751 */       addCriterion("V_CERTIFICATION is not null");
+/* 1752 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCertificationEqualTo(String value) {
+/* 1756 */       addCriterion("V_CERTIFICATION =", value, "vCertification");
+/* 1757 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCertificationNotEqualTo(String value) {
+/* 1761 */       addCriterion("V_CERTIFICATION <>", value, "vCertification");
+/* 1762 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCertificationGreaterThan(String value) {
+/* 1766 */       addCriterion("V_CERTIFICATION >", value, "vCertification");
+/* 1767 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCertificationGreaterThanOrEqualTo(String value) {
+/* 1771 */       addCriterion("V_CERTIFICATION >=", value, "vCertification");
+/* 1772 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCertificationLessThan(String value) {
+/* 1776 */       addCriterion("V_CERTIFICATION <", value, "vCertification");
+/* 1777 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCertificationLessThanOrEqualTo(String value) {
+/* 1781 */       addCriterion("V_CERTIFICATION <=", value, "vCertification");
+/* 1782 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCertificationLike(String value) {
+/* 1786 */       addCriterion("V_CERTIFICATION like", value, "vCertification");
+/* 1787 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCertificationNotLike(String value) {
+/* 1791 */       addCriterion("V_CERTIFICATION not like", value, "vCertification");
+/* 1792 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCertificationIn(List<String> values) {
+/* 1796 */       addCriterion("V_CERTIFICATION in", values, "vCertification");
+/* 1797 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCertificationNotIn(List<String> values) {
+/* 1801 */       addCriterion("V_CERTIFICATION not in", values, "vCertification");
+/* 1802 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCertificationBetween(String value1, String value2) {
+/* 1806 */       addCriterion("V_CERTIFICATION between", value1, value2, "vCertification");
+/* 1807 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCertificationNotBetween(String value1, String value2) {
+/* 1811 */       addCriterion("V_CERTIFICATION not between", value1, value2, "vCertification");
+/* 1812 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartIsNull() {
+/* 1816 */       addCriterion("V_DEPART is null");
+/* 1817 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartIsNotNull() {
+/* 1821 */       addCriterion("V_DEPART is not null");
+/* 1822 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartEqualTo(String value) {
+/* 1826 */       addCriterion("V_DEPART =", value, "vDepart");
+/* 1827 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartNotEqualTo(String value) {
+/* 1831 */       addCriterion("V_DEPART <>", value, "vDepart");
+/* 1832 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartGreaterThan(String value) {
+/* 1836 */       addCriterion("V_DEPART >", value, "vDepart");
+/* 1837 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartGreaterThanOrEqualTo(String value) {
+/* 1841 */       addCriterion("V_DEPART >=", value, "vDepart");
+/* 1842 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartLessThan(String value) {
+/* 1846 */       addCriterion("V_DEPART <", value, "vDepart");
+/* 1847 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartLessThanOrEqualTo(String value) {
+/* 1851 */       addCriterion("V_DEPART <=", value, "vDepart");
+/* 1852 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartLike(String value) {
+/* 1856 */       addCriterion("V_DEPART like", value, "vDepart");
+/* 1857 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartNotLike(String value) {
+/* 1861 */       addCriterion("V_DEPART not like", value, "vDepart");
+/* 1862 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartIn(List<String> values) {
+/* 1866 */       addCriterion("V_DEPART in", values, "vDepart");
+/* 1867 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartNotIn(List<String> values) {
+/* 1871 */       addCriterion("V_DEPART not in", values, "vDepart");
+/* 1872 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartBetween(String value1, String value2) {
+/* 1876 */       addCriterion("V_DEPART between", value1, value2, "vDepart");
+/* 1877 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartNotBetween(String value1, String value2) {
+/* 1881 */       addCriterion("V_DEPART not between", value1, value2, "vDepart");
+/* 1882 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerIsNull() {
+/* 1886 */       addCriterion("V_ONWER is null");
+/* 1887 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerIsNotNull() {
+/* 1891 */       addCriterion("V_ONWER is not null");
+/* 1892 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerEqualTo(String value) {
+/* 1896 */       addCriterion("V_ONWER =", value, "vOnwer");
+/* 1897 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerNotEqualTo(String value) {
+/* 1901 */       addCriterion("V_ONWER <>", value, "vOnwer");
+/* 1902 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerGreaterThan(String value) {
+/* 1906 */       addCriterion("V_ONWER >", value, "vOnwer");
+/* 1907 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerGreaterThanOrEqualTo(String value) {
+/* 1911 */       addCriterion("V_ONWER >=", value, "vOnwer");
+/* 1912 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerLessThan(String value) {
+/* 1916 */       addCriterion("V_ONWER <", value, "vOnwer");
+/* 1917 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerLessThanOrEqualTo(String value) {
+/* 1921 */       addCriterion("V_ONWER <=", value, "vOnwer");
+/* 1922 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerLike(String value) {
+/* 1926 */       addCriterion("V_ONWER like", value, "vOnwer");
+/* 1927 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerNotLike(String value) {
+/* 1931 */       addCriterion("V_ONWER not like", value, "vOnwer");
+/* 1932 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerIn(List<String> values) {
+/* 1936 */       addCriterion("V_ONWER in", values, "vOnwer");
+/* 1937 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerNotIn(List<String> values) {
+/* 1941 */       addCriterion("V_ONWER not in", values, "vOnwer");
+/* 1942 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerBetween(String value1, String value2) {
+/* 1946 */       addCriterion("V_ONWER between", value1, value2, "vOnwer");
+/* 1947 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerNotBetween(String value1, String value2) {
+/* 1951 */       addCriterion("V_ONWER not between", value1, value2, "vOnwer");
+/* 1952 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserIsNull() {
+/* 1956 */       addCriterion("V_CARUSER is null");
+/* 1957 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserIsNotNull() {
+/* 1961 */       addCriterion("V_CARUSER is not null");
+/* 1962 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserEqualTo(String value) {
+/* 1966 */       addCriterion("V_CARUSER =", value, "vCaruser");
+/* 1967 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserNotEqualTo(String value) {
+/* 1971 */       addCriterion("V_CARUSER <>", value, "vCaruser");
+/* 1972 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserGreaterThan(String value) {
+/* 1976 */       addCriterion("V_CARUSER >", value, "vCaruser");
+/* 1977 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserGreaterThanOrEqualTo(String value) {
+/* 1981 */       addCriterion("V_CARUSER >=", value, "vCaruser");
+/* 1982 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserLessThan(String value) {
+/* 1986 */       addCriterion("V_CARUSER <", value, "vCaruser");
+/* 1987 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserLessThanOrEqualTo(String value) {
+/* 1991 */       addCriterion("V_CARUSER <=", value, "vCaruser");
+/* 1992 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserLike(String value) {
+/* 1996 */       addCriterion("V_CARUSER like", value, "vCaruser");
+/* 1997 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserNotLike(String value) {
+/* 2001 */       addCriterion("V_CARUSER not like", value, "vCaruser");
+/* 2002 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserIn(List<String> values) {
+/* 2006 */       addCriterion("V_CARUSER in", values, "vCaruser");
+/* 2007 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserNotIn(List<String> values) {
+/* 2011 */       addCriterion("V_CARUSER not in", values, "vCaruser");
+/* 2012 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserBetween(String value1, String value2) {
+/* 2016 */       addCriterion("V_CARUSER between", value1, value2, "vCaruser");
+/* 2017 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserNotBetween(String value1, String value2) {
+/* 2021 */       addCriterion("V_CARUSER not between", value1, value2, "vCaruser");
+/* 2022 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTaxIsNull() {
+/* 2026 */       addCriterion("V_TAX is null");
+/* 2027 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTaxIsNotNull() {
+/* 2031 */       addCriterion("V_TAX is not null");
+/* 2032 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTaxEqualTo(Integer value) {
+/* 2036 */       addCriterion("V_TAX =", value, "vTax");
+/* 2037 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTaxNotEqualTo(Integer value) {
+/* 2041 */       addCriterion("V_TAX <>", value, "vTax");
+/* 2042 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTaxGreaterThan(Integer value) {
+/* 2046 */       addCriterion("V_TAX >", value, "vTax");
+/* 2047 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTaxGreaterThanOrEqualTo(Integer value) {
+/* 2051 */       addCriterion("V_TAX >=", value, "vTax");
+/* 2052 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTaxLessThan(Integer value) {
+/* 2056 */       addCriterion("V_TAX <", value, "vTax");
+/* 2057 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTaxLessThanOrEqualTo(Integer value) {
+/* 2061 */       addCriterion("V_TAX <=", value, "vTax");
+/* 2062 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTaxIn(List<Integer> values) {
+/* 2066 */       addCriterion("V_TAX in", values, "vTax");
+/* 2067 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTaxNotIn(List<Integer> values) {
+/* 2071 */       addCriterion("V_TAX not in", values, "vTax");
+/* 2072 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTaxBetween(Integer value1, Integer value2) {
+/* 2076 */       addCriterion("V_TAX between", value1, value2, "vTax");
+/* 2077 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVTaxNotBetween(Integer value1, Integer value2) {
+/* 2081 */       addCriterion("V_TAX not between", value1, value2, "vTax");
+/* 2082 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureIsNull() {
+/* 2086 */       addCriterion("V_BINSURE is null");
+/* 2087 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureIsNotNull() {
+/* 2091 */       addCriterion("V_BINSURE is not null");
+/* 2092 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureEqualTo(java.util.Date value) {
+/* 2096 */       addCriterionForJDBCDate("V_BINSURE =", value, "vBinsure");
+/* 2097 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureNotEqualTo(java.util.Date value) {
+/* 2101 */       addCriterionForJDBCDate("V_BINSURE <>", value, "vBinsure");
+/* 2102 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureGreaterThan(java.util.Date value) {
+/* 2106 */       addCriterionForJDBCDate("V_BINSURE >", value, "vBinsure");
+/* 2107 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureGreaterThanOrEqualTo(java.util.Date value) {
+/* 2111 */       addCriterionForJDBCDate("V_BINSURE >=", value, "vBinsure");
+/* 2112 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureLessThan(java.util.Date value) {
+/* 2116 */       addCriterionForJDBCDate("V_BINSURE <", value, "vBinsure");
+/* 2117 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureLessThanOrEqualTo(java.util.Date value) {
+/* 2121 */       addCriterionForJDBCDate("V_BINSURE <=", value, "vBinsure");
+/* 2122 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureIn(List<java.util.Date> values) {
+/* 2126 */       addCriterionForJDBCDate("V_BINSURE in", values, "vBinsure");
+/* 2127 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureNotIn(List<java.util.Date> values) {
+/* 2131 */       addCriterionForJDBCDate("V_BINSURE not in", values, "vBinsure");
+/* 2132 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureBetween(java.util.Date value1, java.util.Date value2) {
+/* 2136 */       addCriterionForJDBCDate("V_BINSURE between", value1, value2, "vBinsure");
+/* 2137 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureNotBetween(java.util.Date value1, java.util.Date value2) {
+/* 2141 */       addCriterionForJDBCDate("V_BINSURE not between", value1, value2, "vBinsure");
+/* 2142 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsIsNull() {
+/* 2146 */       addCriterion("V_BINSURE_SMS is null");
+/* 2147 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsIsNotNull() {
+/* 2151 */       addCriterion("V_BINSURE_SMS is not null");
+/* 2152 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsEqualTo(java.util.Date value) {
+/* 2156 */       addCriterionForJDBCDate("V_BINSURE_SMS =", value, "vBinsureSms");
+/* 2157 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsNotEqualTo(java.util.Date value) {
+/* 2161 */       addCriterionForJDBCDate("V_BINSURE_SMS <>", value, "vBinsureSms");
+/* 2162 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsGreaterThan(java.util.Date value) {
+/* 2166 */       addCriterionForJDBCDate("V_BINSURE_SMS >", value, "vBinsureSms");
+/* 2167 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsGreaterThanOrEqualTo(java.util.Date value) {
+/* 2171 */       addCriterionForJDBCDate("V_BINSURE_SMS >=", value, "vBinsureSms");
+/* 2172 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsLessThan(java.util.Date value) {
+/* 2176 */       addCriterionForJDBCDate("V_BINSURE_SMS <", value, "vBinsureSms");
+/* 2177 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsLessThanOrEqualTo(java.util.Date value) {
+/* 2181 */       addCriterionForJDBCDate("V_BINSURE_SMS <=", value, "vBinsureSms");
+/* 2182 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsIn(List<java.util.Date> values) {
+/* 2186 */       addCriterionForJDBCDate("V_BINSURE_SMS in", values, "vBinsureSms");
+/* 2187 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsNotIn(List<java.util.Date> values) {
+/* 2191 */       addCriterionForJDBCDate("V_BINSURE_SMS not in", values, "vBinsureSms");
+/* 2192 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsBetween(java.util.Date value1, java.util.Date value2) {
+/* 2196 */       addCriterionForJDBCDate("V_BINSURE_SMS between", value1, value2, "vBinsureSms");
+/* 2197 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsNotBetween(java.util.Date value1, java.util.Date value2) {
+/* 2201 */       addCriterionForJDBCDate("V_BINSURE_SMS not between", value1, value2, "vBinsureSms");
+/* 2202 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNatureIsNull() {
+/* 2206 */       addCriterion("V_NATURE is null");
+/* 2207 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNatureIsNotNull() {
+/* 2211 */       addCriterion("V_NATURE is not null");
+/* 2212 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNatureEqualTo(String value) {
+/* 2216 */       addCriterion("V_NATURE =", value, "vNature");
+/* 2217 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNatureNotEqualTo(String value) {
+/* 2221 */       addCriterion("V_NATURE <>", value, "vNature");
+/* 2222 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNatureGreaterThan(String value) {
+/* 2226 */       addCriterion("V_NATURE >", value, "vNature");
+/* 2227 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNatureGreaterThanOrEqualTo(String value) {
+/* 2231 */       addCriterion("V_NATURE >=", value, "vNature");
+/* 2232 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNatureLessThan(String value) {
+/* 2236 */       addCriterion("V_NATURE <", value, "vNature");
+/* 2237 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNatureLessThanOrEqualTo(String value) {
+/* 2241 */       addCriterion("V_NATURE <=", value, "vNature");
+/* 2242 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNatureLike(String value) {
+/* 2246 */       addCriterion("V_NATURE like", value, "vNature");
+/* 2247 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNatureNotLike(String value) {
+/* 2251 */       addCriterion("V_NATURE not like", value, "vNature");
+/* 2252 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNatureIn(List<String> values) {
+/* 2256 */       addCriterion("V_NATURE in", values, "vNature");
+/* 2257 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNatureNotIn(List<String> values) {
+/* 2261 */       addCriterion("V_NATURE not in", values, "vNature");
+/* 2262 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNatureBetween(String value1, String value2) {
+/* 2266 */       addCriterion("V_NATURE between", value1, value2, "vNature");
+/* 2267 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNatureNotBetween(String value1, String value2) {
+/* 2271 */       addCriterion("V_NATURE not between", value1, value2, "vNature");
+/* 2272 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPayIsNull() {
+/* 2276 */       addCriterion("V_PAY is null");
+/* 2277 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPayIsNotNull() {
+/* 2281 */       addCriterion("V_PAY is not null");
+/* 2282 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPayEqualTo(String value) {
+/* 2286 */       addCriterion("V_PAY =", value, "vPay");
+/* 2287 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPayNotEqualTo(String value) {
+/* 2291 */       addCriterion("V_PAY <>", value, "vPay");
+/* 2292 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPayGreaterThan(String value) {
+/* 2296 */       addCriterion("V_PAY >", value, "vPay");
+/* 2297 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPayGreaterThanOrEqualTo(String value) {
+/* 2301 */       addCriterion("V_PAY >=", value, "vPay");
+/* 2302 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPayLessThan(String value) {
+/* 2306 */       addCriterion("V_PAY <", value, "vPay");
+/* 2307 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPayLessThanOrEqualTo(String value) {
+/* 2311 */       addCriterion("V_PAY <=", value, "vPay");
+/* 2312 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPayLike(String value) {
+/* 2316 */       addCriterion("V_PAY like", value, "vPay");
+/* 2317 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPayNotLike(String value) {
+/* 2321 */       addCriterion("V_PAY not like", value, "vPay");
+/* 2322 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPayIn(List<String> values) {
+/* 2326 */       addCriterion("V_PAY in", values, "vPay");
+/* 2327 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPayNotIn(List<String> values) {
+/* 2331 */       addCriterion("V_PAY not in", values, "vPay");
+/* 2332 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPayBetween(String value1, String value2) {
+/* 2336 */       addCriterion("V_PAY between", value1, value2, "vPay");
+/* 2337 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVPayNotBetween(String value1, String value2) {
+/* 2341 */       addCriterion("V_PAY not between", value1, value2, "vPay");
+/* 2342 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMileageIsNull() {
+/* 2346 */       addCriterion("V_MILEAGE is null");
+/* 2347 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMileageIsNotNull() {
+/* 2351 */       addCriterion("V_MILEAGE is not null");
+/* 2352 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMileageEqualTo(String value) {
+/* 2356 */       addCriterion("V_MILEAGE =", value, "vMileage");
+/* 2357 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMileageNotEqualTo(String value) {
+/* 2361 */       addCriterion("V_MILEAGE <>", value, "vMileage");
+/* 2362 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMileageGreaterThan(String value) {
+/* 2366 */       addCriterion("V_MILEAGE >", value, "vMileage");
+/* 2367 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMileageGreaterThanOrEqualTo(String value) {
+/* 2371 */       addCriterion("V_MILEAGE >=", value, "vMileage");
+/* 2372 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMileageLessThan(String value) {
+/* 2376 */       addCriterion("V_MILEAGE <", value, "vMileage");
+/* 2377 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMileageLessThanOrEqualTo(String value) {
+/* 2381 */       addCriterion("V_MILEAGE <=", value, "vMileage");
+/* 2382 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMileageLike(String value) {
+/* 2386 */       addCriterion("V_MILEAGE like", value, "vMileage");
+/* 2387 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMileageNotLike(String value) {
+/* 2391 */       addCriterion("V_MILEAGE not like", value, "vMileage");
+/* 2392 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMileageIn(List<String> values) {
+/* 2396 */       addCriterion("V_MILEAGE in", values, "vMileage");
+/* 2397 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMileageNotIn(List<String> values) {
+/* 2401 */       addCriterion("V_MILEAGE not in", values, "vMileage");
+/* 2402 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMileageBetween(String value1, String value2) {
+/* 2406 */       addCriterion("V_MILEAGE between", value1, value2, "vMileage");
+/* 2407 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVMileageNotBetween(String value1, String value2) {
+/* 2411 */       addCriterion("V_MILEAGE not between", value1, value2, "vMileage");
+/* 2412 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartPhoneIsNull() {
+/* 2416 */       addCriterion("V_DEPART_PHONE is null");
+/* 2417 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartPhoneIsNotNull() {
+/* 2421 */       addCriterion("V_DEPART_PHONE is not null");
+/* 2422 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartPhoneEqualTo(String value) {
+/* 2426 */       addCriterion("V_DEPART_PHONE =", value, "vDepartPhone");
+/* 2427 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartPhoneNotEqualTo(String value) {
+/* 2431 */       addCriterion("V_DEPART_PHONE <>", value, "vDepartPhone");
+/* 2432 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartPhoneGreaterThan(String value) {
+/* 2436 */       addCriterion("V_DEPART_PHONE >", value, "vDepartPhone");
+/* 2437 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartPhoneGreaterThanOrEqualTo(String value) {
+/* 2441 */       addCriterion("V_DEPART_PHONE >=", value, "vDepartPhone");
+/* 2442 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartPhoneLessThan(String value) {
+/* 2446 */       addCriterion("V_DEPART_PHONE <", value, "vDepartPhone");
+/* 2447 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartPhoneLessThanOrEqualTo(String value) {
+/* 2451 */       addCriterion("V_DEPART_PHONE <=", value, "vDepartPhone");
+/* 2452 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartPhoneLike(String value) {
+/* 2456 */       addCriterion("V_DEPART_PHONE like", value, "vDepartPhone");
+/* 2457 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartPhoneNotLike(String value) {
+/* 2461 */       addCriterion("V_DEPART_PHONE not like", value, "vDepartPhone");
+/* 2462 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartPhoneIn(List<String> values) {
+/* 2466 */       addCriterion("V_DEPART_PHONE in", values, "vDepartPhone");
+/* 2467 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartPhoneNotIn(List<String> values) {
+/* 2471 */       addCriterion("V_DEPART_PHONE not in", values, "vDepartPhone");
+/* 2472 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartPhoneBetween(String value1, String value2) {
+/* 2476 */       addCriterion("V_DEPART_PHONE between", value1, value2, "vDepartPhone");
+/* 2477 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVDepartPhoneNotBetween(String value1, String value2) {
+/* 2481 */       addCriterion("V_DEPART_PHONE not between", value1, value2, "vDepartPhone");
+/* 2482 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerPhoneIsNull() {
+/* 2486 */       addCriterion("V_ONWER_PHONE is null");
+/* 2487 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerPhoneIsNotNull() {
+/* 2491 */       addCriterion("V_ONWER_PHONE is not null");
+/* 2492 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerPhoneEqualTo(String value) {
+/* 2496 */       addCriterion("V_ONWER_PHONE =", value, "vOnwerPhone");
+/* 2497 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerPhoneNotEqualTo(String value) {
+/* 2501 */       addCriterion("V_ONWER_PHONE <>", value, "vOnwerPhone");
+/* 2502 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerPhoneGreaterThan(String value) {
+/* 2506 */       addCriterion("V_ONWER_PHONE >", value, "vOnwerPhone");
+/* 2507 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerPhoneGreaterThanOrEqualTo(String value) {
+/* 2511 */       addCriterion("V_ONWER_PHONE >=", value, "vOnwerPhone");
+/* 2512 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerPhoneLessThan(String value) {
+/* 2516 */       addCriterion("V_ONWER_PHONE <", value, "vOnwerPhone");
+/* 2517 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerPhoneLessThanOrEqualTo(String value) {
+/* 2521 */       addCriterion("V_ONWER_PHONE <=", value, "vOnwerPhone");
+/* 2522 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerPhoneLike(String value) {
+/* 2526 */       addCriterion("V_ONWER_PHONE like", value, "vOnwerPhone");
+/* 2527 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerPhoneNotLike(String value) {
+/* 2531 */       addCriterion("V_ONWER_PHONE not like", value, "vOnwerPhone");
+/* 2532 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerPhoneIn(List<String> values) {
+/* 2536 */       addCriterion("V_ONWER_PHONE in", values, "vOnwerPhone");
+/* 2537 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerPhoneNotIn(List<String> values) {
+/* 2541 */       addCriterion("V_ONWER_PHONE not in", values, "vOnwerPhone");
+/* 2542 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerPhoneBetween(String value1, String value2) {
+/* 2546 */       addCriterion("V_ONWER_PHONE between", value1, value2, "vOnwerPhone");
+/* 2547 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOnwerPhoneNotBetween(String value1, String value2) {
+/* 2551 */       addCriterion("V_ONWER_PHONE not between", value1, value2, "vOnwerPhone");
+/* 2552 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserPhoneIsNull() {
+/* 2556 */       addCriterion("V_CARUSER_PHONE is null");
+/* 2557 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserPhoneIsNotNull() {
+/* 2561 */       addCriterion("V_CARUSER_PHONE is not null");
+/* 2562 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserPhoneEqualTo(String value) {
+/* 2566 */       addCriterion("V_CARUSER_PHONE =", value, "vCaruserPhone");
+/* 2567 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserPhoneNotEqualTo(String value) {
+/* 2571 */       addCriterion("V_CARUSER_PHONE <>", value, "vCaruserPhone");
+/* 2572 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserPhoneGreaterThan(String value) {
+/* 2576 */       addCriterion("V_CARUSER_PHONE >", value, "vCaruserPhone");
+/* 2577 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserPhoneGreaterThanOrEqualTo(String value) {
+/* 2581 */       addCriterion("V_CARUSER_PHONE >=", value, "vCaruserPhone");
+/* 2582 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserPhoneLessThan(String value) {
+/* 2586 */       addCriterion("V_CARUSER_PHONE <", value, "vCaruserPhone");
+/* 2587 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserPhoneLessThanOrEqualTo(String value) {
+/* 2591 */       addCriterion("V_CARUSER_PHONE <=", value, "vCaruserPhone");
+/* 2592 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserPhoneLike(String value) {
+/* 2596 */       addCriterion("V_CARUSER_PHONE like", value, "vCaruserPhone");
+/* 2597 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserPhoneNotLike(String value) {
+/* 2601 */       addCriterion("V_CARUSER_PHONE not like", value, "vCaruserPhone");
+/* 2602 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserPhoneIn(List<String> values) {
+/* 2606 */       addCriterion("V_CARUSER_PHONE in", values, "vCaruserPhone");
+/* 2607 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserPhoneNotIn(List<String> values) {
+/* 2611 */       addCriterion("V_CARUSER_PHONE not in", values, "vCaruserPhone");
+/* 2612 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserPhoneBetween(String value1, String value2) {
+/* 2616 */       addCriterion("V_CARUSER_PHONE between", value1, value2, "vCaruserPhone");
+/* 2617 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVCaruserPhoneNotBetween(String value1, String value2) {
+/* 2621 */       addCriterion("V_CARUSER_PHONE not between", value1, value2, "vCaruserPhone");
+/* 2622 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsTypeIsNull() {
+/* 2626 */       addCriterion("V_BINSURE_SMS_TYPE is null");
+/* 2627 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsTypeIsNotNull() {
+/* 2631 */       addCriterion("V_BINSURE_SMS_TYPE is not null");
+/* 2632 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsTypeEqualTo(Integer value) {
+/* 2636 */       addCriterion("V_BINSURE_SMS_TYPE =", value, "vBinsureSmsType");
+/* 2637 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsTypeNotEqualTo(Integer value) {
+/* 2641 */       addCriterion("V_BINSURE_SMS_TYPE <>", value, "vBinsureSmsType");
+/* 2642 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsTypeGreaterThan(Integer value) {
+/* 2646 */       addCriterion("V_BINSURE_SMS_TYPE >", value, "vBinsureSmsType");
+/* 2647 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsTypeGreaterThanOrEqualTo(Integer value) {
+/* 2651 */       addCriterion("V_BINSURE_SMS_TYPE >=", value, "vBinsureSmsType");
+/* 2652 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsTypeLessThan(Integer value) {
+/* 2656 */       addCriterion("V_BINSURE_SMS_TYPE <", value, "vBinsureSmsType");
+/* 2657 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsTypeLessThanOrEqualTo(Integer value) {
+/* 2661 */       addCriterion("V_BINSURE_SMS_TYPE <=", value, "vBinsureSmsType");
+/* 2662 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsTypeIn(List<Integer> values) {
+/* 2666 */       addCriterion("V_BINSURE_SMS_TYPE in", values, "vBinsureSmsType");
+/* 2667 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsTypeNotIn(List<Integer> values) {
+/* 2671 */       addCriterion("V_BINSURE_SMS_TYPE not in", values, "vBinsureSmsType");
+/* 2672 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsTypeBetween(Integer value1, Integer value2) {
+/* 2676 */       addCriterion("V_BINSURE_SMS_TYPE between", value1, value2, "vBinsureSmsType");
+/* 2677 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVBinsureSmsTypeNotBetween(Integer value1, Integer value2) {
+/* 2681 */       addCriterion("V_BINSURE_SMS_TYPE not between", value1, value2, "vBinsureSmsType");
+/* 2682 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumbersIsNull() {
+/* 2686 */       addCriterion("V_NUMBERS is null");
+/* 2687 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumbersIsNotNull() {
+/* 2691 */       addCriterion("V_NUMBERS is not null");
+/* 2692 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumbersEqualTo(String value) {
+/* 2696 */       addCriterion("V_NUMBERS =", value, "vNumbers");
+/* 2697 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumbersNotEqualTo(String value) {
+/* 2701 */       addCriterion("V_NUMBERS <>", value, "vNumbers");
+/* 2702 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumbersGreaterThan(String value) {
+/* 2706 */       addCriterion("V_NUMBERS >", value, "vNumbers");
+/* 2707 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumbersGreaterThanOrEqualTo(String value) {
+/* 2711 */       addCriterion("V_NUMBERS >=", value, "vNumbers");
+/* 2712 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumbersLessThan(String value) {
+/* 2716 */       addCriterion("V_NUMBERS <", value, "vNumbers");
+/* 2717 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumbersLessThanOrEqualTo(String value) {
+/* 2721 */       addCriterion("V_NUMBERS <=", value, "vNumbers");
+/* 2722 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumbersLike(String value) {
+/* 2726 */       addCriterion("V_NUMBERS like", value, "vNumbers");
+/* 2727 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumbersNotLike(String value) {
+/* 2731 */       addCriterion("V_NUMBERS not like", value, "vNumbers");
+/* 2732 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumbersIn(List<String> values) {
+/* 2736 */       addCriterion("V_NUMBERS in", values, "vNumbers");
+/* 2737 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumbersNotIn(List<String> values) {
+/* 2741 */       addCriterion("V_NUMBERS not in", values, "vNumbers");
+/* 2742 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumbersBetween(String value1, String value2) {
+/* 2746 */       addCriterion("V_NUMBERS between", value1, value2, "vNumbers");
+/* 2747 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVNumbersNotBetween(String value1, String value2) {
+/* 2751 */       addCriterion("V_NUMBERS not between", value1, value2, "vNumbers");
+/* 2752 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOilIsNull() {
+/* 2756 */       addCriterion("V_OIL is null");
+/* 2757 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOilIsNotNull() {
+/* 2761 */       addCriterion("V_OIL is not null");
+/* 2762 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOilEqualTo(String value) {
+/* 2766 */       addCriterion("V_OIL =", value, "vOil");
+/* 2767 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOilNotEqualTo(String value) {
+/* 2771 */       addCriterion("V_OIL <>", value, "vOil");
+/* 2772 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOilGreaterThan(String value) {
+/* 2776 */       addCriterion("V_OIL >", value, "vOil");
+/* 2777 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOilGreaterThanOrEqualTo(String value) {
+/* 2781 */       addCriterion("V_OIL >=", value, "vOil");
+/* 2782 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOilLessThan(String value) {
+/* 2786 */       addCriterion("V_OIL <", value, "vOil");
+/* 2787 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOilLessThanOrEqualTo(String value) {
+/* 2791 */       addCriterion("V_OIL <=", value, "vOil");
+/* 2792 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOilLike(String value) {
+/* 2796 */       addCriterion("V_OIL like", value, "vOil");
+/* 2797 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOilNotLike(String value) {
+/* 2801 */       addCriterion("V_OIL not like", value, "vOil");
+/* 2802 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOilIn(List<String> values) {
+/* 2806 */       addCriterion("V_OIL in", values, "vOil");
+/* 2807 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOilNotIn(List<String> values) {
+/* 2811 */       addCriterion("V_OIL not in", values, "vOil");
+/* 2812 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOilBetween(String value1, String value2) {
+/* 2816 */       addCriterion("V_OIL between", value1, value2, "vOil");
+/* 2817 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public VehicleExample.Criteria andVOilNotBetween(String value1, String value2) {
+/* 2821 */       addCriterion("V_OIL not between", value1, value2, "vOil");
+/* 2822 */       return (VehicleExample.Criteria)this;
+/*      */     }
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.vehicle.VehicleExample
+ * JD-Core Version:    0.6.0
+ */

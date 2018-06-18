@@ -1,0 +1,113 @@
+/*     */ package com.xoa.service.WFE.WFERunner;
+/*     */ 
+/*     */ import com.xoa.dao.WFE.WFEFlowRunMapper;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.workflow.FlowRun;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Transactional(rollbackFor={Exception.class})
+/*     */ @Service
+/*     */ public class WFEFlowRun
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   WFEFlowRunMapper wfeFlowRunMapper;
+/*     */ 
+/*     */   public int getMaxRunId()
+/*     */   {
+/*  31 */     String runId = this.wfeFlowRunMapper.getMaxRunId();
+/*  32 */     if (StringUtils.checkNull(runId).booleanValue()) {
+/*  33 */       return 0;
+/*     */     }
+/*  35 */     return Integer.parseInt(runId);
+/*     */   }
+/*     */ 
+/*     */   public void save(FlowRun flowRun)
+/*     */   {
+/*  41 */     this.wfeFlowRunMapper.insert(flowRun);
+/*     */   }
+/*     */ 
+/*     */   public FlowRun find(Integer runId) {
+/*  45 */     Map map = new HashMap();
+/*  46 */     map.put("runId", runId);
+/*  47 */     FlowRun f = this.wfeFlowRunMapper.find(map);
+/*  48 */     if ((f != null) && 
+/*  49 */       (!StringUtils.checkNull(f.getBeginTime()).booleanValue())) {
+/*  50 */       f.setBeginTime(DateFormat.getStrTime(DateFormat.getTime(f.getBeginTime())));
+/*     */     }
+/*     */ 
+/*  53 */     return f;
+/*     */   }
+/*     */ 
+/*     */   public int update(FlowRun flowRun)
+/*     */   {
+/*  58 */     int a = this.wfeFlowRunMapper.update(flowRun);
+/*  59 */     return a;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public int updateState(Map<String, Object> map)
+/*     */   {
+/*  72 */     int a = this.wfeFlowRunMapper.updateState(map);
+/*  73 */     return a;
+/*     */   }
+/*     */ 
+/*     */   public int updateAttachment(Map<String, Object> map)
+/*     */   {
+/*  78 */     int a = this.wfeFlowRunMapper.updateAttachment(map);
+/*  79 */     return a;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrappers queryFlowRun(Integer state, Integer runId, Integer flowId, String runName, String beginDate, String endDate, String workLevel, Integer page, Integer pageSize, boolean useFlag, Users users)
+/*     */   {
+/*  85 */     BaseWrappers baseWrapper = new BaseWrappers();
+/*  86 */     Map map = new HashMap();
+/*  87 */     PageParams pageParams = new PageParams();
+/*  88 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  89 */     pageParams.setPage(page);
+/*  90 */     pageParams.setPageSize(pageSize);
+/*  91 */     map.put("pageParams", pageParams);
+/*  92 */     map.put("runId", runId);
+/*  93 */     map.put("flowId", flowId);
+/*  94 */     map.put("runName", runName);
+/*  95 */     map.put("beginDate", beginDate);
+/*  96 */     map.put("endDate", endDate);
+/*  97 */     map.put("workLevel", workLevel);
+/*  98 */     map.put("state", state);
+/*  99 */     map.put("userId", users.getUserId());
+/* 100 */     List flowRuns = new ArrayList();
+/*     */     try
+/*     */     {
+/* 103 */       if ((state != null) && (state.equals(Integer.valueOf(6))))
+/* 104 */         flowRuns = this.wfeFlowRunMapper.queryFlowRunBycy(map);
+/*     */       else {
+/* 106 */         flowRuns = this.wfeFlowRunMapper.queryFlowRun(map);
+/*     */       }
+/* 108 */       baseWrapper.setFlag(true);
+/* 109 */       baseWrapper.setStatus(true);
+/* 110 */       baseWrapper.setDatas(flowRuns);
+/* 111 */       baseWrapper.setTotal(pageParams.getTotal());
+/*     */     } catch (Exception e) {
+/* 113 */       e.printStackTrace();
+/* 114 */       baseWrapper.setFlag(false);
+/* 115 */       baseWrapper.setStatus(false);
+/* 116 */       baseWrapper.setMsg(e.getMessage());
+/*     */     }
+/* 118 */     return baseWrapper;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.WFE.WFERunner.WFEFlowRun
+ * JD-Core Version:    0.6.0
+ */

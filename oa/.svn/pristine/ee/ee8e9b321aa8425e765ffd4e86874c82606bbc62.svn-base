@@ -1,0 +1,262 @@
+ package com.myoa.service.edu.eduSchoolCalendar.impl;
+ 
+ import com.myoa.dao.common.SysParaMapper;
+import com.myoa.dao.edu.eduSchoolCalendar.EduSchoolCalendarDescMapper;
+import com.myoa.dao.edu.eduSchoolCalendar.EduSchoolCalendarMapper;
+import com.myoa.model.common.SysPara;
+import com.myoa.model.edu.eduSchoolCalendar.EduSchoolCalendarDescWithBLOBs;
+import com.myoa.model.edu.eduSchoolCalendar.EduSchoolCalendarWithBLOBs;
+import com.myoa.model.users.Users;
+import com.myoa.service.edu.eduSchoolCalendar.EduSchoolCalendarService;
+import com.myoa.util.AjaxJson;
+import com.myoa.util.DateFormat;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.L;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.common.session.SessionUtils;
+
+ import java.util.Calendar;
+ import java.util.Date;
+ import java.util.List;
+ import java.util.Map;
+ import javax.annotation.Resource;
+ import javax.servlet.http.HttpServletRequest;
+ import org.apache.commons.collections.map.HashedMap;
+ import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+ 
+ @Service
+ public class EduSchoolCalendarServiceImpl
+   implements EduSchoolCalendarService
+ {
+ 
+   @Resource
+   private EduSchoolCalendarMapper eduSchoolCalendarMapper;
+ 
+   @Resource
+   private EduSchoolCalendarDescMapper descMapper;
+ 
+   @Resource
+   private SysParaMapper sysParaMapper;
+ 
+   @Transactional
+   public ToJson<EduSchoolCalendarWithBLOBs> editSchoolCalendar(HttpServletRequest request, EduSchoolCalendarWithBLOBs eduSchoolCalendarWithBLOBs)
+   {
+     ToJson json = new ToJson(1, "error");
+     int count = 0;
+     try {
+       if (eduSchoolCalendarWithBLOBs != null) {
+         if (eduSchoolCalendarWithBLOBs.getId() != null) {
+           EduSchoolCalendarWithBLOBs temp1 = this.eduSchoolCalendarMapper.selSchoolCalendarById(eduSchoolCalendarWithBLOBs.getId().intValue());
+           if (temp1 != null)
+             count = this.eduSchoolCalendarMapper.updateBySchoolCalendar(eduSchoolCalendarWithBLOBs);
+         }
+         else {
+           Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+           eduSchoolCalendarWithBLOBs.setCreateTime(new Date());
+           eduSchoolCalendarWithBLOBs.setCreateUser(user.getUserId());
+           count = this.eduSchoolCalendarMapper.insertSchoolCalendar(eduSchoolCalendarWithBLOBs);
+         }
+       }
+       if (count > 0) {
+         json.setObject(eduSchoolCalendarWithBLOBs);
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "EduSchoolCalendarServiceImpl insertSchoolCalendar:" + e });
+     }
+     return json;
+   }
+ 
+   public ToJson<EduSchoolCalendarWithBLOBs> delSchoolCalendarById(int id)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       int count = this.eduSchoolCalendarMapper.delSchoolCalendarById(id);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "EduSchoolCalendarServiceImpl delSchoolCalendarById:" + e });
+     }
+     return json;
+   }
+ 
+   public AjaxJson selSchoolCalendarByCond(EduSchoolCalendarWithBLOBs eduSchoolCalendarWithBLOBs)
+   {
+     AjaxJson json = new AjaxJson();
+     json.setFlag(false);
+     json.setMsg("error");
+     try {
+       List eduSchoolCalendarWithBLOBsList = this.eduSchoolCalendarMapper.selSchoolCalendarByCond(eduSchoolCalendarWithBLOBs);
+       Map map = new HashedMap();
+       if (eduSchoolCalendarWithBLOBsList.size() > 0) {
+         map.put("list", eduSchoolCalendarWithBLOBsList);
+       }
+       String[] yearArray = new String[2];
+       if ((!StringUtils.checkNull(eduSchoolCalendarWithBLOBs.getSchoolYear()).booleanValue()) && (!StringUtils.checkNull(eduSchoolCalendarWithBLOBs.getSchoolTerm()).booleanValue())) {
+         long firstTerm = Integer.valueOf(eduSchoolCalendarWithBLOBs.getSchoolYear()).intValue();
+         long secondTerm = Integer.valueOf(eduSchoolCalendarWithBLOBs.getSchoolYear()).intValue() + 1;
+         if (eduSchoolCalendarWithBLOBs.getSchoolTerm().equals("第一学期")) {
+           if (this.sysParaMapper.querySysPara("SUMMER_VACATION_END") != null) {
+             if (!StringUtils.checkNull(this.sysParaMapper.querySysPara("SUMMER_VACATION_END").getParaValue()).booleanValue())
+               map.put("BEGIN_DATA", firstTerm + "-" + this.sysParaMapper.querySysPara("SUMMER_VACATION_END").getParaValue());
+             else
+               map.put("BEGIN_DATA", firstTerm + "-09-01");
+           }
+           else {
+             map.put("BEGIN_DATA", firstTerm + "-09-01");
+           }
+           if (this.sysParaMapper.querySysPara("WINTER_VACATION_END") != null) {
+             if (!StringUtils.checkNull(this.sysParaMapper.querySysPara("WINTER_VACATION_END").getParaValue()).booleanValue())
+               map.put("END_DATA", secondTerm + "-" + this.sysParaMapper.querySysPara("WINTER_VACATION_END").getParaValue());
+             else
+               map.put("END_DATA", secondTerm + "-03-01");
+           }
+           else {
+             map.put("END_DATA", secondTerm + "-03-01");
+           }
+         }
+         else if (eduSchoolCalendarWithBLOBs.getSchoolTerm().equals("第二学期")) {
+           if (this.sysParaMapper.querySysPara("WINTER_VACATION_END") != null) {
+             if (!StringUtils.checkNull(this.sysParaMapper.querySysPara("WINTER_VACATION_END").getParaValue()).booleanValue())
+               map.put("BEGIN_DATA", secondTerm + "-" + this.sysParaMapper.querySysPara("WINTER_VACATION_END").getParaValue());
+             else
+               map.put("BEGIN_DATA", secondTerm + "-03-01");
+           }
+           else {
+             map.put("BEGIN_DATA", secondTerm + "-03-01");
+           }
+           if (this.sysParaMapper.querySysPara("SUMMER_VACATION_END") != null) {
+             if (!StringUtils.checkNull(this.sysParaMapper.querySysPara("SUMMER_VACATION_END").getParaValue()).booleanValue())
+               map.put("END_DATA", secondTerm + "-" + this.sysParaMapper.querySysPara("SUMMER_VACATION_END").getParaValue());
+             else
+               map.put("END_DATA", secondTerm + "-09-01");
+           }
+           else {
+             map.put("END_DATA", secondTerm + "-09-01");
+           }
+         }
+       }
+       EduSchoolCalendarDescWithBLOBs eduSchoolCalendarDescWithBLOBs = new EduSchoolCalendarDescWithBLOBs();
+       eduSchoolCalendarDescWithBLOBs.setSchoolTerm(eduSchoolCalendarWithBLOBs.getSchoolTerm());
+       eduSchoolCalendarDescWithBLOBs.setSchoolYear(eduSchoolCalendarWithBLOBs.getSchoolYear());
+       eduSchoolCalendarDescWithBLOBs.setGradeType(eduSchoolCalendarWithBLOBs.getGradeType());
+       List descList = this.descMapper.selSCDescByCond(eduSchoolCalendarDescWithBLOBs);
+       if (descList.size() > 0) {
+         if (!StringUtils.checkNull(((EduSchoolCalendarDescWithBLOBs)descList.get(0)).getDescription()).booleanValue())
+           map.put("DESCRIPTION", ((EduSchoolCalendarDescWithBLOBs)descList.get(0)).getDescription());
+         else {
+           map.put("DESCRIPTION", "");
+         }
+       }
+       json.setAttributes(map);
+       json.setMsg("ok");
+       json.setFlag(true);
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "EduSchoolCalendarServiceImpl selSchoolCalendarByCond:" + e });
+     }
+     return json;
+   }
+ 
+   @Transactional
+   public ToJson<EduSchoolCalendarDescWithBLOBs> editSCDesc(HttpServletRequest request, EduSchoolCalendarDescWithBLOBs eduSchoolCalendarDescWithBLOBs)
+   {
+     ToJson json = new ToJson(1, "error");
+     int count = 0;
+     try {
+       List eduSchoolCalendarWithBLOBsList = this.descMapper.selSCDescByCond(eduSchoolCalendarDescWithBLOBs);
+       if (eduSchoolCalendarWithBLOBsList.size() == 1) {
+         eduSchoolCalendarDescWithBLOBs.setId(((EduSchoolCalendarDescWithBLOBs)eduSchoolCalendarWithBLOBsList.get(0)).getId());
+         count = this.descMapper.updateSCDesc(eduSchoolCalendarDescWithBLOBs);
+       } else {
+         Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+         eduSchoolCalendarDescWithBLOBs.setCreateTime(new Date());
+         eduSchoolCalendarDescWithBLOBs.setCreateUser(user.getUserId());
+         count = this.descMapper.insertSCDesc(eduSchoolCalendarDescWithBLOBs);
+       }
+       if (count > 0) {
+         json.setObject(eduSchoolCalendarDescWithBLOBs);
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       json.setMsg(e.getMessage());
+       L.e(new Object[] { "EduSchoolCalendarServiceImpl editSCDesc:" + e });
+     }
+     return json;
+   }
+ 
+   public ToJson<EduSchoolCalendarDescWithBLOBs> getYearTerm()
+   {
+     ToJson json = new ToJson(1, "error");
+     EduSchoolCalendarDescWithBLOBs eduSchoolCalendarDescWithBLOBs = new EduSchoolCalendarDescWithBLOBs();
+     try {
+       String firstDate = "";
+       String secondDate1 = "";
+       String secondDate2 = "";
+       long firstTime = 0L;
+       long secondTime1 = 0L;
+       long secondTime2 = 0L;
+       Calendar cal = Calendar.getInstance();
+       int year = cal.get(1);
+       if (this.sysParaMapper.querySysPara("SUMMER_VACATION_END") != null) {
+         firstDate = this.sysParaMapper.querySysPara("SUMMER_VACATION_END").getParaValue();
+         if (!StringUtils.checkNull(firstDate).booleanValue())
+           firstDate = String.valueOf(year) + "-" + firstDate;
+         else
+           firstDate = String.valueOf(year) + "-" + "09-01";
+       }
+       else {
+         firstDate = String.valueOf(year) + "-" + "09-01";
+       }
+       if (this.sysParaMapper.querySysPara("WINTER_VACATION_END") != null) {
+         secondDate1 = this.sysParaMapper.querySysPara("WINTER_VACATION_END").getParaValue();
+         if (!StringUtils.checkNull(secondDate1).booleanValue())
+           secondDate1 = String.valueOf(year) + "-" + secondDate1;
+         else {
+           firstDate = String.valueOf(year) + "-" + "03-01";
+         }
+ 
+         secondDate2 = this.sysParaMapper.querySysPara("WINTER_VACATION_END").getParaValue();
+         if (!StringUtils.checkNull(secondDate2).booleanValue())
+           secondDate2 = String.valueOf(year + 1) + "-" + secondDate2;
+         else
+           secondDate2 = String.valueOf(year + 1) + "-" + "03-01";
+       }
+       else {
+         firstDate = String.valueOf(year) + "-" + "03-01";
+         secondDate2 = String.valueOf(year + 1) + "-" + "03-01";
+       }
+       if (!StringUtils.checkNull(firstDate).booleanValue()) {
+         firstTime = DateFormat.getDateTime(firstDate).intValue();
+       }
+       if (!StringUtils.checkNull(secondDate1).booleanValue()) {
+         secondTime1 = DateFormat.getDateTime(secondDate1).intValue();
+       }
+       if (!StringUtils.checkNull(secondDate2).booleanValue()) {
+         secondTime2 = DateFormat.getDateTime(secondDate2).intValue();
+       }
+       long currentTime = DateFormat.getDateTime(DateFormat.getDatestr(new Date())).intValue();
+       if ((currentTime >= firstTime) && (currentTime <= secondTime2)) {
+         eduSchoolCalendarDescWithBLOBs.setSchoolTerm("1");
+         eduSchoolCalendarDescWithBLOBs.setSchoolYear(String.valueOf(year));
+       } else if ((currentTime >= secondTime1) && (currentTime <= firstTime)) {
+         eduSchoolCalendarDescWithBLOBs.setSchoolTerm("2");
+         eduSchoolCalendarDescWithBLOBs.setSchoolYear(String.valueOf(year - 1));
+       }
+       json.setObject(eduSchoolCalendarDescWithBLOBs);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       e.printStackTrace();
+     }
+     return json;
+   }
+ }
+

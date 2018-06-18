@@ -1,0 +1,78 @@
+/*    */ package com.xoa.controller.attend;
+/*    */ 
+/*    */ import com.xoa.util.Constant;
+import com.xoa.util.dataSource.ContextHolder;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import javax.servlet.http.HttpSession;
+/*    */ import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"/attendPage"})
+/*    */ public class AttendPageController
+/*    */ {
+/*    */   @RequestMapping({"/myAttendance"})
+/*    */   public String myAttendance(HttpServletRequest request)
+/*    */   {
+/* 21 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 23 */     return "app/attend/myAttendance";
+/*    */   }
+/* 27 */   @RequestMapping({"/backlogAttendLeave"})
+/*    */   public String backlogAttendLeave(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 29 */     return "app/attend/attendLeave/backlogAttendLeave"; } 
+/*    */   @RequestMapping({"/myAttendLeave"})
+/*    */   public String myAttendLeave(HttpServletRequest request) {
+/* 33 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 35 */     return "app/attend/attendLeave/myAttendLeave";
+/*    */   }
+/* 39 */   @RequestMapping({"/myAttendEvection"})
+/*    */   public String myAttendEvection(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 41 */     return "app/attend/myAttendEvection"; } 
+/*    */   @RequestMapping({"/myAttendOut"})
+/*    */   public String myAttendOut(HttpServletRequest request) {
+/* 45 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 47 */     return "app/attend/myAttendOut";
+/*    */   }
+/* 51 */   @RequestMapping({"/attendance"})
+/*    */   public String attendance(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 53 */     return "app/attend/statistic/index"; }
+/*    */ 
+/*    */   @RequestMapping({"/personnelStatistics"})
+/*    */   public String personnelStatistics(HttpServletRequest request) {
+/* 58 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 60 */     return "app/attend/statistic/personnelStatistics";
+/*    */   }
+/* 64 */   @RequestMapping({"/details"})
+/*    */   public String details(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 66 */     return "app/attend/statistic/details"; } 
+/*    */   @RequestMapping({"/leaveManagement"})
+/*    */   public String leaveManagement(HttpServletRequest request) {
+/* 70 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 72 */     return "app/attend/statistic/leaveManagement";
+/*    */   }
+/* 76 */   @RequestMapping({"/reportForm"})
+/*    */   public String reportForm(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 78 */     return "app/attend/statistic/reportForm"; }
+/*    */ 
+/*    */   @RequestMapping({"/detailsTtendance"})
+/*    */   public String detailsTtendance(HttpServletRequest request) {
+/* 83 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 85 */     return "app/attend/statistic/myAttendance";
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.attend.AttendPageController
+ * JD-Core Version:    0.6.0
+ */

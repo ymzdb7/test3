@@ -1,0 +1,138 @@
+/*     */ package com.xoa.service.workflow.flowSort.impl;
+/*     */ 
+/*     */ import com.xoa.dao.workflow.FlowSortMapper;
+/*     */ import com.xoa.dao.workflow.FlowTypeModelMapper;
+/*     */ import com.xoa.model.workflow.FlowSort;
+/*     */ import com.xoa.model.workflow.FlowTypeModel;
+/*     */ import com.xoa.service.workflow.flowSort.FlowSortService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class FlowSortServiceImpl
+/*     */   implements FlowSortService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowSortMapper flowSortMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowTypeModelMapper flowTypeModelMapper;
+/*     */ 
+/*     */   public ToJson<FlowSort> getFlowTypes()
+/*     */   {
+/*  34 */     ToJson json = new ToJson();
+/*     */     try {
+/*  36 */       List flowSorts = new ArrayList();
+/*  37 */       getFlowSorts(flowSorts, null, null, Integer.valueOf(0));
+/*  38 */       json.setObj(flowSorts);
+/*  39 */       json.setMsg("ok");
+/*  40 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  42 */       e.printStackTrace();
+/*  43 */       json.setMsg("err");
+/*  44 */       json.setFlag(1);
+/*     */     }
+/*     */ 
+/*  47 */     return json;
+/*     */   }
+/*     */ 
+/*     */   private void getFlowSorts(List<FlowSort> flowSorts, List<FlowSort> flowSortsChildren, FlowSort parentF, Integer sortId)
+/*     */   {
+/*  58 */     if (sortId.intValue() == 0) {
+/*  59 */       flowSorts.addAll(this.flowSortMapper.getChildDatas(Integer.valueOf(0)));
+/*     */     }
+/*     */ 
+/*  62 */     if (parentF == null)
+/*     */     {
+/*  64 */       if ((flowSorts != null) && (flowSorts.size() > 0))
+/*  65 */         for (FlowSort f : flowSorts)
+/*     */         {
+/*  67 */           if ((f != null) && (f.getSortId() != null) && (f.getSortId().intValue() != 0))
+/*     */           {
+/*  69 */             List<FlowTypeModel> flowTypeModels = this.flowTypeModelMapper.selectBySortid(f.getSortId());
+/*  70 */             List AllFlow = new ArrayList();
+/*  71 */             for (FlowTypeModel ff : flowTypeModels) {
+/*  72 */               AllFlow.add(ff);
+/*     */             }
+/*  74 */             List<FlowSort> childDatas = this.flowSortMapper.getChildDatas(f.getSortId());
+/*  75 */             if ((childDatas != null) && (childDatas.size() > 0)) {
+/*  76 */               for (FlowSort f2 : childDatas) {
+/*  77 */                 List<FlowTypeModel> flowTypeModels2 = this.flowTypeModelMapper.selectBySortid(f2.getSortId());
+/*  78 */                 for (FlowTypeModel ff : flowTypeModels2) {
+/*  79 */                   AllFlow.add(ff);
+/*     */                 }
+/*     */ 
+/*     */               }
+/*     */ 
+/*     */             }
+/*     */ 
+/*  91 */             f.setFlowTypeModels(AllFlow);
+/*     */           }
+/*     */         }
+/*     */     }
+/*     */     else
+/*  96 */       for (FlowSort f : flowSortsChildren)
+/*     */       {
+/*  98 */         if ((f != null) && (f.getSortId() != null) && (f.getSortId().intValue() != 0))
+/*     */         {
+/* 100 */           List<FlowTypeModel> flowTypeModels = this.flowTypeModelMapper.selectBySortid(f.getSortId());
+/* 101 */           List AllFlow = new ArrayList();
+/* 102 */           for (FlowTypeModel ff : flowTypeModels) {
+/* 103 */             AllFlow.add(ff);
+/*     */           }
+/* 105 */           if (f.getHaveChild().equals(Integer.valueOf(1))) {
+/* 106 */             List<FlowSort> childDatas = this.flowSortMapper.getChildDatas(f.getSortId());
+/* 107 */             if ((childDatas != null) && (childDatas.size() > 0)) {
+/* 108 */               for (FlowSort f2 : childDatas) {
+/* 109 */                 List<FlowTypeModel> flowTypeModels2 = this.flowTypeModelMapper.selectBySortid(f2.getSortId());
+/* 110 */                 for (FlowTypeModel ff : flowTypeModels2) {
+/* 111 */                   AllFlow.add(ff);
+/*     */                 }
+/*     */ 
+/*     */               }
+/*     */ 
+/*     */             }
+/*     */ 
+/*     */           }
+/*     */ 
+/* 126 */           f.setFlowTypeModels(AllFlow);
+/*     */         }
+/*     */       }
+/*     */   }
+/*     */ 
+/*     */   public ToJson<FlowSort> getSortAndType()
+/*     */   {
+/* 140 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 142 */       List list = this.flowSortMapper.getChildDatas(Integer.valueOf(0));
+/* 143 */       getSortAndTypeByDigui(list);
+/* 144 */       json.setObj(list);
+/* 145 */       json.setFlag(0);
+/* 146 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 148 */       e.printStackTrace();
+/*     */     }
+/* 150 */     return json;
+/*     */   }
+/*     */ 
+/*     */   void getSortAndTypeByDigui(List<FlowSort> list) {
+/* 154 */     for (FlowSort flowSort : list) {
+/* 155 */       List list1 = this.flowSortMapper.getChildDatas(flowSort.getSortId());
+/* 156 */       flowSort.setFlowTypeModels(this.flowTypeModelMapper.selByFlowSort(flowSort.getSortId()));
+/* 157 */       if (list1.size() > 0) {
+/* 158 */         flowSort.setChilds(list1);
+/* 159 */         flowSort.setHaveChild("1");
+/* 160 */         getSortAndTypeByDigui(list1);
+/*     */       }
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.workflow.flowSort.impl.FlowSortServiceImpl
+ * JD-Core Version:    0.6.0
+ */

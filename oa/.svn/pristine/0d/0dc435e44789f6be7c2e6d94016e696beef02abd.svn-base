@@ -1,0 +1,724 @@
+/*     */ package com.xoa.controller.users;
+/*     */ 
+/*     */ import com.xoa.model.users.RoleManager;
+/*     */ import com.xoa.model.users.UserPriv;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.syspara.SysParaService;
+/*     */ import com.xoa.service.users.UsersPrivService;
+/*     */ import com.xoa.util.AjaxJson;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ExcelUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.InputStream;
+/*     */ import java.io.PrintStream;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.ResourceBundle;
+/*     */ import java.util.TreeSet;
+/*     */ import java.util.UUID;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.ServletOutputStream;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.log4j.Logger;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.apache.poi.ss.usermodel.Cell;
+/*     */ import org.apache.poi.ss.usermodel.Row;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Controller
+/*     */ public class UserPrivController
+/*     */ {
+/*  63 */   private Logger loger = Logger.getLogger(UserPrivController.class);
+/*     */ 
+/*     */   @Resource
+/*     */   UsersPrivService usersPrivService;
+/*     */ 
+/*     */   @Resource
+/*     */   SysParaService sysParaService;
+/*     */ 
+/*  74 */   @RequestMapping({"/roleAuthorization"})
+/*     */   public String roleAuthorization(HttpServletRequest request, Map<String, Object> map) { Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  75 */     if (!this.sysParaService.checkIsHaveSecure(user, Integer.valueOf(3))) {
+/*  76 */       return "app/common/development";
+/*     */     }
+/*  78 */     String ss = (String)SessionUtils.getSessionInfo(request.getSession(), "superPwd", String.class);
+/*  79 */     if (StringUtils.checkNull(ss).booleanValue()) {
+/*  80 */       map.put("sign", Integer.valueOf(0));
+/*  81 */       return "app/UserPriv/roleAuthorization";
+/*     */     }
+/*  83 */     map.put("sign", Integer.valueOf(1));
+/*  84 */     return "app/UserPriv/roleAuthorization";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/newRole"})
+/*     */   public String newRole(HttpServletRequest request)
+/*     */   {
+/*  91 */     String ss = (String)SessionUtils.getSessionInfo(request.getSession(), "superPwd", String.class);
+/*  92 */     if (StringUtils.checkNull(ss).booleanValue()) {
+/*  93 */       return "app/UserPriv/roleAuthorization";
+/*     */     }
+/*  95 */     return "app/UserPriv/newRole";
+/*     */   }
+/*  99 */   @RequestMapping({"/adjustTheRole"})
+/*     */   public String adjustTheRole(HttpServletRequest request) { String ss = (String)SessionUtils.getSessionInfo(request.getSession(), "superPwd", String.class);
+/* 100 */     if (StringUtils.checkNull(ss).booleanValue()) {
+/* 101 */       return "app/UserPriv/roleAuthorization";
+/*     */     }
+/* 103 */     return "app/UserPriv/adjustTheRole"; } 
+/*     */   @RequestMapping({"/modifyThePermissions"})
+/*     */   public String modifyThePermissions(HttpServletRequest request) {
+/* 107 */     String ss = (String)SessionUtils.getSessionInfo(request.getSession(), "superPwd", String.class);
+/* 108 */     if (StringUtils.checkNull(ss).booleanValue()) {
+/* 109 */       return "app/UserPriv/roleAuthorization";
+/*     */     }
+/* 111 */     return "app/UserPriv/modifyThePermissions";
+/*     */   }
+/* 115 */   @RequestMapping({"/theAuxiliaryRole"})
+/*     */   public String theAuxiliaryRole(HttpServletRequest request) { String ss = (String)SessionUtils.getSessionInfo(request.getSession(), "superPwd", String.class);
+/* 116 */     if (StringUtils.checkNull(ss).booleanValue()) {
+/* 117 */       return "app/UserPriv/roleAuthorization";
+/*     */     }
+/* 119 */     return "app/UserPriv/theAuxiliaryRole"; } 
+/*     */   @RequestMapping({"/superPassword"})
+/*     */   public String superPassword(HttpServletRequest request) {
+/* 123 */     String ss = (String)SessionUtils.getSessionInfo(request.getSession(), "superPwd", String.class);
+/* 124 */     if (StringUtils.checkNull(ss).booleanValue()) {
+/* 125 */       return "app/UserPriv/roleAuthorization";
+/*     */     }
+/* 127 */     return "app/UserPriv/superPassword";
+/*     */   }
+/* 131 */   @RequestMapping({"/theHumanResources"})
+/*     */   public String theHumanResources(HttpServletRequest request) { String ss = (String)SessionUtils.getSessionInfo(request.getSession(), "superPwd", String.class);
+/* 132 */     if (StringUtils.checkNull(ss).booleanValue()) {
+/* 133 */       return "app/UserPriv/roleAuthorization";
+/*     */     }
+/* 135 */     return "app/UserPriv/theHumanResources"; } 
+/*     */   @RequestMapping({"/cloning"})
+/*     */   public String cloning() {
+/* 139 */     return "app/UserPriv/cloning";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/userPriv/addUser"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<UserPriv> addPriv(UserPriv userPriv, HttpServletRequest request)
+/*     */   {
+/* 158 */     ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)request.getSession().getAttribute("loginDateSouse")).toString());
+/*     */ 
+/* 160 */     ToJson json = new ToJson(1, null);
+/*     */     try {
+/* 162 */       int count = this.usersPrivService.insertSelective(userPriv);
+/* 163 */       if (userPriv.getPrivNo() == null) {
+/* 164 */         json.setMsg("角色排序号不能为空");
+/* 165 */         json.setFlag(1);
+/* 166 */         return json;
+/*     */       }
+/* 168 */       if (StringUtils.checkNull(userPriv.getPrivName()).booleanValue()) {
+/* 169 */         json.setMsg("角色名称不能为空");
+/* 170 */         json.setFlag(1);
+/* 171 */         return json;
+/*     */       }
+/* 173 */       if (count == 2) {
+/* 174 */         json.setMsg("角色名称不能重复");
+/* 175 */         json.setFlag(1);
+/*     */       } else {
+/* 177 */         json.setMsg("新建成功 ");
+/* 178 */         json.setFlag(0);
+/* 179 */         json.setObject(userPriv);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 182 */       e.printStackTrace();
+/* 183 */       json.setMsg("新建失败 ");
+/*     */     }
+/* 185 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/userPriv/deletePriv"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<UserPriv> deletePriv(UserPriv userPriv, HttpServletRequest request)
+/*     */   {
+/* 201 */     ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)request.getSession().getAttribute("loginDateSouse")).toString());
+/*     */ 
+/* 203 */     ToJson json = new ToJson(1, null);
+/* 204 */     this.loger.debug(new StringBuilder().append("ID").append(userPriv.getUserPriv()).toString());
+/*     */     try {
+/* 206 */       this.usersPrivService.deleteByPrimaryKey(userPriv.getUserPriv().intValue());
+/* 207 */       json.setObject(userPriv);
+/* 208 */       json.setMsg("OK");
+/* 209 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 211 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 213 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/userPriv/findByuserPriv"})
+/*     */   public ToJson<UserPriv> findUserByuserPriv(int userPriv, HttpServletRequest request)
+/*     */   {
+/* 229 */     ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)request.getSession().getAttribute("loginDateSouse")).toString());
+/*     */ 
+/* 231 */     ToJson json = new ToJson(1, null);
+/*     */     try {
+/* 233 */       UserPriv priv = this.usersPrivService.selectByPrimaryKey(userPriv);
+/* 234 */       json.setObject(priv);
+/* 235 */       json.setMsg("OK");
+/* 236 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 238 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 240 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/userPriv/getAllPriv"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<UserPriv> getAllPriv(Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag, HttpServletRequest request)
+/*     */   {
+/* 260 */     ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)request.getSession().getAttribute("loginDateSouse")).toString());
+/*     */ 
+/* 262 */     ToJson json = new ToJson(1, null);
+/*     */     try {
+/* 264 */       List list = this.usersPrivService.getAllPriv(maps, page, pageSize, useFlag);
+/* 265 */       json.setObj(list);
+/* 266 */       json.setMsg("OK");
+/* 267 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 269 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 271 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/userPriv/getPrivByMany"})
+/*     */   public ToJson<UserPriv> getPrivByMany(UserPriv userPriv, HttpServletRequest request)
+/*     */   {
+/* 287 */     ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)request.getSession().getAttribute("loginDateSouse")).toString());
+/*     */ 
+/* 289 */     ToJson json = new ToJson(1, null);
+/*     */     try {
+/* 291 */       List list = this.usersPrivService.getPrivByMany(userPriv);
+/* 292 */       json.setObj(list);
+/* 293 */       json.setMsg("OK");
+/* 294 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 296 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 298 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getAllUserPriv"})
+/*     */   public ToJson<UserPriv> getAllUserPriv(HttpServletRequest request)
+/*     */   {
+/* 311 */     ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)request.getSession().getAttribute("loginDateSouse")).toString());
+/*     */ 
+/* 313 */     ToJson json = new ToJson(1, null);
+/*     */     try {
+/* 315 */       List list = this.usersPrivService.getAllUserPriv();
+/* 316 */       json.setObj(list);
+/* 317 */       json.setMsg("OK");
+/* 318 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 320 */       e.printStackTrace();
+/* 321 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 323 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/userPriv/updateUser"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<UserPriv> updateUserPriv(UserPriv userPriv, HttpServletRequest request)
+/*     */   {
+/* 336 */     ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)request.getSession().getAttribute("loginDateSouse")).toString());
+/*     */ 
+/* 338 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 340 */       if (userPriv.getFuncIdStr() == null) {
+/* 341 */         if (userPriv.getPrivNo() == null) {
+/* 342 */           json.setMsg("角色排序号不能为空");
+/* 343 */           json.setFlag(1);
+/* 344 */           return json;
+/*     */         }
+/* 346 */         if (StringUtils.checkNull(userPriv.getPrivName()).booleanValue()) {
+/* 347 */           json.setMsg("角色名称不能为空");
+/* 348 */           json.setFlag(1);
+/* 349 */           return json;
+/*     */         }
+/* 351 */         int count = this.usersPrivService.updateUserPriv(userPriv);
+/* 352 */         if (count == 2) {
+/* 353 */           json.setMsg("角色名称不能重复");
+/* 354 */           json.setFlag(1);
+/*     */         } else {
+/* 356 */           json.setMsg("修改成功");
+/* 357 */           json.setFlag(0);
+/*     */         }
+/*     */       } else {
+/* 360 */         int count = this.usersPrivService.updateUserPriv(userPriv);
+/* 361 */         json.setMsg("修改成功");
+/* 362 */         json.setFlag(0);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 366 */       e.printStackTrace();
+/* 367 */       json.setMsg("修改失败");
+/* 368 */       L.e(new Object[] { new StringBuilder().append("UserPrivController updateUserPriv:").append(e).toString() });
+/*     */     }
+/* 370 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/userPriv/getBySearch"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<UserPriv> getBySearch(HttpServletRequest request, Map<String, Object> maps)
+/*     */   {
+/* 390 */     ToJson json = new ToJson();
+/*     */     try {
+/* 392 */       request.setCharacterEncoding("UTF-8");
+/* 393 */       String search = request.getParameter("search");
+/* 394 */       System.out.println(search);
+/*     */ 
+/* 396 */       maps = new HashMap();
+/* 397 */       maps.put("privName", search);
+/* 398 */       List list = this.usersPrivService.getPrivBySearch(maps);
+/* 399 */       json.setObj(list);
+/* 400 */       json.setMsg("OK");
+/* 401 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 403 */       json.setMsg(e.getMessage());
+/* 404 */       json.setFlag(1);
+/* 405 */       System.out.println(e.getMessage());
+/*     */     }
+/* 407 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/userPriv/copyUserPriv"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<UserPriv> copyUserPriv(UserPriv userPriv, HttpServletRequest request)
+/*     */   {
+/* 420 */     ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)request.getSession().getAttribute("loginDateSouse")).toString());
+/*     */ 
+/* 422 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 424 */       this.usersPrivService.copyUserPriv(userPriv);
+/* 425 */       json.setMsg("OK");
+/* 426 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 428 */       json.setMsg(e.getMessage());
+/*     */ 
+/* 430 */       L.e(new Object[] { new StringBuilder().append("UserPrivController copyUserPriv:").append(e).toString() });
+/*     */     }
+/* 432 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/userPriv/checkSuperPass"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<UserPriv> checkSuperPass(String password, HttpServletRequest request)
+/*     */   {
+/* 444 */     ToJson json = new ToJson(1, "error");
+/* 445 */     int count = 0;
+/* 446 */     if ((password != null) && (password != ""))
+/* 447 */       count = this.usersPrivService.checkSuperPass(password);
+/*     */     try
+/*     */     {
+/* 450 */       if (count != 0) {
+/* 451 */         HttpSession session = request.getSession();
+/* 452 */         SessionUtils.putSession(session, "superPwd", password);
+/*     */ 
+/* 454 */         session.setMaxInactiveInterval(600);
+/* 455 */         json.setMsg("OK");
+/* 456 */         json.setFlag(0);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 460 */       json.setMsg(e.getMessage());
+/* 461 */       L.e(new Object[] { new StringBuilder().append("UserPrivController checkSuperPass:").append(e).toString() });
+/*     */     }
+/*     */ 
+/* 464 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/userPriv/updateSuperPass"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<UserPriv> updateSuperPass(String newPwd, HttpServletRequest request)
+/*     */   {
+/* 477 */     ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)request.getSession().getAttribute("loginDateSouse")).toString());
+/*     */ 
+/* 479 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 481 */       this.usersPrivService.updateSuperPass(newPwd);
+/* 482 */       json.setMsg("OK");
+/* 483 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 485 */       json.setMsg(e.getMessage());
+/*     */ 
+/* 487 */       L.e(new Object[] { new StringBuilder().append("UserPrivController updateSuperPass:").append(e).toString() });
+/*     */     }
+/* 489 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/userPriv/deleteUserPriv"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<UserPriv> deleteUserPriv(String privids, String funcIds, HttpServletRequest request)
+/*     */   {
+/* 503 */     ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)request.getSession().getAttribute("loginDateSouse")).toString());
+/*     */ 
+/* 505 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 507 */       this.usersPrivService.deleteUserPriv(privids, funcIds);
+/* 508 */       json.setMsg("OK");
+/* 509 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 511 */       json.setMsg(e.getMessage());
+/*     */ 
+/* 513 */       L.e(new Object[] { new StringBuilder().append("UserPrivController deleteUserPriv:").append(e).toString() });
+/*     */     }
+/* 515 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/userPriv/updateUserPrivfuncIdStr"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<UserPriv> updateUserPrivfuncIdStr(String privids, String funcIds, HttpServletRequest request)
+/*     */   {
+/* 528 */     ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)request.getSession().getAttribute("loginDateSouse")).toString());
+/*     */ 
+/* 530 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 532 */       this.usersPrivService.updateUserPrivfuncIdStr(privids, funcIds);
+/* 533 */       json.setMsg("OK");
+/* 534 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 536 */       json.setMsg(e.getMessage());
+/*     */ 
+/* 538 */       L.e(new Object[] { new StringBuilder().append("UserPrivController updateUserPrivfuncIdStr:").append(e).toString() });
+/*     */     }
+/* 540 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/userPriv/updNoByPrivId"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<UserPriv> updNoByPrivId(UserPriv userPrivs, HttpServletRequest request)
+/*     */   {
+/* 553 */     ContextHolder.setConsumerType(new StringBuilder().append(Constant.MYOA).append((String)request.getSession().getAttribute("loginDateSouse")).toString());
+/*     */ 
+/* 555 */     return this.usersPrivService.updNoByPrivId(userPrivs);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/userPriv/updateUserFunByUID"})
+/*     */   public ToJson<UserPriv> updateUserFunByUID(String userId, String funcIds, int sign)
+/*     */   {
+/* 568 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 570 */       if (sign == 1) {
+/* 571 */         return this.usersPrivService.addUserFunByUID(userId, funcIds);
+/*     */       }
+/* 573 */       this.usersPrivService.deleteUserFunByUID(userId, funcIds);
+/*     */ 
+/* 575 */       json.setMsg("OK");
+/* 576 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 578 */       json.setMsg(e.getMessage());
+/*     */ 
+/* 580 */       L.e(new Object[] { new StringBuilder().append("UserPrivController updateUserFunByUID:").append(e).toString() });
+/*     */     }
+/* 582 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/outputUserPriv"})
+/*     */   public ToJson<UserPriv> outputUserPriv(HttpServletRequest request, HttpServletResponse response)
+/*     */     throws Exception
+/*     */   {
+/* 593 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 595 */       HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("角色权限信息导出", 9);
+/* 596 */       String[] secondTitles = { "角色排序号", "角色名称", "权限模块" };
+/* 597 */       HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/* 598 */       UserPriv userPriv = new UserPriv();
+/* 599 */       List<UserPriv> userPrivList = this.usersPrivService.getAllUserPriv();
+/* 600 */       for (UserPriv userPriv1 : userPrivList) {
+/* 601 */         StringBuffer tempStr = new StringBuffer();
+/* 602 */         String[] funcIdArray = userPriv1.getFuncIdStr().split(",");
+/* 603 */         for (String funcId : funcIdArray) {
+/* 604 */           String funcStr = this.usersPrivService.getFunNameByFunId(funcId);
+/* 605 */           if (funcStr != null) {
+/* 606 */             tempStr.append(new StringBuilder().append(funcStr).append(",").toString());
+/*     */           }
+/*     */         }
+/* 609 */         userPriv1.setFuncIdStr(tempStr.toString());
+/*     */       }
+/*     */ 
+/* 613 */       String[] beanProperty = { "privNo", "privName", "funcIdStr" };
+/* 614 */       HSSFWorkbook workbook = ExcelUtil.exportExcelData(workbook2, userPrivList, beanProperty);
+/* 615 */       ServletOutputStream out = response.getOutputStream();
+/*     */ 
+/* 617 */       String filename = "角色权限导出.xls";
+/* 618 */       filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/*     */ 
+/* 620 */       response.setContentType("application/vnd.ms-excel");
+/* 621 */       response.setHeader("content-disposition", new StringBuilder().append("attachment;filename=").append(filename).toString());
+/*     */ 
+/* 623 */       workbook.write(out);
+/* 624 */       out.close();
+/* 625 */       json.setMsg("OK");
+/* 626 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 628 */       json.setMsg(e.getMessage());
+/*     */ 
+/* 630 */       L.e(new Object[] { new StringBuilder().append("UserPrivController outputUserPriv:").append(e).toString() });
+/*     */     }
+/* 632 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/inputUserPriv"})
+/*     */   public ToJson<UserPriv> inputUserPriv(HttpServletRequest request, HttpServletResponse response, MultipartFile file, HttpSession session)
+/*     */     throws Exception
+/*     */   {
+/* 643 */     ToJson json = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 647 */       ResourceBundle rb = ResourceBundle.getBundle("upload");
+/*     */ 
+/* 649 */       String osName = System.getProperty("os.name");
+/* 650 */       StringBuffer path = new StringBuffer();
+/* 651 */       if (osName.toLowerCase().startsWith("win"))
+/* 652 */         path = path.append(rb.getString("upload.win"));
+/*     */       else {
+/* 654 */         path = path.append(rb.getString("upload.linux"));
+/*     */       }
+/*     */ 
+/* 657 */       UserPriv temp = new UserPriv();
+/* 658 */       if (file.isEmpty()) {
+/* 659 */         json.setMsg("请上传文件！");
+/* 660 */         return json;
+/*     */       }
+/* 662 */       String fileName = file.getOriginalFilename();
+/* 663 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 664 */         String uuid = UUID.randomUUID().toString();
+/* 665 */         uuid = uuid.replaceAll("-", "");
+/* 666 */         int pos = fileName.lastIndexOf(".");
+/* 667 */         String extName = fileName.substring(pos);
+/* 668 */         String newFileName = new StringBuilder().append(uuid).append(extName).toString();
+/* 669 */         String readPath = path.append(System.getProperty("file.separator")).append(newFileName).toString();
+/* 670 */         File dest = new File(readPath);
+/* 671 */         file.transferTo(dest);
+/*     */ 
+/* 674 */         InputStream in = new FileInputStream(readPath);
+/* 675 */         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+/* 676 */         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+/* 677 */         Row rowObj = null;
+/* 678 */         int lastRowNum = sheetObj.getLastRowNum();
+/* 679 */         int success = 0;
+/* 680 */         int fail = 0;
+/* 681 */         for (int i = 2; i <= lastRowNum; i++) {
+/* 682 */           rowObj = sheetObj.getRow(i);
+/* 683 */           if (rowObj != null) {
+/* 684 */             Cell c0 = rowObj.getCell(0);
+/* 685 */             Cell c1 = rowObj.getCell(1);
+/* 686 */             Cell c2 = rowObj.getCell(2);
+/* 687 */             String cell0 = "";
+/* 688 */             if (c0 != null) {
+/* 689 */               if (0 == c0.getCellType()) {
+/* 690 */                 double d = c0.getNumericCellValue();
+/* 691 */                 cell0 = String.valueOf(d);
+/*     */               } else {
+/* 693 */                 cell0 = c0.getStringCellValue();
+/*     */               }
+/*     */             }
+/* 696 */             if ((!StringUtils.checkNull(cell0).booleanValue()) && (!StringUtils.checkNull(c1.getStringCellValue()).booleanValue()) && (!StringUtils.checkNull(c2.getStringCellValue()).booleanValue())) {
+/* 697 */               if ((!StringUtils.checkNull(cell0).booleanValue()) && (!StringUtils.checkNull(c1.getStringCellValue()).booleanValue()))
+/*     */               {
+/* 699 */                 UserPriv userPriv = new UserPriv();
+/* 700 */                 if (cell0.contains(".")) {
+/* 701 */                   cell0 = cell0.substring(0, cell0.length() - 2);
+/*     */                 }
+/* 703 */                 userPriv.setPrivNo(Short.valueOf(cell0));
+/* 704 */                 userPriv.setPrivName(c1.getStringCellValue());
+/* 705 */                 String cell1 = c2.getStringCellValue();
+/* 706 */                 String[] funcStrArray = cell1.split(",");
+/* 707 */                 StringBuffer tempStr = new StringBuffer();
+/* 708 */                 for (String funcStr : funcStrArray) {
+/* 709 */                   List<String> funcIdList = this.usersPrivService.getFunIdByFunName(funcStr.trim());
+/* 710 */                   if (funcIdList.size() > 0) {
+/* 711 */                     for (String funcId : funcIdList) {
+/* 712 */                       tempStr.append(new StringBuilder().append(funcId).append(",").toString());
+/*     */                     }
+/*     */                   }
+/*     */                 }
+/* 716 */                 userPriv.setFuncIdStr(tempStr.toString());
+/* 717 */                 int reapName = this.usersPrivService.insertSelective(userPriv);
+/* 718 */                 if (reapName != 2) {
+/* 719 */                   success++;
+/*     */                 }
+/*     */                 else {
+/* 722 */                   fail++;
+/* 723 */                   temp.setReapNameCount(Integer.valueOf(1));
+/*     */                 }
+/*     */               }
+/*     */               else
+/*     */               {
+/* 728 */                 fail++;
+/* 729 */                 temp.setEmptyCount(Integer.valueOf(1));
+/*     */               }
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */ 
+/* 735 */         temp.setInsertCounts(Integer.valueOf(success));
+/* 736 */         temp.setFailCounts(Integer.valueOf(fail));
+/* 737 */         json.setFlag(0);
+/* 738 */         json.setObject(temp);
+/* 739 */         dest.delete();
+/*     */       } else {
+/* 741 */         json.setMsg("文件类型不正确！");
+/* 742 */         return json;
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 746 */       json.setMsg("数据保存异常");
+/* 747 */       e.printStackTrace();
+/* 748 */       L.e(new Object[] { new StringBuilder().append("UserPrivController inputUserPriv:").append(e).toString() });
+/*     */     }
+/* 750 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/userPriv/insertRoleManager"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<RoleManager> insertRoleManager(RoleManager roleManager)
+/*     */   {
+/* 766 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 768 */       int result = this.usersPrivService.insertRoleManager(roleManager);
+/* 769 */       if (result != 0) {
+/* 770 */         json.setObject(roleManager);
+/* 771 */         json.setMsg("OK");
+/* 772 */         json.setFlag(0);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 776 */       json.setMsg(e.getMessage());
+/* 777 */       L.e(new Object[] { new StringBuilder().append("UserPrivController insertRoleManager:").append(e).toString() });
+/*     */     }
+/* 779 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/userPriv/updateRoleManager"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<RoleManager> updateRoleManager(RoleManager roleManager)
+/*     */   {
+/* 793 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 795 */       int result = this.usersPrivService.updateRoleManager(roleManager);
+/* 796 */       if (result != 0) {
+/* 797 */         json.setObject(roleManager);
+/* 798 */         json.setMsg("OK");
+/* 799 */         json.setFlag(0);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 803 */       json.setMsg(e.getMessage());
+/* 804 */       L.e(new Object[] { new StringBuilder().append("UserPrivController updateRoleManager:").append(e).toString() });
+/*     */     }
+/* 806 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/userPriv/deleteRoleManagerById"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<RoleManager> deleteRoleManagerById(int roleManagerId)
+/*     */   {
+/* 820 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 822 */       int result = this.usersPrivService.deleteRoleManagerById(roleManagerId);
+/* 823 */       if (result != 0) {
+/* 824 */         json.setMsg("OK");
+/* 825 */         json.setFlag(0);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 829 */       json.setMsg(e.getMessage());
+/* 830 */       L.e(new Object[] { new StringBuilder().append("UserPrivController deleteRoleManagerById:").append(e).toString() });
+/*     */     }
+/* 832 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/userPriv/getRoleManagerById"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<RoleManager> getRoleManagerById(int roleManagerId)
+/*     */   {
+/* 846 */     ToJson json = new ToJson(1, "error");
+/* 847 */     RoleManager roleManager = new RoleManager();
+/*     */     try {
+/* 849 */       roleManager = this.usersPrivService.getRoleManagerById(roleManagerId);
+/* 850 */       json.setObject(roleManager);
+/* 851 */       json.setMsg("OK");
+/* 852 */       json.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e) {
+/* 855 */       json.setMsg(e.getMessage());
+/* 856 */       L.e(new Object[] { new StringBuilder().append("UserPrivController getRoleManagerById:").append(e).toString() });
+/*     */     }
+/* 858 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/userPriv/getAllRoleManager"})
+/*     */   public ToJson<RoleManager> getAllRoleManager()
+/*     */   {
+/* 872 */     ToJson json = new ToJson(1, "error");
+/* 873 */     RoleManager roleManager = new RoleManager();
+/*     */     try {
+/* 875 */       List roleManagerList = this.usersPrivService.getAllRoleManager();
+/* 876 */       json.setObj(roleManagerList);
+/* 877 */       json.setMsg("OK");
+/* 878 */       json.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e) {
+/* 881 */       json.setMsg(e.getMessage());
+/* 882 */       L.e(new Object[] { new StringBuilder().append("UserPrivController getAllRoleManager:").append(e).toString() });
+/*     */     }
+/* 884 */     return json;
+/*     */   }
+/* 890 */   @ResponseBody
+/*     */   @RequestMapping({"/userPriv/aaa"})
+/*     */   public AjaxJson aaa() { AjaxJson ajaxJson = new AjaxJson();
+/* 891 */     Map map = new HashMap();
+/*     */ 
+/* 894 */     String str = "12,2,5,9,3,7,5,12,1,2,5,9,6,4,2,7,9,2,3,";
+/* 895 */     TreeSet ts = new TreeSet();
+/* 896 */     int len1 = str.split(",").length;
+/* 897 */     String[] ss = str.split(",");
+/* 898 */     for (int i1 = 0; i1 < len1; i1++) {
+/* 899 */       ts.add(new StringBuilder().append(ss[i1]).append("").toString());
+/*     */     }
+/*     */ 
+/* 903 */     Iterator i1 = ts.iterator();
+/* 904 */     StringBuilder sb1 = new StringBuilder();
+/* 905 */     while (i1.hasNext()) {
+/* 906 */       sb1.append(new StringBuilder().append((String)i1.next()).append(",").toString());
+/*     */     }
+/*     */ 
+/* 910 */     System.out.println(sb1.toString());
+/* 911 */     map.put("sb", sb1);
+/* 912 */     ajaxJson.setAttributes(map);
+/* 913 */     return ajaxJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.users.UserPrivController
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,44 @@
+/*    */ package com.xoa.controller.document;
+/*    */ 
+/*    */ import com.xoa.service.document.DocumenSortFlowSerivce;
+/*    */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*    */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.beans.factory.annotation.Autowired;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.RequestParam;
+/*    */ import org.springframework.web.bind.annotation.RestController;
+/*    */ 
+/*    */ @RestController
+/*    */ @RequestMapping({"/document"})
+/*    */ public class DocumentSortFlowController
+/*    */ {
+/*    */ 
+/*    */   @Autowired
+/*    */   DocumenSortFlowSerivce documenSortFlowSerivce;
+/*    */ 
+/*    */   @RequestMapping({"/sortFlow"})
+/*    */   public BaseWrappers sortFlow(HttpServletRequest request, String mainType, String detailType)
+/*    */   {
+/* 26 */     return this.documenSortFlowSerivce.sortFlow(request, mainType, detailType);
+/*    */   }
+/*    */   @RequestMapping({"/getStatistics"})
+/*    */   public BaseWrappers getStatistics(HttpServletRequest request, @RequestParam(required=false, defaultValue="0", name="staType") Integer staType, String startTime, String endTime) {
+/* 31 */     return this.documenSortFlowSerivce.getStatistics(request, staType, startTime, endTime);
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/cancelDocument"})
+/*    */   public BaseWrapper cancelDocument(HttpServletRequest request, Integer runId) {
+/* 37 */     return this.documenSortFlowSerivce.cancelDocument(request, runId);
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/getFlowDocument"})
+/*    */   public BaseWrappers getDocumentFlowType() {
+/* 43 */     return this.documenSortFlowSerivce.getDocumentFlowType();
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.document.DocumentSortFlowController
+ * JD-Core Version:    0.6.0
+ */

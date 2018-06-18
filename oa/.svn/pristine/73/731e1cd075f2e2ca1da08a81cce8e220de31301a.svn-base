@@ -1,0 +1,139 @@
+/*     */ package com.xoa.util.sendUtil;
+/*     */ 
+/*     */ import java.io.BufferedReader;
+/*     */ import java.io.IOException;
+/*     */ import java.io.InputStream;
+/*     */ import java.io.InputStreamReader;
+/*     */ import java.io.OutputStream;
+/*     */ import java.io.OutputStreamWriter;
+/*     */ import java.net.HttpURLConnection;
+/*     */ import java.net.URL;
+/*     */ import java.net.URLConnection;
+/*     */ import java.net.URLEncoder;
+/*     */ 
+/*     */ public class send
+/*     */ {
+/*     */   public static void main(String[] args)
+/*     */     throws Exception
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   public static String doPost(StringBuffer mobileString, StringBuffer contextString, String protocol, String host, String port, String username, String pwd, String content_field, String code, String mobile, String time_content, String sign, String location, String extend_1, String extend_2, String extend_3, String extend_4, String extend_5, String startTime)
+/*     */     throws Exception
+/*     */   {
+/*  53 */     StringBuffer param = new StringBuffer();
+/*     */ 
+/*  55 */     if (code.equals("1"))
+/*  56 */       code = "utf-8";
+/*  57 */     else if (code.equals("0")) {
+/*  58 */       code = "GBK";
+/*     */     }
+/*  60 */     param.append(username);
+/*  61 */     param.append(new StringBuilder().append("&").append(pwd).toString());
+/*  62 */     param.append(new StringBuilder().append("&").append(mobile).append("=").toString()).append(mobileString);
+/*     */ 
+/*  64 */     if (location.equals("1"))
+/*     */     {
+/*  66 */       param.append(new StringBuilder().append("&").append(content_field).append("=").append(URLEncoder.encode(new StringBuilder().append(contextString.toString()).append("【高速波】").toString(), "UTF-8")).toString());
+/*     */     }
+/*     */ 
+/*  69 */     if (location.equals("0")) {
+/*  70 */       param.append(new StringBuilder().append("&").append(content_field).append("=").toString()).append(URLEncoder.encode(contextString.toString(), "UTF-8"));
+/*  71 */       param.append(new StringBuilder().append("&").append(sign).append("=").append(URLEncoder.encode("高速波", "UTF-8")).toString());
+/*     */     }
+/*  73 */     if (startTime == null) {
+/*  74 */       startTime = "";
+/*     */     }
+/*  76 */     param.append(new StringBuilder().append("&").append(time_content).append("=").append(startTime).toString());
+/*  77 */     param.append(new StringBuilder().append("&").append(extend_1).toString());
+/*  78 */     param.append(new StringBuilder().append("&").append(extend_2).toString());
+/*  79 */     param.append(new StringBuilder().append("&").append(extend_3).toString());
+/*  80 */     param.append(new StringBuilder().append("&").append(extend_4).toString());
+/*  81 */     param.append(new StringBuilder().append("&").append(extend_5).toString());
+/*     */ 
+/*  84 */     URL localURL = new URL(new StringBuilder().append(protocol).append("://").append(host).append("/").append(port).append("?").toString());
+/*  85 */     URLConnection connection = localURL.openConnection();
+/*  86 */     HttpURLConnection httpURLConnection = (HttpURLConnection)connection;
+/*     */ 
+/*  88 */     httpURLConnection.setDoOutput(true);
+/*  89 */     httpURLConnection.setRequestMethod("POST");
+/*  90 */     httpURLConnection.setRequestProperty("Accept-Charset", code);
+/*  91 */     httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+/*  92 */     httpURLConnection.setRequestProperty("Content-Length", String.valueOf(param.length()));
+/*     */ 
+/*  94 */     OutputStream outputStream = null;
+/*  95 */     OutputStreamWriter outputStreamWriter = null;
+/*  96 */     InputStream inputStream = null;
+/*  97 */     InputStreamReader inputStreamReader = null;
+/*  98 */     BufferedReader reader = null;
+/*  99 */     String resultBuffer = "";
+/*     */     try
+/*     */     {
+/* 102 */       outputStream = httpURLConnection.getOutputStream();
+/* 103 */       outputStreamWriter = new OutputStreamWriter(outputStream);
+/*     */ 
+/* 105 */       outputStreamWriter.write(param.toString());
+/* 106 */       outputStreamWriter.flush();
+/*     */ 
+/* 108 */       if (httpURLConnection.getResponseCode() >= 300) {
+/* 109 */         throw new Exception(new StringBuilder().append("HTTP Request is not success, Response code is ").append(httpURLConnection.getResponseCode()).toString());
+/*     */       }
+/*     */ 
+/* 112 */       inputStream = httpURLConnection.getInputStream();
+/* 113 */       resultBuffer = convertStreamToString(inputStream);
+/*     */     }
+/*     */     finally
+/*     */     {
+/* 117 */       if (outputStreamWriter != null) {
+/* 118 */         outputStreamWriter.close();
+/*     */       }
+/*     */ 
+/* 121 */       if (outputStream != null) {
+/* 122 */         outputStream.close();
+/*     */       }
+/*     */ 
+/* 125 */       if (reader != null) {
+/* 126 */         reader.close();
+/*     */       }
+/*     */ 
+/* 129 */       if (inputStreamReader != null) {
+/* 130 */         inputStreamReader.close();
+/*     */       }
+/*     */ 
+/* 133 */       if (inputStream != null) {
+/* 134 */         inputStream.close();
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 139 */     return resultBuffer;
+/*     */   }
+/*     */ 
+/*     */   public static String convertStreamToString(InputStream is)
+/*     */   {
+/* 149 */     StringBuilder sb1 = new StringBuilder();
+/* 150 */     byte[] bytes = new byte[4096];
+/* 151 */     int size = 0;
+/*     */     try
+/*     */     {
+/* 154 */       while ((size = is.read(bytes)) > 0) {
+/* 155 */         String str = new String(bytes, 0, size, "UTF-8");
+/* 156 */         sb1.append(str);
+/*     */       }
+/*     */     } catch (IOException e) {
+/* 159 */       e.printStackTrace();
+/*     */     } finally {
+/*     */       try {
+/* 162 */         is.close();
+/*     */       } catch (IOException e) {
+/* 164 */         e.printStackTrace();
+/*     */       }
+/*     */     }
+/* 167 */     return sb1.toString();
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.sendUtil.send
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,68 @@
+/*    */ package com.xoa.service.unitmanagement.impl;
+/*    */ 
+/*    */ import com.xoa.dao.unitmanagement.UnitManageMapper;
+/*    */ import com.xoa.model.unitmanagement.UnitManage;
+/*    */ import com.xoa.service.sys.SystemInfoService;
+/*    */ import com.xoa.service.unitmanagement.UnitManageService;
+/*    */ import com.xoa.util.GetAttachmentListUtil;
+/*    */ import java.util.Map;
+/*    */ import javax.annotation.Resource;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.stereotype.Service;
+/*    */ 
+/*    */ @Service
+/*    */ public class UnitManageServiceImpl
+/*    */   implements UnitManageService
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   private UnitManageMapper unitManageMapper;
+/*    */ 
+/*    */   @Resource
+/*    */   private SystemInfoService systemInfoService;
+/*    */ 
+/*    */   public UnitManage showUnitManage(String sqlType, HttpServletRequest request)
+/*    */   {
+/* 26 */     UnitManage UnitManage = this.unitManageMapper.showUnitManage();
+/* 27 */     if ((UnitManage.getAttachmentName() != null) && (UnitManage.getAttachmentId() != null)) {
+/* 28 */       UnitManage.setAttachment(GetAttachmentListUtil.returnAttachment(UnitManage.getAttachmentName(), UnitManage.getAttachmentId(), sqlType, "sys"));
+/*    */     }
+/* 30 */     Map stringStringMap = this.systemInfoService.getAuthorization(request);
+/*    */     int a1;
+/* 31 */     if (("xoa1001".equals(sqlType)) && 
+/* 32 */       ("true".equals(stringStringMap.get("isAuthStr"))) && 
+/* 33 */       (!UnitManage.getUnitName().equals(stringStringMap.get("company")))) {
+/* 34 */       UnitManage.setUnitName((String)stringStringMap.get("company"));
+/* 35 */       a1 = this.unitManageMapper.updateUnit(sqlType, (String)stringStringMap.get("company"), Integer.valueOf(1));
+/*    */     }
+/*    */ 
+/* 39 */     if (((String)stringStringMap.get("isAuthStr")).equals("true"))
+/* 40 */       UnitManage.setIsFlag("true");
+/*    */     else {
+/* 42 */       UnitManage.setIsFlag("false");
+/*    */     }
+/*    */ 
+/* 45 */     return UnitManage;
+/*    */   }
+/*    */ 
+/*    */   public void addUnitManage(UnitManage unitManage)
+/*    */   {
+/* 51 */     this.unitManageMapper.addUnitManage(unitManage);
+/*    */   }
+/*    */ 
+/*    */   public void update(UnitManage unitManage)
+/*    */   {
+/* 57 */     UnitManage unitManage1 = this.unitManageMapper.showUnitManage();
+/* 58 */     if (unitManage1 != null) {
+/* 59 */       unitManage.setUnitId(Integer.valueOf(1));
+/* 60 */       this.unitManageMapper.update(unitManage);
+/*    */     } else {
+/* 62 */       this.unitManageMapper.addUnitManage(unitManage);
+/*    */     }
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.unitmanagement.impl.UnitManageServiceImpl
+ * JD-Core Version:    0.6.0
+ */

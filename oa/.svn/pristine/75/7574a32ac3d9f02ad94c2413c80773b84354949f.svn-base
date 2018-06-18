@@ -1,0 +1,338 @@
+/*     */ package com.xoa.model.book;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class BookTypeExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public BookTypeExample()
+/*     */   {
+/*  39 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  49 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  59 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  69 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  79 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  89 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  99 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 109 */     Criteria criteria = createCriteriaInternal();
+/* 110 */     this.oredCriteria.add(criteria);
+/* 111 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 121 */     Criteria criteria = createCriteriaInternal();
+/* 122 */     if (this.oredCriteria.size() == 0) {
+/* 123 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 125 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 135 */     Criteria criteria = new Criteria();
+/* 136 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 146 */     this.oredCriteria.clear();
+/* 147 */     this.orderByClause = null;
+/* 148 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 366 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 370 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 374 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 378 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 382 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 386 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 390 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 394 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 399 */       this.condition = condition;
+/* 400 */       this.typeHandler = null;
+/* 401 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 406 */       this.condition = condition;
+/* 407 */       this.value = value;
+/* 408 */       this.typeHandler = typeHandler;
+/* 409 */       if ((value instanceof List))
+/* 410 */         this.listValue = true;
+/*     */       else
+/* 412 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 417 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 422 */       this.condition = condition;
+/* 423 */       this.value = value;
+/* 424 */       this.secondValue = secondValue;
+/* 425 */       this.typeHandler = typeHandler;
+/* 426 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 430 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends BookTypeExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<BookTypeExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 162 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 166 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<BookTypeExample.Criterion> getAllCriteria() {
+/* 170 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<BookTypeExample.Criterion> getCriteria() {
+/* 174 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 178 */       if (condition == null) {
+/* 179 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 181 */       this.criteria.add(new BookTypeExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 185 */       if (value == null) {
+/* 186 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 188 */       this.criteria.add(new BookTypeExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 192 */       if ((value1 == null) || (value2 == null)) {
+/* 193 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 195 */       this.criteria.add(new BookTypeExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeIdIsNull() {
+/* 199 */       addCriterion("TYPE_ID is null");
+/* 200 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeIdIsNotNull() {
+/* 204 */       addCriterion("TYPE_ID is not null");
+/* 205 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeIdEqualTo(Integer value) {
+/* 209 */       addCriterion("TYPE_ID =", value, "typeId");
+/* 210 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeIdNotEqualTo(Integer value) {
+/* 214 */       addCriterion("TYPE_ID <>", value, "typeId");
+/* 215 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeIdGreaterThan(Integer value) {
+/* 219 */       addCriterion("TYPE_ID >", value, "typeId");
+/* 220 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeIdGreaterThanOrEqualTo(Integer value) {
+/* 224 */       addCriterion("TYPE_ID >=", value, "typeId");
+/* 225 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeIdLessThan(Integer value) {
+/* 229 */       addCriterion("TYPE_ID <", value, "typeId");
+/* 230 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeIdLessThanOrEqualTo(Integer value) {
+/* 234 */       addCriterion("TYPE_ID <=", value, "typeId");
+/* 235 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeIdIn(List<Integer> values) {
+/* 239 */       addCriterion("TYPE_ID in", values, "typeId");
+/* 240 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeIdNotIn(List<Integer> values) {
+/* 244 */       addCriterion("TYPE_ID not in", values, "typeId");
+/* 245 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeIdBetween(Integer value1, Integer value2) {
+/* 249 */       addCriterion("TYPE_ID between", value1, value2, "typeId");
+/* 250 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeIdNotBetween(Integer value1, Integer value2) {
+/* 254 */       addCriterion("TYPE_ID not between", value1, value2, "typeId");
+/* 255 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeNameIsNull() {
+/* 259 */       addCriterion("TYPE_NAME is null");
+/* 260 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeNameIsNotNull() {
+/* 264 */       addCriterion("TYPE_NAME is not null");
+/* 265 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeNameEqualTo(String value) {
+/* 269 */       addCriterion("TYPE_NAME =", value, "typeName");
+/* 270 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeNameNotEqualTo(String value) {
+/* 274 */       addCriterion("TYPE_NAME <>", value, "typeName");
+/* 275 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeNameGreaterThan(String value) {
+/* 279 */       addCriterion("TYPE_NAME >", value, "typeName");
+/* 280 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeNameGreaterThanOrEqualTo(String value) {
+/* 284 */       addCriterion("TYPE_NAME >=", value, "typeName");
+/* 285 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeNameLessThan(String value) {
+/* 289 */       addCriterion("TYPE_NAME <", value, "typeName");
+/* 290 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeNameLessThanOrEqualTo(String value) {
+/* 294 */       addCriterion("TYPE_NAME <=", value, "typeName");
+/* 295 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeNameLike(String value) {
+/* 299 */       addCriterion("TYPE_NAME like", value, "typeName");
+/* 300 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeNameNotLike(String value) {
+/* 304 */       addCriterion("TYPE_NAME not like", value, "typeName");
+/* 305 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeNameIn(List<String> values) {
+/* 309 */       addCriterion("TYPE_NAME in", values, "typeName");
+/* 310 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeNameNotIn(List<String> values) {
+/* 314 */       addCriterion("TYPE_NAME not in", values, "typeName");
+/* 315 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeNameBetween(String value1, String value2) {
+/* 319 */       addCriterion("TYPE_NAME between", value1, value2, "typeName");
+/* 320 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public BookTypeExample.Criteria andTypeNameNotBetween(String value1, String value2) {
+/* 324 */       addCriterion("TYPE_NAME not between", value1, value2, "typeName");
+/* 325 */       return (BookTypeExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.book.BookTypeExample
+ * JD-Core Version:    0.6.0
+ */

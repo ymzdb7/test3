@@ -1,0 +1,123 @@
+/*     */ package com.xoa.controller.site;
+/*     */ 
+/*     */ import com.xoa.model.site.Site;
+/*     */ import com.xoa.service.site.RenderingService;
+/*     */ import com.xoa.service.site.SiteService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import java.io.PrintWriter;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.ServletContext;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/site"})
+/*     */ public class SiteController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private SiteService siteService;
+/*     */ 
+/*     */   @Autowired
+/*     */   RenderingService renderingService;
+/*     */ 
+/*     */   @RequestMapping({"/sites"})
+/*     */   public String sites()
+/*     */   {
+/*  32 */     return "app/site/site";
+/*     */   }
+/*     */   @RequestMapping({"/templateManager"})
+/*     */   public String templateManager() {
+/*  37 */     return "app/site/templateManager";
+/*     */   }
+/*     */   @RequestMapping({"/columnManagement"})
+/*     */   public String columnManagement() {
+/*  42 */     return "app/site/columnManagement";
+/*     */   }
+/*     */   @RequestMapping({"/columncout"})
+/*     */   public String columncout() {
+/*  47 */     return "app/site/columncout";
+/*     */   }
+/*     */   @RequestMapping({"/choice"})
+/*     */   public String choice() {
+/*  52 */     return "app/site/choice";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectSite"})
+/*     */   public ToJson selectSite()
+/*     */   {
+/*  66 */     return this.siteService.selectSite();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectSiteById"})
+/*     */   public ToJson selectSiteById(Site site)
+/*     */   {
+/*  78 */     return this.siteService.selectSiteById(site);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/insertSite"})
+/*     */   public ToJson insertSite(HttpServletRequest request, Site site)
+/*     */   {
+/*  91 */     return this.siteService.insertSite(request, site);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/upSite"})
+/*     */   public ToJson upSite(Site site)
+/*     */   {
+/* 103 */     return this.siteService.upSite(site);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/delSite"})
+/*     */   public ToJson delSite(Site site)
+/*     */   {
+/* 115 */     return this.siteService.delSite(site);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectSiteByTemp"})
+/*     */   public ToJson selectSiteByTemp(Site site)
+/*     */   {
+/* 128 */     return this.siteService.selectSiteByTemp(site);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/preview"})
+/*     */   public void preview(HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/* 139 */     int siteId = StringUtils.getInteger(request.getParameter("siteId"), 0);
+/*     */ 
+/* 141 */     int channelId = StringUtils.getInteger(request.getParameter("channelId"), 0);
+/*     */ 
+/* 143 */     int chnlDocId = StringUtils.getInteger(request.getParameter("chnlDocId"), 0);
+/*     */ 
+/* 145 */     Map map = request.getParameterMap();
+/*     */ 
+/* 148 */     String rootPath = request.getSession().getServletContext().getRealPath("/");
+/*     */     try
+/*     */     {
+/* 152 */       PrintWriter out = response.getWriter();
+/*     */ 
+/* 154 */       if ((siteId != 0) && (channelId == 0) && (chnlDocId == 0))
+/* 155 */         out.write(this.renderingService.renderSite(siteId, map, true, rootPath));
+/*     */     }
+/*     */     catch (Exception e) {
+/* 158 */       e.printStackTrace();
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.site.SiteController
+ * JD-Core Version:    0.6.0
+ */

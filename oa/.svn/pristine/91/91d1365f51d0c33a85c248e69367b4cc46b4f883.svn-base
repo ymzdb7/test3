@@ -1,0 +1,184 @@
+/*     */ package com.xoa.service.vehicle;
+/*     */ 
+/*     */ import com.xoa.dao.common.SysCodeMapper;
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.vehicle.VehicleOilCardMapper;
+/*     */ import com.xoa.model.common.SysCode;
+/*     */ import com.xoa.model.vehicle.VehicleOilCard;
+/*     */ import com.xoa.service.edu.eduUser.IEduUserService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import java.util.List;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class VehicleOilCardService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   VehicleOilCardMapper vehicleOilCardMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   IEduUserService eduUserService;
+/*     */ 
+/*     */   @Autowired
+/*     */   DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   SysCodeMapper sysCodeMapper;
+/*     */ 
+/*     */   public ToJson<Object> addVehicleOilCard(VehicleOilCard vehicleOilCard)
+/*     */   {
+/*  49 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/*  51 */       int i = this.vehicleOilCardMapper.insertSelective(vehicleOilCard);
+/*  52 */       if (i > 0) {
+/*  53 */         json.setMsg("ok");
+/*  54 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  57 */       json.setFlag(1);
+/*  58 */       json.setMsg(e.getMessage());
+/*  59 */       e.printStackTrace();
+/*     */     }
+/*  61 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> editVehicleOilCard(VehicleOilCard vehicleOilCard)
+/*     */   {
+/*  71 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/*  73 */       int i = this.vehicleOilCardMapper.updateByPrimaryKeySelective(vehicleOilCard);
+/*  74 */       if (i > 0) {
+/*  75 */         json.setMsg("ok");
+/*  76 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  79 */       json.setFlag(1);
+/*  80 */       json.setMsg(e.getMessage());
+/*  81 */       e.printStackTrace();
+/*     */     }
+/*  83 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> deleteOilCard(Integer id)
+/*     */   {
+/*  93 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/*  95 */       int i = this.vehicleOilCardMapper.deleteByPrimaryKey(id);
+/*  96 */       if (i > 0) {
+/*  97 */         json.setMsg("ok");
+/*  98 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 101 */       json.setFlag(1);
+/* 102 */       json.setMsg(e.getMessage());
+/* 103 */       e.printStackTrace();
+/*     */     }
+/* 105 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> deleteCards(String[] ids)
+/*     */   {
+/* 115 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 117 */       int i = this.vehicleOilCardMapper.deleteCards(ids);
+/* 118 */       if (i > 0) {
+/* 119 */         json.setMsg("ok");
+/* 120 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 123 */       json.setFlag(1);
+/* 124 */       json.setMsg(e.getMessage());
+/* 125 */       e.printStackTrace();
+/*     */     }
+/* 127 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<VehicleOilCard> selectAllCard(HttpServletRequest request)
+/*     */   {
+/* 137 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 139 */       List <VehicleOilCard> vehicleOilCards = this.vehicleOilCardMapper.selectAllCard();
+/* 140 */       for (VehicleOilCard vehicleOilCard : vehicleOilCards) {
+/* 141 */         if (!StringUtils.checkNull(vehicleOilCard.getvDept()).booleanValue()) {
+/* 142 */           String depart = vehicleOilCard.getvDept();
+/* 143 */           vehicleOilCard.setvDeptName(this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(depart)));
+/*     */         }
+/*     */ 
+/* 146 */         if (vehicleOilCard.getvOnwer() != null) {
+/* 147 */           String owner = vehicleOilCard.getvOnwer();
+/* 148 */           vehicleOilCard.setvOnwerName(this.eduUserService.getUserNameByUserIds(owner));
+/*     */         }
+/* 150 */         if (vehicleOilCard.getvUser() != null) {
+/* 151 */           String owner = vehicleOilCard.getvUser();
+/* 152 */           vehicleOilCard.setvUserName(this.eduUserService.getUserNameByUserIds(owner));
+/*     */         }
+/*     */ 
+/* 156 */         SysCode sysCode = this.sysCodeMapper.getSingleCode("VEHICLETYPE", vehicleOilCard.getvType());
+/* 157 */         if (sysCode != null) {
+/* 158 */           vehicleOilCard.setvTypeName(sysCode.getCodeName());
+/*     */         }
+/*     */ 
+/* 162 */         SysCode sysCode1 = this.sysCodeMapper.getSingleCode("OILCARDSTATUS", vehicleOilCard.getOcStatus());
+/* 163 */         if (sysCode1 != null) {
+/* 164 */           vehicleOilCard.setOcStatusName(sysCode1.getCodeName());
+/*     */         }
+/*     */       }
+/* 167 */       json.setObj(vehicleOilCards);
+/* 168 */       json.setFlag(0);
+/* 169 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 171 */       json.setFlag(1);
+/* 172 */       json.setMsg(e.getMessage());
+/* 173 */       e.printStackTrace();
+/*     */     }
+/* 175 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<VehicleOilCard> selectOilCardById(Integer id)
+/*     */   {
+/* 185 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 187 */       VehicleOilCard vehicleOilCard = this.vehicleOilCardMapper.selectByPrimaryKey(id);
+/* 188 */       if (!StringUtils.checkNull(vehicleOilCard.getvDept()).booleanValue()) {
+/* 189 */         String depart = vehicleOilCard.getvDept();
+/* 190 */         vehicleOilCard.setvDeptName(this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(depart)));
+/*     */       }
+/*     */ 
+/* 193 */       if (vehicleOilCard.getvOnwer() != null) {
+/* 194 */         String owner = vehicleOilCard.getvOnwer();
+/* 195 */         vehicleOilCard.setvOnwerName(this.eduUserService.getUserNameByUserIds(owner));
+/*     */       }
+/* 197 */       if (vehicleOilCard.getvUser() != null) {
+/* 198 */         String owner = vehicleOilCard.getvUser();
+/* 199 */         vehicleOilCard.setvUserName(this.eduUserService.getUserNameByUserIds(owner));
+/*     */       }
+/*     */ 
+/* 203 */       SysCode sysCode = this.sysCodeMapper.getSingleCode("VEHICLETYPE", vehicleOilCard.getvType());
+/* 204 */       if (sysCode != null) {
+/* 205 */         vehicleOilCard.setvTypeName(sysCode.getCodeName());
+/*     */       }
+/*     */ 
+/* 209 */       SysCode sysCode1 = this.sysCodeMapper.getSingleCode("OILCARDSTATUS", vehicleOilCard.getOcStatus());
+/* 210 */       if (sysCode1 != null) {
+/* 211 */         vehicleOilCard.setOcStatusName(sysCode1.getCodeName());
+/*     */       }
+/* 213 */       json.setObject(vehicleOilCard);
+/* 214 */       json.setFlag(0);
+/* 215 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 217 */       json.setFlag(1);
+/* 218 */       json.setMsg(e.getMessage());
+/* 219 */       e.printStackTrace();
+/*     */     }
+/* 221 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.vehicle.VehicleOilCardService
+ * JD-Core Version:    0.6.0
+ */

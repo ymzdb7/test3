@@ -1,0 +1,534 @@
+ package com.xoa.model.portal;
+ 
+ import java.util.ArrayList;
+ import java.util.List;
+ 
+ public class SiteTemplateExample
+ {
+   protected String orderByClause;
+   protected boolean distinct;
+   protected List<Criteria> oredCriteria;
+ 
+   public SiteTemplateExample()
+   {
+     this.oredCriteria = new ArrayList();
+   }
+ 
+   public void setOrderByClause(String orderByClause)
+   {
+     this.orderByClause = orderByClause;
+   }
+ 
+   public String getOrderByClause()
+   {
+     return this.orderByClause;
+   }
+ 
+   public void setDistinct(boolean distinct)
+   {
+     this.distinct = distinct;
+   }
+ 
+   public boolean isDistinct()
+   {
+     return this.distinct;
+   }
+ 
+   public List<Criteria> getOredCriteria()
+   {
+     return this.oredCriteria;
+   }
+ 
+   public void or(Criteria criteria)
+   {
+     this.oredCriteria.add(criteria);
+   }
+ 
+   public Criteria or()
+   {
+     Criteria criteria = createCriteriaInternal();
+     this.oredCriteria.add(criteria);
+     return criteria;
+   }
+ 
+   public Criteria createCriteria()
+   {
+     Criteria criteria = createCriteriaInternal();
+     if (this.oredCriteria.size() == 0) {
+       this.oredCriteria.add(criteria);
+     }
+     return criteria;
+   }
+ 
+   protected Criteria createCriteriaInternal()
+   {
+     Criteria criteria = new Criteria();
+     return criteria;
+   }
+ 
+   public void clear()
+   {
+     this.oredCriteria.clear();
+     this.orderByClause = null;
+     this.distinct = false;
+   }
+ 
+   public static class Criterion
+   {
+     private String condition;
+     private Object value;
+     private Object secondValue;
+     private boolean noValue;
+     private boolean singleValue;
+     private boolean betweenValue;
+     private boolean listValue;
+     private String typeHandler;
+ 
+     public String getCondition()
+     {
+       return this.condition;
+     }
+ 
+     public Object getValue() {
+       return this.value;
+     }
+ 
+     public Object getSecondValue() {
+       return this.secondValue;
+     }
+ 
+     public boolean isNoValue() {
+       return this.noValue;
+     }
+ 
+     public boolean isSingleValue() {
+       return this.singleValue;
+     }
+ 
+     public boolean isBetweenValue() {
+       return this.betweenValue;
+     }
+ 
+     public boolean isListValue() {
+       return this.listValue;
+     }
+ 
+     public String getTypeHandler() {
+       return this.typeHandler;
+     }
+ 
+     protected Criterion(String condition)
+     {
+       this.condition = condition;
+       this.typeHandler = null;
+       this.noValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value, String typeHandler)
+     {
+       this.condition = condition;
+       this.value = value;
+       this.typeHandler = typeHandler;
+       if ((value instanceof List))
+         this.listValue = true;
+       else
+         this.singleValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value)
+     {
+       this(condition, value, null);
+     }
+ 
+     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+     {
+       this.condition = condition;
+       this.value = value;
+       this.secondValue = secondValue;
+       this.typeHandler = typeHandler;
+       this.betweenValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value, Object secondValue) {
+       this(condition, value, secondValue, null);
+     }
+   }
+ 
+   public static class Criteria extends SiteTemplateExample.GeneratedCriteria
+   {
+   }
+ 
+   protected static abstract class GeneratedCriteria
+   {
+     protected List<SiteTemplateExample.Criterion> criteria;
+ 
+     protected GeneratedCriteria()
+     {
+       this.criteria = new ArrayList();
+     }
+ 
+     public boolean isValid() {
+       return this.criteria.size() > 0;
+     }
+ 
+     public List<SiteTemplateExample.Criterion> getAllCriteria() {
+       return this.criteria;
+     }
+ 
+     public List<SiteTemplateExample.Criterion> getCriteria() {
+       return this.criteria;
+     }
+ 
+     protected void addCriterion(String condition) {
+       if (condition == null) {
+         throw new RuntimeException("Value for condition cannot be null");
+       }
+       this.criteria.add(new SiteTemplateExample.Criterion(condition));
+     }
+ 
+     protected void addCriterion(String condition, Object value, String property) {
+       if (value == null) {
+         throw new RuntimeException("Value for " + property + " cannot be null");
+       }
+       this.criteria.add(new SiteTemplateExample.Criterion(condition, value));
+     }
+ 
+     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+       if ((value1 == null) || (value2 == null)) {
+         throw new RuntimeException("Between values for " + property + " cannot be null");
+       }
+       this.criteria.add(new SiteTemplateExample.Criterion(condition, value1, value2));
+     }
+ 
+     public SiteTemplateExample.Criteria andSidIsNull() {
+       addCriterion("SID is null");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSidIsNotNull() {
+       addCriterion("SID is not null");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSidEqualTo(Integer value) {
+       addCriterion("SID =", value, "sid");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSidNotEqualTo(Integer value) {
+       addCriterion("SID <>", value, "sid");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSidGreaterThan(Integer value) {
+       addCriterion("SID >", value, "sid");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSidGreaterThanOrEqualTo(Integer value) {
+       addCriterion("SID >=", value, "sid");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSidLessThan(Integer value) {
+       addCriterion("SID <", value, "sid");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSidLessThanOrEqualTo(Integer value) {
+       addCriterion("SID <=", value, "sid");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSidIn(List<Integer> values) {
+       addCriterion("SID in", values, "sid");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSidNotIn(List<Integer> values) {
+       addCriterion("SID not in", values, "sid");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSidBetween(Integer value1, Integer value2) {
+       addCriterion("SID between", value1, value2, "sid");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSidNotBetween(Integer value1, Integer value2) {
+       addCriterion("SID not between", value1, value2, "sid");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSiteIdIsNull() {
+       addCriterion("SITE_ID is null");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSiteIdIsNotNull() {
+       addCriterion("SITE_ID is not null");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSiteIdEqualTo(Integer value) {
+       addCriterion("SITE_ID =", value, "siteId");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSiteIdNotEqualTo(Integer value) {
+       addCriterion("SITE_ID <>", value, "siteId");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSiteIdGreaterThan(Integer value) {
+       addCriterion("SITE_ID >", value, "siteId");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSiteIdGreaterThanOrEqualTo(Integer value) {
+       addCriterion("SITE_ID >=", value, "siteId");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSiteIdLessThan(Integer value) {
+       addCriterion("SITE_ID <", value, "siteId");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSiteIdLessThanOrEqualTo(Integer value) {
+       addCriterion("SITE_ID <=", value, "siteId");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSiteIdIn(List<Integer> values) {
+       addCriterion("SITE_ID in", values, "siteId");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSiteIdNotIn(List<Integer> values) {
+       addCriterion("SITE_ID not in", values, "siteId");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSiteIdBetween(Integer value1, Integer value2) {
+       addCriterion("SITE_ID between", value1, value2, "siteId");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andSiteIdNotBetween(Integer value1, Integer value2) {
+       addCriterion("SITE_ID not between", value1, value2, "siteId");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplDescIsNull() {
+       addCriterion("TPL_DESC is null");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplDescIsNotNull() {
+       addCriterion("TPL_DESC is not null");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplDescEqualTo(String value) {
+       addCriterion("TPL_DESC =", value, "tplDesc");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplDescNotEqualTo(String value) {
+       addCriterion("TPL_DESC <>", value, "tplDesc");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplDescGreaterThan(String value) {
+       addCriterion("TPL_DESC >", value, "tplDesc");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplDescGreaterThanOrEqualTo(String value) {
+       addCriterion("TPL_DESC >=", value, "tplDesc");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplDescLessThan(String value) {
+       addCriterion("TPL_DESC <", value, "tplDesc");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplDescLessThanOrEqualTo(String value) {
+       addCriterion("TPL_DESC <=", value, "tplDesc");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplDescLike(String value) {
+       addCriterion("TPL_DESC like", value, "tplDesc");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplDescNotLike(String value) {
+       addCriterion("TPL_DESC not like", value, "tplDesc");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplDescIn(List<String> values) {
+       addCriterion("TPL_DESC in", values, "tplDesc");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplDescNotIn(List<String> values) {
+       addCriterion("TPL_DESC not in", values, "tplDesc");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplDescBetween(String value1, String value2) {
+       addCriterion("TPL_DESC between", value1, value2, "tplDesc");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplDescNotBetween(String value1, String value2) {
+       addCriterion("TPL_DESC not between", value1, value2, "tplDesc");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplFileNameIsNull() {
+       addCriterion("TPL_FILE_NAME is null");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplFileNameIsNotNull() {
+       addCriterion("TPL_FILE_NAME is not null");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplFileNameEqualTo(String value) {
+       addCriterion("TPL_FILE_NAME =", value, "tplFileName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplFileNameNotEqualTo(String value) {
+       addCriterion("TPL_FILE_NAME <>", value, "tplFileName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplFileNameGreaterThan(String value) {
+       addCriterion("TPL_FILE_NAME >", value, "tplFileName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplFileNameGreaterThanOrEqualTo(String value) {
+       addCriterion("TPL_FILE_NAME >=", value, "tplFileName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplFileNameLessThan(String value) {
+       addCriterion("TPL_FILE_NAME <", value, "tplFileName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplFileNameLessThanOrEqualTo(String value) {
+       addCriterion("TPL_FILE_NAME <=", value, "tplFileName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplFileNameLike(String value) {
+       addCriterion("TPL_FILE_NAME like", value, "tplFileName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplFileNameNotLike(String value) {
+       addCriterion("TPL_FILE_NAME not like", value, "tplFileName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplFileNameIn(List<String> values) {
+       addCriterion("TPL_FILE_NAME in", values, "tplFileName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplFileNameNotIn(List<String> values) {
+       addCriterion("TPL_FILE_NAME not in", values, "tplFileName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplFileNameBetween(String value1, String value2) {
+       addCriterion("TPL_FILE_NAME between", value1, value2, "tplFileName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplFileNameNotBetween(String value1, String value2) {
+       addCriterion("TPL_FILE_NAME not between", value1, value2, "tplFileName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplNameIsNull() {
+       addCriterion("TPL_NAME is null");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplNameIsNotNull() {
+       addCriterion("TPL_NAME is not null");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplNameEqualTo(String value) {
+       addCriterion("TPL_NAME =", value, "tplName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplNameNotEqualTo(String value) {
+       addCriterion("TPL_NAME <>", value, "tplName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplNameGreaterThan(String value) {
+       addCriterion("TPL_NAME >", value, "tplName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplNameGreaterThanOrEqualTo(String value) {
+       addCriterion("TPL_NAME >=", value, "tplName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplNameLessThan(String value) {
+       addCriterion("TPL_NAME <", value, "tplName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplNameLessThanOrEqualTo(String value) {
+       addCriterion("TPL_NAME <=", value, "tplName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplNameLike(String value) {
+       addCriterion("TPL_NAME like", value, "tplName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplNameNotLike(String value) {
+       addCriterion("TPL_NAME not like", value, "tplName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplNameIn(List<String> values) {
+       addCriterion("TPL_NAME in", values, "tplName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplNameNotIn(List<String> values) {
+       addCriterion("TPL_NAME not in", values, "tplName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplNameBetween(String value1, String value2) {
+       addCriterion("TPL_NAME between", value1, value2, "tplName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+ 
+     public SiteTemplateExample.Criteria andTplNameNotBetween(String value1, String value2) {
+       addCriterion("TPL_NAME not between", value1, value2, "tplName");
+       return (SiteTemplateExample.Criteria)this;
+     }
+   }
+ }
+

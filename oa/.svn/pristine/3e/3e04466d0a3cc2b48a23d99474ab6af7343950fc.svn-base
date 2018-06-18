@@ -1,0 +1,17 @@
+ package com.xoa.util.cms;
+ 
+ import com.xoa.util.cms.directive.CMSOutDirective;
+ import com.xoa.util.cms.directive.CMSSiteDirective;
+ import java.util.Map;
+ import org.apache.commons.collections.map.HashedMap;
+ 
+ public class CMSTemplateUtil
+ {
+   public static Map getInstance()
+   {
+     Map map = new HashedMap();
+     map.put("Site", new CMSSiteDirective());
+     map.put("Out", new CMSOutDirective());
+     return map;
+   }
+ }

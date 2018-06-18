@@ -1,0 +1,105 @@
+/*    */ package com.xoa.global.intercptor;
+import com.xoa.global.component.Global;
+/*    */ 
+/*    */ import com.xoa.model.users.Users;
+import com.xoa.util.Constant;
+/*    */ import com.xoa.util.common.StringUtils;
+/*    */ import com.xoa.util.common.session.SessionUtils;
+/*    */ import com.xoa.util.dataSource.ContextHolder;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import javax.servlet.http.HttpServletResponse;
+/*    */ import javax.servlet.http.HttpSession;
+/*    */ import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+/*    */ 
+/*    */ public class SessionInterceptor
+/*    */   implements HandlerInterceptor
+/*    */ {
+/*    */   private String loginUrl;
+/*    */   private String welcomUrl;
+/*    */   private String redirectUrl;
+/*    */   private String mainUrl;
+/*    */ 
+/*    */   public String getLoginUrl()
+/*    */   {
+/* 28 */     return this.loginUrl;
+/*    */   }
+/*    */ 
+/*    */   public void setLoginUrl(String loginUrl) {
+/* 32 */     this.loginUrl = loginUrl;
+/*    */   }
+/*    */ 
+/*    */   public String getWelcomUrl() {
+/* 36 */     return this.welcomUrl;
+/*    */   }
+/*    */ 
+/*    */   public void setWelcomUrl(String welcomUrl) {
+/* 40 */     this.welcomUrl = welcomUrl;
+/*    */   }
+/*    */ 
+/*    */   public String getRedirectUrl() {
+/* 44 */     return this.redirectUrl;
+/*    */   }
+/*    */ 
+/*    */   public void setRedirectUrl(String redirectUrl) {
+/* 48 */     this.redirectUrl = redirectUrl;
+/*    */   }
+/*    */ 
+/*    */   public String getMainUrl() {
+/* 52 */     return this.mainUrl;
+/*    */   }
+/*    */ 
+/*    */   public void setMainUrl(String mainUrl) {
+/* 56 */     this.mainUrl = mainUrl;
+/*    */   }
+/*    */ 
+/*    */   public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) throws Exception
+/*    */   {
+/* 61 */     String visitUrl = httpServletRequest.getRequestURI();
+/* 62 */     if (visitUrl.equals(this.loginUrl)) {
+/* 63 */       ContextHolder.setConsumerType("");
+/* 64 */       httpServletRequest.getSession().invalidate();
+/* 65 */       SessionUtils.cleanUserSession(httpServletRequest.getSession());
+/* 66 */       return true;
+/*    */     }
+/* 68 */     Users user = null;
+/* 69 */     String testIds = httpServletRequest.getParameter(Global.JSESSIONID);
+/* 70 */     if (!StringUtils.checkNull(testIds).booleanValue()) {
+/* 71 */       HttpSession session = null;
+/* 72 */       CommonSessionContext myContext = CommonSessionContext.getInstance();
+/* 73 */       session = myContext.getSession(testIds);
+/* 74 */       if (session != null) {
+/* 75 */         HttpSession sessionNow = httpServletRequest.getSession();
+/* 76 */         ContextHolder.setConsumerType(Constant.MYOA + (String)session.getAttribute("loginDateSouse"));
+/*    */ 
+/* 78 */         user = (Users)SessionUtils.getSessionInfo(session, Users.class, new Users());
+/* 79 */         SessionUtils.putSession(sessionNow, user);
+/* 80 */         SessionUtils.putSession(sessionNow, "loginDateSouse", (String)session.getAttribute("loginDateSouse"));
+/*    */ 
+/* 82 */         SessionUtils.putSession(sessionNow, "InterfaceModel", (String)session.getAttribute("InterfaceModel"));
+/*    */       }
+/*    */       return  (user != null) && (user.getUid() != null);
+/*    */     }else {
+			   return true;
+			 }
+/*    */ 
+/* 88 */     
+/*    */   }
+/*    */ 
+/*    */   public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, ModelAndView modelAndView)
+/*    */     throws Exception
+/*    */   {
+/* 95 */     String ids = httpServletRequest.getParameter(Global.JSESSIONID);
+/* 96 */     httpServletRequest.setAttribute(Global.JSESSIONID, ids);
+/*    */   }
+/*    */ 
+/*    */   public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e)
+/*    */     throws Exception
+/*    */   {
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.global.intercptor.SessionInterceptor
+ * JD-Core Version:    0.6.0
+ */

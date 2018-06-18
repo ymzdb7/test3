@@ -1,0 +1,381 @@
+/*     */ package com.xoa.service.address.impl;
+/*     */ 
+/*     */ import com.xoa.dao.address.AddressGroupMapper;
+/*     */ import com.xoa.dao.address.AddressMapper;
+/*     */ import com.xoa.model.addressGroup.AddressGroup;
+/*     */ import com.xoa.model.addressGroup.AddressGroupWithBLOBs;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.address.AddressGroupService;
+/*     */ import com.xoa.service.department.DepartmentService;
+/*     */ import com.xoa.service.users.UsersPrivService;
+/*     */ import com.xoa.service.users.UsersService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.apache.commons.collections.map.HashedMap;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class AddressGroupServiceImpl
+/*     */   implements AddressGroupService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private AddressGroupMapper addressGroupMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private AddressMapper addressMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentService departmentService;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersPrivService usersPrivService;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersService usersService;
+/*     */ 
+/*     */   public BaseWrapper isExis(HttpServletRequest request, String groupName)
+/*     */   {
+/*  57 */     BaseWrapper baseWrapper = new BaseWrapper();
+/*  58 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  59 */     Map param = new HashMap();
+/*  60 */     param.put("groupName", groupName);
+/*  61 */     param.put("usersId", users.getUserId());
+/*  62 */     List addressGroups = this.addressGroupMapper.selectGroupsByName(param);
+/*  63 */     if (addressGroups.size() > 0)
+/*  64 */       baseWrapper.setData(Boolean.valueOf(true));
+/*     */     else {
+/*  66 */       baseWrapper.setData(Boolean.valueOf(false));
+/*     */     }
+/*  68 */     return baseWrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper isPublicExis(HttpServletRequest request, String groupName) {
+/*  72 */     BaseWrapper baseWrapper = new BaseWrapper();
+/*  73 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  74 */     Map param = new HashMap();
+/*  75 */     param.put("groupName", groupName);
+/*  76 */     param.put("usersId", "");
+/*  77 */     List<AddressGroup> addressGroups = this.addressGroupMapper.selectGroupsByName(param);
+/*  78 */     if (addressGroups.size() > 0) {
+/*  79 */       for (AddressGroup addressGroup1 : addressGroups) {
+/*  80 */         if ((addressGroup1.getUserId() == null) || (addressGroup1.getUserId() == ""))
+/*  81 */           baseWrapper.setData(Boolean.valueOf(true));
+/*     */         else
+/*  83 */           baseWrapper.setData(Boolean.valueOf(false));
+/*     */       }
+/*     */     }
+/*     */     else {
+/*  87 */       baseWrapper.setData(Boolean.valueOf(false));
+/*     */     }
+/*  89 */     return baseWrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper addGroup(HttpServletRequest request, String groupName, String ids)
+/*     */   {
+/* 103 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/* 105 */     BaseWrapper baseWrapper = new BaseWrapper();
+/*     */ 
+/* 107 */     BaseWrapper isexis = isExis(request, groupName);
+/* 108 */     if (((Boolean)isexis.getData()).booleanValue()) {
+/* 109 */       baseWrapper.setFlag(false);
+/* 110 */       baseWrapper.setMsg("分组已存在");
+/* 111 */       return baseWrapper;
+/*     */     }
+/*     */ 
+/* 114 */     AddressGroupWithBLOBs addressGroupWithBLOBs = new AddressGroupWithBLOBs();
+/* 115 */     addressGroupWithBLOBs.setGroupName(groupName);
+/* 116 */     addressGroupWithBLOBs.setUserId(users.getUserId());
+/* 117 */     addressGroupWithBLOBs.setShareGroupId(Integer.valueOf(0));
+/* 118 */     int count = this.addressGroupMapper.insertSelective(addressGroupWithBLOBs);
+/* 119 */     if ((ids != null) && (!"".equals(ids)));
+/* 121 */     baseWrapper.setData(addressGroupWithBLOBs);
+/* 122 */     baseWrapper.setFlag(true);
+/* 123 */     baseWrapper.setStatus(true);
+/* 124 */     return baseWrapper;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<AddressGroupWithBLOBs> addPublicGroup(HttpServletRequest request, AddressGroupWithBLOBs addressGroupWithBLOBs)
+/*     */   {
+/* 134 */     ToJson json = new ToJson();
+/*     */     try
+/*     */     {
+/* 137 */       BaseWrapper isexis = isPublicExis(request, addressGroupWithBLOBs.getGroupName());
+/* 138 */       if (((Boolean)isexis.getData()).booleanValue()) {
+/* 139 */         json.setFlag(1);
+/* 140 */         json.setMsg("分组已存在");
+/* 141 */         return json;
+/*     */       }
+/*     */ 
+/* 144 */       addressGroupWithBLOBs.setShareGroupId(Integer.valueOf(0));
+/* 145 */       int count = this.addressGroupMapper.insertSelective(addressGroupWithBLOBs);
+/* 146 */       json.setFlag(0);
+/* 147 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 149 */       e.printStackTrace();
+/* 150 */       json.setMsg("err");
+/* 151 */       json.setFlag(1);
+/*     */     }
+/*     */ 
+/* 154 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<AddressGroupWithBLOBs> getPublicGroups(HttpServletRequest request, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 163 */     ToJson json = new ToJson();
+/*     */     try {
+/* 165 */       PageParams pageParams = new PageParams();
+/* 166 */       pageParams.setPage(page);
+/* 167 */       pageParams.setPageSize(pageSize);
+/* 168 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 169 */       Map map = new HashMap();
+/* 170 */       map.put("page", pageParams);
+/* 171 */       map.put("userId", "");
+/* 172 */       List<AddressGroupWithBLOBs> addressGroupWithBLOBsList = this.addressGroupMapper.selectPublicGroup(map);
+/* 173 */       for (AddressGroupWithBLOBs addressGroupWithBLOBs : addressGroupWithBLOBsList) {
+/* 174 */         String privDept = addressGroupWithBLOBs.getPrivDept();
+/* 175 */         if (!StringUtils.checkNull(privDept).booleanValue()) {
+/* 176 */           String depName = this.departmentService.getDeptNameByDeptId(privDept, ",");
+/* 177 */           if (!"ALL_DEPT".trim().equals(addressGroupWithBLOBs.getPrivDept()))
+/* 178 */             addressGroupWithBLOBs.setDeptRange(depName + ",");
+/*     */           else {
+/* 180 */             addressGroupWithBLOBs.setDeptRange(depName);
+/*     */           }
+/*     */         }
+/*     */ 
+/* 184 */         String privRole = addressGroupWithBLOBs.getPrivRole();
+/* 185 */         if (!StringUtils.checkNull(privRole).booleanValue()) {
+/* 186 */           String roleName = this.usersPrivService.getPrivNameByPrivId(privRole, ",");
+/* 187 */           addressGroupWithBLOBs.setRoleRange(roleName + ",");
+/*     */         }
+/* 189 */         String privUser = addressGroupWithBLOBs.getPrivUser();
+/* 190 */         if (!StringUtils.checkNull(privUser).booleanValue()) {
+/* 191 */           String userName = this.usersService.getUserNameById(privUser);
+/* 192 */           addressGroupWithBLOBs.setUserRange(userName + ",");
+/*     */         }
+/*     */       }
+/*     */ 
+/* 196 */       json.setObj(addressGroupWithBLOBsList);
+/* 197 */       json.setTotleNum(pageParams.getTotal());
+/* 198 */       json.setFlag(0);
+/* 199 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 201 */       e.printStackTrace();
+/* 202 */       json.setFlag(1);
+/* 203 */       json.setMsg("err");
+/*     */     }
+/* 205 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<AddressGroupWithBLOBs> updatePublicGroup(HttpServletRequest request, AddressGroupWithBLOBs addressGroupWithBLOBs)
+/*     */   {
+/* 213 */     ToJson json = new ToJson();
+/*     */     try
+/*     */     {
+/* 216 */       Map map = new HashMap();
+/* 217 */       map.put("groupName", addressGroupWithBLOBs.getGroupName());
+/* 218 */       map.put("userId", "");
+/* 219 */       List<AddressGroup> addressGroupList = this.addressGroupMapper.selectGroupsByName(map);
+/* 220 */       if (addressGroupList.size() > 0) {
+/* 221 */         for (AddressGroup addressGroup : addressGroupList) {
+/* 222 */           if (addressGroup.getGroupId() != addressGroupWithBLOBs.getGroupId()) {
+/* 223 */             json.setMsg("分组已存在");
+/* 224 */             json.setFlag(1);
+/* 225 */             return json;
+/*     */           }
+/*     */         }
+/*     */       }
+/* 229 */       this.addressGroupMapper.updateByPrimaryKeySelective(addressGroupWithBLOBs);
+/* 230 */       json.setFlag(0);
+/* 231 */       json.setMsg("ok");
+/*     */     }
+/*     */     catch (Exception e) {
+/* 234 */       e.printStackTrace();
+/* 235 */       json.setFlag(1);
+/*     */     }
+/* 237 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<AddressGroupWithBLOBs> selectPublicGroupInfo(Integer groupId)
+/*     */   {
+/* 247 */     ToJson json = new ToJson();
+/*     */     try {
+/* 249 */       AddressGroupWithBLOBs addressGroupWithBLOBs = this.addressGroupMapper.selectPublicGroupInfo(groupId);
+/* 250 */       String privDept = addressGroupWithBLOBs.getPrivDept();
+/* 251 */       if (!StringUtils.checkNull(privDept).booleanValue()) {
+/* 252 */         String depName = this.departmentService.getDeptNameByDeptId(privDept, ",");
+/* 253 */         if (!"ALL_DEPT".trim().equals(addressGroupWithBLOBs.getPrivDept()))
+/* 254 */           addressGroupWithBLOBs.setDeptRange(depName + ",");
+/*     */         else {
+/* 256 */           addressGroupWithBLOBs.setDeptRange(depName);
+/*     */         }
+/*     */       }
+/*     */ 
+/* 260 */       String privRole = addressGroupWithBLOBs.getPrivRole();
+/* 261 */       if (!StringUtils.checkNull(privRole).booleanValue()) {
+/* 262 */         String roleName = this.usersPrivService.getPrivNameByPrivId(privRole, ",");
+/* 263 */         addressGroupWithBLOBs.setRoleRange(roleName + ",");
+/*     */       }
+/* 265 */       String privUser = addressGroupWithBLOBs.getPrivUser();
+/* 266 */       if (!StringUtils.checkNull(privUser).booleanValue()) {
+/* 267 */         String userName = this.usersService.getUserNameById(privUser);
+/* 268 */         addressGroupWithBLOBs.setUserRange(userName + ",");
+/*     */       }
+/* 270 */       json.setObject(addressGroupWithBLOBs);
+/* 271 */       json.setFlag(0);
+/* 272 */       json.setMsg("ok");
+/*     */     }
+/*     */     catch (Exception e) {
+/* 275 */       e.printStackTrace();
+/* 276 */       json.setMsg(e.getMessage());
+/* 277 */       json.setFlag(1);
+/*     */     }
+/* 279 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper getGroups(HttpServletRequest request)
+/*     */   {
+/* 293 */     BaseWrapper baseWrapper = new BaseWrapper();
+/*     */ 
+/* 295 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 296 */     Map param = new HashMap();
+/* 297 */     param.put("userId", users.getUserId());
+/* 298 */     baseWrapper.setData(this.addressGroupMapper.selectGroupsByName(param));
+/* 299 */     baseWrapper.setFlag(true);
+/* 300 */     baseWrapper.setStatus(true);
+/* 301 */     return baseWrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper selectAllAddressGroup(HttpServletRequest request)
+/*     */   {
+/* 310 */     BaseWrapper baseWrapper = new BaseWrapper();
+/*     */ 
+/* 312 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 313 */     Map param = new HashMap();
+/* 314 */     param.put("userId", users.getUserId());
+/* 315 */     List<AddressGroupWithBLOBs> addressGroupWithBLOBs1 = this.addressGroupMapper.selectPublicGroup(param);
+/* 316 */     String privDept = null;
+/* 317 */     String privRole = null;
+/* 318 */     String privUser = null;
+/* 319 */     Map maps = new HashMap();
+/* 320 */     if ((users != null) && (users.getUserId() != null)) {
+/* 321 */       privUser = users.getUserId();
+/* 322 */       privRole = users.getUserPriv() + "";
+/* 323 */       privDept = users.getDeptId() + "";
+/*     */     }
+/* 325 */     maps.put("userId", "");
+/* 326 */     maps.put("privDept", privDept);
+/* 327 */     maps.put("privRole", privRole);
+/* 328 */     maps.put("privUser", privUser);
+/* 329 */     List<AddressGroupWithBLOBs> addressGroupWithBLOBs2 = new ArrayList<AddressGroupWithBLOBs>();
+/* 330 */     List<AddressGroupWithBLOBs> addressGroupWithBLOBsList = this.addressGroupMapper.selectAllAddressGroup(maps);
+/*     */ 
+/* 332 */     if (addressGroupWithBLOBs1.size() > 0) {
+/* 333 */       for (AddressGroupWithBLOBs addressGroupWithBLOBs4 : addressGroupWithBLOBs1) {
+/* 334 */         addressGroupWithBLOBs2.add(addressGroupWithBLOBs4);
+/*     */       }
+/*     */     }
+/* 337 */     if (addressGroupWithBLOBsList.size() > 0) {
+/* 338 */       for (AddressGroupWithBLOBs addressGroupWithBLOBs3 : addressGroupWithBLOBsList) {
+/* 339 */         addressGroupWithBLOBs2.add(addressGroupWithBLOBs3);
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 344 */     baseWrapper.setData(addressGroupWithBLOBs2);
+/* 345 */     baseWrapper.setFlag(true);
+/* 346 */     baseWrapper.setStatus(true);
+/* 347 */     return baseWrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper deleteGroups(HttpServletRequest request, String groupId)
+/*     */   {
+/* 359 */     BaseWrapper baseWrapper = new BaseWrapper();
+/*     */ 
+/* 361 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/* 364 */     Map param = new HashedMap();
+/* 365 */     param.put("userId", users.getUserId());
+/*     */ 
+/* 367 */     param.put("groupId", Integer.valueOf(0));
+/*     */ 
+/* 369 */     param.put("oldId", groupId);
+/* 370 */     this.addressMapper.updateUserGroup(param);
+/*     */ 
+/* 374 */     int status = this.addressGroupMapper.deleteByPrimaryKey(Integer.valueOf(groupId));
+/* 375 */     baseWrapper.setStatus(status > 0);
+/* 376 */     baseWrapper.setFlag(status > 0);
+/* 377 */     return baseWrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper getGroupInfo(HttpServletRequest request, String groupId)
+/*     */   {
+/* 387 */     BaseWrapper baseWrapper = new BaseWrapper();
+/* 388 */     baseWrapper.setData(this.addressGroupMapper.selectByPrimaryKey(Integer.valueOf(groupId)));
+/* 389 */     baseWrapper.setStatus(true);
+/* 390 */     baseWrapper.setFlag(true);
+/* 391 */     return baseWrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper putGroup(HttpServletRequest request, String groupId, String group_name, String FLD_STR)
+/*     */   {
+/* 396 */     BaseWrapper baseWrapper = new BaseWrapper();
+/*     */ 
+/* 398 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/* 400 */     if (groupId == null) {
+/* 401 */       baseWrapper.setMsg("分组i的错误");
+/* 402 */       baseWrapper.setStatus(false);
+/* 403 */       return baseWrapper;
+/*     */     }
+/*     */ 
+/* 406 */     Map map = new HashMap();
+/* 407 */     map.put("groupName", group_name);
+/* 408 */     map.put("userId", users.getUserId());
+/* 409 */     List<AddressGroup> addressGroupList = this.addressGroupMapper.selectGroupsByName(map);
+/* 410 */     if (addressGroupList.size() > 0) {
+/* 411 */       for (AddressGroup addressGroup : addressGroupList) {
+/* 412 */         if (addressGroup.getGroupId().intValue() != Integer.parseInt(groupId)) {
+/* 413 */           baseWrapper.setFlag(false);
+/* 414 */           baseWrapper.setMsg("分组已存在");
+/* 415 */           return baseWrapper;
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 420 */     if ((group_name != null) && (!"".equals(group_name))) {
+/* 421 */       AddressGroupWithBLOBs addressGroupWithBLOBs = new AddressGroupWithBLOBs();
+/* 422 */       addressGroupWithBLOBs.setGroupId(Integer.valueOf(groupId));
+/* 423 */       addressGroupWithBLOBs.setGroupName(group_name);
+/* 424 */       this.addressGroupMapper.updateByPrimaryKeySelective(addressGroupWithBLOBs);
+/*     */     }
+/*     */ 
+/* 427 */     if ((FLD_STR != null) && (!"".equals(FLD_STR))) {
+/* 428 */       Map param = new HashedMap();
+/* 429 */       param.put("groupId", groupId);
+/* 430 */       param.put("fldStr", FLD_STR + "0");
+/* 431 */       param.put("userId", users.getUserId());
+/* 432 */       this.addressMapper.putUser(param);
+/*     */     }
+/* 434 */     baseWrapper.setData(this.addressGroupMapper.selectByPrimaryKey(Integer.valueOf(groupId)));
+/* 435 */     baseWrapper.setStatus(true);
+/* 436 */     baseWrapper.setFlag(true);
+/* 437 */     return baseWrapper;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.address.impl.AddressGroupServiceImpl
+ * JD-Core Version:    0.6.0
+ */

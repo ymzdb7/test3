@@ -1,0 +1,373 @@
+/*     */ package com.xoa.controller.calender;
+/*     */ 
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.calender.Calendar;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.calender.CalenderService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.slf4j.Logger;
+/*     */ import org.slf4j.LoggerFactory;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ public class CalenderController
+/*     */ {
+/*  31 */   private Logger loger = LoggerFactory.getLogger(CalenderController.class);
+/*     */ 
+/*     */   @Resource
+/*     */   private CalenderService calenderService;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*  41 */   @RequestMapping({"/schedule/index"})
+/*     */   public String index(HttpServletRequest request) { ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  43 */     return "app/calendar/index"; }
+/*     */ 
+/*     */   @RequestMapping({"/schedule/query"})
+/*     */   public String ScheduleInquiry(HttpServletRequest request) {
+/*  48 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  50 */     return "app/calendar/query";
+/*     */   }
+/*     */   @RequestMapping({"/schedule/info"})
+/*     */   public String info(HttpServletRequest request) {
+/*  55 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  57 */     return "app/calendar/info";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/schedule/getschedule"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Calendar> getschedule(HttpServletRequest request, String calTime, String endTime, @RequestParam(value="userId", required=false) String userId)
+/*     */   {
+/*  75 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  77 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/*  79 */       if (StringUtils.checkNull(userId).booleanValue()) {
+/*  80 */         userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/*     */       }
+/*  82 */       List list = this.calenderService.getschedule(Integer.parseInt(calTime), Integer.parseInt(endTime), userId);
+/*  83 */       json.setObj(list);
+/*  84 */       json.setMsg("OK");
+/*  85 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  87 */       json.setMsg(e.getMessage());
+/*     */     }
+/*  89 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/schedule/getscheduleBycId"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Calendar> getscheduleBycId(HttpServletRequest request, String userId, @RequestParam(value="time", required=false) String calTime)
+/*     */   {
+/* 106 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 108 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 110 */       List list = new ArrayList();
+/* 111 */       if (!StringUtils.checkNull(calTime).booleanValue())
+/*     */       {
+/* 113 */         list = this.calenderService.getscheduleBycId(userId, calTime);
+/*     */       }
+/* 115 */       else list = this.calenderService.getscheduleBycId(userId);
+/*     */ 
+/* 117 */       json.setObj(list);
+/* 118 */       json.setMsg("OK");
+/* 119 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 121 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 123 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/schedule/getAllschedule"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Calendar> getAllschedule(HttpServletRequest request, String userId)
+/*     */   {
+/* 139 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 141 */       List list = this.calenderService.getAllschedule(userId);
+/* 142 */       json.setObj(list);
+/* 143 */       json.setMsg("OK");
+/* 144 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 146 */       json.setMsg(e.getMessage());
+/* 147 */       json.setMsg("fasle");
+/* 148 */       json.setFlag(1);
+/*     */     }
+/* 150 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/schedule/getAllscheduleinfo"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Calendar> getAllscheduleinfo(Map<String, Object> maps, HttpServletRequest request, Integer deptId)
+/*     */   {
+/* 166 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 168 */       List list = this.calenderService.getAllscheduleinfo(deptId);
+/* 169 */       json.setObj(list);
+/* 170 */       json.setMsg("ok");
+/* 171 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 173 */       e.printStackTrace();
+/* 174 */       json.setMsg(e.getMessage());
+/* 175 */       json.setMsg("false");
+/* 176 */       json.setFlag(1);
+/*     */     }
+/* 178 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/schedule/getscheduleByDay"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Calendar> getscheduleByDay(HttpServletRequest request, String userId, int time)
+/*     */   {
+/* 196 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 198 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 200 */       List list = this.calenderService.getscheduleByDay(userId, time);
+/* 201 */       json.setObj(list);
+/* 202 */       json.setMsg("OK");
+/* 203 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 205 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 207 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/schedule/addCalender"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Calendar> addCalender(HttpServletRequest request, @RequestParam("calType") String calType, @RequestParam("content") String content, @RequestParam("calTime") String calTime, @RequestParam("endTime") String endTime, @RequestParam("userId") String userId, @RequestParam("calLevel") String calLevel, @RequestParam(value="owner", required=false, defaultValue="") String owner, @RequestParam(value="taker", required=false, defaultValue="") String taker, @RequestParam(value="beforeDay", required=false, defaultValue="0") String beforeDay, @RequestParam(value="beforeHour", required=false, defaultValue="0") String beforeHour, @RequestParam(value="beforeMin", required=false, defaultValue="0") String beforeMin)
+/*     */   {
+/* 248 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 250 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 252 */       Calendar c = new Calendar();
+/* 253 */       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+/*     */ 
+/* 256 */       c.setUserId(userId);
+/* 257 */       c.setEndTime(Integer.valueOf(Integer.parseInt(endTime)));
+/* 258 */       c.setCalTime(Integer.valueOf(Integer.parseInt(calTime)));
+/* 259 */       c.setContent(content);
+/* 260 */       c.setCalType(calType);
+/* 261 */       c.setCalLevel(calLevel);
+/* 262 */       c.setManagerId("");
+/* 263 */       c.setOverStatus("");
+/*     */ 
+/* 265 */       c.setBeforeRemaind(beforeDay + "|" + beforeHour + "|" + beforeMin);
+/* 266 */       c.setAddTime(new Date());
+/* 267 */       c.setOwner(owner);
+/* 268 */       c.setTaker(taker);
+/* 269 */       byte a = 0;
+/* 270 */       c.setAllday(Byte.valueOf(a));
+/* 271 */       c.setFromModule(Byte.valueOf(a));
+/* 272 */       c.setUrl("");
+/* 273 */       c.setmId(Integer.valueOf(1));
+/* 274 */       c.setResId(Integer.valueOf(1));
+/* 275 */       this.calenderService.insertSelective(c);
+/* 276 */       json.setObject(c);
+/* 277 */       json.setMsg("OK");
+/* 278 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 280 */       e.printStackTrace();
+/* 281 */       json.setMsg(e.getMessage());
+/* 282 */       json.setFlag(1);
+/*     */     }
+/* 284 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/schedule/delete"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Calendar> delete(HttpServletRequest request, String calId)
+/*     */   {
+/* 300 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 302 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 304 */       this.calenderService.delete(Integer.parseInt(calId), request);
+/* 305 */       json.setMsg("OK");
+/* 306 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 308 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 310 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/schedule/editCalender"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Calendar> editCalender(HttpServletRequest request, @RequestParam("calType") String calType, @RequestParam("content") String content, @RequestParam("calTime") String calTime, @RequestParam("endTime") String endTime, @RequestParam("userId") String userId, @RequestParam("calLevel") String calLevel, @RequestParam("calId") String calId, @RequestParam(value="owner", required=false) String owner, @RequestParam(value="taker", required=false) String taker, @RequestParam(value="beforeDay", required=false, defaultValue="0") String beforeDay, @RequestParam(value="beforeHour", required=false, defaultValue="0") String beforeHour, @RequestParam(value="beforeMin", required=false, defaultValue="0") String beforeMin)
+/*     */   {
+/* 346 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 348 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 350 */       Calendar c = new Calendar();
+/* 351 */       c.setUserId(userId);
+/* 352 */       c.setEndTime(Integer.valueOf(Integer.parseInt(endTime)));
+/* 353 */       c.setCalTime(Integer.valueOf(Integer.parseInt(calTime)));
+/* 354 */       c.setContent(content);
+/* 355 */       c.setCalType(calType);
+/* 356 */       c.setCalLevel(calLevel);
+/* 357 */       c.setCalId(Integer.valueOf(Integer.parseInt(calId)));
+/* 358 */       c.setOwner(owner);
+/* 359 */       c.setTaker(taker);
+/* 360 */       c.setBeforeRemaind(beforeDay + "|" + beforeHour + "|" + beforeMin);
+/* 361 */       int count = this.calenderService.update(c);
+/* 362 */       if (count > 0) {
+/* 363 */         json.setObject(c);
+/* 364 */         json.setMsg("OK");
+/* 365 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 368 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 370 */     return json;
+/*     */   }
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/schedule/getscheduleByDate"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Calendar> getscheduleByDate(HttpServletRequest request, Date date) {
+/* 377 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 379 */     ToJson json = new ToJson(0, null);
+/*     */ 
+/* 388 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/schedule/addMCalender"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Calendar> addMCalender(HttpServletRequest request, @RequestParam("calType") String calType, @RequestParam("content") String content, @RequestParam("calTime") String calTime, @RequestParam("endTime") String endTime, @RequestParam("userId") String userId, @RequestParam("calLevel") String calLevel)
+/*     */   {
+/* 415 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 417 */     ToJson json = new ToJson(0, null);
+/* 418 */     List list = new ArrayList();
+/*     */     try {
+/* 420 */       String[] calTypes = calType.split("\\*");
+/* 421 */       String[] contents = content.split("\\*");
+/* 422 */       String[] calTimes = calTime.split("\\*");
+/* 423 */       String[] endTimes = endTime.split("\\*");
+/* 424 */       String[] userIds = userId.split("\\*");
+/* 425 */       String[] calLevels = calLevel.split("\\*");
+/* 426 */       for (int i = 0; i < calTypes.length; i++) {
+/* 427 */         Calendar c = new Calendar();
+/*     */ 
+/* 429 */         c.setUserId(userIds[i]);
+/* 430 */         c.setEndTime(Integer.valueOf(Integer.parseInt(endTimes[i])));
+/* 431 */         c.setCalTime(Integer.valueOf(Integer.parseInt(calTimes[i])));
+/* 432 */         c.setContent(contents[i]);
+/* 433 */         c.setCalType(calTypes[i]);
+/* 434 */         c.setCalLevel(calLevels[i]);
+/* 435 */         c.setManagerId("");
+/* 436 */         c.setOverStatus("");
+/* 437 */         c.setBeforeRemaind("");
+/* 438 */         c.setAddTime(new Date());
+/* 439 */         c.setOwner("");
+/* 440 */         c.setTaker("");
+/* 441 */         byte a = 0;
+/* 442 */         c.setAllday(Byte.valueOf(a));
+/* 443 */         c.setFromModule(Byte.valueOf(a));
+/* 444 */         c.setUrl("");
+/* 445 */         c.setmId(Integer.valueOf(1));
+/* 446 */         c.setResId(Integer.valueOf(1));
+/* 447 */         this.calenderService.insertSelective(c);
+/* 448 */         list.add(c);
+/*     */       }
+/* 450 */       json.setObj(list);
+/* 451 */       json.setMsg("OK");
+/* 452 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 454 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 456 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/schedule/getscheduleByTakerAndOwner"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Calendar> getscheduleByTakerAndOwner(HttpServletRequest request, String userId, @RequestParam(value="calTime", required=false) String calTime)
+/*     */   {
+/* 472 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 474 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 476 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 477 */       userId = user.getUserId();
+/* 478 */       List<Calendar> list = new ArrayList<Calendar>();
+/* 479 */       if (!StringUtils.checkNull(calTime).booleanValue())
+/* 480 */         list = this.calenderService.getscheduleByTakerAndOwner(userId, calTime);
+/*     */       else {
+/* 482 */         list = this.calenderService.getscheduleByTakerAndOwner(userId);
+/*     */       }
+/*     */ 
+/* 485 */       if (list.size() > 0) {
+/* 486 */         for (Calendar calendar : list) {
+/* 487 */           if (!StringUtils.checkNull(calendar.getTaker()).booleanValue()) {
+/* 488 */             String[] takerArr = calendar.getTaker().split(",");
+/* 489 */             StringBuffer takeName = new StringBuffer();
+/* 490 */             for (String takerId : takerArr) {
+/* 491 */               if ((StringUtils.checkNull(takerId).booleanValue()) || 
+/* 492 */                 (StringUtils.checkNull(this.usersMapper.getUsernameByUserId(takerId)).booleanValue())) continue;
+/* 493 */               takeName.append(this.usersMapper.getUsernameByUserId(takerId) + ",");
+/*     */             }
+/*     */ 
+/* 497 */             calendar.setTakeName(takeName.toString());
+/*     */           }
+/* 499 */           if (!StringUtils.checkNull(calendar.getOwner()).booleanValue()) {
+/* 500 */             String[] owerArr = calendar.getOwner().split(",");
+/* 501 */             StringBuffer owerName = new StringBuffer();
+/* 502 */             for (String owerId : owerArr) {
+/* 503 */               if ((StringUtils.checkNull(owerId).booleanValue()) || 
+/* 504 */                 (StringUtils.checkNull(this.usersMapper.getUsernameByUserId(owerId)).booleanValue())) continue;
+/* 505 */               owerName.append(this.usersMapper.getUsernameByUserId(owerId) + ",");
+/*     */             }
+/*     */ 
+/* 509 */             calendar.setOwnerName(owerName.toString());
+/*     */           }
+/*     */         }
+/*     */       }
+/* 513 */       json.setObj(list);
+/* 514 */       json.setMsg("OK");
+/* 515 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 517 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 519 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/schedule/getAllSchedule"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Calendar> getScheduleByUserIdAndType(HttpServletRequest request)
+/*     */   {
+/* 532 */     return this.calenderService.getScheduleByUserIdAndType(request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/schedule/getAllScheduleByDeptIdAndDate"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Calendar> getAllScheduleByDeptIdAndDate(String userId, String deptId)
+/*     */   {
+/* 545 */     return this.calenderService.getAllScheduleByDeptIdAndDate(userId, deptId);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.calender.CalenderController
+ * JD-Core Version:    0.6.0
+ */

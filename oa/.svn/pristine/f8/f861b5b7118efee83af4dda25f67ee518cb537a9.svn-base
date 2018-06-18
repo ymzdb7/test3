@@ -1,0 +1,96 @@
+package com.xoa.controller.book;
+
+import com.xoa.model.book.BookManage;
+import com.xoa.service.book.BookManageService;
+import com.xoa.util.ToJson;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@RequestMapping({ "/bookManage" })
+public class BookManageController {
+
+	@Resource
+	private BookManageService bookManageService;
+
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		dateFormat.setLenient(false);
+		binder.registerCustomEditor(Date.class, new CustomDateEditor(
+				dateFormat, true));
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/insertManage" })
+	public ToJson<BookManage> insertManage(BookManage bookManage,
+			HttpServletRequest request) {
+		return this.bookManageService.insertManage(bookManage, request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/upManageById" })
+	public ToJson<BookManage> upManageById(BookManage bookManage,
+			HttpServletRequest request) {
+		return this.bookManageService.upManageById(bookManage, request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/delManageById" })
+	public ToJson<BookManage> delManageById(Integer borrowId) {
+		return this.bookManageService.delManageById(borrowId);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selManageById" })
+	public ToJson<BookManage> selManageById(Integer borrowId) {
+		return this.bookManageService.selManageById(borrowId);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selManageByBookStatus" })
+	public ToJson<BookManage> selManageByCond(BookManage bookManage,
+			HttpServletRequest request) {
+		return this.bookManageService
+				.selManageByBookStatus(bookManage, request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selByRegFlag" })
+	public ToJson<BookManage> selByRegFlag(HttpServletRequest request) {
+		return this.bookManageService.selByRegFlag(request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selByRegFlagAndBookStatus" })
+	public ToJson<BookManage> selByRegFlagAndBookStatus(
+			HttpServletRequest request) {
+		return this.bookManageService.selByRegFlagAndBookStatus(request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selByStatusQuire" })
+	public ToJson<BookManage> selByStatusQuire(HttpServletRequest request) {
+		return this.bookManageService.selByStatusQuire(request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selByStatusManage" })
+	public ToJson<BookManage> selByStatusManage(HttpServletRequest request) {
+		return this.bookManageService.selByStatusManage(request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selDelFlag" })
+	public ToJson<BookManage> selDelFlag(HttpServletRequest request) {
+		return this.bookManageService.selDelFlag(request);
+	}
+}

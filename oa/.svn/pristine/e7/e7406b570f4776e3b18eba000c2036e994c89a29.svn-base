@@ -1,0 +1,52 @@
+package com.myoa.dao.edu.eduYear;
+
+import com.myoa.model.edu.eduYear.EduYear;
+import com.myoa.model.edu.eduYear.EduYearExample;
+
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface EduYearMapper {
+	public abstract int countByExample(EduYearExample paramEduYearExample);
+
+	public abstract int deleteByExample(EduYearExample paramEduYearExample);
+
+	public abstract int deleteByPrimaryKey(Integer paramInteger);
+
+	public abstract int insert(EduYear paramEduYear);
+
+	public abstract int insertSelective(EduYear paramEduYear);
+
+	public abstract List<EduYear> selectByExampleWithBLOBs(
+			EduYearExample paramEduYearExample);
+
+	public abstract List<EduYear> selectByExample(
+			EduYearExample paramEduYearExample);
+
+	public abstract EduYear selectByPrimaryKey(Integer paramInteger);
+
+	public abstract int updateByExampleSelective(
+			@Param("record") EduYear paramEduYear,
+			@Param("example") EduYearExample paramEduYearExample);
+
+	public abstract int updateByExampleWithBLOBs(
+			@Param("record") EduYear paramEduYear,
+			@Param("example") EduYearExample paramEduYearExample);
+
+	public abstract int updateByExample(@Param("record") EduYear paramEduYear,
+			@Param("example") EduYearExample paramEduYearExample);
+
+	public abstract int updateByPrimaryKeySelective(EduYear paramEduYear);
+
+	public abstract int updateByPrimaryKeyWithBLOBs(EduYear paramEduYear);
+
+	public abstract int updateByPrimaryKey(EduYear paramEduYear);
+
+	public abstract List<EduYear> selectList(Map<String, Object> paramMap);
+
+	public abstract int selectCount(EduYear paramEduYear);
+
+	public abstract EduYear selectBySchoolYear(
+			@Param("schoolYear") String paramString);
+}

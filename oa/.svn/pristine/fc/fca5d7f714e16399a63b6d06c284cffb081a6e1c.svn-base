@@ -1,0 +1,165 @@
+/*     */ package com.xoa.controller.edu;
+/*     */ 
+/*     */ import com.xoa.dao.edu.eduDepartment.EduDepartmentMapper;
+/*     */ import com.xoa.model.edu.eduDepartment.EduDepartmentWithBLOBs;
+/*     */ import com.xoa.model.edu.eduUser.EduUser;
+/*     */ import com.xoa.service.edu.eduDepartment.EduDepartmentService;
+/*     */ import com.xoa.service.edu.eduTeacher.EduTeacherService;
+/*     */ import com.xoa.service.edu.eduUser.IEduUserService;
+/*     */ import com.xoa.util.AjaxJson;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/eduDepartment"})
+/*     */ public class EduDepartmentController
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private EduDepartmentService eduDepartmentService;
+/*     */ 
+/*     */   @Autowired
+/*     */   private IEduUserService eduUserService;
+/*     */ 
+/*     */   @Autowired
+/*     */   private EduDepartmentMapper eduDepartmentMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private EduTeacherService eduTeacherService;
+/*     */ 
+/*     */   @RequestMapping({"/eduDeptManagement"})
+/*     */   public String eduDeptManagement(HttpServletRequest request)
+/*     */   {
+/*  51 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  53 */     return "app/edu/eduDepartment/eduDeptManagement";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/queryListByDeptId"})
+/*     */   @ResponseBody
+/*     */   public ToJson<EduDepartmentWithBLOBs> queryListByDeptId(String deptId, HttpServletRequest request)
+/*     */   {
+/*  62 */     return this.eduDepartmentService.queryListByDeptId(deptId, request);
+/*     */   }
+/*  68 */   @RequestMapping({"/queryGetObjectByDeptId"})
+/*     */   @ResponseBody
+/*     */   public ToJson<EduDepartmentWithBLOBs> queryGetObjectByDeptId(String deptId, HttpServletRequest request) { return this.eduDepartmentService.queryGetObjectByDeptId(deptId, request); } 
+/*     */   @RequestMapping({"/queryGetObj"})
+/*     */   @ResponseBody
+/*     */   public ToJson<EduDepartmentWithBLOBs> queryGetObj(HttpServletRequest request) {
+/*  74 */     return this.eduDepartmentService.queryGetObj(request);
+/*     */   }
+/*     */   @RequestMapping({"/updateEduDepartmentWithBLOBs"})
+/*     */   @ResponseBody
+/*     */   public ToJson<EduDepartmentWithBLOBs> updateEduDepartmentWithBLOBs(EduDepartmentWithBLOBs eduDepartmentWithBLOBs, HttpServletRequest request) {
+/*  81 */     return this.eduDepartmentService.updateEduDepartmentWithBLOBs(eduDepartmentWithBLOBs, request); } 
+/*  86 */   @RequestMapping({"/deleteEduDepartmentWithBLOBs"})
+/*     */   @ResponseBody
+/*     */   public ToJson<EduDepartmentWithBLOBs> deleteEduDepartmentWithBLOBs(String deptId, String deptNo, HttpServletRequest request) { return this.eduDepartmentService.deleteEduDepartmentWithBLOBs(deptId, deptNo, request); } 
+/*  91 */   @RequestMapping({"/addEduDepartmentWithBLOBs"})
+/*     */   @ResponseBody
+/*     */   public ToJson<EduDepartmentWithBLOBs> addEduDepartmentWithBLOBs(EduDepartmentWithBLOBs eduDepartmentWithBLOBs, HttpServletRequest request) { return this.eduDepartmentService.addEduDepartmentWithBLOBs(eduDepartmentWithBLOBs, request);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/queryObjectsBydeptParent"})
+/*     */   @ResponseBody
+/*     */   public ToJson<EduDepartmentWithBLOBs> queryObjectsBydeptParent(String deptParent, HttpServletRequest request)
+/*     */   {
+/* 102 */     return this.eduDepartmentService.queryObjectsBydeptParent(deptParent, request);
+/*     */   }
+/* 108 */   @RequestMapping({"/getObjByDeptId"})
+/*     */   @ResponseBody
+/*     */   public ToJson<EduDepartmentWithBLOBs> getObjByDeptId(String deptId, HttpServletRequest request) { return this.eduDepartmentService.getObjByDeptId(deptId, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getEduDeptUser"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<EduDepartmentWithBLOBs> getEduDeptUser(HttpServletRequest request)
+/*     */   {
+/* 123 */     ToJson json = new ToJson();
+/*     */     try {
+/* 125 */       request.setCharacterEncoding("UTF-8");
+/* 126 */       int deptId = Integer.parseInt(new String(request.getParameter("deptId").getBytes("ISO-8859-1"), "UTF-8"));
+/* 127 */       List list = this.eduDepartmentService.getEduDeptUser(deptId);
+/*     */ 
+/* 131 */       json.setObj(list);
+/* 132 */       json.setMsg("OK");
+/* 133 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 135 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 137 */     return json;
+/*     */   }
+/* 143 */   @RequestMapping({"getDpNameByIds"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson getDpNameByIds(String deptIds) { return this.eduDepartmentService.getDpNameByIds(deptIds); }
+/*     */ 
+/*     */   @RequestMapping({"/getAllOrg"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson getAllOrg(@RequestParam(value="userId", required=false) String userId, @RequestParam(value="type", required=false) Integer type) {
+/* 150 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try {
+/* 152 */       if (StringUtils.checkNull(userId).booleanValue()) {
+/* 153 */         List list = this.eduDepartmentService.getAllOrg();
+/* 154 */         ajaxJson.setObj(list);
+/* 155 */         ajaxJson.setFlag(true);
+/* 156 */         ajaxJson.setMsg("OK");
+/* 157 */         return ajaxJson;
+/*     */       }
+/* 159 */       if ((type.intValue() == 2) || (type.intValue() == 3))
+/*     */       {
+/* 161 */         EduUser eduUser = this.eduUserService.getByuserId(userId);
+/*     */ 
+/* 163 */         List list = this.eduDepartmentMapper.getChDeptEduUser(eduUser.getDeptId().intValue());
+/*     */ 
+/* 165 */         EduDepartmentWithBLOBs eduDepartmentWithBLOBs = this.eduDepartmentMapper.queryGetObjectByDeptId(String.valueOf(eduUser.getDeptId()));
+/*     */ 
+/* 167 */         EduDepartmentWithBLOBs eduDepartmentWithBLOBs1 = this.eduDepartmentMapper.queryGetObjectByDeptId(String.valueOf(eduDepartmentWithBLOBs.getDeptId()));
+/*     */ 
+/* 169 */         List listEduTeacher = this.eduTeacherService.getTeacherBygc(eduDepartmentWithBLOBs1.getDeptName(), eduDepartmentWithBLOBs.getDeptName());
+/* 170 */         Map map = new HashMap();
+/*     */ 
+/* 172 */         map.put("student", list);
+/*     */ 
+/* 174 */         map.put("teacher", listEduTeacher);
+/* 175 */         ajaxJson.setAttributes(map);
+/* 176 */         ajaxJson.setFlag(true);
+/* 177 */         ajaxJson.setMsg("OK");
+/* 178 */         return ajaxJson;
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 181 */       e.printStackTrace();
+/* 182 */       ajaxJson.setFlag(false);
+/* 183 */       ajaxJson.setMsg(e.getMessage());
+/*     */     }
+/* 185 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getAllGrade"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson getAllGrade() {
+/* 193 */     return this.eduDepartmentService.getAllGrade();
+/*     */   }
+/*     */   @RequestMapping({"/getClazz"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson getAllClazz() {
+/* 200 */     return this.eduDepartmentService.getClazz();
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.edu.EduDepartmentController
+ * JD-Core Version:    0.6.0
+ */

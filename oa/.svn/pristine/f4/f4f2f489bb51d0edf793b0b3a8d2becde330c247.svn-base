@@ -1,0 +1,1338 @@
+/*      */ package com.xoa.model.meet;
+/*      */ 
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.List;
+/*      */ 
+/*      */ public class MeetingExample
+/*      */ {
+/*      */   protected String orderByClause;
+/*      */   protected boolean distinct;
+/*      */   protected List<Criteria> oredCriteria;
+/*      */ 
+/*      */   public MeetingExample()
+/*      */   {
+/*   38 */     this.oredCriteria = new ArrayList();
+/*      */   }
+/*      */ 
+/*      */   public void setOrderByClause(String orderByClause)
+/*      */   {
+/*   48 */     this.orderByClause = orderByClause;
+/*      */   }
+/*      */ 
+/*      */   public String getOrderByClause()
+/*      */   {
+/*   58 */     return this.orderByClause;
+/*      */   }
+/*      */ 
+/*      */   public void setDistinct(boolean distinct)
+/*      */   {
+/*   68 */     this.distinct = distinct;
+/*      */   }
+/*      */ 
+/*      */   public boolean isDistinct()
+/*      */   {
+/*   78 */     return this.distinct;
+/*      */   }
+/*      */ 
+/*      */   public List<Criteria> getOredCriteria()
+/*      */   {
+/*   88 */     return this.oredCriteria;
+/*      */   }
+/*      */ 
+/*      */   public void or(Criteria criteria)
+/*      */   {
+/*   98 */     this.oredCriteria.add(criteria);
+/*      */   }
+/*      */ 
+/*      */   public Criteria or()
+/*      */   {
+/*  108 */     Criteria criteria = createCriteriaInternal();
+/*  109 */     this.oredCriteria.add(criteria);
+/*  110 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   public Criteria createCriteria()
+/*      */   {
+/*  120 */     Criteria criteria = createCriteriaInternal();
+/*  121 */     if (this.oredCriteria.size() == 0) {
+/*  122 */       this.oredCriteria.add(criteria);
+/*      */     }
+/*  124 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   protected Criteria createCriteriaInternal()
+/*      */   {
+/*  134 */     Criteria criteria = new Criteria();
+/*  135 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   public void clear()
+/*      */   {
+/*  145 */     this.oredCriteria.clear();
+/*  146 */     this.orderByClause = null;
+/*  147 */     this.distinct = false;
+/*      */   }
+/*      */ 
+/*      */   public static class Criterion
+/*      */   {
+/*      */     private String condition;
+/*      */     private Object value;
+/*      */     private Object secondValue;
+/*      */     private boolean noValue;
+/*      */     private boolean singleValue;
+/*      */     private boolean betweenValue;
+/*      */     private boolean listValue;
+/*      */     private String typeHandler;
+/*      */ 
+/*      */     public String getCondition()
+/*      */     {
+/* 1365 */       return this.condition;
+/*      */     }
+/*      */ 
+/*      */     public Object getValue() {
+/* 1369 */       return this.value;
+/*      */     }
+/*      */ 
+/*      */     public Object getSecondValue() {
+/* 1373 */       return this.secondValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isNoValue() {
+/* 1377 */       return this.noValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isSingleValue() {
+/* 1381 */       return this.singleValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isBetweenValue() {
+/* 1385 */       return this.betweenValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isListValue() {
+/* 1389 */       return this.listValue;
+/*      */     }
+/*      */ 
+/*      */     public String getTypeHandler() {
+/* 1393 */       return this.typeHandler;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition)
+/*      */     {
+/* 1398 */       this.condition = condition;
+/* 1399 */       this.typeHandler = null;
+/* 1400 */       this.noValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, String typeHandler)
+/*      */     {
+/* 1405 */       this.condition = condition;
+/* 1406 */       this.value = value;
+/* 1407 */       this.typeHandler = typeHandler;
+/* 1408 */       if ((value instanceof List))
+/* 1409 */         this.listValue = true;
+/*      */       else
+/* 1411 */         this.singleValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value)
+/*      */     {
+/* 1416 */       this(condition, value, null);
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*      */     {
+/* 1421 */       this.condition = condition;
+/* 1422 */       this.value = value;
+/* 1423 */       this.secondValue = secondValue;
+/* 1424 */       this.typeHandler = typeHandler;
+/* 1425 */       this.betweenValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 1429 */       this(condition, value, secondValue, null);
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public static class Criteria extends MeetingExample.GeneratedCriteria
+/*      */   {
+/*      */   }
+/*      */ 
+/*      */   protected static abstract class GeneratedCriteria
+/*      */   {
+/*      */     protected List<MeetingExample.Criterion> criteria;
+/*      */ 
+/*      */     protected GeneratedCriteria()
+/*      */     {
+/*  161 */       this.criteria = new ArrayList();
+/*      */     }
+/*      */ 
+/*      */     public boolean isValid() {
+/*  165 */       return this.criteria.size() > 0;
+/*      */     }
+/*      */ 
+/*      */     public List<MeetingExample.Criterion> getAllCriteria() {
+/*  169 */       return this.criteria;
+/*      */     }
+/*      */ 
+/*      */     public List<MeetingExample.Criterion> getCriteria() {
+/*  173 */       return this.criteria;
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition) {
+/*  177 */       if (condition == null) {
+/*  178 */         throw new RuntimeException("Value for condition cannot be null");
+/*      */       }
+/*  180 */       this.criteria.add(new MeetingExample.Criterion(condition));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition, Object value, String property) {
+/*  184 */       if (value == null) {
+/*  185 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*      */       }
+/*  187 */       this.criteria.add(new MeetingExample.Criterion(condition, value));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/*  191 */       if ((value1 == null) || (value2 == null)) {
+/*  192 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*      */       }
+/*  194 */       this.criteria.add(new MeetingExample.Criterion(condition, value1, value2));
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSidIsNull() {
+/*  198 */       addCriterion("SID is null");
+/*  199 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSidIsNotNull() {
+/*  203 */       addCriterion("SID is not null");
+/*  204 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSidEqualTo(Integer value) {
+/*  208 */       addCriterion("SID =", value, "sid");
+/*  209 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSidNotEqualTo(Integer value) {
+/*  213 */       addCriterion("SID <>", value, "sid");
+/*  214 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSidGreaterThan(Integer value) {
+/*  218 */       addCriterion("SID >", value, "sid");
+/*  219 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSidGreaterThanOrEqualTo(Integer value) {
+/*  223 */       addCriterion("SID >=", value, "sid");
+/*  224 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSidLessThan(Integer value) {
+/*  228 */       addCriterion("SID <", value, "sid");
+/*  229 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSidLessThanOrEqualTo(Integer value) {
+/*  233 */       addCriterion("SID <=", value, "sid");
+/*  234 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSidIn(List<Integer> values) {
+/*  238 */       addCriterion("SID in", values, "sid");
+/*  239 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSidNotIn(List<Integer> values) {
+/*  243 */       addCriterion("SID not in", values, "sid");
+/*  244 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSidBetween(Integer value1, Integer value2) {
+/*  248 */       addCriterion("SID between", value1, value2, "sid");
+/*  249 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSidNotBetween(Integer value1, Integer value2) {
+/*  253 */       addCriterion("SID not between", value1, value2, "sid");
+/*  254 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andCreateTimeIsNull() {
+/*  258 */       addCriterion("CREATE_TIME is null");
+/*  259 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andCreateTimeIsNotNull() {
+/*  263 */       addCriterion("CREATE_TIME is not null");
+/*  264 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andCreateTimeEqualTo(Long value) {
+/*  268 */       addCriterion("CREATE_TIME =", value, "createTime");
+/*  269 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andCreateTimeNotEqualTo(Long value) {
+/*  273 */       addCriterion("CREATE_TIME <>", value, "createTime");
+/*  274 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andCreateTimeGreaterThan(Long value) {
+/*  278 */       addCriterion("CREATE_TIME >", value, "createTime");
+/*  279 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andCreateTimeGreaterThanOrEqualTo(Long value) {
+/*  283 */       addCriterion("CREATE_TIME >=", value, "createTime");
+/*  284 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andCreateTimeLessThan(Long value) {
+/*  288 */       addCriterion("CREATE_TIME <", value, "createTime");
+/*  289 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andCreateTimeLessThanOrEqualTo(Long value) {
+/*  293 */       addCriterion("CREATE_TIME <=", value, "createTime");
+/*  294 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andCreateTimeIn(List<Long> values) {
+/*  298 */       addCriterion("CREATE_TIME in", values, "createTime");
+/*  299 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andCreateTimeNotIn(List<Long> values) {
+/*  303 */       addCriterion("CREATE_TIME not in", values, "createTime");
+/*  304 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andCreateTimeBetween(Long value1, Long value2) {
+/*  308 */       addCriterion("CREATE_TIME between", value1, value2, "createTime");
+/*  309 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andCreateTimeNotBetween(Long value1, Long value2) {
+/*  313 */       addCriterion("CREATE_TIME not between", value1, value2, "createTime");
+/*  314 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andEndTimeIsNull() {
+/*  318 */       addCriterion("END_TIME is null");
+/*  319 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andEndTimeIsNotNull() {
+/*  323 */       addCriterion("END_TIME is not null");
+/*  324 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andEndTimeEqualTo(Long value) {
+/*  328 */       addCriterion("END_TIME =", value, "endTime");
+/*  329 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andEndTimeNotEqualTo(Long value) {
+/*  333 */       addCriterion("END_TIME <>", value, "endTime");
+/*  334 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andEndTimeGreaterThan(Long value) {
+/*  338 */       addCriterion("END_TIME >", value, "endTime");
+/*  339 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andEndTimeGreaterThanOrEqualTo(Long value) {
+/*  343 */       addCriterion("END_TIME >=", value, "endTime");
+/*  344 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andEndTimeLessThan(Long value) {
+/*  348 */       addCriterion("END_TIME <", value, "endTime");
+/*  349 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andEndTimeLessThanOrEqualTo(Long value) {
+/*  353 */       addCriterion("END_TIME <=", value, "endTime");
+/*  354 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andEndTimeIn(List<Long> values) {
+/*  358 */       addCriterion("END_TIME in", values, "endTime");
+/*  359 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andEndTimeNotIn(List<Long> values) {
+/*  363 */       addCriterion("END_TIME not in", values, "endTime");
+/*  364 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andEndTimeBetween(Long value1, Long value2) {
+/*  368 */       addCriterion("END_TIME between", value1, value2, "endTime");
+/*  369 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andEndTimeNotBetween(Long value1, Long value2) {
+/*  373 */       addCriterion("END_TIME not between", value1, value2, "endTime");
+/*  374 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsWriteCalednarIsNull() {
+/*  378 */       addCriterion("IS_WRITE_CALEDNAR is null");
+/*  379 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsWriteCalednarIsNotNull() {
+/*  383 */       addCriterion("IS_WRITE_CALEDNAR is not null");
+/*  384 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsWriteCalednarEqualTo(Integer value) {
+/*  388 */       addCriterion("IS_WRITE_CALEDNAR =", value, "isWriteCalednar");
+/*  389 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsWriteCalednarNotEqualTo(Integer value) {
+/*  393 */       addCriterion("IS_WRITE_CALEDNAR <>", value, "isWriteCalednar");
+/*  394 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsWriteCalednarGreaterThan(Integer value) {
+/*  398 */       addCriterion("IS_WRITE_CALEDNAR >", value, "isWriteCalednar");
+/*  399 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsWriteCalednarGreaterThanOrEqualTo(Integer value) {
+/*  403 */       addCriterion("IS_WRITE_CALEDNAR >=", value, "isWriteCalednar");
+/*  404 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsWriteCalednarLessThan(Integer value) {
+/*  408 */       addCriterion("IS_WRITE_CALEDNAR <", value, "isWriteCalednar");
+/*  409 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsWriteCalednarLessThanOrEqualTo(Integer value) {
+/*  413 */       addCriterion("IS_WRITE_CALEDNAR <=", value, "isWriteCalednar");
+/*  414 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsWriteCalednarIn(List<Integer> values) {
+/*  418 */       addCriterion("IS_WRITE_CALEDNAR in", values, "isWriteCalednar");
+/*  419 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsWriteCalednarNotIn(List<Integer> values) {
+/*  423 */       addCriterion("IS_WRITE_CALEDNAR not in", values, "isWriteCalednar");
+/*  424 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsWriteCalednarBetween(Integer value1, Integer value2) {
+/*  428 */       addCriterion("IS_WRITE_CALEDNAR between", value1, value2, "isWriteCalednar");
+/*  429 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsWriteCalednarNotBetween(Integer value1, Integer value2) {
+/*  433 */       addCriterion("IS_WRITE_CALEDNAR not between", value1, value2, "isWriteCalednar");
+/*  434 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetNameIsNull() {
+/*  438 */       addCriterion("MEET_NAME is null");
+/*  439 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetNameIsNotNull() {
+/*  443 */       addCriterion("MEET_NAME is not null");
+/*  444 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetNameEqualTo(String value) {
+/*  448 */       addCriterion("MEET_NAME =", value, "meetName");
+/*  449 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetNameNotEqualTo(String value) {
+/*  453 */       addCriterion("MEET_NAME <>", value, "meetName");
+/*  454 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetNameGreaterThan(String value) {
+/*  458 */       addCriterion("MEET_NAME >", value, "meetName");
+/*  459 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetNameGreaterThanOrEqualTo(String value) {
+/*  463 */       addCriterion("MEET_NAME >=", value, "meetName");
+/*  464 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetNameLessThan(String value) {
+/*  468 */       addCriterion("MEET_NAME <", value, "meetName");
+/*  469 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetNameLessThanOrEqualTo(String value) {
+/*  473 */       addCriterion("MEET_NAME <=", value, "meetName");
+/*  474 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetNameLike(String value) {
+/*  478 */       addCriterion("MEET_NAME like", value, "meetName");
+/*  479 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetNameNotLike(String value) {
+/*  483 */       addCriterion("MEET_NAME not like", value, "meetName");
+/*  484 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetNameIn(List<String> values) {
+/*  488 */       addCriterion("MEET_NAME in", values, "meetName");
+/*  489 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetNameNotIn(List<String> values) {
+/*  493 */       addCriterion("MEET_NAME not in", values, "meetName");
+/*  494 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetNameBetween(String value1, String value2) {
+/*  498 */       addCriterion("MEET_NAME between", value1, value2, "meetName");
+/*  499 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetNameNotBetween(String value1, String value2) {
+/*  503 */       addCriterion("MEET_NAME not between", value1, value2, "meetName");
+/*  504 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendHourIsNull() {
+/*  508 */       addCriterion("RESEND_HOUR is null");
+/*  509 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendHourIsNotNull() {
+/*  513 */       addCriterion("RESEND_HOUR is not null");
+/*  514 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendHourEqualTo(Integer value) {
+/*  518 */       addCriterion("RESEND_HOUR =", value, "resendHour");
+/*  519 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendHourNotEqualTo(Integer value) {
+/*  523 */       addCriterion("RESEND_HOUR <>", value, "resendHour");
+/*  524 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendHourGreaterThan(Integer value) {
+/*  528 */       addCriterion("RESEND_HOUR >", value, "resendHour");
+/*  529 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendHourGreaterThanOrEqualTo(Integer value) {
+/*  533 */       addCriterion("RESEND_HOUR >=", value, "resendHour");
+/*  534 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendHourLessThan(Integer value) {
+/*  538 */       addCriterion("RESEND_HOUR <", value, "resendHour");
+/*  539 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendHourLessThanOrEqualTo(Integer value) {
+/*  543 */       addCriterion("RESEND_HOUR <=", value, "resendHour");
+/*  544 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendHourIn(List<Integer> values) {
+/*  548 */       addCriterion("RESEND_HOUR in", values, "resendHour");
+/*  549 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendHourNotIn(List<Integer> values) {
+/*  553 */       addCriterion("RESEND_HOUR not in", values, "resendHour");
+/*  554 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendHourBetween(Integer value1, Integer value2) {
+/*  558 */       addCriterion("RESEND_HOUR between", value1, value2, "resendHour");
+/*  559 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendHourNotBetween(Integer value1, Integer value2) {
+/*  563 */       addCriterion("RESEND_HOUR not between", value1, value2, "resendHour");
+/*  564 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendMinuteIsNull() {
+/*  568 */       addCriterion("RESEND_MINUTE is null");
+/*  569 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendMinuteIsNotNull() {
+/*  573 */       addCriterion("RESEND_MINUTE is not null");
+/*  574 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendMinuteEqualTo(Integer value) {
+/*  578 */       addCriterion("RESEND_MINUTE =", value, "resendMinute");
+/*  579 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendMinuteNotEqualTo(Integer value) {
+/*  583 */       addCriterion("RESEND_MINUTE <>", value, "resendMinute");
+/*  584 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendMinuteGreaterThan(Integer value) {
+/*  588 */       addCriterion("RESEND_MINUTE >", value, "resendMinute");
+/*  589 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendMinuteGreaterThanOrEqualTo(Integer value) {
+/*  593 */       addCriterion("RESEND_MINUTE >=", value, "resendMinute");
+/*  594 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendMinuteLessThan(Integer value) {
+/*  598 */       addCriterion("RESEND_MINUTE <", value, "resendMinute");
+/*  599 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendMinuteLessThanOrEqualTo(Integer value) {
+/*  603 */       addCriterion("RESEND_MINUTE <=", value, "resendMinute");
+/*  604 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendMinuteIn(List<Integer> values) {
+/*  608 */       addCriterion("RESEND_MINUTE in", values, "resendMinute");
+/*  609 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendMinuteNotIn(List<Integer> values) {
+/*  613 */       addCriterion("RESEND_MINUTE not in", values, "resendMinute");
+/*  614 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendMinuteBetween(Integer value1, Integer value2) {
+/*  618 */       addCriterion("RESEND_MINUTE between", value1, value2, "resendMinute");
+/*  619 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendMinuteNotBetween(Integer value1, Integer value2) {
+/*  623 */       addCriterion("RESEND_MINUTE not between", value1, value2, "resendMinute");
+/*  624 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendSeveralIsNull() {
+/*  628 */       addCriterion("RESEND_SEVERAL is null");
+/*  629 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendSeveralIsNotNull() {
+/*  633 */       addCriterion("RESEND_SEVERAL is not null");
+/*  634 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendSeveralEqualTo(Integer value) {
+/*  638 */       addCriterion("RESEND_SEVERAL =", value, "resendSeveral");
+/*  639 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendSeveralNotEqualTo(Integer value) {
+/*  643 */       addCriterion("RESEND_SEVERAL <>", value, "resendSeveral");
+/*  644 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendSeveralGreaterThan(Integer value) {
+/*  648 */       addCriterion("RESEND_SEVERAL >", value, "resendSeveral");
+/*  649 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendSeveralGreaterThanOrEqualTo(Integer value) {
+/*  653 */       addCriterion("RESEND_SEVERAL >=", value, "resendSeveral");
+/*  654 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendSeveralLessThan(Integer value) {
+/*  658 */       addCriterion("RESEND_SEVERAL <", value, "resendSeveral");
+/*  659 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendSeveralLessThanOrEqualTo(Integer value) {
+/*  663 */       addCriterion("RESEND_SEVERAL <=", value, "resendSeveral");
+/*  664 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendSeveralIn(List<Integer> values) {
+/*  668 */       addCriterion("RESEND_SEVERAL in", values, "resendSeveral");
+/*  669 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendSeveralNotIn(List<Integer> values) {
+/*  673 */       addCriterion("RESEND_SEVERAL not in", values, "resendSeveral");
+/*  674 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendSeveralBetween(Integer value1, Integer value2) {
+/*  678 */       addCriterion("RESEND_SEVERAL between", value1, value2, "resendSeveral");
+/*  679 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andResendSeveralNotBetween(Integer value1, Integer value2) {
+/*  683 */       addCriterion("RESEND_SEVERAL not between", value1, value2, "resendSeveral");
+/*  684 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSms2RemindIsNull() {
+/*  688 */       addCriterion("SMS2_REMIND is null");
+/*  689 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSms2RemindIsNotNull() {
+/*  693 */       addCriterion("SMS2_REMIND is not null");
+/*  694 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSms2RemindEqualTo(String value) {
+/*  698 */       addCriterion("SMS2_REMIND =", value, "sms2Remind");
+/*  699 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSms2RemindNotEqualTo(String value) {
+/*  703 */       addCriterion("SMS2_REMIND <>", value, "sms2Remind");
+/*  704 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSms2RemindGreaterThan(String value) {
+/*  708 */       addCriterion("SMS2_REMIND >", value, "sms2Remind");
+/*  709 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSms2RemindGreaterThanOrEqualTo(String value) {
+/*  713 */       addCriterion("SMS2_REMIND >=", value, "sms2Remind");
+/*  714 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSms2RemindLessThan(String value) {
+/*  718 */       addCriterion("SMS2_REMIND <", value, "sms2Remind");
+/*  719 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSms2RemindLessThanOrEqualTo(String value) {
+/*  723 */       addCriterion("SMS2_REMIND <=", value, "sms2Remind");
+/*  724 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSms2RemindLike(String value) {
+/*  728 */       addCriterion("SMS2_REMIND like", value, "sms2Remind");
+/*  729 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSms2RemindNotLike(String value) {
+/*  733 */       addCriterion("SMS2_REMIND not like", value, "sms2Remind");
+/*  734 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSms2RemindIn(List<String> values) {
+/*  738 */       addCriterion("SMS2_REMIND in", values, "sms2Remind");
+/*  739 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSms2RemindNotIn(List<String> values) {
+/*  743 */       addCriterion("SMS2_REMIND not in", values, "sms2Remind");
+/*  744 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSms2RemindBetween(String value1, String value2) {
+/*  748 */       addCriterion("SMS2_REMIND between", value1, value2, "sms2Remind");
+/*  749 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSms2RemindNotBetween(String value1, String value2) {
+/*  753 */       addCriterion("SMS2_REMIND not between", value1, value2, "sms2Remind");
+/*  754 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSmsRemindIsNull() {
+/*  758 */       addCriterion("SMS_REMIND is null");
+/*  759 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSmsRemindIsNotNull() {
+/*  763 */       addCriterion("SMS_REMIND is not null");
+/*  764 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSmsRemindEqualTo(String value) {
+/*  768 */       addCriterion("SMS_REMIND =", value, "smsRemind");
+/*  769 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSmsRemindNotEqualTo(String value) {
+/*  773 */       addCriterion("SMS_REMIND <>", value, "smsRemind");
+/*  774 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSmsRemindGreaterThan(String value) {
+/*  778 */       addCriterion("SMS_REMIND >", value, "smsRemind");
+/*  779 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSmsRemindGreaterThanOrEqualTo(String value) {
+/*  783 */       addCriterion("SMS_REMIND >=", value, "smsRemind");
+/*  784 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSmsRemindLessThan(String value) {
+/*  788 */       addCriterion("SMS_REMIND <", value, "smsRemind");
+/*  789 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSmsRemindLessThanOrEqualTo(String value) {
+/*  793 */       addCriterion("SMS_REMIND <=", value, "smsRemind");
+/*  794 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSmsRemindLike(String value) {
+/*  798 */       addCriterion("SMS_REMIND like", value, "smsRemind");
+/*  799 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSmsRemindNotLike(String value) {
+/*  803 */       addCriterion("SMS_REMIND not like", value, "smsRemind");
+/*  804 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSmsRemindIn(List<String> values) {
+/*  808 */       addCriterion("SMS_REMIND in", values, "smsRemind");
+/*  809 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSmsRemindNotIn(List<String> values) {
+/*  813 */       addCriterion("SMS_REMIND not in", values, "smsRemind");
+/*  814 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSmsRemindBetween(String value1, String value2) {
+/*  818 */       addCriterion("SMS_REMIND between", value1, value2, "smsRemind");
+/*  819 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSmsRemindNotBetween(String value1, String value2) {
+/*  823 */       addCriterion("SMS_REMIND not between", value1, value2, "smsRemind");
+/*  824 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStartTimeIsNull() {
+/*  828 */       addCriterion("START_TIME is null");
+/*  829 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStartTimeIsNotNull() {
+/*  833 */       addCriterion("START_TIME is not null");
+/*  834 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStartTimeEqualTo(Long value) {
+/*  838 */       addCriterion("START_TIME =", value, "startTime");
+/*  839 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStartTimeNotEqualTo(Long value) {
+/*  843 */       addCriterion("START_TIME <>", value, "startTime");
+/*  844 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStartTimeGreaterThan(Long value) {
+/*  848 */       addCriterion("START_TIME >", value, "startTime");
+/*  849 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStartTimeGreaterThanOrEqualTo(Long value) {
+/*  853 */       addCriterion("START_TIME >=", value, "startTime");
+/*  854 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStartTimeLessThan(Long value) {
+/*  858 */       addCriterion("START_TIME <", value, "startTime");
+/*  859 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStartTimeLessThanOrEqualTo(Long value) {
+/*  863 */       addCriterion("START_TIME <=", value, "startTime");
+/*  864 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStartTimeIn(List<Long> values) {
+/*  868 */       addCriterion("START_TIME in", values, "startTime");
+/*  869 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStartTimeNotIn(List<Long> values) {
+/*  873 */       addCriterion("START_TIME not in", values, "startTime");
+/*  874 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStartTimeBetween(Long value1, Long value2) {
+/*  878 */       addCriterion("START_TIME between", value1, value2, "startTime");
+/*  879 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStartTimeNotBetween(Long value1, Long value2) {
+/*  883 */       addCriterion("START_TIME not between", value1, value2, "startTime");
+/*  884 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStatusIsNull() {
+/*  888 */       addCriterion("STATUS is null");
+/*  889 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStatusIsNotNull() {
+/*  893 */       addCriterion("STATUS is not null");
+/*  894 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStatusEqualTo(Integer value) {
+/*  898 */       addCriterion("STATUS =", value, "status");
+/*  899 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStatusNotEqualTo(Integer value) {
+/*  903 */       addCriterion("STATUS <>", value, "status");
+/*  904 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStatusGreaterThan(Integer value) {
+/*  908 */       addCriterion("STATUS >", value, "status");
+/*  909 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStatusGreaterThanOrEqualTo(Integer value) {
+/*  913 */       addCriterion("STATUS >=", value, "status");
+/*  914 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStatusLessThan(Integer value) {
+/*  918 */       addCriterion("STATUS <", value, "status");
+/*  919 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStatusLessThanOrEqualTo(Integer value) {
+/*  923 */       addCriterion("STATUS <=", value, "status");
+/*  924 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStatusIn(List<Integer> values) {
+/*  928 */       addCriterion("STATUS in", values, "status");
+/*  929 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStatusNotIn(List<Integer> values) {
+/*  933 */       addCriterion("STATUS not in", values, "status");
+/*  934 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStatusBetween(Integer value1, Integer value2) {
+/*  938 */       addCriterion("STATUS between", value1, value2, "status");
+/*  939 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andStatusNotBetween(Integer value1, Integer value2) {
+/*  943 */       addCriterion("STATUS not between", value1, value2, "status");
+/*  944 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSubjectIsNull() {
+/*  948 */       addCriterion("SUBJECT is null");
+/*  949 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSubjectIsNotNull() {
+/*  953 */       addCriterion("SUBJECT is not null");
+/*  954 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSubjectEqualTo(String value) {
+/*  958 */       addCriterion("SUBJECT =", value, "subject");
+/*  959 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSubjectNotEqualTo(String value) {
+/*  963 */       addCriterion("SUBJECT <>", value, "subject");
+/*  964 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSubjectGreaterThan(String value) {
+/*  968 */       addCriterion("SUBJECT >", value, "subject");
+/*  969 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSubjectGreaterThanOrEqualTo(String value) {
+/*  973 */       addCriterion("SUBJECT >=", value, "subject");
+/*  974 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSubjectLessThan(String value) {
+/*  978 */       addCriterion("SUBJECT <", value, "subject");
+/*  979 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSubjectLessThanOrEqualTo(String value) {
+/*  983 */       addCriterion("SUBJECT <=", value, "subject");
+/*  984 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSubjectLike(String value) {
+/*  988 */       addCriterion("SUBJECT like", value, "subject");
+/*  989 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSubjectNotLike(String value) {
+/*  993 */       addCriterion("SUBJECT not like", value, "subject");
+/*  994 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSubjectIn(List<String> values) {
+/*  998 */       addCriterion("SUBJECT in", values, "subject");
+/*  999 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSubjectNotIn(List<String> values) {
+/* 1003 */       addCriterion("SUBJECT not in", values, "subject");
+/* 1004 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSubjectBetween(String value1, String value2) {
+/* 1008 */       addCriterion("SUBJECT between", value1, value2, "subject");
+/* 1009 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andSubjectNotBetween(String value1, String value2) {
+/* 1013 */       addCriterion("SUBJECT not between", value1, value2, "subject");
+/* 1014 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andManagerIdIsNull() {
+/* 1018 */       addCriterion("MANAGER_ID is null");
+/* 1019 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andManagerIdIsNotNull() {
+/* 1023 */       addCriterion("MANAGER_ID is not null");
+/* 1024 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andManagerIdEqualTo(Integer value) {
+/* 1028 */       addCriterion("MANAGER_ID =", value, "managerId");
+/* 1029 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andManagerIdNotEqualTo(Integer value) {
+/* 1033 */       addCriterion("MANAGER_ID <>", value, "managerId");
+/* 1034 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andManagerIdGreaterThan(Integer value) {
+/* 1038 */       addCriterion("MANAGER_ID >", value, "managerId");
+/* 1039 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andManagerIdGreaterThanOrEqualTo(Integer value) {
+/* 1043 */       addCriterion("MANAGER_ID >=", value, "managerId");
+/* 1044 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andManagerIdLessThan(Integer value) {
+/* 1048 */       addCriterion("MANAGER_ID <", value, "managerId");
+/* 1049 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andManagerIdLessThanOrEqualTo(Integer value) {
+/* 1053 */       addCriterion("MANAGER_ID <=", value, "managerId");
+/* 1054 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andManagerIdIn(List<Integer> values) {
+/* 1058 */       addCriterion("MANAGER_ID in", values, "managerId");
+/* 1059 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andManagerIdNotIn(List<Integer> values) {
+/* 1063 */       addCriterion("MANAGER_ID not in", values, "managerId");
+/* 1064 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andManagerIdBetween(Integer value1, Integer value2) {
+/* 1068 */       addCriterion("MANAGER_ID between", value1, value2, "managerId");
+/* 1069 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andManagerIdNotBetween(Integer value1, Integer value2) {
+/* 1073 */       addCriterion("MANAGER_ID not between", value1, value2, "managerId");
+/* 1074 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetRoomIdIsNull() {
+/* 1078 */       addCriterion("MEET_ROOM_ID is null");
+/* 1079 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetRoomIdIsNotNull() {
+/* 1083 */       addCriterion("MEET_ROOM_ID is not null");
+/* 1084 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetRoomIdEqualTo(Integer value) {
+/* 1088 */       addCriterion("MEET_ROOM_ID =", value, "meetRoomId");
+/* 1089 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetRoomIdNotEqualTo(Integer value) {
+/* 1093 */       addCriterion("MEET_ROOM_ID <>", value, "meetRoomId");
+/* 1094 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetRoomIdGreaterThan(Integer value) {
+/* 1098 */       addCriterion("MEET_ROOM_ID >", value, "meetRoomId");
+/* 1099 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetRoomIdGreaterThanOrEqualTo(Integer value) {
+/* 1103 */       addCriterion("MEET_ROOM_ID >=", value, "meetRoomId");
+/* 1104 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetRoomIdLessThan(Integer value) {
+/* 1108 */       addCriterion("MEET_ROOM_ID <", value, "meetRoomId");
+/* 1109 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetRoomIdLessThanOrEqualTo(Integer value) {
+/* 1113 */       addCriterion("MEET_ROOM_ID <=", value, "meetRoomId");
+/* 1114 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetRoomIdIn(List<Integer> values) {
+/* 1118 */       addCriterion("MEET_ROOM_ID in", values, "meetRoomId");
+/* 1119 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetRoomIdNotIn(List<Integer> values) {
+/* 1123 */       addCriterion("MEET_ROOM_ID not in", values, "meetRoomId");
+/* 1124 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetRoomIdBetween(Integer value1, Integer value2) {
+/* 1128 */       addCriterion("MEET_ROOM_ID between", value1, value2, "meetRoomId");
+/* 1129 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andMeetRoomIdNotBetween(Integer value1, Integer value2) {
+/* 1133 */       addCriterion("MEET_ROOM_ID not between", value1, value2, "meetRoomId");
+/* 1134 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andUserIdIsNull() {
+/* 1138 */       addCriterion("USER_ID is null");
+/* 1139 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andUserIdIsNotNull() {
+/* 1143 */       addCriterion("USER_ID is not null");
+/* 1144 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andUserIdEqualTo(Integer value) {
+/* 1148 */       addCriterion("USER_ID =", value, "userId");
+/* 1149 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andUserIdNotEqualTo(Integer value) {
+/* 1153 */       addCriterion("USER_ID <>", value, "userId");
+/* 1154 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andUserIdGreaterThan(Integer value) {
+/* 1158 */       addCriterion("USER_ID >", value, "userId");
+/* 1159 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andUserIdGreaterThanOrEqualTo(Integer value) {
+/* 1163 */       addCriterion("USER_ID >=", value, "userId");
+/* 1164 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andUserIdLessThan(Integer value) {
+/* 1168 */       addCriterion("USER_ID <", value, "userId");
+/* 1169 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andUserIdLessThanOrEqualTo(Integer value) {
+/* 1173 */       addCriterion("USER_ID <=", value, "userId");
+/* 1174 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andUserIdIn(List<Integer> values) {
+/* 1178 */       addCriterion("USER_ID in", values, "userId");
+/* 1179 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andUserIdNotIn(List<Integer> values) {
+/* 1183 */       addCriterion("USER_ID not in", values, "userId");
+/* 1184 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andUserIdBetween(Integer value1, Integer value2) {
+/* 1188 */       addCriterion("USER_ID between", value1, value2, "userId");
+/* 1189 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andUserIdNotBetween(Integer value1, Integer value2) {
+/* 1193 */       addCriterion("USER_ID not between", value1, value2, "userId");
+/* 1194 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andRecorderIdIsNull() {
+/* 1198 */       addCriterion("RECORDER_ID is null");
+/* 1199 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andRecorderIdIsNotNull() {
+/* 1203 */       addCriterion("RECORDER_ID is not null");
+/* 1204 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andRecorderIdEqualTo(Integer value) {
+/* 1208 */       addCriterion("RECORDER_ID =", value, "recorderId");
+/* 1209 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andRecorderIdNotEqualTo(Integer value) {
+/* 1213 */       addCriterion("RECORDER_ID <>", value, "recorderId");
+/* 1214 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andRecorderIdGreaterThan(Integer value) {
+/* 1218 */       addCriterion("RECORDER_ID >", value, "recorderId");
+/* 1219 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andRecorderIdGreaterThanOrEqualTo(Integer value) {
+/* 1223 */       addCriterion("RECORDER_ID >=", value, "recorderId");
+/* 1224 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andRecorderIdLessThan(Integer value) {
+/* 1228 */       addCriterion("RECORDER_ID <", value, "recorderId");
+/* 1229 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andRecorderIdLessThanOrEqualTo(Integer value) {
+/* 1233 */       addCriterion("RECORDER_ID <=", value, "recorderId");
+/* 1234 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andRecorderIdIn(List<Integer> values) {
+/* 1238 */       addCriterion("RECORDER_ID in", values, "recorderId");
+/* 1239 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andRecorderIdNotIn(List<Integer> values) {
+/* 1243 */       addCriterion("RECORDER_ID not in", values, "recorderId");
+/* 1244 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andRecorderIdBetween(Integer value1, Integer value2) {
+/* 1248 */       addCriterion("RECORDER_ID between", value1, value2, "recorderId");
+/* 1249 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andRecorderIdNotBetween(Integer value1, Integer value2) {
+/* 1253 */       addCriterion("RECORDER_ID not between", value1, value2, "recorderId");
+/* 1254 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsuploadsummaryIsNull() {
+/* 1258 */       addCriterion("ISUPLOADSUMMARY is null");
+/* 1259 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsuploadsummaryIsNotNull() {
+/* 1263 */       addCriterion("ISUPLOADSUMMARY is not null");
+/* 1264 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsuploadsummaryEqualTo(String value) {
+/* 1268 */       addCriterion("ISUPLOADSUMMARY =", value, "isuploadsummary");
+/* 1269 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsuploadsummaryNotEqualTo(String value) {
+/* 1273 */       addCriterion("ISUPLOADSUMMARY <>", value, "isuploadsummary");
+/* 1274 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsuploadsummaryGreaterThan(String value) {
+/* 1278 */       addCriterion("ISUPLOADSUMMARY >", value, "isuploadsummary");
+/* 1279 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsuploadsummaryGreaterThanOrEqualTo(String value) {
+/* 1283 */       addCriterion("ISUPLOADSUMMARY >=", value, "isuploadsummary");
+/* 1284 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsuploadsummaryLessThan(String value) {
+/* 1288 */       addCriterion("ISUPLOADSUMMARY <", value, "isuploadsummary");
+/* 1289 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsuploadsummaryLessThanOrEqualTo(String value) {
+/* 1293 */       addCriterion("ISUPLOADSUMMARY <=", value, "isuploadsummary");
+/* 1294 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsuploadsummaryLike(String value) {
+/* 1298 */       addCriterion("ISUPLOADSUMMARY like", value, "isuploadsummary");
+/* 1299 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsuploadsummaryNotLike(String value) {
+/* 1303 */       addCriterion("ISUPLOADSUMMARY not like", value, "isuploadsummary");
+/* 1304 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsuploadsummaryIn(List<String> values) {
+/* 1308 */       addCriterion("ISUPLOADSUMMARY in", values, "isuploadsummary");
+/* 1309 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsuploadsummaryNotIn(List<String> values) {
+/* 1313 */       addCriterion("ISUPLOADSUMMARY not in", values, "isuploadsummary");
+/* 1314 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsuploadsummaryBetween(String value1, String value2) {
+/* 1318 */       addCriterion("ISUPLOADSUMMARY between", value1, value2, "isuploadsummary");
+/* 1319 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public MeetingExample.Criteria andIsuploadsummaryNotBetween(String value1, String value2) {
+/* 1323 */       addCriterion("ISUPLOADSUMMARY not between", value1, value2, "isuploadsummary");
+/* 1324 */       return (MeetingExample.Criteria)this;
+/*      */     }
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.meet.MeetingExample
+ * JD-Core Version:    0.6.0
+ */

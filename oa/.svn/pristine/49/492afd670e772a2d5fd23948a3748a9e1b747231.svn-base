@@ -1,0 +1,637 @@
+/*     */ package com.xoa.service.edu.eduTrainingPlan.impl;
+/*     */ 
+/*     */ import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.edu.eduTrainingPlan.EduTrainingPlanMapper;
+/*     */ import com.xoa.dao.edu.eduUser.EduUserMapper;
+/*     */ import com.xoa.model.department.Department;
+/*     */ import com.xoa.model.edu.eduTrainingPlan.EduTrainingPlan;
+/*     */ import com.xoa.model.edu.eduUser.EduUser;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.edu.eduTrainingPlan.IEduTrainingPlanService;
+/*     */ import com.xoa.util.AjaxJson;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduTrainingPlanServiceImpl extends ServiceImpl<EduTrainingPlanMapper, EduTrainingPlan>
+/*     */   implements IEduTrainingPlanService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   EduTrainingPlanMapper eduTrainingPlanMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   DepartmentMapper eduDepartmentMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   EduUserMapper eduUserMapper;
+/*     */ 
+/*     */   public ToJson<EduTrainingPlan> getHrtailDetail(Integer planId)
+/*     */   {
+/*  48 */     ToJson json = new ToJson();
+/*     */     try {
+/*  50 */       EduTrainingPlan traindetailById = this.eduTrainingPlanMapper.getTraindetailById(planId.intValue());
+/*     */ 
+/*  53 */       String sponsoringDepartment = traindetailById.getSponsoringDepartment();
+/*  54 */       if (sponsoringDepartment != null) {
+/*  55 */         sponsoringDepartment = sponsoringDepartment.substring(0, sponsoringDepartment.length() - 1);
+/*  56 */         Department eduDepartmentWithBLOBs = this.eduDepartmentMapper.getDeptById(Integer.valueOf(sponsoringDepartment).intValue());
+/*  57 */         if (eduDepartmentWithBLOBs != null)
+/*  58 */           traindetailById.setSponsoringDepartmentName(eduDepartmentWithBLOBs.getDeptName());
+/*     */         else {
+/*  60 */           traindetailById.setSponsoringDepartmentName("");
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/*  65 */       String chargePerson = traindetailById.getChargePerson();
+/*  66 */       if (chargePerson != null) {
+/*  67 */         chargePerson = chargePerson.substring(0, chargePerson.length() - 1);
+/*  68 */         EduUser byuserId = this.eduUserMapper.getByuserId(chargePerson);
+/*  69 */         if (byuserId != null)
+/*  70 */           traindetailById.setChargePersonName(byuserId.getUserName());
+/*     */         else {
+/*  72 */           traindetailById.setChargePersonName("");
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/*  77 */       String assessingOfficer = traindetailById.getAssessingOfficer();
+/*  78 */       if (assessingOfficer != null) {
+/*  79 */         assessingOfficer = assessingOfficer.substring(0, assessingOfficer.length() - 1);
+/*  80 */         EduUser byuserId3 = this.eduUserMapper.getByuserId(assessingOfficer);
+/*  81 */         if (byuserId3 != null)
+/*  82 */           traindetailById.setAssessingOfficerName(byuserId3.getUserName());
+/*     */         else {
+/*  84 */           traindetailById.setAssessingOfficerName("");
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/*  89 */       StringBuffer sb = new StringBuffer();
+/*  90 */       String joinDept = traindetailById.getJoinDept();
+/*  91 */       if ((joinDept != null) && (!"".equals(joinDept))) {
+/*  92 */         String[] split = joinDept.split(",");
+/*  93 */         for (String s : split) {
+/*  94 */           Department eduDepartmentWithBLOBs1 = this.eduDepartmentMapper.getDeptById(Integer.valueOf(s).intValue());
+/*  95 */           if (eduDepartmentWithBLOBs1 != null) {
+/*  96 */             sb.append(eduDepartmentWithBLOBs1.getDeptName() + ",");
+/*     */           }
+/*     */         }
+/*     */       }
+/* 100 */       traindetailById.setJoinDeptName(sb.toString());
+/*     */ 
+/* 102 */       StringBuffer sbUser = new StringBuffer();
+/* 103 */       String joinPerson = traindetailById.getJoinPerson();
+/* 104 */       if ((joinPerson != null) && (!"".equals(joinPerson))) {
+/* 105 */         String[] split = joinPerson.split(",");
+/* 106 */         for (String s : split) {
+/* 107 */           EduUser byuserId2 = this.eduUserMapper.getByuserId(s);
+/* 108 */           if (byuserId2 != null) {
+/* 109 */             sbUser.append(byuserId2.getUserName() + ",");
+/*     */           }
+/*     */         }
+/*     */       }
+/* 113 */       traindetailById.setJoinPersonName(sbUser.toString());
+/*     */ 
+/* 115 */       traindetailById.setAssessingStatuName("");
+/* 116 */       traindetailById.setChannelName("");
+/* 117 */       traindetailById.setCourseTypesName("");
+/* 118 */       if (traindetailById.getAssessingStatus() != null) {
+/* 119 */         if (traindetailById.getAssessingStatus().intValue() == 0) {
+/* 120 */           traindetailById.setAssessingStatuName("待审批");
+/*     */         }
+/* 122 */         else if (traindetailById.getAssessingStatus().intValue() == 1) {
+/* 123 */           traindetailById.setAssessingStatuName("已批准");
+/*     */         }
+/*     */         else {
+/* 126 */           traindetailById.setAssessingStatuName("已拒绝");
+/*     */         }
+/*     */       }
+/* 129 */       if (traindetailById.getChannel() != null) {
+/* 130 */         if (traindetailById.getChannel().equals("0"))
+/* 131 */           traindetailById.setChannelName("内部培训");
+/* 132 */         else if (traindetailById.getChannel().equals("1"))
+/* 133 */           traindetailById.setChannelName("渠道培训");
+/*     */         else {
+/* 135 */           traindetailById.setChannelName("");
+/*     */         }
+/*     */       }
+/* 138 */       if (traindetailById.getCourseTypes() != null) {
+/* 139 */         if (traindetailById.getCourseTypes().equals("1")) {
+/* 140 */           traindetailById.setCourseTypesName("面授");
+/*     */         }
+/* 142 */         else if (traindetailById.getCourseTypes().equals("2")) {
+/* 143 */           traindetailById.setCourseTypesName("函授");
+/*     */         }
+/*     */         else {
+/* 146 */           traindetailById.setCourseTypesName("其他");
+/*     */         }
+/*     */       }
+/* 149 */       json.setFlag(0);
+/* 150 */       json.setObject(traindetailById);
+/* 151 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 153 */       json.setMsg("err");
+/* 154 */       json.setFlag(1);
+/* 155 */       e.printStackTrace();
+/*     */     }
+/* 157 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getAll(HttpServletRequest request, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 163 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */ 
+/* 165 */     PageParams pageParams = new PageParams();
+/* 166 */     pageParams.setPage(page);
+/* 167 */     pageParams.setPageSize(pageSize);
+/* 168 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 169 */     Map map = new HashMap();
+/* 170 */     map.put("page", pageParams);
+/*     */     try
+/*     */     {
+/* 174 */       List<EduTrainingPlan> allEduTail = this.eduTrainingPlanMapper.getAll(map);
+/* 175 */       for (EduTrainingPlan eduTrainingPlan : allEduTail) {
+/* 176 */         if (eduTrainingPlan.getAssessingStatus() != null) {
+/* 177 */           if (eduTrainingPlan.getAssessingStatus().intValue() == 0) {
+/* 178 */             eduTrainingPlan.setAssessingStatuName("待审批");
+/*     */           }
+/* 180 */           else if (eduTrainingPlan.getAssessingStatus().intValue() == 1) {
+/* 181 */             eduTrainingPlan.setAssessingStatuName("已批准");
+/*     */           }
+/*     */           else {
+/* 184 */             eduTrainingPlan.setAssessingStatuName("已拒绝");
+/*     */           }
+/*     */         }
+/* 187 */         if (eduTrainingPlan.getChannel() != null) {
+/* 188 */           if (eduTrainingPlan.getChannel().equals("0"))
+/* 189 */             eduTrainingPlan.setChannelName("内部培训");
+/* 190 */           else if (eduTrainingPlan.getChannel().equals("1"))
+/* 191 */             eduTrainingPlan.setChannelName("渠道培训");
+/*     */           else {
+/* 193 */             eduTrainingPlan.setChannelName("");
+/*     */           }
+/*     */         }
+/* 196 */         if (eduTrainingPlan.getCourseTypes() != null) {
+/* 197 */           if (eduTrainingPlan.getCourseTypes().equals("1")) {
+/* 198 */             eduTrainingPlan.setCourseTypesName("面授");
+/*     */           }
+/* 200 */           else if (eduTrainingPlan.getCourseTypes().equals("2")) {
+/* 201 */             eduTrainingPlan.setCourseTypesName("函授");
+/*     */           }
+/*     */           else {
+/* 204 */             eduTrainingPlan.setCourseTypesName("其他");
+/*     */           }
+/*     */         }
+/*     */       }
+/* 208 */       int count = this.eduTrainingPlanMapper.getCount();
+/* 209 */       ajaxJson.setTotleNum(Integer.valueOf(count));
+/* 210 */       ajaxJson.setFlag(true);
+/* 211 */       ajaxJson.setMsg("ok");
+/* 212 */       ajaxJson.setObj(allEduTail);
+/*     */     } catch (Exception e) {
+/* 214 */       ajaxJson.setFlag(false);
+/* 215 */       ajaxJson.setMsg("err");
+/* 216 */       e.printStackTrace();
+/*     */     }
+/* 218 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson editTrain(EduTrainingPlan eduTrainingPlan)
+/*     */   {
+/* 223 */     AjaxJson ajaxJson = new AjaxJson();
+/* 224 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 226 */       this.eduTrainingPlanMapper.editTrain(eduTrainingPlan);
+/* 227 */       ajaxJson.setMsg("ok");
+/* 228 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 230 */       ajaxJson.setMsg(e.getMessage());
+/* 231 */       ajaxJson.setFlag(false);
+/* 232 */       e.printStackTrace();
+/*     */     }
+/* 234 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson deleteTrainObjects(String[] planIds)
+/*     */   {
+/* 239 */     AjaxJson ajaxJson = new AjaxJson();
+/* 240 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 242 */       this.eduTrainingPlanMapper.deleteObject(planIds);
+/* 243 */       ajaxJson.setMsg("ok");
+/* 244 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 246 */       ajaxJson.setMsg(e.getMessage());
+/* 247 */       ajaxJson.setFlag(false);
+/* 248 */       e.printStackTrace();
+/*     */     }
+/* 250 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson deleteTrainById(String planId)
+/*     */   {
+/* 255 */     AjaxJson ajaxJson = new AjaxJson();
+/* 256 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 258 */       this.eduTrainingPlanMapper.deleteObjectById(planId);
+/* 259 */       ajaxJson.setMsg("ok");
+/* 260 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 262 */       ajaxJson.setMsg(e.getMessage());
+/* 263 */       ajaxJson.setFlag(false);
+/* 264 */       e.printStackTrace();
+/*     */     }
+/* 266 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson addTrain(HttpServletRequest request, EduTrainingPlan eduTrainingPlan)
+/*     */   {
+/* 271 */     AjaxJson ajaxJson = new AjaxJson();
+/* 272 */     ajaxJson.setFlag(false);
+/* 273 */     Date date = new Date();
+/*     */     try
+/*     */     {
+/* 276 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 277 */       eduTrainingPlan.setCreateUserId(users.getUserId());
+/* 278 */       eduTrainingPlan.setCreateDeptId(users.getDeptId());
+/* 279 */       eduTrainingPlan.setAddTime(date);
+/* 280 */       this.eduTrainingPlanMapper.addTrain(eduTrainingPlan);
+/* 281 */       ajaxJson.setMsg("ok");
+/* 282 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 284 */       ajaxJson.setMsg(e.getMessage());
+/* 285 */       ajaxJson.setFlag(false);
+/* 286 */       e.printStackTrace();
+/*     */     }
+/* 288 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson queryTrain(Integer page, Integer pageSize, boolean useFlag, EduTrainingPlan eduTrainingPlan)
+/*     */   {
+/* 293 */     AjaxJson ajaxJson = new AjaxJson();
+/* 294 */     ajaxJson.setFlag(false);
+/*     */     try
+/*     */     {
+/* 297 */       PageParams pageParams = new PageParams();
+/* 298 */       pageParams.setPage(page);
+/* 299 */       pageParams.setPageSize(pageSize);
+/* 300 */       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/* 301 */       Map map = new HashMap();
+/* 302 */       map.put("page", pageParams);
+/* 303 */       map.put("eduTrainingPlan", eduTrainingPlan);
+/* 304 */       List<EduTrainingPlan> eduTrainingPlans = this.eduTrainingPlanMapper.queryTrain(map);
+/* 305 */       for (EduTrainingPlan eduTrainingPlan_1 : eduTrainingPlans)
+/*     */       {
+/* 307 */         eduTrainingPlan_1.setAssessingStatuName("");
+/* 308 */         eduTrainingPlan_1.setChannelName("");
+/* 309 */         eduTrainingPlan_1.setCourseTypesName("");
+/* 310 */         if (eduTrainingPlan_1.getAssessingStatus() != null) {
+/* 311 */           if (eduTrainingPlan_1.getAssessingStatus().intValue() == 0) {
+/* 312 */             eduTrainingPlan_1.setAssessingStatuName("待审批");
+/*     */           }
+/* 314 */           else if (eduTrainingPlan_1.getAssessingStatus().intValue() == 1) {
+/* 315 */             eduTrainingPlan_1.setAssessingStatuName("已批准");
+/*     */           }
+/*     */           else {
+/* 318 */             eduTrainingPlan_1.setAssessingStatuName("已拒绝");
+/*     */           }
+/*     */         }
+/* 321 */         if (eduTrainingPlan_1.getChannel() != null) {
+/* 322 */           if (eduTrainingPlan_1.getChannel().equals("0"))
+/* 323 */             eduTrainingPlan_1.setChannelName("内部培训");
+/* 324 */           else if (eduTrainingPlan_1.getChannel().equals("1"))
+/* 325 */             eduTrainingPlan_1.setChannelName("渠道培训");
+/*     */           else {
+/* 327 */             eduTrainingPlan_1.setChannelName("");
+/*     */           }
+/*     */         }
+/* 330 */         if (eduTrainingPlan_1.getCourseTypes() != null) {
+/* 331 */           if (eduTrainingPlan_1.getCourseTypes().equals("1")) {
+/* 332 */             eduTrainingPlan_1.setCourseTypesName("面授");
+/*     */           }
+/* 334 */           else if (eduTrainingPlan_1.getCourseTypes().equals("2")) {
+/* 335 */             eduTrainingPlan_1.setCourseTypesName("函授");
+/*     */           }
+/*     */           else {
+/* 338 */             eduTrainingPlan_1.setCourseTypesName("其他");
+/*     */           }
+/*     */         }
+/*     */       }
+/* 342 */       ajaxJson.setObj(eduTrainingPlans);
+/* 343 */       ajaxJson.setMsg("ok");
+/* 344 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 346 */       ajaxJson.setMsg(e.getMessage());
+/* 347 */       ajaxJson.setFlag(false);
+/* 348 */       e.printStackTrace();
+/*     */     }
+/* 350 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getEduTrainByStatus(HttpServletRequest request, String assessingStatus)
+/*     */   {
+/* 355 */     AjaxJson ajaxJson = new AjaxJson();
+/* 356 */     ajaxJson.setFlag(false);
+/*     */     try
+/*     */     {
+/* 359 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 360 */       String userId = users.getUserId();
+/* 361 */       Map map = new HashMap();
+/* 362 */       map.put("userId", userId);
+/* 363 */       map.put("assessingStatus", assessingStatus);
+/* 364 */       List<EduTrainingPlan> eduTrainByStatus = this.eduTrainingPlanMapper.getEduTrainByStatus(map);
+/* 365 */       for (EduTrainingPlan eduTrainingPlan : eduTrainByStatus)
+/*     */       {
+/* 367 */         eduTrainingPlan.setAssessingStatuName("");
+/* 368 */         eduTrainingPlan.setChannelName("");
+/* 369 */         eduTrainingPlan.setCourseTypesName("");
+/* 370 */         if (eduTrainingPlan.getAssessingStatus() != null) {
+/* 371 */           if (eduTrainingPlan.getAssessingStatus().intValue() == 0) {
+/* 372 */             eduTrainingPlan.setAssessingStatuName("待审批");
+/*     */           }
+/* 374 */           else if (eduTrainingPlan.getAssessingStatus().intValue() == 1) {
+/* 375 */             eduTrainingPlan.setAssessingStatuName("已批准");
+/*     */           }
+/*     */           else {
+/* 378 */             eduTrainingPlan.setAssessingStatuName("已拒绝");
+/*     */           }
+/*     */         }
+/* 381 */         if (eduTrainingPlan.getChannel() != null) {
+/* 382 */           if (eduTrainingPlan.getChannel().equals("0"))
+/* 383 */             eduTrainingPlan.setChannelName("内部培训");
+/* 384 */           else if (eduTrainingPlan.getChannel().equals("1"))
+/* 385 */             eduTrainingPlan.setChannelName("渠道培训");
+/*     */           else {
+/* 387 */             eduTrainingPlan.setChannelName("");
+/*     */           }
+/*     */         }
+/* 390 */         if (eduTrainingPlan.getCourseTypes() != null) {
+/* 391 */           if (eduTrainingPlan.getCourseTypes().equals("1")) {
+/* 392 */             eduTrainingPlan.setCourseTypesName("面授");
+/*     */           }
+/* 394 */           else if (eduTrainingPlan.getCourseTypes().equals("2")) {
+/* 395 */             eduTrainingPlan.setCourseTypesName("函授");
+/*     */           }
+/*     */           else {
+/* 398 */             eduTrainingPlan.setCourseTypesName("其他");
+/*     */           }
+/*     */         }
+/*     */       }
+/* 402 */       ajaxJson.setObj(eduTrainByStatus);
+/* 403 */       ajaxJson.setMsg("ok");
+/* 404 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 406 */       ajaxJson.setMsg(e.getMessage());
+/* 407 */       ajaxJson.setFlag(false);
+/* 408 */       e.printStackTrace();
+/*     */     }
+/* 410 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson editEduTrainByStatus(EduTrainingPlan eduTrainingPlan)
+/*     */   {
+/* 415 */     AjaxJson ajaxJson = new AjaxJson();
+/* 416 */     ajaxJson.setFlag(false);
+/*     */ 
+/* 418 */     Date date = new Date();
+/* 419 */     eduTrainingPlan.setAssessingTime(date);
+/*     */     try {
+/* 421 */       this.eduTrainingPlanMapper.editEduTrainByStatus(eduTrainingPlan);
+/* 422 */       ajaxJson.setMsg("ok");
+/* 423 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 425 */       ajaxJson.setMsg(e.getMessage());
+/* 426 */       ajaxJson.setFlag(false);
+/* 427 */       e.printStackTrace();
+/*     */     }
+/* 429 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson QueryPlan(EduTrainingPlan eduTrainingPlan, String startTime, String endTime)
+/*     */   {
+/* 434 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try {
+/* 436 */       Map map = new HashMap();
+/* 437 */       map.put("eduTrainingPlan", eduTrainingPlan);
+/* 438 */       map.put("startTime", startTime);
+/* 439 */       map.put("endTime", endTime);
+/* 440 */       List<EduTrainingPlan> eduTrainingPlans = this.eduTrainingPlanMapper.QueryPlan(map);
+/* 441 */       for (EduTrainingPlan eduTrainingPlan_1 : eduTrainingPlans)
+/*     */       {
+/* 443 */         eduTrainingPlan_1.setAssessingStatuName("");
+/* 444 */         eduTrainingPlan_1.setChannelName("");
+/* 445 */         eduTrainingPlan_1.setCourseTypesName("");
+/* 446 */         if (eduTrainingPlan_1.getAssessingStatus() != null) {
+/* 447 */           if (eduTrainingPlan_1.getAssessingStatus().intValue() == 0) {
+/* 448 */             eduTrainingPlan_1.setAssessingStatuName("待审批");
+/*     */           }
+/* 450 */           else if (eduTrainingPlan_1.getAssessingStatus().intValue() == 1) {
+/* 451 */             eduTrainingPlan_1.setAssessingStatuName("已批准");
+/*     */           }
+/*     */           else {
+/* 454 */             eduTrainingPlan_1.setAssessingStatuName("已拒绝");
+/*     */           }
+/*     */         }
+/* 457 */         if (eduTrainingPlan_1.getChannel() != null) {
+/* 458 */           if (eduTrainingPlan_1.getChannel().equals("0"))
+/* 459 */             eduTrainingPlan_1.setChannelName("内部培训");
+/* 460 */           else if (eduTrainingPlan_1.getChannel().equals("1"))
+/* 461 */             eduTrainingPlan_1.setChannelName("渠道培训");
+/*     */           else {
+/* 463 */             eduTrainingPlan_1.setChannelName("");
+/*     */           }
+/*     */         }
+/* 466 */         if (eduTrainingPlan_1.getCourseTypes() != null) {
+/* 467 */           if (eduTrainingPlan_1.getCourseTypes().equals("1")) {
+/* 468 */             eduTrainingPlan_1.setCourseTypesName("面授");
+/*     */           }
+/* 470 */           else if (eduTrainingPlan_1.getCourseTypes().equals("2")) {
+/* 471 */             eduTrainingPlan_1.setCourseTypesName("函授");
+/*     */           }
+/*     */           else {
+/* 474 */             eduTrainingPlan_1.setCourseTypesName("其他");
+/*     */           }
+/*     */         }
+/*     */       }
+/* 478 */       ajaxJson.setMsg("ok");
+/* 479 */       ajaxJson.setFlag(true);
+/* 480 */       ajaxJson.setObj(eduTrainingPlans);
+/*     */     } catch (Exception e) {
+/* 482 */       ajaxJson.setMsg(e.getMessage());
+/* 483 */       ajaxJson.setFlag(false);
+/* 484 */       e.printStackTrace();
+/*     */     }
+/* 486 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson QueryPlanStatus(EduTrainingPlan eduTrainingPlan, String startTime, String endTime, HttpServletRequest request)
+/*     */   {
+/* 491 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try {
+/* 493 */       Map map = new HashMap();
+/*     */ 
+/* 495 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 496 */       String userId = users.getUserId();
+/* 497 */       map.put("eduTrainingPlan", eduTrainingPlan);
+/* 498 */       map.put("startTime", startTime);
+/* 499 */       map.put("endTime", endTime);
+/* 500 */       map.put("userId", userId);
+/* 501 */       List<EduTrainingPlan> eduTrainingPlans = this.eduTrainingPlanMapper.QueryPlanStatus(map);
+/* 502 */       for (EduTrainingPlan eduTrainingPlan_1 : eduTrainingPlans)
+/*     */       {
+/* 504 */         eduTrainingPlan_1.setAssessingStatuName("");
+/* 505 */         eduTrainingPlan_1.setChannelName("");
+/* 506 */         eduTrainingPlan_1.setCourseTypesName("");
+/* 507 */         if (eduTrainingPlan_1.getAssessingStatus() != null) {
+/* 508 */           if (eduTrainingPlan_1.getAssessingStatus().intValue() == 0) {
+/* 509 */             eduTrainingPlan_1.setAssessingStatuName("待审批");
+/*     */           }
+/* 511 */           else if (eduTrainingPlan_1.getAssessingStatus().intValue() == 1) {
+/* 512 */             eduTrainingPlan_1.setAssessingStatuName("已批准");
+/*     */           }
+/*     */           else {
+/* 515 */             eduTrainingPlan_1.setAssessingStatuName("已拒绝");
+/*     */           }
+/*     */         }
+/* 518 */         if (eduTrainingPlan_1.getChannel() != null) {
+/* 519 */           if (eduTrainingPlan_1.getChannel().equals("0"))
+/* 520 */             eduTrainingPlan_1.setChannelName("内部培训");
+/* 521 */           else if (eduTrainingPlan_1.getChannel().equals("1"))
+/* 522 */             eduTrainingPlan_1.setChannelName("渠道培训");
+/*     */           else {
+/* 524 */             eduTrainingPlan_1.setChannelName("");
+/*     */           }
+/*     */         }
+/* 527 */         if (eduTrainingPlan_1.getCourseTypes() != null) {
+/* 528 */           if (eduTrainingPlan_1.getCourseTypes().equals("1")) {
+/* 529 */             eduTrainingPlan_1.setCourseTypesName("面授");
+/*     */           }
+/* 531 */           else if (eduTrainingPlan_1.getCourseTypes().equals("2")) {
+/* 532 */             eduTrainingPlan_1.setCourseTypesName("函授");
+/*     */           }
+/*     */           else {
+/* 535 */             eduTrainingPlan_1.setCourseTypesName("其他");
+/*     */           }
+/*     */         }
+/*     */       }
+/* 539 */       ajaxJson.setMsg("ok");
+/* 540 */       ajaxJson.setFlag(true);
+/* 541 */       ajaxJson.setObj(eduTrainingPlans);
+/*     */     } catch (Exception e) {
+/* 543 */       ajaxJson.setMsg(e.getMessage());
+/* 544 */       ajaxJson.setFlag(false);
+/* 545 */       e.printStackTrace();
+/*     */     }
+/* 547 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getMinePlanByStatus(HttpServletRequest request, String assessingStatus)
+/*     */   {
+/* 552 */     AjaxJson ajaxJson = new AjaxJson();
+/* 553 */     ajaxJson.setFlag(false);
+/*     */     try
+/*     */     {
+/* 556 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 557 */       String userId = users.getUserId();
+/* 558 */       Map map = new HashMap();
+/* 559 */       map.put("userId", userId);
+/* 560 */       map.put("assessingStatus", assessingStatus);
+/* 561 */       List<EduTrainingPlan> eduTrainByStatus = this.eduTrainingPlanMapper.getMinePlanByStatus(map);
+/* 562 */       for (EduTrainingPlan eduTrainingPlan : eduTrainByStatus)
+/*     */       {
+/* 564 */         eduTrainingPlan.setAssessingStatuName("");
+/* 565 */         eduTrainingPlan.setChannelName("");
+/* 566 */         eduTrainingPlan.setCourseTypesName("");
+/* 567 */         if (eduTrainingPlan.getAssessingStatus() != null) {
+/* 568 */           if (eduTrainingPlan.getAssessingStatus().intValue() == 0) {
+/* 569 */             eduTrainingPlan.setAssessingStatuName("待审批");
+/*     */           }
+/* 571 */           else if (eduTrainingPlan.getAssessingStatus().intValue() == 1) {
+/* 572 */             eduTrainingPlan.setAssessingStatuName("已批准");
+/*     */           }
+/*     */           else {
+/* 575 */             eduTrainingPlan.setAssessingStatuName("已拒绝");
+/*     */           }
+/*     */         }
+/* 578 */         if (eduTrainingPlan.getChannel() != null) {
+/* 579 */           if (eduTrainingPlan.getChannel().equals("0"))
+/* 580 */             eduTrainingPlan.setChannelName("内部培训");
+/* 581 */           else if (eduTrainingPlan.getChannel().equals("1"))
+/* 582 */             eduTrainingPlan.setChannelName("渠道培训");
+/*     */           else {
+/* 584 */             eduTrainingPlan.setChannelName("");
+/*     */           }
+/*     */         }
+/* 587 */         if (eduTrainingPlan.getCourseTypes() != null) {
+/* 588 */           if (eduTrainingPlan.getCourseTypes().equals("1")) {
+/* 589 */             eduTrainingPlan.setCourseTypesName("面授");
+/*     */           }
+/* 591 */           else if (eduTrainingPlan.getCourseTypes().equals("2")) {
+/* 592 */             eduTrainingPlan.setCourseTypesName("函授");
+/*     */           }
+/*     */           else {
+/* 595 */             eduTrainingPlan.setCourseTypesName("其他");
+/*     */           }
+/*     */         }
+/*     */       }
+/* 599 */       ajaxJson.setObj(eduTrainByStatus);
+/* 600 */       ajaxJson.setMsg("ok");
+/* 601 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 603 */       ajaxJson.setMsg(e.getMessage());
+/* 604 */       ajaxJson.setFlag(false);
+/* 605 */       e.printStackTrace();
+/*     */     }
+/* 607 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getAllPlan()
+/*     */   {
+/* 612 */     AjaxJson ajaxJson = new AjaxJson();
+/* 613 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 615 */       List allPlan = this.eduTrainingPlanMapper.getAllPlan();
+/* 616 */       ajaxJson.setObj(allPlan);
+/* 617 */       ajaxJson.setMsg("ok");
+/* 618 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 620 */       ajaxJson.setMsg(e.getMessage());
+/* 621 */       ajaxJson.setFlag(false);
+/* 622 */       e.printStackTrace();
+/*     */     }
+/* 624 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getAllPlanTrue()
+/*     */   {
+/* 629 */     AjaxJson ajaxJson = new AjaxJson();
+/* 630 */     ajaxJson.setFlag(false);
+/*     */     try {
+/* 632 */       List allPlan = this.eduTrainingPlanMapper.getAllPlanTrue();
+/* 633 */       ajaxJson.setObj(allPlan);
+/* 634 */       ajaxJson.setMsg("ok");
+/* 635 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 637 */       ajaxJson.setMsg(e.getMessage());
+/* 638 */       ajaxJson.setFlag(false);
+/* 639 */       e.printStackTrace();
+/*     */     }
+/* 641 */     return ajaxJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduTrainingPlan.impl.EduTrainingPlanServiceImpl
+ * JD-Core Version:    0.6.0
+ */

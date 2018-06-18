@@ -1,0 +1,637 @@
+ package com.xoa.service.sys.impl;
+ 
+ import com.xoa.dao.sys.SysLogMapper;
+ import com.xoa.model.common.Syslog;
+ import com.xoa.model.users.Users;
+ import com.xoa.service.common.SysCodeService;
+ import com.xoa.service.sys.SysLogService;
+ import com.xoa.service.users.UsersService;
+ import com.xoa.util.DateFormat;
+ import com.xoa.util.ToJson;
+ import com.xoa.util.common.session.SessionUtils;
+ import java.text.ParseException;
+ import java.text.SimpleDateFormat;
+ import java.util.ArrayList;
+ import java.util.Date;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import javax.annotation.Resource;
+ import javax.servlet.http.HttpServletRequest;
+ import org.springframework.stereotype.Service;
+ 
+ @Service
+ public class SysLogServiceImpl
+   implements SysLogService
+ {
+ 
+   @Resource
+   private SysLogMapper sysLogMapper;
+ 
+   @Resource
+   private UsersService usersService;
+ 
+   @Resource
+   private SysCodeService sysCodeService;
+ 
+   public void getLogMessage(Map<String, Long> map)
+     throws ParseException
+   {
+     Date date = new Date();
+     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+     String dateString = sdf.format(date);
+     String year = dateString.substring(0, 4);
+     String yearmouth = dateString.substring(0, 7);
+     String yearmouthday = dateString.concat(" 00:00:00");
+ 
+     long totalDay = 0L;
+     List totalDayList = this.sysLogMapper.findTotalDay();
+     if ((totalDayList != null) && (totalDayList.size() == 1)) {
+       Syslog statSysLog = (Syslog)totalDayList.get(0);
+       Date logStartTime = statSysLog.getTime();
+       totalDay = getDay(logStartTime);
+     }
+ 
+     Long totalCount = this.sysLogMapper.findTotalCount();
+     Map hashMap = new HashMap();
+ 
+     hashMap.put("yearStart", year.concat("-01-01"));
+     hashMap.put("yearEnd", year.concat("-12-31"));
+     Long yearCount = this.sysLogMapper.findYearCount(hashMap);
+ 
+     yearmouth = yearmouth.concat("-01 00:00:00");
+     Long mouthCount = this.sysLogMapper.findMouthCount(yearmouth);
+ 
+     Long dayCount = this.sysLogMapper.findDayCount(yearmouthday);
+     Long averageDayCount = Long.valueOf(totalCount.longValue() / totalDay);
+ 
+     map.put("totalDay", Long.valueOf(totalDay));
+     map.put("totalCount", totalCount);
+     map.put("yearCount", yearCount);
+     map.put("mouthCount", mouthCount);
+     map.put("dayCount", dayCount);
+     map.put("averageDayCount", averageDayCount);
+   }
+ 
+   public List<Syslog> getTenLog()
+   {
+     List list = this.sysLogMapper.getTenLog();
+     if (list != null) {
+       for (int i = 0; i < list.size(); i++) {
+         String username = this.usersService.getUserNameById(((Syslog)list.get(i)).getUserId());
+         ((Syslog)list.get(i)).setUserName(username);
+         String typeName = this.sysCodeService.getLogNameByNo("" + ((Syslog)list.get(i)).getType());
+         ((Syslog)list.get(i)).setTypeName(typeName);
+       }
+     }
+     return list;
+   }
+ 
+   public List<Object> getEachMouthLogData(String year)
+   {
+     List yearDataList = new ArrayList();
+     List eachMonthCount = new ArrayList();
+     List monthInYearCount = new ArrayList();
+     Integer thisYearTotalCount = Integer.valueOf(0);
+ 
+     Integer monthCount = getMonth(year);
+     if ((year != null) && (year.trim().length() == 4)) {
+       for (int i = 1; i <= monthCount.intValue(); i++)
+       {
+         String monthTime;
+         if (i < 9)
+           monthTime = year + "-0" + i;
+         else {
+           monthTime = year + "-" + i;
+         }
+         Integer thisMonthCount = this.sysLogMapper.getThisMonthCount(monthTime.concat("%"));
+         thisYearTotalCount = Integer.valueOf(thisYearTotalCount.intValue() + thisMonthCount.intValue());
+         eachMonthCount.add(thisMonthCount);
+       }
+ 
+     }
+ 
+     for (int i = 0; i < monthCount.intValue(); i++)
+     {
+       Double percentage = Double.valueOf(Double.valueOf(((Integer)eachMonthCount.get(i)).intValue()).doubleValue() / Double.valueOf(thisYearTotalCount.intValue()).doubleValue() * 100.0D);
+ 
+       String percentageStr = String.format("%.2f", new Object[] { percentage });
+       String[] dataArr = percentageStr.split("\\.");
+       String intStr = dataArr[0];
+       String floatStr = dataArr[1].concat("%");
+       percentageStr = intStr.concat(".").concat(floatStr);
+       monthInYearCount.add(percentageStr);
+     }
+ 
+     yearDataList.add(eachMonthCount);
+     yearDataList.add(monthInYearCount);
+     return yearDataList;
+   }
+ 
+   public List<Integer> getYear()
+   {
+     List startLogTime = this.sysLogMapper.findTotalDay();
+     ArrayList startEndYearList = new ArrayList();
+     if ((startLogTime != null) && (startLogTime.size() == 1)) {
+       Date startDate = ((Syslog)startLogTime.get(0)).getTime();
+       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+       String startDateStr = sdf.format(startDate);
+       String startYear = startDateStr.substring(0, 4);
+       Date thisDate = new Date();
+       String thisDateStr = sdf.format(thisDate);
+       String thisYear = thisDateStr.substring(0, 4);
+ 
+       Integer startYearInt = Integer.valueOf(Integer.parseInt(startYear));
+       Integer endYearInt = Integer.valueOf(Integer.parseInt(thisYear));
+ 
+       if (startYearInt.equals(endYearInt))
+       {
+         startEndYearList.add(startYearInt);
+       }
+       else for (int i = startYearInt.intValue(); i <= endYearInt.intValue(); i++) {
+           startEndYearList.add(Integer.valueOf(i));
+         }
+ 
+ 
+       return startEndYearList;
+     }
+ 
+     return null;
+   }
+ 
+   public Integer getMonth(String year)
+   {
+     Date date = new Date();
+     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+     String thisYearStr = sdf.format(date);
+     String thisyear = thisYearStr.substring(0, 4);
+ 
+     if ((year != null) && (year.equals(thisyear))) {
+       String thisMonthStr = thisYearStr.substring(5, 7);
+       return Integer.valueOf(Integer.parseInt(thisMonthStr));
+     }
+     return Integer.valueOf(12);
+   }
+ 
+   public List<Object> getEachDayLogData(String year, String month)
+   {
+     if ((month != null) && (month.startsWith("0"))) {
+       month = month.substring(1, 2);
+     }
+ 
+     List dayLogDataList = new ArrayList();
+ 
+     List dayCountList = new ArrayList();
+ 
+     List percentageList = new ArrayList();
+ 
+     int theYear = Integer.parseInt(year);
+     int theMonth = Integer.parseInt(month);
+     String dayTime = null;
+ 
+     int totalDayCount = 0;
+ 
+     Map map = isThisMonth(year, month);
+     String isThisMonth = (String)map.get("isThisMonth");
+ 
+     int endDay = 0;
+ 
+     boolean flag = false;
+     if (isThisMonth != null) {
+       endDay = Integer.parseInt((String)map.get("thisMonthdayCount"));
+       flag = true;
+     }
+ 
+     if (((theYear % 4 == 0) && (theYear % 100 != 0)) || (theYear % 400 == 0))
+     {
+       if ((theMonth == 1) || (theMonth == 3) || (theMonth == 5) || (theMonth == 7) || (theMonth == 8) || (theMonth == 10) || (theMonth == 12))
+       {
+         int monthTotalDay = 31;
+         if (flag) {
+           monthTotalDay = endDay;
+         }
+         for (int i = 1; i <= monthTotalDay; i++)
+         {
+           if (i < 10) {
+             if (Integer.parseInt(month) < 10)
+               dayTime = year + "-0" + month + "-0" + i;
+             else {
+               dayTime = year + "-" + month + "-0" + i;
+             }
+ 
+           }
+           else if (Integer.parseInt(month) < 10)
+             dayTime = year + "-0" + month + "-" + i;
+           else {
+             dayTime = year + "-" + month + "-" + i;
+           }
+ 
+           Integer theDayCount = this.sysLogMapper.getEachDayLogData(dayTime.concat("%"));
+           totalDayCount += theDayCount.intValue();
+           dayCountList.add(theDayCount);
+         }
+ 
+       }
+       else if (theMonth == 2) {
+         int monthTotalDay = 29;
+         if (flag) {
+           monthTotalDay = endDay;
+         }
+ 
+         for (int i = 1; i <= monthTotalDay; i++)
+         {
+           if (i < 10) {
+             if (Integer.parseInt(month) < 10)
+               dayTime = year + "-0" + month + "-0" + i;
+             else {
+               dayTime = year + "-" + month + "-0" + i;
+             }
+ 
+           }
+           else if (Integer.parseInt(month) < 10)
+             dayTime = year + "-0" + month + "-" + i;
+           else {
+             dayTime = year + "-" + month + "-" + i;
+           }
+ 
+           Integer theDayCount = this.sysLogMapper.getEachDayLogData(dayTime.concat("%"));
+           totalDayCount += theDayCount.intValue();
+           dayCountList.add(theDayCount);
+         }
+ 
+       }
+       else
+       {
+         int monthTotalDay = 30;
+         if (flag) {
+           monthTotalDay = endDay;
+         }
+         for (int i = 1; i <= monthTotalDay; i++)
+         {
+           if (i < 10) {
+             if (Integer.parseInt(month) < 10)
+             {
+               dayTime = year + "-0" + month + "-0" + i;
+             }
+             else dayTime = year + "-" + month + "-0" + i;
+ 
+           }
+           else if (Integer.parseInt(month) < 10)
+           {
+             dayTime = year + "-0" + month + "-" + i;
+           }
+           else dayTime = year + "-" + month + "-" + i;
+ 
+           Integer theDayCount = this.sysLogMapper.getEachDayLogData(dayTime.concat("%"));
+           totalDayCount += theDayCount.intValue();
+           dayCountList.add(theDayCount);
+         }
+ 
+       }
+ 
+     }
+     else if ((theMonth == 1) || (theMonth == 3) || (theMonth == 5) || (theMonth == 7) || (theMonth == 8) || (theMonth == 10) || (theMonth == 12))
+     {
+       int monthTotalDay = 31;
+       if (flag) {
+         monthTotalDay = endDay;
+       }
+       for (int i = 1; i <= monthTotalDay; i++)
+       {
+         if (i < 10) {
+           if (Integer.parseInt(month) < 10)
+           {
+             dayTime = year + "-0" + month + "-0" + i;
+           }
+           else dayTime = year + "-" + month + "-0" + i;
+ 
+         }
+         else if (Integer.parseInt(month) < 10)
+           dayTime = year + "-0" + month + "-" + i;
+         else {
+           dayTime = year + "-" + month + "-" + i;
+         }
+ 
+         Integer theDayCount = this.sysLogMapper.getEachDayLogData(dayTime.concat("%"));
+         dayCountList.add(theDayCount);
+         totalDayCount += theDayCount.intValue();
+       }
+     } else if (theMonth == 2) {
+       int monthTotalDay = 28;
+       if (flag) {
+         monthTotalDay = endDay;
+       }
+       for (int i = 1; i <= monthTotalDay; i++)
+       {
+         if (i < 10) {
+           if (Integer.parseInt(month) < 10)
+           {
+             dayTime = year + "-0" + month + "-0" + i;
+           }
+           else dayTime = year + "-" + month + "-0" + i;
+ 
+         }
+         else if (Integer.parseInt(month) < 10)
+         {
+           dayTime = year + "-0" + month + "-" + i;
+         }
+         else dayTime = year + "-" + month + "-" + i;
+ 
+         Integer theDayCount = this.sysLogMapper.getEachDayLogData(dayTime.concat("%"));
+         dayCountList.add(theDayCount);
+         totalDayCount += theDayCount.intValue();
+       }
+     }
+     else
+     {
+       int monthTotalDay = 30;
+       if (flag) {
+         monthTotalDay = endDay;
+       }
+       for (int i = 1; i <= monthTotalDay; i++)
+       {
+         if (i < 10) {
+           if (Integer.parseInt(month) < 10)
+           {
+             dayTime = year + "-0" + month + "-0" + i;
+           }
+           else dayTime = year + "-" + month + "-0" + i;
+ 
+         }
+         else if (Integer.parseInt(month) < 10)
+         {
+           dayTime = year + "-0" + month + "-" + i;
+         }
+         else dayTime = year + "-" + month + "-" + i;
+ 
+         Integer theDayCount = this.sysLogMapper.getEachDayLogData(dayTime.concat("%"));
+         dayCountList.add(theDayCount);
+         totalDayCount += theDayCount.intValue();
+       }
+ 
+     }
+ 
+     for (int i = 0; i < dayCountList.size(); i++)
+     {
+       Object o = dayCountList;
+       Double percentage;
+       if (totalDayCount == 0)
+         percentage = Double.valueOf(0.0D);
+       else {
+         percentage = Double.valueOf(Double.valueOf(((Integer)dayCountList.get(i)).intValue()).doubleValue() / Double.valueOf(totalDayCount).doubleValue() * 100.0D);
+       }
+       String percentageStr = String.format("%.3f", new Object[] { percentage });
+ 
+       String[] splitArr = percentageStr.split("\\.");
+       String intStr = splitArr[0];
+ 
+       String floatStr = splitArr[1].concat("000000").substring(0, 2);
+ 
+       String wholeStr = intStr.concat(".").concat(floatStr).concat("%");
+ 
+       percentageList.add(wholeStr);
+     }
+ 
+     dayLogDataList.add(dayCountList);
+     dayLogDataList.add(percentageList);
+ 
+     return dayLogDataList;
+   }
+ 
+   public List<Object> getHourLog()
+   {
+     List hourDataList = new ArrayList();
+ 
+     String hourTime = "";
+     List hourCountList = new ArrayList();
+     List countpercentList = new ArrayList();
+     int totalCount = 0;
+ 
+     for (int i = 0; i <= 23; i++)
+     {
+       if (i < 10)
+         hourTime = "0" + i;
+       else {
+         hourTime = "" + i;
+       }
+ 
+       String ss = "___________".concat(hourTime).concat("______");
+       int theHourCount = this.sysLogMapper.getHourLog("___________".concat(hourTime).concat("______"));
+       hourCountList.add(Integer.valueOf(theHourCount));
+       totalCount += theHourCount;
+     }
+ 
+     for (int i = 0; i <= 23; i++) {
+       Double percentage = Double.valueOf(Double.valueOf(((Integer)hourCountList.get(i)).intValue()).doubleValue() / Double.valueOf(totalCount).doubleValue() * 100.0D);
+       String percentageStr = String.format("%.2f", new Object[] { percentage });
+       percentageStr = percentageStr.concat("%");
+       countpercentList.add(percentageStr);
+     }
+ 
+     hourDataList.add(hourCountList);
+     hourDataList.add(countpercentList);
+     return hourDataList;
+   }
+ 
+   public List<Syslog> logManage(Integer type, String uid, String startTime, String endTime, Syslog syslog)
+   {
+     String[] uidArr = new String[0];
+ 
+     if ((uid != null) && (!"".equals(uid))) {
+       uidArr = uid.split(",");
+     }
+ 
+     Map hashMap = new HashMap();
+     if ((uidArr != null) && (uidArr.length > 0)) {
+       hashMap.put("ids", uidArr);
+     }
+     if (!"".equals(startTime)) {
+       hashMap.put("startTime", startTime);
+     }
+     if (!"".equals(endTime)) {
+       hashMap.put("endTime", endTime);
+     }
+ 
+     if ((syslog != null) && (syslog.getIp() != null)) {
+       hashMap.put("ip", syslog.getIp());
+     }
+     if ((syslog != null) && (syslog.getRemark() != null)) {
+       hashMap.put("remark", "%".concat(syslog.getRemark()).concat("%"));
+     }
+     if (type != null) {
+       hashMap.put("type", type);
+     }
+ 
+     List<Syslog> syslogList = this.sysLogMapper.findLogOption(hashMap);
+     if (syslogList != null) {
+       for (Syslog syslog1 : syslogList) {
+         String location = "--";
+ 
+         syslog1.setIpLocation(location);
+       }
+ 
+     }
+ 
+     return syslogList;
+   }
+ 
+   public void deleteSyslog(Integer type, String uid, Date startTime, Date endTime, Syslog syslog)
+   {
+     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+     String[] uidArr = null;
+ 
+     if ((uid != null) && (!"".equals(uid))) {
+       uidArr = uid.split(",");
+     }
+ 
+     Map hashMap = new HashMap();
+     if ((uidArr != null) && (uidArr.length > 0)) {
+       hashMap.put("ids", uidArr);
+     }
+     if (startTime != null)
+     {
+       String startTimeStr = sdf.format(startTime);
+       hashMap.put("startTime", startTimeStr);
+     }
+     if (endTime != null) {
+       String endTimeStr = sdf.format(endTime);
+       hashMap.put("endTime", endTimeStr);
+     }
+     if ((syslog != null) && (syslog.getIp() != null)) {
+       hashMap.put("ip", syslog.getIp());
+     }
+     if ((syslog != null) && (syslog.getRemark() != null)) {
+       hashMap.put("remark", "%".concat(syslog.getRemark()).concat("%"));
+     }
+     if (type != null) {
+       hashMap.put("type", type);
+     }
+ 
+     this.sysLogMapper.deleteLogOption(hashMap);
+   }
+ 
+   public void deleteLogByIds(String ids)
+   {
+     if (ids != null) {
+       String[] idsArr = ids.split(",");
+ 
+       for (int i = 0; i < idsArr.length; i++)
+         this.sysLogMapper.deleteLogById(Integer.valueOf(Integer.parseInt(idsArr[i])));
+     }
+   }
+ 
+   public void deleteAllLog()
+   {
+     this.sysLogMapper.deleteAllLog();
+   }
+ 
+   public List<Syslog> getUserLoginLogs(HttpServletRequest request)
+   {
+     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+     String userId = users.getUserId();
+     List<Syslog> syslogList = this.sysLogMapper.getUserLoginLogs(userId);
+ 
+     for (Syslog syslog : syslogList) {
+       if ((syslog != null) && (syslog.getRemark() == null)) {
+         syslog.setRemark("");
+       }
+     }
+ 
+     return syslogList;
+   }
+ 
+   public List<Syslog> getTenBatchSetLog()
+   {
+     return this.sysLogMapper.getTenBatchSetLog();
+   }
+ 
+   public Map<String, String> isThisMonth(String year, String month)
+   {
+     if ((month != null) && (month.trim().length() == 1)) {
+       month = "0" + month;
+     }
+ 
+     Map map = new HashMap();
+     Date date = new Date();
+     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+ 
+     String thisDay = sdf.format(date);
+     String thisMonth = sdf.format(date).substring(0, 6);
+     if ((year != null) && (month != null) && 
+       (year.concat(month).equals(thisMonth))) {
+       map.put("isThisMonth", "yes");
+       int dayCount = Integer.parseInt(thisDay.substring(6, 8));
+       map.put("thisMonthdayCount", "" + dayCount);
+     }
+ 
+     return map;
+   }
+ 
+   public int getDay(Date startDay)
+     throws ParseException
+   {
+     int totalDay = 0;
+ 
+     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+     String startDayStr = sdf.format(startDay);
+     String[] startDateArr = startDayStr.split(" ");
+     String day = startDateArr[0];
+     day = day.concat(" 00:00:00");
+ 
+     Date startDate = sdf.parse(day);
+     long startSeconds = startDate.getTime();
+ 
+     Date date = new Date();
+     String endTodayStr = sdf.format(date);
+     String[] todayDateArr = endTodayStr.split(" ");
+ 
+     endTodayStr = todayDateArr[0].concat(" 23:59:59");
+     long endSeconds = sdf.parse(endTodayStr).getTime();
+ 
+     if ((endSeconds - startSeconds) % 86400000L == 0L)
+       totalDay = (int)((endSeconds - startSeconds) / 86400000L);
+     else {
+       totalDay = (int)((endSeconds - startSeconds) / 86400000L) + 1;
+     }
+ 
+     return totalDay;
+   }
+ 
+   public ToJson<Syslog> getModifyPwdLog(HttpServletRequest request)
+   {
+     ToJson json = new ToJson(1, "error");
+     try {
+       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       String userId = users.getUserId();
+       List<Syslog> sysLogList = this.sysLogMapper.getModifyPwdLog(userId);
+ 
+       for (Syslog syslog : sysLogList) {
+         if ((syslog != null) && (syslog.getRemark() == null)) {
+           syslog.setRemark("");
+         }
+       }
+       json.setFlag(0);
+       json.setMsg("ok");
+       json.setObj(sysLogList);
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setFlag(1);
+       json.setMsg("err");
+     }
+     return json;
+   }
+ 
+   public ToJson<Syslog> getPassWordErrLog(String userId)
+   {
+     Map map = new HashMap();
+     map.put("userId", userId);
+     map.put("dateTime", DateFormat.getCurrentTime2());
+     ToJson syslogToJson = new ToJson();
+     List syslogs = this.sysLogMapper.getPassWordErrLog(map);
+     syslogToJson.setObj(syslogs);
+     syslogToJson.setFlag(0);
+     syslogToJson.setMsg("ok");
+     return syslogToJson;
+   }
+ }
+

@@ -1,0 +1,61 @@
+/*    */ package com.xoa.controller.schedule;
+/*    */ 
+/*    */ import com.xoa.model.schedule.ResultLeaderActivity;
+/*    */ import com.xoa.model.schedule.Schedule;
+/*    */ import com.xoa.service.schedule.ScheduleService;
+import com.xoa.util.Constant;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import com.xoa.util.dataSource.ContextHolder;
+/*    */ import javax.annotation.Resource;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import javax.servlet.http.HttpSession;
+/*    */ import org.springframework.stereotype.Controller;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"/leaderschedule"})
+/*    */ public class ScheduleController
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   private ScheduleService scheduleService;
+/*    */ 
+/*    */   @RequestMapping({"/leaderActivity"})
+/*    */   public String getIndex(HttpServletRequest request)
+/*    */   {
+/* 31 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 33 */     return "app/leaderActivity/leaderActivity";
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/query"})
+/*    */   public String getQuery(HttpServletRequest request)
+/*    */   {
+/* 40 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*    */ 
+/* 44 */     return "app/leaderActivity/query";
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping(value={"/saveSchedule"}, produces={"application/json;charset=UTF-8"})
+/*    */   public ToJson<Schedule> saveSchedule(HttpServletRequest request, Schedule schedule)
+/*    */   {
+/* 53 */     return this.scheduleService.saveSchedule(schedule);
+/*    */   }
+/* 59 */   @ResponseBody
+/*    */   @RequestMapping(value={"/commitSchedule"}, produces={"application/json;charset=UTF-8"})
+/*    */   public ToJson<Schedule> commitSchedule(int id) { return this.scheduleService.commitSchedule(id); }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping(value={"/queryLeaderActiveAll"}, produces={"application/json;charset=UTF-8"})
+/*    */   public ToJson<ResultLeaderActivity> queryLeaderActiveAll(Schedule schedule)
+/*    */   {
+/* 67 */     return this.scheduleService.queryLeaderActiveAll(schedule);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.schedule.ScheduleController
+ * JD-Core Version:    0.6.0
+ */

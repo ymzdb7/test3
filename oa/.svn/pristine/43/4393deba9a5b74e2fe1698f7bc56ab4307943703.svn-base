@@ -1,0 +1,318 @@
+/*     */ package com.xoa.controller.enclosure;
+/*     */ 
+/*     */ import com.alibaba.fastjson.JSONObject;
+/*     */ import com.xoa.model.enclosure.Attachment;
+/*     */ import com.xoa.service.enclosure.EnclosureService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.MobileCheck;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.FileNotFoundException;
+/*     */ import java.io.IOException;
+/*     */ import java.io.InputStream;
+/*     */ import java.io.OutputStream;
+/*     */ import java.io.OutputStreamWriter;
+/*     */ import java.io.PrintStream;
+/*     */ import java.io.PrintWriter;
+/*     */ import java.io.UnsupportedEncodingException;
+/*     */ import java.net.URLDecoder;
+/*     */ import java.net.URLEncoder;
+/*     */ import java.util.List;
+/*     */ import java.util.ResourceBundle;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.ServletOutputStream;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.slf4j.Logger;
+/*     */ import org.slf4j.LoggerFactory;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Controller
+/*     */ public class EnclosureController
+/*     */ {
+/*  44 */   private Logger loger = LoggerFactory.getLogger(EnclosureController.class);
+/*     */ 
+/*     */   @Resource
+/*     */   private EnclosureService enclosureService;
+/*     */ 
+/*     */   @RequestMapping(value={"/upload"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public void upload(@RequestParam("file") MultipartFile[] files, String module, @RequestParam(value="company", required=false) String company, HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/*  67 */     ToJson json = new ToJson(0, null);
+/*     */ 
+/*  70 */     StringBuffer sb = new StringBuffer();
+/*  71 */     if (StringUtils.checkNull(company).booleanValue()) {
+/*  72 */       sb.append(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */     }
+/*     */     else {
+/*  75 */       sb.append(company);
+/*     */     }
+/*     */ 
+/*     */     try
+/*     */     {
+/*  80 */       boolean a = false;
+/*  81 */       for (int i = 0; i < files.length; i++) {
+/*  82 */         MultipartFile file = files[i];
+/*  83 */         if (file.getSize() == 0L) {
+/*  84 */           a = true;
+/*     */         }
+/*     */       }
+/*  87 */       if (a) {
+/*  88 */         json.setFlag(1);
+/*  89 */         json.setMsg("The file size is 0");
+/*     */       } else {
+/*  91 */         List list = this.enclosureService.upload(files, sb.toString(), module);
+/*  92 */         json.setObj(list);
+/*  93 */         json.setMsg("OK");
+/*  94 */         json.setFlag(0);
+/*     */       }
+/*     */ 
+/*  97 */       response.setHeader("content-type", "text/html;charset=utf-8");
+/*  98 */       response.setCharacterEncoding("utf-8");
+/*  99 */       ServletOutputStream out = response.getOutputStream();
+/* 100 */       OutputStreamWriter ow = new OutputStreamWriter(out, "UTF-8");
+/*     */ 
+/* 102 */       ow.write(JSONObject.toJSONString(json));
+/* 103 */       ow.flush();
+/* 104 */       ow.close();
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 108 */       json.setMsg(e.getMessage());
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/download"})
+/*     */   public String download(@RequestParam("AID") String aid, @RequestParam("MODULE") String module, @RequestParam("YM") String ym, @RequestParam("ATTACHMENT_ID") String attachmentId, @RequestParam("COMPANY") String company, HttpServletResponse response, HttpServletRequest request)
+/*     */     throws UnsupportedEncodingException
+/*     */   {
+/* 139 */     if (StringUtils.checkNull(company).booleanValue()) {
+/* 140 */       company = "xoa1001";
+/*     */     }
+/*     */ 
+/* 143 */     System.setProperty("sun.jnu.encoding", "UTF-8");
+/* 144 */     System.setProperty("file.encoding", "UTF-8");
+/* 145 */     String attachmentName1 = request.getParameter("ATTACHMENT_NAME");
+/* 146 */     String aName = "";
+/* 147 */     if (attachmentName1.substring(attachmentName1.length() - 1, attachmentName1.length()).equals("*"))
+/* 148 */       aName = attachmentName1.substring(0, request.getParameter("ATTACHMENT_NAME").length() - 1);
+/*     */     else {
+/* 150 */       aName = attachmentName1;
+/*     */     }
+/* 152 */     String attachmentName = URLDecoder.decode(aName, "UTF-8");
+/*     */ 
+/* 154 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 155 */     String osName = System.getProperty("os.name");
+/* 156 */     StringBuffer sb = new StringBuffer();
+/* 157 */     if (osName.toLowerCase().startsWith("win"))
+/* 158 */       sb = sb.append(rb.getString("upload.win"));
+/*     */     else {
+/* 160 */       sb = sb.append(rb.getString("upload.linux"));
+/*     */     }
+/* 162 */     if (StringUtils.checkNull(sb.toString()).booleanValue()) {
+/* 163 */       String a = request.getRealPath("");
+/* 164 */       sb.append(a);
+/* 165 */       sb.append(System.getProperty("file.separator")).append("attach").append(System.getProperty("file.separator")).append(company).append(System.getProperty("file.separator")).append(module).append(System.getProperty("file.separator")).append(ym).append(System.getProperty("file.separator")).append(attachmentId).append(".").append(attachmentName);
+/*     */     }
+/*     */     else
+/*     */     {
+/* 171 */       sb.append(System.getProperty("file.separator")).append("attach").append(System.getProperty("file.separator")).append(company).append(System.getProperty("file.separator")).append(module).append(System.getProperty("file.separator")).append(ym).append(System.getProperty("file.separator")).append(attachmentId).append(".").append(attachmentName);
+/*     */     }
+/*     */ 
+/* 177 */     String path = sb.toString();
+/* 178 */     response.setCharacterEncoding("utf-8");
+/* 179 */     response.setContentType("multipart/form-data");
+/* 180 */     String userAgent = request.getHeader("User-Agent").toUpperCase();
+/* 181 */     if (!MobileCheck.isMobileDevice(userAgent))
+/*     */     {
+/* 186 */       if ((userAgent.contains("MSIE")) || (userAgent.contains("TRIDENT")) || (userAgent.contains("EDGE"))) {
+/* 187 */         attachmentName = URLEncoder.encode(attachmentName, "utf-8");
+/* 188 */         attachmentName = attachmentName.replace("+", "%20");
+/*     */       } else {
+/* 190 */         attachmentName = new String(attachmentName.getBytes("UTF-8"), "ISO-8859-1");
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 195 */     response.setHeader("Content-disposition", String.format("attachment; filename=\"%s\"", new Object[] { attachmentName }));
+/*     */     try
+/*     */     {
+/* 199 */       File file = new File(path);
+/*     */ 
+/* 201 */       if (!file.exists()) {
+/* 202 */         request.setAttribute("message", "您要下载或查看的资源不存在！");
+/*     */ 
+/* 204 */         return "您要下载或查看的资源不存在！".toString();
+/*     */       }
+/* 206 */       InputStream inputStream = new FileInputStream(new File(path));
+/* 207 */       OutputStream os = response.getOutputStream();
+/* 208 */       byte[] b = new byte[2048];
+/*     */       int length;
+/* 210 */       while ((length = inputStream.read(b)) > 0) {
+/* 211 */         os.write(b, 0, length);
+/*     */       }
+/*     */ 
+/* 214 */       os.close();
+/* 215 */       inputStream.close();
+/*     */     } catch (FileNotFoundException e) {
+/* 217 */       e.printStackTrace();
+/*     */     } catch (IOException e) {
+/* 219 */       e.printStackTrace();
+/*     */     }
+/* 221 */     return null;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/uploadCover"}, produces={"application/json;charset=UTF-8"})
+/*     */   public String uploadCover(@RequestParam("file") MultipartFile files, @RequestParam("AID") String aid, @RequestParam("MODULE") String module, @RequestParam("YM") String ym, @RequestParam("ATTACHMENT_ID") String attachmentId, @RequestParam("ATTACHMENT_NAME") String attachmentName, @RequestParam("COMPANY") String company, HttpServletResponse response, HttpServletRequest request)
+/*     */     throws UnsupportedEncodingException
+/*     */   {
+/* 234 */     if (request.getCharacterEncoding() == null) {
+/* 235 */       request.setCharacterEncoding("UTF-8");
+/*     */     }
+/*     */ 
+/* 239 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 240 */     String osName = System.getProperty("os.name");
+/* 241 */     StringBuffer sb = new StringBuffer();
+/* 242 */     if (osName.toLowerCase().startsWith("win"))
+/* 243 */       sb = sb.append(rb.getString("upload.win"));
+/*     */     else {
+/* 245 */       sb = sb.append(rb.getString("upload.linux"));
+/*     */     }
+/*     */ 
+/* 248 */     String userAgent = request.getHeader("user-agent").toLowerCase();
+/*     */ 
+/* 256 */     String path = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + company + System.getProperty("file.separator") + module + System.getProperty("file.separator") + ym + System.getProperty("file.separator") + attachmentId + "." + attachmentName;
+/*     */     try
+/*     */     {
+/* 259 */       File file = new File(path);
+/*     */ 
+/* 261 */       if (file.exists()) {
+/* 262 */         file.delete();
+/*     */ 
+/* 264 */         files.transferTo(file);
+/*     */       }
+/*     */     } catch (FileNotFoundException e) {
+/* 267 */       e.printStackTrace();
+/*     */     } catch (IOException e) {
+/* 269 */       e.printStackTrace();
+/*     */     }
+/* 271 */     return null;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/delete"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson delete(@RequestParam("AID") String aid, @RequestParam("MODULE") String module, @RequestParam("YM") String ym, @RequestParam("ATTACHMENT_ID") String attachmentId, @RequestParam("ATTACHMENT_NAME") String attachmentName, @RequestParam("COMPANY") String company, HttpServletResponse response, HttpServletRequest request)
+/*     */   {
+/* 301 */     return this.enclosureService.delete(aid, module, ym, attachmentId, attachmentName, company, response, request);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/up"})
+/*     */   public String cont(HttpServletRequest request)
+/*     */   {
+/* 315 */     return "app/upload/updwj";
+/*     */   }
+/*     */ 
+/*     */   public static boolean deleteFile(String fileName)
+/*     */   {
+/* 325 */     File file = new File(fileName);
+/*     */ 
+/* 327 */     if ((file.exists()) && (file.isFile())) {
+/* 328 */       if (file.delete()) {
+/* 329 */         System.out.println("删除单个文件" + fileName + "成功！");
+/* 330 */         return true;
+/*     */       }
+/* 332 */       System.out.println("删除单个文件" + fileName + "失败！");
+/* 333 */       return false;
+/*     */     }
+/*     */ 
+/* 336 */     System.out.println("删除单个文件失败：" + fileName + "不存在！");
+/* 337 */     return false;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/xs"}, produces={"application/json;charset=UTF-8"})
+/*     */   public void loadImage(@RequestParam("AID") String aid, @RequestParam("MODULE") String module, @RequestParam("YM") String ym, @RequestParam("ATTACHMENT_ID") String attachmentId, @RequestParam("ATTACHMENT_NAME") String attachmentName, @RequestParam("COMPANY") String company, HttpServletResponse response, HttpServletRequest request)
+/*     */     throws Exception
+/*     */   {
+/* 350 */     if (StringUtils.checkNull(company).booleanValue()) {
+/* 351 */       company = "xoa1001";
+/*     */     }
+/*     */ 
+/* 354 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 355 */     String osName = System.getProperty("os.name");
+/* 356 */     StringBuffer sb = new StringBuffer();
+/* 357 */     if (osName.toLowerCase().startsWith("win"))
+/* 358 */       sb = sb.append(rb.getString("upload.win"));
+/*     */     else {
+/* 360 */       sb = sb.append(rb.getString("upload.linux"));
+/*     */     }
+/* 362 */     if (!MobileCheck.isMobileDevice(request.getHeader("user-agent"))) {
+/* 363 */       attachmentName = URLDecoder.decode(attachmentName, "utf-8");
+/*     */     }
+/* 365 */     if (attachmentName.substring(attachmentName.length() - 1, attachmentName.length()).equals("*")) {
+/* 366 */       attachmentName = attachmentName.substring(0, request.getParameter("ATTACHMENT_NAME").length() - 1);
+/*     */     }
+/*     */ 
+/* 369 */     String path = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + company + System.getProperty("file.separator") + module + System.getProperty("file.separator") + ym + System.getProperty("file.separator") + attachmentId + "." + attachmentName;
+/*     */     try
+/*     */     {
+/* 373 */       File file = new File(path);
+/*     */ 
+/* 375 */       if (!file.exists()) {
+/* 376 */         request.setAttribute("message", "您要下载或查看的资源不存在！");
+/*     */ 
+/* 378 */         return;
+/*     */       }
+/* 380 */       FileInputStream inputStream = new FileInputStream(file);
+/* 381 */       OutputStream os = response.getOutputStream();
+/* 382 */       byte[] b = new byte[2048];
+/*     */       int length;
+/* 384 */       while ((length = inputStream.read(b)) > 0) {
+/* 385 */         os.write(b, 0, length);
+/*     */       }
+/*     */ 
+/* 388 */       os.close();
+/* 389 */       inputStream.close();
+/*     */     } catch (FileNotFoundException e) {
+/* 391 */       e.printStackTrace();
+/*     */     } catch (IOException e) {
+/* 393 */       e.printStackTrace();
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"attachment/findByAid"})
+/*     */   public ToJson<Attachment> findByAttachId(int aid, String module, HttpServletRequest request)
+/*     */   {
+/* 405 */     return this.enclosureService.selectByPrimaryKey(Integer.valueOf(aid), module, request);
+/*     */   }
+/*     */ 
+/*     */   public static void writer(HttpServletResponse response, String str)
+/*     */   {
+/*     */     try
+/*     */     {
+/* 412 */       response.setHeader("Pragma", "No-cache");
+/* 413 */       response.setHeader("Cache-Control", "no-cache");
+/* 414 */       response.setCharacterEncoding("UTF-8");
+/* 415 */       PrintWriter out = null;
+/* 416 */       out = response.getWriter();
+/* 417 */       out.print(str);
+/* 418 */       out.flush();
+/* 419 */       out.close();
+/*     */     } catch (IOException e) {
+/* 421 */       e.printStackTrace();
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.enclosure.EnclosureController
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,43 @@
+/*    */ package com.xoa.service.im;
+/*    */ 
+/*    */ import java.awt.geom.AffineTransform;
+/*    */ import java.awt.image.AffineTransformOp;
+/*    */ import java.awt.image.BufferedImage;
+/*    */ import java.io.File;
+/*    */ import java.io.PrintStream;
+/*    */ import javax.imageio.ImageIO;
+/*    */ 
+/*    */ public class CompressImg
+/*    */ {
+/*    */   public static void compressImg(File oldfi, File newfo)
+/*    */   {
+/* 15 */     int size = 0;
+/*    */     try {
+/* 17 */       int nw = 500;
+/*    */ 
+/* 23 */       AffineTransform transform = new AffineTransform();
+/* 24 */       BufferedImage bis = ImageIO.read(oldfi);
+/* 25 */       int w = bis.getWidth();
+/* 26 */       int h = bis.getHeight();
+/*    */ 
+/* 28 */       int nh = nw * h / w;
+/* 29 */       double sx = nw / w;
+/* 30 */       double sy = nh / h;
+/* 31 */       transform.setToScale(sx, sy);
+/* 32 */       System.out.println(w + " " + h);
+/*    */ 
+/* 43 */       AffineTransformOp ato = new AffineTransformOp(transform, null);
+/* 44 */       BufferedImage bid = new BufferedImage(nw, nh, 5);
+/*    */ 
+/* 55 */       ato.filter(bis, bid);
+/* 56 */       ImageIO.write(bid, "jpeg", newfo);
+/*    */     } catch (Exception e) {
+/* 58 */       e.printStackTrace();
+/*    */     }
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.im.CompressImg
+ * JD-Core Version:    0.6.0
+ */

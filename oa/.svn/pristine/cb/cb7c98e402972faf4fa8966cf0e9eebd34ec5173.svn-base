@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.myoa.dao.common.SyslogMapper">
+	<resultMap id="BaseResultMap" type="com.myoa.model.common.Syslog">
+		<id column="LOG_ID" property="logId" javaType="int" />
+		<result column="USER_ID" property="userId" javaType="string" />
+		<result column="TIME" property="time" javaType="Date" />
+		<result column="IP" property="ip" javaType="string" />
+		<result column="TYPE" property="type" javaType="int" />
+		<result column="REMARK" property="remark" javaType="string" />
+	</resultMap>
+
+	<insert id="save" parameterType="com.myoa.model.common.Syslog">
+		insert into sys_log (USER_ID,TIME,IP,TYPE,
+				REMARK
+		) values
+		(#{userId},#{time},#{ip},#{type},
+				#{remark}
+		)
+	</insert>
+
+	<insert id="save" useGeneratedKeys="true" keyProperty="logId" parameterType="com.myoa.model.common.Syslog"  databaseId="oracle">
+		<selectKey keyProperty="logId"  order="BEFORE" resultType="int">
+			select SYS_LOG_LOG_ID_SEQ.nextval as logId from  dual
+		</selectKey>
+		insert into sys_log (LOG_ID,USER_ID,"TIME",IP,"TYPE",
+		REMARK
+		) values
+		(#{logId},#{userId},#{time},#{ip},#{type},
+		#{remark}
+		)
+	</insert>
+
+	<insert id="save" parameterType="com.myoa.model.common.Syslog" databaseId="dm">
+		insert into sys_log (USER_ID,"TIME",IP,"TYPE",
+		REMARK
+		) values
+		(#{userId},#{time},#{ip},#{type},
+		#{remark}
+		)
+	</insert>
+</mapper>

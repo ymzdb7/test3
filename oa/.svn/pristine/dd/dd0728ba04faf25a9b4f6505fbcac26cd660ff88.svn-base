@@ -1,0 +1,210 @@
+/*     */ package com.xoa.service.document;
+/*     */ 
+/*     */ import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.xoa.dao.document.DocumentStatisticsMapper;
+import com.xoa.dao.workflow.FlowRunMapper;
+import com.xoa.dao.workflow.FlowRunPrcsMapper;
+import com.xoa.dao.workflow.FlowSortMapper;
+import com.xoa.dao.workflow.FlowTypeModelMapper;
+import com.xoa.model.document.DocumentDispatchStatistics;
+import com.xoa.model.document.DocumentShowModle;
+import com.xoa.model.document.DocumentStatusStatistics;
+import com.xoa.model.users.Users;
+import com.xoa.model.workflow.FlowDetailInfo;
+import com.xoa.model.workflow.FlowSort;
+import com.xoa.model.workflow.FlowTypeModel;
+import com.xoa.service.workflow.JobClassifyService;
+import com.xoa.util.common.session.SessionUtils;
+import com.xoa.util.common.wrapper.BaseWrapper;
+import com.xoa.util.common.wrapper.BaseWrappers;
+/*     */ 
+/*     */ @Service
+/*     */ public class DocumenSortFlowSerivce
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowTypeModelMapper flowTypeModelMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   JobClassifyService classifyService;
+/*     */ 
+/*     */   @Autowired
+/*     */   DocumentStatisticsMapper documentStatisticsMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   FlowSortMapper flowSortMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   FlowRunMapper flowRunMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   FlowRunPrcsMapper flowRunPrcsMapper;
+/* 180 */   private final int STA_DIS = 0;
+/* 181 */   private final int STA_STATUS = 2;
+/*     */ 
+/*     */   public BaseWrappers<DocumentShowModle> sortFlow(HttpServletRequest request, String codeMainId, String codeDetailId)
+/*     */   {
+/*  59 */     BaseWrappers<DocumentShowModle> toJson = new BaseWrappers<DocumentShowModle>();
+/*  60 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  61 */     if (user.getUid() == null) {
+/*  62 */       toJson.setFlag(false);
+/*  63 */       toJson.setMsg("无法获取用户信息");
+/*  64 */       return toJson;
+/*     */     }
+/*  66 */     if (codeMainId == null) {
+/*  67 */       toJson.setFlag(false);
+/*  68 */       toJson.setMsg("未知的公文类型");
+/*  69 */       return toJson;
+/*     */     }
+/*  71 */     if (codeDetailId == null) {
+/*  72 */       toJson.setFlag(false);
+/*  73 */       toJson.setMsg("未知的发文类型");
+/*  74 */       return toJson;
+/*     */     }
+/*  76 */     Map<String,Object> param = new HashMap<String,Object>();
+/*  77 */     String privOther = user.getUserPrivOther() == null ? "" : user.getUserPrivOther();
+/*  78 */     String[] privIds = privOther.split(",");
+/*  79 */     String deptOther = user.getDeptIdOther() == null ? "" : user.getDeptIdOther();
+/*  80 */     String[] deptIds = deptOther.split(",");
+/*  81 */     param.put("user", user.getUserId() == null ? "" : user.getUserId());
+/*  82 */     param.put("deptId", user.getDeptId() == null ? "" : user.getDeptId());
+/*  83 */     param.put("privId", user.getUserPriv() == null ? "" : user.getUserPriv());
+/*  84 */     if ((privIds != null) && (privIds.length > 0)) {
+/*  85 */       param.put("privIds", privIds);
+/*     */     }
+/*  87 */     if ((deptIds != null) && (deptIds.length > 0)) {
+/*  88 */       param.put("deptIds", deptIds);
+/*     */     }
+/*  90 */     param.put("mainType", codeMainId);
+/*  91 */     param.put("detailType", codeDetailId);
+/*  92 */     List<FlowSort> sorts = this.flowSortMapper.documentFlowSortByAuth(param);
+/*  93 */     StringBuffer sirtIdsTr = new StringBuffer();
+/*  94 */     int i = 0;
+/*  95 */     for (FlowSort sort : sorts) {
+/*  96 */       sirtIdsTr.append(sort.getSortId());
+/*  97 */       if (i != sorts.size()) {
+/*  98 */         sirtIdsTr.append(",");
+/*     */       }
+/* 100 */       i++;
+/*     */     }
+/* 102 */     param.put("sortId", sirtIdsTr.toString());
+/* 103 */     List<FlowTypeModel> flowTypeModels = this.flowTypeModelMapper.selectFlowAuthOrSearchByCodeId(param);
+/* 104 */     List<DocumentShowModle>  datas = factorDats(sorts, flowTypeModels);
+/* 105 */     if ((datas != null) && (datas.size() > 0)) {
+/* 106 */       toJson.setFlag(true);
+/* 107 */       toJson.setMsg("成功");
+/* 108 */       toJson.setDatas(datas);
+/*     */     } else {
+/* 110 */       toJson.setFlag(true);
+/* 111 */       toJson.setMsg("失败");
+/*     */     }
+/* 113 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   private List<DocumentShowModle> factorDats(List<FlowSort> sorts, List<FlowTypeModel> flowTypeModels)
+/*     */   {
+/* 126 */     List<DocumentShowModle> datas = new ArrayList<DocumentShowModle>();
+/* 127 */     for (FlowSort sort : sorts) {
+/* 128 */       DocumentShowModle showModle = new DocumentShowModle();
+/* 129 */       showModle.setSortName(sort.getSortName());
+/* 130 */       showModle.setSortId(sort.getSortId());
+/* 131 */       showModle.setSortDetailId(sort.getSortDetailType());
+/* 132 */       showModle.setSortMainId(sort.getSortMainType());
+/* 133 */       List<FlowTypeModel> newDatas = new ArrayList<FlowTypeModel>();
+/* 134 */       for (FlowTypeModel flowTypeModel : flowTypeModels) {
+/* 135 */         if (flowTypeModel.getFlowSort() == sort.getSortId()) {
+/* 136 */           newDatas.add(flowTypeModel);
+/*     */         }
+/*     */       }
+/* 139 */       showModle.setFlows(newDatas);
+/* 140 */       datas.add(showModle);
+/*     */     }
+/* 142 */     return datas;
+/*     */   }
+/*     */ 
+/*     */   @Deprecated
+/*     */   public BaseWrapper cancelDocument(HttpServletRequest request, Integer runId)
+/*     */   {
+/* 154 */     BaseWrapper wrapper = new BaseWrapper();
+/* 155 */     wrapper.setStatus(true);
+/* 156 */     if (runId == null) {
+/* 157 */       wrapper.setFlag(false);
+/* 158 */       wrapper.setMsg("清除数据失败");
+/* 159 */       return wrapper;
+/*     */     }
+/* 161 */     String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/* 162 */     Map<String,Object> param = new HashMap<String,Object>();
+/* 163 */     param.put("userId", userId);
+/* 164 */     param.put("runId", runId);
+/*     */ 
+/* 166 */     int a = this.flowRunMapper.cancelRun(param);
+/* 167 */     int b = this.flowRunPrcsMapper.cancelRunPrcs(param);
+/*     */ 
+/* 169 */     if (a > 0) {
+/* 170 */       wrapper.setFlag(true);
+/* 171 */       wrapper.setMsg("成功");
+/* 172 */       return wrapper;
+/*     */     }
+/*     */ 
+/* 175 */     wrapper.setFlag(false);
+/* 176 */     wrapper.setMsg("清除数据失败");
+/* 177 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrappers getStatistics(HttpServletRequest request, Integer staType, String startTime, String endTime)
+/*     */   {
+/* 190 */     BaseWrappers wrapper = new BaseWrappers();
+/* 191 */     Map<String,Object> param = new HashMap<String,Object>();
+/* 192 */     param.put("startTime", startTime);
+/* 193 */     param.put("endTime", endTime);
+/* 194 */     switch (staType.intValue())
+/*     */     {
+/*     */     case 0:
+/* 197 */       wrapper.setDatas(getDispatchData(param));
+/* 198 */       break;
+/*     */     case 2:
+/* 200 */       wrapper.setDatas(getStatusData(param));
+/*     */     }
+/*     */ 
+/* 203 */     wrapper.setMsg("ok");
+/* 204 */     wrapper.setFlag(true);
+/*     */ 
+/* 206 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public List<DocumentDispatchStatistics> getDispatchData(Map<String, Object> param)
+/*     */   {
+/* 211 */     List<DocumentDispatchStatistics>  dispatchData = this.documentStatisticsMapper.getDispatchStatistics(param);
+/* 212 */     return dispatchData;
+/*     */   }
+/*     */ 
+/*     */   public List<DocumentStatusStatistics> getStatusData(Map<String, Object> param)
+/*     */   {
+/* 217 */     List<DocumentStatusStatistics>  dispatchData = this.documentStatisticsMapper.getStatusStatistics(param);
+/* 218 */     return dispatchData;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrappers<FlowDetailInfo> getDocumentFlowType() {
+/* 222 */     BaseWrappers<FlowDetailInfo> wrappers = new BaseWrappers<FlowDetailInfo>();
+/* 223 */     wrappers.setStatus(true);
+/* 224 */     List<FlowDetailInfo>  datas = this.flowTypeModelMapper.selectDocumentFloeType();
+/* 225 */     wrappers.setDatas(datas);
+/* 226 */     wrappers.setFlag(true);
+/* 227 */     return wrappers;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.document.DocumenSortFlowSerivce
+ * JD-Core Version:    0.6.0
+ */

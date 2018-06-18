@@ -1,0 +1,68 @@
+/*    */ package com.xoa.util.common;
+/*    */ 
+/*    */ import org.apache.log4j.Logger;
+/*    */ 
+/*    */ public abstract class LoggerBase
+/*    */ {
+/*    */   public static final int LOG_TYPE_WARN = 17;
+/*    */   public static final int LOG_TYPE_ERROR = 18;
+/*    */   public static final int LOG_TYPE_INFO = 19;
+/* 19 */   protected Logger log = null;
+/*    */   protected String className;
+/*    */   protected String methodName;
+/*    */   protected String fileName;
+/*    */   protected Integer linNumber;
+/*    */ 
+/*    */   void loadLogger(int type)
+/*    */   {
+/* 34 */     switch (type) {
+/*    */     case 17:
+/* 36 */       this.log = Logger.getLogger("warn");
+/* 37 */       break;
+/*    */     case 18:
+/* 39 */       this.log = Logger.getLogger("error");
+/* 40 */       break;
+/*    */     case 19:
+/* 42 */       this.log = Logger.getLogger("info");
+/* 43 */       break;
+/*    */     default:
+/* 45 */       this.log = Logger.getLogger("info");
+/*    */     }
+/*    */ 
+/* 48 */     StackTraceElement[] stacks = new Throwable().getStackTrace();
+/* 49 */     setClassName(stacks[2].getClassName());
+/* 50 */     setMethodName(stacks[2].getMethodName());
+/* 51 */     setFileName(stacks[2].getFileName());
+/* 52 */     setLinNumber(Integer.valueOf(stacks[2].getLineNumber()));
+/*    */   }
+/*    */ 
+/*    */   public String getClassName() {
+/* 56 */     return this.className;
+/*    */   }
+/*    */   public void setClassName(String className) {
+/* 59 */     this.className = className;
+/*    */   }
+/*    */   public String getMethodName() {
+/* 62 */     return this.methodName;
+/*    */   }
+/*    */   public void setMethodName(String methodName) {
+/* 65 */     this.methodName = methodName;
+/*    */   }
+/*    */   public String getFileName() {
+/* 68 */     return this.fileName;
+/*    */   }
+/*    */   public void setFileName(String fileName) {
+/* 71 */     this.fileName = fileName;
+/*    */   }
+/*    */   public Integer getLinNumber() {
+/* 74 */     return this.linNumber;
+/*    */   }
+/*    */   public void setLinNumber(Integer linNumber) {
+/* 77 */     this.linNumber = linNumber;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.common.LoggerBase
+ * JD-Core Version:    0.6.0
+ */

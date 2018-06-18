@@ -1,0 +1,122 @@
+ package com.myoa.service.edu.eduElectiveCourse.impl;
+ 
+ import java.beans.Transient;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Service;
+
+import com.myoa.dao.common.SysCodeMapper;
+import com.myoa.dao.edu.eduElectiveCourse.EduElectiveCourseMapper;
+import com.myoa.model.common.SysCode;
+import com.myoa.model.edu.eduElectiveCourse.eduElectiveCourseWithBLOBs;
+import com.myoa.service.edu.eduElectiveCourse.IEduElectiveCourseSerivce;
+import com.myoa.util.ToJson;
+ 
+ @Service
+ public class IEduElectiveCourseSerivceImpl
+   implements IEduElectiveCourseSerivce
+ {
+ 
+   @Resource
+   private SysCodeMapper sysCodeMapper;
+ 
+   @Resource
+   private EduElectiveCourseMapper eduElectiveCourseMapper;
+ 
+   @Transient
+   public ToJson insertSelective(eduElectiveCourseWithBLOBs eduElectiveCourseWithBLOBs, HttpServletRequest request)
+   {
+     ToJson json = new ToJson();
+     try
+     {
+       eduElectiveCourseWithBLOBs.setCreateUser("wwww");
+       eduElectiveCourseWithBLOBs.setAttachmentId("无");
+       eduElectiveCourseWithBLOBs.setAttachmentName("无");
+       int count = this.eduElectiveCourseMapper.insertSelective(eduElectiveCourseWithBLOBs);
+       if (count > 0) {
+         json.setFlag(0);
+         json.setMsg("ok");
+       } else {
+         json.setFlag(1);
+         json.setMsg("err");
+       }
+     } catch (Exception e) {
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   public ToJson<eduElectiveCourseWithBLOBs> selectEduElectiveCourse(eduElectiveCourseWithBLOBs eduElectiveCourseWithBLOBs, HttpServletRequest request, Integer page, Integer pageSize, boolean useFlag)
+   {
+     ToJson json = new ToJson();
+     try {
+       List<eduElectiveCourseWithBLOBs> list = this.eduElectiveCourseMapper.selectEduElectiveCourse(eduElectiveCourseWithBLOBs);
+       for (Iterator<eduElectiveCourseWithBLOBs> i$ = list.iterator(); i$.hasNext(); ) {eduElectiveCourseWithBLOBs eduElectiveCourseWithBLOBs1 = i$.next();
+         List<SysCode> code = this.sysCodeMapper.getSysCode("ELECTIVE_COURSE");
+         for (SysCode sysCode : code)
+           if (sysCode.getCodeNo().equals(eduElectiveCourseWithBLOBs1.getCourseArea()))
+             eduElectiveCourseWithBLOBs1.setCourseAreaName(sysCode.getCodeName());
+       }
+       eduElectiveCourseWithBLOBs eduElectiveCourseWithBLOBs1;
+       if (list.size() > 0) {
+         json.setObj(list);
+         json.setFlag(list.size());
+         json.setMsg("ok");
+       } else {
+         json.setMsg("err");
+         json.setFlag(0);
+       }
+     } catch (Exception e) {
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   @Transient
+   public ToJson updateByPrimaryKeySelective(eduElectiveCourseWithBLOBs eduElectiveCourseWithBLOBs)
+   {
+     ToJson json = new ToJson();
+     try {
+       int count = this.eduElectiveCourseMapper.updateByPrimaryKeySelective(eduElectiveCourseWithBLOBs);
+       if (count > 0) {
+         json.setMsg("ok");
+         json.setFlag(count);
+       } else {
+         json.setFlag(0);
+         json.setMsg("err");
+       }
+     } catch (Exception e) {
+       e.printStackTrace();
+     }
+     return json;
+   }
+ 
+   @Transient
+   public ToJson deleteElectveCourse(HttpServletRequest request)
+   {
+     ToJson json = new ToJson();
+     int t = 0; int count = 0;
+     try {
+       String[] id = request.getParameterValues("id[]");
+       for (int i = 0; i < id.length; i++) {
+         count = this.eduElectiveCourseMapper.deleteElectveCourse(id[i]);
+         t += count;
+       }
+       if (t > 0) {
+         json.setFlag(0);
+         json.setMsg("ok" + count);
+       } else {
+         json.setMsg("err");
+         json.setFlag(1);
+       }
+     } catch (Exception e) {
+       e.printStackTrace();
+     }
+     return json;
+   }
+ }
+

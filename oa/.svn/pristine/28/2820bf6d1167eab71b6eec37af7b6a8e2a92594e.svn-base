@@ -1,0 +1,919 @@
+/*      */ package com.xoa.model.workflow;
+/*      */ 
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.Date;
+/*      */ import java.util.List;
+/*      */ 
+/*      */ public class FlowRuleExample
+/*      */ {
+/*      */   protected String orderByClause;
+/*      */   protected boolean distinct;
+/*      */   protected List<Criteria> oredCriteria;
+/*      */ 
+/*      */   public FlowRuleExample()
+/*      */   {
+/*   39 */     this.oredCriteria = new ArrayList();
+/*      */   }
+/*      */ 
+/*      */   public void setOrderByClause(String orderByClause)
+/*      */   {
+/*   49 */     this.orderByClause = orderByClause;
+/*      */   }
+/*      */ 
+/*      */   public String getOrderByClause()
+/*      */   {
+/*   59 */     return this.orderByClause;
+/*      */   }
+/*      */ 
+/*      */   public void setDistinct(boolean distinct)
+/*      */   {
+/*   69 */     this.distinct = distinct;
+/*      */   }
+/*      */ 
+/*      */   public boolean isDistinct()
+/*      */   {
+/*   79 */     return this.distinct;
+/*      */   }
+/*      */ 
+/*      */   public List<Criteria> getOredCriteria()
+/*      */   {
+/*   89 */     return this.oredCriteria;
+/*      */   }
+/*      */ 
+/*      */   public void or(Criteria criteria)
+/*      */   {
+/*   99 */     this.oredCriteria.add(criteria);
+/*      */   }
+/*      */ 
+/*      */   public Criteria or()
+/*      */   {
+/*  109 */     Criteria criteria = createCriteriaInternal();
+/*  110 */     this.oredCriteria.add(criteria);
+/*  111 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   public Criteria createCriteria()
+/*      */   {
+/*  121 */     Criteria criteria = createCriteriaInternal();
+/*  122 */     if (this.oredCriteria.size() == 0) {
+/*  123 */       this.oredCriteria.add(criteria);
+/*      */     }
+/*  125 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   protected Criteria createCriteriaInternal()
+/*      */   {
+/*  135 */     Criteria criteria = new Criteria();
+/*  136 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   public void clear()
+/*      */   {
+/*  146 */     this.oredCriteria.clear();
+/*  147 */     this.orderByClause = null;
+/*  148 */     this.distinct = false;
+/*      */   }
+/*      */ 
+/*      */   public static class Criterion
+/*      */   {
+/*      */     private String condition;
+/*      */     private Object value;
+/*      */     private Object secondValue;
+/*      */     private boolean noValue;
+/*      */     private boolean singleValue;
+/*      */     private boolean betweenValue;
+/*      */     private boolean listValue;
+/*      */     private String typeHandler;
+/*      */ 
+/*      */     public String getCondition()
+/*      */     {
+/*  946 */       return this.condition;
+/*      */     }
+/*      */ 
+/*      */     public Object getValue() {
+/*  950 */       return this.value;
+/*      */     }
+/*      */ 
+/*      */     public Object getSecondValue() {
+/*  954 */       return this.secondValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isNoValue() {
+/*  958 */       return this.noValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isSingleValue() {
+/*  962 */       return this.singleValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isBetweenValue() {
+/*  966 */       return this.betweenValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isListValue() {
+/*  970 */       return this.listValue;
+/*      */     }
+/*      */ 
+/*      */     public String getTypeHandler() {
+/*  974 */       return this.typeHandler;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition)
+/*      */     {
+/*  979 */       this.condition = condition;
+/*  980 */       this.typeHandler = null;
+/*  981 */       this.noValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, String typeHandler)
+/*      */     {
+/*  986 */       this.condition = condition;
+/*  987 */       this.value = value;
+/*  988 */       this.typeHandler = typeHandler;
+/*  989 */       if ((value instanceof List))
+/*  990 */         this.listValue = true;
+/*      */       else
+/*  992 */         this.singleValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value)
+/*      */     {
+/*  997 */       this(condition, value, null);
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*      */     {
+/* 1002 */       this.condition = condition;
+/* 1003 */       this.value = value;
+/* 1004 */       this.secondValue = secondValue;
+/* 1005 */       this.typeHandler = typeHandler;
+/* 1006 */       this.betweenValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 1010 */       this(condition, value, secondValue, null);
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public static class Criteria extends FlowRuleExample.GeneratedCriteria
+/*      */   {
+/*      */   }
+/*      */ 
+/*      */   protected static abstract class GeneratedCriteria
+/*      */   {
+/*      */     protected List<FlowRuleExample.Criterion> criteria;
+/*      */ 
+/*      */     protected GeneratedCriteria()
+/*      */     {
+/*  162 */       this.criteria = new ArrayList();
+/*      */     }
+/*      */ 
+/*      */     public boolean isValid() {
+/*  166 */       return this.criteria.size() > 0;
+/*      */     }
+/*      */ 
+/*      */     public List<FlowRuleExample.Criterion> getAllCriteria() {
+/*  170 */       return this.criteria;
+/*      */     }
+/*      */ 
+/*      */     public List<FlowRuleExample.Criterion> getCriteria() {
+/*  174 */       return this.criteria;
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition) {
+/*  178 */       if (condition == null) {
+/*  179 */         throw new RuntimeException("Value for condition cannot be null");
+/*      */       }
+/*  181 */       this.criteria.add(new FlowRuleExample.Criterion(condition));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition, Object value, String property) {
+/*  185 */       if (value == null) {
+/*  186 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*      */       }
+/*  188 */       this.criteria.add(new FlowRuleExample.Criterion(condition, value));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/*  192 */       if ((value1 == null) || (value2 == null)) {
+/*  193 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*      */       }
+/*  195 */       this.criteria.add(new FlowRuleExample.Criterion(condition, value1, value2));
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andRuleIdIsNull() {
+/*  199 */       addCriterion("RULE_ID is null");
+/*  200 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andRuleIdIsNotNull() {
+/*  204 */       addCriterion("RULE_ID is not null");
+/*  205 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andRuleIdEqualTo(Integer value) {
+/*  209 */       addCriterion("RULE_ID =", value, "ruleId");
+/*  210 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andRuleIdNotEqualTo(Integer value) {
+/*  214 */       addCriterion("RULE_ID <>", value, "ruleId");
+/*  215 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andRuleIdGreaterThan(Integer value) {
+/*  219 */       addCriterion("RULE_ID >", value, "ruleId");
+/*  220 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andRuleIdGreaterThanOrEqualTo(Integer value) {
+/*  224 */       addCriterion("RULE_ID >=", value, "ruleId");
+/*  225 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andRuleIdLessThan(Integer value) {
+/*  229 */       addCriterion("RULE_ID <", value, "ruleId");
+/*  230 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andRuleIdLessThanOrEqualTo(Integer value) {
+/*  234 */       addCriterion("RULE_ID <=", value, "ruleId");
+/*  235 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andRuleIdIn(List<Integer> values) {
+/*  239 */       addCriterion("RULE_ID in", values, "ruleId");
+/*  240 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andRuleIdNotIn(List<Integer> values) {
+/*  244 */       addCriterion("RULE_ID not in", values, "ruleId");
+/*  245 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andRuleIdBetween(Integer value1, Integer value2) {
+/*  249 */       addCriterion("RULE_ID between", value1, value2, "ruleId");
+/*  250 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andRuleIdNotBetween(Integer value1, Integer value2) {
+/*  254 */       addCriterion("RULE_ID not between", value1, value2, "ruleId");
+/*  255 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andFlowIdIsNull() {
+/*  259 */       addCriterion("FLOW_ID is null");
+/*  260 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andFlowIdIsNotNull() {
+/*  264 */       addCriterion("FLOW_ID is not null");
+/*  265 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andFlowIdEqualTo(Integer value) {
+/*  269 */       addCriterion("FLOW_ID =", value, "flowId");
+/*  270 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andFlowIdNotEqualTo(Integer value) {
+/*  274 */       addCriterion("FLOW_ID <>", value, "flowId");
+/*  275 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andFlowIdGreaterThan(Integer value) {
+/*  279 */       addCriterion("FLOW_ID >", value, "flowId");
+/*  280 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andFlowIdGreaterThanOrEqualTo(Integer value) {
+/*  284 */       addCriterion("FLOW_ID >=", value, "flowId");
+/*  285 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andFlowIdLessThan(Integer value) {
+/*  289 */       addCriterion("FLOW_ID <", value, "flowId");
+/*  290 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andFlowIdLessThanOrEqualTo(Integer value) {
+/*  294 */       addCriterion("FLOW_ID <=", value, "flowId");
+/*  295 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andFlowIdIn(List<Integer> values) {
+/*  299 */       addCriterion("FLOW_ID in", values, "flowId");
+/*  300 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andFlowIdNotIn(List<Integer> values) {
+/*  304 */       addCriterion("FLOW_ID not in", values, "flowId");
+/*  305 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andFlowIdBetween(Integer value1, Integer value2) {
+/*  309 */       addCriterion("FLOW_ID between", value1, value2, "flowId");
+/*  310 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andFlowIdNotBetween(Integer value1, Integer value2) {
+/*  314 */       addCriterion("FLOW_ID not between", value1, value2, "flowId");
+/*  315 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUserIdIsNull() {
+/*  319 */       addCriterion("USER_ID is null");
+/*  320 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUserIdIsNotNull() {
+/*  324 */       addCriterion("USER_ID is not null");
+/*  325 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUserIdEqualTo(String value) {
+/*  329 */       addCriterion("USER_ID =", value, "userId");
+/*  330 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUserIdNotEqualTo(String value) {
+/*  334 */       addCriterion("USER_ID <>", value, "userId");
+/*  335 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUserIdGreaterThan(String value) {
+/*  339 */       addCriterion("USER_ID >", value, "userId");
+/*  340 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUserIdGreaterThanOrEqualTo(String value) {
+/*  344 */       addCriterion("USER_ID >=", value, "userId");
+/*  345 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUserIdLessThan(String value) {
+/*  349 */       addCriterion("USER_ID <", value, "userId");
+/*  350 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUserIdLessThanOrEqualTo(String value) {
+/*  354 */       addCriterion("USER_ID <=", value, "userId");
+/*  355 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUserIdLike(String value) {
+/*  359 */       addCriterion("USER_ID like", value, "userId");
+/*  360 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUserIdNotLike(String value) {
+/*  364 */       addCriterion("USER_ID not like", value, "userId");
+/*  365 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUserIdIn(List<String> values) {
+/*  369 */       addCriterion("USER_ID in", values, "userId");
+/*  370 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUserIdNotIn(List<String> values) {
+/*  374 */       addCriterion("USER_ID not in", values, "userId");
+/*  375 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUserIdBetween(String value1, String value2) {
+/*  379 */       addCriterion("USER_ID between", value1, value2, "userId");
+/*  380 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUserIdNotBetween(String value1, String value2) {
+/*  384 */       addCriterion("USER_ID not between", value1, value2, "userId");
+/*  385 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andToIdIsNull() {
+/*  389 */       addCriterion("TO_ID is null");
+/*  390 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andToIdIsNotNull() {
+/*  394 */       addCriterion("TO_ID is not null");
+/*  395 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andToIdEqualTo(String value) {
+/*  399 */       addCriterion("TO_ID =", value, "toId");
+/*  400 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andToIdNotEqualTo(String value) {
+/*  404 */       addCriterion("TO_ID <>", value, "toId");
+/*  405 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andToIdGreaterThan(String value) {
+/*  409 */       addCriterion("TO_ID >", value, "toId");
+/*  410 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andToIdGreaterThanOrEqualTo(String value) {
+/*  414 */       addCriterion("TO_ID >=", value, "toId");
+/*  415 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andToIdLessThan(String value) {
+/*  419 */       addCriterion("TO_ID <", value, "toId");
+/*  420 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andToIdLessThanOrEqualTo(String value) {
+/*  424 */       addCriterion("TO_ID <=", value, "toId");
+/*  425 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andToIdLike(String value) {
+/*  429 */       addCriterion("TO_ID like", value, "toId");
+/*  430 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andToIdNotLike(String value) {
+/*  434 */       addCriterion("TO_ID not like", value, "toId");
+/*  435 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andToIdIn(List<String> values) {
+/*  439 */       addCriterion("TO_ID in", values, "toId");
+/*  440 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andToIdNotIn(List<String> values) {
+/*  444 */       addCriterion("TO_ID not in", values, "toId");
+/*  445 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andToIdBetween(String value1, String value2) {
+/*  449 */       addCriterion("TO_ID between", value1, value2, "toId");
+/*  450 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andToIdNotBetween(String value1, String value2) {
+/*  454 */       addCriterion("TO_ID not between", value1, value2, "toId");
+/*  455 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andBeginDateIsNull() {
+/*  459 */       addCriterion("BEGIN_DATE is null");
+/*  460 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andBeginDateIsNotNull() {
+/*  464 */       addCriterion("BEGIN_DATE is not null");
+/*  465 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andBeginDateEqualTo(Date value) {
+/*  469 */       addCriterion("BEGIN_DATE =", value, "beginDate");
+/*  470 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andBeginDateNotEqualTo(Date value) {
+/*  474 */       addCriterion("BEGIN_DATE <>", value, "beginDate");
+/*  475 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andBeginDateGreaterThan(Date value) {
+/*  479 */       addCriterion("BEGIN_DATE >", value, "beginDate");
+/*  480 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andBeginDateGreaterThanOrEqualTo(Date value) {
+/*  484 */       addCriterion("BEGIN_DATE >=", value, "beginDate");
+/*  485 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andBeginDateLessThan(Date value) {
+/*  489 */       addCriterion("BEGIN_DATE <", value, "beginDate");
+/*  490 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andBeginDateLessThanOrEqualTo(Date value) {
+/*  494 */       addCriterion("BEGIN_DATE <=", value, "beginDate");
+/*  495 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andBeginDateIn(List<Date> values) {
+/*  499 */       addCriterion("BEGIN_DATE in", values, "beginDate");
+/*  500 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andBeginDateNotIn(List<Date> values) {
+/*  504 */       addCriterion("BEGIN_DATE not in", values, "beginDate");
+/*  505 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andBeginDateBetween(Date value1, Date value2) {
+/*  509 */       addCriterion("BEGIN_DATE between", value1, value2, "beginDate");
+/*  510 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andBeginDateNotBetween(Date value1, Date value2) {
+/*  514 */       addCriterion("BEGIN_DATE not between", value1, value2, "beginDate");
+/*  515 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andEndDateIsNull() {
+/*  519 */       addCriterion("END_DATE is null");
+/*  520 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andEndDateIsNotNull() {
+/*  524 */       addCriterion("END_DATE is not null");
+/*  525 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andEndDateEqualTo(Date value) {
+/*  529 */       addCriterion("END_DATE =", value, "endDate");
+/*  530 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andEndDateNotEqualTo(Date value) {
+/*  534 */       addCriterion("END_DATE <>", value, "endDate");
+/*  535 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andEndDateGreaterThan(Date value) {
+/*  539 */       addCriterion("END_DATE >", value, "endDate");
+/*  540 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andEndDateGreaterThanOrEqualTo(Date value) {
+/*  544 */       addCriterion("END_DATE >=", value, "endDate");
+/*  545 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andEndDateLessThan(Date value) {
+/*  549 */       addCriterion("END_DATE <", value, "endDate");
+/*  550 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andEndDateLessThanOrEqualTo(Date value) {
+/*  554 */       addCriterion("END_DATE <=", value, "endDate");
+/*  555 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andEndDateIn(List<Date> values) {
+/*  559 */       addCriterion("END_DATE in", values, "endDate");
+/*  560 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andEndDateNotIn(List<Date> values) {
+/*  564 */       addCriterion("END_DATE not in", values, "endDate");
+/*  565 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andEndDateBetween(Date value1, Date value2) {
+/*  569 */       addCriterion("END_DATE between", value1, value2, "endDate");
+/*  570 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andEndDateNotBetween(Date value1, Date value2) {
+/*  574 */       addCriterion("END_DATE not between", value1, value2, "endDate");
+/*  575 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andStatusIsNull() {
+/*  579 */       addCriterion("STATUS is null");
+/*  580 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andStatusIsNotNull() {
+/*  584 */       addCriterion("STATUS is not null");
+/*  585 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andStatusEqualTo(String value) {
+/*  589 */       addCriterion("STATUS =", value, "status");
+/*  590 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andStatusNotEqualTo(String value) {
+/*  594 */       addCriterion("STATUS <>", value, "status");
+/*  595 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andStatusGreaterThan(String value) {
+/*  599 */       addCriterion("STATUS >", value, "status");
+/*  600 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andStatusGreaterThanOrEqualTo(String value) {
+/*  604 */       addCriterion("STATUS >=", value, "status");
+/*  605 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andStatusLessThan(String value) {
+/*  609 */       addCriterion("STATUS <", value, "status");
+/*  610 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andStatusLessThanOrEqualTo(String value) {
+/*  614 */       addCriterion("STATUS <=", value, "status");
+/*  615 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andStatusLike(String value) {
+/*  619 */       addCriterion("STATUS like", value, "status");
+/*  620 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andStatusNotLike(String value) {
+/*  624 */       addCriterion("STATUS not like", value, "status");
+/*  625 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andStatusIn(List<String> values) {
+/*  629 */       addCriterion("STATUS in", values, "status");
+/*  630 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andStatusNotIn(List<String> values) {
+/*  634 */       addCriterion("STATUS not in", values, "status");
+/*  635 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andStatusBetween(String value1, String value2) {
+/*  639 */       addCriterion("STATUS between", value1, value2, "status");
+/*  640 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andStatusNotBetween(String value1, String value2) {
+/*  644 */       addCriterion("STATUS not between", value1, value2, "status");
+/*  645 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateTimeIsNull() {
+/*  649 */       addCriterion("create_time is null");
+/*  650 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateTimeIsNotNull() {
+/*  654 */       addCriterion("create_time is not null");
+/*  655 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateTimeEqualTo(Date value) {
+/*  659 */       addCriterion("create_time =", value, "createTime");
+/*  660 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateTimeNotEqualTo(Date value) {
+/*  664 */       addCriterion("create_time <>", value, "createTime");
+/*  665 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateTimeGreaterThan(Date value) {
+/*  669 */       addCriterion("create_time >", value, "createTime");
+/*  670 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateTimeGreaterThanOrEqualTo(Date value) {
+/*  674 */       addCriterion("create_time >=", value, "createTime");
+/*  675 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateTimeLessThan(Date value) {
+/*  679 */       addCriterion("create_time <", value, "createTime");
+/*  680 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateTimeLessThanOrEqualTo(Date value) {
+/*  684 */       addCriterion("create_time <=", value, "createTime");
+/*  685 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateTimeIn(List<Date> values) {
+/*  689 */       addCriterion("create_time in", values, "createTime");
+/*  690 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateTimeNotIn(List<Date> values) {
+/*  694 */       addCriterion("create_time not in", values, "createTime");
+/*  695 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateTimeBetween(Date value1, Date value2) {
+/*  699 */       addCriterion("create_time between", value1, value2, "createTime");
+/*  700 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateTimeNotBetween(Date value1, Date value2) {
+/*  704 */       addCriterion("create_time not between", value1, value2, "createTime");
+/*  705 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateUserIsNull() {
+/*  709 */       addCriterion("create_user is null");
+/*  710 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateUserIsNotNull() {
+/*  714 */       addCriterion("create_user is not null");
+/*  715 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateUserEqualTo(String value) {
+/*  719 */       addCriterion("create_user =", value, "createUser");
+/*  720 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateUserNotEqualTo(String value) {
+/*  724 */       addCriterion("create_user <>", value, "createUser");
+/*  725 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateUserGreaterThan(String value) {
+/*  729 */       addCriterion("create_user >", value, "createUser");
+/*  730 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateUserGreaterThanOrEqualTo(String value) {
+/*  734 */       addCriterion("create_user >=", value, "createUser");
+/*  735 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateUserLessThan(String value) {
+/*  739 */       addCriterion("create_user <", value, "createUser");
+/*  740 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateUserLessThanOrEqualTo(String value) {
+/*  744 */       addCriterion("create_user <=", value, "createUser");
+/*  745 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateUserLike(String value) {
+/*  749 */       addCriterion("create_user like", value, "createUser");
+/*  750 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateUserNotLike(String value) {
+/*  754 */       addCriterion("create_user not like", value, "createUser");
+/*  755 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateUserIn(List<String> values) {
+/*  759 */       addCriterion("create_user in", values, "createUser");
+/*  760 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateUserNotIn(List<String> values) {
+/*  764 */       addCriterion("create_user not in", values, "createUser");
+/*  765 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateUserBetween(String value1, String value2) {
+/*  769 */       addCriterion("create_user between", value1, value2, "createUser");
+/*  770 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andCreateUserNotBetween(String value1, String value2) {
+/*  774 */       addCriterion("create_user not between", value1, value2, "createUser");
+/*  775 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateTimeIsNull() {
+/*  779 */       addCriterion("update_time is null");
+/*  780 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateTimeIsNotNull() {
+/*  784 */       addCriterion("update_time is not null");
+/*  785 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateTimeEqualTo(Date value) {
+/*  789 */       addCriterion("update_time =", value, "updateTime");
+/*  790 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateTimeNotEqualTo(Date value) {
+/*  794 */       addCriterion("update_time <>", value, "updateTime");
+/*  795 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateTimeGreaterThan(Date value) {
+/*  799 */       addCriterion("update_time >", value, "updateTime");
+/*  800 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateTimeGreaterThanOrEqualTo(Date value) {
+/*  804 */       addCriterion("update_time >=", value, "updateTime");
+/*  805 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateTimeLessThan(Date value) {
+/*  809 */       addCriterion("update_time <", value, "updateTime");
+/*  810 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateTimeLessThanOrEqualTo(Date value) {
+/*  814 */       addCriterion("update_time <=", value, "updateTime");
+/*  815 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateTimeIn(List<Date> values) {
+/*  819 */       addCriterion("update_time in", values, "updateTime");
+/*  820 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateTimeNotIn(List<Date> values) {
+/*  824 */       addCriterion("update_time not in", values, "updateTime");
+/*  825 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateTimeBetween(Date value1, Date value2) {
+/*  829 */       addCriterion("update_time between", value1, value2, "updateTime");
+/*  830 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateTimeNotBetween(Date value1, Date value2) {
+/*  834 */       addCriterion("update_time not between", value1, value2, "updateTime");
+/*  835 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateUserIsNull() {
+/*  839 */       addCriterion("update_user is null");
+/*  840 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateUserIsNotNull() {
+/*  844 */       addCriterion("update_user is not null");
+/*  845 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateUserEqualTo(String value) {
+/*  849 */       addCriterion("update_user =", value, "updateUser");
+/*  850 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateUserNotEqualTo(String value) {
+/*  854 */       addCriterion("update_user <>", value, "updateUser");
+/*  855 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateUserGreaterThan(String value) {
+/*  859 */       addCriterion("update_user >", value, "updateUser");
+/*  860 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateUserGreaterThanOrEqualTo(String value) {
+/*  864 */       addCriterion("update_user >=", value, "updateUser");
+/*  865 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateUserLessThan(String value) {
+/*  869 */       addCriterion("update_user <", value, "updateUser");
+/*  870 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateUserLessThanOrEqualTo(String value) {
+/*  874 */       addCriterion("update_user <=", value, "updateUser");
+/*  875 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateUserLike(String value) {
+/*  879 */       addCriterion("update_user like", value, "updateUser");
+/*  880 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateUserNotLike(String value) {
+/*  884 */       addCriterion("update_user not like", value, "updateUser");
+/*  885 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateUserIn(List<String> values) {
+/*  889 */       addCriterion("update_user in", values, "updateUser");
+/*  890 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateUserNotIn(List<String> values) {
+/*  894 */       addCriterion("update_user not in", values, "updateUser");
+/*  895 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateUserBetween(String value1, String value2) {
+/*  899 */       addCriterion("update_user between", value1, value2, "updateUser");
+/*  900 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public FlowRuleExample.Criteria andUpdateUserNotBetween(String value1, String value2) {
+/*  904 */       addCriterion("update_user not between", value1, value2, "updateUser");
+/*  905 */       return (FlowRuleExample.Criteria)this;
+/*      */     }
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.workflow.FlowRuleExample
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,105 @@
+/*     */ package com.xoa.service.menu.impl;
+/*     */ 
+/*     */ import com.xoa.dao.common.SysParaMapper;
+/*     */ import com.xoa.dao.menu.MobileAppMapper;
+/*     */ import com.xoa.dao.menu.SysFunctionMapper;
+/*     */ import com.xoa.model.menu.SysFunction;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.menu.MobileAppService;
+/*     */ import com.xoa.service.users.UserFunctionService;
+/*     */ import com.xoa.service.users.UsersService;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.io.PrintStream;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class MobileAppServiceImpl
+/*     */   implements MobileAppService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private MobileAppMapper mobileAppMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SysParaMapper sysParaMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersService usersService;
+/*     */ 
+/*     */   @Resource
+/*     */   private UserFunctionService userFunctionService;
+/*     */ 
+/*     */   @Resource
+/*     */   private SysFunctionMapper sysFunctionMapper;
+/*     */ 
+/*     */   public List getMobileAppList(HttpServletRequest request)
+/*     */   {
+/*  63 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  64 */     Integer uid = users.getUid();
+/*     */ 
+/*  71 */     String userFunctionStr = this.userFunctionService.getUserFunctionStrById(uid);
+/*  72 */     String[] funcIds = userFunctionStr.split(",");
+/*     */ 
+/*  75 */     String ids = this.sysParaMapper.getSysPara();
+/*  76 */     String[] firstIds = ids.split(",");
+/*  77 */     List a11 = new ArrayList();
+/*  78 */     for (int o = 0; o < firstIds.length; o++) {
+/*  79 */       for (int k = 0; k < funcIds.length; k++) {
+/*  80 */         if (firstIds[o].equals(funcIds[k])) {
+/*  81 */           a11.add(firstIds[o]);
+/*     */         }
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/*  87 */     List<SysFunction> mList = this.sysFunctionMapper.getAll();
+/*  88 */     List<List> mList1 = new ArrayList<List>();
+/*  89 */     List<SysFunction> list1 = new ArrayList<SysFunction>();
+/*     */ 
+/*  92 */     for (int j = 0; j < a11.size(); j++) {
+/*  93 */       for (int i = 0; i < mList.size(); i++) {
+/*  94 */         System.out.println(((SysFunction)mList.get(j)).getfId());
+/*  95 */         if (((SysFunction)mList.get(i)).getfId().toString().equals(a11.get(j))) {
+/*  96 */           list1.add(mList.get(i));
+/*  97 */           break;
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 111 */     Object local = request.getSession().getAttribute("LOCALE_SESSION_ATTRIBUTE_NAME");
+/* 112 */     String locale = "zh_CN";
+/* 113 */     if (local == null)
+/* 114 */       locale = "zh_CN";
+/*     */     else {
+/* 116 */       locale = local.toString();
+/*     */     }
+/*     */ 
+/* 119 */     if ((list1 != null) && (list1.size() > 0)) {
+/* 120 */       for (SysFunction sysFunction : list1) {
+/* 121 */         if (locale.equals("zh_CN"))
+/* 122 */           sysFunction.setName(sysFunction.getName());
+/* 123 */         else if (locale.equals("en_US"))
+/* 124 */           sysFunction.setName(sysFunction.getName1());
+/* 125 */         else if (locale.equals("zh_TW")) {
+/* 126 */           sysFunction.setName(sysFunction.getName2());
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 131 */     mList1.add(list1);
+/*     */ 
+/* 135 */     return list1;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.menu.impl.MobileAppServiceImpl
+ * JD-Core Version:    0.6.0
+ */

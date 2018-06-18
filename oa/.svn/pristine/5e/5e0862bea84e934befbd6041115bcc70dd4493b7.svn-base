@@ -1,0 +1,678 @@
+/*     */ package com.xoa.model.common;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class SecureRuleExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public SecureRuleExample()
+/*     */   {
+/*  38 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  48 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  58 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  68 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  78 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  88 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  98 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 108 */     Criteria criteria = createCriteriaInternal();
+/* 109 */     this.oredCriteria.add(criteria);
+/* 110 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 120 */     Criteria criteria = createCriteriaInternal();
+/* 121 */     if (this.oredCriteria.size() == 0) {
+/* 122 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 124 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 134 */     Criteria criteria = new Criteria();
+/* 135 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 145 */     this.oredCriteria.clear();
+/* 146 */     this.orderByClause = null;
+/* 147 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 705 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 709 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 713 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 717 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 721 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 725 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 729 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 733 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 738 */       this.condition = condition;
+/* 739 */       this.typeHandler = null;
+/* 740 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 745 */       this.condition = condition;
+/* 746 */       this.value = value;
+/* 747 */       this.typeHandler = typeHandler;
+/* 748 */       if ((value instanceof List))
+/* 749 */         this.listValue = true;
+/*     */       else
+/* 751 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 756 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 761 */       this.condition = condition;
+/* 762 */       this.value = value;
+/* 763 */       this.secondValue = secondValue;
+/* 764 */       this.typeHandler = typeHandler;
+/* 765 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 769 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends SecureRuleExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<SecureRuleExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 161 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 165 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<SecureRuleExample.Criterion> getAllCriteria() {
+/* 169 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<SecureRuleExample.Criterion> getCriteria() {
+/* 173 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 177 */       if (condition == null) {
+/* 178 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 180 */       this.criteria.add(new SecureRuleExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 184 */       if (value == null) {
+/* 185 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 187 */       this.criteria.add(new SecureRuleExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 191 */       if ((value1 == null) || (value2 == null)) {
+/* 192 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 194 */       this.criteria.add(new SecureRuleExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleIdIsNull() {
+/* 198 */       addCriterion("RULE_ID is null");
+/* 199 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleIdIsNotNull() {
+/* 203 */       addCriterion("RULE_ID is not null");
+/* 204 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleIdEqualTo(Integer value) {
+/* 208 */       addCriterion("RULE_ID =", value, "ruleId");
+/* 209 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleIdNotEqualTo(Integer value) {
+/* 213 */       addCriterion("RULE_ID <>", value, "ruleId");
+/* 214 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleIdGreaterThan(Integer value) {
+/* 218 */       addCriterion("RULE_ID >", value, "ruleId");
+/* 219 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleIdGreaterThanOrEqualTo(Integer value) {
+/* 223 */       addCriterion("RULE_ID >=", value, "ruleId");
+/* 224 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleIdLessThan(Integer value) {
+/* 228 */       addCriterion("RULE_ID <", value, "ruleId");
+/* 229 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleIdLessThanOrEqualTo(Integer value) {
+/* 233 */       addCriterion("RULE_ID <=", value, "ruleId");
+/* 234 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleIdIn(List<Integer> values) {
+/* 238 */       addCriterion("RULE_ID in", values, "ruleId");
+/* 239 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleIdNotIn(List<Integer> values) {
+/* 243 */       addCriterion("RULE_ID not in", values, "ruleId");
+/* 244 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleIdBetween(Integer value1, Integer value2) {
+/* 248 */       addCriterion("RULE_ID between", value1, value2, "ruleId");
+/* 249 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleIdNotBetween(Integer value1, Integer value2) {
+/* 253 */       addCriterion("RULE_ID not between", value1, value2, "ruleId");
+/* 254 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleTypeIsNull() {
+/* 258 */       addCriterion("RULE_TYPE is null");
+/* 259 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleTypeIsNotNull() {
+/* 263 */       addCriterion("RULE_TYPE is not null");
+/* 264 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleTypeEqualTo(String value) {
+/* 268 */       addCriterion("RULE_TYPE =", value, "ruleType");
+/* 269 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleTypeNotEqualTo(String value) {
+/* 273 */       addCriterion("RULE_TYPE <>", value, "ruleType");
+/* 274 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleTypeGreaterThan(String value) {
+/* 278 */       addCriterion("RULE_TYPE >", value, "ruleType");
+/* 279 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleTypeGreaterThanOrEqualTo(String value) {
+/* 283 */       addCriterion("RULE_TYPE >=", value, "ruleType");
+/* 284 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleTypeLessThan(String value) {
+/* 288 */       addCriterion("RULE_TYPE <", value, "ruleType");
+/* 289 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleTypeLessThanOrEqualTo(String value) {
+/* 293 */       addCriterion("RULE_TYPE <=", value, "ruleType");
+/* 294 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleTypeLike(String value) {
+/* 298 */       addCriterion("RULE_TYPE like", value, "ruleType");
+/* 299 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleTypeNotLike(String value) {
+/* 303 */       addCriterion("RULE_TYPE not like", value, "ruleType");
+/* 304 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleTypeIn(List<String> values) {
+/* 308 */       addCriterion("RULE_TYPE in", values, "ruleType");
+/* 309 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleTypeNotIn(List<String> values) {
+/* 313 */       addCriterion("RULE_TYPE not in", values, "ruleType");
+/* 314 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleTypeBetween(String value1, String value2) {
+/* 318 */       addCriterion("RULE_TYPE between", value1, value2, "ruleType");
+/* 319 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleTypeNotBetween(String value1, String value2) {
+/* 323 */       addCriterion("RULE_TYPE not between", value1, value2, "ruleType");
+/* 324 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRulePrivIsNull() {
+/* 328 */       addCriterion("RULE_PRIV is null");
+/* 329 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRulePrivIsNotNull() {
+/* 333 */       addCriterion("RULE_PRIV is not null");
+/* 334 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRulePrivEqualTo(Byte value) {
+/* 338 */       addCriterion("RULE_PRIV =", value, "rulePriv");
+/* 339 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRulePrivNotEqualTo(Byte value) {
+/* 343 */       addCriterion("RULE_PRIV <>", value, "rulePriv");
+/* 344 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRulePrivGreaterThan(Byte value) {
+/* 348 */       addCriterion("RULE_PRIV >", value, "rulePriv");
+/* 349 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRulePrivGreaterThanOrEqualTo(Byte value) {
+/* 353 */       addCriterion("RULE_PRIV >=", value, "rulePriv");
+/* 354 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRulePrivLessThan(Byte value) {
+/* 358 */       addCriterion("RULE_PRIV <", value, "rulePriv");
+/* 359 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRulePrivLessThanOrEqualTo(Byte value) {
+/* 363 */       addCriterion("RULE_PRIV <=", value, "rulePriv");
+/* 364 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRulePrivIn(List<Byte> values) {
+/* 368 */       addCriterion("RULE_PRIV in", values, "rulePriv");
+/* 369 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRulePrivNotIn(List<Byte> values) {
+/* 373 */       addCriterion("RULE_PRIV not in", values, "rulePriv");
+/* 374 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRulePrivBetween(Byte value1, Byte value2) {
+/* 378 */       addCriterion("RULE_PRIV between", value1, value2, "rulePriv");
+/* 379 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRulePrivNotBetween(Byte value1, Byte value2) {
+/* 383 */       addCriterion("RULE_PRIV not between", value1, value2, "rulePriv");
+/* 384 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleDescIsNull() {
+/* 388 */       addCriterion("RULE_DESC is null");
+/* 389 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleDescIsNotNull() {
+/* 393 */       addCriterion("RULE_DESC is not null");
+/* 394 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleDescEqualTo(String value) {
+/* 398 */       addCriterion("RULE_DESC =", value, "ruleDesc");
+/* 399 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleDescNotEqualTo(String value) {
+/* 403 */       addCriterion("RULE_DESC <>", value, "ruleDesc");
+/* 404 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleDescGreaterThan(String value) {
+/* 408 */       addCriterion("RULE_DESC >", value, "ruleDesc");
+/* 409 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleDescGreaterThanOrEqualTo(String value) {
+/* 413 */       addCriterion("RULE_DESC >=", value, "ruleDesc");
+/* 414 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleDescLessThan(String value) {
+/* 418 */       addCriterion("RULE_DESC <", value, "ruleDesc");
+/* 419 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleDescLessThanOrEqualTo(String value) {
+/* 423 */       addCriterion("RULE_DESC <=", value, "ruleDesc");
+/* 424 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleDescLike(String value) {
+/* 428 */       addCriterion("RULE_DESC like", value, "ruleDesc");
+/* 429 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleDescNotLike(String value) {
+/* 433 */       addCriterion("RULE_DESC not like", value, "ruleDesc");
+/* 434 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleDescIn(List<String> values) {
+/* 438 */       addCriterion("RULE_DESC in", values, "ruleDesc");
+/* 439 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleDescNotIn(List<String> values) {
+/* 443 */       addCriterion("RULE_DESC not in", values, "ruleDesc");
+/* 444 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleDescBetween(String value1, String value2) {
+/* 448 */       addCriterion("RULE_DESC between", value1, value2, "ruleDesc");
+/* 449 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleDescNotBetween(String value1, String value2) {
+/* 453 */       addCriterion("RULE_DESC not between", value1, value2, "ruleDesc");
+/* 454 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleCodeIsNull() {
+/* 458 */       addCriterion("RULE_CODE is null");
+/* 459 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleCodeIsNotNull() {
+/* 463 */       addCriterion("RULE_CODE is not null");
+/* 464 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleCodeEqualTo(String value) {
+/* 468 */       addCriterion("RULE_CODE =", value, "ruleCode");
+/* 469 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleCodeNotEqualTo(String value) {
+/* 473 */       addCriterion("RULE_CODE <>", value, "ruleCode");
+/* 474 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleCodeGreaterThan(String value) {
+/* 478 */       addCriterion("RULE_CODE >", value, "ruleCode");
+/* 479 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleCodeGreaterThanOrEqualTo(String value) {
+/* 483 */       addCriterion("RULE_CODE >=", value, "ruleCode");
+/* 484 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleCodeLessThan(String value) {
+/* 488 */       addCriterion("RULE_CODE <", value, "ruleCode");
+/* 489 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleCodeLessThanOrEqualTo(String value) {
+/* 493 */       addCriterion("RULE_CODE <=", value, "ruleCode");
+/* 494 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleCodeLike(String value) {
+/* 498 */       addCriterion("RULE_CODE like", value, "ruleCode");
+/* 499 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleCodeNotLike(String value) {
+/* 503 */       addCriterion("RULE_CODE not like", value, "ruleCode");
+/* 504 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleCodeIn(List<String> values) {
+/* 508 */       addCriterion("RULE_CODE in", values, "ruleCode");
+/* 509 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleCodeNotIn(List<String> values) {
+/* 513 */       addCriterion("RULE_CODE not in", values, "ruleCode");
+/* 514 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleCodeBetween(String value1, String value2) {
+/* 518 */       addCriterion("RULE_CODE between", value1, value2, "ruleCode");
+/* 519 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andRuleCodeNotBetween(String value1, String value2) {
+/* 523 */       addCriterion("RULE_CODE not between", value1, value2, "ruleCode");
+/* 524 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andUseFlagIsNull() {
+/* 528 */       addCriterion("USE_FLAG is null");
+/* 529 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andUseFlagIsNotNull() {
+/* 533 */       addCriterion("USE_FLAG is not null");
+/* 534 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andUseFlagEqualTo(String value) {
+/* 538 */       addCriterion("USE_FLAG =", value, "useFlag");
+/* 539 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andUseFlagNotEqualTo(String value) {
+/* 543 */       addCriterion("USE_FLAG <>", value, "useFlag");
+/* 544 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andUseFlagGreaterThan(String value) {
+/* 548 */       addCriterion("USE_FLAG >", value, "useFlag");
+/* 549 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andUseFlagGreaterThanOrEqualTo(String value) {
+/* 553 */       addCriterion("USE_FLAG >=", value, "useFlag");
+/* 554 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andUseFlagLessThan(String value) {
+/* 558 */       addCriterion("USE_FLAG <", value, "useFlag");
+/* 559 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andUseFlagLessThanOrEqualTo(String value) {
+/* 563 */       addCriterion("USE_FLAG <=", value, "useFlag");
+/* 564 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andUseFlagLike(String value) {
+/* 568 */       addCriterion("USE_FLAG like", value, "useFlag");
+/* 569 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andUseFlagNotLike(String value) {
+/* 573 */       addCriterion("USE_FLAG not like", value, "useFlag");
+/* 574 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andUseFlagIn(List<String> values) {
+/* 578 */       addCriterion("USE_FLAG in", values, "useFlag");
+/* 579 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andUseFlagNotIn(List<String> values) {
+/* 583 */       addCriterion("USE_FLAG not in", values, "useFlag");
+/* 584 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andUseFlagBetween(String value1, String value2) {
+/* 588 */       addCriterion("USE_FLAG between", value1, value2, "useFlag");
+/* 589 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andUseFlagNotBetween(String value1, String value2) {
+/* 593 */       addCriterion("USE_FLAG not between", value1, value2, "useFlag");
+/* 594 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andSysRuleIsNull() {
+/* 598 */       addCriterion("SYS_RULE is null");
+/* 599 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andSysRuleIsNotNull() {
+/* 603 */       addCriterion("SYS_RULE is not null");
+/* 604 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andSysRuleEqualTo(String value) {
+/* 608 */       addCriterion("SYS_RULE =", value, "sysRule");
+/* 609 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andSysRuleNotEqualTo(String value) {
+/* 613 */       addCriterion("SYS_RULE <>", value, "sysRule");
+/* 614 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andSysRuleGreaterThan(String value) {
+/* 618 */       addCriterion("SYS_RULE >", value, "sysRule");
+/* 619 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andSysRuleGreaterThanOrEqualTo(String value) {
+/* 623 */       addCriterion("SYS_RULE >=", value, "sysRule");
+/* 624 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andSysRuleLessThan(String value) {
+/* 628 */       addCriterion("SYS_RULE <", value, "sysRule");
+/* 629 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andSysRuleLessThanOrEqualTo(String value) {
+/* 633 */       addCriterion("SYS_RULE <=", value, "sysRule");
+/* 634 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andSysRuleLike(String value) {
+/* 638 */       addCriterion("SYS_RULE like", value, "sysRule");
+/* 639 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andSysRuleNotLike(String value) {
+/* 643 */       addCriterion("SYS_RULE not like", value, "sysRule");
+/* 644 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andSysRuleIn(List<String> values) {
+/* 648 */       addCriterion("SYS_RULE in", values, "sysRule");
+/* 649 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andSysRuleNotIn(List<String> values) {
+/* 653 */       addCriterion("SYS_RULE not in", values, "sysRule");
+/* 654 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andSysRuleBetween(String value1, String value2) {
+/* 658 */       addCriterion("SYS_RULE between", value1, value2, "sysRule");
+/* 659 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public SecureRuleExample.Criteria andSysRuleNotBetween(String value1, String value2) {
+/* 663 */       addCriterion("SYS_RULE not between", value1, value2, "sysRule");
+/* 664 */       return (SecureRuleExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.common.SecureRuleExample
+ * JD-Core Version:    0.6.0
+ */

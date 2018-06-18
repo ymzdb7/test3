@@ -1,0 +1,217 @@
+/*     */ package com.xoa.controller.officeSupplies;
+/*     */ 
+/*     */ import com.xoa.model.officesupplies.OfficeTranshistoryWithBLOBs;
+/*     */ import com.xoa.service.officesupplies.OfficeTransHistoryService;
+/*     */ import com.xoa.util.AjaxJson;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.Date;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import org.springframework.beans.propertyeditors.CustomDateEditor;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.WebDataBinder;
+/*     */ import org.springframework.web.bind.annotation.InitBinder;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/officetransHistory"})
+/*     */ public class OfficeTransHistoryController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private OfficeTransHistoryService officeTransHistoryService;
+/*     */ 
+/*     */   @InitBinder
+/*     */   public void initBinder(WebDataBinder binder)
+/*     */   {
+/*  37 */     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+/*  38 */     dateFormat.setLenient(false);
+/*  39 */     binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/goMyOfficeApply"})
+/*     */   public String goMyOfficeApply()
+/*     */   {
+/*  49 */     return "app/officeSupplies/product/myApply";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/goFixDepository"})
+/*     */   public String goFixDepository()
+/*     */   {
+/*  60 */     return "app/officeSupplies/depository/fixDepository";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/goPendregistration"})
+/*     */   public String goPendregistration()
+/*     */   {
+/*  70 */     return "app/officeSupplies/depository/goPendregistration";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/goQuery"})
+/*     */   public String goQuery()
+/*     */   {
+/*  80 */     return "app/officeSupplies/depository/query";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/productRelease"})
+/*     */   public String productRelease()
+/*     */   {
+/*  91 */     return "app/officeSupplies/release/productRelease";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/approvalIndex"})
+/*     */   public String approvalIndex()
+/*     */   {
+/* 102 */     return "app/officeSupplies/approval/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/NoApproval"})
+/*     */   public String NoApproval()
+/*     */   {
+/* 113 */     return "app/officeSupplies/approval/NoApproval";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/applyRecord"})
+/*     */   public String applyRecord()
+/*     */   {
+/* 124 */     return "app/officeSupplies/approval/applyRecord";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/OfficeProductApply"})
+/*     */   public String OfficeProductApply(int editFlag, int transId, Map<String, Object> map)
+/*     */   {
+/* 136 */     map.put("editFlag", Integer.valueOf(editFlag));
+/* 137 */     map.put("transId", Integer.valueOf(transId));
+/* 138 */     return "app/officeSupplies/product/editApply";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/gpProApply"})
+/*     */   public String goProductApply(int editFlag, int transId, int proid, int depositoryid, int protypeid, Map<String, Object> map)
+/*     */   {
+/* 148 */     map.put("editFlag", Integer.valueOf(editFlag));
+/* 149 */     map.put("transId", Integer.valueOf(transId));
+/* 150 */     map.put("proid", Integer.valueOf(proid));
+/* 151 */     map.put("depositoryid", Integer.valueOf(depositoryid));
+/* 152 */     map.put("protypeid", Integer.valueOf(protypeid));
+/* 153 */     return "app/officeSupplies/product/gpProApply";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/OfficeProductApplyIndex"})
+/*     */   public String OfficeProductApplyIndex()
+/*     */   {
+/* 164 */     return "app/officeSupplies/product/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/stockIndex"})
+/*     */   public String stockIndex()
+/*     */   {
+/* 175 */     return "app/officeSupplies/depository/stockIndex";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/insertObject"})
+/*     */   public ToJson<Object> insertObject(HttpServletRequest request, OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs, int flag)
+/*     */   {
+/* 187 */     return this.officeTransHistoryService.insertObject(request, officeTranshistoryWithBLOBs, flag);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getMyHistroy"})
+/*     */   public ToJson<OfficeTranshistoryWithBLOBs> getMyHistroy(HttpServletRequest request)
+/*     */   {
+/* 198 */     return this.officeTransHistoryService.getMyHistroy(request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deleteObject"})
+/*     */   public ToJson<Object> deleteObject(Integer transId)
+/*     */   {
+/* 210 */     return this.officeTransHistoryService.deleteObject(transId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/editObject"})
+/*     */   public ToJson<Object> editObject(OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs)
+/*     */   {
+/* 221 */     return this.officeTransHistoryService.editObject(officeTranshistoryWithBLOBs);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getObjectById"})
+/*     */   public ToJson<OfficeTranshistoryWithBLOBs> getObjectById(Integer transId)
+/*     */   {
+/* 232 */     return this.officeTransHistoryService.getObjectById(transId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selTranshistoryByState"})
+/*     */   ToJson<OfficeTranshistoryWithBLOBs> selTranshistoryByState(HttpServletRequest request)
+/*     */   {
+/* 245 */     return this.officeTransHistoryService.selTranshistoryByState(request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/upTransHistoryState"})
+/*     */   public ToJson<OfficeTranshistoryWithBLOBs> upTransHistoryState(OfficeTranshistoryWithBLOBs transhistory)
+/*     */   {
+/* 258 */     return this.officeTransHistoryService.upTransHistoryState(transhistory);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getDownObjects"})
+/*     */   public AjaxJson getDownObjects(String typeDepository, String officeProductType)
+/*     */   {
+/* 269 */     return this.officeTransHistoryService.getDownObjects(typeDepository, officeProductType);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selGrantByCond"})
+/*     */   ToJson<OfficeTranshistoryWithBLOBs> selGrantByCond(OfficeTranshistoryWithBLOBs transhistory, HttpServletRequest request, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/* 283 */     return this.officeTransHistoryService.selGrantByCond(transhistory, request, page, pageSize, useFlag);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/upGrantStatus"})
+/*     */   ToJson<OfficeTranshistoryWithBLOBs> upGrantStatus(OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs)
+/*     */   {
+/* 296 */     return this.officeTransHistoryService.upGrantStatus(officeTranshistoryWithBLOBs);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selTranshistoryByCond"})
+/*     */   public ToJson<OfficeTranshistoryWithBLOBs> selTranshistoryByCond(OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs, int output, HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/* 309 */     return this.officeTransHistoryService.selTranshistoryByCond(officeTranshistoryWithBLOBs, output, request, response);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selMaintain"})
+/*     */   ToJson<OfficeTranshistoryWithBLOBs> selMaintain(OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs, HttpServletRequest request)
+/*     */   {
+/* 322 */     return this.officeTransHistoryService.selMaintain(officeTranshistoryWithBLOBs, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selInstead"})
+/*     */   ToJson<OfficeTranshistoryWithBLOBs> selInstead(OfficeTranshistoryWithBLOBs officeTranshistoryWithBLOBs, HttpServletRequest request)
+/*     */   {
+/* 335 */     return this.officeTransHistoryService.selInstead(officeTranshistoryWithBLOBs, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/returnObject"})
+/*     */   public ToJson<Object> returnObject(String transIds)
+/*     */   {
+/* 346 */     return this.officeTransHistoryService.returnObject(transIds);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.officeSupplies.OfficeTransHistoryController
+ * JD-Core Version:    0.6.0
+ */

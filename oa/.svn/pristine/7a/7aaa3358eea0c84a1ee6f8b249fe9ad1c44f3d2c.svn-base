@@ -1,0 +1,206 @@
+/*     */ package com.xoa.controller.timedTaskManagement;
+/*     */ 
+/*     */ import com.xoa.model.timedTaskManagement.TimedTaskManagement;
+/*     */ import com.xoa.model.timedTaskManagement.TimedTaskRecord;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.timedTaskManagement.TimedTaskManagementService;
+/*     */ import com.xoa.service.timedTaskManagement.TimedTaskRecordService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.beans.Transient;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/TimedTaskManagementController"})
+/*     */ public class TimedTaskManagementController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private TimedTaskManagementService timedTaskManagementService;
+/*     */ 
+/*     */   @Resource
+/*     */   private TimedTaskRecordService timedTaskRecordService;
+/*     */ 
+/*     */   @RequestMapping({"/selectTimedTaskKey"})
+/*     */   @ResponseBody
+/*     */   public ToJson selectTimedTaskKey(HttpServletRequest request)
+/*     */   {
+/*  44 */     ToJson json = new ToJson();
+/*  45 */     String ttmids = request.getParameter("ttmId");
+/*  46 */     if (ttmids != null) {
+/*  47 */       Integer ttmId = Integer.valueOf(ttmids);
+/*  48 */       TimedTaskManagement timedTaskManagement = this.timedTaskManagementService.selectTimedTaskKey(ttmId);
+/*  49 */       if (timedTaskManagement != null) {
+/*  50 */         json.setObject(timedTaskManagement);
+/*  51 */         json.setFlag(0);
+/*  52 */         json.setMsg("ok");
+/*  53 */         return json;
+/*     */       }
+/*  55 */       json.setFlag(0);
+/*  56 */       json.setMsg("err");
+/*  57 */       return json;
+/*     */     }
+/*  59 */     json.setFlag(0);
+/*  60 */     json.setMsg("err");
+/*  61 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/TimedSelect"})
+/*     */   @ResponseBody
+/*     */   public ToJson TimedSelect()
+/*     */   {
+/*  72 */     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*  73 */     ToJson json = new ToJson();
+/*  74 */     List<TimedTaskManagement> list = this.timedTaskManagementService.selectTimeManagerTo();
+/*  75 */     for (TimedTaskManagement timedTaskManagement : list) {
+/*  76 */       if (timedTaskManagement.getExecutionTime() != null) {
+/*     */         try {
+/*  78 */           String dates = formatter.format(timedTaskManagement.getExecutionTime());
+/*  79 */           Date date = formatter.parse(dates);
+/*  80 */           timedTaskManagement.setExecutionTime(date);
+/*     */         } catch (Exception e) {
+/*  82 */           e.printStackTrace();
+/*     */         }
+/*     */       }
+/*     */     }
+/*  86 */     if (list.size() > 0) {
+/*  87 */       json.setObj(list);
+/*  88 */       json.setMsg("ok");
+/*  89 */       json.setFlag(0);
+/*  90 */       return json;
+/*     */     }
+/*  92 */     json.setMsg("ok,wu");
+/*  93 */     json.setFlag(0);
+/*  94 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/imedTaskManagement"})
+/*     */   public String imedTaskManagement()
+/*     */   {
+/* 104 */     return "app/timedTaskManagement/timedTaskManagement";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/updateTimedTaskManagement"})
+/*     */   @ResponseBody
+/*     */   @Transient
+/*     */   public ToJson updateTimedTaskManagement(HttpServletRequest request)
+/*     */   {
+/* 116 */     ToJson json = new ToJson();
+/* 117 */     Map map = new HashMap();
+/* 118 */     if (request.getParameter("execute") != null) {
+/* 119 */       map.put("execute", Integer.valueOf(request.getParameter("execute")));
+/*     */     }
+/* 121 */     if (request.getParameter("intwevalTime") != null) {
+/* 122 */       map.put("intwevalTime", request.getParameter("intwevalTime") + "");
+/*     */     }
+/* 124 */     if (request.getParameter("executionTimeat") != null) {
+/* 125 */       map.put("executionTimeat", request.getParameter("executionTimeat") + "");
+/*     */     }
+/* 127 */     if (request.getParameter("ttmId") != null) {
+/* 128 */       Integer ttmId = Integer.valueOf(request.getParameter("ttmId").toString());
+/* 129 */       map.put("ttmId", ttmId);
+/* 130 */       int i = this.timedTaskManagementService.updateTimedTaskManagement(map);
+/* 131 */       if (i > 0) {
+/* 132 */         json.setMsg("ok");
+/* 133 */         json.setFlag(0);
+/* 134 */         return json;
+/*     */       }
+/* 136 */       json.setMsg("err");
+/* 137 */       json.setFlag(0);
+/* 138 */       return json;
+/*     */     }
+/* 140 */     json.setMsg("err");
+/* 141 */     json.setFlag(0);
+/* 142 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/stactTo"})
+/*     */   @ResponseBody
+/*     */   @Transient
+/*     */   public ToJson stactTo(HttpServletRequest request, Integer ttmId, Integer taskType)
+/*     */   {
+/* 156 */     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/* 157 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 158 */     Date date = new Date();
+/*     */     try {
+/* 160 */       date = df.parse(df.format(date));
+/*     */     } catch (Exception e) {
+/* 162 */       e.printStackTrace();
+/*     */     }
+/* 164 */     ToJson json = new ToJson();
+/*     */ 
+/* 166 */     TimedTaskManagement timedTaskManagement1 = this.timedTaskManagementService.selectTimedTaskOne(ttmId, taskType);
+/* 167 */     switch (ttmId.intValue()) {
+/*     */     case 1:
+/* 169 */       staticTte(timedTaskManagement1, ttmId, user, date);
+/* 170 */       break;
+/*     */     case 2:
+/* 172 */       staticTte(timedTaskManagement1, ttmId, user, date);
+/* 173 */       break;
+/*     */     case 3:
+/* 175 */       staticTte(timedTaskManagement1, ttmId, user, date);
+/* 176 */       break;
+/*     */     case 4:
+/* 178 */       staticTte(timedTaskManagement1, ttmId, user, date);
+/* 179 */       break;
+/*     */     }
+/*     */ 
+/* 183 */     return json;
+/*     */   }
+/*     */ 
+/*     */   private ToJson staticTte(TimedTaskManagement timedTaskManagement1, Integer ttmId, Users user, Date date)
+/*     */   {
+/* 188 */     ToJson json = new ToJson();
+/* 189 */     TimedTaskRecord timedTaskRecord = null;
+/* 190 */     if (timedTaskManagement1 != null)
+/*     */     {
+/* 195 */       timedTaskRecord.setTtmId(ttmId);
+/* 196 */       timedTaskRecord.setUserId(user.getUserId());
+/* 197 */       timedTaskRecord.setExecutionTime(date);
+/* 198 */       timedTaskRecord.setResult(Integer.valueOf(0));
+/* 199 */       timedTaskRecord.setLishiTime(timedTaskManagement1.getLishiTime());
+/*     */ 
+/* 201 */       int t = this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/* 202 */       if (t > 0) {
+/* 203 */         json.setFlag(0);
+/* 204 */         json.setMsg("ok");
+/* 205 */         return json;
+/*     */       }
+/* 207 */       json.setFlag(1);
+/* 208 */       json.setMsg("err");
+/*     */     }
+/*     */     else
+/*     */     {
+/* 230 */       timedTaskRecord.setTtmId(ttmId);
+/* 231 */       timedTaskRecord.setUserId(user.getUserId());
+/* 232 */       timedTaskRecord.setExecutionTime(date);
+/* 233 */       timedTaskRecord.setResult(Integer.valueOf(0));
+/* 234 */       timedTaskRecord.setLishiTime(date);
+/*     */ 
+/* 236 */       int t = this.timedTaskRecordService.insertTimedRecord(timedTaskRecord);
+/* 237 */       if (t > 0) {
+/* 238 */         json.setFlag(0);
+/* 239 */         json.setMsg("ok");
+/* 240 */         return json;
+/*     */       }
+/* 242 */       json.setFlag(1);
+/* 243 */       json.setMsg("err");
+/*     */     }
+/*     */ 
+/* 261 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.timedTaskManagement.TimedTaskManagementController
+ * JD-Core Version:    0.6.0
+ */

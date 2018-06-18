@@ -1,0 +1,93 @@
+/*     */ package com.xoa.controller.smsSettings;
+/*     */ 
+/*     */ import com.xoa.model.smsSettings.SmsSettings;
+/*     */ import com.xoa.service.smssetting.SmsSettingsService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @RequestMapping({"/smsSettings"})
+/*     */ @Controller
+/*     */ public class SmsSettingsController
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private SmsSettingsService smsSettingsService;
+/*     */ 
+/*     */   @RequestMapping({"/index"})
+/*     */   public String smsIndex()
+/*     */   {
+/*  27 */     return "app/smsSettings/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/indexnum1"})
+/*     */   public String smsIndex1() {
+/*  33 */     return "app/smsSettings/indexnum1";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/indexnum2"})
+/*     */   public String smsIndex2() {
+/*  39 */     return "app/smsSettings/indexnum2";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/indexnum3"})
+/*     */   public String smsIndex3() {
+/*  45 */     return "app/smsSettings/indexnum3";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/indexnum4"})
+/*     */   public String smsIndex4() {
+/*  51 */     return "app/smsSettings/indexnum4";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/indexnum5"})
+/*     */   public String smsIndex5() {
+/*  57 */     return "app/smsSettings/indexnum5";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/indexnum7"})
+/*     */   public String smsIndex7() {
+/*  63 */     return "app/smsSettings/indexnum7";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/indexnum6"})
+/*     */   public String smsIndex6() {
+/*  69 */     return "app/smsSettings/indexnum6";
+/*     */   }
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/insertSmsSettings"})
+/*     */   public ToJson insertSmsSettings(SmsSettings smsSettings) {
+/*  76 */     return this.smsSettingsService.insertSmsSettings(smsSettings);
+/*     */   }
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/delSmsSettings"})
+/*     */   public ToJson delSmsSettings(int id) {
+/*  83 */     return this.smsSettingsService.delSmsSettings(id);
+/*     */   }
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/upSmsSettings"})
+/*     */   public ToJson upSmsSettings(SmsSettings smsSettings) {
+/*  90 */     return this.smsSettingsService.upSmsSettings(smsSettings);
+/*     */   }
+/*  96 */   @ResponseBody
+/*     */   @RequestMapping({"/selectSmsSettings"})
+/*     */   public ToJson selectSmsSettings() { return this.smsSettingsService.selectSmsSettings(); } 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectSmsSettingsAll"})
+/*     */   public ToJson selectSmsSettingsAll() {
+/* 102 */     return this.smsSettingsService.selectSmsSettingsAll();
+/*     */   }
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectSmsSettingsById"})
+/*     */   public ToJson selectSmsSettingsById(HttpServletRequest request, Integer id) {
+/* 109 */     return this.smsSettingsService.selectSmsSettingsById(request, id);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.smsSettings.SmsSettingsController
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,65 @@
+package com.myoa.model.edu.eduSchoolCalendar;
+
+import com.alibaba.fastjson.annotation.JSONField;
+import java.util.Date;
+import org.springframework.format.annotation.DateTimeFormat;
+
+public class EduSchoolCalendarDesc {
+	private Integer id;
+	private String schoolYear;
+	private String schoolTerm;
+
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JSONField(format = "yyyy-MM-dd")
+	private Date createTime;
+	private String createUser;
+	private String gradeType;
+
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getSchoolYear() {
+		return this.schoolYear;
+	}
+
+	public void setSchoolYear(String schoolYear) {
+		this.schoolYear = (schoolYear == null ? null : schoolYear.trim());
+	}
+
+	public String getSchoolTerm() {
+		return this.schoolTerm;
+	}
+
+	public void setSchoolTerm(String schoolTerm) {
+		this.schoolTerm = (schoolTerm == null ? null : schoolTerm.trim());
+	}
+
+	public Date getCreateTime() {
+		return this.createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public String getCreateUser() {
+		return this.createUser;
+	}
+
+	public void setCreateUser(String createUser) {
+		this.createUser = (createUser == null ? null : createUser.trim());
+	}
+
+	public String getGradeType() {
+		return this.gradeType;
+	}
+
+	public void setGradeType(String gradeType) {
+		this.gradeType = (gradeType == null ? null : gradeType.trim());
+	}
+}

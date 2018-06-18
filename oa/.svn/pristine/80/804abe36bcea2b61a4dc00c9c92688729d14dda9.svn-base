@@ -1,0 +1,149 @@
+ package com.xoa.service.workflow.flowRule.impl;
+ 
+ import com.xoa.dao.workflow.FlowRuleMapper;
+ import com.xoa.model.workflow.FlowRule;
+ import com.xoa.service.workflow.flowRule.FlowRuleService;
+ import com.xoa.util.ToJson;
+ import com.xoa.util.page.PageParams;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import javax.annotation.Resource;
+ import org.springframework.stereotype.Service;
+ 
+ @Service
+ public class FlowRuleServiceImpl
+   implements FlowRuleService
+ {
+ 
+   @Resource
+   private FlowRuleMapper flowRuleMapper;
+ 
+   public ToJson<FlowRule> queryFlowRule(Integer page, Integer pageSize, boolean useFlag)
+   {
+     ToJson json = new ToJson();
+     try {
+       Map maps = new HashMap();
+       PageParams pageParams = new PageParams();
+       pageParams.setPage(page);
+       pageParams.setPageSize(pageSize);
+       pageParams.setUseFlag(Boolean.valueOf(useFlag));
+       maps.put("page", pageParams);
+       List flowRules = this.flowRuleMapper.queryFlowRule(maps);
+       json.setTotleNum(pageParams.getTotal());
+       json.setObj(flowRules);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setMsg("err");
+       json.setFlag(1);
+     }
+ 
+     return json;
+   }
+ 
+   public ToJson<FlowRule> insertFlowRule(FlowRule flowRule)
+   {
+     ToJson json = new ToJson();
+     try {
+       this.flowRuleMapper.insertFlowRule(flowRule);
+       json.setObject(flowRule);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setMsg("error");
+       json.setFlag(1);
+     }
+ 
+     return json;
+   }
+ 
+   public ToJson<FlowRule> updateStatusToStart(FlowRule flowRule)
+   {
+     ToJson json = new ToJson();
+     try {
+       int a = this.flowRuleMapper.updateStatusToStart(flowRule);
+       if (a > 0) {
+         json.setFlag(0);
+         json.setMsg("ok");
+       }
+       else {
+         json.setFlag(1);
+         json.setMsg("err");
+       }
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+       json.setFlag(1);
+       json.setMsg("error");
+     }
+ 
+     return json;
+   }
+ 
+   public ToJson<FlowRule> updateStatusToEnd(FlowRule flowRule)
+   {
+     ToJson json = new ToJson();
+     try {
+       int a = this.flowRuleMapper.updateStatusToEnd(flowRule);
+       if (a > 0) {
+         json.setFlag(0);
+         json.setMsg("ok");
+       }
+       else {
+         json.setFlag(1);
+         json.setMsg("err");
+       }
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+       json.setFlag(1);
+       json.setMsg("error");
+     }
+ 
+     return json;
+   }
+ 
+   public ToJson<FlowRule> deleteFlowRule(FlowRule flowRule)
+   {
+     ToJson json = new ToJson();
+     try {
+       int a = this.flowRuleMapper.deleteFlowRule(flowRule);
+       if (a > 0) {
+         json.setFlag(0);
+         json.setMsg("ok");
+       }
+       else {
+         json.setFlag(1);
+         json.setMsg("err");
+       }
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+       json.setFlag(1);
+       json.setMsg("error");
+     }
+ 
+     return json;
+   }
+ 
+   public ToJson<FlowRule> selectFlowRule(String flowName, String userName, String toUserName)
+   {
+     ToJson json = new ToJson();
+     try {
+       List flowRules = this.flowRuleMapper.selectFlowRule(flowName, userName, toUserName);
+       json.setObj(flowRules);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setMsg("err");
+       json.setFlag(1);
+     }
+ 
+     return json;
+   }
+ }
+

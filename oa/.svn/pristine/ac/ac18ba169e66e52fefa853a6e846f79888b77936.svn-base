@@ -1,0 +1,189 @@
+/*     */ package com.xoa.controller.workflow;
+/*     */ 
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.workflow.FlowProcess;
+/*     */ import com.xoa.model.workflow.FlowProcessList;
+/*     */ import com.xoa.service.WFE.WFEFactory.WFEFlowProcess;
+/*     */ import com.xoa.service.workflow.flowtype.FlowProcessService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.context.annotation.Scope;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @Scope("prototype")
+/*     */ @RequestMapping({"/flowProcess"})
+/*     */ public class FlowProcessController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowProcessService flowProcessService;
+/*     */ 
+/*     */   @Autowired
+/*     */   private WFEFlowProcess wfeFlowProcess;
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"findFlow"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<FlowProcess> findFlow(@RequestParam("id") int id, HttpServletRequest request)
+/*     */   {
+/*  68 */     SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  69 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  71 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/*  73 */       FlowProcess flowProcess = this.flowProcessService.find(id);
+/*  74 */       json.setObject(flowProcess);
+/*  75 */       json.setMsg("OK");
+/*  76 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  78 */       json.setMsg(e.getMessage());
+/*     */     }
+/*  80 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"saveFlow"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<FlowProcess> saveFlow(FlowProcess flowProcess, HttpServletRequest request)
+/*     */   {
+/*  96 */     SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  97 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 100 */     return this.flowProcessService.updateByPrimaryKeySelective(flowProcess);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"insert"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*     */   public ToJson<FlowProcess> insert(FlowProcess flowProcess, HttpServletRequest request)
+/*     */   {
+/* 118 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 120 */     SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 121 */     return this.flowProcessService.insertSelective(flowProcess);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"doedit"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<FlowProcess> doedit(int id, HttpServletRequest request)
+/*     */   {
+/* 137 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 139 */     SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 140 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 142 */       FlowProcess flowProcess = this.flowProcessService.find(id);
+/* 143 */       json.setObject(flowProcess);
+/* 144 */       json.setMsg("OK");
+/* 145 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 147 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 149 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"findFlowId"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<FlowProcess> findFlowId(@RequestParam("flowId") int flowId, HttpServletRequest request)
+/*     */   {
+/* 168 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 170 */     SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 171 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 173 */       List list = this.flowProcessService.findFlowId(flowId);
+/* 174 */       json.setObj(list);
+/* 175 */       json.setMsg("OK");
+/* 176 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 178 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 180 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"delete"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<FlowProcess> delete(@RequestParam("id") int id, HttpServletRequest request)
+/*     */   {
+/* 197 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 199 */     SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/* 201 */     String prcsId = request.getParameter("prcsId");
+/*     */ 
+/* 203 */     return this.flowProcessService.delete(id, prcsId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"flowview"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<FlowProcessList> flowview(@RequestParam("flowId") Integer flowId, @RequestParam(value="runId", required=false) Integer runId, @RequestParam(value="userId", required=false) String userId, @RequestParam(value="showType", required=false, defaultValue="0") Integer showType, HttpServletRequest request)
+/*     */   {
+/* 223 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 225 */     if (StringUtils.checkNull(userId).booleanValue()) {
+/* 226 */       userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/*     */     }
+/* 228 */     if (showType.intValue() == 0) {
+/* 229 */       return this.wfeFlowProcess.flowView(flowId, runId, userId);
+/*     */     }
+/* 231 */     return this.wfeFlowProcess.myFlowView(flowId, runId, userId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"updateTopAndLeft"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowProcess> updateTopAndLeft(FlowProcess flowProcess, HttpServletRequest request)
+/*     */   {
+/* 254 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 256 */     SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 257 */     return this.flowProcessService.updateTopAndLeft(flowProcess);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"deleteTopAndLeft"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*     */   @ResponseBody
+/*     */   public ToJson<FlowProcess> deleteTopAndLeft(FlowProcess flowProcess, @RequestParam("toPrcsLine") String toPrcsLine, HttpServletRequest request)
+/*     */   {
+/* 272 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 274 */     SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 275 */     return this.flowProcessService.findPrcessLine(flowProcess, toPrcsLine);
+/*     */   }
+/*     */   @RequestMapping(value={"xs"}, produces={"application/json;charset=UTF-8"})
+/*     */   public String xs() {
+/* 280 */     return "app/workflow/flowprocess/flowProcess";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getFlowAttachment"})
+/*     */   @ResponseBody
+/*     */   public ToJson getFlowAttachment(HttpServletRequest request, String runId)
+/*     */   {
+/* 293 */     String company = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 295 */     return this.flowProcessService.getFlowAttachment(runId, company);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getFlowFeedBack"})
+/*     */   @ResponseBody
+/*     */   public ToJson getFlowFeedBack(String runId)
+/*     */   {
+/* 307 */     return this.flowProcessService.selectFlowFeedBackByRunId(runId); } 
+/* 312 */   @RequestMapping(value={"getFlowRunPrecsAll"}, produces={"application/json;charset=UTF-8"})
+/*     */   @ResponseBody
+/*     */   public BaseWrappers getFlowRunPrecsAll(String runId) { return this.flowProcessService.getFlowRunPrecsAll(runId);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.workflow.FlowProcessController
+ * JD-Core Version:    0.6.0
+ */

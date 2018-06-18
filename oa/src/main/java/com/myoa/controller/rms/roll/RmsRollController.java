@@ -1,0 +1,90 @@
+package com.myoa.controller.rms.roll;
+
+import com.myoa.model.rms.RmsRollWithBLOBs;
+import com.myoa.service.rms.RmsRollService;
+import com.myoa.util.ToJson;
+import com.myoa.util.page.PageParams;
+
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@RequestMapping({ "/rmsRoll" })
+public class RmsRollController {
+
+	@Autowired
+	private RmsRollService rmsRollService;
+
+	@RequestMapping({ "/index" })
+	public String index() {
+		return "app/rms/roll/index";
+	}
+
+	@RequestMapping({ "/toManagePage" })
+	public String toManagePage() {
+		return "app/rms/roll/manageRmsRoll";
+	}
+
+	@RequestMapping({ "/toNewPage" })
+	public String toNew() {
+		return "app/rms/roll/addRmsRoll";
+	}
+
+	@RequestMapping({ "/toQueryPage" })
+	public String toQueryPage() {
+		return "app/rms/roll/queryRmsRoll";
+	}
+
+	@RequestMapping({ "/detail" })
+	public String toDetail() {
+		return "app/rms/roll/detail";
+	}
+
+	@RequestMapping({ "/lookFile" })
+	public String lookFile() {
+		return "app/rms/roll/lookFile";
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/save" })
+	public ToJson<RmsRollWithBLOBs> save(RmsRollWithBLOBs rmsRoll,
+			HttpServletRequest request) {
+		return this.rmsRollService.save(rmsRoll, request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/update" })
+	public ToJson<RmsRollWithBLOBs> update(RmsRollWithBLOBs rmsRollWithBLOBs,
+			HttpServletRequest request) {
+		return this.rmsRollService.update(rmsRollWithBLOBs, request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/query" })
+	public ToJson<RmsRollWithBLOBs> query(RmsRollWithBLOBs rmsRollWithBLOBs,
+			PageParams pageParams) {
+		return this.rmsRollService.query(rmsRollWithBLOBs, pageParams);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/delete" })
+	public ToJson<RmsRollWithBLOBs> destroy(String rollIds,
+			HttpServletRequest request) {
+		return this.rmsRollService.destroy(rollIds, request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selectById" })
+	public ToJson<RmsRollWithBLOBs> selectById(Integer rollId) {
+		return this.rmsRollService.selectById(rollId);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selectAll" })
+	public ToJson<RmsRollWithBLOBs> selectAll() {
+		return this.rmsRollService.selectAll();
+	}
+}

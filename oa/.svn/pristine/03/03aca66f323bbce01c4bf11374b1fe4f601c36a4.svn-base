@@ -1,0 +1,97 @@
+/*     */ package com.xoa.util.common.http;
+/*     */ 
+/*     */ import java.util.LinkedHashMap;
+/*     */ import java.util.Map;
+/*     */ 
+/*     */ public class Request
+/*     */ {
+/*     */   private Map<String, String> properties;
+/*     */   private Map<String, String> params;
+/*     */   private Map<String, String> headers;
+/*     */   private byte[] postData;
+/*  28 */   private boolean sync = false;
+/*     */ 
+/*     */   public String getProperty(String property)
+/*     */   {
+/*  37 */     if (this.properties == null) {
+/*  38 */       return null;
+/*     */     }
+/*  40 */     return (String)this.properties.get(property);
+/*     */   }
+/*     */ 
+/*     */   public void setProperty(String propery, String value)
+/*     */   {
+/*  49 */     if (this.properties == null) {
+/*  50 */       this.properties = new LinkedHashMap();
+/*     */     }
+/*  52 */     this.properties.put(propery, value);
+/*     */   }
+/*     */ 
+/*     */   public void setParam(String param, String value)
+/*     */   {
+/*  61 */     if (this.params == null) {
+/*  62 */       this.params = new LinkedHashMap();
+/*     */     }
+/*  64 */     this.params.put(param, value);
+/*     */   }
+/*     */ 
+/*     */   public Map<String, String> getHeaders() {
+/*  68 */     return this.headers;
+/*     */   }
+/*     */ 
+/*     */   public void setHeader(String header, String value)
+/*     */   {
+/*  77 */     if (this.headers == null) {
+/*  78 */       this.headers = new LinkedHashMap();
+/*     */     }
+/*  80 */     this.headers.put(header, value);
+/*     */   }
+/*     */ 
+/*     */   public Map<String, String> getParams() {
+/*  84 */     return this.params;
+/*     */   }
+/*     */ 
+/*     */   public String getHeader(String header) {
+/*  88 */     if (this.headers == null) {
+/*  89 */       return null;
+/*     */     }
+/*  91 */     return (String)this.headers.get(header);
+/*     */   }
+/*     */   public Map<String, String> getProperties() {
+/*  94 */     return this.properties;
+/*     */   }
+/*     */ 
+/*     */   public void setProperties(Map<String, String> properties) {
+/*  98 */     this.properties = properties;
+/*     */   }
+/*     */ 
+/*     */   public void setParams(Map<String, String> params) {
+/* 102 */     this.params = params;
+/*     */   }
+/*     */ 
+/*     */   public void setHeaders(Map<String, String> headers) {
+/* 106 */     this.headers = headers;
+/*     */   }
+/*     */ 
+/*     */   public byte[] getPostData()
+/*     */   {
+/* 112 */     return this.postData;
+/*     */   }
+/*     */ 
+/*     */   public void setPostData(byte[] postData) {
+/* 116 */     this.postData = postData;
+/*     */   }
+/*     */ 
+/*     */   public boolean isSync() {
+/* 120 */     return this.sync;
+/*     */   }
+/*     */ 
+/*     */   public void setSync(boolean sync) {
+/* 124 */     this.sync = sync;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.common.http.Request
+ * JD-Core Version:    0.6.0
+ */

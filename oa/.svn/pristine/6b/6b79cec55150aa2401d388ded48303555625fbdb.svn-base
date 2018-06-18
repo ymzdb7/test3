@@ -1,0 +1,74 @@
+/*    */ package com.xoa.util.common.wrapper;
+/*    */ 
+/*    */ import com.alibaba.fastjson.annotation.JSONField;
+/*    */ import java.util.Date;
+/*    */ import java.util.List;
+/*    */ 
+/*    */ public class BaseWrappers<T>
+/*    */ {
+/*    */   boolean status;
+/*    */   boolean flag;
+/*    */   String msg;
+/*    */   Date time;
+/*    */   List<T> datas;
+/*    */   Integer total;
+/*    */ 
+/*    */   public BaseWrappers()
+/*    */   {
+/* 22 */     this.time = new Date();
+/*    */   }
+/*    */ 
+/*    */   public BaseWrappers(boolean status, boolean flag, String msg, List<T> datas)
+/*    */   {
+/* 29 */     this.status = status;
+/* 30 */     this.flag = flag;
+/* 31 */     this.msg = msg;
+/* 32 */     this.time = new Date();
+/* 33 */     this.datas = datas;
+/*    */   }
+/*    */   public boolean isStatus() {
+/* 36 */     return this.status;
+/*    */   }
+/*    */   public void setStatus(boolean status) {
+/* 39 */     this.status = status;
+/*    */   }
+/*    */   public boolean isFlag() {
+/* 42 */     return this.flag;
+/*    */   }
+/*    */   public void setFlag(boolean flag) {
+/* 45 */     this.flag = flag;
+/*    */   }
+/*    */   public String getMsg() {
+/* 48 */     return this.msg;
+/*    */   }
+/*    */   public void setMsg(String msg) {
+/* 51 */     this.msg = msg;
+/*    */   }
+/* 55 */   @JSONField(format="yyyy-MM-dd HH:mm:ss")
+/*    */   public Date getTime() { if (this.time == null) {
+/* 56 */       this.time = new Date();
+/*    */     }
+/* 58 */     return this.time; }
+/*    */ 
+/*    */   public void setTime(Date time) {
+/* 61 */     this.time = time;
+/*    */   }
+/*    */   public List<T> getDatas() {
+/* 64 */     return this.datas;
+/*    */   }
+/*    */   public void setDatas(List<T> datas) {
+/* 67 */     this.datas = datas;
+/*    */   }
+/*    */   public Integer getTotal() {
+/* 70 */     return this.total;
+/*    */   }
+/*    */ 
+/*    */   public void setTotal(Integer total) {
+/* 74 */     this.total = total;
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.common.wrapper.BaseWrappers
+ * JD-Core Version:    0.6.0
+ */

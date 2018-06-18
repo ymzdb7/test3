@@ -1,0 +1,109 @@
+ package com.myoa.util;
+ 
+ import java.net.Inet4Address;
+ import java.net.InetAddress;
+ import java.net.NetworkInterface;
+ import java.util.Enumeration;
+ import javax.servlet.http.HttpServletRequest;
+ 
+ public class CusAccessObjectUtil
+ {
+   public static String INTRANET_IP = getIntranetIp();
+   public static String INTERNET_IP = getInternetIp();
+ 
+   public static String getIpAddress(HttpServletRequest request)
+   {
+     String ip = request.getHeader("x-forwarded-for");
+     if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+       ip = request.getHeader("Proxy-Client-IP");
+     }
+     if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+       ip = request.getHeader("WL-Proxy-Client-IP");
+     }
+     if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+       ip = request.getHeader("HTTP_CLIENT_IP");
+     }
+     if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+       ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+     }
+     if ((ip == null) || (ip.length() == 0) || ("unknown".equalsIgnoreCase(ip))) {
+       ip = request.getRemoteAddr();
+     }
+     return ip;
+   }
+ 
+   public static String getLocalIP()
+   {
+     String sIP = "";
+     InetAddress ip = null;
+     try {
+       boolean bFindIP = false;
+       Enumeration netInterfaces = NetworkInterface.getNetworkInterfaces();
+ 
+       while ((netInterfaces.hasMoreElements()) && 
+         (!bFindIP))
+       {
+         NetworkInterface ni = (NetworkInterface)netInterfaces.nextElement();
+ 
+         Enumeration ips = ni.getInetAddresses();
+         while (ips.hasMoreElements()) {
+           ip = (InetAddress)ips.nextElement();
+           if ((ip.isLoopbackAddress()) || (!ip.getHostAddress().matches("(\\d{1,3}\\.){3}\\d{1,3}"))) {
+             continue;
+           }
+           bFindIP = true;
+         }
+       }
+     }
+     catch (Exception e)
+     {
+     }
+ 
+     if (null != ip) {
+       sIP = ip.getHostAddress();
+     }
+     return sIP;
+   }
+ 
+   public static String getIntranetIp()
+   {
+     try
+     {
+       return InetAddress.getLocalHost().getHostAddress(); } 
+              catch (Exception e) {
+            	  throw new RuntimeException(e);
+     }
+     
+   }
+ 
+   public static String getInternetIp()
+   {
+     try
+     {
+       Enumeration networks = NetworkInterface.getNetworkInterfaces();
+       while (true) { 
+	             InetAddress ip = null;
+         while (true) {
+           if (networks.hasMoreElements()){
+             Enumeration addrs = ((NetworkInterface)networks.nextElement()).getInetAddresses();
+             if (!addrs.hasMoreElements())
+               continue;
+             ip = (InetAddress)addrs.nextElement();
+             if ((ip == null) || (!(ip instanceof Inet4Address)) || (!ip.isSiteLocalAddress()) || (ip.getHostAddress().equals(INTRANET_IP)))
+             {
+               break;
+             }else {
+						 return ip.getHostAddress();
+					  }  
+           }
+         } 
+                  return INTRANET_IP; 
+       }
+       
+              } catch (Exception e) {
+	                throw new RuntimeException(e);
+     }
+     
+   }
+ }
+

@@ -1,0 +1,358 @@
+/*     */ package com.xoa.util;
+/*     */ 
+/*     */ import com.xoa.util.common.L;
+/*     */ import java.io.PrintStream;
+/*     */ import java.text.ParseException;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.Calendar;
+/*     */ import java.util.Date;
+/*     */ import java.util.zip.DataFormatException;
+/*     */ 
+/*     */ public class DateFormat
+/*     */ {
+/*  21 */   private static SimpleDateFormat wyq = new SimpleDateFormat("HH:mm:ss");
+/*     */ 
+/*  23 */   private static SimpleDateFormat wyq1 = new SimpleDateFormat("HH:mm:ss");
+/*     */ 
+/*  25 */   private static SimpleDateFormat wyq2 = new SimpleDateFormat("yyyy年MM月dd日");
+/*     */ 
+/*  27 */   private static SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+/*     */ 
+/*  30 */   private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/*     */ 
+/*  32 */   private static SimpleDateFormat sdf_hour = new SimpleDateFormat("HH:mm");
+/*  33 */   private static SimpleDateFormat sdf_mouth = new SimpleDateFormat("MM月dd日 HH:mm");
+/*     */ 
+/*  35 */   private static SimpleDateFormat sdf_year = new SimpleDateFormat("yyyy年MM月dd日 HH:mm");
+/*     */ 
+/*  43 */   private static final Long THREE_MINUTE_TIME = Long.valueOf(180000L);
+/*  44 */   private static final Long ONE_HOUR_TIME = Long.valueOf(3600000L);
+/*  45 */   private static final Long ONE_DAY_TIME = Long.valueOf(86400000L);
+/*  46 */   private static final Long TWO_DAY_TIME = Long.valueOf(172800000L);
+/*     */ 
+/*     */   public static String getFormatByUse(String formatStr, Object date)
+/*     */     throws DataFormatException
+/*     */   {
+/*  57 */     if ((date instanceof String)) {
+/*  58 */       date = getDate((String)date);
+/*     */     }
+/*     */ 
+/*  61 */     SimpleDateFormat format = new SimpleDateFormat(formatStr);
+/*     */ 
+/*  63 */     return format.format(date);
+/*     */   }
+/*     */ 
+/*     */   public static Integer getTime(String time)
+/*     */   {
+/*  76 */     String re_time = null;
+/*     */     try
+/*     */     {
+/*  79 */       Date d = sdf.parse(time);
+/*  80 */       long l = d.getTime();
+/*  81 */       String str = String.valueOf(l);
+/*  82 */       re_time = str.substring(0, 10);
+/*     */     } catch (ParseException e) {
+/*  84 */       e.printStackTrace();
+/*     */     }
+/*  86 */     return Integer.valueOf(Integer.parseInt(re_time));
+/*     */   }
+/*     */ 
+/*     */   public static Integer getDateTime(String time)
+/*     */   {
+/*  95 */     String re_time = null;
+/*     */     try
+/*     */     {
+/*  98 */       Date d = sdf1.parse(time);
+/*  99 */       long l = d.getTime();
+/* 100 */       String str = String.valueOf(l);
+/* 101 */       re_time = str.substring(0, 10);
+/*     */     } catch (ParseException e) {
+/* 103 */       e.printStackTrace();
+/*     */     }
+/* 105 */     return Integer.valueOf(Integer.parseInt(re_time));
+/*     */   }
+/*     */ 
+/*     */   public static Integer getWYQTime(String time)
+/*     */   {
+/* 113 */     String re_time = null;
+/*     */     try
+/*     */     {
+/* 116 */       Date d = wyq1.parse(time);
+/* 117 */       long l = d.getTime();
+/* 118 */       String str = String.valueOf(l);
+/* 119 */       re_time = str;
+/*     */     } catch (ParseException e) {
+/* 121 */       e.printStackTrace();
+/*     */     }
+/* 123 */     return Integer.valueOf(Integer.parseInt(re_time));
+/*     */   }
+/*     */ 
+/*     */   public static String getStrTime(Integer time)
+/*     */   {
+/* 137 */     String re_StrTime = null;
+/* 138 */     long lcc_time = Long.valueOf(time.intValue()).longValue();
+/* 139 */     re_StrTime = sdf.format(new Date(lcc_time * 1000L));
+/* 140 */     return re_StrTime;
+/*     */   }
+/*     */ 
+/*     */   public static String getStrDateTime(Integer time) {
+/* 144 */     String re_StrTime = null;
+/* 145 */     long lcc_time = Long.valueOf(time.intValue()).longValue();
+/* 146 */     re_StrTime = sdf1.format(new Date(lcc_time * 1000L));
+/* 147 */     return re_StrTime;
+/*     */   }
+/*     */ 
+/*     */   public static String getDateStrTime(Integer time)
+/*     */   {
+/* 158 */     String re_StrTime = null;
+/* 159 */     long lcc_time = Long.valueOf(time.intValue()).longValue();
+/* 160 */     re_StrTime = sdf.format(new Date(lcc_time * 1000L));
+/* 161 */     return re_StrTime;
+/*     */   }
+/*     */ 
+/*     */   public static String getwyqStrTime(Integer time) {
+/* 165 */     String re_StrTime = null;
+/* 166 */     long lcc_time = Long.valueOf(time.intValue()).longValue();
+/* 167 */     re_StrTime = wyq1.format(time);
+/* 168 */     return re_StrTime;
+/*     */   }
+/*     */ 
+/*     */   public static Date getDate(String time)
+/*     */   {
+/* 182 */     Date re_time = null;
+/*     */     try {
+/* 184 */       re_time = sdf.parse(time);
+/*     */     } catch (ParseException e) {
+/* 186 */       e.printStackTrace();
+/*     */     }
+/* 188 */     return re_time;
+/*     */   }
+/*     */ 
+/*     */   public static Date getDateTimes(String time) {
+/* 192 */     Date re_time = null;
+/*     */     try {
+/* 194 */       re_time = wyq.parse(time);
+/*     */     } catch (ParseException e) {
+/* 196 */       e.printStackTrace();
+/*     */     }
+/* 198 */     return re_time;
+/*     */   }
+/*     */ 
+/*     */   public static String getStrDate(Date time)
+/*     */   {
+/* 210 */     String re_StrTime = null;
+/* 211 */     re_StrTime = sdf.format(time);
+/* 212 */     return re_StrTime;
+/*     */   }
+/*     */ 
+/*     */   public static String getDatestr(Date time)
+/*     */   {
+/* 223 */     String re_StrTime = null;
+/* 224 */     re_StrTime = sdf1.format(time);
+/* 225 */     return re_StrTime;
+/*     */   }
+/*     */ 
+/*     */   public static String getDatestrTime(Date time)
+/*     */   {
+/* 236 */     String re_StrTime = null;
+/* 237 */     re_StrTime = wyq2.format(time);
+/* 238 */     return re_StrTime;
+/*     */   }
+/*     */ 
+/*     */   public static String getDatestrTimes(Date time) {
+/* 242 */     String re_StrTime = null;
+/* 243 */     re_StrTime = sdf_year.format(time);
+/* 244 */     return re_StrTime;
+/*     */   }
+/*     */ 
+/*     */   public static String getDatestrSecondTime(Date time)
+/*     */   {
+/* 253 */     String re_StrTime = null;
+/* 254 */     re_StrTime = wyq.format(time);
+/* 255 */     return re_StrTime;
+/*     */   }
+/*     */ 
+/*     */   public static Date DateToStr(String str)
+/*     */   {
+/* 261 */     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+/* 262 */     Date date = null;
+/*     */     try {
+/* 264 */       date = format.parse(str);
+/*     */     } catch (ParseException e) {
+/* 266 */       e.printStackTrace();
+/*     */     }
+/* 268 */     return date;
+/*     */   }
+/*     */ 
+/*     */   public static void main(String[] args) {
+/* 272 */     System.out.println(getProbablyDate(Integer.valueOf(1492592887)));
+/* 273 */     System.out.println(getProbablyDate(new Date()));
+/* 274 */     System.out.println(getProbablyDate("2017-04-27 23:11:22"));
+/* 275 */     System.out.println(getProbablyDate("2017-04-28 08:11:22"));
+/*     */   }
+/*     */ 
+/*     */   public static String getProbablyDate(Object obj)
+/*     */   {
+/* 288 */     if (obj == null) return null;
+/* 289 */     Date nowDate = new Date();
+/* 290 */     Long nowTime = Long.valueOf(nowDate.getTime());
+/* 291 */     Long formatTime = null;
+/* 292 */     if ((obj instanceof String))
+/*     */     {
+/* 294 */       String dateStr = (String)obj;
+/*     */ 
+/* 296 */       formatTime = Long.valueOf(getDate(dateStr).getTime());
+/*     */     }
+/* 298 */     if ((obj instanceof Date))
+/*     */     {
+/* 300 */       Date date = (Date)obj;
+/* 301 */       formatTime = Long.valueOf(date.getTime());
+/*     */     }
+/*     */ 
+/* 304 */     if ((obj instanceof Integer))
+/*     */     {
+/* 306 */       Integer dateInt = (Integer)obj;
+/* 307 */       formatTime = Long.valueOf(dateInt.intValue() * 1000L);
+/*     */     }
+/* 309 */     if ((obj instanceof Long))
+/*     */     {
+/* 311 */       formatTime = (Long)obj;
+/*     */     }
+/* 313 */     if (formatTime == null) return null;
+/*     */ 
+/* 315 */     Date formatDate = new Date(formatTime.longValue());
+/* 316 */     String hourFat = sdf_hour.format(formatTime);
+/* 317 */     String mouthFat = sdf_mouth.format(formatTime);
+/* 318 */     String yearFat = sdf_year.format(formatTime);
+/* 319 */     String ret = null;
+/*     */ 
+/* 321 */     Calendar fotCalendar = Calendar.getInstance();
+/* 322 */     fotCalendar.setTime(formatDate);
+/* 323 */     int forYear = fotCalendar.get(1);
+/* 324 */     int forDay = fotCalendar.get(5);
+/* 325 */     fotCalendar.setTime(nowDate);
+/* 326 */     int nowDay = fotCalendar.get(5);
+/* 327 */     int nowYear = fotCalendar.get(1);
+/* 328 */     L.w(new Object[] { "forYear", Integer.valueOf(forYear), "forDay", Integer.valueOf(forDay), "nowDay", Integer.valueOf(nowDay), "nowYear", Integer.valueOf(nowYear) });
+/* 329 */     if (nowTime.longValue() - formatTime.longValue() <= THREE_MINUTE_TIME.longValue()) {
+/* 330 */       ret = "刚刚";
+/*     */     }
+/* 332 */     if ((THREE_MINUTE_TIME.longValue() < nowTime.longValue() - formatTime.longValue()) && (nowTime.longValue() - formatTime.longValue() <= ONE_HOUR_TIME.longValue())) {
+/* 333 */       int minutes = (int)((nowTime.longValue() - formatTime.longValue()) / 60000L);
+/* 334 */       ret = minutes + "分钟前";
+/*     */     }
+/* 336 */     if (nowDay - forDay > 0) {
+/* 337 */       if ((ONE_DAY_TIME.longValue() < nowTime.longValue() - formatTime.longValue()) && (nowTime.longValue() - formatTime.longValue() <= TWO_DAY_TIME.longValue())) {
+/* 338 */         ret = "昨天 " + hourFat;
+/*     */       }
+/* 340 */       if ((ONE_HOUR_TIME.longValue() < nowTime.longValue() - formatTime.longValue()) && (nowTime.longValue() - formatTime.longValue() <= ONE_DAY_TIME.longValue())) {
+/* 341 */         ret = "昨天 " + hourFat;
+/*     */       }
+/*     */     }
+/* 344 */     else if ((ONE_HOUR_TIME.longValue() < nowTime.longValue() - formatTime.longValue()) && (nowTime.longValue() - formatTime.longValue() <= ONE_DAY_TIME.longValue())) {
+/* 345 */       ret = "今天 " + hourFat;
+/*     */     }
+/*     */ 
+/* 348 */     if (TWO_DAY_TIME.longValue() < nowTime.longValue() - formatTime.longValue()) {
+/* 349 */       ret = mouthFat;
+/*     */     }
+/* 351 */     if (nowYear - forYear > 0) {
+/* 352 */       ret = yearFat;
+/*     */     }
+/* 354 */     return ret;
+/*     */   }
+/*     */ 
+/*     */   public static String returnTime(Integer time)
+/*     */   {
+/* 366 */     long day = time.intValue() / 86400;
+/* 367 */     long hour = time.intValue() / 3600 - day * 24L;
+/* 368 */     long min = time.intValue() / 60 - day * 24L * 60L - hour * 60L;
+/* 369 */     long s = time.intValue() - day * 24L * 60L * 60L - hour * 60L * 60L - min * 60L;
+/* 370 */     StringBuffer sb = new StringBuffer();
+/* 371 */     if (day > 0L) {
+/* 372 */       sb.append(day);
+/* 373 */       sb.append("天");
+/* 374 */       sb.append(hour);
+/* 375 */       sb.append("小时");
+/* 376 */     } else if ((hour > 0L) && (hour < 24L)) {
+/* 377 */       sb.append(hour);
+/* 378 */       sb.append("小时");
+/* 379 */       sb.append(min);
+/* 380 */       sb.append("分");
+/*     */     } else {
+/* 382 */       sb.append(min);
+/* 383 */       sb.append("分");
+/* 384 */       sb.append(s);
+/* 385 */       sb.append("秒");
+/*     */     }
+/* 387 */     return sb.toString();
+/*     */   }
+/*     */ 
+/*     */   public static String getCurrentTime() {
+/* 391 */     SimpleDateFormat matter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/* 392 */     Calendar calendar = Calendar.getInstance();
+/*     */ 
+/* 394 */     Date date = calendar.getTime();
+/* 395 */     String dateString = matter.format(date);
+/* 396 */     return dateString;
+/*     */   }
+/*     */ 
+/*     */   public static String getCurrentTime2() {
+/* 400 */     SimpleDateFormat matter = new SimpleDateFormat("yyyy-MM-dd");
+/* 401 */     Calendar calendar = Calendar.getInstance();
+/*     */ 
+/* 403 */     Date date = calendar.getTime();
+/* 404 */     String dateString = matter.format(date);
+/* 405 */     return dateString;
+/*     */   }
+/*     */ 
+/*     */   public static String parseMillisecone(long millisecond)
+/*     */   {
+/* 415 */     String time = null;
+/*     */     try {
+/* 417 */       long yushu_day = millisecond % 86400000L;
+/* 418 */       long yushu_hour = millisecond % 86400000L % 3600000L;
+/*     */ 
+/* 420 */       long yushu_minute = millisecond % 86400000L % 3600000L % 60000L;
+/*     */ 
+/* 423 */       long yushu_second = millisecond % 86400000L % 3600000L % 60000L % 1000L;
+/*     */ 
+/* 425 */       if (yushu_day == 0L) {
+/* 426 */         return millisecond / 86400000L + "天";
+/*     */       }
+/* 428 */       if (yushu_hour == 0L) {
+/* 429 */         return millisecond / 86400000L + "天" + yushu_day / 3600000L + "时";
+/*     */       }
+/*     */ 
+/* 432 */       if (yushu_minute == 0L) {
+/* 433 */         return millisecond / 86400000L + "天" + yushu_day / 3600000L + "时" + yushu_hour / 60000L + "分";
+/*     */       }
+/*     */ 
+/* 437 */       long i = millisecond / 86400000L;
+/* 438 */       if (i == 0L) {
+/* 439 */         return yushu_day / 3600000L + "时" + yushu_hour / 60000L + "分" + yushu_minute / 1000L + "秒";
+/*     */       }
+/*     */ 
+/* 443 */       return millisecond / 86400000L + "天" + yushu_day / 3600000L + "时" + yushu_hour / 60000L + "分" + yushu_minute / 1000L + "秒";
+/*     */     }
+/*     */     catch (Exception e)
+/*     */     {
+/* 454 */       e.printStackTrace();
+/*     */     }
+/* 456 */     return time;
+/*     */   }
+/*     */ 
+/*     */   public static boolean MoreTime(String passWordTime) throws ParseException {
+/* 460 */     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+/* 461 */     Date now = sdf.parse(passWordTime);
+/* 462 */     long time = 60000L;
+/* 463 */     Date afterDate = new Date(now.getTime() + time);
+/*     */ 
+/* 465 */     return afterDate.getTime() <= getDate(getCurrentTime()).getTime();
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.DateFormat
+ * JD-Core Version:    0.6.0
+ */

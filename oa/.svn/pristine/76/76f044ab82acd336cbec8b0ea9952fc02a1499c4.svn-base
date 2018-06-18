@@ -1,0 +1,116 @@
+/*     */ package com.xoa.controller.vehicle;
+/*     */ 
+/*     */ import com.xoa.model.vehicle.VehicleUsageWithBLOBs;
+/*     */ import com.xoa.service.vehicle.VeHicleUsageService;
+/*     */ import com.xoa.util.AjaxJson;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/veHicleUsage"})
+/*     */ public class VeHicleUsageController
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   VeHicleUsageService veHicleUsageService;
+/*     */ 
+/*     */   @RequestMapping({"/addVeHicle"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson addVeHicle(HttpServletRequest request, VehicleUsageWithBLOBs vehicleUsageWithBLOBs)
+/*     */   {
+/*  42 */     return this.veHicleUsageService.addVeHicle(request, vehicleUsageWithBLOBs);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/selectAllVeHicle"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson selectAllVeHicle(HttpServletResponse response, HttpServletRequest request, String vuStatusName, String applyStartTime, VehicleUsageWithBLOBs vehicleUsageWithBLOBs, String applyEndTime, String export)
+/*     */   {
+/*  54 */     return this.veHicleUsageService.selectAllVeHicle(response, request, vuStatusName, applyStartTime, vehicleUsageWithBLOBs, applyEndTime, export);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/deptApproval"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson deptApproval(HttpServletRequest request, String dmerStatus)
+/*     */   {
+/*  66 */     return this.veHicleUsageService.deptApproval(request, dmerStatus);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/editDeptApproval"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson editDeptApproval(VehicleUsageWithBLOBs vehicleUsageWithBLOBs)
+/*     */   {
+/*  78 */     return this.veHicleUsageService.editDeptApproval(vehicleUsageWithBLOBs);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/editOperatorstatu"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson editOperatorstatu(VehicleUsageWithBLOBs vehicleUsageWithBLOBs)
+/*     */   {
+/*  90 */     return this.veHicleUsageService.editOperatorstatu(vehicleUsageWithBLOBs);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getReservation"})
+/*     */   @ResponseBody
+/*     */   public ToJson<VehicleUsageWithBLOBs> getReservation(Integer vId)
+/*     */   {
+/* 101 */     return this.veHicleUsageService.getReservation(vId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/GetOperator"})
+/*     */   @ResponseBody
+/*     */   public AjaxJson GetOperator(HttpServletRequest request, String applyStartTime, String applyEndTime, VehicleUsageWithBLOBs vehicleUsageWithBLOBs)
+/*     */   {
+/* 113 */     return this.veHicleUsageService.GetOperator(request, applyStartTime, applyEndTime, vehicleUsageWithBLOBs);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/showList"})
+/*     */   public String showList(String vuStatusName, Map<String, Object> map)
+/*     */   {
+/* 124 */     map.put("vuStatusName", vuStatusName);
+/* 125 */     return "app/vehicle/vehicleUseQuery/showList";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/useQuery"})
+/*     */   public String useQuery()
+/*     */   {
+/* 136 */     return "app/vehicle/vehicleUseQuery/useQuery";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/index"})
+/*     */   public String index()
+/*     */   {
+/* 147 */     return "app/vehicle/vehicleUseQuery/index";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getVehicleUsageDetail"})
+/*     */   public AjaxJson getVehicleUsageDetail(Integer vuId)
+/*     */   {
+/* 160 */     return this.veHicleUsageService.getVehicleUsageDetail(vuId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deleteVehicleUsage"})
+/*     */   public AjaxJson deleteVehicleUsage(Integer vuId)
+/*     */   {
+/* 172 */     return this.veHicleUsageService.deleteVehicleUsage(vuId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/editVehicleUsage"})
+/*     */   public AjaxJson editVehicleUsage(VehicleUsageWithBLOBs vehicleUsageWithBLOBs)
+/*     */   {
+/* 184 */     return this.veHicleUsageService.editVehicleUsage(vehicleUsageWithBLOBs);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.vehicle.VeHicleUsageController
+ * JD-Core Version:    0.6.0
+ */

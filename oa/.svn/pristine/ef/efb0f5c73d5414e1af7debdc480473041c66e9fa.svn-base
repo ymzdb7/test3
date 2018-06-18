@@ -1,0 +1,301 @@
+/*     */ package com.xoa.kg.service;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+
+/*     */ 
+/*     */ import com.xoa.dao.kg.KgRelationKeySignMapper;
+/*     */ import com.xoa.dao.kg.KgRelationKeyUserMapper;
+/*     */ import com.xoa.dao.kg.KgSignKeyMapper;
+/*     */ import com.xoa.dao.kg.KgSignatureMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.kg.model.KgRelationKeySign;
+/*     */ import com.xoa.kg.model.KgRelationKeyUser;
+/*     */ import com.xoa.kg.model.KgRelationKeyUserExample;
+/*     */ import com.xoa.kg.model.KgSignKey;
+/*     */ import com.xoa.kg.model.KgSignKeyExample;
+/*     */ import com.xoa.kg.model.KgSignature;
+/*     */ import com.xoa.kg.model.KgSignatureExample;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*     */ 
+/*     */ @Service
+/*     */ public class KgService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   KgSignatureMapper kgSignatureMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   KgRelationKeyUserMapper kgRelationKeyUserMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   KgSignKeyMapper kgSignKeyMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   KgRelationKeySignMapper kgRelationKeySignMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   UsersMapper usersMapper;
+/*     */ 
+/*     */   public BaseWrappers getAllSignatures()
+/*     */   {
+/*  45 */     BaseWrappers wrappers = new BaseWrappers();
+/*  46 */     List datas = this.kgSignatureMapper.selectByExample(null);
+/*  47 */     wrappers.setStatus(true);
+/*  48 */     wrappers.setDatas(datas);
+/*  49 */     wrappers.setFlag(true);
+/*  50 */     return wrappers;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrappers getUserSignature(Integer uid) {
+/*  54 */     BaseWrappers baseWrappers = new BaseWrappers();
+/*  55 */     if (uid == null) return baseWrappers;
+/*     */ 
+/*  57 */     List<KgSignKey> kgSignKeys = this.kgSignKeyMapper.selectUserKey(uid);
+/*     */ 
+/*  59 */     List<KgSignature> kgSignatures = this.kgSignatureMapper.selectUserSign(uid);
+/*  60 */     for (KgSignKey key : kgSignKeys) {
+/*  61 */       List keySign = new ArrayList();
+/*  62 */       for (KgSignature signature : kgSignatures) {
+/*  63 */         if (signature.getKeyId() == key.getSignkeyId()) {
+/*  64 */           keySign.add(signature);
+/*     */         }
+/*     */       }
+/*  67 */       key.setKgSignatures(keySign);
+/*     */     }
+/*  69 */     baseWrappers.setDatas(kgSignKeys);
+/*  70 */     baseWrappers.setFlag(true);
+/*  71 */     return baseWrappers;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper getKgSignatureList()
+/*     */   {
+/*  77 */     BaseWrapper wrapper = new BaseWrapper();
+/*  78 */     List kgSignatureList = this.kgSignatureMapper.getKgSignatureList();
+/*     */ 
+/*  80 */     if (kgSignatureList != null) {
+/*  81 */       wrapper.setFlag(true);
+/*  82 */       wrapper.setMsg("查询成功！");
+/*  83 */       wrapper.setData(kgSignatureList);
+/*     */     } else {
+/*  85 */       wrapper.setMsg("查询出错！");
+/*     */     }
+/*  87 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper getKgSignKeyList(Integer signId)
+/*     */   {
+/*  92 */     BaseWrapper wrapper = new BaseWrapper();
+/*  93 */     List kgSignKeyList = this.kgSignKeyMapper.getKgSignKeyList(signId);
+/*     */ 
+/*  95 */     if (kgSignKeyList != null) {
+/*  96 */       wrapper.setFlag(true);
+/*  97 */       wrapper.setMsg("查询成功！");
+/*  98 */       wrapper.setData(kgSignKeyList);
+/*     */     } else {
+/* 100 */       wrapper.setMsg("查询出错！");
+/*     */     }
+/* 102 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   @Transactional(rollbackFor={RuntimeException.class})
+/*     */   public BaseWrapper addKgSignature(KgSignature kgSignature) {
+/* 108 */     BaseWrapper wrapper = new BaseWrapper();
+/*     */     try {
+/* 110 */       int result = this.kgSignatureMapper.insertSelective(kgSignature);
+/*     */ 
+/* 112 */       if (result > 0) {
+/* 113 */         wrapper.setMsg("添加成功！");
+/* 114 */         wrapper.setFlag(true);
+/*     */       } else {
+/* 116 */         wrapper.setMsg("添加失败！");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 119 */       e.printStackTrace();
+/* 120 */       throw new RuntimeException("添加出错！");
+/*     */     }
+/* 122 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   @Transactional(rollbackFor={RuntimeException.class})
+/*     */   public BaseWrapper addKgSignKey(KgSignKey kgSignKey, Integer signId) {
+/* 128 */     BaseWrapper wrapper = new BaseWrapper();
+/* 129 */     int result = 0;
+/*     */     try {
+/* 131 */       this.kgSignKeyMapper.insertSelective(kgSignKey);
+/*     */ 
+/* 134 */       KgRelationKeySign kgRelationKeySign = new KgRelationKeySign();
+/* 135 */       kgRelationKeySign.setSignId(signId);
+/* 136 */       kgRelationKeySign.setKeyId(kgSignKey.getSignkeyId());
+/* 137 */       this.kgRelationKeySignMapper.insertSelective(kgRelationKeySign);
+/*     */ 
+/* 140 */       KgRelationKeyUser kgRelationKeyUser = new KgRelationKeyUser();
+/* 141 */       kgRelationKeyUser.setKeyId(kgSignKey.getSignkeyId());
+/* 142 */       for (String userId : kgSignKey.getUserIdStr().split(",")) {
+/* 143 */         kgRelationKeyUser.setUserId(Integer.valueOf(Integer.parseInt(userId)));
+/* 144 */         result = this.kgRelationKeyUserMapper.insertSelective(kgRelationKeyUser);
+/*     */       }
+/*     */ 
+/* 147 */       if (result > 0) {
+/* 148 */         wrapper.setMsg("添加成功！");
+/* 149 */         wrapper.setFlag(true);
+/*     */       } else {
+/* 151 */         wrapper.setMsg("添加失败！");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 154 */       e.printStackTrace();
+/* 155 */       throw new RuntimeException("添加出错！");
+/*     */     }
+/* 157 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper updateKgSignature(KgSignature kgSignature)
+/*     */   {
+/* 162 */     BaseWrapper wrapper = new BaseWrapper();
+/*     */     try {
+/* 164 */       int result = this.kgSignatureMapper.updateByPrimaryKeySelective(kgSignature);
+/*     */ 
+/* 166 */       if (result > 0) {
+/* 167 */         wrapper.setMsg("修改成功！");
+/* 168 */         wrapper.setFlag(true);
+/*     */       } else {
+/* 170 */         wrapper.setMsg("修改失败！");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 173 */       e.printStackTrace();
+/*     */     }
+/* 175 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   @Transactional(rollbackFor={RuntimeException.class})
+/*     */   public BaseWrapper updateKgSignKey(KgSignKey kgSignKey) {
+/* 181 */     BaseWrapper wrapper = new BaseWrapper();
+/* 182 */     int result = 0;
+/*     */     try {
+/* 184 */       this.kgSignKeyMapper.updateByPrimaryKeySelective(kgSignKey);
+/*     */ 
+/* 187 */       KgRelationKeyUserExample example = new KgRelationKeyUserExample();
+/* 188 */       example.or().andKeyIdEqualTo(kgSignKey.getSignkeyId());
+/* 189 */       this.kgRelationKeyUserMapper.deleteByExample(example);
+/*     */ 
+/* 191 */       KgRelationKeyUser kgRelationKeyUser = new KgRelationKeyUser();
+/* 192 */       kgRelationKeyUser.setKeyId(kgSignKey.getSignkeyId());
+/* 193 */       for (String userId : kgSignKey.getUserIdStr().split(",")) {
+/* 194 */         kgRelationKeyUser.setUserId(Integer.valueOf(Integer.parseInt(userId)));
+/* 195 */         result = this.kgRelationKeyUserMapper.insertSelective(kgRelationKeyUser);
+/*     */       }
+/*     */ 
+/* 198 */       if (result > 0) {
+/* 199 */         wrapper.setMsg("修改成功！");
+/* 200 */         wrapper.setFlag(true);
+/*     */       } else {
+/* 202 */         wrapper.setMsg("修改失败！");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 205 */       e.printStackTrace();
+/* 206 */       throw new RuntimeException("修改出错！");
+/*     */     }
+/* 208 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper deleteKgSignature(Integer signatureId)
+/*     */   {
+/* 213 */     BaseWrapper wrapper = new BaseWrapper();
+/*     */ 
+/* 215 */     KgSignatureExample example = new KgSignatureExample();
+/* 216 */     example.or().andSignatureIdEqualTo(signatureId);
+/* 217 */     KgSignature kgSignature = new KgSignature();
+/* 218 */     kgSignature.setSignatureStatus(Integer.valueOf(-1));
+/*     */     try {
+/* 220 */       int result = this.kgSignatureMapper.updateByExampleSelective(kgSignature, example);
+/*     */ 
+/* 222 */       if (result > 0) {
+/* 223 */         wrapper.setMsg("修改成功！");
+/* 224 */         wrapper.setFlag(true);
+/*     */       } else {
+/* 226 */         wrapper.setMsg("修改失败！");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 229 */       e.printStackTrace();
+/*     */     }
+/* 231 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper deleteKgSignKey(Integer signkeyId)
+/*     */   {
+/* 236 */     BaseWrapper wrapper = new BaseWrapper();
+/*     */ 
+/* 238 */     KgSignKeyExample example = new KgSignKeyExample();
+/* 239 */     example.or().andSignkeyIdEqualTo(signkeyId);
+/* 240 */     KgSignKey kgSignKey = new KgSignKey();
+/* 241 */     kgSignKey.setSignkeyStatus(Integer.valueOf(-1));
+/*     */     try {
+/* 243 */       int result = this.kgSignKeyMapper.updateByExampleSelective(kgSignKey, example);
+/*     */ 
+/* 245 */       if (result > 0) {
+/* 246 */         wrapper.setMsg("修改成功！");
+/* 247 */         wrapper.setFlag(true);
+/*     */       } else {
+/* 249 */         wrapper.setMsg("修改失败！");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 252 */       e.printStackTrace();
+/*     */     }
+/* 254 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper getKgSignatureByKey(Integer signatureId)
+/*     */   {
+/* 259 */     BaseWrapper wrapper = new BaseWrapper();
+/* 260 */     KgSignature kgSignature = this.kgSignatureMapper.selectByPrimaryKey(signatureId);
+/* 261 */     if (kgSignature != null) {
+/* 262 */       wrapper.setFlag(true);
+/* 263 */       wrapper.setMsg("查询成功！");
+/* 264 */       wrapper.setData(kgSignature);
+/*     */     } else {
+/* 266 */       wrapper.setMsg("查询失败！");
+/*     */     }
+/* 268 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper getKgSignKetByKey(Integer signkeyId)
+/*     */   {
+/* 273 */     BaseWrapper wrapper = new BaseWrapper();
+/* 274 */     String resultId = "";
+/* 275 */     String resultName = "";
+/*     */ 
+/* 277 */     KgSignKey kgSignKey = this.kgSignKeyMapper.selectByPrimaryKey(signkeyId);
+/*     */ 
+/* 279 */     KgRelationKeyUserExample example = new KgRelationKeyUserExample();
+/* 280 */     example.or().andKeyIdEqualTo(signkeyId);
+/* 281 */     List<KgRelationKeyUser> userIds = this.kgRelationKeyUserMapper.selectByExample(example);
+/*     */ 
+/* 283 */     for (KgRelationKeyUser userId : userIds) {
+/* 284 */       resultId = resultId + userId.getUserId() + ",";
+/* 285 */       Users users = this.usersMapper.selectUserByUId(userId.getUserId());
+/* 286 */       resultName = resultName + "," + users.getUserName();
+/*     */     }
+/* 288 */     resultName = resultName.replaceFirst(",", "");
+/* 289 */     kgSignKey.setUserIdStr(resultId);
+/* 290 */     kgSignKey.setUserNameStr(resultName);
+/*     */ 
+/* 292 */     if (kgSignKey != null) {
+/* 293 */       wrapper.setMsg("查询成功！");
+/* 294 */       wrapper.setFlag(true);
+/* 295 */       wrapper.setData(kgSignKey);
+/*     */     } else {
+/* 297 */       wrapper.setMsg("查询失败！");
+/*     */     }
+/* 299 */     return wrapper;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.kg.service.KgService
+ * JD-Core Version:    0.6.0
+ */

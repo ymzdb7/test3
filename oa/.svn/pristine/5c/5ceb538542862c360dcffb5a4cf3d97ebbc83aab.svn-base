@@ -1,0 +1,89 @@
+/*    */ package com.xoa.util.dingding;
+/*    */ 
+/*    */ import java.io.BufferedReader;
+/*    */ import java.io.IOException;
+/*    */ import java.io.InputStreamReader;
+/*    */ import java.io.OutputStreamWriter;
+/*    */ import java.io.PrintStream;
+/*    */ import java.net.URL;
+/*    */ import javax.net.ssl.HttpsURLConnection;
+/*    */ 
+/*    */ public class DingDingTool
+/*    */ {
+/*    */   public static String dingdingRequestGet(String dingUrl, String dingRequest)
+/*    */   {
+/* 18 */     BufferedReader in = null;
+/* 19 */     StringBuilder result = new StringBuilder();
+/*    */     try {
+/* 21 */       URL url = new URL(new StringBuilder().append(dingUrl).append(dingRequest).toString());
+/* 22 */       HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
+/* 23 */       conn.setRequestMethod("GET");
+/* 24 */       conn.connect();
+/*    */ 
+/* 26 */       in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+/*    */       String line;
+/* 28 */       while ((line = in.readLine()) != null)
+/* 29 */         result.append(line);
+/*    */     }
+/*    */     catch (Exception ex) {
+/* 32 */       ex.printStackTrace();
+/*    */     } finally {
+/*    */       try {
+/* 35 */         if (in != null)
+/* 36 */           in.close();
+/*    */       }
+/*    */       catch (IOException ex)
+/*    */       {
+/* 40 */         ex.printStackTrace();
+/*    */       }
+/*    */     }
+/* 43 */     return result.toString();
+/*    */   }
+/*    */ 
+/*    */   public static String dingdingRequestPost(String dingUrl, String accessToken, String postData)
+/*    */   {
+/*    */     try {
+/* 49 */       URL url = new URL(new StringBuilder().append(dingUrl).append(accessToken).toString());
+/* 50 */       HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
+/* 51 */       conn.setRequestMethod("POST");
+/*    */ 
+/* 54 */       conn.setRequestProperty("Content-Type", "application/json");
+/*    */ 
+/* 56 */       conn.setRequestProperty("Connection", "Keep-Alive");
+/*    */ 
+/* 58 */       conn.setUseCaches(true);
+/* 59 */       conn.setDoOutput(true);
+/*    */ 
+/* 61 */       conn.setDoInput(true);
+/*    */ 
+/* 63 */       conn.setRequestProperty("Content-Length", new StringBuilder().append("").append(postData.length()).toString());
+/* 64 */       OutputStreamWriter out = new OutputStreamWriter(conn.getOutputStream(), "utf-8");
+/*    */ 
+/* 66 */       out.write(postData);
+/* 67 */       out.flush();
+/* 68 */       out.close();
+/*    */ 
+/* 71 */       if (conn.getResponseCode() != 200) {
+/* 72 */         System.out.println("connect failed!");
+/* 73 */         return "";
+/*    */       }
+/*    */ 
+/* 76 */       String result = "";
+/* 77 */       BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+/*    */       String line;
+/* 79 */       while ((line = in.readLine()) != null) {
+/* 80 */         result = new StringBuilder().append(result).append(line).append("\n").toString();
+/*    */       }
+/* 82 */       in.close();
+/* 83 */       return result;
+/*    */     } catch (IOException e) {
+/* 85 */       e.printStackTrace(System.out);
+/*    */     }
+/* 87 */     return "";
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.dingding.DingDingTool
+ * JD-Core Version:    0.6.0
+ */

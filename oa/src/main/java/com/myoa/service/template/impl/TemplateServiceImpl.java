@@ -1,0 +1,233 @@
+ package com.myoa.service.template.impl;
+ 
+ import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.myoa.dao.modulePriv.ModulePrivMapper;
+import com.myoa.dao.template.TemplateModuleMapper;
+import com.myoa.dao.users.UserPrivMapper;
+import com.myoa.dao.users.UsersMapper;
+import com.myoa.model.department.Department;
+import com.myoa.model.enclosure.Attachment;
+import com.myoa.model.template.TemplateModule;
+import com.myoa.model.users.UserPriv;
+import com.myoa.model.users.Users;
+import com.myoa.service.enclosure.EnclosureService;
+import com.myoa.service.template.TemplateService;
+import com.myoa.util.Constant;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.common.session.SessionUtils;
+import com.myoa.util.page.PageParams;
+ 
+ @Service
+ public class TemplateServiceImpl
+   implements TemplateService
+ {
+ 
+   @Resource
+   private TemplateModuleMapper templateModuleMapper;
+ 
+   @Resource
+   private EnclosureService enclosureService;
+ 
+   @Resource
+   private UsersMapper usersMapper;
+ 
+   @Resource
+   private ModulePrivMapper modulePrivMapper;
+ 
+   @Resource
+   private UserPrivMapper userPrivMapper;
+ 
+   public ToJson<TemplateModule> queryTemplate(TemplateModule templateModule, Integer page, Integer pageSize, Boolean useFlag)
+   {
+     ToJson json = new ToJson();
+     Map map = new HashMap();
+     try {
+       PageParams pageParams = new PageParams();
+       pageParams.setPage(page);
+       pageParams.setPageSize(pageSize);
+       pageParams.setUseFlag(useFlag);
+       map.put("page", pageParams);
+       map.put("type", templateModule.getType());
+       map.put("categoryId", templateModule.getCategoryId());
+       List<TemplateModule> list = this.templateModuleMapper.query(map);
+       for (TemplateModule t : list)
+       {
+         if (!StringUtils.checkNull(t.getPrivUser()).booleanValue()) {
+           String[] split = t.getPrivUser().split(",");
+           List<Users> usersByUids = this.usersMapper.getUsersByUserIds(split);
+           if ((usersByUids != null) && (usersByUids.size() > 0)) {
+             StringBuffer sb = new StringBuffer();
+             for (Users u : usersByUids) {
+               sb.append(u.getUserName() + ",");
+             }
+             t.setPrivUserName(sb.toString());
+           }
+         } else {
+           t.setPrivUser("");
+           t.setPrivUserName("");
+         }
+ 
+         if (!StringUtils.checkNull(t.getPrivOrg()).booleanValue()) {
+           String[] split = t.getPrivOrg().split(",");
+           List<Department> deptNameByIds = this.modulePrivMapper.getDeptNameByIds(split);
+           if ((deptNameByIds != null) && (deptNameByIds.size() > 0)) {
+             StringBuffer sb = new StringBuffer();
+             for (Department d : deptNameByIds) {
+               sb.append(d.getDeptName() + ",");
+             }
+             t.setPrivOrgName(sb.toString());
+           }
+         } else {
+           t.setPrivOrg("");
+           t.setPrivOrgName("");
+         }
+ 
+         if (!StringUtils.checkNull(t.getPrivRole()).booleanValue()) {
+           String[] split = t.getPrivRole().split(",");
+           List<UserPriv> privNameByIds = this.modulePrivMapper.getPrivNameByIds(split);
+           if ((privNameByIds != null) && (privNameByIds.size() > 0)) {
+             StringBuffer sb = new StringBuffer();
+             for (UserPriv up : privNameByIds) {
+               sb.append(up.getPrivName() + ",");
+             }
+             t.setPrivRoleName(sb.toString());
+           }
+         } else {
+           t.setPrivRole("");
+           t.setPrivRoleName("");
+         }
+       }
+ 
+       json.setTotleNum(pageParams.getTotal());
+       json.setObj(list);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setMsg("err");
+       json.setFlag(1);
+     }
+     return json;
+   }
+ 
+   public ToJson<TemplateModule> addTemplate(HttpServletRequest request, TemplateModule template, MultipartFile file)
+   {
+     ToJson json = new ToJson();
+     try
+     {
+       Users sessionUser = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+ 
+       template.setCreateTime(Integer.valueOf((int)(System.currentTimeMillis() / 1000L)));
+ 
+       template.setCreateUser(sessionUser.getUid());
+ 
+       if (file != null) {
+         MultipartFile[] files = { file };
+         List template1 = this.enclosureService.upload(files, Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "template");
+         if ((template1 != null) && (template1.size() > 0)) {
+           template.setAttUrl(((Attachment)template1.get(0)).getAttUrl());
+         }
+       }
+       this.templateModuleMapper.insertSelective(template);
+       json.setObject(template);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setMsg("err");
+       json.setFlag(1);
+     }
+     return json;
+   }
+ 
+   public ToJson<TemplateModule> updateTemplate(TemplateModule template, MultipartFile file, Integer deleteFlag, HttpServletRequest request, HttpServletResponse response)
+   {
+     ToJson json = new ToJson();
+     try {
+       if (deleteFlag.intValue() == 0) {
+         template.setAttUrl(null);
+       }
+       if (deleteFlag.intValue() == 1) {
+         template.setAttUrl("");
+       }
+       if ((deleteFlag.intValue() == 2) && 
+         (file != null)) {
+         MultipartFile[] files = { file };
+         List template1 = this.enclosureService.upload(files, Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "template");
+         if ((template1 != null) && (template1.size() > 0)) {
+           template.setAttUrl(((Attachment)template1.get(0)).getAttUrl());
+         }
+       }
+ 
+       this.templateModuleMapper.updateByPrimaryKeySelective(template);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setMsg("err");
+       json.setFlag(1);
+     }
+     return json;
+   }
+ 
+   public ToJson<TemplateModule> deleteTemplate(Integer id)
+   {
+     ToJson json = new ToJson();
+     try {
+       if (id != null) {
+         this.templateModuleMapper.deleteByPrimaryKey(id);
+       }
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setMsg("err");
+       json.setFlag(1);
+     }
+     return json;
+   }
+ 
+   public ToJson<TemplateModule> queryTemplateByPriv(TemplateModule templateModule, Integer page, Integer pageSize, Boolean useFlag, HttpServletRequest request)
+   {
+     ToJson json = new ToJson();
+     Map map = new HashMap();
+     try {
+       Users sessionUser = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+       sessionUser = this.usersMapper.findUsersByuserId(sessionUser.getUserId());
+       PageParams pageParams = new PageParams();
+       pageParams.setPage(page);
+       pageParams.setPageSize(pageSize);
+       pageParams.setUseFlag(useFlag);
+       map.put("page", pageParams);
+       map.put("type", templateModule.getType());
+       map.put("categoryId", templateModule.getCategoryId());
+       map.put("userId", sessionUser.getUserId());
+       map.put("deptId", sessionUser.getDeptId());
+       map.put("userPriv", sessionUser.getUserPriv());
+       List list = this.templateModuleMapper.queryByPriv(map);
+       map.remove("page");
+       Integer count = this.templateModuleMapper.queryCountByPriv(map);
+       json.setTotleNum(count);
+       json.setObj(list);
+       json.setMsg("ok");
+       json.setFlag(0);
+     } catch (Exception e) {
+       e.printStackTrace();
+       json.setMsg("err");
+       json.setFlag(1);
+     }
+     return json;
+   }
+ }
+

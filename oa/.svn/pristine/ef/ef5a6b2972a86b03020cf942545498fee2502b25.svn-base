@@ -1,0 +1,52 @@
+/*    */ package com.xoa.util;
+/*    */ 
+/*    */ import com.xoa.service.common.SysCodeService;
+/*    */ import com.xoa.util.dataSource.ContextHolder;
+/*    */ import java.util.Calendar;
+/*    */ import java.util.Date;
+/*    */ import java.util.List;
+/*    */ import java.util.TimerTask;
+/*    */ import org.springframework.beans.factory.annotation.Autowired;
+/*    */ import org.springframework.stereotype.Component;
+/*    */ 
+/*    */ @Component
+/*    */ public class TimeRchSpringQtz extends TimerTask
+/*    */ {
+/*    */ 
+/*    */   @Autowired
+/*    */   private SysCodeService sysCodeService;
+/*    */   private SpringQtz springQtz;
+/*    */ 
+/*    */   public SpringQtz getSpringQtz()
+/*    */   {
+/* 23 */     return this.springQtz;
+/*    */   }
+/*    */ 
+/*    */   public void setSpringQtz(SpringQtz springQtz) {
+/* 27 */     this.springQtz = springQtz;
+/*    */   }
+/*    */ 
+/*    */   public void run()
+/*    */   {
+/* 34 */     List orgManages = this.sysCodeService.queryId();
+/* 35 */     Date date = new Date();
+/* 36 */     Calendar cal = Calendar.getInstance();
+/*    */ 
+/* 38 */     ContextHolder.setConsumerType("1001");
+/*    */     try {
+/* 40 */       this.springQtz.riCheng(Integer.valueOf(1001), date);
+/* 41 */       cal.setTime(date);
+/* 42 */       int week = cal.get(7) - 1;
+/* 43 */       if ((week == 1) || (week == 2) || (week == 3) || (week == 4) || (week == 5))
+/* 44 */         this.springQtz.springQtzBean(Integer.valueOf(1001), date);
+/*    */     }
+/*    */     catch (Exception e) {
+/* 47 */       e.printStackTrace();
+/*    */     }
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.TimeRchSpringQtz
+ * JD-Core Version:    0.6.0
+ */

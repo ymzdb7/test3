@@ -1,0 +1,125 @@
+/*     */ package com.xoa.service.received.impl;
+/*     */ 
+/*     */ import com.xoa.dao.sms3.Sms3Mapper;
+/*     */ import com.xoa.model.sms3.Sms3;
+/*     */ import com.xoa.service.received.Sms3Service;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Service
+/*     */ public class Sms3ServiceImpl
+/*     */   implements Sms3Service
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private Sms3Mapper sms3Mapper;
+/*     */ 
+/*     */   public ToJson<Sms3> selectSms3(HttpServletRequest request, HttpServletResponse response, Integer page, Integer pageSize, boolean useFlag, Sms3 sms3)
+/*     */   {
+/*  31 */     ToJson json = new ToJson();
+/*  32 */     PageParams pageParams = new PageParams();
+/*  33 */     pageParams.setPageSize(pageSize);
+/*  34 */     pageParams.setPage(page);
+/*  35 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*     */     try
+/*     */     {
+/*  39 */       Map map = new HashMap();
+/*  40 */       map.put("page", pageParams);
+/*  41 */       map.put("sms3", sms3);
+/*  42 */       List list = this.sms3Mapper.selectSms3(map);
+/*     */ 
+/*  50 */       if (list.size() > 0) {
+/*  51 */         json.setObj(list);
+/*  52 */         json.setTotleNum(pageParams.getTotal());
+/*  53 */         json.setMsg("success");
+/*  54 */         json.setFlag(0);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/*  58 */       json.setFlag(1);
+/*  59 */       json.setMsg(e.getMessage());
+/*  60 */       e.printStackTrace();
+/*     */     }
+/*  62 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson selectSms3ById(HttpServletRequest request, Integer smsId) {
+/*  68 */     ToJson json = new ToJson();
+/*     */     try {
+/*  70 */       Sms3 sms3 = this.sms3Mapper.selectByPrimaryKey(smsId);
+/*     */ 
+/*  78 */       json.setObject(sms3);
+/*  79 */       json.setFlag(0);
+/*  80 */       json.setMsg("ok");
+/*     */     }
+/*     */     catch (Exception e) {
+/*  83 */       json.setFlag(1);
+/*  84 */       json.setMsg(e.getMessage());
+/*  85 */       e.printStackTrace();
+/*     */     }
+/*  87 */     return json;
+/*     */   }
+/*     */   @Transactional
+/*     */   public ToJson insertSms3(Sms3 sms3) {
+/*  92 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/*  94 */       int temp = this.sms3Mapper.insertSelective(sms3);
+/*  95 */       if (temp > 0) {
+/*  96 */         toJson.setFlag(0);
+/*  97 */         toJson.setMsg("success");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 100 */       toJson.setFlag(1);
+/* 101 */       toJson.setMsg(e.getMessage());
+/* 102 */       e.printStackTrace();
+/*     */     }
+/*     */ 
+/* 105 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @Transactional
+/*     */   public ToJson delSms3(Sms3 sms3) {
+/* 111 */     ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 113 */       int temp = this.sms3Mapper.delSms3(sms3);
+/* 114 */       if (temp > 0) {
+/* 115 */         toJson.setFlag(0);
+/* 116 */         toJson.setMsg("success");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 119 */       toJson.setFlag(1);
+/* 120 */       toJson.setMsg(e.getMessage());
+/* 121 */       e.printStackTrace();
+/*     */     }
+/* 123 */     return toJson;
+/*     */   }
+/* 127 */   @Transactional
+/*     */   public ToJson upSms3(Sms3 sms3) { ToJson toJson = new ToJson(1, "error");
+/*     */     try {
+/* 129 */       int temp = this.sms3Mapper.updateByPrimaryKeySelective(sms3);
+/* 130 */       if (temp > 0) {
+/* 131 */         toJson.setFlag(0);
+/* 132 */         toJson.setMsg("success");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 135 */       toJson.setFlag(1);
+/* 136 */       toJson.setMsg(e.getMessage());
+/* 137 */       e.printStackTrace();
+/*     */     }
+/* 139 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.received.impl.Sms3ServiceImpl
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,65 @@
+package com.xoa.dao.address;
+
+import com.xoa.model.address.Address;
+import com.xoa.model.address.AddressExample;
+import com.xoa.model.address.AddressWithBLOBs;
+import com.xoa.model.users.Users;
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface AddressMapper
+{
+  public abstract int countByExample(AddressExample paramAddressExample);
+
+  public abstract int deleteByExample(AddressExample paramAddressExample);
+
+  public abstract int deleteByPrimaryKey(Integer paramInteger);
+
+  public abstract int insert(AddressWithBLOBs paramAddressWithBLOBs);
+
+  public abstract int insertSelective(Address paramAddress);
+
+  public abstract List<AddressWithBLOBs> selectByExampleWithBLOBs(AddressExample paramAddressExample);
+
+  public abstract List<Address> selectByExample(AddressExample paramAddressExample);
+
+  public abstract AddressWithBLOBs selectByPrimaryKey(Integer paramInteger);
+
+  public abstract int updateByExampleSelective(@Param("record") AddressWithBLOBs paramAddressWithBLOBs, @Param("example") AddressExample paramAddressExample);
+
+  public abstract int updateByExampleWithBLOBs(@Param("record") AddressWithBLOBs paramAddressWithBLOBs, @Param("example") AddressExample paramAddressExample);
+
+  public abstract int updateByExample(@Param("record") Address paramAddress, @Param("example") AddressExample paramAddressExample);
+
+  public abstract int updateByPrimaryKeySelective(AddressWithBLOBs paramAddressWithBLOBs);
+
+  public abstract int updateByPrimaryKeyWithBLOBs(AddressWithBLOBs paramAddressWithBLOBs);
+
+  public abstract int updateByPrimaryKey(Address paramAddress);
+
+  public abstract List<Address> selectGroups();
+
+  public abstract List<Address> getUsersById(Map paramMap);
+
+  public abstract int updateUserGroup(Map paramMap);
+
+  public abstract List<Address> getNotUserById(Map paramMap);
+
+  public abstract int putUser(Map paramMap);
+
+  public abstract List<Address> queryAddress(@Param("groupId") Integer paramInteger, @Param("name") String paramString);
+
+  public abstract List<Address> getAllUsers(Map<String, Object> paramMap);
+
+  public abstract List<Address> selectAddress(Map<String, Object> paramMap);
+
+  public abstract List<Users> selectUser(Map<String, Object> paramMap);
+
+  public abstract Users getUserById(@Param("uid") Integer paramInteger);
+}
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.dao.address.AddressMapper
+ * JD-Core Version:    0.6.0
+ */

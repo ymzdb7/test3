@@ -1,0 +1,27 @@
+package com.xoa.dao.email;
+
+import com.xoa.dao.base.BaseMapper;
+import com.xoa.model.email.EmailModel;
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface EmailMapper extends BaseMapper<EmailModel>
+{
+  public abstract void updateIsRead(EmailModel paramEmailModel);
+
+  public abstract void updateEmailBox(EmailModel paramEmailModel);
+
+  public abstract List<EmailModel> selectUserReadFlag(Map<String, Object> paramMap);
+
+  public abstract EmailModel queryByEmailOne(@Param("emailId") Integer paramInteger);
+
+  public abstract List<EmailModel> selectByBodyId(Map<String, Object> paramMap);
+
+  public abstract void updateEmailWithdraw(Map<String, Object> paramMap);
+}
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.dao.email.EmailMapper
+ * JD-Core Version:    0.6.0
+ */

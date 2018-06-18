@@ -1,0 +1,399 @@
+/*     */ package com.xoa.controller.sys;
+/*     */ 
+/*     */ import com.xoa.model.common.SysCode;
+/*     */ import com.xoa.model.common.Syslog;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.common.SysCodeService;
+/*     */ import com.xoa.service.sys.SysLogService;
+/*     */ import com.xoa.service.users.UsersService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.ServletOutputStream;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFCell;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFRow;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.springframework.format.annotation.DateTimeFormat;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/sys"})
+/*     */ public class SysLogController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private SysLogService sysLogService;
+/*     */ 
+/*     */   @Resource
+/*     */   private SysCodeService sysCodeService;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersService userService;
+/*     */ 
+/*     */   @RequestMapping({"/journal"})
+/*     */   public String journal(HttpServletRequest request)
+/*     */   {
+/*  56 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  58 */     return "app/sys/journal";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getLogMessage"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Map> getLogMessage(HttpServletRequest request)
+/*     */   {
+/*  71 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  73 */     ToJson tojson = new ToJson(0, "");
+/*  74 */     HashMap logMap = new HashMap();
+/*     */     try
+/*     */     {
+/*  77 */       this.sysLogService.getLogMessage(logMap);
+/*  78 */       if (logMap.size() == 6) {
+/*  79 */         tojson.setMsg("ok");
+/*  80 */         tojson.setFlag(0);
+/*  81 */         tojson.setObject(logMap);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  84 */       tojson.setFlag(1);
+/*  85 */       tojson.setMsg("err");
+/*     */     }
+/*     */ 
+/*  88 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getTenLog"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Syslog> getTenLog(HttpServletRequest request)
+/*     */   {
+/* 102 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 104 */     ToJson tojson = new ToJson(0, "");
+/*     */     try
+/*     */     {
+/* 107 */       List list = this.sysLogService.getTenLog();
+/* 108 */       tojson.setObject(list);
+/* 109 */       tojson.setMsg("ok");
+/* 110 */       tojson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 112 */       tojson.setFlag(1);
+/* 113 */       tojson.setMsg("err");
+/*     */     }
+/* 115 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getEachMouthLogData"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Object> getEachMouthLogData(String year, String month, HttpServletRequest request)
+/*     */   {
+/* 130 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 132 */     ToJson tojson = new ToJson(0, "");
+/*     */ 
+/* 135 */     Map map = new HashMap();
+/*     */     try {
+/* 137 */       List monthDataList = this.sysLogService.getEachMouthLogData(year);
+/* 138 */       List dayDataList = this.sysLogService.getEachDayLogData(year, month);
+/* 139 */       map.put("monthData", monthDataList);
+/* 140 */       map.put("dayData", dayDataList);
+/*     */ 
+/* 144 */       tojson.setObject(map);
+/* 145 */       tojson.setMsg("OK");
+/* 146 */       tojson.setFlag(0);
+/*     */     } catch (ClassCastException e) {
+/* 148 */       tojson.setFlag(1);
+/* 149 */       tojson.setMsg("err");
+/*     */     }
+/* 151 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getYear"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Integer> getYear(HttpServletRequest request)
+/*     */   {
+/* 165 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 168 */     ToJson tojson = new ToJson(0, "");
+/*     */     try {
+/* 170 */       List yearList = this.sysLogService.getYear();
+/*     */ 
+/* 172 */       tojson.setObj(yearList);
+/* 173 */       tojson.setMsg("ok");
+/* 174 */       tojson.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e) {
+/* 177 */       tojson.setFlag(1);
+/* 178 */       tojson.setMsg("err");
+/*     */     }
+/*     */ 
+/* 181 */     return tojson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getMonth"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Integer> getMonth(HttpServletRequest request, String year)
+/*     */   {
+/* 194 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 196 */     ToJson toJson = new ToJson(0, "");
+/*     */     try {
+/* 198 */       Integer endMonth = this.sysLogService.getMonth(year);
+/* 199 */       toJson.setMsg("OK");
+/* 200 */       toJson.setFlag(0);
+/* 201 */       toJson.setObject(endMonth);
+/*     */     } catch (Exception e) {
+/* 203 */       toJson.setFlag(1);
+/* 204 */       toJson.setMsg("err");
+/*     */     }
+/* 206 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getHourLog"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Object> getHourLog(HttpServletRequest request)
+/*     */   {
+/* 219 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 221 */     List hourDataList = new ArrayList();
+/*     */ 
+/* 223 */     ToJson toJson = new ToJson(0, "");
+/*     */     try {
+/* 225 */       hourDataList = this.sysLogService.getHourLog();
+/* 226 */       toJson.setMsg("OK");
+/* 227 */       toJson.setFlag(0);
+/* 228 */       toJson.setObj(hourDataList);
+/*     */     } catch (Exception e) {
+/* 230 */       toJson.setFlag(1);
+/* 231 */       toJson.setMsg("err");
+/*     */     }
+/* 233 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getLogType"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<SysCode> getLogType(HttpServletRequest request)
+/*     */   {
+/* 247 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 249 */     ToJson toJson = new ToJson(0, "");
+/*     */     try
+/*     */     {
+/* 252 */       List logTypeList = this.sysCodeService.getLogType();
+/* 253 */       toJson.setMsg("OK");
+/* 254 */       toJson.setFlag(0);
+/* 255 */       toJson.setObj(logTypeList);
+/*     */     } catch (Exception e) {
+/* 257 */       toJson.setFlag(1);
+/* 258 */       toJson.setMsg("err");
+/*     */     }
+/* 260 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/logManage"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Syslog> findLogManage(HttpServletRequest request, @RequestParam(value="type", required=false) Integer type, @RequestParam(value="uid", required=false) String uid, @DateTimeFormat(pattern="yyyy-MM-dd hh:mm:ss") @RequestParam(value="startTime", required=false) String startTime, @DateTimeFormat(pattern="yyyy-MM-dd hh:mm:ss") @RequestParam(value="endTime", required=false) String endTime, @RequestParam(value="syslog", required=false) Syslog syslog)
+/*     */   {
+/* 284 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 287 */     ToJson toJson = new ToJson(0, "");
+/*     */     try
+/*     */     {
+/* 291 */       List syslogList = this.sysLogService.logManage(type, uid, startTime, endTime, syslog);
+/* 292 */       List syslogList1 = new ArrayList();
+/* 293 */       if (syslogList.size() > 300) {
+/* 294 */         for (int i = 0; i < 300; i++) {
+/* 295 */           syslogList1.add(syslogList.get(i));
+/*     */         }
+/* 297 */         toJson.setObj(syslogList1);
+/*     */       }
+/*     */       else {
+/* 300 */         toJson.setObj(syslogList);
+/*     */       }
+/* 302 */       toJson.setMsg("OK");
+/* 303 */       toJson.setFlag(0);
+/*     */     }
+/*     */     catch (Exception e) {
+/* 306 */       toJson.setFlag(1);
+/* 307 */       toJson.setMsg("err");
+/*     */     }
+/* 309 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/deleteSyslog"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Syslog> deleteSyslog(HttpServletRequest request, @RequestParam(value="type", required=false) Integer type, @RequestParam(value="uid", required=false) String uid, @DateTimeFormat(pattern="yyyy-MM-dd hh:mm:ss") @RequestParam(value="startTime", required=false) Date startTime, @DateTimeFormat(pattern="yyyy-MM-dd hh:mm:ss") @RequestParam(value="endTime", required=false) Date endTime, @RequestParam(value="syslog", required=false) Syslog syslog)
+/*     */   {
+/* 332 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 335 */     ToJson toJson = new ToJson(0, "");
+/*     */     try
+/*     */     {
+/* 338 */       this.sysLogService.deleteSyslog(type, uid, startTime, endTime, syslog);
+/* 339 */       toJson.setMsg("OK");
+/* 340 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 342 */       toJson.setFlag(1);
+/* 343 */       toJson.setMsg("err");
+/*     */     }
+/* 345 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping(value={"/exportLogXls"}, produces={"application/json;charset=UTF-8"})
+/*     */   public String exportLogXls(HttpServletRequest request, HttpServletResponse response, @RequestParam(value="type", required=false) Integer type, @RequestParam(value="uid", required=false) String uid, @DateTimeFormat(pattern="yyyy-MM-dd hh:mm:ss") @RequestParam(value="startTime", required=false) String startTime, @DateTimeFormat(pattern="yyyy-MM-dd hh:mm:ss") @RequestParam(value="endTime", required=false) String endTime, @RequestParam(value="syslog", required=false) Syslog syslog)
+/*     */     throws Exception
+/*     */   {
+/* 367 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 371 */     List<Syslog> syslogList = this.sysLogService.logManage(type, uid, startTime, endTime, syslog);
+/*     */ 
+/* 373 */     HSSFWorkbook workbook = new HSSFWorkbook();
+/* 374 */     HSSFSheet sheet = workbook.createSheet("日志数据");
+/* 375 */     HSSFRow headRow = sheet.createRow(0);
+/* 376 */     headRow.createCell(0).setCellValue("用户姓名");
+/* 377 */     headRow.createCell(1).setCellValue("时间");
+/* 378 */     headRow.createCell(2).setCellValue("IP地址");
+/* 379 */     headRow.createCell(3).setCellValue("ip所在地");
+/* 380 */     headRow.createCell(4).setCellValue("日志类型");
+/* 381 */     headRow.createCell(5).setCellValue("备注");
+/*     */ 
+/* 383 */     for (Syslog log : syslogList) {
+/* 384 */       HSSFRow dataRow = sheet.createRow(sheet.getLastRowNum() + 1);
+/*     */ 
+/* 388 */       String userName = this.userService.getUserNameById(log.getUserId());
+/* 389 */       dataRow.createCell(0).setCellValue(userName);
+/*     */ 
+/* 391 */       SimpleDateFormat sdfTime = new SimpleDateFormat("yyyy-MM-dd hh:MM:ss");
+/* 392 */       String timeString = sdfTime.format(log.getTime());
+/*     */ 
+/* 394 */       dataRow.createCell(1).setCellValue(timeString);
+/*     */ 
+/* 396 */       dataRow.createCell(2).setCellValue(log.getIp());
+/* 397 */       dataRow.createCell(3).setCellValue(log.getIpLocation());
+/* 398 */       dataRow.createCell(4).setCellValue(log.getTypeName());
+/* 399 */       dataRow.createCell(5).setCellValue(log.getRemark());
+/*     */     }
+/*     */ 
+/* 404 */     ServletOutputStream out = response.getOutputStream();
+/*     */ 
+/* 406 */     String filename = "系统日志.xls";
+/* 407 */     filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/*     */ 
+/* 409 */     response.setContentType("application/vnd.ms-excel");
+/* 410 */     response.setHeader("content-disposition", "attachment;filename=" + filename);
+/*     */ 
+/* 412 */     workbook.write(out);
+/*     */ 
+/* 414 */     return null;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deleteLogByIds"})
+/*     */   public ToJson<Object> deleteLogByIds(HttpServletRequest request, String ids)
+/*     */   {
+/* 428 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 431 */     ToJson toJson = new ToJson(0, "");
+/*     */     try
+/*     */     {
+/* 434 */       this.sysLogService.deleteLogByIds(ids);
+/* 435 */       toJson.setMsg("OK");
+/* 436 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 438 */       toJson.setFlag(1);
+/* 439 */       toJson.setMsg("err");
+/*     */     }
+/* 441 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/deleteAllLog"})
+/*     */   public ToJson<Object> deleteAllLog(HttpServletRequest request) {
+/* 447 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 450 */     ToJson toJson = new ToJson(0, "");
+/*     */     try {
+/* 452 */       this.sysLogService.deleteAllLog();
+/* 453 */       toJson.setMsg("OK");
+/* 454 */       toJson.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 456 */       toJson.setFlag(1);
+/* 457 */       toJson.setMsg("err");
+/*     */     }
+/* 459 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getUserLoginLogs"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Syslog> getCountLoginLogs(HttpServletRequest request)
+/*     */   {
+/* 472 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 474 */     ToJson json = new ToJson(0, null);
+/*     */     try
+/*     */     {
+/* 478 */       List syslogList = this.sysLogService.getUserLoginLogs(request);
+/* 479 */       json.setFlag(0);
+/* 480 */       json.setMsg("ok");
+/* 481 */       json.setObj(syslogList);
+/*     */     } catch (Exception e) {
+/* 483 */       json.setFlag(1);
+/* 484 */       json.setMsg("err");
+/* 485 */       e.printStackTrace();
+/*     */     }
+/* 487 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getTenBatchSetLog"})
+/*     */   public ToJson<Syslog> getTenBatchSetLog(HttpServletRequest request)
+/*     */   {
+/* 500 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 503 */     ToJson<Syslog> json = new ToJson<Syslog>(0, null);
+/* 504 */     List<Syslog> sysLogList = null;
+/*     */     try
+/*     */     {
+/* 507 */       sysLogList = this.sysLogService.getTenBatchSetLog();
+/* 508 */       for (Syslog s : sysLogList) {
+/* 509 */         Users usersByuserId = this.userService.findUsersByuserId(s.getUserId());
+/* 510 */         s.setUserName(usersByuserId.getUserName());
+/* 511 */         s.setTypeName(this.sysCodeService.getLogNameByNo("19"));
+/*     */       }
+/* 513 */       json.setFlag(0);
+/* 514 */       json.setMsg("ok");
+/* 515 */       json.setObj(sysLogList);
+/*     */     } catch (Exception e) {
+/* 517 */       e.printStackTrace();
+/* 518 */       json.setFlag(1);
+/* 519 */       json.setMsg("err");
+/*     */     }
+/*     */ 
+/* 522 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/getModifyPwdLog"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Syslog> getModifyPwdLog(HttpServletRequest request)
+/*     */   {
+/* 535 */     return this.sysLogService.getModifyPwdLog(request);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.sys.SysLogController
+ * JD-Core Version:    0.6.0
+ */

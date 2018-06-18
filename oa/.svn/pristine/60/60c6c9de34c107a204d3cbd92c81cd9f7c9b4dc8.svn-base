@@ -1,0 +1,62 @@
+package com.myoa.dao.vehicle;
+
+import com.myoa.model.vehicle.Vehicle;
+import com.myoa.model.vehicle.VehicleExample;
+import com.myoa.model.vehicle.VehicleWithBLOBs;
+
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface VehicleMapper {
+	public abstract int countByExample(VehicleExample paramVehicleExample);
+
+	public abstract int deleteByExample(VehicleExample paramVehicleExample);
+
+	public abstract int deleteByPrimaryKey(Integer paramInteger);
+
+	public abstract int insert(VehicleWithBLOBs paramVehicleWithBLOBs);
+
+	public abstract int insertSelective(VehicleWithBLOBs paramVehicleWithBLOBs);
+
+	public abstract List<VehicleWithBLOBs> selectByExampleWithBLOBs(
+			VehicleExample paramVehicleExample);
+
+	public abstract List<Vehicle> selectByExample(
+			VehicleExample paramVehicleExample);
+
+	public abstract VehicleWithBLOBs selectByPrimaryKey(Integer paramInteger);
+
+	public abstract int updateByExampleSelective(
+			@Param("record") VehicleWithBLOBs paramVehicleWithBLOBs,
+			@Param("example") VehicleExample paramVehicleExample);
+
+	public abstract int updateByExampleWithBLOBs(
+			@Param("record") VehicleWithBLOBs paramVehicleWithBLOBs,
+			@Param("example") VehicleExample paramVehicleExample);
+
+	public abstract int updateByExample(@Param("record") Vehicle paramVehicle,
+			@Param("example") VehicleExample paramVehicleExample);
+
+	public abstract int updateByPrimaryKeySelective(
+			VehicleWithBLOBs paramVehicleWithBLOBs);
+
+	public abstract int updateByPrimaryKeyWithBLOBs(
+			VehicleWithBLOBs paramVehicleWithBLOBs);
+
+	public abstract int updateByPrimaryKey(Vehicle paramVehicle);
+
+	public abstract int deleteVeHiclesByVids(
+			@Param("vIds") String[] paramArrayOfString);
+
+	public abstract List<VehicleWithBLOBs> selectAllVeHicles();
+
+	public abstract List<VehicleWithBLOBs> getDropDownBox();
+
+	public abstract int updateVstatus(VehicleWithBLOBs paramVehicleWithBLOBs);
+
+	public abstract List<VehicleWithBLOBs> getVeHicleByvNum(
+			@Param("vNum") String paramString);
+
+	public abstract List<VehicleWithBLOBs> selectRangeVehicle(
+			VehicleWithBLOBs paramVehicleWithBLOBs);
+}

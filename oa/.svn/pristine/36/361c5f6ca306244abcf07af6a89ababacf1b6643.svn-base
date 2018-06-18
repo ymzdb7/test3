@@ -1,0 +1,488 @@
+/*     */ package com.xoa.model.version;
+/*     */ 
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class VersionExample
+/*     */ {
+/*     */   protected String orderByClause;
+/*     */   protected boolean distinct;
+/*     */   protected List<Criteria> oredCriteria;
+/*     */ 
+/*     */   public VersionExample()
+/*     */   {
+/*  38 */     this.oredCriteria = new ArrayList();
+/*     */   }
+/*     */ 
+/*     */   public void setOrderByClause(String orderByClause)
+/*     */   {
+/*  48 */     this.orderByClause = orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public String getOrderByClause()
+/*     */   {
+/*  58 */     return this.orderByClause;
+/*     */   }
+/*     */ 
+/*     */   public void setDistinct(boolean distinct)
+/*     */   {
+/*  68 */     this.distinct = distinct;
+/*     */   }
+/*     */ 
+/*     */   public boolean isDistinct()
+/*     */   {
+/*  78 */     return this.distinct;
+/*     */   }
+/*     */ 
+/*     */   public List<Criteria> getOredCriteria()
+/*     */   {
+/*  88 */     return this.oredCriteria;
+/*     */   }
+/*     */ 
+/*     */   public void or(Criteria criteria)
+/*     */   {
+/*  98 */     this.oredCriteria.add(criteria);
+/*     */   }
+/*     */ 
+/*     */   public Criteria or()
+/*     */   {
+/* 108 */     Criteria criteria = createCriteriaInternal();
+/* 109 */     this.oredCriteria.add(criteria);
+/* 110 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public Criteria createCriteria()
+/*     */   {
+/* 120 */     Criteria criteria = createCriteriaInternal();
+/* 121 */     if (this.oredCriteria.size() == 0) {
+/* 122 */       this.oredCriteria.add(criteria);
+/*     */     }
+/* 124 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   protected Criteria createCriteriaInternal()
+/*     */   {
+/* 134 */     Criteria criteria = new Criteria();
+/* 135 */     return criteria;
+/*     */   }
+/*     */ 
+/*     */   public void clear()
+/*     */   {
+/* 145 */     this.oredCriteria.clear();
+/* 146 */     this.orderByClause = null;
+/* 147 */     this.distinct = false;
+/*     */   }
+/*     */ 
+/*     */   public static class Criterion
+/*     */   {
+/*     */     private String condition;
+/*     */     private Object value;
+/*     */     private Object secondValue;
+/*     */     private boolean noValue;
+/*     */     private boolean singleValue;
+/*     */     private boolean betweenValue;
+/*     */     private boolean listValue;
+/*     */     private String typeHandler;
+/*     */ 
+/*     */     public String getCondition()
+/*     */     {
+/* 515 */       return this.condition;
+/*     */     }
+/*     */ 
+/*     */     public Object getValue() {
+/* 519 */       return this.value;
+/*     */     }
+/*     */ 
+/*     */     public Object getSecondValue() {
+/* 523 */       return this.secondValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isNoValue() {
+/* 527 */       return this.noValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isSingleValue() {
+/* 531 */       return this.singleValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isBetweenValue() {
+/* 535 */       return this.betweenValue;
+/*     */     }
+/*     */ 
+/*     */     public boolean isListValue() {
+/* 539 */       return this.listValue;
+/*     */     }
+/*     */ 
+/*     */     public String getTypeHandler() {
+/* 543 */       return this.typeHandler;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition)
+/*     */     {
+/* 548 */       this.condition = condition;
+/* 549 */       this.typeHandler = null;
+/* 550 */       this.noValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, String typeHandler)
+/*     */     {
+/* 555 */       this.condition = condition;
+/* 556 */       this.value = value;
+/* 557 */       this.typeHandler = typeHandler;
+/* 558 */       if ((value instanceof List))
+/* 559 */         this.listValue = true;
+/*     */       else
+/* 561 */         this.singleValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value)
+/*     */     {
+/* 566 */       this(condition, value, null);
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*     */     {
+/* 571 */       this.condition = condition;
+/* 572 */       this.value = value;
+/* 573 */       this.secondValue = secondValue;
+/* 574 */       this.typeHandler = typeHandler;
+/* 575 */       this.betweenValue = true;
+/*     */     }
+/*     */ 
+/*     */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 579 */       this(condition, value, secondValue, null);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public static class Criteria extends VersionExample.GeneratedCriteria
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   protected static abstract class GeneratedCriteria
+/*     */   {
+/*     */     protected List<VersionExample.Criterion> criteria;
+/*     */ 
+/*     */     protected GeneratedCriteria()
+/*     */     {
+/* 161 */       this.criteria = new ArrayList();
+/*     */     }
+/*     */ 
+/*     */     public boolean isValid() {
+/* 165 */       return this.criteria.size() > 0;
+/*     */     }
+/*     */ 
+/*     */     public List<VersionExample.Criterion> getAllCriteria() {
+/* 169 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     public List<VersionExample.Criterion> getCriteria() {
+/* 173 */       return this.criteria;
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition) {
+/* 177 */       if (condition == null) {
+/* 178 */         throw new RuntimeException("Value for condition cannot be null");
+/*     */       }
+/* 180 */       this.criteria.add(new VersionExample.Criterion(condition));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value, String property) {
+/* 184 */       if (value == null) {
+/* 185 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*     */       }
+/* 187 */       this.criteria.add(new VersionExample.Criterion(condition, value));
+/*     */     }
+/*     */ 
+/*     */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/* 191 */       if ((value1 == null) || (value2 == null)) {
+/* 192 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*     */       }
+/* 194 */       this.criteria.add(new VersionExample.Criterion(condition, value1, value2));
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andVerIsNull() {
+/* 198 */       addCriterion("VER is null");
+/* 199 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andVerIsNotNull() {
+/* 203 */       addCriterion("VER is not null");
+/* 204 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andVerEqualTo(String value) {
+/* 208 */       addCriterion("VER =", value, "ver");
+/* 209 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andVerNotEqualTo(String value) {
+/* 213 */       addCriterion("VER <>", value, "ver");
+/* 214 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andVerGreaterThan(String value) {
+/* 218 */       addCriterion("VER >", value, "ver");
+/* 219 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andVerGreaterThanOrEqualTo(String value) {
+/* 223 */       addCriterion("VER >=", value, "ver");
+/* 224 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andVerLessThan(String value) {
+/* 228 */       addCriterion("VER <", value, "ver");
+/* 229 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andVerLessThanOrEqualTo(String value) {
+/* 233 */       addCriterion("VER <=", value, "ver");
+/* 234 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andVerLike(String value) {
+/* 238 */       addCriterion("VER like", value, "ver");
+/* 239 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andVerNotLike(String value) {
+/* 243 */       addCriterion("VER not like", value, "ver");
+/* 244 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andVerIn(List<String> values) {
+/* 248 */       addCriterion("VER in", values, "ver");
+/* 249 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andVerNotIn(List<String> values) {
+/* 253 */       addCriterion("VER not in", values, "ver");
+/* 254 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andVerBetween(String value1, String value2) {
+/* 258 */       addCriterion("VER between", value1, value2, "ver");
+/* 259 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andVerNotBetween(String value1, String value2) {
+/* 263 */       addCriterion("VER not between", value1, value2, "ver");
+/* 264 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andEaIsNull() {
+/* 268 */       addCriterion("EA is null");
+/* 269 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andEaIsNotNull() {
+/* 273 */       addCriterion("EA is not null");
+/* 274 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andEaEqualTo(String value) {
+/* 278 */       addCriterion("EA =", value, "ea");
+/* 279 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andEaNotEqualTo(String value) {
+/* 283 */       addCriterion("EA <>", value, "ea");
+/* 284 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andEaGreaterThan(String value) {
+/* 288 */       addCriterion("EA >", value, "ea");
+/* 289 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andEaGreaterThanOrEqualTo(String value) {
+/* 293 */       addCriterion("EA >=", value, "ea");
+/* 294 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andEaLessThan(String value) {
+/* 298 */       addCriterion("EA <", value, "ea");
+/* 299 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andEaLessThanOrEqualTo(String value) {
+/* 303 */       addCriterion("EA <=", value, "ea");
+/* 304 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andEaLike(String value) {
+/* 308 */       addCriterion("EA like", value, "ea");
+/* 309 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andEaNotLike(String value) {
+/* 313 */       addCriterion("EA not like", value, "ea");
+/* 314 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andEaIn(List<String> values) {
+/* 318 */       addCriterion("EA in", values, "ea");
+/* 319 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andEaNotIn(List<String> values) {
+/* 323 */       addCriterion("EA not in", values, "ea");
+/* 324 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andEaBetween(String value1, String value2) {
+/* 328 */       addCriterion("EA between", value1, value2, "ea");
+/* 329 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andEaNotBetween(String value1, String value2) {
+/* 333 */       addCriterion("EA not between", value1, value2, "ea");
+/* 334 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andSnIsNull() {
+/* 338 */       addCriterion("SN is null");
+/* 339 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andSnIsNotNull() {
+/* 343 */       addCriterion("SN is not null");
+/* 344 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andSnEqualTo(String value) {
+/* 348 */       addCriterion("SN =", value, "sn");
+/* 349 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andSnNotEqualTo(String value) {
+/* 353 */       addCriterion("SN <>", value, "sn");
+/* 354 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andSnGreaterThan(String value) {
+/* 358 */       addCriterion("SN >", value, "sn");
+/* 359 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andSnGreaterThanOrEqualTo(String value) {
+/* 363 */       addCriterion("SN >=", value, "sn");
+/* 364 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andSnLessThan(String value) {
+/* 368 */       addCriterion("SN <", value, "sn");
+/* 369 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andSnLessThanOrEqualTo(String value) {
+/* 373 */       addCriterion("SN <=", value, "sn");
+/* 374 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andSnLike(String value) {
+/* 378 */       addCriterion("SN like", value, "sn");
+/* 379 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andSnNotLike(String value) {
+/* 383 */       addCriterion("SN not like", value, "sn");
+/* 384 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andSnIn(List<String> values) {
+/* 388 */       addCriterion("SN in", values, "sn");
+/* 389 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andSnNotIn(List<String> values) {
+/* 393 */       addCriterion("SN not in", values, "sn");
+/* 394 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andSnBetween(String value1, String value2) {
+/* 398 */       addCriterion("SN between", value1, value2, "sn");
+/* 399 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andSnNotBetween(String value1, String value2) {
+/* 403 */       addCriterion("SN not between", value1, value2, "sn");
+/* 404 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andCodeIsNull() {
+/* 408 */       addCriterion("CODE is null");
+/* 409 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andCodeIsNotNull() {
+/* 413 */       addCriterion("CODE is not null");
+/* 414 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andCodeEqualTo(String value) {
+/* 418 */       addCriterion("CODE =", value, "code");
+/* 419 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andCodeNotEqualTo(String value) {
+/* 423 */       addCriterion("CODE <>", value, "code");
+/* 424 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andCodeGreaterThan(String value) {
+/* 428 */       addCriterion("CODE >", value, "code");
+/* 429 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andCodeGreaterThanOrEqualTo(String value) {
+/* 433 */       addCriterion("CODE >=", value, "code");
+/* 434 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andCodeLessThan(String value) {
+/* 438 */       addCriterion("CODE <", value, "code");
+/* 439 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andCodeLessThanOrEqualTo(String value) {
+/* 443 */       addCriterion("CODE <=", value, "code");
+/* 444 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andCodeLike(String value) {
+/* 448 */       addCriterion("CODE like", value, "code");
+/* 449 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andCodeNotLike(String value) {
+/* 453 */       addCriterion("CODE not like", value, "code");
+/* 454 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andCodeIn(List<String> values) {
+/* 458 */       addCriterion("CODE in", values, "code");
+/* 459 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andCodeNotIn(List<String> values) {
+/* 463 */       addCriterion("CODE not in", values, "code");
+/* 464 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andCodeBetween(String value1, String value2) {
+/* 468 */       addCriterion("CODE between", value1, value2, "code");
+/* 469 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */ 
+/*     */     public VersionExample.Criteria andCodeNotBetween(String value1, String value2) {
+/* 473 */       addCriterion("CODE not between", value1, value2, "code");
+/* 474 */       return (VersionExample.Criteria)this;
+/*     */     }
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.version.VersionExample
+ * JD-Core Version:    0.6.0
+ */

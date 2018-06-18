@@ -1,0 +1,195 @@
+package com.myoa.model.calender;
+
+import java.util.Date;
+
+public class CalendarAll {
+	private Integer calId;
+	private String userId;
+	private Integer calTime;
+	private Integer endTime;
+	private String calType;
+	private String calLevel;
+	private String managerId;
+	private String overStatus;
+	private String beforeRemaind;
+	private Date addTime;
+	private Byte allday;
+	private Byte fromModule;
+	private String url;
+	private Integer mId;
+	private Integer resId;
+	private String content;
+	private String owner;
+	private String taker;
+	private String stim;
+	private String etim;
+	private Integer uid;
+
+	public Integer getUid() {
+		return this.uid;
+	}
+
+	public void setUid(Integer uid) {
+		this.uid = uid;
+	}
+
+	public String getStim() {
+		return this.stim;
+	}
+
+	public void setStim(String stim) {
+		this.stim = stim;
+	}
+
+	public String getEtim() {
+		return this.etim;
+	}
+
+	public void setEtim(String etim) {
+		this.etim = etim;
+	}
+
+	public Integer getCalId() {
+		return this.calId;
+	}
+
+	public void setCalId(Integer calId) {
+		this.calId = calId;
+	}
+
+	public String getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public Integer getCalTime() {
+		return this.calTime;
+	}
+
+	public void setCalTime(Integer calTime) {
+		this.calTime = calTime;
+	}
+
+	public Integer getEndTime() {
+		return this.endTime;
+	}
+
+	public void setEndTime(Integer endTime) {
+		this.endTime = endTime;
+	}
+
+	public String getCalType() {
+		return this.calType;
+	}
+
+	public void setCalType(String calType) {
+		this.calType = calType;
+	}
+
+	public String getCalLevel() {
+		return this.calLevel;
+	}
+
+	public void setCalLevel(String calLevel) {
+		this.calLevel = calLevel;
+	}
+
+	public String getManagerId() {
+		return this.managerId;
+	}
+
+	public void setManagerId(String managerId) {
+		this.managerId = managerId;
+	}
+
+	public String getOverStatus() {
+		return this.overStatus;
+	}
+
+	public void setOverStatus(String overStatus) {
+		this.overStatus = overStatus;
+	}
+
+	public String getBeforeRemaind() {
+		return this.beforeRemaind;
+	}
+
+	public void setBeforeRemaind(String beforeRemaind) {
+		this.beforeRemaind = beforeRemaind;
+	}
+
+	public Date getAddTime() {
+		return this.addTime;
+	}
+
+	public void setAddTime(Date addTime) {
+		this.addTime = addTime;
+	}
+
+	public Byte getAllday() {
+		return this.allday;
+	}
+
+	public void setAllday(Byte allday) {
+		this.allday = allday;
+	}
+
+	public Byte getFromModule() {
+		return this.fromModule;
+	}
+
+	public void setFromModule(Byte fromModule) {
+		this.fromModule = fromModule;
+	}
+
+	public String getUrl() {
+		return this.url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public Integer getmId() {
+		return this.mId;
+	}
+
+	public void setmId(Integer mId) {
+		this.mId = mId;
+	}
+
+	public Integer getResId() {
+		return this.resId;
+	}
+
+	public void setResId(Integer resId) {
+		this.resId = resId;
+	}
+
+	public String getContent() {
+		return this.content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public String getOwner() {
+		return this.owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+
+	public String getTaker() {
+		return this.taker;
+	}
+
+	public void setTaker(String taker) {
+		this.taker = taker;
+	}
+}

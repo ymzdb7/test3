@@ -1,0 +1,862 @@
+package com.xoa.model.event;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+public class TimeLineExample {
+	protected String orderByClause;
+	protected boolean distinct;
+	protected List<Criteria> oredCriteria;
+
+	public TimeLineExample() {
+		this.oredCriteria = new ArrayList();
+	}
+
+	public void setOrderByClause(String orderByClause) {
+		this.orderByClause = orderByClause;
+	}
+
+	public String getOrderByClause() {
+		return this.orderByClause;
+	}
+
+	public void setDistinct(boolean distinct) {
+		this.distinct = distinct;
+	}
+
+	public boolean isDistinct() {
+		return this.distinct;
+	}
+
+	public List<Criteria> getOredCriteria() {
+		return this.oredCriteria;
+	}
+
+	public void or(Criteria criteria) {
+		this.oredCriteria.add(criteria);
+	}
+
+	public Criteria or() {
+		Criteria criteria = createCriteriaInternal();
+		this.oredCriteria.add(criteria);
+		return criteria;
+	}
+
+	public Criteria createCriteria() {
+		Criteria criteria = createCriteriaInternal();
+		if (this.oredCriteria.size() == 0) {
+			this.oredCriteria.add(criteria);
+		}
+		return criteria;
+	}
+
+	protected Criteria createCriteriaInternal() {
+		Criteria criteria = new Criteria();
+		return criteria;
+	}
+
+	public void clear() {
+		this.oredCriteria.clear();
+		this.orderByClause = null;
+		this.distinct = false;
+	}
+
+	public static class Criterion {
+		private String condition;
+		private Object value;
+		private Object secondValue;
+		private boolean noValue;
+		private boolean singleValue;
+		private boolean betweenValue;
+		private boolean listValue;
+		private String typeHandler;
+
+		public String getCondition() {
+			return this.condition;
+		}
+
+		public Object getValue() {
+			return this.value;
+		}
+
+		public Object getSecondValue() {
+			return this.secondValue;
+		}
+
+		public boolean isNoValue() {
+			return this.noValue;
+		}
+
+		public boolean isSingleValue() {
+			return this.singleValue;
+		}
+
+		public boolean isBetweenValue() {
+			return this.betweenValue;
+		}
+
+		public boolean isListValue() {
+			return this.listValue;
+		}
+
+		public String getTypeHandler() {
+			return this.typeHandler;
+		}
+
+		protected Criterion(String condition) {
+			this.condition = condition;
+			this.typeHandler = null;
+			this.noValue = true;
+		}
+
+		protected Criterion(String condition, Object value, String typeHandler) {
+			this.condition = condition;
+			this.value = value;
+			this.typeHandler = typeHandler;
+			if ((value instanceof List))
+				this.listValue = true;
+			else
+				this.singleValue = true;
+		}
+
+		protected Criterion(String condition, Object value) {
+			this(condition, value, null);
+		}
+
+		protected Criterion(String condition, Object value, Object secondValue,
+				String typeHandler) {
+			this.condition = condition;
+			this.value = value;
+			this.secondValue = secondValue;
+			this.typeHandler = typeHandler;
+			this.betweenValue = true;
+		}
+
+		protected Criterion(String condition, Object value, Object secondValue) {
+			this(condition, value, secondValue, null);
+		}
+	}
+
+	public static class Criteria extends TimeLineExample.GeneratedCriteria {
+	}
+
+	protected static abstract class GeneratedCriteria {
+		protected List<TimeLineExample.Criterion> criteria;
+
+		protected GeneratedCriteria() {
+			this.criteria = new ArrayList();
+		}
+
+		public boolean isValid() {
+			return this.criteria.size() > 0;
+		}
+
+		public List<TimeLineExample.Criterion> getAllCriteria() {
+			return this.criteria;
+		}
+
+		public List<TimeLineExample.Criterion> getCriteria() {
+			return this.criteria;
+		}
+
+		protected void addCriterion(String condition) {
+			if (condition == null) {
+				throw new RuntimeException("Value for condition cannot be null");
+			}
+			this.criteria.add(new TimeLineExample.Criterion(condition));
+		}
+
+		protected void addCriterion(String condition, Object value,
+				String property) {
+			if (value == null) {
+				throw new RuntimeException("Value for " + property
+						+ " cannot be null");
+			}
+			this.criteria.add(new TimeLineExample.Criterion(condition, value));
+		}
+
+		protected void addCriterion(String condition, Object value1,
+				Object value2, String property) {
+			if ((value1 == null) || (value2 == null)) {
+				throw new RuntimeException("Between values for " + property
+						+ " cannot be null");
+			}
+			this.criteria.add(new TimeLineExample.Criterion(condition, value1,
+					value2));
+		}
+
+		public TimeLineExample.Criteria andUuidIsNull() {
+			addCriterion("UUID is null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUuidIsNotNull() {
+			addCriterion("UUID is not null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUuidEqualTo(String value) {
+			addCriterion("UUID =", value, "uuid");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUuidNotEqualTo(String value) {
+			addCriterion("UUID <>", value, "uuid");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUuidGreaterThan(String value) {
+			addCriterion("UUID >", value, "uuid");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUuidGreaterThanOrEqualTo(String value) {
+			addCriterion("UUID >=", value, "uuid");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUuidLessThan(String value) {
+			addCriterion("UUID <", value, "uuid");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUuidLessThanOrEqualTo(String value) {
+			addCriterion("UUID <=", value, "uuid");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUuidLike(String value) {
+			addCriterion("UUID like", value, "uuid");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUuidNotLike(String value) {
+			addCriterion("UUID not like", value, "uuid");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUuidIn(List<String> values) {
+			addCriterion("UUID in", values, "uuid");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUuidNotIn(List<String> values) {
+			addCriterion("UUID not in", values, "uuid");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUuidBetween(String value1,
+				String value2) {
+			addCriterion("UUID between", value1, value2, "uuid");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUuidNotBetween(String value1,
+				String value2) {
+			addCriterion("UUID not between", value1, value2, "uuid");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrTimeIsNull() {
+			addCriterion("CR_TIME is null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrTimeIsNotNull() {
+			addCriterion("CR_TIME is not null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrTimeEqualTo(Date value) {
+			addCriterion("CR_TIME =", value, "crTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrTimeNotEqualTo(Date value) {
+			addCriterion("CR_TIME <>", value, "crTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrTimeGreaterThan(Date value) {
+			addCriterion("CR_TIME >", value, "crTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrTimeGreaterThanOrEqualTo(Date value) {
+			addCriterion("CR_TIME >=", value, "crTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrTimeLessThan(Date value) {
+			addCriterion("CR_TIME <", value, "crTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrTimeLessThanOrEqualTo(Date value) {
+			addCriterion("CR_TIME <=", value, "crTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrTimeIn(List<Date> values) {
+			addCriterion("CR_TIME in", values, "crTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrTimeNotIn(List<Date> values) {
+			addCriterion("CR_TIME not in", values, "crTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrTimeBetween(Date value1,
+				Date value2) {
+			addCriterion("CR_TIME between", value1, value2, "crTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrTimeNotBetween(Date value1,
+				Date value2) {
+			addCriterion("CR_TIME not between", value1, value2, "crTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andEndTimeIsNull() {
+			addCriterion("END_TIME is null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andEndTimeIsNotNull() {
+			addCriterion("END_TIME is not null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andEndTimeEqualTo(Date value) {
+			addCriterion("END_TIME =", value, "endTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andEndTimeNotEqualTo(Date value) {
+			addCriterion("END_TIME <>", value, "endTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andEndTimeGreaterThan(Date value) {
+			addCriterion("END_TIME >", value, "endTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andEndTimeGreaterThanOrEqualTo(
+				Date value) {
+			addCriterion("END_TIME >=", value, "endTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andEndTimeLessThan(Date value) {
+			addCriterion("END_TIME <", value, "endTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andEndTimeLessThanOrEqualTo(Date value) {
+			addCriterion("END_TIME <=", value, "endTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andEndTimeIn(List<Date> values) {
+			addCriterion("END_TIME in", values, "endTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andEndTimeNotIn(List<Date> values) {
+			addCriterion("END_TIME not in", values, "endTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andEndTimeBetween(Date value1,
+				Date value2) {
+			addCriterion("END_TIME between", value1, value2, "endTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andEndTimeNotBetween(Date value1,
+				Date value2) {
+			addCriterion("END_TIME not between", value1, value2, "endTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andStartTimeIsNull() {
+			addCriterion("START_TIME is null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andStartTimeIsNotNull() {
+			addCriterion("START_TIME is not null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andStartTimeEqualTo(Date value) {
+			addCriterion("START_TIME =", value, "startTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andStartTimeNotEqualTo(Date value) {
+			addCriterion("START_TIME <>", value, "startTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andStartTimeGreaterThan(Date value) {
+			addCriterion("START_TIME >", value, "startTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andStartTimeGreaterThanOrEqualTo(
+				Date value) {
+			addCriterion("START_TIME >=", value, "startTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andStartTimeLessThan(Date value) {
+			addCriterion("START_TIME <", value, "startTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andStartTimeLessThanOrEqualTo(Date value) {
+			addCriterion("START_TIME <=", value, "startTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andStartTimeIn(List<Date> values) {
+			addCriterion("START_TIME in", values, "startTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andStartTimeNotIn(List<Date> values) {
+			addCriterion("START_TIME not in", values, "startTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andStartTimeBetween(Date value1,
+				Date value2) {
+			addCriterion("START_TIME between", value1, value2, "startTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andStartTimeNotBetween(Date value1,
+				Date value2) {
+			addCriterion("START_TIME not between", value1, value2, "startTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTitleIsNull() {
+			addCriterion("TITLE_ is null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTitleIsNotNull() {
+			addCriterion("TITLE_ is not null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTitleEqualTo(String value) {
+			addCriterion("TITLE_ =", value, "title");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTitleNotEqualTo(String value) {
+			addCriterion("TITLE_ <>", value, "title");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTitleGreaterThan(String value) {
+			addCriterion("TITLE_ >", value, "title");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTitleGreaterThanOrEqualTo(
+				String value) {
+			addCriterion("TITLE_ >=", value, "title");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTitleLessThan(String value) {
+			addCriterion("TITLE_ <", value, "title");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTitleLessThanOrEqualTo(String value) {
+			addCriterion("TITLE_ <=", value, "title");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTitleLike(String value) {
+			addCriterion("TITLE_ like", value, "title");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTitleNotLike(String value) {
+			addCriterion("TITLE_ not like", value, "title");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTitleIn(List<String> values) {
+			addCriterion("TITLE_ in", values, "title");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTitleNotIn(List<String> values) {
+			addCriterion("TITLE_ not in", values, "title");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTitleBetween(String value1,
+				String value2) {
+			addCriterion("TITLE_ between", value1, value2, "title");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTitleNotBetween(String value1,
+				String value2) {
+			addCriterion("TITLE_ not between", value1, value2, "title");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTypeIsNull() {
+			addCriterion("TYPE_ is null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTypeIsNotNull() {
+			addCriterion("TYPE_ is not null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTypeEqualTo(String value) {
+			addCriterion("TYPE_ =", value, "type");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTypeNotEqualTo(String value) {
+			addCriterion("TYPE_ <>", value, "type");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTypeGreaterThan(String value) {
+			addCriterion("TYPE_ >", value, "type");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTypeGreaterThanOrEqualTo(String value) {
+			addCriterion("TYPE_ >=", value, "type");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTypeLessThan(String value) {
+			addCriterion("TYPE_ <", value, "type");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTypeLessThanOrEqualTo(String value) {
+			addCriterion("TYPE_ <=", value, "type");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTypeLike(String value) {
+			addCriterion("TYPE_ like", value, "type");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTypeNotLike(String value) {
+			addCriterion("TYPE_ not like", value, "type");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTypeIn(List<String> values) {
+			addCriterion("TYPE_ in", values, "type");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTypeNotIn(List<String> values) {
+			addCriterion("TYPE_ not in", values, "type");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTypeBetween(String value1,
+				String value2) {
+			addCriterion("TYPE_ between", value1, value2, "type");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTypeNotBetween(String value1,
+				String value2) {
+			addCriterion("TYPE_ not between", value1, value2, "type");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateTimeIsNull() {
+			addCriterion("UPDATE_TIME is null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateTimeIsNotNull() {
+			addCriterion("UPDATE_TIME is not null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateTimeEqualTo(Date value) {
+			addCriterion("UPDATE_TIME =", value, "updateTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateTimeNotEqualTo(Date value) {
+			addCriterion("UPDATE_TIME <>", value, "updateTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateTimeGreaterThan(Date value) {
+			addCriterion("UPDATE_TIME >", value, "updateTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateTimeGreaterThanOrEqualTo(
+				Date value) {
+			addCriterion("UPDATE_TIME >=", value, "updateTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateTimeLessThan(Date value) {
+			addCriterion("UPDATE_TIME <", value, "updateTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateTimeLessThanOrEqualTo(
+				Date value) {
+			addCriterion("UPDATE_TIME <=", value, "updateTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateTimeIn(List<Date> values) {
+			addCriterion("UPDATE_TIME in", values, "updateTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateTimeNotIn(List<Date> values) {
+			addCriterion("UPDATE_TIME not in", values, "updateTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateTimeBetween(Date value1,
+				Date value2) {
+			addCriterion("UPDATE_TIME between", value1, value2, "updateTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateTimeNotBetween(Date value1,
+				Date value2) {
+			addCriterion("UPDATE_TIME not between", value1, value2,
+					"updateTime");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrUserIdIsNull() {
+			addCriterion("CR_USER_ID is null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrUserIdIsNotNull() {
+			addCriterion("CR_USER_ID is not null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrUserIdEqualTo(Integer value) {
+			addCriterion("CR_USER_ID =", value, "crUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrUserIdNotEqualTo(Integer value) {
+			addCriterion("CR_USER_ID <>", value, "crUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrUserIdGreaterThan(Integer value) {
+			addCriterion("CR_USER_ID >", value, "crUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrUserIdGreaterThanOrEqualTo(
+				Integer value) {
+			addCriterion("CR_USER_ID >=", value, "crUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrUserIdLessThan(Integer value) {
+			addCriterion("CR_USER_ID <", value, "crUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrUserIdLessThanOrEqualTo(
+				Integer value) {
+			addCriterion("CR_USER_ID <=", value, "crUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrUserIdIn(List<Integer> values) {
+			addCriterion("CR_USER_ID in", values, "crUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrUserIdNotIn(List<Integer> values) {
+			addCriterion("CR_USER_ID not in", values, "crUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrUserIdBetween(Integer value1,
+				Integer value2) {
+			addCriterion("CR_USER_ID between", value1, value2, "crUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andCrUserIdNotBetween(Integer value1,
+				Integer value2) {
+			addCriterion("CR_USER_ID not between", value1, value2, "crUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateUserIdIsNull() {
+			addCriterion("UPDATE_USER_ID is null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateUserIdIsNotNull() {
+			addCriterion("UPDATE_USER_ID is not null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateUserIdEqualTo(Integer value) {
+			addCriterion("UPDATE_USER_ID =", value, "updateUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateUserIdNotEqualTo(Integer value) {
+			addCriterion("UPDATE_USER_ID <>", value, "updateUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateUserIdGreaterThan(Integer value) {
+			addCriterion("UPDATE_USER_ID >", value, "updateUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateUserIdGreaterThanOrEqualTo(
+				Integer value) {
+			addCriterion("UPDATE_USER_ID >=", value, "updateUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateUserIdLessThan(Integer value) {
+			addCriterion("UPDATE_USER_ID <", value, "updateUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateUserIdLessThanOrEqualTo(
+				Integer value) {
+			addCriterion("UPDATE_USER_ID <=", value, "updateUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateUserIdIn(List<Integer> values) {
+			addCriterion("UPDATE_USER_ID in", values, "updateUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateUserIdNotIn(
+				List<Integer> values) {
+			addCriterion("UPDATE_USER_ID not in", values, "updateUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateUserIdBetween(Integer value1,
+				Integer value2) {
+			addCriterion("UPDATE_USER_ID between", value1, value2,
+					"updateUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andUpdateUserIdNotBetween(
+				Integer value1, Integer value2) {
+			addCriterion("UPDATE_USER_ID not between", value1, value2,
+					"updateUserId");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTagIsNull() {
+			addCriterion("TAG_ is null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTagIsNotNull() {
+			addCriterion("TAG_ is not null");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTagEqualTo(String value) {
+			addCriterion("TAG_ =", value, "tag");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTagNotEqualTo(String value) {
+			addCriterion("TAG_ <>", value, "tag");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTagGreaterThan(String value) {
+			addCriterion("TAG_ >", value, "tag");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTagGreaterThanOrEqualTo(String value) {
+			addCriterion("TAG_ >=", value, "tag");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTagLessThan(String value) {
+			addCriterion("TAG_ <", value, "tag");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTagLessThanOrEqualTo(String value) {
+			addCriterion("TAG_ <=", value, "tag");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTagLike(String value) {
+			addCriterion("TAG_ like", value, "tag");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTagNotLike(String value) {
+			addCriterion("TAG_ not like", value, "tag");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTagIn(List<String> values) {
+			addCriterion("TAG_ in", values, "tag");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTagNotIn(List<String> values) {
+			addCriterion("TAG_ not in", values, "tag");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTagBetween(String value1,
+				String value2) {
+			addCriterion("TAG_ between", value1, value2, "tag");
+			return (TimeLineExample.Criteria) this;
+		}
+
+		public TimeLineExample.Criteria andTagNotBetween(String value1,
+				String value2) {
+			addCriterion("TAG_ not between", value1, value2, "tag");
+			return (TimeLineExample.Criteria) this;
+		}
+	}
+}

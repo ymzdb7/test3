@@ -1,0 +1,48 @@
+package com.myoa.controller.workPlan;
+
+import com.myoa.model.workPlan.PlanType;
+import com.myoa.service.workPlan.PlanTypeService;
+import com.myoa.util.ToJson;
+
+import javax.annotation.Resource;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@RequestMapping({ "/planType" })
+public class PlanTypeController {
+
+	@Resource
+	private PlanTypeService planTypeService;
+
+	@ResponseBody
+	@RequestMapping({ "/insertPlanType" })
+	public ToJson<PlanType> insertPlanType(PlanType planType) {
+		return this.planTypeService.insertPlanType(planType);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/updatePlanTypeById" })
+	public ToJson<PlanType> updatePlanTypeById(PlanType planType) {
+		return this.planTypeService.updatePlanTypeById(planType);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/deletePlanTypeById" })
+	public ToJson<PlanType> deletePlanTypeById(int typeId) {
+		return this.planTypeService.deletePlanTypeById(typeId);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selectPlanTypeById" })
+	public ToJson<PlanType> selectPlanTypeById(int typeId) {
+		return this.planTypeService.selectPlanTypeById(typeId);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selAllPlanType" })
+	public ToJson<PlanType> selAllPlanType() {
+		return this.planTypeService.selAllPlanType();
+	}
+}

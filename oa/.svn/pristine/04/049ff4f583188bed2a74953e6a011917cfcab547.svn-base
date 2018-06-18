@@ -1,0 +1,49 @@
+package com.xoa.dao.edu.eduStudent;
+
+import com.baomidou.mybatisplus.mapper.BaseMapper;
+import com.xoa.model.edu.eduStudent.EduStudent;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface EduStudentMapper extends BaseMapper<EduStudent> {
+	public abstract List<EduStudent> getGrade(EduStudent paramEduStudent);
+
+	public abstract List<EduStudent> getClassByDeptId(Integer paramInteger);
+
+	public abstract List<EduStudent> getUserByDeptId(Integer paramInteger);
+
+	public abstract EduStudent getStudentInforByUid(Integer paramInteger);
+
+	public abstract void deleteStudentByUid(String[] paramArrayOfString);
+
+	public abstract List<EduStudent> getStudentList1(Integer paramInteger);
+
+	public abstract int addStudent(EduStudent paramEduStudent);
+
+	public abstract int updateStudent(EduStudent paramEduStudent);
+
+	public abstract List<EduStudent> selectAll();
+
+	public abstract int editDeptId(EduStudent paramEduStudent);
+
+	public abstract List<Map<String, Object>> studentSelect(String paramString);
+
+	public abstract List<EduStudent> getStudentList(EduStudent paramEduStudent);
+
+	public abstract void clearPasswordByUid(String paramString);
+
+	public abstract List<EduStudent> checkPassWord(String paramString);
+
+	public abstract int studentSelectSum(Integer paramInteger);
+
+	public abstract List<EduStudent> selectBatchIds(
+			List<? extends Serializable> paramList);
+
+	public abstract EduStudent findUserByName(
+			@Param("byname") String paramString);
+
+	public abstract List<EduStudent> getStudentLists(
+			Map<String, Object> paramMap);
+}

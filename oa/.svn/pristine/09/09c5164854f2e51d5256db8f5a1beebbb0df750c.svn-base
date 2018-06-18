@@ -1,0 +1,238 @@
+/*     */ package com.xoa.service.sys.impl;
+/*     */ 
+/*     */ import com.tencent.xinge.ClickAction;
+/*     */ import com.tencent.xinge.Message;
+/*     */ import com.tencent.xinge.MessageIOS;
+/*     */ import com.tencent.xinge.Style;
+/*     */ import com.tencent.xinge.XingeApp;
+/*     */ import com.xoa.dao.common.SysParaMapper;
+/*     */ import com.xoa.dao.sys.SysInterfaceMapper;
+/*     */ import com.xoa.model.common.SysPara;
+/*     */ import com.xoa.model.sys.InterfaceModel;
+/*     */ import com.xoa.service.sys.InterFaceService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.GetAttachmentListUtil;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.ipUtil.MachineCode;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.json.JSONException;
+/*     */ import org.json.JSONObject;
+/*     */ import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class InterfaceServiceImpl
+/*     */   implements InterFaceService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private SysInterfaceMapper sysInterfaceMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SysParaMapper sysParaMapper;
+/*     */ 
+/*     */   @Value("${xg_push_msg_android_key}")
+/*     */   String androidKey;
+/*     */ 
+/*     */   @Value("${xg_push_msg_android_sercetkey}")
+/*     */   String androidSercetKey;
+/*     */ 
+/*     */   @Value("${xg_push_msg_ios_key}")
+/*     */   String iosKey;
+/*     */ 
+/*     */   @Value("${xg_push_msg_ios_sercetkey}")
+/*     */   String iosSercetKey;
+/*     */ 
+/*     */   public InterfaceModel getThemeSelect()
+/*     */   {
+/*  64 */     return this.sysInterfaceMapper.getThemeSelect();
+/*     */   }
+/*     */ 
+/*     */   public InterfaceModel getAvatarUpload()
+/*     */   {
+/*  75 */     return this.sysInterfaceMapper.getAvatarUpload();
+/*     */   }
+/*     */ 
+/*     */   public InterfaceModel getTemplate()
+/*     */   {
+/*  86 */     return this.sysInterfaceMapper.getTemplate();
+/*     */   }
+/*     */ 
+/*     */   public List<InterfaceModel> getStaTusText()
+/*     */   {
+/*  92 */     List list = this.sysInterfaceMapper.getStatusText();
+/*     */ 
+/*  94 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public void editStatusText(InterfaceModel interfaceModel)
+/*     */   {
+/* 108 */     this.sysInterfaceMapper.editStatusText(interfaceModel.getStatusText());
+/*     */   }
+/*     */ 
+/*     */   public List<InterfaceModel> getInterfaceInfo(HttpServletRequest request)
+/*     */   {
+/* 120 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/* 122 */     List<InterfaceModel> interfaceModelList = this.sysInterfaceMapper.getInterfaceInfo();
+/* 123 */     for (InterfaceModel interfaceModel : interfaceModelList) {
+/* 124 */       if ((interfaceModel.getAttachmentName() != null) && (interfaceModel.getAttachmentId() != null)) {
+/* 125 */         interfaceModel.setAttachment(GetAttachmentListUtil.returnAttachment(interfaceModel.getAttachmentName(), interfaceModel.getAttachmentId(), sqlType, "interface"));
+/*     */       }
+/*     */ 
+/* 129 */       if ((interfaceModel.getAttachmentName2() != null) && (interfaceModel.getAttachmentId2() != null)) {
+/* 130 */         interfaceModel.setAttachment2(GetAttachmentListUtil.returnAttachment(interfaceModel.getAttachmentName2(), interfaceModel.getAttachmentId2(), sqlType, "interface"));
+/*     */       }
+/*     */ 
+/* 134 */       if ((interfaceModel.getAttachmentName3() != null) && (interfaceModel.getAttachmentId3() != null)) {
+/* 135 */         interfaceModel.setAttachment3(GetAttachmentListUtil.returnAttachment(interfaceModel.getAttachmentName3(), interfaceModel.getAttachmentId3(), sqlType, "interface"));
+/*     */       }
+/*     */ 
+/* 139 */       if ((interfaceModel.getAttachmentName4() != null) && (interfaceModel.getAttachmentId4() != null)) {
+/* 140 */         interfaceModel.setAttachment4(GetAttachmentListUtil.returnAttachment(interfaceModel.getAttachmentName4(), interfaceModel.getAttachmentId4(), sqlType, "interface"));
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 146 */     List sysParatList = this.sysParaMapper.getTheSysParam("LOG_OUT_TEXT");
+/* 147 */     SysPara sysPara = this.sysParaMapper.querySysPara("LOG_OUT_TEXT");
+/* 148 */     SysPara sysPara1 = this.sysParaMapper.querySysPara("MIIBEIAN");
+/* 149 */     SysPara sysPara2 = this.sysParaMapper.querySysPara("IM_WINDOW_CAPTION");
+/*     */ 
+/* 156 */     if (interfaceModelList != null) {
+/* 157 */       for (InterfaceModel i : interfaceModelList) {
+/* 158 */         if ((sysPara != null) || (sysPara1 != null)) {
+/* 159 */           i.setLogOutText(sysPara.getParaValue());
+/* 160 */           i.setFileNumber(sysPara1.getParaValue());
+/* 161 */           i.setTitle(sysPara2.getParaValue());
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 166 */     return interfaceModelList;
+/*     */   }
+/*     */ 
+/*     */   public void updateInterfaceInfo(InterfaceModel interfaceModel)
+/*     */   {
+/* 182 */     List statusTextList = this.sysInterfaceMapper.getStatusText();
+/* 183 */     if ((statusTextList != null) && (statusTextList.size() == 1)) {
+/* 184 */       String statusText = ((InterfaceModel)statusTextList.get(0)).getStatusText();
+/*     */ 
+/* 186 */       if (interfaceModel.getStatusText() == null) {
+/* 187 */         interfaceModel.setStatusText(statusText);
+/*     */       }
+/*     */     }
+/*     */ 
+/* 191 */     this.sysInterfaceMapper.updateInterfaceInfo(interfaceModel);
+/*     */ 
+/* 194 */     if ((interfaceModel != null) && (interfaceModel.getLogOutText() != null)) {
+/* 195 */       SysPara sysPara = new SysPara();
+/* 196 */       sysPara.setParaValue(interfaceModel.getLogOutText());
+/* 197 */       sysPara.setParaName("LOG_OUT_TEXT");
+/* 198 */       this.sysParaMapper.updateSysPara(sysPara);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public void insertInterfaceInfo(InterfaceModel interfaceModel)
+/*     */   {
+/* 212 */     this.sysInterfaceMapper.insertInterfaceInfo(interfaceModel);
+/*     */   }
+/*     */ 
+/*     */   public InterfaceModel getIndexInfo()
+/*     */   {
+/* 224 */     InterfaceModel interfaceModel = this.sysInterfaceMapper.getIndexInfo();
+/* 225 */     List paras = this.sysParaMapper.getTheSysParam("LOG_OUT_TEXT");
+/* 226 */     SysPara sysPara = (SysPara)paras.get(0);
+/* 227 */     interfaceModel.setLogOutText(sysPara.getParaValue());
+/* 228 */     return interfaceModel;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper pushMessage(String userId, String app, HttpServletRequest request, String title, String content) throws JSONException
+/*     */   {
+/* 233 */     BaseWrapper baseWrapper = new BaseWrapper();
+/* 234 */     baseWrapper.setStatus(true);
+/* 235 */     if (StringUtils.checkNull(userId).booleanValue()) {
+/* 236 */       baseWrapper.setMsg("参数未传递");
+/* 237 */       baseWrapper.setFlag(true);
+/* 238 */       baseWrapper.setCode("-1");
+/*     */     }
+/* 240 */     String sqlType = (String)request.getSession().getAttribute("loginDateSouse");
+/* 241 */     String jixiema = (String)MachineCode.get16CharMacs().get(0);
+/* 242 */     String account = jixiema + userId + sqlType;
+/* 243 */     XingeApp pushIos = new XingeApp(Long.parseLong(this.iosKey), this.iosSercetKey);
+/* 244 */     XingeApp pushAndroid = new XingeApp(Long.parseLong(this.androidKey), this.androidSercetKey);
+/* 245 */     if (StringUtils.checkNull(app).booleanValue()) {
+/* 246 */       ClickAction clickAction = new ClickAction();
+/* 247 */       clickAction.setActionType(1);
+/* 248 */       clickAction.setActivity("123");
+/* 249 */       Style style = new Style(0, 0, 0, 1, 1, 1, 0, 1);
+/* 250 */       Message mess = new Message();
+/* 251 */       mess.setType(1);
+/* 252 */       mess.setStyle(style);
+/* 253 */       mess.setTitle(title);
+/* 254 */       mess.setContent(content);
+/* 255 */       mess.setAction(clickAction);
+/* 256 */       JSONObject ret = pushAndroid.pushSingleAccount(0, account, mess);
+/* 257 */       JSONObject contentTest = new JSONObject();
+/* 258 */       JSONObject obj = new JSONObject();
+/* 259 */       JSONObject aps = new JSONObject();
+/* 260 */       contentTest.put("title", title);
+/* 261 */       contentTest.put("body", content);
+/* 262 */       aps.put("badge", 1);
+/* 263 */       aps.put("alert", contentTest);
+/* 264 */       obj.put("aps", aps);
+/* 265 */       MessageIOS messageIOS = new MessageIOS();
+/* 266 */       messageIOS.setRaw(obj.toString());
+/* 267 */       JSONObject ret3 = pushIos.pushSingleAccount(0, account, messageIOS, 1);
+/* 268 */       if (("-1".equals(ret3.get("ret_code").toString())) && ("-1".equals(ret.get("ret_code").toString())))
+/* 269 */         baseWrapper.setCode(ret3.get("ret_code").toString());
+/*     */       else {
+/* 271 */         baseWrapper.setCode("0");
+/*     */       }
+/* 273 */       baseWrapper.setMsg("推送完成");
+/* 274 */       baseWrapper.setFlag(true);
+/*     */     }
+/* 277 */     else if ("ios".equals(app)) {
+/* 278 */       JSONObject contentTest = new JSONObject();
+/* 279 */       JSONObject obj = new JSONObject();
+/* 280 */       JSONObject aps = new JSONObject();
+/* 281 */       contentTest.put("title", title);
+/* 282 */       contentTest.put("body", content);
+/* 283 */       aps.put("badge", 1);
+/* 284 */       aps.put("alert", contentTest);
+/* 285 */       obj.put("aps", aps);
+/* 286 */       MessageIOS messageIOS = new MessageIOS();
+/* 287 */       messageIOS.setRaw(obj.toString());
+/* 288 */       JSONObject ret3 = pushIos.pushSingleAccount(0, account, messageIOS, 1);
+/* 289 */       baseWrapper.setMsg("推送完成");
+/* 290 */       baseWrapper.setFlag(true);
+/* 291 */       baseWrapper.setCode(ret3.get("ret_code").toString());
+/*     */     } else {
+/* 293 */       ClickAction clickAction = new ClickAction();
+/* 294 */       clickAction.setActionType(1);
+/* 295 */       clickAction.setActivity("123");
+/* 296 */       Style style = new Style(0, 0, 0, 1, 1, 1, 0, 1);
+/* 297 */       Message mess = new Message();
+/* 298 */       mess.setType(1);
+/* 299 */       mess.setStyle(style);
+/* 300 */       mess.setTitle(title);
+/* 301 */       mess.setContent(content);
+/* 302 */       mess.setAction(clickAction);
+/* 303 */       JSONObject ret = pushAndroid.pushSingleAccount(0, account, mess);
+/* 304 */       baseWrapper.setMsg("推送完成");
+/* 305 */       baseWrapper.setFlag(true);
+/* 306 */       baseWrapper.setCode(ret.get("ret_code").toString());
+/*     */     }
+/*     */ 
+/* 311 */     return baseWrapper;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.sys.impl.InterfaceServiceImpl
+ * JD-Core Version:    0.6.0
+ */

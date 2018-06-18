@@ -1,0 +1,755 @@
+/*      */ package com.xoa.controller.email;
+/*      */ 
+/*      */ import com.xoa.dao.users.UserExtMapper;
+/*      */ import com.xoa.dao.users.UsersMapper;
+/*      */ import com.xoa.model.email.EmailBodyModel;
+/*      */ import com.xoa.model.email.EmailBoxModel;
+/*      */ import com.xoa.model.email.EmailModel;
+/*      */ import com.xoa.model.email.Webmail;
+/*      */ import com.xoa.model.users.UserExt;
+/*      */ import com.xoa.model.users.Users;
+/*      */ import com.xoa.service.email.EmailService;
+import com.xoa.util.Constant;
+/*      */ import com.xoa.util.DateFormat;
+/*      */ import com.xoa.util.ToJson;
+/*      */ import com.xoa.util.common.StringUtils;
+/*      */ import com.xoa.util.common.session.SessionUtils;
+/*      */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*      */ import com.xoa.util.dataSource.ContextHolder;
+/*      */ import java.util.HashMap;
+/*      */ import java.util.List;
+/*      */ import java.util.Map;
+/*      */ import javax.annotation.Resource;
+/*      */ import javax.servlet.http.HttpServletRequest;
+/*      */ import javax.servlet.http.HttpSession;
+/*      */ import org.apache.log4j.Logger;
+/*      */ import org.springframework.context.annotation.Scope;
+/*      */ import org.springframework.stereotype.Controller;
+/*      */ import org.springframework.ui.Model;
+/*      */ import org.springframework.web.bind.annotation.RequestMapping;
+/*      */ import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+/*      */ 
+/*      */ @Controller
+/*      */ @Scope("prototype")
+/*      */ @RequestMapping({"/email"})
+/*      */ public class EmailController
+/*      */ {
+/*   57 */   private Logger loger = Logger.getLogger(EmailController.class);
+/*      */ 
+/*      */   @Resource
+/*      */   private EmailService emailService;
+/*      */ 
+/*      */   @Resource
+/*      */   private UsersMapper usersMapper;
+/*      */ 
+/*      */   @Resource
+/*      */   private UserExtMapper userExtMapper;
+/*      */ 
+/*      */   @RequestMapping(value={"/sendEmail"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*      */   @ResponseBody
+/*      */   public ToJson<EmailBodyModel> insertEmailBody(EmailBodyModel emailBodyModel, @RequestParam(value="sendFlag", required=false) String sendFlag, @RequestParam(value="remind", required=false, defaultValue="0") String remind, HttpServletRequest request)
+/*      */   {
+/*   86 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*   88 */     ContextHolder.setConsumerType(sqlType);
+/*      */ 
+/*   90 */     String toID = emailBodyModel.getToId2().trim() + emailBodyModel.getCopyToId().trim() + emailBodyModel.getSecretToId().trim();
+/*      */ 
+/*   93 */     String[] toID2 = toID.split(",");
+/*      */ 
+/*   95 */     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*   96 */     UserExt userExt = user.getUserExt();
+/*   97 */     String emailRecentLinkman = userExt.getEmailRecentLinkman();
+/*   98 */     String[] split = emailRecentLinkman.split(",");
+/*   99 */     for (String emailRecentLinkmanId : split) {
+/*  100 */       for (String toId : toID2) {
+/*  101 */         if (emailRecentLinkmanId.equals(toId)) {
+/*  102 */           emailRecentLinkman = emailRecentLinkman.replace(toId + ",", "");
+/*      */         }
+/*      */       }
+/*      */     }
+/*  106 */     if (!toID.substring(toID.length() - 1).equals(",")) {
+/*  107 */       toID = toID + ",";
+/*      */     }
+/*  109 */     emailRecentLinkman = toID + emailRecentLinkman;
+/*  110 */     userExt.setEmailRecentLinkman(emailRecentLinkman);
+/*  111 */     this.userExtMapper.updateUserExtByUid(userExt);
+/*      */ 
+/*  113 */     if (StringUtils.checkNull(emailBodyModel.getFromId()).booleanValue()) {
+/*  114 */       String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/*  115 */       emailBodyModel.setFromId(userId);
+/*      */     }
+/*  117 */     if ("0".equals(sendFlag)) {
+/*  118 */       emailBodyModel.setSendFlag("1");
+/*  119 */       return this.emailService.draftsSendEmail(emailBodyModel, new EmailModel(), sqlType, request);
+/*      */     }
+/*  121 */     return this.emailService.sendEmail(emailBodyModel, new EmailModel(), sqlType, remind, request);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/saveEmail"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*      */   @ResponseBody
+/*      */   public ToJson<EmailBodyModel> saveEmailBody(EmailBodyModel emailBodyModel, HttpServletRequest request)
+/*      */   {
+/*  140 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  142 */     ContextHolder.setConsumerType(sqlType);
+/*  143 */     if (StringUtils.checkNull(emailBodyModel.getFromId()).booleanValue()) {
+/*  144 */       String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/*  145 */       emailBodyModel.setFromId(userId);
+/*      */     }
+/*  147 */     if (emailBodyModel.getBodyId() == null) {
+/*  148 */       return this.emailService.saveEmail(emailBodyModel);
+/*      */     }
+/*  150 */     emailBodyModel.setSendFlag("0");
+/*  151 */     return this.emailService.draftsSendEmail(emailBodyModel, new EmailModel(), sqlType, request);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/showEmail"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public ToJson<EmailBodyModel> queryEmail(HttpServletRequest request, @RequestParam("flag") String flag, @RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam("useFlag") boolean useFlag, @RequestParam(value="userID", required=false) String userFrom, @RequestParam(value="startDate", required=false) String startDate, @RequestParam(value="endDate", required=false) String endDate, @RequestParam(value="subject", required=false) String subject, @RequestParam(value="content", required=false) String content, @RequestParam(value="attachmentName", required=false) String attachmentName, @RequestParam(value="readFlag", required=false) String readFlag, @RequestParam(value="fromUserId", required=false) String fromUserId, @RequestParam(value="orderByName", required=false) String orderByName, @RequestParam(value="orderWhere", required=false) String orderWhere, @RequestParam(value="searchCriteria", required=false) String searchCriteria, @RequestParam(value="isWebmail", required=false) String isWebmail, String queryField)
+/*      */     throws Exception
+/*      */   {
+/*  177 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  179 */     ContextHolder.setConsumerType(sqlType);
+/*      */ 
+/*  197 */     String userId = "";
+/*      */ 
+/*  199 */     if (StringUtils.checkNull(userFrom).booleanValue())
+/*  200 */       userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/*      */     else {
+/*  202 */       userId = userFrom.trim();
+/*      */     }
+/*  204 */     Map maps = new HashMap();
+/*  205 */     maps.put("fromId", userId);
+/*  206 */     if (!StringUtils.checkNull(subject).booleanValue()) {
+/*  207 */       maps.put("subject", "%" + subject + "%");
+/*      */     }
+/*  209 */     if (!StringUtils.checkNull(content).booleanValue()) {
+/*  210 */       maps.put("content", "%" + content + "%");
+/*      */     }
+/*  212 */     if (!StringUtils.checkNull(attachmentName).booleanValue())
+/*  213 */       maps.put("attachmentName", "%" + attachmentName + "%");
+/*      */     else {
+/*  215 */       maps.put("attachmentName", "");
+/*      */     }
+/*  217 */     if (!StringUtils.checkNull(startDate).booleanValue()) {
+/*  218 */       maps.put("startTime", DateFormat.getTime(startDate));
+/*      */     }
+/*  220 */     if (!StringUtils.checkNull(endDate).booleanValue()) {
+/*  221 */       maps.put("endTime", DateFormat.getTime(endDate));
+/*      */     }
+/*  223 */     if (!StringUtils.checkNull(searchCriteria).booleanValue()) {
+/*  224 */       maps.put("searchCriteria", "%" + searchCriteria + "%");
+/*      */     }
+/*  226 */     maps.put("isWebmail", isWebmail);
+/*  227 */     maps.put("queryField", queryField);
+/*  228 */     maps.put("orderByName", returnMapValue().get(orderByName));
+/*  229 */     maps.put("orderWhere", returnMapValue().get(orderWhere));
+/*  230 */     ToJson tojson = new ToJson();
+/*  231 */     if (flag.trim().equals("inbox")) {
+/*  232 */       maps.put("readFlag", readFlag);
+/*  233 */       maps.put("fromUserId", fromUserId);
+/*  234 */       tojson = this.emailService.selectInbox(maps, page, pageSize, useFlag, sqlType);
+/*  235 */     } else if (flag.trim().equals("drafts")) {
+/*  236 */       tojson = this.emailService.listDrafts(maps, page, pageSize, useFlag, sqlType);
+/*  237 */     } else if (flag.trim().equals("outbox")) {
+/*  238 */       tojson = this.emailService.listSendEmail(maps, page, pageSize, useFlag, sqlType);
+/*  239 */     } else if (flag.trim().equals("recycle")) {
+/*  240 */       tojson = this.emailService.listWastePaperbasket(maps, page, pageSize, useFlag, sqlType);
+/*      */     }
+/*  242 */     else if (flag.trim().equals("noRead")) {
+/*  243 */       tojson = this.emailService.selectIsRead(maps, page, pageSize, useFlag, sqlType);
+/*      */     } else {
+/*  245 */       tojson = this.emailService.selectEmail(maps, page, pageSize, useFlag, sqlType);
+/*      */     }
+/*  247 */     if (tojson.getObj().size() > 0) {
+/*  248 */       tojson.setFlag(0);
+/*  249 */       tojson.setMsg("ok");
+/*      */     }
+/*  251 */     else if (flag.trim().equals("drafts")) {
+/*  252 */       tojson.setFlag(0);
+/*  253 */       tojson.setMsg("ok");
+/*      */     } else {
+/*  255 */       tojson.setFlag(1);
+/*  256 */       tojson.setMsg("error");
+/*      */     }
+/*      */ 
+/*  259 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/queryByID"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public ToJson<EmailBodyModel> queryByID(HttpServletRequest request, @RequestParam(value="emailId", required=false) Integer emailId, @RequestParam("flag") String flag, @RequestParam(value="bodyId", required=false) Integer bodyId)
+/*      */     throws Exception
+/*      */   {
+/*  276 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  278 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  279 */     ToJson tojson = new ToJson();
+/*  280 */     ContextHolder.setConsumerType(sqlType);
+/*  281 */     Map maps = new HashMap();
+/*  282 */     maps.put("emailId", emailId);
+/*  283 */     maps.put("bodyId", bodyId);
+/*  284 */     EmailBodyModel emailBody = this.emailService.queryById(maps, Integer.valueOf(1), Integer.valueOf(5), false, sqlType);
+/*  285 */     if ((!emailBody.getFromId().equals(users.getUserId())) && 
+/*  286 */       (!emailBody.getToId2().contains(users.getUserId())) && 
+/*  287 */       (!emailBody.getCopyToId().contains(users.getUserId())) && 
+/*  288 */       (!emailBody.getSecretToId().contains(users.getUserId()))) {
+/*  289 */       tojson.setFlag(1);
+/*  290 */       tojson.setMsg("没有看权限");
+/*  291 */       return tojson;
+/*      */     }
+/*      */ 
+/*  297 */     if (!flag.trim().equals("isRead")) {
+/*  298 */       if (emailBody.getBodyId() != null) {
+/*  299 */         tojson.setFlag(0);
+/*  300 */         tojson.setMsg("ok");
+/*  301 */         tojson.setObject(emailBody);
+/*      */       } else {
+/*  303 */         tojson.setFlag(1);
+/*  304 */         tojson.setMsg("errorQueryByID");
+/*      */       }
+/*      */     } else {
+/*  307 */       EmailModel email = new EmailModel();
+/*  308 */       email.setEmailId(emailId);
+/*  309 */       email.setReadFlag("1");
+/*  310 */       this.emailService.updateIsRead(email);
+/*  311 */       emailBody = this.emailService.queryById(maps, Integer.valueOf(1), Integer.valueOf(5), false, sqlType);
+/*  312 */       tojson.setFlag(0);
+/*  313 */       tojson.setMsg("ok");
+/*  314 */       tojson.setObject(emailBody);
+/*      */     }
+/*  316 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/deleteEmail"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public ToJson<EmailBodyModel> deleteEmail(@RequestParam("flag") String flag, @RequestParam(value="deleteFlag", required=false) String deleteFlag, @RequestParam(value="emailID", required=false) Integer emailId, @RequestParam(value="requestFlags[]", required=false) String[] requestFlags, @RequestParam(value="deleteFlags[]", required=false) String[] deleteFlags, HttpServletRequest request)
+/*      */   {
+/*  337 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  339 */     ToJson tojson = new ToJson();
+/*  340 */     String returnRes = "";
+/*  341 */     if (requestFlags != null) {
+/*  342 */       if (flag.trim().equals("inbox")) {
+/*  343 */         int i = 0; for (int len = requestFlags.length; i < len; i++)
+/*  344 */           returnRes = this.emailService.deleteInEmail(Integer.valueOf(requestFlags[i]), deleteFlags[i]);
+/*      */       }
+/*  346 */       else if (flag.trim().equals("outbox")) {
+/*  347 */         int i = 0; for (int len = requestFlags.length; i < len; i++)
+/*  348 */           returnRes = this.emailService.deleteOutEmail(Integer.valueOf(requestFlags[i]), deleteFlags[i]);
+/*      */       }
+/*  350 */       else if (flag.trim().equals("recycle")) {
+/*  351 */         int i = 0; for (int len = requestFlags.length; i < len; i++) {
+/*  352 */           returnRes = this.emailService.deleteRecycleEmail(Integer.valueOf(requestFlags[i]), deleteFlags[i]);
+/*      */         }
+/*      */       }
+/*      */     }
+/*  356 */     else if (flag.trim().equals("inbox"))
+/*  357 */       returnRes = this.emailService.deleteInEmail(emailId, deleteFlag);
+/*  358 */     else if (flag.trim().equals("outbox"))
+/*  359 */       returnRes = this.emailService.deleteOutEmail(emailId, deleteFlag);
+/*  360 */     else if (flag.trim().equals("recycle")) {
+/*  361 */       returnRes = this.emailService.deleteRecycleEmail(emailId, deleteFlag);
+/*      */     }
+/*      */ 
+/*  367 */     if (returnRes.equals("0")) {
+/*  368 */       tojson.setFlag(0);
+/*  369 */       tojson.setMsg("ok");
+/*      */     } else {
+/*  371 */       tojson.setFlag(1);
+/*  372 */       tojson.setMsg("error");
+/*      */     }
+/*  374 */     return tojson;
+/*      */   }
+/*      */   @RequestMapping(value={"/deleteDraftsEmail"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public ToJson<EmailBodyModel> deleteDraftsEmail(@RequestParam(value="bodyId", required=false) Integer bodyId, @RequestParam(value="requestFlags[]", required=false) String[] requestFlags, HttpServletRequest request) {
+/*  392 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */     ToJson tojson;
+/*      */     try {
+/*  395 */       tojson = new ToJson(0, "ok");
+/*  396 */       if (requestFlags != null) {
+/*  397 */         int i = 0; for (int len = requestFlags.length; i < len; i++)
+/*  398 */           this.emailService.deleteByID(Integer.valueOf(requestFlags[i]));
+/*      */       }
+/*      */       else {
+/*  401 */         this.emailService.deleteByID(bodyId);
+/*      */       }
+/*  403 */       return tojson;
+/*      */     } catch (Exception e) {
+/*  405 */       tojson = new ToJson(1, "error");
+/*  406 */     }return tojson;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/messageEmail"}, produces={"application/json;charset=UTF-8"})
+/*      */   public String queryByIdFwRw(HttpServletRequest request, @RequestParam(value="emailId", required=false) Integer emailId, @RequestParam(value="bodyId", required=false) Integer bodyId)
+/*      */   {
+/*  422 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  424 */     ContextHolder.setConsumerType(sqlType);
+/*      */ 
+/*  426 */     Map maps = new HashMap();
+/*  427 */     if (emailId != null)
+/*  428 */       maps.put("emailId", emailId);
+/*      */     else {
+/*  430 */       maps.put("bodyId", bodyId);
+/*      */     }
+/*  432 */     request.setAttribute("fwRwEmail", this.emailService.queryByIdCss(maps, Integer.valueOf(1), Integer.valueOf(5), false, sqlType, request));
+/*  433 */     return "app/email/messageEmail";
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/sendMessageEmail"}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public ToJson<EmailBodyModel> fwRwEmailBody(@RequestParam("emailId") Integer emailId, @RequestParam(value="flag", required=false) String flag, @RequestParam(value="sendFlag", required=false) String sendFlag, @RequestParam(value="remind", required=false, defaultValue="0") String remind, EmailBodyModel emailBodyModel, HttpServletRequest request)
+/*      */   {
+/*  457 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  459 */     ContextHolder.setConsumerType(sqlType);
+/*  460 */     Map maps = new HashMap();
+/*  461 */     if (StringUtils.checkNull(emailBodyModel.getFromId()).booleanValue()) {
+/*  462 */       String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/*  463 */       emailBodyModel.setFromId(userId);
+/*      */     }
+/*      */ 
+/*  466 */     if ((emailId.intValue() > 0) && (!StringUtils.checkNull(emailId.toString()).booleanValue()))
+/*  467 */       maps.put("emailId", emailId);
+/*      */     else {
+/*  469 */       maps.put("bodyId", emailBodyModel.getBodyId());
+/*      */     }
+/*  471 */     if (StringUtils.checkNull(flag).booleanValue()) {
+/*  472 */       String fwRwEmail = this.emailService.queryByIdCss(maps, Integer.valueOf(1), Integer.valueOf(5), false, sqlType, request);
+/*  473 */       if ("0".equals(sendFlag)) {
+/*  474 */         emailBodyModel.setSendFlag("1");
+/*  475 */         emailBodyModel.setContent(emailBodyModel.getContent() + fwRwEmail);
+/*  476 */         return this.emailService.draftsSendEmail(emailBodyModel, new EmailModel(), sqlType, request);
+/*      */       }
+/*  478 */       emailBodyModel.setContent(emailBodyModel.getContent() + fwRwEmail);
+/*  479 */       return this.emailService.sendEmail(emailBodyModel, new EmailModel(), sqlType, remind, request);
+/*      */     }
+/*      */ 
+/*  482 */     if ("0".equals(sendFlag)) {
+/*  483 */       emailBodyModel.setSendFlag("1");
+/*  484 */       return this.emailService.draftsSendEmail(emailBodyModel, new EmailModel(), sqlType, request);
+/*      */     }
+/*  486 */     return this.emailService.sendEmail(emailBodyModel, new EmailModel(), sqlType, remind, request);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/saveMessageEmail"}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public ToJson<EmailBodyModel> fwRwSaveEmailBody(@RequestParam("emailId") Integer emailId, @RequestParam(value="flag", required=false) String flag, EmailBodyModel emailBodyModel, HttpServletRequest request)
+/*      */   {
+/*  509 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  511 */     ContextHolder.setConsumerType(sqlType);
+/*  512 */     Map maps = new HashMap();
+/*  513 */     if ((emailId.intValue() > 0) && (!StringUtils.checkNull(emailId.toString()).booleanValue()))
+/*  514 */       maps.put("emailId", emailId);
+/*      */     else {
+/*  516 */       maps.put("bodyId", emailBodyModel.getBodyId());
+/*      */     }
+/*  518 */     if (StringUtils.checkNull(emailBodyModel.getFromId()).booleanValue()) {
+/*  519 */       String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/*  520 */       emailBodyModel.setFromId(userId);
+/*      */     }
+/*  522 */     String flagName = emailBodyModel.getBodyId() + "";
+/*  523 */     if (StringUtils.checkNull(flag).booleanValue()) {
+/*  524 */       String fwRwEmail = this.emailService.queryByIdCss(maps, Integer.valueOf(1), Integer.valueOf(5), false, sqlType, request);
+/*  525 */       emailBodyModel.setContent(emailBodyModel.getContent() + fwRwEmail);
+/*  526 */       if ("null".equals(flagName)) {
+/*  527 */         return this.emailService.saveEmail(emailBodyModel);
+/*      */       }
+/*  529 */       emailBodyModel.setSendFlag("0");
+/*  530 */       return this.emailService.draftsSendEmail(emailBodyModel, new EmailModel(), sqlType, request);
+/*      */     }
+/*      */ 
+/*  533 */     if ("null".equals(flagName)) {
+/*  534 */       return this.emailService.saveEmail(emailBodyModel);
+/*      */     }
+/*  536 */     emailBodyModel.setSendFlag("0");
+/*  537 */     return this.emailService.draftsSendEmail(emailBodyModel, new EmailModel(), sqlType, request);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/saveEmailBox"}, method={org.springframework.web.bind.annotation.RequestMethod.POST}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public ToJson<EmailBoxModel> saveEmailBox(HttpServletRequest request, EmailBoxModel emailBoxModel)
+/*      */   {
+/*  555 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  557 */     ContextHolder.setConsumerType(sqlType);
+/*  558 */     if (StringUtils.checkNull(emailBoxModel.getUserId()).booleanValue()) {
+/*  559 */       String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/*  560 */       emailBoxModel.setUserId(userId);
+/*      */     }
+/*  562 */     return this.emailService.saveEmailBox(emailBoxModel);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/updateEmailBox"}, method={org.springframework.web.bind.annotation.RequestMethod.POST}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public ToJson<EmailModel> updateEmailBox(HttpServletRequest request, EmailModel emailModel, @RequestParam(value="requestFlags[]", required=false) String[] requestFlags)
+/*      */   {
+/*  578 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  580 */     ContextHolder.setConsumerType(sqlType);
+/*  581 */     if (StringUtils.checkNull(emailModel.getToId()).booleanValue()) {
+/*  582 */       String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/*  583 */       emailModel.setToId(userId);
+/*      */     }
+/*  585 */     ToJson toJson = new ToJson();
+/*  586 */     if (requestFlags != null) {
+/*  587 */       int i = 0; for (int len = requestFlags.length; i < len; i++) {
+/*  588 */         emailModel.setEmailId(Integer.valueOf(requestFlags[i]));
+/*  589 */         toJson = this.emailService.updateEmailBox(emailModel);
+/*      */       }
+/*  591 */       return toJson;
+/*      */     }
+/*  593 */     return this.emailService.updateEmailBox(emailModel);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/showEmailBox"}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public ToJson<EmailBoxModel> showEmailBox(HttpServletRequest request, @RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam("useFlag") boolean useFlag, @RequestParam(value="userId", required=false) String userId)
+/*      */   {
+/*  612 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  614 */     ContextHolder.setConsumerType(sqlType);
+/*  615 */     Map maps = new HashMap();
+/*  616 */     if (StringUtils.checkNull(userId).booleanValue())
+/*      */     {
+/*  618 */       userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/*  619 */       maps.put("userId", userId);
+/*      */     } else {
+/*  621 */       userId = userId.trim();
+/*  622 */       maps.put("userId", userId);
+/*      */     }
+/*  624 */     return this.emailService.showEmailBox(maps, page, pageSize, useFlag);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/selectBoxEmail"}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public ToJson<EmailBodyModel> selectBoxEmail(HttpServletRequest request, @RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam("useFlag") boolean useFlag, @RequestParam(value="toId", required=false) String toId, @RequestParam("boxId") Integer boxId, @RequestParam(value="orderByName", required=false) String orderByName, @RequestParam(value="orderWhere", required=false) String orderWhere, @RequestParam(value="searchCriteria", required=false) String searchCriteria, @RequestParam(value="isWebmail", required=false) String isWebmail)
+/*      */   {
+/*  644 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  646 */     ContextHolder.setConsumerType(sqlType);
+/*  647 */     Map maps = new HashMap();
+/*  648 */     if (StringUtils.checkNull(toId).booleanValue()) {
+/*  649 */       toId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/*  650 */       maps.put("fromId", toId);
+/*      */     } else {
+/*  652 */       toId = toId.trim();
+/*  653 */       maps.put("fromId", toId);
+/*      */     }
+/*  655 */     maps.put("boxId", boxId);
+/*  656 */     if (!StringUtils.checkNull(searchCriteria).booleanValue()) {
+/*  657 */       maps.put("searchCriteria", "%" + searchCriteria + "%");
+/*      */     }
+/*  659 */     maps.put("isWebmail", isWebmail);
+/*  660 */     maps.put("orderByName", returnMapValue().get(orderByName));
+/*  661 */     maps.put("orderWhere", returnMapValue().get(orderWhere));
+/*  662 */     return this.emailService.selectBoxEmail(maps, page, pageSize, useFlag, sqlType);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/deleteBoxEmail"}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public ToJson<EmailBodyModel> deleteBoxEmail(HttpServletRequest request, @RequestParam("page") Integer page, @RequestParam("pageSize") Integer pageSize, @RequestParam("useFlag") boolean useFlag, @RequestParam(value="fromId", required=false) String fromId, @RequestParam("boxId") Integer boxId)
+/*      */   {
+/*  682 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  684 */     ContextHolder.setConsumerType(sqlType);
+/*  685 */     Map maps = new HashMap();
+/*  686 */     if (StringUtils.checkNull(fromId).booleanValue()) {
+/*  687 */       String toId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/*  688 */       maps.put("fromId", toId);
+/*      */     } else {
+/*  690 */       maps.put("fromId", fromId.trim());
+/*      */     }
+/*  692 */     maps.put("boxId", boxId);
+/*  693 */     return this.emailService.deleteBoxEmail(maps, page, pageSize, useFlag);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/updateEmailBoxName"}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public ToJson<EmailBoxModel> updeateEmailBoxName(HttpServletRequest request, EmailBoxModel emailBoxModel)
+/*      */   {
+/*  707 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  709 */     ContextHolder.setConsumerType(sqlType);
+/*  710 */     if (StringUtils.checkNull(emailBoxModel.getUserId()).booleanValue()) {
+/*  711 */       String userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/*  712 */       emailBoxModel.setUserId(userId);
+/*      */     }
+/*  714 */     return this.emailService.updeateEmailBoxName(emailBoxModel);
+/*      */   }
+/*      */ 
+/*      */   public static String returnValue(String value)
+/*      */   {
+/*  729 */     if (value != null) {
+/*  730 */       return value;
+/*      */     }
+/*  732 */     return "";
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/saveWebMail"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*      */   @ResponseBody
+/*      */   public ToJson<Webmail> saveWebMail(Webmail webmail, HttpServletRequest request)
+/*      */   {
+/*  747 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  749 */     ContextHolder.setConsumerType(sqlType);
+/*  750 */     if (StringUtils.checkNull(webmail.getUserId()).booleanValue()) {
+/*  751 */       webmail.setUserId(((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId());
+/*      */     }
+/*  753 */     return this.emailService.saveWebMail(webmail);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/updateWebMail"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.POST})
+/*      */   @ResponseBody
+/*      */   public ToJson<Webmail> updateWebMail(Webmail webmail, HttpServletRequest request)
+/*      */   {
+/*  767 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  769 */     ContextHolder.setConsumerType(sqlType);
+/*  770 */     if (StringUtils.checkNull(webmail.getUserId()).booleanValue()) {
+/*  771 */       webmail.setUserId(((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId());
+/*      */     }
+/*  773 */     return this.emailService.updateWebMail(webmail);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/deleteWebMail"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*      */   @ResponseBody
+/*      */   public ToJson<Webmail> deleteWebMail(@RequestParam("mailId") Integer mailId, HttpServletRequest request)
+/*      */   {
+/*  787 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  789 */     ContextHolder.setConsumerType(sqlType);
+/*  790 */     return this.emailService.deleteWebMail(mailId);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/selectOneWebMail"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*      */   @ResponseBody
+/*      */   public ToJson<Webmail> selectOneWebMail(@RequestParam("userId") String userId, @RequestParam("mailId") Integer mailId, HttpServletRequest request)
+/*      */   {
+/*  805 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  807 */     ContextHolder.setConsumerType(sqlType);
+/*  808 */     if (StringUtils.checkNull(userId).booleanValue()) {
+/*  809 */       userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/*      */     }
+/*  811 */     return this.emailService.selectOneWebMail(userId, mailId);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/selectUserWebMail"}, produces={"application/json;charset=UTF-8"}, method={org.springframework.web.bind.annotation.RequestMethod.GET})
+/*      */   @ResponseBody
+/*      */   public ToJson selectUserWebMail(HttpServletRequest request, @RequestParam("userId") String userId)
+/*      */   {
+/*  825 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  827 */     ContextHolder.setConsumerType(sqlType);
+/*  828 */     if (StringUtils.checkNull(userId).booleanValue()) {
+/*  829 */       userId = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUserId();
+/*      */     }
+/*  831 */     return this.emailService.selectUserWebMail(userId);
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping(value={"/querylistEmailBody"}, produces={"application/json;charset=UTF-8"})
+/*      */   @ResponseBody
+/*      */   public ToJson<EmailBodyModel> querylistEmailBody(HttpServletRequest request)
+/*      */     throws Exception
+/*      */   {
+/*  847 */     String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*      */ 
+/*  849 */     ContextHolder.setConsumerType(sqlType);
+/*  850 */     Map maps = new HashMap();
+/*      */ 
+/*  853 */     maps.put("readFlag", Integer.valueOf(1));
+/*  854 */     maps.put("boxId", Integer.valueOf(0));
+/*  855 */     maps.put("userName", "李佳");
+/*  856 */     maps.put("sign", "");
+/*  857 */     maps.put("keyword", "通知");
+/*  858 */     ToJson tojson = new ToJson();
+/*  859 */     tojson = this.emailService.selectEmailBody(maps, Integer.valueOf(1), Integer.valueOf(10), true, sqlType);
+/*      */     Map map;
+/*  860 */     if (tojson.getObj().size() > 0) {
+/*  861 */       tojson.setFlag(0);
+/*  862 */       tojson.setMsg("ok");
+/*  863 */       map = new HashMap();
+/*      */     } else {
+/*  865 */       tojson.setFlag(1);
+/*  866 */       tojson.setMsg("error");
+/*      */     }
+/*  868 */     return tojson;
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping({"/updateEmailWithdraw"})
+/*      */   public ToJson<EmailModel> updateEmailWithdraw(Integer bodyId)
+/*      */   {
+/*  879 */     return this.emailService.updateEmailWithdraw(bodyId);
+/*      */   }
+/*      */ 
+/*      */   public static Map<String, String> returnMapValue()
+/*      */   {
+/*  891 */     Map maps = new HashMap();
+/*  892 */     maps.put("0", "ASC");
+/*  893 */     maps.put("1", "DESC");
+/*      */ 
+/*  895 */     maps.put("2", "eb.SEND_TIME");
+/*  896 */     maps.put("3", "eb.FROM_ID");
+/*  897 */     maps.put("4", "e.READ_FLAG");
+/*  898 */     maps.put("5", "e.SIGN");
+/*  899 */     maps.put("6", "eb.ATTACHMENT_ID");
+/*  900 */     return maps;
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/inboxup"})
+/*      */   public String inboxUp(HttpServletRequest request) {
+/*  906 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  908 */     return "app/email/inboxup";
+/*      */   }
+/*      */   @RequestMapping({"/addbox"})
+/*      */   public String writeMail(HttpServletRequest request) {
+/*  913 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  915 */     return "app/email/addbox";
+/*      */   }
+/*      */   @RequestMapping({"/index"})
+/*      */   public String emailIndex(HttpServletRequest request) {
+/*  920 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  922 */     return "app/email/index";
+/*      */   }
+/*      */   @RequestMapping({"/mailQuery"})
+/*      */   public String mailQuery(HttpServletRequest request) {
+/*  927 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  929 */     return "app/email/mailQuery";
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/development"})
+/*      */   public String develOpment(HttpServletRequest request) throws Exception {
+/*  935 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  937 */     return "app/common/development";
+/*      */   }
+/*      */   @RequestMapping({"/writeEmail"})
+/*      */   public String writeEmail(HttpServletRequest request) {
+/*  942 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  944 */     return "app/email/writeMail";
+/*      */   }
+/*      */   @RequestMapping({"/writeMail2"})
+/*      */   public String writeMail2(HttpServletRequest request) {
+/*  949 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  951 */     return "app/email/writeMail2";
+/*      */   }
+/*      */   @RequestMapping({"/details"})
+/*      */   public String details(HttpServletRequest request) {
+/*  956 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  960 */     return "app/email/details";
+/*      */   }
+/*      */   @RequestMapping({"/manageMail"})
+/*      */   public String manageMail(HttpServletRequest request) {
+/*  965 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  967 */     return "app/email/manageMail";
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/inBoxUp"})
+/*      */   public String inBoxUp(HttpServletRequest request)
+/*      */   {
+/*  978 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  980 */     return "app/email/inboxup";
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/emailList"})
+/*      */   public String emailList(HttpServletRequest request)
+/*      */   {
+/*  991 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/*  993 */     return "app/email/emailList";
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/emailIndex"})
+/*      */   public String index2(HttpServletRequest request)
+/*      */   {
+/* 1004 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/* 1006 */     return "app/email/index2";
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/eamilStatis"})
+/*      */   public String eamilStatis(HttpServletRequest request)
+/*      */   {
+/* 1017 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/* 1019 */     return "app/email/eamilStatis";
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/eamilStatisDetailList"})
+/*      */   public String eamilStatisDetailList(HttpServletRequest request)
+/*      */   {
+/* 1030 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/* 1032 */     return "app/email/eamilStatisDetailList";
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/eamilDetailByOne"})
+/*      */   public String eamilDetailByOne(HttpServletRequest request)
+/*      */   {
+/* 1043 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/* 1045 */     return "app/email/eamilDetailByOne";
+/*      */   }
+/*      */   @RequestMapping({"/emptyFolder"})
+/*      */   public String emptyFolder(HttpServletRequest request) {
+/* 1050 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*      */ 
+/* 1052 */     return "app/email/emptyFolder";
+/*      */   }
+/*      */ 
+/*      */   @RequestMapping({"/getEmailReadDetail"})
+/*      */   @ResponseBody
+/*      */   public BaseWrappers getEmailReadDetail(Integer bodyId, String userIds)
+/*      */   {
+/* 1065 */     return this.emailService.getEmailReadDetail(bodyId, userIds);
+/*      */   }
+/*      */   @RequestMapping({"/emailReadDetail"})
+/*      */   public String pageEmailReadDetail(Model model, Integer bodyId, String userIds) {
+/* 1070 */     model.addAttribute("bodyId", bodyId);
+/* 1071 */     model.addAttribute("userIds", userIds);
+/* 1072 */     return "app/email/readDetails";
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping(value={"/selectCount"}, produces={"application/json;charset=UTF-8"})
+/*      */   public ToJson<EmailBodyModel> selectCount(HttpServletRequest request, String sendTime, Integer toId)
+/*      */   {
+/* 1088 */     return this.emailService.selectCount(request, sendTime, toId);
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping(value={"/selectListByMoths"}, produces={"application/json;charset=UTF-8"})
+/*      */   public ToJson<EmailBodyModel> selectListByMoths(HttpServletRequest request, String sendTime)
+/*      */   {
+/* 1103 */     return this.emailService.selectListByMoths(request, sendTime);
+/*      */   }
+/*      */ 
+/*      */   @ResponseBody
+/*      */   @RequestMapping(value={"/selectDetailById"}, produces={"application/json;charset=UTF-8"})
+/*      */   public ToJson<EmailBodyModel> selectDetailById(HttpServletRequest request, Integer bodyId)
+/*      */   {
+/* 1118 */     return this.emailService.selectDetailById(request, bodyId);
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.email.EmailController
+ * JD-Core Version:    0.6.0
+ */

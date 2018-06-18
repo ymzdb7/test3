@@ -1,0 +1,450 @@
+/*     */ package com.xoa.service.netdisk.impl;
+/*     */ 
+/*     */ import com.xoa.dao.auth.AuthMapper;
+/*     */ import com.xoa.dao.netdisk.NetdiskMapper;
+/*     */ import com.xoa.model.netdisk.EasyUiDiskModel;
+/*     */ import com.xoa.model.netdisk.MyNetdisk;
+/*     */ import com.xoa.model.netdisk.Netdisk;
+/*     */ import com.xoa.model.netdisk.NetdiskBaseModel;
+/*     */ import com.xoa.model.netdisk.NetdiskBaseModel.NetdiskChildBaseModel;
+/*     */ import com.xoa.model.netdisk.NetdiskBaseModel.NetdiskGrandChildModel;
+/*     */ import com.xoa.model.netdisk.NetdiskWrapper;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.file.FileSortResetAuth;
+/*     */ import com.xoa.service.netdisk.NetdiskService;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*     */ import com.xoa.util.netdisk.CheckAll;
+/*     */ import com.xoa.util.netdisk.ReadFile;
+/*     */ import java.io.File;
+/*     */ import java.text.Collator;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Collections;
+/*     */ import java.util.Comparator;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Hashtable;
+/*     */ import java.util.List;
+/*     */ import java.util.Locale;
+/*     */ import java.util.Map;
+/*     */ import java.util.ResourceBundle;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class NetdiskServiceImpl
+/*     */   implements NetdiskService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   AuthMapper authMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private NetdiskMapper netdiskMapper;
+/* 259 */   private final int ORDERTYPE_ASC = 0;
+/* 260 */   private final int ORDERTYPE_DESC = 1;
+/* 261 */   private final int ORDER_BY_NAME = 0;
+/* 262 */   private final int ORDER_BY_TYPE = 1;
+/* 263 */   private final int ORDER_BY_SIZE = 2;
+/* 264 */   private final int ORDER_BY_TIME = 3;
+/*     */ 
+/*     */   public BaseWrapper addNetdisk(Netdisk netdisk)
+/*     */   {
+/*  56 */     BaseWrapper baseWrapper = new BaseWrapper();
+/*  57 */     baseWrapper.setFlag(false);
+/*  58 */     baseWrapper.setStatus(true);
+/*  59 */     if (netdisk != null) {
+/*  60 */       String path = netdisk.getDiskPath();
+/*  61 */       if (!StringUtils.checkNull(path).booleanValue())
+/*     */       {
+/*  63 */         ResourceBundle rb = ResourceBundle.getBundle("upload");
+/*  64 */         String osName = System.getProperty("os.name");
+/*  65 */         StringBuffer sb = new StringBuffer();
+/*  66 */         if (osName.toLowerCase().startsWith("win"))
+/*  67 */           sb = sb.append(rb.getString("netdisk.win"));
+/*     */         else {
+/*  69 */           sb = sb.append(rb.getString("netdisk.linux"));
+/*     */         }
+/*  71 */         String basePath = sb.toString() + path;
+/*     */ 
+/*  73 */         File file = new File(basePath);
+/*  74 */         if (file.exists()) {
+/*  75 */           baseWrapper.setMsg("路径已经存在不需要新建！");
+/*  76 */           return baseWrapper;
+/*     */         }
+/*  78 */         file.mkdirs();
+/*  79 */         int a = this.netdiskMapper.addNetdisk(netdisk);
+/*  80 */         if (a > 0) {
+/*  81 */           baseWrapper.setFlag(true);
+/*  82 */           baseWrapper.setStatus(true);
+/*  83 */           baseWrapper.setMsg("操作成功！");
+/*     */         } else {
+/*  85 */           baseWrapper.setMsg("操作失败！");
+/*     */         }
+/*     */       }
+/*     */       else {
+/*  89 */         baseWrapper.setMsg("请求路径不能为空！");
+/*     */       }
+/*     */     } else {
+/*  92 */       baseWrapper.setMsg("请求参数不存在！");
+/*     */     }
+/*     */ 
+/*  96 */     return baseWrapper;
+/*     */   }
+/*     */ 
+/*     */   public List<Netdisk> selectNetdisk()
+/*     */   {
+/* 111 */     return this.netdiskMapper.selectNetdisk();
+/*     */   }
+/*     */ 
+/*     */   public void delete(Integer diskId)
+/*     */   {
+/* 124 */     this.netdiskMapper.delete(diskId);
+/*     */   }
+/*     */ 
+/*     */   public int editNetdisk(Netdisk netdisk)
+/*     */   {
+/* 142 */     int a = this.netdiskMapper.editNetdisk(netdisk);
+/* 143 */     return a;
+/*     */   }
+/*     */ 
+/*     */   public int editNetdiskJurisdiction(Map<String, Object> maps)
+/*     */   {
+/* 149 */     Integer diskId = (Integer)maps.get("diskId");
+/* 150 */     FileSortResetAuth resetAuth = new FileSortResetAuth();
+/* 151 */     Map param = resetAuth.reset("userId", (Map)maps.get("userId")).reset("newUser", (Map)maps.get("newUser")).reset("manageUser", (Map)maps.get("manageUser")).reset("downUser", (Map)maps.get("downUser")).getParam();
+/*     */ 
+/* 156 */     param.put("diskId", diskId.toString());
+/* 157 */     int a = this.netdiskMapper.editNetdiskJurisdiction(param);
+/* 158 */     return a;
+/*     */   }
+/*     */ 
+/*     */   public NetdiskWrapper queryById(Integer diskId)
+/*     */   {
+/* 163 */     NetdiskWrapper wrapper = new NetdiskWrapper();
+/* 164 */     wrapper.setStatus(true);
+/* 165 */     Netdisk netdisk = this.netdiskMapper.queryNetdisk(diskId);
+/* 166 */     List useds = new ArrayList();
+/* 167 */     if (netdisk != null) {
+/* 168 */       String[] userIds = FileSortResetAuth.getAuthBase(netdisk.getUserId());
+/* 169 */       String[] newUsers = FileSortResetAuth.getAuthBase(netdisk.getNewUser());
+/* 170 */       String[] managerUsers = FileSortResetAuth.getAuthBase(netdisk.getManageUser());
+/* 171 */       String[] downUsers = FileSortResetAuth.getAuthBase(netdisk.getDownUser());
+/*     */ 
+/* 173 */       NetdiskBaseModel auth = new NetdiskBaseModel();
+/* 174 */       auth.setNewUser(getName(newUsers));
+/* 175 */       auth.setManageUser(getName(managerUsers));
+/* 176 */       auth.setDownUser(getName(downUsers));
+/* 177 */       auth.setUserId(getName(userIds));
+/* 178 */       wrapper.setData(auth);
+/* 179 */       wrapper.setNowFileSortName(netdisk.getDiskName());
+/* 180 */       if (userIds != null) {
+/* 181 */         useds.add("visit");
+/*     */       }
+/* 183 */       if (newUsers != null) {
+/* 184 */         useds.add("add");
+/*     */       }
+/* 186 */       if (managerUsers != null) {
+/* 187 */         useds.add("edit");
+/*     */       }
+/* 189 */       if (downUsers != null) {
+/* 190 */         useds.add("download");
+/* 191 */         wrapper.setUsed(useds);
+/* 192 */         wrapper.setFlag(true);
+/*     */       } else {
+/* 194 */         wrapper.setFlag(false);
+/* 195 */         wrapper.setMsg("还未设置权限");
+/*     */       }
+/*     */     }
+/*     */ 
+/* 199 */     return wrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrappers getNetDiskMenu(HttpServletRequest request)
+/*     */   {
+/* 210 */     BaseWrappers wrappers = new BaseWrappers();
+/* 211 */     List res = new ArrayList();
+/* 212 */     List realRes = new ArrayList();
+/*     */     try {
+/* 214 */       List<Netdisk> firstMenu = this.netdiskMapper.selectNetdisk();
+/* 215 */       if ((firstMenu != null) && (firstMenu.size() > 0)) {
+/* 216 */         for (Netdisk disk : firstMenu) {
+/* 217 */           EasyUiDiskModel model = new EasyUiDiskModel();
+/* 218 */           model.setId(disk.getDiskId());
+/* 219 */           model.setText(disk.getDiskName());
+/* 220 */           String path = disk.getDiskPath();
+/*     */ 
+/* 222 */           ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 223 */           String osName = System.getProperty("os.name");
+/* 224 */           StringBuffer sb = new StringBuffer();
+/* 225 */           if (osName.toLowerCase().startsWith("win"))
+/* 226 */             sb = sb.append(rb.getString("netdisk.win"));
+/*     */           else {
+/* 228 */             sb = sb.append(rb.getString("netdisk.linux"));
+/*     */           }
+/* 230 */           String basePath = sb.toString() + path;
+/* 231 */           Map attr = new HashMap();
+/* 232 */           attr.put("url", basePath);
+/* 233 */           model.setAttributes(attr);
+/* 234 */           res.add(model);
+/*     */         }
+/*     */       }
+/* 237 */       if ((res != null) && (res.size() > 0)) {
+/* 238 */         realRes = queryDir(res);
+/* 239 */         wrappers.setMsg("成功");
+/* 240 */         wrappers.setDatas(realRes);
+/* 241 */         wrappers.setFlag(true);
+/* 242 */         wrappers.setStatus(true);
+/*     */       } else {
+/* 244 */         wrappers.setMsg("失败");
+/* 245 */         wrappers.setDatas(realRes);
+/* 246 */         wrappers.setFlag(true);
+/* 247 */         wrappers.setStatus(true);
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 251 */       e.printStackTrace();
+/* 252 */       wrappers.setFlag(false);
+/* 253 */       wrappers.setMsg("出现异常");
+/*     */     }
+/*     */ 
+/* 256 */     return wrappers;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrappers selectNetdiskBySearch(HttpServletRequest request, String path, Integer orderType, Integer orderBy, String searchTitle, String content)
+/*     */   {
+/* 275 */     BaseWrappers wrappers = new BaseWrappers();
+/* 276 */     wrappers.setStatus(true);
+/* 277 */     wrappers.setFlag(false);
+/* 278 */     List<MyNetdisk> res = null;
+/*     */ 
+/* 289 */     if (StringUtils.checkNull(path).booleanValue()) {
+/* 290 */       wrappers.setMsg("路径不正确");
+/* 291 */       return wrappers;
+/*     */     }
+/* 293 */     File filePath = new File(path);
+/* 294 */     if (!filePath.exists()) {
+/* 295 */       wrappers.setMsg("路径不正确");
+/* 296 */       return wrappers;
+/*     */     }
+/*     */ 
+/* 299 */     if (!checkAuth(request, path, Integer.valueOf(1))) {
+/* 300 */       wrappers.setMsg("没有权限访问");
+/* 301 */       return wrappers;
+/*     */     }
+/*     */     try {
+/* 304 */       res = ReadFile.getFilesInPath(path);
+/* 305 */       for (MyNetdisk myNetdisk : res) {
+/* 306 */         myNetdisk.setUpdatePriv(checkAuth(request, path, Integer.valueOf(18)));
+/* 307 */         myNetdisk.setDownloadPriv(checkAuth(request, path, Integer.valueOf(19)));
+/* 308 */         myNetdisk.setShowPriv(checkAuth(request, path, Integer.valueOf(1)));
+/* 309 */         myNetdisk.setMakePriv(checkAuth(request, path, Integer.valueOf(17)));
+/*     */       }
+/*     */ 
+///* 312 */       Collections.sort(res, new Comparator<MyNetdisk>(orderType, orderBy)
+///*     */       {
+///*     */         public int compare(MyNetdisk o1, MyNetdisk o2) {
+///* 315 */           switch (orderType.intValue()) {
+///*     */           case 0:
+///* 317 */             return compareDetail(o1, o2);
+///*     */           case 1:
+///* 319 */             return compareDetail(o2, o1);
+///*     */           }
+///* 321 */           return compareDetail(o1, o2);
+///*     */         }
+///*     */ 
+///*     */         private int compareDetail(MyNetdisk o1, MyNetdisk o2) {
+///* 325 */           Collator instance = Collator.getInstance(Locale.CHINA);
+///* 326 */           switch (orderBy.intValue()) {
+///*     */           case 0:
+///* 328 */             return instance.compare(o1.getNeName(), o2.getNeName());
+///*     */           case 2:
+///* 330 */             return o1.getSize().compareTo(o2.getSize());
+///*     */           case 3:
+///* 332 */             return o1.getTime().compareTo(o2.getTime());
+///*     */           case 1:
+///* 334 */             return o1.getType().compareTo(o2.getType());
+///*     */           }
+///* 336 */           return instance.compare(o1.getNeName(), o2.getNeName());
+///*     */         }
+///*     */       });
+/* 341 */       wrappers.setFlag(true);
+/* 342 */       wrappers.setDatas(res);
+/* 343 */       wrappers.setStatus(true);
+/*     */     } catch (Exception e) {
+/* 345 */       e.printStackTrace();
+/* 346 */       wrappers.setFlag(false);
+/* 347 */       wrappers.setMsg("文件未找到");
+/* 348 */       wrappers.setStatus(true);
+/*     */     }
+/* 350 */     return wrappers;
+/*     */   }
+/*     */ 
+/*     */   public boolean checkAuth(HttpServletRequest request, String path, Integer authType)
+/*     */   {
+/* 355 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 356 */     Map map = new Hashtable();
+/* 357 */     map.put("userId", users.getUserId());
+/* 358 */     map.put("userPriv", users.getUserPriv());
+/* 359 */     map.put("deptId", users.getDeptId());
+/* 360 */     List<Netdisk> neList = selectNetdisk();
+/* 361 */     for (Netdisk disk : neList) {
+/* 362 */       File filePath = new File(path);
+/* 363 */       if (!filePath.exists())
+/*     */         continue;
+/* 365 */       ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 366 */       String osName = System.getProperty("os.name");
+/* 367 */       StringBuffer sb = new StringBuffer();
+/* 368 */       if (osName.toLowerCase().startsWith("win"))
+/* 369 */         sb = sb.append(rb.getString("netdisk.win"));
+/*     */       else {
+/* 371 */         sb = sb.append(rb.getString("netdisk.linux"));
+/*     */       }
+/* 373 */       String basePath = sb.toString() + disk.getDiskPath();
+/* 374 */       File fileDiskPath = new File(basePath);
+/* 375 */       if (fileDiskPath.exists()) {
+/* 376 */         boolean a = filePath.getPath().startsWith(fileDiskPath.getPath());
+/* 377 */         L.s(new Object[] { disk.getDiskPath(), ":", path, ":", Boolean.valueOf(path.startsWith(disk.getDiskPath())), ":", Boolean.valueOf(path.contains(disk.getDiskPath())) });
+/*     */ 
+/* 379 */         if (a) {
+/* 380 */           switch (authType.intValue()) {
+/*     */           case 17:
+/* 382 */             return CheckAll.checkAll(disk.getNewUser(), map);
+/*     */           case 1:
+/* 384 */             return CheckAll.checkAll(disk.getUserId(), map);
+/*     */           case 19:
+/* 386 */             return CheckAll.checkAll(disk.getDownUser(), map);
+/*     */           case 18:
+/* 388 */             return CheckAll.checkAll(disk.getManageUser(), map);
+/*     */           }
+/* 390 */           return false;
+/*     */         }
+/*     */       }
+/*     */     }
+/* 394 */     return false;
+/*     */   }
+/*     */ 
+/*     */   public Netdisk queryNetdiskold(String path)
+/*     */   {
+/* 399 */     Netdisk netdisk = this.netdiskMapper.queryNetdiskold(path);
+/* 400 */     if (netdisk != null) {
+/* 401 */       return netdisk;
+/*     */     }
+/* 403 */     return null;
+/*     */   }
+/*     */ 
+/*     */   private List<EasyUiDiskModel> queryDir(List<EasyUiDiskModel> res) throws Exception {
+/* 407 */     for (EasyUiDiskModel model : res) {
+/* 408 */       String url = (String)model.getAttributes().get("url");
+/* 409 */       List child = ReadFile.getDirs(url);
+/* 410 */       if (child != null) {
+/* 411 */         model.setChildren(queryDir(child));
+/*     */       }
+/*     */     }
+/* 414 */     return res;
+/*     */   }
+/*     */ 
+/*     */   public NetdiskBaseModel.NetdiskChildBaseModel getName(String[] ids)
+/*     */   {
+/*     */      NetdiskBaseModel tmp11_8 = new NetdiskBaseModel();
+			   tmp11_8.getClass();
+			   NetdiskBaseModel.NetdiskChildBaseModel child = tmp11_8.new NetdiskChildBaseModel();
+/*     */      NetdiskBaseModel tmp31_28 = new NetdiskBaseModel();
+			   tmp31_28.getClass();
+			   NetdiskBaseModel.NetdiskGrandChildModel grandChild = tmp31_28.new NetdiskGrandChildModel();
+/*     */ 
+/* 421 */     child.setDept("");
+/* 422 */     grandChild.setDeptStr("");
+/* 423 */     child.setUser("");
+/* 424 */     grandChild.setUserStr("");
+/* 425 */     child.setRole("");
+/* 426 */     grandChild.setRoleStr("");
+/* 427 */     child.setData(grandChild);
+/* 428 */     if (ids == null)
+/* 429 */       return child;
+/*     */     String dept;
+/*     */     String role;
+/*     */     String user;
+/* 434 */     switch (ids.length) {
+/*     */     case 0:
+/* 436 */       return child;
+/*     */     case 1:
+/* 438 */       dept = ids[0];
+/* 439 */       role = null;
+/* 440 */       user = null;
+/* 441 */       break;
+/*     */     case 2:
+/* 443 */       dept = ids[0];
+/* 444 */       role = ids[1];
+/* 445 */       user = null;
+/* 446 */       break;
+/*     */     case 3:
+/* 448 */       dept = ids[0];
+/* 449 */       role = ids[1];
+/* 450 */       user = ids[2];
+/* 451 */       break;
+/*     */     default:
+/* 453 */       return child;
+/*     */     }
+/*     */ 
+/* 456 */     if (!StringUtils.checkNull(dept).booleanValue()) {
+/* 457 */       String ret = "";
+/* 458 */       if ("ALL_DEPT".equals(dept)) {
+/* 459 */         ret = "全部部门";
+/*     */       } else {
+/* 461 */         List<String> depts = this.authMapper.getDeptName(dept);
+/* 462 */         StringBuffer sb = new StringBuffer();
+/* 463 */         for (String dep : depts) {
+/* 464 */           sb.append(dep);
+/* 465 */           sb.append(",");
+/*     */         }
+/* 467 */         ret = sb.toString();
+/*     */       }
+/* 469 */       child.setDept(dept);
+/* 470 */       grandChild.setDeptStr(ret);
+/*     */     } else {
+/* 472 */       child.setDept("");
+/* 473 */       grandChild.setDeptStr("");
+/*     */     }
+/* 475 */     if (!StringUtils.checkNull(role).booleanValue()) {
+/* 476 */       List<String> roles = this.authMapper.getRoleName(role);
+/* 477 */       StringBuffer sb = new StringBuffer();
+/* 478 */       for (String rol : roles) {
+/* 479 */         sb.append(rol);
+/* 480 */         sb.append(",");
+/*     */       }
+/* 482 */       child.setRole(role);
+/* 483 */       grandChild.setRoleStr(sb.toString());
+/*     */     }
+/*     */     else {
+/* 486 */       child.setRole("");
+/* 487 */       grandChild.setRoleStr("");
+/*     */     }
+/* 489 */     if (!StringUtils.checkNull(user).booleanValue()) {
+/* 490 */       List<String> users = this.authMapper.getUserName(user);
+/* 491 */       StringBuffer sb = new StringBuffer();
+/* 492 */       for (String us : users) {
+/* 493 */         sb.append(us);
+/* 494 */         sb.append(",");
+/*     */       }
+/* 496 */       child.setUser(user);
+/* 497 */       grandChild.setUserStr(sb.toString());
+/*     */     }
+/*     */     else {
+/* 500 */       child.setUser("");
+/* 501 */       grandChild.setUserStr("");
+/*     */     }
+/* 503 */     child.setData(grandChild);
+/* 504 */     return child;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.netdisk.impl.NetdiskServiceImpl
+ * JD-Core Version:    0.6.0
+ */

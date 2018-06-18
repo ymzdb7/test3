@@ -1,0 +1,45 @@
+/*    */ package com.xoa.controller.meeting;
+/*    */ 
+/*    */ import com.xoa.model.meet.MeetingWithBLOBs;
+/*    */ import com.xoa.service.meeting.MeetSummaryService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import javax.annotation.Resource;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.stereotype.Controller;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"/MeetSummary"})
+/*    */ public class MeetingSummaryController
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   private MeetSummaryService meetSummaryService;
+/*    */ 
+/*    */   @RequestMapping({"/getAllInfo"})
+/*    */   @ResponseBody
+/*    */   public ToJson<MeetingWithBLOBs> getAllInfo(Integer page, Integer pageSize, boolean useFlag, HttpServletRequest request)
+/*    */   {
+/* 33 */     return this.meetSummaryService.getAllInfo(page, pageSize, useFlag, request);
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/getMeetSummarydetail"})
+/*    */   @ResponseBody
+/*    */   public ToJson<MeetingWithBLOBs> getMeetSummarydetail(HttpServletRequest request, String sid)
+/*    */   {
+/* 45 */     return this.meetSummaryService.getMeetSummarydetail(request, sid);
+/*    */   }
+/*    */ 
+/*    */   @RequestMapping({"/editMeetSummarydetail"})
+/*    */   @ResponseBody
+/*    */   public ToJson<Object> editMeetSummarydetail(HttpServletRequest request, MeetingWithBLOBs meetingWithBLOBs)
+/*    */   {
+/* 57 */     return this.meetSummaryService.editMeetSummarydetail(request, meetingWithBLOBs);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.meeting.MeetingSummaryController
+ * JD-Core Version:    0.6.0
+ */

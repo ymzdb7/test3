@@ -1,0 +1,163 @@
+/*     */ package com.xoa.service.notes.impl;
+/*     */ 
+/*     */ import com.xoa.dao.notes.NotesMapper;
+/*     */ import com.xoa.model.notes.Notes;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.notes.NotesService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class NotesServiceImpl
+/*     */   implements NotesService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private NotesMapper notesMapper;
+/*     */ 
+/*     */   public ToJson<Notes> insertNotes(Notes notes, Users user)
+/*     */   {
+/*  35 */     ToJson json = new ToJson();
+/*     */     try {
+/*  37 */       int uId = user.getUid().intValue();
+/*  38 */       notes.setUid(Integer.valueOf(uId));
+/*  39 */       String currentTime = String.valueOf(new Date().getTime() / 1000L);
+/*  40 */       int time = Integer.valueOf(currentTime).intValue();
+/*     */ 
+/*  42 */       notes.setCreateTime(Integer.valueOf(time));
+/*  43 */       notes.setEditTime(Integer.valueOf(time));
+/*  44 */       notes.setShowFlag("1");
+/*  45 */       this.notesMapper.insertNotes(notes);
+/*  46 */       json.setFlag(0);
+/*  47 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/*  49 */       e.printStackTrace();
+/*  50 */       json.setFlag(1);
+/*  51 */       json.setMsg("err");
+/*     */     }
+/*  53 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Notes> selectNotes(Users user)
+/*     */   {
+/*  62 */     ToJson json = new ToJson();
+/*     */     try {
+/*  64 */       int uid = user.getUid().intValue();
+/*  65 */       List notesList = this.notesMapper.selectNotes(Integer.valueOf(uid));
+/*  66 */       json.setObj(notesList);
+/*  67 */       json.setFlag(0);
+/*  68 */       json.setMsg("ok");
+/*     */     }
+/*     */     catch (Exception e) {
+/*  71 */       e.printStackTrace();
+/*  72 */       json.setFlag(1);
+/*  73 */       json.setMsg("err");
+/*     */     }
+/*  75 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Notes> selectNotesPagination(Users user, Map<String, Object> maps, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*  84 */     ToJson json = new ToJson();
+/*  85 */     PageParams pageParams = new PageParams();
+/*  86 */     pageParams.setPage(page);
+/*  87 */     pageParams.setPageSize(pageSize);
+/*  88 */     pageParams.setUseFlag(Boolean.valueOf(useFlag));
+/*  89 */     maps.put("page", pageParams);
+/*  90 */     int uid = user.getUid().intValue();
+/*  91 */     Notes notes = new Notes();
+/*  92 */     notes.setUid(Integer.valueOf(uid));
+/*  93 */     maps.put("notes", notes);
+/*     */     try
+/*     */     {
+/*  96 */       List notesList = this.notesMapper.selectNotesPagination(maps);
+/*  97 */       json.setTotleNum(pageParams.getTotal());
+/*  98 */       json.setObj(notesList);
+/*  99 */       json.setFlag(0);
+/* 100 */       json.setMsg("ok");
+/*     */     }
+/*     */     catch (Exception e) {
+/* 103 */       e.printStackTrace();
+/* 104 */       json.setFlag(1);
+/* 105 */       json.setMsg("err");
+/*     */     }
+/* 107 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Notes> selectNewNote(Users user)
+/*     */   {
+/* 116 */     ToJson json = new ToJson();
+/*     */     try {
+/* 118 */       int uid = user.getUid().intValue();
+/* 119 */       Notes notes = this.notesMapper.selectNewNote(Integer.valueOf(uid));
+/* 120 */       json.setObject(notes);
+/* 121 */       json.setFlag(0);
+/* 122 */       json.setMsg("ok");
+/*     */     }
+/*     */     catch (Exception e) {
+/* 125 */       e.printStackTrace();
+/* 126 */       json.setFlag(1);
+/* 127 */       json.setMsg("err");
+/*     */     }
+/* 129 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Notes> selectNotesByPrimaryKey(Integer noteId)
+/*     */   {
+/* 138 */     ToJson json = new ToJson();
+/*     */     try {
+/* 140 */       Notes notes = this.notesMapper.selectNotesByPrimaryKey(noteId);
+/* 141 */       json.setObject(notes);
+/* 142 */       json.setFlag(0);
+/* 143 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 145 */       e.printStackTrace();
+/* 146 */       json.setFlag(1);
+/* 147 */       json.setMsg("err");
+/*     */     }
+/* 149 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Notes> deleteByPrimaryKey(Integer noteId)
+/*     */   {
+/* 158 */     ToJson json = new ToJson();
+/*     */     try {
+/* 160 */       this.notesMapper.deleteByPrimaryKey(noteId);
+/* 161 */       json.setFlag(0);
+/* 162 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 164 */       e.printStackTrace();
+/* 165 */       json.setFlag(1);
+/* 166 */       json.setMsg("err");
+/*     */     }
+/* 168 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Notes> updateByPrimaryKey(Notes notes)
+/*     */   {
+/* 177 */     ToJson json = new ToJson();
+/*     */     try {
+/* 179 */       String currentTime = String.valueOf(new Date().getTime() / 1000L);
+/* 180 */       int time = Integer.valueOf(currentTime).intValue();
+/* 181 */       notes.setEditTime(Integer.valueOf(time));
+/* 182 */       this.notesMapper.updateByPrimaryKey(notes);
+/* 183 */       json.setFlag(0);
+/* 184 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 186 */       e.printStackTrace();
+/* 187 */       json.setFlag(1);
+/* 188 */       json.setMsg("err");
+/*     */     }
+/* 190 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.notes.impl.NotesServiceImpl
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,635 @@
+package com.xoa.controller.notify;
+
+import com.xoa.model.department.Department;
+import com.xoa.model.notify.Notify;
+import com.xoa.model.users.Users;
+import com.xoa.service.notify.NotifyService;
+import com.xoa.service.sms.SmsService;
+import com.xoa.util.Constant;
+import com.xoa.util.DateFormat;
+import com.xoa.util.ExcelUtil;
+import com.xoa.util.ToJson;
+import com.xoa.util.common.L;
+import com.xoa.util.common.StringUtils;
+import com.xoa.util.common.log.FileUtils;
+import com.xoa.util.common.session.SessionUtils;
+import com.xoa.util.common.wrapper.BaseWrapper;
+import com.xoa.util.dataSource.ContextHolder;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@Scope("prototype")
+@RequestMapping({ "/notice" })
+public class NotifyController {
+	private Logger loger = Logger.getLogger(NotifyController.class);
+
+	@Resource
+	private NotifyService notifyService;
+	private String err = "err";
+	private String ok = "ok";
+
+	@Resource
+	private SmsService smsService;
+
+	@RequestMapping({ "/index" })
+	public String clickNews(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/notice/notice";
+	}
+
+	@RequestMapping({ "/manage" })
+	public String manage(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/notice/noticeManage";
+	}
+
+	@RequestMapping({ "/noticeManagement" })
+	public String noticeManagement(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/notice/noticeManagement/noticeManagement";
+	}
+
+	@RequestMapping({ "/management" })
+	public String management(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/notice/noticeManagement/management";
+	}
+
+	@RequestMapping({ "/newAndEdit" })
+	public String newAndEdit(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/notice/noticeManagement/newAndEdit";
+	}
+
+	@RequestMapping({ "/theQuery" })
+	public String theQuery(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/notice/noticeManagement/theQuery";
+	}
+
+	@RequestMapping({ "/statistical" })
+	public String statistical(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/notice/noticeManagement/statistical";
+	}
+
+	@RequestMapping({ "/allNotifications" })
+	public String allNotifications(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/notice/allNotifications/allNotifications";
+	}
+
+	@RequestMapping({ "/unread" })
+	public String unread(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/notice/allNotifications/unread";
+	}
+
+	@RequestMapping({ "/InformTheView" })
+	public String InformTheView(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/notice/allNotifications/InformTheView";
+	}
+
+	@RequestMapping({ "/queryAll" })
+	public String queryAll(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/notice/allNotifications/queryAll";
+	}
+
+	@RequestMapping({ "/detail" })
+	public String details(HttpServletRequest request, String notifyId) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		String visitUrl = request.getRequestURI();
+		visitUrl = visitUrl + "?notifyId=" + notifyId;
+		this.smsService.setRead(request, visitUrl);
+		return "app/notice/noticeDerail";
+	}
+
+	@RequestMapping({ "/add" })
+	public String add(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/notice/add";
+	}
+
+	@RequestMapping({ "/noticeQuery" })
+	public String noticeQuery(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/notice/noticeQuery";
+	}
+
+	@RequestMapping({ "/notificAtion" })
+	public String notificAtion(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/sys/notificAtion";
+	}
+
+	@RequestMapping({ "/finddetail" })
+	public String finddetail(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/notice/find_detail";
+	}
+
+	@RequestMapping({ "/appprove" })
+	public String appprove(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/notice/noticeApprove";
+	}
+
+	@RequestMapping(value = { "/notifyManage" }, method = { org.springframework.web.bind.annotation.RequestMethod.GET }, produces = { "application/json;charset=UTF-8" })
+	@ResponseBody
+	public ToJson<Notify> notifyManage(
+			@RequestParam(value = "format", required = false) String format,
+			@RequestParam(value = "typeId", required = false) String typeId,
+			@RequestParam(value = "top", required = false) String top,
+			@RequestParam(value = "publish", required = false) String publish,
+			@RequestParam(value = "subject", required = false) String subject,
+			@RequestParam(value = "lastEditTime", required = false) String lastEditTime,
+			@RequestParam(value = "content", required = false) String content,
+			@RequestParam(value = "fromDept", required = false) String fromDept,
+			@RequestParam(value = "sendTime", required = false) String sendTime,
+			@RequestParam(value = "fromId", required = false) String fromId,
+			@RequestParam(value = "toId", required = false) String toId,
+			@RequestParam(value = "beginDate", required = false) String beginDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "read", required = false) String read,
+			@RequestParam("page") Integer page,
+			@RequestParam("pageSize") Integer pageSize,
+			@RequestParam("useFlag") Boolean useFlag,
+			HttpServletRequest request, String queryField) {
+		String sqlType = Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse");
+
+		ContextHolder.setConsumerType(sqlType);
+		Users users = (Users) SessionUtils.getSessionInfo(request.getSession(),
+				Users.class, new Users());
+		String userId = null;
+		String userPriv = null;
+		String deptId = null;
+		if ((users != null) && (users.getUserId() != null)) {
+			userId = users.getUserId();
+			userPriv = users.getUserPriv() + "";
+			deptId = users.getDeptId() + "";
+		}
+		Map maps = new HashMap();
+		maps.put("format", format);
+		if ("0".equals(typeId))
+			typeId = null;
+		else {
+			maps.put("typeId", typeId);
+		}
+		if ((!"".equals(fromId)) && (fromId != null)) {
+			fromId = fromId.substring(0, fromId.length() - 1);
+		}
+		Date dt = new Date();
+		SimpleDateFormat matter1 = new SimpleDateFormat("yyyy-MM-dd");
+		String data = matter1.format(dt);
+
+		maps.put("top", top);
+		maps.put("publish", publish);
+		maps.put("subject", subject);
+		maps.put("lastEditTime", lastEditTime);
+		maps.put("content", content);
+		maps.put("fromDept", fromDept);
+		maps.put("sendTime", sendTime);
+		maps.put("fromId", fromId);
+		maps.put("toId", toId);
+		maps.put("beginDate", beginDate);
+		maps.put("endDate", endDate);
+		maps.put("userId", userId);
+		maps.put("userPriv", userPriv);
+		maps.put("deptId", deptId);
+		maps.put("notifyTime", data);
+		maps.put("queryField", queryField);
+
+		String name = ((Users) SessionUtils.getSessionInfo(
+				request.getSession(), Users.class, new Users())).getUserId();
+		maps.put("name", name);
+		ToJson tojson = new ToJson(0, "");
+		try {
+			if ("0".equals(read)) {
+				ToJson tojson1 = this.notifyService.unreadNotify(maps, page,
+						pageSize, useFlag.booleanValue(), name, sqlType);
+
+				if (tojson1.getObj().size() > 0) {
+					tojson1.setFlag(0);
+					tojson1.setMsg(this.ok);
+					tojson = tojson1;
+				} else {
+					tojson1.setFlag(1);
+					tojson1.setMsg(this.err);
+					tojson = tojson1;
+				}
+			} else if ("1".equals(read)) {
+				ToJson tojson2 = this.notifyService.readNotify(maps, page,
+						pageSize, useFlag.booleanValue(), name, sqlType);
+
+				if (tojson2.getObj().size() > 0) {
+					tojson2.setFlag(0);
+					tojson2.setMsg(this.ok);
+					tojson = tojson2;
+				} else {
+					tojson2.setFlag(1);
+					tojson2.setMsg(this.err);
+					tojson = tojson2;
+				}
+			} else {
+				ToJson list = this.notifyService.selectNotifyManage(maps, page,
+						pageSize, useFlag.booleanValue(), name, sqlType);
+
+				if (list.getObj().size() > 0) {
+					list.setFlag(0);
+					list.setMsg(this.ok);
+					tojson = list;
+				} else {
+					list.setFlag(1);
+					list.setMsg(this.err);
+					tojson = list;
+				}
+			}
+		} catch (Exception e) {
+			this.loger.debug("notifyManage:" + e);
+			this.err = "err";
+			tojson.setFlag(1);
+		}
+		return tojson;
+	}
+
+	@RequestMapping(value = { "/notifyList" }, method = { org.springframework.web.bind.annotation.RequestMethod.GET }, produces = { "application/json;charset=UTF-8" })
+	@ResponseBody
+	public ToJson<Notify> notifyList(
+			@RequestParam(value = "format", required = false) String format,
+			@RequestParam(value = "typeId", required = false) String typeId,
+			@RequestParam(value = "top", required = false) String top,
+			@RequestParam(value = "publish", required = false) String publish,
+			@RequestParam(value = "subject", required = false) String subject,
+			@RequestParam(value = "lastEditTime", required = false) String lastEditTime,
+			@RequestParam(value = "content", required = false) String content,
+			@RequestParam(value = "fromDept", required = false) String fromDept,
+			@RequestParam(value = "sendTime", required = false) String sendTime,
+			@RequestParam(value = "fromId", required = false) String fromId,
+			@RequestParam(value = "toId", required = false) String toId,
+			@RequestParam(value = "read", required = false) String read,
+			@RequestParam(value = "beginDate", required = false) String beginDate,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam("page") Integer page,
+			@RequestParam("pageSize") Integer pageSize,
+			@RequestParam("useFlag") Boolean useFlag,
+			HttpServletRequest request, HttpServletResponse response,
+			String exportId, String changeId) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		Map maps = new HashMap();
+		maps.put("format", format);
+		if ("0".equals(typeId)) {
+			typeId = null;
+		}
+		if ((!"".equals(fromId)) && (fromId != null)) {
+			fromId = fromId.substring(0, fromId.length() - 1);
+		}
+		maps.put("typeId", typeId);
+		maps.put("top", top);
+		maps.put("publish", publish);
+		maps.put("subject", subject);
+		maps.put("lastEditTime", lastEditTime);
+		maps.put("content", content);
+		maps.put("fromDept", fromDept);
+		maps.put("sendTime", sendTime);
+		maps.put("fromId", fromId);
+		maps.put("toId", toId);
+		maps.put("beginDate", beginDate);
+		maps.put("endDate", endDate);
+		maps.put("changeId", changeId);
+		ToJson returnReslt = new ToJson(0, "");
+		Users name = (Users) SessionUtils.getSessionInfo(request.getSession(),
+				Users.class, new Users());
+		try {
+			ToJson notifyToJson = this.notifyService.selectNotify(maps, page,
+					pageSize, useFlag.booleanValue(), name.getUserId());
+			if ("1".equals(exportId))
+				returnReslt = notifyToJson;
+			else if ("2".equals(exportId)) {
+				try {
+					List list = notifyToJson.getObj();
+					HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("公告信息导出",
+							9);
+					String[] secondTitles = { "发布人", "类型", "标题", "发布时间",
+							"生效日期", "终止日期", "状态", "附件名称", "内容" };
+					HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(
+							workbook1, secondTitles);
+
+					String[] beanProperty = { "name", "typeName", "subject",
+							"notifyDateTime", "begin", "end", "publish",
+							"attachmentName", "content" };
+
+					HSSFWorkbook workbook = ExcelUtil.exportExcelData(
+							workbook2, list, beanProperty);
+					ServletOutputStream out = response.getOutputStream();
+
+					String filename = "公告信息导出.xls";
+					filename = FileUtils.encodeDownloadFilename(filename,
+							request.getHeader("user-agent"));
+
+					response.setContentType("application/vnd.ms-excel");
+					response.setHeader("content-disposition",
+							"attachment;filename=" + filename);
+
+					workbook.write(out);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			L.e(new Object[] { e.getMessage() });
+		}
+		return returnReslt;
+	}
+
+	@RequestMapping(value = { "/getOneById" }, method = { org.springframework.web.bind.annotation.RequestMethod.GET }, produces = { "application/json;charset=UTF-8" })
+	@ResponseBody
+	public ToJson<Notify> getOneById(
+			@RequestParam("notifyId") Integer notifyId, Integer permissionId,
+			String changId, HttpServletRequest request, String type) {
+		String sqlType = Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse");
+
+		ContextHolder.setConsumerType(sqlType);
+
+		Map maps = new HashMap();
+		Users users = (Users) SessionUtils.getSessionInfo(request.getSession(),
+				Users.class, new Users());
+		String userId = null;
+		String userPriv = null;
+		String deptId = null;
+		if ((users != null) && (users.getUserId() != null)) {
+			userId = users.getUserId();
+			userPriv = users.getUserPriv() + "";
+			deptId = users.getDeptId() + "";
+		}
+		maps.put("userId", userId);
+		maps.put("userPriv", userPriv);
+		maps.put("deptId", deptId);
+		maps.put("notifyId", notifyId);
+		maps.put("type", type);
+		ToJson toJson = new ToJson(0, "");
+		String name = ((Users) SessionUtils.getSessionInfo(
+				request.getSession(), Users.class, new Users())).getUserId();
+		try {
+			Notify notify = this.notifyService.queryById(maps,
+					Integer.valueOf(1), Integer.valueOf(20), false, name,
+					sqlType, changId);
+			toJson.setMsg("success");
+			toJson.setObject(notify);
+			return toJson;
+		} catch (Exception e) {
+			toJson.setMsg("fail");
+		}
+		return toJson;
+	}
+
+	@ResponseBody
+	@RequestMapping(value = { "/updateNotify" }, produces = { "application/json;charset=UTF-8" })
+	public ToJson updateNotify(
+			Notify notify,
+			HttpServletRequest request,
+			@RequestParam("notifyId") Integer notifyId,
+			String sendTimes,
+			@RequestParam(name = "lastEditTimes", required = false) String lastEditTimes,
+			@RequestParam(value = "beginDates", required = false) String beginDates,
+			@RequestParam(value = "endDates", required = false) String endDates,
+			@RequestParam(value = "remind", required = false, defaultValue = "0") String remind) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		notify.setNotifyId(notifyId);
+		notify.setReaders("");
+		String tuisong = request.getParameter("tuisong");
+		if (!StringUtils.checkNull(sendTimes).booleanValue()) {
+			notify.setSendTime(DateFormat.getDate(sendTimes));
+		}
+		if (!StringUtils.checkNull(beginDates).booleanValue()) {
+			notify.setBeginDate(DateFormat.getDateTime(beginDates));
+		}
+		if (!StringUtils.checkNull(endDates).booleanValue()) {
+			notify.setEndDate(DateFormat.getDateTime(endDates));
+		}
+		if (!StringUtils.checkNull(lastEditTimes).booleanValue()) {
+			notify.setLastEditTime(DateFormat.getDate(lastEditTimes));
+		}
+
+		ToJson toJson = new ToJson();
+		try {
+			if ((notify.getPublish() != null)
+					&& (!"".equals(notify.getPublish()))
+					&& (("1".equals(notify.getPublish())) || ("3".equals(notify
+							.getPublish())))) {
+				Date date = new Date();
+
+				SimpleDateFormat sdf = new SimpleDateFormat(
+						"yyyy-MM-dd HH:mm:ss");
+
+				String createdate = sdf.format(date);
+				Date date1 = sdf.parse(createdate);
+				notify.setSendTime(date1);
+			}
+
+			this.notifyService.updateNotify(notify, remind, tuisong, request);
+			toJson.setFlag(0);
+			toJson.setMsg("ok");
+			return toJson;
+		} catch (Exception e) {
+			e.printStackTrace();
+			toJson.setFlag(1);
+			toJson.setMsg("error");
+			this.loger.debug("addNotify:" + e);
+		}
+		return toJson;
+	}
+
+	@RequestMapping(value = { "/addNotify" }, method = { org.springframework.web.bind.annotation.RequestMethod.POST }, produces = { "application/json;charset=UTF-8" })
+	@ResponseBody
+	public ToJson<Notify> addNotify(
+			Notify notify,
+			String sendTimes,
+			HttpServletRequest request,
+			String beginDates,
+			String endDates,
+			@RequestParam(value = "remind", required = false, defaultValue = "0") String remind) {
+		String tuisong = request.getParameter("tuisong");
+		ToJson toJson = new ToJson(0, "");
+		Users name = (Users) SessionUtils.getSessionInfo(request.getSession(),
+				Users.class, new Users());
+		notify.setFromId(name.getUserId());
+		if (!StringUtils.checkNull(beginDates).booleanValue()) {
+			notify.setBeginDate(DateFormat.getDateTime(beginDates));
+		}
+		if (!StringUtils.checkNull(endDates).booleanValue()) {
+			notify.setEndDate(DateFormat.getDateTime(endDates));
+		}
+		notify.setFromDept(name.getDeptId());
+		notify.setSendTime(DateFormat.getDate(sendTimes));
+		Date curDate = new Date(System.currentTimeMillis());
+		notify.setLastEditTime(curDate);
+		try {
+			int b = this.notifyService.addNotify(notify, remind, tuisong,
+					request);
+			if (b > 0) {
+				toJson.setFlag(0);
+				toJson.setMsg("success");
+			} else {
+				toJson.setFlag(1);
+				toJson.setMsg("err");
+			}
+		} catch (Exception e) {
+			this.loger.debug("addNotify:" + e);
+			e.printStackTrace();
+		}
+		return toJson;
+	}
+
+	@RequestMapping(value = { "/deleteById" }, produces = { "application/json;charset=UTF-8" })
+	@ResponseBody
+	public ToJson<Notify> deleteById(
+			@RequestParam("notifyId") Integer notifyId,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		ToJson toJson = new ToJson(0, "");
+		try {
+			this.notifyService.delete(notifyId);
+			toJson.setMsg("ok");
+			return toJson;
+		} catch (Exception e) {
+			toJson.setMsg("err");
+		}
+		return toJson;
+	}
+
+	@RequestMapping({ "/deleteByIds" })
+	@ResponseBody
+	public ToJson<Notify> deleteByIds(
+			@RequestParam("notifyIds[]") String[] notifyIds) {
+		return this.notifyService.deleteByids(notifyIds);
+	}
+
+	@RequestMapping({ "/updateByIds" })
+	@ResponseBody
+	public ToJson<Notify> updateByIds(
+			@RequestParam("notifyIds[]") String[] notifyIds, String top) {
+		return this.notifyService.updateByids(notifyIds, top);
+	}
+
+	@RequestMapping({ "/querySituation" })
+	@ResponseBody
+	public ToJson<Notify> querySituation(String notifyId) {
+		return this.notifyService.ConsultTheSituationNotify(notifyId);
+	}
+
+	public static String returnValue(String value) {
+		if (value != null) {
+			return value;
+		}
+		return "";
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getNotifyGroupFromDept" })
+	public ToJson<Department> getNotifyGroupFromDept(Notify notify) {
+		return this.notifyService.getNotifyGroupFromDept(notify);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getNotifyByFromDept" })
+	public ToJson<Notify> getNotifyByFromDept(Notify notify) {
+		return this.notifyService.getNotifyByFromDept(notify);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getNotifyByFromIdAndDept" })
+	public ToJson<Notify> getNotifyByFromIdAndDept(Notify notify) {
+		return this.notifyService.getNotifyByFromIdAndDept(notify);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/getNotifyByNotifyId" })
+	public ToJson<Notify> getNotifyByNotifyId(String notifyId) {
+		return this.notifyService.getNotifyByNotifyId(notifyId);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/outputNotify" })
+	public ToJson<Notify> outputNotify(int step, Notify notify,
+			HttpServletRequest request, HttpServletResponse response) {
+		return this.notifyService.outputNotify(step, notify, request, response);
+	}
+
+	@RequestMapping({ "/subjectDetail" })
+	public String subjectDetail(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/notice/subjectDetail";
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selectByType" })
+	public BaseWrapper selectByType() {
+		return this.notifyService.selectByType();
+	}
+}

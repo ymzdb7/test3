@@ -1,0 +1,655 @@
+ package com.myoa.model.customNumber;
+ 
+ import java.util.ArrayList;
+ import java.util.Date;
+ import java.util.List;
+ 
+ public class CustomNumberRecordExample
+ {
+   protected String orderByClause;
+   protected boolean distinct;
+   protected List<Criteria> oredCriteria;
+ 
+   public CustomNumberRecordExample()
+   {
+     this.oredCriteria = new ArrayList();
+   }
+ 
+   public void setOrderByClause(String orderByClause)
+   {
+     this.orderByClause = orderByClause;
+   }
+ 
+   public String getOrderByClause()
+   {
+     return this.orderByClause;
+   }
+ 
+   public void setDistinct(boolean distinct)
+   {
+     this.distinct = distinct;
+   }
+ 
+   public boolean isDistinct()
+   {
+     return this.distinct;
+   }
+ 
+   public List<Criteria> getOredCriteria()
+   {
+     return this.oredCriteria;
+   }
+ 
+   public void or(Criteria criteria)
+   {
+     this.oredCriteria.add(criteria);
+   }
+ 
+   public Criteria or()
+   {
+     Criteria criteria = createCriteriaInternal();
+     this.oredCriteria.add(criteria);
+     return criteria;
+   }
+ 
+   public Criteria createCriteria()
+   {
+     Criteria criteria = createCriteriaInternal();
+     if (this.oredCriteria.size() == 0) {
+       this.oredCriteria.add(criteria);
+     }
+     return criteria;
+   }
+ 
+   protected Criteria createCriteriaInternal()
+   {
+     Criteria criteria = new Criteria();
+     return criteria;
+   }
+ 
+   public void clear()
+   {
+     this.oredCriteria.clear();
+     this.orderByClause = null;
+     this.distinct = false;
+   }
+ 
+   public static class Criterion
+   {
+     private String condition;
+     private Object value;
+     private Object secondValue;
+     private boolean noValue;
+     private boolean singleValue;
+     private boolean betweenValue;
+     private boolean listValue;
+     private String typeHandler;
+ 
+     public String getCondition()
+     {
+       return this.condition;
+     }
+ 
+     public Object getValue() {
+       return this.value;
+     }
+ 
+     public Object getSecondValue() {
+       return this.secondValue;
+     }
+ 
+     public boolean isNoValue() {
+       return this.noValue;
+     }
+ 
+     public boolean isSingleValue() {
+       return this.singleValue;
+     }
+ 
+     public boolean isBetweenValue() {
+       return this.betweenValue;
+     }
+ 
+     public boolean isListValue() {
+       return this.listValue;
+     }
+ 
+     public String getTypeHandler() {
+       return this.typeHandler;
+     }
+ 
+     protected Criterion(String condition)
+     {
+       this.condition = condition;
+       this.typeHandler = null;
+       this.noValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value, String typeHandler)
+     {
+       this.condition = condition;
+       this.value = value;
+       this.typeHandler = typeHandler;
+       if ((value instanceof List))
+         this.listValue = true;
+       else
+         this.singleValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value)
+     {
+       this(condition, value, null);
+     }
+ 
+     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+     {
+       this.condition = condition;
+       this.value = value;
+       this.secondValue = secondValue;
+       this.typeHandler = typeHandler;
+       this.betweenValue = true;
+     }
+ 
+     protected Criterion(String condition, Object value, Object secondValue) {
+       this(condition, value, secondValue, null);
+     }
+   }
+ 
+   public static class Criteria extends CustomNumberRecordExample.GeneratedCriteria
+   {
+   }
+ 
+   protected static abstract class GeneratedCriteria
+   {
+     protected List<CustomNumberRecordExample.Criterion> criteria;
+ 
+     protected GeneratedCriteria()
+     {
+       this.criteria = new ArrayList();
+     }
+ 
+     public boolean isValid() {
+       return this.criteria.size() > 0;
+     }
+ 
+     public List<CustomNumberRecordExample.Criterion> getAllCriteria() {
+       return this.criteria;
+     }
+ 
+     public List<CustomNumberRecordExample.Criterion> getCriteria() {
+       return this.criteria;
+     }
+ 
+     protected void addCriterion(String condition) {
+       if (condition == null) {
+         throw new RuntimeException("Value for condition cannot be null");
+       }
+       this.criteria.add(new CustomNumberRecordExample.Criterion(condition));
+     }
+ 
+     protected void addCriterion(String condition, Object value, String property) {
+       if (value == null) {
+         throw new RuntimeException("Value for " + property + " cannot be null");
+       }
+       this.criteria.add(new CustomNumberRecordExample.Criterion(condition, value));
+     }
+ 
+     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+       if ((value1 == null) || (value2 == null)) {
+         throw new RuntimeException("Between values for " + property + " cannot be null");
+       }
+       this.criteria.add(new CustomNumberRecordExample.Criterion(condition, value1, value2));
+     }
+ 
+     public CustomNumberRecordExample.Criteria andUuidIsNull() {
+       addCriterion("uuid is null");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andUuidIsNotNull() {
+       addCriterion("uuid is not null");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andUuidEqualTo(Integer value) {
+       addCriterion("uuid =", value, "uuid");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andUuidNotEqualTo(Integer value) {
+       addCriterion("uuid <>", value, "uuid");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andUuidGreaterThan(Integer value) {
+       addCriterion("uuid >", value, "uuid");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+
+    public CustomNumberRecordExample.Criteria andUuidGreaterThanOrEqualTo(Integer value) {
+      addCriterion("uuid >=", value, "uuid");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andUuidLessThan(Integer value) {
+      addCriterion("uuid <", value, "uuid");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andUuidLessThanOrEqualTo(Integer value) {
+      addCriterion("uuid <=", value, "uuid");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andUuidIn(List<Integer> values) {
+      addCriterion("uuid in", values, "uuid");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andUuidNotIn(List<Integer> values) {
+      addCriterion("uuid not in", values, "uuid");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andUuidBetween(Integer value1, Integer value2) {
+      addCriterion("uuid between", value1, value2, "uuid");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andUuidNotBetween(Integer value1, Integer value2) {
+      addCriterion("uuid not between", value1, value2, "uuid");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCustomNumberIdIsNull() {
+      addCriterion("CUSTOM_NUMBER_ID is null");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCustomNumberIdIsNotNull() {
+      addCriterion("CUSTOM_NUMBER_ID is not null");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCustomNumberIdEqualTo(Integer value) {
+      addCriterion("CUSTOM_NUMBER_ID =", value, "customNumberId");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCustomNumberIdNotEqualTo(Integer value) {
+      addCriterion("CUSTOM_NUMBER_ID <>", value, "customNumberId");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCustomNumberIdGreaterThan(Integer value) {
+      addCriterion("CUSTOM_NUMBER_ID >", value, "customNumberId");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCustomNumberIdGreaterThanOrEqualTo(Integer value) {
+      addCriterion("CUSTOM_NUMBER_ID >=", value, "customNumberId");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCustomNumberIdLessThan(Integer value) {
+      addCriterion("CUSTOM_NUMBER_ID <", value, "customNumberId");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCustomNumberIdLessThanOrEqualTo(Integer value) {
+      addCriterion("CUSTOM_NUMBER_ID <=", value, "customNumberId");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCustomNumberIdIn(List<Integer> values) {
+      addCriterion("CUSTOM_NUMBER_ID in", values, "customNumberId");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCustomNumberIdNotIn(List<Integer> values) {
+      addCriterion("CUSTOM_NUMBER_ID not in", values, "customNumberId");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCustomNumberIdBetween(Integer value1, Integer value2) {
+      addCriterion("CUSTOM_NUMBER_ID between", value1, value2, "customNumberId");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCustomNumberIdNotBetween(Integer value1, Integer value2) {
+      addCriterion("CUSTOM_NUMBER_ID not between", value1, value2, "customNumberId");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberStyleIsNull() {
+      addCriterion("NUMBER_STYLE is null");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberStyleIsNotNull() {
+      addCriterion("NUMBER_STYLE is not null");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberStyleEqualTo(String value) {
+      addCriterion("NUMBER_STYLE =", value, "numberStyle");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberStyleNotEqualTo(String value) {
+      addCriterion("NUMBER_STYLE <>", value, "numberStyle");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberStyleGreaterThan(String value) {
+      addCriterion("NUMBER_STYLE >", value, "numberStyle");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberStyleGreaterThanOrEqualTo(String value) {
+      addCriterion("NUMBER_STYLE >=", value, "numberStyle");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberStyleLessThan(String value) {
+      addCriterion("NUMBER_STYLE <", value, "numberStyle");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberStyleLessThanOrEqualTo(String value) {
+      addCriterion("NUMBER_STYLE <=", value, "numberStyle");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberStyleLike(String value) {
+      addCriterion("NUMBER_STYLE like", value, "numberStyle");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberStyleNotLike(String value) {
+      addCriterion("NUMBER_STYLE not like", value, "numberStyle");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberStyleIn(List<String> values) {
+      addCriterion("NUMBER_STYLE in", values, "numberStyle");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberStyleNotIn(List<String> values) {
+      addCriterion("NUMBER_STYLE not in", values, "numberStyle");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberStyleBetween(String value1, String value2) {
+      addCriterion("NUMBER_STYLE between", value1, value2, "numberStyle");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberStyleNotBetween(String value1, String value2) {
+      addCriterion("NUMBER_STYLE not between", value1, value2, "numberStyle");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberValueIsNull() {
+      addCriterion("NUMBER_VALUE is null");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberValueIsNotNull() {
+      addCriterion("NUMBER_VALUE is not null");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberValueEqualTo(Integer value) {
+      addCriterion("NUMBER_VALUE =", value, "numberValue");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberValueNotEqualTo(Integer value) {
+      addCriterion("NUMBER_VALUE <>", value, "numberValue");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberValueGreaterThan(Integer value) {
+      addCriterion("NUMBER_VALUE >", value, "numberValue");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberValueGreaterThanOrEqualTo(Integer value) {
+      addCriterion("NUMBER_VALUE >=", value, "numberValue");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberValueLessThan(Integer value) {
+      addCriterion("NUMBER_VALUE <", value, "numberValue");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberValueLessThanOrEqualTo(Integer value) {
+      addCriterion("NUMBER_VALUE <=", value, "numberValue");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberValueIn(List<Integer> values) {
+      addCriterion("NUMBER_VALUE in", values, "numberValue");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberValueNotIn(List<Integer> values) {
+      addCriterion("NUMBER_VALUE not in", values, "numberValue");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberValueBetween(Integer value1, Integer value2) {
+      addCriterion("NUMBER_VALUE between", value1, value2, "numberValue");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andNumberValueNotBetween(Integer value1, Integer value2) {
+      addCriterion("NUMBER_VALUE not between", value1, value2, "numberValue");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCrTimeIsNull() {
+      addCriterion("CR_TIME is null");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCrTimeIsNotNull() {
+      addCriterion("CR_TIME is not null");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCrTimeEqualTo(Date value) {
+      addCriterion("CR_TIME =", value, "crTime");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCrTimeNotEqualTo(Date value) {
+      addCriterion("CR_TIME <>", value, "crTime");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCrTimeGreaterThan(Date value) {
+      addCriterion("CR_TIME >", value, "crTime");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCrTimeGreaterThanOrEqualTo(Date value) {
+      addCriterion("CR_TIME >=", value, "crTime");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCrTimeLessThan(Date value) {
+      addCriterion("CR_TIME <", value, "crTime");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCrTimeLessThanOrEqualTo(Date value) {
+      addCriterion("CR_TIME <=", value, "crTime");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCrTimeIn(List<Date> values) {
+      addCriterion("CR_TIME in", values, "crTime");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCrTimeNotIn(List<Date> values) {
+      addCriterion("CR_TIME not in", values, "crTime");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCrTimeBetween(Date value1, Date value2) {
+      addCriterion("CR_TIME between", value1, value2, "crTime");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andCrTimeNotBetween(Date value1, Date value2) {
+      addCriterion("CR_TIME not between", value1, value2, "crTime");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andModelIsNull() {
+      addCriterion("MODEL_ is null");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andModelIsNotNull() {
+      addCriterion("MODEL_ is not null");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andModelEqualTo(String value) {
+      addCriterion("MODEL_ =", value, "model");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andModelNotEqualTo(String value) {
+      addCriterion("MODEL_ <>", value, "model");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+    public CustomNumberRecordExample.Criteria andModelGreaterThan(String value) {
+      addCriterion("MODEL_ >", value, "model");
+      return (CustomNumberRecordExample.Criteria)this;
+    }
+
+     public CustomNumberRecordExample.Criteria andModelGreaterThanOrEqualTo(String value) {
+       addCriterion("MODEL_ >=", value, "model");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelLessThan(String value) {
+       addCriterion("MODEL_ <", value, "model");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelLessThanOrEqualTo(String value) {
+       addCriterion("MODEL_ <=", value, "model");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelLike(String value) {
+       addCriterion("MODEL_ like", value, "model");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelNotLike(String value) {
+       addCriterion("MODEL_ not like", value, "model");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelIn(List<String> values) {
+       addCriterion("MODEL_ in", values, "model");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelNotIn(List<String> values) {
+       addCriterion("MODEL_ not in", values, "model");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelBetween(String value1, String value2) {
+       addCriterion("MODEL_ between", value1, value2, "model");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelNotBetween(String value1, String value2) {
+       addCriterion("MODEL_ not between", value1, value2, "model");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelIdIsNull() {
+       addCriterion("MODEL_ID is null");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelIdIsNotNull() {
+       addCriterion("MODEL_ID is not null");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelIdEqualTo(String value) {
+       addCriterion("MODEL_ID =", value, "modelId");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelIdNotEqualTo(String value) {
+       addCriterion("MODEL_ID <>", value, "modelId");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelIdGreaterThan(String value) {
+       addCriterion("MODEL_ID >", value, "modelId");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelIdGreaterThanOrEqualTo(String value) {
+       addCriterion("MODEL_ID >=", value, "modelId");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelIdLessThan(String value) {
+       addCriterion("MODEL_ID <", value, "modelId");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelIdLessThanOrEqualTo(String value) {
+       addCriterion("MODEL_ID <=", value, "modelId");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelIdLike(String value) {
+       addCriterion("MODEL_ID like", value, "modelId");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelIdNotLike(String value) {
+       addCriterion("MODEL_ID not like", value, "modelId");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelIdIn(List<String> values) {
+       addCriterion("MODEL_ID in", values, "modelId");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelIdNotIn(List<String> values) {
+       addCriterion("MODEL_ID not in", values, "modelId");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelIdBetween(String value1, String value2) {
+       addCriterion("MODEL_ID between", value1, value2, "modelId");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+ 
+     public CustomNumberRecordExample.Criteria andModelIdNotBetween(String value1, String value2) {
+       addCriterion("MODEL_ID not between", value1, value2, "modelId");
+       return (CustomNumberRecordExample.Criteria)this;
+     }
+   }
+ }
+

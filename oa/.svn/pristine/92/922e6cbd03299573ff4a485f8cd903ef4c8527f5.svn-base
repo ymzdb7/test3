@@ -1,0 +1,191 @@
+/*     */ package com.xoa.model.portalColumn;
+/*     */ 
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Map;
+/*     */ import org.codehaus.jackson.annotate.JsonProperty;
+/*     */ 
+/*     */ public class TeeZTreeModel extends TeeBaseModel
+/*     */ {
+/*     */   public static final String FILE_FOLDER = "file_folder";
+/*     */   public static final String FILE_FOLDER_SHARE = "file_folder_share";
+/*     */   public static final String USER_ONLINE = "person_online_node";
+/*     */   public static final String USER_OFFLINE = "person_offline_node";
+/*     */   private String id;
+/*     */   private String pId;
+/*     */   private String name;
+/*     */   private String iconSkin;
+/* 158 */   private Map<String, Object> params = new HashMap();
+/*     */   private boolean open;
+/*     */   private boolean checked;
+/*     */   private boolean disabled;
+/*     */   private boolean nocheck;
+/*     */   private String title;
+/* 168 */   private boolean onRight = false;
+/*     */   private String extend1;
+/*     */   private String extend2;
+/*     */ 
+/*     */   @JsonProperty("isParent")
+/*     */   private boolean isParent;
+/*     */ 
+/*     */   public TeeZTreeModel()
+/*     */   {
+/*     */   }
+/*     */ 
+/*     */   public TeeZTreeModel(String id, String name, boolean isParent, String pId, boolean open, String iconSkin, String title)
+/*     */   {
+/*  43 */     this.id = id;
+/*  44 */     this.pId = pId;
+/*  45 */     this.name = name;
+/*  46 */     this.iconSkin = iconSkin;
+/*  47 */     this.open = open;
+/*  48 */     this.title = title;
+/*  49 */     this.isParent = isParent;
+/*     */   }
+/*     */ 
+/*     */   public TeeZTreeModel(String id, String name, boolean isParent, String pId, boolean open, String iconSkin, String title, boolean onRight)
+/*     */   {
+/*  67 */     this.id = id;
+/*  68 */     this.pId = pId;
+/*  69 */     this.name = name;
+/*  70 */     this.iconSkin = iconSkin;
+/*  71 */     this.open = open;
+/*  72 */     this.title = title;
+/*  73 */     this.isParent = isParent;
+/*  74 */     this.onRight = onRight;
+/*     */   }
+/*     */ 
+/*     */   public TeeZTreeModel(String id, String name, boolean isParent, String pId, boolean open, String iconSkin, String title, boolean onRight, boolean isCheck)
+/*     */   {
+/*  91 */     this.id = id;
+/*  92 */     this.pId = pId;
+/*  93 */     this.name = name;
+/*  94 */     this.iconSkin = iconSkin;
+/*  95 */     this.open = open;
+/*  96 */     this.title = title;
+/*  97 */     this.isParent = isParent;
+/*  98 */     this.onRight = onRight;
+/*  99 */     this.checked = isCheck;
+/*     */   }
+/*     */ 
+/*     */   public TeeZTreeModel(String id, String name, boolean isParent, String pId, boolean open, String iconSkin, String title, boolean onRight, boolean isCheck, boolean noCheck)
+/*     */   {
+/* 115 */     this.id = id;
+/* 116 */     this.pId = pId;
+/* 117 */     this.name = name;
+/* 118 */     this.iconSkin = iconSkin;
+/* 119 */     this.open = open;
+/* 120 */     this.title = title;
+/* 121 */     this.isParent = isParent;
+/* 122 */     this.onRight = onRight;
+/* 123 */     this.checked = isCheck;
+/* 124 */     this.nocheck = noCheck;
+/*     */   }
+/*     */ 
+/*     */   public TeeZTreeModel(String id, String name, boolean isParent, String pId, boolean open, String iconSkin, String title, boolean onRight, String extend1, String extend2)
+/*     */   {
+/* 143 */     this.id = id;
+/* 144 */     this.pId = pId;
+/* 145 */     this.name = name;
+/* 146 */     this.iconSkin = iconSkin;
+/* 147 */     this.open = open;
+/* 148 */     this.title = title;
+/* 149 */     this.isParent = isParent;
+/* 150 */     this.onRight = onRight;
+/* 151 */     this.extend1 = extend1;
+/* 152 */     this.extend2 = extend2;
+/*     */   }
+/*     */ 
+/*     */   public boolean isChecked()
+/*     */   {
+/* 176 */     return this.checked;
+/*     */   }
+/*     */   public void setChecked(boolean checked) {
+/* 179 */     this.checked = checked;
+/*     */   }
+/*     */   public boolean isOpen() {
+/* 182 */     return this.open;
+/*     */   }
+/*     */   public void setOpen(boolean open) {
+/* 185 */     this.open = open;
+/*     */   }
+/*     */ 
+/*     */   public String getId()
+/*     */   {
+/* 194 */     return this.id;
+/*     */   }
+/*     */   public void setId(String id) {
+/* 197 */     this.id = id;
+/*     */   }
+/*     */ 
+/*     */   public String getName() {
+/* 201 */     return this.name;
+/*     */   }
+/*     */   public void setName(String name) {
+/* 204 */     this.name = name;
+/*     */   }
+/*     */   public String getIconSkin() {
+/* 207 */     return this.iconSkin;
+/*     */   }
+/*     */   public void setIconSkin(String iconSkin) {
+/* 210 */     this.iconSkin = iconSkin;
+/*     */   }
+/*     */   public boolean isParent() {
+/* 213 */     return this.isParent;
+/*     */   }
+/*     */   public void setParent(boolean isParent) {
+/* 216 */     this.isParent = isParent;
+/*     */   }
+/*     */   public void setParams(Map<String, Object> params) {
+/* 219 */     this.params = params;
+/*     */   }
+/*     */   public Map<String, Object> getParams() {
+/* 222 */     return this.params;
+/*     */   }
+/*     */   public String getTitle() {
+/* 225 */     return this.title;
+/*     */   }
+/*     */   public void setTitle(String title) {
+/* 228 */     this.title = title;
+/*     */   }
+/*     */   public void setExtend1(String extend1) {
+/* 231 */     this.extend1 = extend1;
+/*     */   }
+/*     */   public void setExtend2(String extend2) {
+/* 234 */     this.extend2 = extend2;
+/*     */   }
+/*     */   public void setDisabled(boolean disabled) {
+/* 237 */     this.disabled = disabled;
+/*     */   }
+/*     */   public boolean isDisabled() {
+/* 240 */     return this.disabled;
+/*     */   }
+/*     */   public boolean isOnRight() {
+/* 243 */     return this.onRight;
+/*     */   }
+/*     */   public void setOnRight(boolean onRight) {
+/* 246 */     onRight = onRight;
+/*     */   }
+/*     */   public String getExtend1() {
+/* 249 */     return this.extend1;
+/*     */   }
+/*     */   public String getExtend2() {
+/* 252 */     return this.extend2;
+/*     */   }
+/*     */   public String getpId() {
+/* 255 */     return this.pId;
+/*     */   }
+/*     */   public void setpId(String pId) {
+/* 258 */     this.pId = pId;
+/*     */   }
+/*     */   public boolean isNocheck() {
+/* 261 */     return this.nocheck;
+/*     */   }
+/*     */   public void setNocheck(boolean nocheck) {
+/* 264 */     this.nocheck = nocheck;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.portalColumn.TeeZTreeModel
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,119 @@
+/*     */ package com.xoa.service.users.impl;
+/*     */ 
+/*     */ import com.xoa.dao.unitmanagement.UnitManageMapper;
+/*     */ import com.xoa.dao.users.OrgManageMapper;
+/*     */ import com.xoa.model.users.OrgManage;
+/*     */ import com.xoa.service.sys.SystemInfoService;
+/*     */ import com.xoa.service.users.OrgManageService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+/*     */ 
+/*     */ @Transactional
+/*     */ @Service
+/*     */ public class OrgManageServiceImpl
+/*     */   implements OrgManageService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private UnitManageMapper unitManageMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private OrgManageMapper orgManageMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SystemInfoService systemInfoService;
+/*     */ 
+/*     */   public ToJson<OrgManage> queryId(String locale)
+/*     */   {
+/*  37 */     ToJson toJson = new ToJson(0, "");
+/*  38 */     List org = this.orgManageMapper.queryId();
+/*  39 */     if ((org != null) && (org.size() > 0))
+/*     */     {
+/*  49 */       toJson.setFlag(0);
+/*  50 */       toJson.setMsg("ok");
+/*  51 */       toJson.setObj(org);
+/*     */     }
+/*     */     else {
+/*  54 */       toJson.setFlag(1);
+/*  55 */       toJson.setMsg("err");
+/*     */     }
+/*     */ 
+/*  59 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public List<OrgManage> getOrgManage()
+/*     */   {
+/*  75 */     List orgManageList = this.orgManageMapper.getOrgManage();
+/*  76 */     return orgManageList;
+/*     */   }
+/*     */ 
+/*     */   public OrgManage getOrgManageById(Integer oid)
+/*     */   {
+/*  88 */     return this.orgManageMapper.getOrgManageById(oid);
+/*     */   }
+/*     */ 
+/*     */   public void editOrgManage(OrgManage orgManage, HttpServletRequest request)
+/*     */   {
+/* 101 */     int a = this.orgManageMapper.editOrgManage(orgManage);
+/*     */     int a1;
+/* 102 */     if (a > 0) {
+/* 103 */       Map stringStringMap = this.systemInfoService.getAuthorization(request);
+/* 104 */       if ("true".equals(stringStringMap.get("isAuthStr")))
+/* 105 */         a1 = this.unitManageMapper.updateUnit(Constant.MYOA + orgManage.getOid(), orgManage.getName(), Integer.valueOf(1));
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public ToJson<OrgManage> addOrgManage(OrgManage orgManage, HttpServletRequest request)
+/*     */   {
+/* 122 */     ToJson toJson = new ToJson();
+/* 123 */     int i = this.systemInfoService.getOrgManage(request);
+/* 124 */     List orgManageList = this.orgManageMapper.getOrgManage();
+/* 125 */     if (orgManageList.size() < i) {
+/* 126 */       this.orgManageMapper.addOrgManage(orgManage);
+/* 127 */       toJson.setFlag(0);
+/* 128 */       toJson.setMsg("ok");
+/*     */     } else {
+/* 130 */       toJson.setFlag(1);
+/* 131 */       toJson.setMsg("err");
+/*     */     }
+/* 133 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper checkOrgManage(HttpServletRequest request)
+/*     */   {
+/* 138 */     BaseWrapper wrapper = new BaseWrapper();
+/* 139 */     wrapper.setFlag(false);
+/* 140 */     wrapper.setCode("-1");
+/* 141 */     wrapper.setMsg("默认调用失败");
+/* 142 */     int i = this.systemInfoService.getOrgManage(request);
+/* 143 */     List orgManageList = this.orgManageMapper.getOrgManage();
+/* 144 */     if (orgManageList == null) {
+/* 145 */       wrapper.setFlag(true);
+/* 146 */       wrapper.setCode("-11111");
+/* 147 */       wrapper.setMsg("没有企业信息");
+/* 148 */       return wrapper;
+/*     */     }
+/* 150 */     if (orgManageList.size() >= i) {
+/* 151 */       wrapper.setFlag(false);
+/* 152 */       wrapper.setCode("8001");
+/* 153 */       wrapper.setMsg("企业数达到注册上线，如需增加请联系厂商。");
+/* 154 */       return wrapper;
+/*     */     }
+/* 156 */     wrapper.setFlag(true);
+/* 157 */     wrapper.setCode("8002");
+/* 158 */     wrapper.setMsg("可以新增企业。");
+/* 159 */     return wrapper;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.users.impl.OrgManageServiceImpl
+ * JD-Core Version:    0.6.0
+ */

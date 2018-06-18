@@ -1,0 +1,197 @@
+/*     */ package com.xoa.service.officesupplies;
+/*     */ 
+/*     */ import com.xoa.dao.officesupplies.OfficeDepositoryMapper;
+/*     */ import com.xoa.dao.officesupplies.OfficeTypeMapper;
+/*     */ import com.xoa.model.officesupplies.OfficeDepositoryWithBLOBs;
+/*     */ import com.xoa.model.officesupplies.OfficeType;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class OfficeTypeService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private OfficeTypeMapper officeTypeMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private OfficeDepositoryMapper officeDepositoryMapper;
+/*     */ 
+/*     */   public ToJson<Object> addOfficeType(OfficeType officeType)
+/*     */   {
+/*  31 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/*  33 */       int i = this.officeTypeMapper.insertSelective(officeType);
+/*  34 */       if (i > 0) {
+/*  35 */         OfficeDepositoryWithBLOBs officeDepositoryWithBLOBs = new OfficeDepositoryWithBLOBs();
+/*  36 */         OfficeDepositoryWithBLOBs officeDepositoryWithBLOBs1 = this.officeDepositoryMapper.selectByPrimaryKey(officeType.getTypeDepository());
+/*  37 */         String officeTypeId = officeDepositoryWithBLOBs1.getOfficeTypeId();
+/*  38 */         StringBuffer sb = new StringBuffer();
+/*  39 */         if (!StringUtils.checkNull(officeTypeId).booleanValue())
+/*  40 */           sb.append(officeTypeId + officeType.getId() + ",");
+/*     */         else {
+/*  42 */           sb.append(officeType.getId() + ",");
+/*     */         }
+/*  44 */         officeDepositoryWithBLOBs.setId(officeType.getTypeDepository());
+/*  45 */         officeDepositoryWithBLOBs.setOfficeTypeId(sb.toString());
+/*  46 */         int i1 = this.officeDepositoryMapper.updateByPrimaryKeySelective(officeDepositoryWithBLOBs);
+/*  47 */         json.setFlag(0);
+/*  48 */         json.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  51 */       json.setFlag(1);
+/*  52 */       json.setMsg(e.getMessage());
+/*  53 */       e.printStackTrace();
+/*     */     }
+/*  55 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> editOfficeType(OfficeType OfficeType)
+/*     */   {
+/*  65 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/*  67 */       int i = this.officeTypeMapper.updateByPrimaryKeySelective(OfficeType);
+/*  68 */       if (i > 0) {
+/*  69 */         json.setMsg("ok");
+/*  70 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  73 */       json.setMsg(e.getMessage());
+/*  74 */       json.setFlag(1);
+/*  75 */       e.printStackTrace();
+/*     */     }
+/*  77 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> deleteOfficeTypeById(Integer id)
+/*     */   {
+/*  87 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/*  89 */       OfficeType officeType = this.officeTypeMapper.selectByPrimaryKey(id);
+/*  90 */       Integer typeDepository = officeType.getTypeDepository();
+/*  91 */       OfficeDepositoryWithBLOBs officeDepositoryWithBLOBs1 = this.officeDepositoryMapper.selectByPrimaryKey(typeDepository);
+/*  92 */       String officeTypeId = officeDepositoryWithBLOBs1.getOfficeTypeId();
+/*     */       int i1;
+/*  93 */       if (!StringUtils.checkNull(officeTypeId).booleanValue())
+/*     */       {
+/*  94 */         if (officeTypeId.startsWith(String.valueOf(typeDepository) + ",")) {
+/*  95 */           OfficeDepositoryWithBLOBs officeDepositoryWithBLOBs = new OfficeDepositoryWithBLOBs();
+/*  96 */           officeDepositoryWithBLOBs.setId(typeDepository);
+/*  97 */           officeTypeId.replace(String.valueOf(typeDepository) + ",", "");
+/*  98 */           officeDepositoryWithBLOBs.setOfficeTypeId(officeTypeId);
+/*  99 */           i1 = this.officeDepositoryMapper.updateByPrimaryKeySelective(officeDepositoryWithBLOBs);
+/*     */         }
+/* 101 */         if (officeTypeId.contains("," + String.valueOf(typeDepository) + ",")) {
+/* 102 */           OfficeDepositoryWithBLOBs officeDepositoryWithBLOBs = new OfficeDepositoryWithBLOBs();
+/* 103 */           officeDepositoryWithBLOBs.setId(typeDepository);
+/* 104 */           officeTypeId.replace("," + String.valueOf(typeDepository) + ",", ",");
+/* 105 */           officeDepositoryWithBLOBs.setOfficeTypeId(officeTypeId);
+/* 106 */           i1 = this.officeDepositoryMapper.updateByPrimaryKeySelective(officeDepositoryWithBLOBs);
+/*     */         }
+/*     */       }
+/*     */ 
+/* 110 */       int i = this.officeTypeMapper.deleteByPrimaryKey(id);
+/* 111 */       if (i > 0) {
+/* 112 */         json.setFlag(0);
+/* 113 */         json.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 116 */       json.setFlag(1);
+/* 117 */       json.setMsg(e.getMessage());
+/* 118 */       e.printStackTrace();
+/*     */     }
+/* 120 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public String getTypeNameByTypeIds(String typeIds) {
+/* 124 */     StringBuffer str = new StringBuffer();
+/* 125 */     String[] strArr = typeIds.split(",");
+/* 126 */     for (int i = 0; i < strArr.length; i++) {
+/* 127 */       OfficeType type = this.officeTypeMapper.selectByPrimaryKey(Integer.valueOf(strArr[i]));
+/* 128 */       if ((type == null) || 
+/* 129 */         (StringUtils.checkNull(type.getTypeName()).booleanValue())) continue;
+/* 130 */       if (i < strArr.length - 1)
+/* 131 */         str.append(type.getTypeName() + ",");
+/*     */       else {
+/* 133 */         str.append(type.getTypeName());
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 138 */     return str.toString();
+/*     */   }
+/*     */ 
+/*     */   public ToJson<OfficeType> selectAllOffType(HttpServletRequest request, String typeDepository)
+/*     */   {
+/* 148 */     ToJson json = new ToJson();
+/*     */     try {
+/* 150 */       List<OfficeType> officeTypes = this.officeTypeMapper.selectDownObject(typeDepository);
+/* 151 */       for (OfficeType officeType : officeTypes) {
+/* 152 */         Integer typeDepository1 = officeType.getTypeDepository();
+/* 153 */         if (typeDepository1 != null) {
+/* 154 */           OfficeDepositoryWithBLOBs officeDepositoryWithBLOBs = this.officeDepositoryMapper.selectByPrimaryKey(typeDepository1);
+/* 155 */           if (officeDepositoryWithBLOBs != null) {
+/* 156 */             officeType.setTypeDepositoryName(officeDepositoryWithBLOBs.getDepositoryName());
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 161 */       json.setObj(officeTypes);
+/* 162 */       json.setFlag(0);
+/* 163 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 165 */       json.setFlag(1);
+/* 166 */       json.setMsg("err");
+/* 167 */       e.printStackTrace();
+/*     */     }
+/* 169 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<OfficeType> getOfficeTypeById(Integer id)
+/*     */   {
+/* 178 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 180 */       OfficeType officeType = this.officeTypeMapper.selectByPrimaryKey(id);
+/* 181 */       Integer typeDepository1 = officeType.getTypeDepository();
+/* 182 */       if (typeDepository1 != null) {
+/* 183 */         OfficeDepositoryWithBLOBs officeDepositoryWithBLOBs = this.officeDepositoryMapper.selectByPrimaryKey(typeDepository1);
+/* 184 */         if (officeDepositoryWithBLOBs != null) {
+/* 185 */           officeType.setTypeDepositoryName(officeDepositoryWithBLOBs.getDepositoryName());
+/*     */         }
+/*     */       }
+/* 188 */       json.setMsg("ok");
+/* 189 */       json.setFlag(0);
+/* 190 */       json.setObject(officeType);
+/*     */     } catch (Exception e) {
+/* 192 */       json.setFlag(1);
+/* 193 */       json.setMsg(e.getMessage());
+/* 194 */       e.printStackTrace();
+/*     */     }
+/* 196 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<OfficeType> getDepositoryByProType(String officeProType)
+/*     */   {
+/* 205 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 207 */       OfficeType officeType = this.officeTypeMapper.selectOffTypeByProType(officeProType);
+/* 208 */       json.setFlag(0);
+/* 209 */       json.setObject(officeType);
+/* 210 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 212 */       json.setFlag(1);
+/* 213 */       json.setMsg(e.getMessage());
+/* 214 */       e.printStackTrace();
+/*     */     }
+/* 216 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.officesupplies.OfficeTypeService
+ * JD-Core Version:    0.6.0
+ */

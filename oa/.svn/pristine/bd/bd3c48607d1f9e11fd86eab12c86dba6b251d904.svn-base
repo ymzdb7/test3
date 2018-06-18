@@ -1,0 +1,610 @@
+package com.xoa.model.edu.eduExam;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+public class EduExamExample {
+	protected String orderByClause;
+	protected boolean distinct;
+	protected List<Criteria> oredCriteria;
+
+	public EduExamExample() {
+		this.oredCriteria = new ArrayList();
+	}
+
+	public void setOrderByClause(String orderByClause) {
+		this.orderByClause = orderByClause;
+	}
+
+	public String getOrderByClause() {
+		return this.orderByClause;
+	}
+
+	public void setDistinct(boolean distinct) {
+		this.distinct = distinct;
+	}
+
+	public boolean isDistinct() {
+		return this.distinct;
+	}
+
+	public List<Criteria> getOredCriteria() {
+		return this.oredCriteria;
+	}
+
+	public void or(Criteria criteria) {
+		this.oredCriteria.add(criteria);
+	}
+
+	public Criteria or() {
+		Criteria criteria = createCriteriaInternal();
+		this.oredCriteria.add(criteria);
+		return criteria;
+	}
+
+	public Criteria createCriteria() {
+		Criteria criteria = createCriteriaInternal();
+		if (this.oredCriteria.size() == 0) {
+			this.oredCriteria.add(criteria);
+		}
+		return criteria;
+	}
+
+	protected Criteria createCriteriaInternal() {
+		Criteria criteria = new Criteria();
+		return criteria;
+	}
+
+	public void clear() {
+		this.oredCriteria.clear();
+		this.orderByClause = null;
+		this.distinct = false;
+	}
+
+	public static class Criterion {
+		private String condition;
+		private Object value;
+		private Object secondValue;
+		private boolean noValue;
+		private boolean singleValue;
+		private boolean betweenValue;
+		private boolean listValue;
+		private String typeHandler;
+
+		public String getCondition() {
+			return this.condition;
+		}
+
+		public Object getValue() {
+			return this.value;
+		}
+
+		public Object getSecondValue() {
+			return this.secondValue;
+		}
+
+		public boolean isNoValue() {
+			return this.noValue;
+		}
+
+		public boolean isSingleValue() {
+			return this.singleValue;
+		}
+
+		public boolean isBetweenValue() {
+			return this.betweenValue;
+		}
+
+		public boolean isListValue() {
+			return this.listValue;
+		}
+
+		public String getTypeHandler() {
+			return this.typeHandler;
+		}
+
+		protected Criterion(String condition) {
+			this.condition = condition;
+			this.typeHandler = null;
+			this.noValue = true;
+		}
+
+		protected Criterion(String condition, Object value, String typeHandler) {
+			this.condition = condition;
+			this.value = value;
+			this.typeHandler = typeHandler;
+			if ((value instanceof List))
+				this.listValue = true;
+			else
+				this.singleValue = true;
+		}
+
+		protected Criterion(String condition, Object value) {
+			this(condition, value, null);
+		}
+
+		protected Criterion(String condition, Object value, Object secondValue,
+				String typeHandler) {
+			this.condition = condition;
+			this.value = value;
+			this.secondValue = secondValue;
+			this.typeHandler = typeHandler;
+			this.betweenValue = true;
+		}
+
+		protected Criterion(String condition, Object value, Object secondValue) {
+			this(condition, value, secondValue, null);
+		}
+	}
+
+	public static class Criteria extends EduExamExample.GeneratedCriteria {
+	}
+
+	protected static abstract class GeneratedCriteria {
+		protected List<EduExamExample.Criterion> criteria;
+
+		protected GeneratedCriteria() {
+			this.criteria = new ArrayList();
+		}
+
+		public boolean isValid() {
+			return this.criteria.size() > 0;
+		}
+
+		public List<EduExamExample.Criterion> getAllCriteria() {
+			return this.criteria;
+		}
+
+		public List<EduExamExample.Criterion> getCriteria() {
+			return this.criteria;
+		}
+
+		protected void addCriterion(String condition) {
+			if (condition == null) {
+				throw new RuntimeException("Value for condition cannot be null");
+			}
+			this.criteria.add(new EduExamExample.Criterion(condition));
+		}
+
+		protected void addCriterion(String condition, Object value,
+				String property) {
+			if (value == null) {
+				throw new RuntimeException("Value for " + property
+						+ " cannot be null");
+			}
+			this.criteria.add(new EduExamExample.Criterion(condition, value));
+		}
+
+		protected void addCriterion(String condition, Object value1,
+				Object value2, String property) {
+			if ((value1 == null) || (value2 == null)) {
+				throw new RuntimeException("Between values for " + property
+						+ " cannot be null");
+			}
+			this.criteria.add(new EduExamExample.Criterion(condition, value1,
+					value2));
+		}
+
+		public EduExamExample.Criteria andIdIsNull() {
+			addCriterion("ID is null");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andIdIsNotNull() {
+			addCriterion("ID is not null");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andIdEqualTo(Integer value) {
+			addCriterion("ID =", value, "id");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andIdNotEqualTo(Integer value) {
+			addCriterion("ID <>", value, "id");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andIdGreaterThan(Integer value) {
+			addCriterion("ID >", value, "id");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andIdGreaterThanOrEqualTo(Integer value) {
+			addCriterion("ID >=", value, "id");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andIdLessThan(Integer value) {
+			addCriterion("ID <", value, "id");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andIdLessThanOrEqualTo(Integer value) {
+			addCriterion("ID <=", value, "id");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andIdIn(List<Integer> values) {
+			addCriterion("ID in", values, "id");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andIdNotIn(List<Integer> values) {
+			addCriterion("ID not in", values, "id");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andIdBetween(Integer value1,
+				Integer value2) {
+			addCriterion("ID between", value1, value2, "id");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andIdNotBetween(Integer value1,
+				Integer value2) {
+			addCriterion("ID not between", value1, value2, "id");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSchoolYearIsNull() {
+			addCriterion("SCHOOL_YEAR is null");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSchoolYearIsNotNull() {
+			addCriterion("SCHOOL_YEAR is not null");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSchoolYearEqualTo(String value) {
+			addCriterion("SCHOOL_YEAR =", value, "schoolYear");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSchoolYearNotEqualTo(String value) {
+			addCriterion("SCHOOL_YEAR <>", value, "schoolYear");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSchoolYearGreaterThan(String value) {
+			addCriterion("SCHOOL_YEAR >", value, "schoolYear");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSchoolYearGreaterThanOrEqualTo(
+				String value) {
+			addCriterion("SCHOOL_YEAR >=", value, "schoolYear");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSchoolYearLessThan(String value) {
+			addCriterion("SCHOOL_YEAR <", value, "schoolYear");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSchoolYearLessThanOrEqualTo(
+				String value) {
+			addCriterion("SCHOOL_YEAR <=", value, "schoolYear");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSchoolYearLike(String value) {
+			addCriterion("SCHOOL_YEAR like", value, "schoolYear");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSchoolYearNotLike(String value) {
+			addCriterion("SCHOOL_YEAR not like", value, "schoolYear");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSchoolYearIn(List<String> values) {
+			addCriterion("SCHOOL_YEAR in", values, "schoolYear");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSchoolYearNotIn(List<String> values) {
+			addCriterion("SCHOOL_YEAR not in", values, "schoolYear");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSchoolYearBetween(String value1,
+				String value2) {
+			addCriterion("SCHOOL_YEAR between", value1, value2, "schoolYear");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSchoolYearNotBetween(String value1,
+				String value2) {
+			addCriterion("SCHOOL_YEAR not between", value1, value2,
+					"schoolYear");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSemesterIsNull() {
+			addCriterion("SEMESTER is null");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSemesterIsNotNull() {
+			addCriterion("SEMESTER is not null");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSemesterEqualTo(String value) {
+			addCriterion("SEMESTER =", value, "semester");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSemesterNotEqualTo(String value) {
+			addCriterion("SEMESTER <>", value, "semester");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSemesterGreaterThan(String value) {
+			addCriterion("SEMESTER >", value, "semester");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSemesterGreaterThanOrEqualTo(
+				String value) {
+			addCriterion("SEMESTER >=", value, "semester");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSemesterLessThan(String value) {
+			addCriterion("SEMESTER <", value, "semester");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSemesterLessThanOrEqualTo(String value) {
+			addCriterion("SEMESTER <=", value, "semester");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSemesterLike(String value) {
+			addCriterion("SEMESTER like", value, "semester");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSemesterNotLike(String value) {
+			addCriterion("SEMESTER not like", value, "semester");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSemesterIn(List<String> values) {
+			addCriterion("SEMESTER in", values, "semester");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSemesterNotIn(List<String> values) {
+			addCriterion("SEMESTER not in", values, "semester");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSemesterBetween(String value1,
+				String value2) {
+			addCriterion("SEMESTER between", value1, value2, "semester");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andSemesterNotBetween(String value1,
+				String value2) {
+			addCriterion("SEMESTER not between", value1, value2, "semester");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamTypeIsNull() {
+			addCriterion("EXAM_TYPE is null");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamTypeIsNotNull() {
+			addCriterion("EXAM_TYPE is not null");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamTypeEqualTo(String value) {
+			addCriterion("EXAM_TYPE =", value, "examType");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamTypeNotEqualTo(String value) {
+			addCriterion("EXAM_TYPE <>", value, "examType");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamTypeGreaterThan(String value) {
+			addCriterion("EXAM_TYPE >", value, "examType");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamTypeGreaterThanOrEqualTo(
+				String value) {
+			addCriterion("EXAM_TYPE >=", value, "examType");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamTypeLessThan(String value) {
+			addCriterion("EXAM_TYPE <", value, "examType");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamTypeLessThanOrEqualTo(String value) {
+			addCriterion("EXAM_TYPE <=", value, "examType");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamTypeLike(String value) {
+			addCriterion("EXAM_TYPE like", value, "examType");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamTypeNotLike(String value) {
+			addCriterion("EXAM_TYPE not like", value, "examType");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamTypeIn(List<String> values) {
+			addCriterion("EXAM_TYPE in", values, "examType");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamTypeNotIn(List<String> values) {
+			addCriterion("EXAM_TYPE not in", values, "examType");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamTypeBetween(String value1,
+				String value2) {
+			addCriterion("EXAM_TYPE between", value1, value2, "examType");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamTypeNotBetween(String value1,
+				String value2) {
+			addCriterion("EXAM_TYPE not between", value1, value2, "examType");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andReleaseTimeIsNull() {
+			addCriterion("RELEASE_TIME is null");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andReleaseTimeIsNotNull() {
+			addCriterion("RELEASE_TIME is not null");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andReleaseTimeEqualTo(Date value) {
+			addCriterion("RELEASE_TIME =", value, "releaseTime");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andReleaseTimeNotEqualTo(Date value) {
+			addCriterion("RELEASE_TIME <>", value, "releaseTime");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andReleaseTimeGreaterThan(Date value) {
+			addCriterion("RELEASE_TIME >", value, "releaseTime");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andReleaseTimeGreaterThanOrEqualTo(
+				Date value) {
+			addCriterion("RELEASE_TIME >=", value, "releaseTime");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andReleaseTimeLessThan(Date value) {
+			addCriterion("RELEASE_TIME <", value, "releaseTime");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andReleaseTimeLessThanOrEqualTo(
+				Date value) {
+			addCriterion("RELEASE_TIME <=", value, "releaseTime");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andReleaseTimeIn(List<Date> values) {
+			addCriterion("RELEASE_TIME in", values, "releaseTime");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andReleaseTimeNotIn(List<Date> values) {
+			addCriterion("RELEASE_TIME not in", values, "releaseTime");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andReleaseTimeBetween(Date value1,
+				Date value2) {
+			addCriterion("RELEASE_TIME between", value1, value2, "releaseTime");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andReleaseTimeNotBetween(Date value1,
+				Date value2) {
+			addCriterion("RELEASE_TIME not between", value1, value2,
+					"releaseTime");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamNameIsNull() {
+			addCriterion("EXAM_NAME is null");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamNameIsNotNull() {
+			addCriterion("EXAM_NAME is not null");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamNameEqualTo(String value) {
+			addCriterion("EXAM_NAME =", value, "examName");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamNameNotEqualTo(String value) {
+			addCriterion("EXAM_NAME <>", value, "examName");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamNameGreaterThan(String value) {
+			addCriterion("EXAM_NAME >", value, "examName");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamNameGreaterThanOrEqualTo(
+				String value) {
+			addCriterion("EXAM_NAME >=", value, "examName");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamNameLessThan(String value) {
+			addCriterion("EXAM_NAME <", value, "examName");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamNameLessThanOrEqualTo(String value) {
+			addCriterion("EXAM_NAME <=", value, "examName");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamNameLike(String value) {
+			addCriterion("EXAM_NAME like", value, "examName");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamNameNotLike(String value) {
+			addCriterion("EXAM_NAME not like", value, "examName");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamNameIn(List<String> values) {
+			addCriterion("EXAM_NAME in", values, "examName");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamNameNotIn(List<String> values) {
+			addCriterion("EXAM_NAME not in", values, "examName");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamNameBetween(String value1,
+				String value2) {
+			addCriterion("EXAM_NAME between", value1, value2, "examName");
+			return (EduExamExample.Criteria) this;
+		}
+
+		public EduExamExample.Criteria andExamNameNotBetween(String value1,
+				String value2) {
+			addCriterion("EXAM_NAME not between", value1, value2, "examName");
+			return (EduExamExample.Criteria) this;
+		}
+	}
+}

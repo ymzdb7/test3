@@ -1,0 +1,158 @@
+/*     */ package com.xoa.service.duties;
+/*     */ 
+/*     */ import com.xoa.dao.common.SysCodeMapper;
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.duties.DutiesManagementMapper;
+/*     */ import com.xoa.model.common.SysCode;
+/*     */ import com.xoa.model.department.Department;
+/*     */ import com.xoa.model.duties.UserPost;
+/*     */ import com.xoa.service.notify.NotifyService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.GetAttachmentListUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.List;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class DutiesManagementService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   DutiesManagementMapper dutiesManagementMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   SysCodeMapper sysCodeMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   NotifyService notifyService;
+/*     */ 
+/*     */   public ToJson<UserPost> getUserPostId(HttpServletRequest request, Integer postId)
+/*     */   {
+/*  34 */     ToJson<UserPost> toJson = new ToJson<UserPost>(1, "error");
+/*  35 */     UserPost list = this.dutiesManagementMapper.getUserPostId(postId);
+/*     */ 
+/*  38 */     if (list != null) {
+/*  39 */       SysCode sysCode = this.sysCodeMapper.getSingleCode("function", String.valueOf(list.getType()));
+/*  40 */       if (sysCode != null)
+/*  41 */         list.setTypeName(sysCode.getCodeName());
+/*     */       else {
+/*  43 */         list.setTypeName("");
+/*     */       }
+/*     */ 
+/*  46 */       String sqlType = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/*     */ 
+/*  48 */       ContextHolder.setConsumerType(sqlType);
+/*  49 */       if ((list.getAttachmentName() != null) && (list.getAttachmentId() != null)) {
+/*  50 */         list.setAttachment(GetAttachmentListUtil.returnAttachment(list.getAttachmentName(), list.getAttachmentId(), sqlType, "userpost"));
+/*     */       }
+/*     */ 
+/*  55 */       Department department = this.departmentMapper.getDeptById(list.getDeptId().intValue());
+/*  56 */       if (department != null) {
+/*  57 */         list.setDeptName(department.getDeptName());
+/*     */       }
+/*     */       else {
+/*  60 */         list.setDeptName("");
+/*     */       }
+/*     */     }
+/*     */ 
+/*  64 */     if (list != null) {
+/*  65 */       toJson.setFlag(0);
+/*  66 */       toJson.setMsg("查询成功");
+/*  67 */       toJson.setObject(list);
+/*     */     } else {
+/*  69 */       toJson.setFlag(1);
+/*  70 */       toJson.setMsg("没有数据");
+/*     */     }
+/*     */ 
+/*  73 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<UserPost> selectUserPostList(UserPost userPost, HttpServletRequest request) {
+/*  77 */     ToJson<UserPost> toJson = new ToJson<UserPost>(1, "error");
+/*     */ 
+/*  79 */     List<UserPost> list = this.dutiesManagementMapper.selectUserPostList(userPost);
+/*     */ 
+/*  81 */     for (UserPost userPost1 : list) {
+/*  82 */       SysCode sysCode = this.sysCodeMapper.getSingleCode("function", String.valueOf(userPost1.getType()));
+/*  83 */       if (sysCode != null) {
+/*  84 */         userPost1.setTypeName(sysCode.getCodeName());
+/*     */       }
+/*     */       else
+/*     */       {
+/*  88 */         userPost1.setTypeName("");
+/*     */       }
+/*     */ 
+/* 100 */       Department department = this.departmentMapper.getDeptById(userPost1.getDeptId().intValue());
+/* 101 */       if (department != null)
+/*     */       {
+/* 103 */         userPost1.setDeptName(department.getDeptName());
+/*     */       }
+/* 105 */       else userPost1.setTypeName("");
+/*     */ 
+/*     */     }
+/*     */ 
+/* 112 */     if (list != null)
+/*     */     {
+/* 115 */       toJson.setFlag(0);
+/* 116 */       toJson.setMsg("查询成功");
+/* 117 */       toJson.setObj(list);
+/*     */     } else {
+/* 119 */       toJson.setFlag(1);
+/* 120 */       toJson.setMsg("查询数据为空");
+/*     */     }
+/*     */ 
+/* 124 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<UserPost> updateUserPost(UserPost userPost)
+/*     */   {
+/* 129 */     ToJson<UserPost> toJson = new ToJson<UserPost>(1, "error");
+/* 130 */     int a = this.dutiesManagementMapper.updateUserPost(userPost);
+/* 131 */     if (a > 0) {
+/* 132 */       toJson.setFlag(0);
+/* 133 */       toJson.setMsg("修改成功");
+/*     */     } else {
+/* 135 */       toJson.setFlag(1);
+/* 136 */       toJson.setMsg("修改失败");
+/*     */     }
+/* 138 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<UserPost> deleteUserPost(Integer postId)
+/*     */   {
+/* 144 */     ToJson<UserPost> toJson = new ToJson<UserPost>(1, "error");
+/* 145 */     int a = this.dutiesManagementMapper.deleteUserPost(postId);
+/* 146 */     if (a > 0) {
+/* 147 */       toJson.setFlag(0);
+/* 148 */       toJson.setMsg("删除成功");
+/*     */     } else {
+/* 150 */       toJson.setFlag(1);
+/* 151 */       toJson.setMsg("删除失败");
+/*     */     }
+/* 153 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<UserPost> addUserPost(UserPost userPost) {
+/* 157 */     ToJson<UserPost> toJson = new ToJson<UserPost>(1, "error");
+/* 158 */     int a = this.dutiesManagementMapper.addUserPost(userPost);
+/* 159 */     if (a > 0) {
+/* 160 */       toJson.setFlag(0);
+/* 161 */       toJson.setMsg("添加成功");
+/*     */     } else {
+/* 163 */       toJson.setFlag(1);
+/* 164 */       toJson.setMsg("添加失败");
+/*     */     }
+/* 166 */     return toJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.duties.DutiesManagementService
+ * JD-Core Version:    0.6.0
+ */

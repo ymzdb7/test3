@@ -1,0 +1,153 @@
+/*     */ package com.xoa.controller.workPlan;
+/*     */ 
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.model.workPlan.WorkPlanWithBLOBs;
+/*     */ import com.xoa.service.workPlan.WorkPlanService;
+/*     */ import com.xoa.util.DateCompute;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.Date;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.RequestParam;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ 
+/*     */ @Controller
+/*     */ @RequestMapping({"/workPlan"})
+/*     */ public class WorkPlanController
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private WorkPlanService workPlanService;
+/*     */ 
+/*     */   @RequestMapping({"/index"})
+/*     */   public String index()
+/*     */   {
+/*  36 */     return "app/workPlan/index";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/workPlanManager"})
+/*     */   public String workPlanManager()
+/*     */   {
+/*  45 */     return "app/workPlan/workPlanManager";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/workPlanEdit"})
+/*     */   public String workPlanEdit(int editFlag, int planId, Map<String, Object> map, HttpServletRequest request)
+/*     */   {
+/*  56 */     map.put("editFlag", Integer.valueOf(editFlag));
+/*  57 */     map.put("planId", Integer.valueOf(planId));
+/*  58 */     return "app/workPlan/workPlanEdit";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/workPlanQuery"})
+/*     */   public String workPlanQuery()
+/*     */   {
+/*  68 */     return "app/workPlan/workPlanQuery";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/workPlanQueryIndex"})
+/*     */   public String workPlanQueryIndex()
+/*     */   {
+/*  78 */     return "app/workPlan/workPlanQueryIndex";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/workPlanTypeSetting"})
+/*     */   public String workPlanTypeSetting()
+/*     */   {
+/*  88 */     return "app/workPlan/workPlanTypeSetting";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/workPlanQuList"})
+/*     */   public String workPlanQuList(int time, Map<String, Object> map)
+/*     */   {
+/*  98 */     map.put("time", Integer.valueOf(time));
+/*  99 */     return "app/workPlan/workPlanQuList";
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/workPlanQuQuery"})
+/*     */   public String workPlanQuQuery()
+/*     */   {
+/* 109 */     return "app/workPlan/workPlanQuQuery";
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectWorkPlanByCond"})
+/*     */   ToJson<WorkPlanWithBLOBs> selectWorkPlanByCond(@RequestParam(value="output", required=false, defaultValue="0") int output, WorkPlanWithBLOBs workPlanWithBLOBs, HttpServletRequest request, HttpServletResponse response, HttpSession session, Integer page, Integer pageSize, boolean useFlag)
+/*     */   {
+/*     */     try
+/*     */     {
+/* 124 */       Date date = new Date();
+/* 125 */       String[] weekArray = DateCompute.getWeekInterval().split(",");
+/* 126 */       String[] monthArray = DateCompute.getMonthInterval().split(",");
+/* 127 */       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+/* 128 */       Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 129 */       if (workPlanWithBLOBs != null)
+/* 130 */         if (workPlanWithBLOBs.getTime().intValue() == 1) {
+/* 131 */           workPlanWithBLOBs.setCurrentUser(String.valueOf(user.getUid()));
+/*     */ 
+/* 136 */           workPlanWithBLOBs.setCurrent(sdf.parse(sdf.format(new Date())));
+/* 137 */         } else if (workPlanWithBLOBs.getTime().intValue() == 2) {
+/* 138 */           workPlanWithBLOBs.setCurrentUser(String.valueOf(user.getUid()));
+/* 139 */           workPlanWithBLOBs.setBeginDate(sdf.parse(weekArray[0]));
+/* 140 */           workPlanWithBLOBs.setEndDate(sdf.parse(weekArray[1]));
+/* 141 */         } else if (workPlanWithBLOBs.getTime().intValue() == 3) {
+/* 142 */           workPlanWithBLOBs.setCurrentUser(String.valueOf(user.getUid()));
+/* 143 */           workPlanWithBLOBs.setBeginDate(sdf.parse(monthArray[0]));
+/* 144 */           workPlanWithBLOBs.setEndDate(sdf.parse(monthArray[1]));
+/* 145 */         } else if (workPlanWithBLOBs.getTime().intValue() == 0) {
+/* 146 */           workPlanWithBLOBs.setCurrentUser(String.valueOf(user.getUid()));
+/*     */         }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 150 */       e.printStackTrace();
+/*     */     }
+/* 152 */     return this.workPlanService.selectWorkPlanByCond(output, workPlanWithBLOBs, request, response, session, page, pageSize, useFlag);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/insertWorkPlan"})
+/*     */   ToJson<WorkPlanWithBLOBs> insertWorkPlan(WorkPlanWithBLOBs workPlanWithBLOBs, HttpServletRequest request)
+/*     */   {
+/* 165 */     return this.workPlanService.insertWorkPlan(workPlanWithBLOBs, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/updateWorkPlanById"})
+/*     */   ToJson<WorkPlanWithBLOBs> updateWorkPlanById(WorkPlanWithBLOBs workPlanWithBLOBs)
+/*     */   {
+/* 179 */     return this.workPlanService.updateWorkPlanById(workPlanWithBLOBs);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/delWorkPlanById"})
+/*     */   ToJson<WorkPlanWithBLOBs> delWorkPlanById(int planId)
+/*     */   {
+/* 192 */     return this.workPlanService.delWorkPlanById(planId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deleteWorkPlanByIds"})
+/*     */   public ToJson<WorkPlanWithBLOBs> deleteWorkPlanByIds(String planIds)
+/*     */   {
+/* 205 */     return this.workPlanService.deleteWorkPlanByIds(planIds);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/selectWorkPlanById"})
+/*     */   ToJson<WorkPlanWithBLOBs> selectWorkPlanById(int planId)
+/*     */   {
+/* 218 */     return this.workPlanService.selectWorkPlanById(planId);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.workPlan.WorkPlanController
+ * JD-Core Version:    0.6.0
+ */

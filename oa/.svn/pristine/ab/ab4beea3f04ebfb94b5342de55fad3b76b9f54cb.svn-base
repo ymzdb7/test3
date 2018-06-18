@@ -1,0 +1,40 @@
+package com.myoa.dao.infoCenter;
+
+import com.myoa.model.infoCenter.InfoCenter;
+import com.myoa.model.infoCenter.InfoCenterExample;
+
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface InfoCenterMapper {
+	public abstract int countByExample(InfoCenterExample paramInfoCenterExample);
+
+	public abstract int deleteByExample(InfoCenterExample paramInfoCenterExample);
+
+	public abstract int deleteByPrimaryKey(Integer paramInteger);
+
+	public abstract int insert(InfoCenter paramInfoCenter);
+
+	public abstract int insertSelective(InfoCenter paramInfoCenter);
+
+	public abstract List<InfoCenter> selectByExample(
+			InfoCenterExample paramInfoCenterExample);
+
+	public abstract InfoCenter selectByPrimaryKey(Integer paramInteger);
+
+	public abstract int updateByExampleSelective(
+			@Param("record") InfoCenter paramInfoCenter,
+			@Param("example") InfoCenterExample paramInfoCenterExample);
+
+	public abstract int updateByExample(
+			@Param("record") InfoCenter paramInfoCenter,
+			@Param("example") InfoCenterExample paramInfoCenterExample);
+
+	public abstract int updateByPrimaryKeySelective(InfoCenter paramInfoCenter);
+
+	public abstract int updateByPrimaryKey(InfoCenter paramInfoCenter);
+
+	public abstract String getInfoCenterDefinedOrder();
+
+	public abstract InfoCenter getInfoCenterByInfoFuncId(Integer paramInteger);
+}

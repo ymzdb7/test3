@@ -1,0 +1,146 @@
+/*     */ package com.xoa.plugin;
+/*     */ 
+/*     */ import com.alibaba.fastjson.JSONArray;
+/*     */ import com.alibaba.fastjson.TypeReference;
+/*     */ import com.alibaba.fastjson.parser.Feature;
+/*     */ import com.xoa.dao.attend.AttendOutMapper;
+/*     */ import com.xoa.dao.flowhook.FlowHookMapper;
+/*     */ import com.xoa.dao.workflow.FlowProcessMapper;
+/*     */ import com.xoa.global.proxy.TriggerSubject;
+/*     */ import com.xoa.model.attend.AttendOut;
+/*     */ import com.xoa.model.workflow.FlowHookWithBLOBs;
+/*     */ import com.xoa.model.workflow.FlowProcess;
+/*     */ import com.xoa.model.workflow.TriggerPlugIn;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.Iterator;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.Map.Entry;
+/*     */ import java.util.Set;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class AttendOutTrigger
+/*     */   implements TriggerSubject
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private FlowHookMapper flowHookMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private AttendOutMapper attendOutMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private FlowProcessMapper flowProcessMapper;
+/*     */ 
+/*     */   public void doRun(String company, Object[] ags)
+/*     */   {
+/*  39 */     ContextHolder.setConsumerType(company);
+/*  40 */     L.s(new Object[] { "0=||======>runrunrunrun" });
+/*     */ 
+/*  42 */     TriggerPlugIn tri = (TriggerPlugIn)ags[0];
+/*  43 */     AttendOut attendOut = new AttendOut();
+/*  44 */     FlowProcess flowProcess = this.flowProcessMapper.findPrcessLine(Integer.valueOf(Integer.parseInt(tri.getFlowId())), Integer.valueOf(Integer.parseInt(tri.getFlowPrcs())));
+/*     */ 
+/*  46 */     if (flowProcess != null) {
+/*  47 */       String prcs = flowProcess.getPrcsTo();
+/*  48 */       if ((!"".equals(prcs)) && (prcs != null)) {
+/*  49 */         prcs = prcs.substring(0, prcs.length() - 1);
+/*  50 */         if ("0".equals(prcs)) {
+/*  51 */           attendOut.setAllow("1");
+/*     */         }
+/*     */         else
+/*     */         {
+/*  56 */           attendOut.setAllow("0");
+/*     */         }
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/*  62 */     FlowHookWithBLOBs flowHookNew = new FlowHookWithBLOBs();
+/*  63 */     flowHookNew.setHid(tri.getHookId());
+/*  64 */     FlowHookWithBLOBs flowHook = this.flowHookMapper.selectByhid(flowHookNew);
+/*  65 */     Map<Object,Object> flowHookMaps = null;
+/*  66 */     if (flowHook != null)
+/*  67 */       flowHookMaps = queryTriggerField(tri.getModify(), tri.getReject(), flowHook.getMap(), flowHook.getDataDirection());
+/*     */     int a;
+/*  70 */     if (flowHookMaps != null) {
+/*  71 */       for (Map.Entry entry : flowHookMaps.entrySet()) {
+/*  72 */         if (entry.getKey().equals("LEADER_ID"))
+/*  73 */           attendOut.setLeaderId(entry.getValue().toString());
+/*  74 */         else if (entry.getKey().equals("OUT_TYPE"))
+/*  75 */           attendOut.setOutType(entry.getValue().toString());
+/*  76 */         else if (entry.getKey().equals("OUT_TIME1"))
+/*  77 */           attendOut.setOutTime1(entry.getValue().toString());
+/*  78 */         else if (entry.getKey().equals("OUT_TIME2"))
+/*  79 */           attendOut.setOutTime2(entry.getValue().toString());
+/*  80 */         else if (entry.getKey().equals("REASON")) {
+/*  81 */           attendOut.setReason(entry.getValue().toString());
+/*     */         }
+/*     */       }
+/*  84 */       attendOut.setOutId(Integer.valueOf(Integer.parseInt(tri.getTabId())));
+/*  85 */       a = this.attendOutMapper.updateByExampleSelective(attendOut);
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public Map<Object, Object> queryTriggerField(String modifydata, String fromdate, String maps, Integer num)
+/*     */   {
+/*  98 */     String[] a = maps.split(",");
+/*  99 */     Map<Object,Object> map = new HashMap<Object,Object>();
+/* 100 */     for (int i = 0; i < a.length; i++) {
+/* 101 */       String i1 = a[i];
+/* 102 */       String[] i2 = i1.split("=>");
+/* 103 */       String i3 = i2[0];
+/* 104 */       String i4 = i2[1];
+/* 105 */       map.put(i3, i4);
+/*     */     }
+/*     */ 
+/* 110 */     JSONArray json = new JSONArray();
+/*     */ 
+/* 112 */     Map<Object,Object> from = (Map)JSONArray.parseObject(fromdate, new TypeReference()
+/*     */     {
+/*     */     }
+/* 120 */     , new Feature[0]);
+/*     */ 
+/* 116 */     List modify = (List)JSONArray.parseObject(modifydata, List.class);
+/*     */ 
+/* 118 */     Map analysis = new HashMap();
+/* 119 */     Map returnMap = new HashMap();
+/* 120 */     for (Iterator i$ = modify.iterator(); i$.hasNext(); ) { 
+	            Map<Object,Object> mapmodify = (Map<Object,Object>)i$.next();
+/* 121 */       for (Map.Entry entry1 : from.entrySet())
+/* 122 */         if (mapmodify.get("key").equals(entry1.getValue()))
+/* 123 */           analysis.put(entry1.getKey(), mapmodify.get("value"));
+/*     */     }
+/*     */     Map mapmodify;
+/*     */     Iterator i$;
+/*     */     Map.Entry entry;
+/* 129 */     if ("1".equals(num)) {
+/* 130 */       for (i$ = analysis.entrySet().iterator(); i$.hasNext(); ) { entry = (Map.Entry)i$.next();
+/* 131 */         for (Map.Entry entry1 : map.entrySet()) {
+/* 132 */           if (entry.getKey().equals(entry1.getValue())) {
+/* 133 */             returnMap.put(entry1.getKey(), entry.getValue());
+/*     */           }
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/*     */     }
+/* 140 */     else if (!"2".equals(num));
+/* 143 */     for (i$ = analysis.entrySet().iterator(); i$.hasNext(); ) { entry = (Map.Entry)i$.next();
+/* 144 */       for (Map.Entry entry1 : map.entrySet())
+/* 145 */         if (entry.getKey().equals(entry1.getKey()))
+/* 146 */           returnMap.put(entry1.getValue(), entry.getValue());
+/*     */     }
+/* 157 */     return returnMap;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.plugin.AttendOutTrigger
+ * JD-Core Version:    0.6.0
+ */

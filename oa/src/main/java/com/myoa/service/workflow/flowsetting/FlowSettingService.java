@@ -1,0 +1,830 @@
+ package com.myoa.service.workflow.flowsetting;
+ 
+ import com.myoa.dao.workflow.FlowPrintTplMapper;
+import com.myoa.dao.workflow.FlowPrivMapper;
+import com.myoa.dao.workflow.FlowQueryTplMapper;
+import com.myoa.dao.workflow.FlowTimerMapper;
+import com.myoa.model.users.Users;
+import com.myoa.model.workflow.FlowPrintTplWithBLOBs;
+import com.myoa.model.workflow.FlowPrivWithBLOBs;
+import com.myoa.model.workflow.FlowQueryTplWithBLOBs;
+import com.myoa.model.workflow.FlowTimerWithBLOBs;
+import com.myoa.util.DateFormat;
+import com.myoa.util.common.CheckCallBack;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.common.session.SessionUtils;
+import com.myoa.util.common.wrapper.BaseWrapper;
+import com.myoa.util.common.wrapper.BaseWrappers;
+
+ import java.util.Calendar;
+ import java.util.Date;
+ import java.util.List;
+ import javax.servlet.http.HttpServletRequest;
+ import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+ 
+ @Service
+ public class FlowSettingService
+ {
+ 
+   @Autowired
+   FlowPrivMapper flowPrivMapper;
+ 
+   @Autowired
+   FlowTimerMapper flowTimerMapper;
+ 
+   @Autowired
+   FlowQueryTplMapper flowQueryTplMapper;
+ 
+   @Autowired
+   FlowPrintTplMapper flowPrintTplMapper;
+   private static final int ONLY_ONE_TIMES = 1;
+   private static final int TIMER_BY_DAY = 2;
+   private static final int TIMER_BY_WEEK = 3;
+   private static final int TIMER_BY_MOUTH = 4;
+   private static final int TIMER_BY_YEAR = 5;
+   private static final int SELF_ORG = -3;
+   private static final int ALL_DEPT = -2;
+   private static final int SELF_DEPT = -1;
+ 
+   public BaseWrappers queryFlowPriv(Integer flowId)
+   {
+     BaseWrappers wrappers = new BaseWrappers();
+     wrappers.setStatus(true);
+     if (flowId == null) {
+       wrappers.setMsg("缺少必要的请求参数：flowId");
+       wrappers.setFlag(false);
+       return wrappers;
+     }
+     List datas = this.flowPrivMapper.queryByFlowId(flowId);
+     if ((datas == null) || (datas.size() < 1)) {
+       wrappers.setMsg("暂时没有数据，请联系管理员。");
+       wrappers.setFlag(false);
+     } else {
+       wrappers.setMsg("数据请求成功");
+       wrappers.setFlag(true);
+       wrappers.setDatas(datas);
+     }
+     return wrappers;
+   }
+ 
+   public BaseWrapper newFlowPriv(Integer privType, Integer[] scope, Integer[] user, Integer[] role, Integer[] dept, Integer flowId)
+   {
+     BaseWrapper wrapper = new BaseWrapper();
+     StringBuffer scopeStr = new StringBuffer();
+     StringBuffer userStr = new StringBuffer();
+     StringBuffer roleStr = new StringBuffer();
+     StringBuffer deptStr = new StringBuffer();
+     wrapper.setFlag(false);
+     wrapper.setStatus(true);
+     if (flowId == null) {
+       wrapper.setMsg("所属流程不能为空");
+       return wrapper;
+     }
+     if (privType == null) {
+       wrapper.setMsg("授权类型不能为空");
+       return wrapper;
+     }
+     if (scope.length > 1)
+     {
+       for (Integer s : scope) {
+         if (s.intValue() < 0) {
+           wrapper.setMsg("数据异常或，请核对接口文档");
+           return wrapper;
+         }
+         scopeStr.append(s).append(",");
+       }
+     }
+     else if (scope.length == 1) {
+       int priv_scope = scope[0].intValue();
+       switch (priv_scope) {
+       case -3:
+         scopeStr.append("SELF_ORG");
+         break;
+       case -2:
+         scopeStr.append("ALL_DEPT");
+         break;
+       case -1:
+         scopeStr.append("SELF_DEPT");
+         break;
+       default:
+         scopeStr.append(priv_scope).append(",");
+       }
+     }
+     else
+     {
+       wrapper.setMsg("数据异常或，请核对接口文档");
+       return wrapper;
+     }
+ 
+     if ((user != null) && (user.length > 0)) {
+       for (Integer u : user) {
+         if ((u == null) || 
+           (u.intValue() == -1)) continue;
+         userStr.append(u).append(",");
+       }
+     }
+ 
+     if ((role != null) && (role.length > 0)) {
+       for (Integer r : role) {
+         if ((r == null) || 
+           (r.intValue() == -1)) continue;
+         roleStr.append(r).append(",");
+       }
+ 
+     }
+ 
+     if ((dept != null) && (dept.length > 0)) {
+       for (Integer d : dept) {
+         if ((d == null) || 
+           (d.intValue() == -1)) continue;
+         deptStr.append(d).append(",");
+       }
+     }
+ 
+     FlowPrivWithBLOBs flowPrivWithBLOBs = new FlowPrivWithBLOBs();
+     flowPrivWithBLOBs.setFlowId(flowId);
+     flowPrivWithBLOBs.setDept(deptStr.toString());
+     flowPrivWithBLOBs.setPrivScope(scopeStr.toString());
+     flowPrivWithBLOBs.setRole(roleStr.toString());
+     flowPrivWithBLOBs.setUser(userStr.toString());
+     flowPrivWithBLOBs.setPrivType(privType);
+     int res = this.flowPrivMapper.insertSelective(flowPrivWithBLOBs);
+     if (res > 0) {
+       wrapper.setFlag(true);
+       wrapper.setStatus(true);
+       wrapper.setMsg("数据插入成功");
+     } else {
+       wrapper.setMsg("数据插入失败");
+     }
+     return wrapper;
+   }
+ 
+   public BaseWrapper updateFlowPriv(Integer privType, Integer[] scope, Integer[] user, Integer[] role, Integer[] dept, Integer flowId, Integer privId)
+   {
+     BaseWrapper wrapper = new BaseWrapper();
+     wrapper.setFlag(false);
+     wrapper.setStatus(true);
+     if (flowId == null) {
+       wrapper.setMsg("所属流程不能为空");
+       return wrapper;
+     }
+     if (privId == null) {
+       wrapper.setMsg("所选编辑对象Id不能为空");
+       return wrapper;
+     }
+     StringBuffer scopeStr = null;
+     StringBuffer userStr = new StringBuffer();
+     StringBuffer roleStr = new StringBuffer();
+     StringBuffer deptStr = new StringBuffer();
+     if (scope != null) {
+       scopeStr = new StringBuffer();
+       if (scope.length > 1)
+       {
+         for (Integer s : scope) {
+           if (s.intValue() < 0) {
+             wrapper.setMsg("数据异常或，请核对接口文档");
+             return wrapper;
+           }
+           scopeStr.append(s).append(",");
+         }
+       }
+       else if (scope.length == 1) {
+         int priv_scope = scope[0].intValue();
+         switch (priv_scope) {
+         case -3:
+           scopeStr.append("SELF_ORG");
+           break;
+         case -2:
+           scopeStr.append("ALL_DEPT");
+           break;
+         case -1:
+           scopeStr.append("SELF_DEPT");
+           break;
+         default:
+           scopeStr.append(priv_scope).append(",");
+         }
+       }
+       else
+       {
+         wrapper.setMsg("数据异常或，请核对接口文档");
+         return wrapper;
+       }
+ 
+     }
+ 
+     if ((user != null) && (user.length > 0)) {
+       for (Integer u : user) {
+         if ((u == null) || 
+           (u.intValue() == -1)) continue;
+         userStr.append(u).append(",");
+       }
+     }
+ 
+     if ((role != null) && (role.length > 0)) {
+       for (Integer r : role) {
+         if ((r == null) || 
+           (r.intValue() == -1)) continue;
+         roleStr.append(r).append(",");
+       }
+ 
+     }
+ 
+     if ((dept != null) && (dept.length > 0))
+     {
+       for (Integer d : dept) {
+         if ((d == null) || 
+           (d.intValue() == -1)) continue;
+         deptStr.append(d).append(",");
+       }
+     }
+ 
+     FlowPrivWithBLOBs flowPrivWithBLOBs = new FlowPrivWithBLOBs();
+     flowPrivWithBLOBs.setFlowId(flowId);
+     flowPrivWithBLOBs.setId(privId);
+     flowPrivWithBLOBs.setDept(deptStr.toString());
+     flowPrivWithBLOBs.setPrivScope(scopeStr.toString());
+     flowPrivWithBLOBs.setRole(roleStr.toString());
+     flowPrivWithBLOBs.setUser(userStr.toString());
+     flowPrivWithBLOBs.setPrivType(privType);
+     int res = this.flowPrivMapper.updateByPrimaryKeySelective(flowPrivWithBLOBs);
+     if (res > 0) {
+       wrapper.setFlag(true);
+       wrapper.setStatus(true);
+       wrapper.setMsg("数据更新成功");
+     } else {
+       wrapper.setMsg("数据更新失败");
+     }
+     return wrapper;
+   }
+ 
+   public BaseWrapper deleteFlowPriv(Integer[] privId)
+   {
+     BaseWrapper wrapper = new BaseWrapper();
+     if (privId == null) {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("流程权限Id不能为空");
+       return wrapper;
+     }
+     int res = this.flowPrivMapper.deleteBatchKey(privId);
+     if (res > 0) {
+       wrapper.setFlag(true);
+       wrapper.setStatus(true);
+       wrapper.setMsg("删除成功");
+     } else {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("删除失败");
+     }
+     return wrapper;
+   }
+ 
+   public BaseWrappers queryFlowTimer(Integer flowId)
+   {
+     BaseWrappers wrappers = new BaseWrappers();
+     wrappers.setStatus(true);
+     wrappers.setFlag(false);
+     if (flowId == null) {
+       wrappers.setMsg("缺少必要的请求参数：flowId");
+ 
+       return wrappers;
+     }
+     List datas = this.flowTimerMapper.queryByFlowId(flowId);
+     if ((datas == null) || (datas.size() < 1)) {
+       wrappers.setMsg("暂时没有数据，请联系管理员。");
+       wrappers.setFlag(false);
+     } else {
+       wrappers.setMsg("数据请求成功");
+       wrappers.setFlag(true);
+       wrappers.setDatas(datas);
+     }
+     return wrappers;
+   }
+ 
+   public BaseWrapper newFlowTimer(Integer flowId, Integer type, String date, Integer[] user, Integer[] dept, Integer[] role)
+   {
+     BaseWrapper wrapper = new BaseWrapper();
+     wrapper.setStatus(true);
+     wrapper.setFlag(false);
+     if (flowId == null) {
+       wrapper.setMsg("流程Id不能为空。");
+       return wrapper;
+     }
+     if (type == null) {
+       wrapper.setMsg("定时任务类型不能为空。");
+       return wrapper;
+     }
+     if (StringUtils.checkNull(date).booleanValue()) {
+       wrapper.setMsg("时间不能为空。");
+       return wrapper;
+     }
+     String dateF = "";
+     Date time = null;
+     try {
+       time = DateFormat.getDate(date);
+       switch (type.intValue()) {
+       case 1:
+         dateF = DateFormat.getFormatByUse("yyyy-MM-dd", date);
+         break;
+       case 2:
+         dateF = "";
+         break;
+       case 3:
+         Calendar calendar = Calendar.getInstance();
+         calendar.setTime(time);
+         int week = calendar.get(7);
+         StringBuffer weekStr = new StringBuffer("星期");
+         dateF = weekStr.append(getWeekName(Integer.valueOf(week - 1))).toString();
+         break;
+       case 4:
+         dateF = DateFormat.getFormatByUse("每月dd号", date);
+         break;
+       case 5:
+         dateF = DateFormat.getFormatByUse("每年MM月dd号", date);
+         break;
+       default:
+         wrapper.setMsg("无效的参数类型");
+         return wrapper;
+       }
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+       wrapper.setMsg("时间格式异常");
+       return wrapper;
+     }
+     StringBuffer userStr = new StringBuffer();
+     StringBuffer roleStr = new StringBuffer();
+     StringBuffer deptStr = new StringBuffer();
+     if ((user != null) && (user.length > 0)) {
+       for (Integer u : user) {
+         if ((u == null) || 
+           (u.intValue() == -1)) continue;
+         userStr.append(u).append(",");
+       }
+     }
+ 
+     if ((role != null) && (role.length > 0)) {
+       for (Integer r : role) {
+         if ((r == null) || 
+           (r.intValue() == -1)) continue;
+         roleStr.append(r).append(",");
+       }
+ 
+     }
+ 
+     if ((dept != null) && (dept.length > 0)) {
+       for (Integer d : dept) {
+         if ((d == null) || 
+           (d.intValue() == -1)) continue;
+         deptStr.append(d).append(",");
+       }
+     }
+ 
+     FlowTimerWithBLOBs flowTimerWithBLOBs = new FlowTimerWithBLOBs();
+     flowTimerWithBLOBs.setDeptStr(deptStr.toString());
+     flowTimerWithBLOBs.setPrivStr(roleStr.toString());
+     flowTimerWithBLOBs.setUserStr(userStr.toString());
+     flowTimerWithBLOBs.setType(String.valueOf(type));
+     flowTimerWithBLOBs.setFlowId(flowId);
+     flowTimerWithBLOBs.setRemindDate(dateF);
+     flowTimerWithBLOBs.setRemindTime(time);
+     flowTimerWithBLOBs.setLastTime(new Date());
+     int res = this.flowTimerMapper.insertSelective(flowTimerWithBLOBs);
+     if (res > 0) {
+       wrapper.setFlag(true);
+       wrapper.setMsg("添加成功");
+     } else {
+       wrapper.setMsg("添加失败");
+     }
+     return wrapper;
+   }
+ 
+   public BaseWrapper updateFlowTimer(Integer timerId, Integer flowId, Integer type, String date, Integer[] user, Integer[] dept, Integer[] role)
+   {
+     BaseWrapper wrapper = new BaseWrapper();
+     wrapper.setStatus(true);
+     wrapper.setFlag(false);
+     if (timerId == null) {
+       wrapper.setMsg("timerId不能为空。");
+       return wrapper;
+     }
+     if (flowId == null) {
+       wrapper.setMsg("流程Id不能为空。");
+       return wrapper;
+     }
+     if (type == null) {
+       wrapper.setMsg("定时任务类型不能为空。");
+       return wrapper;
+     }
+     if (StringUtils.checkNull(date).booleanValue()) {
+       wrapper.setMsg("时间不能为空。");
+       return wrapper;
+     }
+     String dateF = "";
+     Date time = null;
+     try {
+       time = DateFormat.getDate(date);
+       switch (type.intValue()) {
+       case 1:
+         dateF = DateFormat.getFormatByUse("yyyy-MM-dd", date);
+         break;
+       case 2:
+         dateF = "";
+         break;
+       case 3:
+         Calendar calendar = Calendar.getInstance();
+         calendar.setTime(time);
+         int week = calendar.get(7);
+         StringBuffer weekStr = new StringBuffer("星期");
+         dateF = weekStr.append(getWeekName(Integer.valueOf(week - 1))).toString();
+         break;
+       case 4:
+         dateF = DateFormat.getFormatByUse("每月dd号", date);
+         break;
+       case 5:
+         dateF = DateFormat.getFormatByUse("每年MM月dd号", date);
+         break;
+       default:
+         wrapper.setMsg("无效的参数类型");
+         return wrapper;
+       }
+     } catch (Exception e) {
+       e.printStackTrace();
+       wrapper.setMsg("时间格式异常");
+       return wrapper;
+     }
+     StringBuffer userStr = new StringBuffer();
+     StringBuffer roleStr = new StringBuffer();
+     StringBuffer deptStr = new StringBuffer();
+     if ((user != null) && (user.length > 0)) {
+       for (Integer u : user) {
+         if ((u == null) || 
+           (u.intValue() == -1)) continue;
+         userStr.append(u).append(",");
+       }
+     }
+ 
+     if ((role != null) && (role.length > 0)) {
+       for (Integer r : role) {
+         if ((r == null) || 
+           (r.intValue() == -1)) continue;
+         roleStr.append(r).append(",");
+       }
+ 
+     }
+ 
+     if ((dept != null) && (dept.length > 0)) {
+       for (Integer d : dept) {
+         if ((d == null) || 
+           (d.intValue() == -1)) continue;
+         deptStr.append(d).append(",");
+       }
+     }
+ 
+     FlowTimerWithBLOBs flowTimerWithBLOBs = new FlowTimerWithBLOBs();
+     flowTimerWithBLOBs.setDeptStr(deptStr.toString());
+     flowTimerWithBLOBs.setPrivStr(roleStr.toString());
+     flowTimerWithBLOBs.setUserStr(userStr.toString());
+     flowTimerWithBLOBs.setType(String.valueOf(type));
+     flowTimerWithBLOBs.setFlowId(flowId);
+     flowTimerWithBLOBs.setRemindDate(dateF);
+     flowTimerWithBLOBs.setRemindTime(time);
+     flowTimerWithBLOBs.setLastTime(new Date());
+     flowTimerWithBLOBs.setTid(timerId);
+     int res = this.flowTimerMapper.updateByPrimaryKeySelective(flowTimerWithBLOBs);
+     if (res > 0) {
+       wrapper.setFlag(true);
+       wrapper.setMsg("更新成功");
+     } else {
+       wrapper.setMsg("更新失败");
+     }
+     return wrapper;
+   }
+ 
+   public BaseWrapper deleteFlowTimer(Integer[] timerId)
+   {
+     BaseWrapper wrapper = new BaseWrapper();
+     if (timerId == null) {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("timerId不能为空");
+       return wrapper;
+     }
+     int res = this.flowTimerMapper.deleteBatchKey(timerId);
+     if (res > 0) {
+       wrapper.setFlag(true);
+       wrapper.setStatus(true);
+       wrapper.setMsg("删除成功");
+     } else {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("删除失败");
+     }
+     return wrapper;
+   }
+ 
+   public BaseWrappers getFlowQueryTpl(Integer flowId)
+   {
+     BaseWrappers wrappers = new BaseWrappers();
+     wrappers.setStatus(true);
+     wrappers.setFlag(false);
+     if (flowId == null) {
+       wrappers.setMsg("缺少必要的请求参数：flowId");
+       return wrappers;
+     }
+     List datas = this.flowQueryTplMapper.queryByFlowId(flowId);
+     if ((datas != null) && (datas.size() > 0)) {
+       wrappers.setDatas(datas);
+       wrappers.setFlag(true);
+     } else {
+       wrappers.setMsg("暂时没有数据");
+     }
+     return wrappers;
+   }
+ 
+   private String getWeekName(Integer week) {
+     String[] b = { "日", "一", "二", "三", "四", "五", "六" };
+     return b[week.intValue()];
+   }
+ 
+   public BaseWrapper newFlowQuertIpl(HttpServletRequest request, String tplName, Integer flowId, String viewFields, String groupFields, String dataConditions, String flowConditions, String dataXml, String condFormula)
+   {
+     BaseWrapper wrapper = new BaseWrapper();
+     wrapper.setFlag(false);
+     wrapper.setStatus(true);
+     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+     FlowQueryTplWithBLOBs flowQueryTplWithBLOBs = new FlowQueryTplWithBLOBs();
+     if (!StringUtils.checkNull(user.getUserId()).booleanValue()) {
+       flowQueryTplWithBLOBs.setUserId(user.getUserId());
+     }
+     String checkRes = StringUtils.checkNullUtils(new CheckCallBack()
+     {
+       public boolean isNull(Object obj) {
+         if ((obj instanceof String)) {
+           String a = (String)obj;
+           if ((a == null) || ("".equals(a)) || (a.length() == 0))
+           {
+             return true;
+           }
+         }
+         if ((obj instanceof Integer)) {
+           Integer a = (Integer)obj;
+           if (a == null)
+             return true;
+         }
+         return false;
+       }
+     }
+     , new Object[] { tplName, "模板名称不能为空", flowId, "流程ID不能为空", dataXml, "查询模板内容不能为空", condFormula, "查询条件公式不能为空" });
+ 
+     if (checkRes != null) {
+       wrapper.setMsg(checkRes);
+       return wrapper;
+     }
+     flowQueryTplWithBLOBs.setDataConditions(dataConditions);
+     flowQueryTplWithBLOBs.setDataXml(dataXml);
+     flowQueryTplWithBLOBs.setFlowConditions(flowConditions);
+     flowQueryTplWithBLOBs.setGroupByFields(groupFields);
+     flowQueryTplWithBLOBs.setCondFormula(condFormula);
+     flowQueryTplWithBLOBs.setTplName(tplName);
+     flowQueryTplWithBLOBs.setFlowId(flowId);
+     flowQueryTplWithBLOBs.setViewExtFields(viewFields);
+     flowQueryTplWithBLOBs.setCreateTime(new Date());
+     Integer res = Integer.valueOf(this.flowQueryTplMapper.insertSelective(flowQueryTplWithBLOBs));
+     if (res.intValue() > 0) {
+       wrapper.setFlag(true);
+       wrapper.setMsg("成功");
+     } else {
+       wrapper.setMsg("添加失败");
+     }
+     return wrapper;
+   }
+ 
+   public BaseWrapper updateFlowQuertTpl(Integer tplId, HttpServletRequest request, String tplName, Integer flowId, String viewFields, String groupFields, String dataConditions, String flowConditions, String dataXml, String condFormula)
+   {
+     BaseWrapper wrapper = new BaseWrapper();
+     wrapper.setFlag(false);
+     wrapper.setStatus(true);
+     Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+     FlowQueryTplWithBLOBs flowQueryTplWithBLOBs = new FlowQueryTplWithBLOBs();
+     if (!StringUtils.checkNull(user.getUserId()).booleanValue()) {
+       flowQueryTplWithBLOBs.setUserId(user.getUserId());
+     }
+     String checkRes = StringUtils.checkNullUtils(new CheckCallBack()
+     {
+       public boolean isNull(Object obj) {
+         if ((obj instanceof String)) {
+           String a = (String)obj;
+           if ((a == null) || ("".equals(a)) || (a.length() == 0))
+           {
+             return true;
+           }
+         }
+         if ((obj instanceof Integer)) {
+           Integer a = (Integer)obj;
+           if (a == null)
+             return true;
+         }
+         return false;
+       }
+     }
+     , new Object[] { tplId, "tplId不能为空", tplName, "模板名称不能为空", flowId, "流程ID不能为空", dataXml, "查询模板内容不能为空", condFormula, "查询条件公式不能为空" });
+ 
+     if (checkRes != null) {
+       wrapper.setMsg(checkRes);
+       return wrapper;
+     }
+     flowQueryTplWithBLOBs.setSeqId(tplId);
+     flowQueryTplWithBLOBs.setDataConditions(dataConditions);
+     flowQueryTplWithBLOBs.setDataXml(dataXml);
+     flowQueryTplWithBLOBs.setFlowConditions(flowConditions);
+     flowQueryTplWithBLOBs.setGroupByFields(groupFields);
+     flowQueryTplWithBLOBs.setCondFormula(condFormula);
+     flowQueryTplWithBLOBs.setTplName(tplName);
+     flowQueryTplWithBLOBs.setFlowId(flowId);
+     flowQueryTplWithBLOBs.setViewExtFields(viewFields);
+     Integer res = Integer.valueOf(this.flowQueryTplMapper.updateByPrimaryKeySelective(flowQueryTplWithBLOBs));
+     if (res.intValue() > 0) {
+       wrapper.setFlag(true);
+       wrapper.setMsg("成功");
+     } else {
+       wrapper.setMsg("添加失败");
+     }
+     return wrapper;
+   }
+ 
+   public BaseWrapper queryFlowQuertTplById(Integer tplId)
+   {
+     BaseWrapper wrapper = new BaseWrapper();
+     wrapper.setFlag(false);
+     wrapper.setStatus(true);
+     if (tplId == null) {
+       wrapper.setMsg("tplId不能为空");
+       return wrapper;
+     }
+     FlowQueryTplWithBLOBs flowQueryTplWithBLOBs = this.flowQueryTplMapper.selectByPrimaryKey(tplId);
+     if (flowQueryTplWithBLOBs != null) {
+       wrapper.setFlag(true);
+       wrapper.setMsg("数据获取成功");
+       wrapper.setData(flowQueryTplWithBLOBs);
+     } else {
+       wrapper.setMsg("没有数据");
+     }
+     return wrapper;
+   }
+ 
+   public BaseWrapper deleteFlowQuertTpl(Integer[] tplId) {
+     BaseWrapper wrapper = new BaseWrapper();
+     if (tplId == null) {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("tplId不能为空");
+       return wrapper;
+     }
+     int res = this.flowQueryTplMapper.deleteBatchKey(tplId);
+     if (res > 0) {
+       wrapper.setFlag(true);
+       wrapper.setStatus(true);
+       wrapper.setMsg("删除成功");
+     } else {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("删除失败");
+     }
+     return wrapper;
+   }
+ 
+   public BaseWrappers getFlowPrintTpl(Integer flowId)
+   {
+     BaseWrappers wrappers = new BaseWrappers();
+     wrappers.setStatus(true);
+     wrappers.setFlag(false);
+     if (flowId == null) {
+       wrappers.setMsg("缺少必要的请求参数：flowId");
+       return wrappers;
+     }
+     List datas = this.flowPrintTplMapper.queryByFlowId(flowId);
+     if ((datas != null) && (datas.size() > 0)) {
+       wrappers.setDatas(datas);
+       wrappers.setFlag(true);
+     } else {
+       wrappers.setMsg("暂时没有数据");
+     }
+     return wrappers;
+   }
+ 
+   public BaseWrapper newFlowPrintTpl(Integer flowId, Integer tType, String tName, String content, String flowPrcs)
+   {
+     BaseWrapper wrapper = new BaseWrapper();
+     wrapper.setFlag(false);
+     wrapper.setStatus(true);
+     String checkRes = StringUtils.checkNullUtils(new CheckCallBack()
+     {
+       public boolean isNull(Object obj) {
+         if ((obj instanceof String)) {
+           String a = (String)obj;
+           if ((a == null) || ("".equals(a)) || (a.length() == 0))
+           {
+             return true;
+           }
+         }
+         if ((obj instanceof Integer)) {
+           Integer a = (Integer)obj;
+           if (a == null)
+             return true;
+         }
+         return false;
+       }
+     }
+     , new Object[] { flowId, "flowId不能为空", tType, "模板类型不能为空", tName, "模板名称不能为空" });
+ 
+     if (checkRes != null) {
+       wrapper.setMsg(checkRes);
+       return wrapper;
+     }
+     FlowPrintTplWithBLOBs flowPrintTplWithBLOBs = new FlowPrintTplWithBLOBs();
+     flowPrintTplWithBLOBs.setContent(content == null ? "" : content);
+     flowPrintTplWithBLOBs.setFlowPrcs(flowPrcs == null ? "" : flowPrcs);
+     flowPrintTplWithBLOBs.setCreateTime(new Date());
+     flowPrintTplWithBLOBs.setTName(tName);
+     flowPrintTplWithBLOBs.setTType(tType.toString());
+     flowPrintTplWithBLOBs.setFlowId(flowId);
+     int res = this.flowPrintTplMapper.insertSelective(flowPrintTplWithBLOBs);
+     if (res > 0) {
+       wrapper.setFlag(true);
+       wrapper.setMsg("操作成功");
+     } else {
+       wrapper.setMsg("操作失败");
+     }
+     return wrapper;
+   }
+ 
+   public BaseWrapper updateFlowPrintTpl(Integer tId, Integer flowId, Integer tType, String tName, String content, String flowPrcs)
+   {
+     BaseWrapper wrapper = new BaseWrapper();
+     wrapper.setFlag(false);
+     wrapper.setStatus(true);
+     String checkRes = StringUtils.checkNullUtils(new CheckCallBack()
+     {
+       public boolean isNull(Object obj) {
+         if ((obj instanceof String)) {
+           String a = (String)obj;
+           if ((a == null) || ("".equals(a)) || (a.length() == 0))
+           {
+             return true;
+           }
+         }
+         if ((obj instanceof Integer)) {
+           Integer a = (Integer)obj;
+           if (a == null)
+             return true;
+         }
+         return false;
+       }
+     }
+     , new Object[] { tId, "tId不能为空", flowId, "flowId不能为空", tType, "模板类型不能为空", tName, "模板名称不能为空" });
+ 
+     if (checkRes != null) {
+       wrapper.setMsg(checkRes);
+       return wrapper;
+     }
+     FlowPrintTplWithBLOBs flowPrintTplWithBLOBs = new FlowPrintTplWithBLOBs();
+     flowPrintTplWithBLOBs.setContent(content == null ? "" : content);
+     flowPrintTplWithBLOBs.setFlowPrcs(flowPrcs == null ? "" : flowPrcs);
+     flowPrintTplWithBLOBs.setCreateTime(new Date());
+     flowPrintTplWithBLOBs.setTName(tName);
+     flowPrintTplWithBLOBs.setTType(tType.toString());
+     flowPrintTplWithBLOBs.setFlowId(flowId);
+     flowPrintTplWithBLOBs.setTId(tId);
+     int res = this.flowPrintTplMapper.updateByPrimaryKeySelective(flowPrintTplWithBLOBs);
+     if (res > 0) {
+       wrapper.setFlag(true);
+       wrapper.setMsg("操作成功");
+     } else {
+       wrapper.setMsg("操作失败");
+     }
+     return wrapper;
+   }
+   public BaseWrapper deleteFlowPrintTpl(Integer[] tId) {
+     BaseWrapper wrapper = new BaseWrapper();
+     if (tId == null) {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("tId不能为空");
+       return wrapper;
+     }
+     int res = this.flowPrintTplMapper.deleteBatchKey(tId);
+     if (res > 0) {
+       wrapper.setFlag(true);
+       wrapper.setStatus(true);
+       wrapper.setMsg("删除成功");
+     } else {
+       wrapper.setFlag(false);
+       wrapper.setStatus(true);
+       wrapper.setMsg("删除失败");
+     }
+     return wrapper;
+   }
+ }
+

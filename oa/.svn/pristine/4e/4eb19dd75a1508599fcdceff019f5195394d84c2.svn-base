@@ -1,0 +1,38 @@
+/*    */ package com.xoa.controller.event;
+/*    */ 
+/*    */ import com.xoa.model.event.TimeLinePostUser;
+/*    */ import com.xoa.service.event.TimeLinePostUserService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.beans.factory.annotation.Autowired;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ import org.springframework.web.bind.annotation.RestController;
+/*    */ 
+/*    */ @RestController
+/*    */ @RequestMapping({"/timeLinePostUser"})
+/*    */ public class TimeLinePostUserController
+/*    */ {
+/*    */ 
+/*    */   @Autowired
+/*    */   TimeLinePostUserService timeLinePostUserService;
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/updateTimeLinePostUser"})
+/*    */   public ToJson<TimeLinePostUser> updateTimeLinePostUser(HttpServletRequest request, TimeLinePostUser timeLinePostUser)
+/*    */   {
+/* 35 */     return this.timeLinePostUserService.updateTimeLinePostUser(timeLinePostUser);
+/*    */   }
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/addTimeLinePostUser"})
+/*    */   public ToJson<TimeLinePostUser> addTimeLinePostUser(HttpServletRequest request, TimeLinePostUser timeLinePostUser)
+/*    */   {
+/* 49 */     return this.timeLinePostUserService.addTimeLinePostUser(timeLinePostUser);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.event.TimeLinePostUserController
+ * JD-Core Version:    0.6.0
+ */

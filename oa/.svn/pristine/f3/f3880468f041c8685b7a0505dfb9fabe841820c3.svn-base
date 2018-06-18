@@ -1,0 +1,27 @@
+/*    */ package com.xoa.util;
+/*    */ 
+/*    */ public class Convert
+/*    */ {
+/*    */   public static String convertFileSize(long size)
+/*    */   {
+/*  6 */     long kb = 1024L;
+/*  7 */     long mb = kb * 1024L;
+/*  8 */     long gb = mb * 1024L;
+/*    */ 
+/* 10 */     if (size >= gb)
+/* 11 */       return String.format("%.1f GB", new Object[] { Float.valueOf((float)size / (float)gb) });
+/* 12 */     if (size >= mb) {
+/* 13 */       float f = (float)size / (float)mb;
+/* 14 */       return String.format(f > 100.0F ? "%.0f MB" : "%.1f MB", new Object[] { Float.valueOf(f) });
+/* 15 */     }if (size >= kb) {
+/* 16 */       float f = (float)size / (float)kb;
+/* 17 */       return String.format(f > 100.0F ? "%.0f KB" : "%.1f KB", new Object[] { Float.valueOf(f) });
+/*    */     }
+/* 19 */     return String.format("%d B", new Object[] { Long.valueOf(size) });
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.Convert
+ * JD-Core Version:    0.6.0
+ */

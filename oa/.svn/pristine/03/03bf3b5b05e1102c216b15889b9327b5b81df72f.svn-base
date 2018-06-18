@@ -1,0 +1,375 @@
+/*     */ package com.xoa.service.workflow.customNumber;
+/*     */ 
+/*     */ import com.xoa.dao.customNumber.CustomNumberMapper;
+/*     */ import com.xoa.dao.customNumber.CustomNumberRecordMapper;
+/*     */ import com.xoa.model.customNumber.CustomNumber;
+/*     */ import com.xoa.model.customNumber.CustomNumberExample;
+/*     */ import com.xoa.model.customNumber.CustomNumberRecord;
+/*     */ import com.xoa.service.workflow.customNumber.wrapper.CustomNumberWrappers;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import java.util.Calendar;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class CustomNumberService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private CustomNumberMapper customNumberMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private CustomNumberRecordMapper customNumberRecordMapper;
+/*     */ 
+/*     */   public BaseWrapper generateCustomNumber(Integer uuid, String model, String modelId)
+/*     */   {
+/*  33 */     CustomNumberWrappers wrappers = new CustomNumberWrappers();
+/*     */ 
+/*  35 */     List records = this.customNumberRecordMapper.queryCustomNumberRecordBymodel(String.valueOf(uuid), modelId);
+/*  36 */     if (records.size() != 0) {
+/*  37 */       wrappers.setFlag(true);
+/*  38 */       wrappers.setStatus(true);
+/*  39 */       wrappers.setMsg("ok");
+/*  40 */       wrappers.setData(((CustomNumberRecord)records.get(0)).getNumberStyle());
+/*  41 */       return wrappers;
+/*     */     }
+/*     */ 
+/*  44 */     if (StringUtils.checkNull(String.valueOf(uuid)).booleanValue()) {
+/*  45 */       wrappers.setFlag(false);
+/*  46 */       wrappers.setStatus(true);
+/*  47 */       wrappers.setMsg("传值为空");
+/*  48 */       return wrappers;
+/*     */     }
+/*  50 */     CustomNumber customNumber = this.customNumberMapper.selectByPrimaryKey(uuid);
+/*  51 */     String userSetStyle = customNumber.getSetStyle();
+/*  52 */     String showStr = "";
+/*  53 */     int type = customNumber.getTypes().intValue();
+/*  54 */     int numBit = customNumber.getNumberBit().intValue();
+/*  55 */     int curNUmber = customNumber.getCurrentNumber().intValue() + 1;
+/*  56 */     int curNumBit = (curNUmber + "").length();
+/*  57 */     Date date1 = customNumber.getLastDate();
+/*  58 */     Calendar date = Calendar.getInstance();
+/*  59 */     date.setTime(date1);
+/*     */ 
+/*  61 */     Calendar now = Calendar.getInstance();
+/*  62 */     Date date2 = now.getTime();
+/*  63 */     if (type == 1)
+/*     */     {
+/*  66 */       if (userSetStyle.indexOf("YYYY") > -1) {
+/*  67 */         userSetStyle = userSetStyle.replaceAll("YYYY", now.get(1) + "");
+/*     */       }
+/*  69 */       if (userSetStyle.indexOf("YY") > -1) {
+/*  70 */         userSetStyle = userSetStyle.replaceAll("YY", (now.get(1) + "").substring(2));
+/*     */       }
+/*     */ 
+/*  73 */       if (userSetStyle.indexOf("MM") > -1) {
+/*  74 */         int month = now.get(2) + 1;
+/*  75 */         String monthStr = "";
+/*  76 */         if (month < 10) monthStr = "0";
+/*  77 */         monthStr = monthStr + month;
+/*  78 */         userSetStyle = userSetStyle.replaceAll("MM", monthStr);
+/*     */       }
+/*     */ 
+/*  82 */       if (userSetStyle.indexOf("DD") > -1) {
+/*  83 */         int day = now.get(5);
+/*  84 */         String dayStr = "";
+/*  85 */         if (day < 10) dayStr = "0";
+/*  86 */         dayStr = dayStr + day;
+/*  87 */         userSetStyle = userSetStyle.replaceAll("DD", dayStr);
+/*     */       }
+/*     */ 
+/*  90 */       if (userSetStyle.indexOf("##") > -1) {
+/*  91 */         String num = "";
+/*  92 */         for (int i = 0; i < numBit - curNumBit; i++) {
+/*  93 */           num = num + "0";
+/*     */         }
+/*  95 */         num = num + curNUmber;
+/*  96 */         userSetStyle = userSetStyle.replaceAll("##", num);
+/*  97 */         curNUmber = Integer.parseInt(num);
+/*     */       }
+/*  99 */       showStr = userSetStyle;
+/*     */     }
+/*     */ 
+/* 103 */     if (type == 2) {
+/* 104 */       int year = date.get(1);
+/* 105 */       int nowYear = now.get(1);
+/* 106 */       if (year == nowYear)
+/*     */       {
+/* 108 */         if (userSetStyle.indexOf("YYYY") > -1) {
+/* 109 */           userSetStyle = userSetStyle.replaceAll("YYYY", nowYear + "");
+/*     */         }
+/* 111 */         if (userSetStyle.indexOf("YY") > -1) {
+/* 112 */           userSetStyle = userSetStyle.replaceAll("YY", (nowYear + "").substring(2));
+/*     */         }
+/*     */ 
+/* 115 */         if (userSetStyle.indexOf("MM") > -1) {
+/* 116 */           int month = now.get(2) + 1;
+/* 117 */           String monthStr = "";
+/* 118 */           if (month < 10) monthStr = "0";
+/* 119 */           monthStr = monthStr + month;
+/* 120 */           userSetStyle = userSetStyle.replaceAll("MM", monthStr);
+/*     */         }
+/*     */ 
+/* 124 */         if (userSetStyle.indexOf("DD") > -1) {
+/* 125 */           int day = now.get(5);
+/* 126 */           String dayStr = "";
+/* 127 */           if (day < 10) dayStr = "0";
+/* 128 */           dayStr = dayStr + day;
+/* 129 */           userSetStyle = userSetStyle.replaceAll("DD", dayStr);
+/*     */         }
+/*     */ 
+/* 132 */         if (userSetStyle.indexOf("##") > -1) {
+/* 133 */           String num = "";
+/* 134 */           for (int i = 0; i < numBit - curNumBit; i++) {
+/* 135 */             num = num + "0";
+/*     */           }
+/* 137 */           num = num + curNUmber;
+/* 138 */           userSetStyle = userSetStyle.replaceAll("##", num);
+/* 139 */           curNUmber = Integer.parseInt(num);
+/*     */         }
+/* 141 */         showStr = userSetStyle;
+/*     */       }
+/*     */       else
+/*     */       {
+/* 145 */         if (userSetStyle.indexOf("YYYY") > -1) {
+/* 146 */           userSetStyle = userSetStyle.replaceAll("YYYY", nowYear + "");
+/*     */         }
+/* 148 */         if (userSetStyle.indexOf("YY") > -1) {
+/* 149 */           userSetStyle = userSetStyle.replaceAll("YY", (nowYear + "").substring(2));
+/*     */         }
+/*     */ 
+/* 152 */         if (userSetStyle.indexOf("MM") > -1) {
+/* 153 */           int month = now.get(2) + 1;
+/* 154 */           String monthStr = "";
+/* 155 */           if (month < 10) monthStr = "0";
+/* 156 */           monthStr = monthStr + month;
+/* 157 */           userSetStyle = userSetStyle.replaceAll("MM", monthStr);
+/*     */         }
+/*     */ 
+/* 161 */         if (userSetStyle.indexOf("DD") > -1) {
+/* 162 */           int day = now.get(5);
+/* 163 */           String dayStr = "";
+/* 164 */           if (day < 10) dayStr = "0";
+/* 165 */           dayStr = dayStr + day;
+/* 166 */           userSetStyle = userSetStyle.replaceAll("DD", dayStr);
+/*     */         }
+/*     */ 
+/* 169 */         if (userSetStyle.indexOf("##") > -1) {
+/* 170 */           String num = "";
+/* 171 */           curNUmber = 1;
+/* 172 */           curNumBit = (curNUmber + "").length();
+/* 173 */           for (int i = 0; i < numBit - curNumBit; i++) {
+/* 174 */             num = num + "0";
+/*     */           }
+/* 176 */           num = num + curNUmber;
+/* 177 */           userSetStyle = userSetStyle.replaceAll("##", num);
+/* 178 */           curNUmber = Integer.parseInt(num);
+/*     */         }
+/* 180 */         showStr = userSetStyle;
+/*     */       }
+/*     */     }
+/* 183 */     if (type == 3) {
+/* 184 */       int year = date.get(1);
+/* 185 */       int nowYear = now.get(1);
+/* 186 */       int months = date.get(2);
+/* 187 */       int nowMonth = now.get(2);
+/* 188 */       if ((year == nowYear) && (months == nowMonth))
+/*     */       {
+/* 190 */         if (userSetStyle.indexOf("YYYY") > -1) {
+/* 191 */           userSetStyle = userSetStyle.replaceAll("YYYY", nowYear + "");
+/*     */         }
+/* 193 */         if (userSetStyle.indexOf("YY") > -1) {
+/* 194 */           userSetStyle = userSetStyle.replaceAll("YY", (nowYear + "").substring(2));
+/*     */         }
+/*     */ 
+/* 197 */         if (userSetStyle.indexOf("MM") > -1) {
+/* 198 */           int month = now.get(2) + 1;
+/* 199 */           String monthStr = "";
+/* 200 */           if (month < 10) monthStr = "0";
+/* 201 */           monthStr = monthStr + month;
+/* 202 */           userSetStyle = userSetStyle.replaceAll("MM", monthStr);
+/*     */         }
+/*     */ 
+/* 206 */         if (userSetStyle.indexOf("DD") > -1) {
+/* 207 */           int day = now.get(5);
+/* 208 */           String dayStr = "";
+/* 209 */           if (day < 10) dayStr = "0";
+/* 210 */           dayStr = dayStr + day;
+/* 211 */           userSetStyle = userSetStyle.replaceAll("DD", dayStr);
+/*     */         }
+/*     */ 
+/* 214 */         if (userSetStyle.indexOf("##") > -1) {
+/* 215 */           String num = "";
+/* 216 */           for (int i = 0; i < numBit - curNumBit; i++) {
+/* 217 */             num = num + "0";
+/*     */           }
+/* 219 */           num = num + curNUmber;
+/* 220 */           userSetStyle = userSetStyle.replaceAll("##", num);
+/* 221 */           curNUmber = Integer.parseInt(num);
+/*     */         }
+/* 223 */         showStr = userSetStyle;
+/*     */       }
+/* 226 */       else if ((year != nowYear) || (months != nowMonth))
+/*     */       {
+/* 228 */         if (userSetStyle.indexOf("YYYY") > -1) {
+/* 229 */           userSetStyle = userSetStyle.replaceAll("YYYY", nowYear + "");
+/*     */         }
+/* 231 */         if (userSetStyle.indexOf("YY") > -1) {
+/* 232 */           userSetStyle = userSetStyle.replaceAll("YY", (nowYear + "").substring(2));
+/*     */         }
+/*     */ 
+/* 235 */         if (userSetStyle.indexOf("MM") > -1) {
+/* 236 */           int month = now.get(2) + 1;
+/* 237 */           String monthStr = "";
+/* 238 */           if (month < 10) monthStr = "0";
+/* 239 */           monthStr = monthStr + month;
+/* 240 */           userSetStyle = userSetStyle.replaceAll("MM", monthStr);
+/*     */         }
+/*     */ 
+/* 244 */         if (userSetStyle.indexOf("DD") > -1) {
+/* 245 */           int day = now.get(5);
+/* 246 */           String dayStr = "";
+/* 247 */           if (day < 10) dayStr = "0";
+/* 248 */           dayStr = dayStr + day;
+/* 249 */           userSetStyle = userSetStyle.replaceAll("DD", dayStr);
+/*     */         }
+/*     */ 
+/* 252 */         if (userSetStyle.indexOf("##") > -1) {
+/* 253 */           String num = "";
+/* 254 */           curNUmber = 1;
+/* 255 */           curNumBit = (curNUmber + "").length();
+/* 256 */           for (int i = 0; i < numBit - curNumBit; i++) {
+/* 257 */             num = num + "0";
+/*     */           }
+/* 259 */           num = num + curNUmber;
+/* 260 */           userSetStyle = userSetStyle.replaceAll("##", num);
+/* 261 */           curNUmber = Integer.parseInt(num);
+/*     */         }
+/* 263 */         showStr = userSetStyle;
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 268 */     if (type == 4) {
+/* 269 */       int year = date.get(1);
+/* 270 */       int nowYear = now.get(1);
+/* 271 */       int months = date.get(2);
+/* 272 */       int nowMonth = now.get(2);
+/* 273 */       int days = date.get(5);
+/* 274 */       int nowDay = now.get(5);
+/* 275 */       if ((year == nowYear) && (months == nowMonth) && (days == nowDay))
+/*     */       {
+/* 277 */         if (userSetStyle.indexOf("YYYY") > -1) {
+/* 278 */           userSetStyle = userSetStyle.replaceAll("YYYY", now.get(1) + "");
+/*     */         }
+/* 280 */         if (userSetStyle.indexOf("YY") > -1) {
+/* 281 */           userSetStyle = userSetStyle.replaceAll("YY", (now.get(1) + "").substring(2));
+/*     */         }
+/*     */ 
+/* 284 */         if (userSetStyle.indexOf("MM") > -1) {
+/* 285 */           int month = now.get(2) + 1;
+/* 286 */           String monthStr = "";
+/* 287 */           if (month < 10) monthStr = "0";
+/* 288 */           monthStr = monthStr + month;
+/* 289 */           userSetStyle = userSetStyle.replaceAll("MM", monthStr);
+/*     */         }
+/*     */ 
+/* 293 */         if (userSetStyle.indexOf("DD") > -1) {
+/* 294 */           int day = now.get(5);
+/* 295 */           String dayStr = "";
+/* 296 */           if (day < 10) dayStr = "0";
+/* 297 */           dayStr = dayStr + day;
+/* 298 */           userSetStyle = userSetStyle.replaceAll("DD", dayStr);
+/*     */         }
+/*     */ 
+/* 301 */         if (userSetStyle.indexOf("##") > -1) {
+/* 302 */           String num = "";
+/* 303 */           for (int i = 0; i < numBit - curNumBit; i++) {
+/* 304 */             num = num + "0";
+/*     */           }
+/* 306 */           num = num + curNUmber;
+/* 307 */           userSetStyle = userSetStyle.replaceAll("##", num);
+/* 308 */           curNUmber = Integer.parseInt(num);
+/*     */         }
+/* 310 */         showStr = userSetStyle;
+/*     */       }
+/* 313 */       else if ((year != nowYear) || (months != nowMonth) || (days != nowDay))
+/*     */       {
+/* 315 */         if (userSetStyle.indexOf("YYYY") > -1) {
+/* 316 */           userSetStyle = userSetStyle.replaceAll("YYYY", nowYear + "");
+/*     */         }
+/* 318 */         if (userSetStyle.indexOf("YY") > -1) {
+/* 319 */           userSetStyle = userSetStyle.replaceAll("YY", (nowYear + "").substring(2));
+/*     */         }
+/*     */ 
+/* 322 */         if (userSetStyle.indexOf("MM") > -1) {
+/* 323 */           int month = now.get(2) + 1;
+/* 324 */           String monthStr = "";
+/* 325 */           if (month < 10) monthStr = "0";
+/* 326 */           monthStr = monthStr + month;
+/* 327 */           userSetStyle = userSetStyle.replaceAll("MM", monthStr);
+/*     */         }
+/*     */ 
+/* 331 */         if (userSetStyle.indexOf("DD") > -1) {
+/* 332 */           int day = now.get(5);
+/* 333 */           String dayStr = "";
+/* 334 */           if (day < 10) dayStr = "0";
+/* 335 */           dayStr = dayStr + day;
+/* 336 */           userSetStyle = userSetStyle.replaceAll("DD", dayStr);
+/*     */         }
+/*     */ 
+/* 339 */         if (userSetStyle.indexOf("##") > -1) {
+/* 340 */           String num = "";
+/* 341 */           curNUmber = 1;
+/* 342 */           curNumBit = (curNUmber + "").length();
+/* 343 */           for (int i = 0; i < numBit - curNumBit; i++) {
+/* 344 */             num = num + "0";
+/*     */           }
+/* 346 */           num = num + curNUmber;
+/* 347 */           userSetStyle = userSetStyle.replaceAll("##", num);
+/* 348 */           curNUmber = Integer.parseInt(num);
+/*     */         }
+/* 350 */         showStr = userSetStyle;
+/*     */       }
+/*     */     }
+/*     */ 
+/* 354 */     customNumber.setCurrentNumber(Integer.valueOf(curNUmber));
+/* 355 */     customNumber.setLastDate(date2);
+/* 356 */     CustomNumberRecord customNumberRecord = new CustomNumberRecord();
+/* 357 */     customNumberRecord.setCrTime(date2);
+/* 358 */     customNumberRecord.setCustomNumberId(customNumber.getUuid());
+/* 359 */     customNumberRecord.setNumberValue(Integer.valueOf(curNUmber));
+/* 360 */     customNumberRecord.setNumberStyle(showStr);
+/* 361 */     customNumberRecord.setModel(model);
+/* 362 */     customNumberRecord.setModelId(modelId);
+/* 363 */     this.customNumberRecordMapper.insertSelective(customNumberRecord);
+/* 364 */     customNumberRecord.setUuid(uuid);
+/* 365 */     this.customNumberMapper.updateByPrimaryKey(customNumber);
+/*     */ 
+/* 367 */     wrappers.setFlag(true);
+/* 368 */     wrappers.setStatus(true);
+/* 369 */     wrappers.setMsg("ok");
+/* 370 */     wrappers.setData(showStr);
+/* 371 */     return wrappers;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper queryCustomNumber(HttpServletRequest request) {
+/* 375 */     CustomNumberWrappers wrappers = new CustomNumberWrappers();
+/* 376 */     CustomNumberExample customNumberExample = new CustomNumberExample();
+/* 377 */     List customNumbers = this.customNumberMapper.selectByExample(customNumberExample);
+/* 378 */     wrappers.setFlag(true);
+/* 379 */     wrappers.setStatus(true);
+/* 380 */     wrappers.setMsg("ok");
+/* 381 */     wrappers.setData(customNumbers);
+/* 382 */     return wrappers;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.workflow.customNumber.CustomNumberService
+ * JD-Core Version:    0.6.0
+ */

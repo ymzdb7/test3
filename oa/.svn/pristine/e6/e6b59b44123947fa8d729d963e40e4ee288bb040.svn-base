@@ -1,0 +1,123 @@
+/*     */ package com.xoa.util.treeUtil;
+/*     */ 
+/*     */ import com.xoa.model.supervision.SupervisionType;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ 
+/*     */ public class SuperviseTreeUtil
+/*     */ {
+/*     */   private static final String MENU_ID = "";
+/*     */   List<SupervisionType> rootTree;
+/*     */   List<SupervisionType> childTree;
+/*     */   Map<String, Object> map;
+/*     */ 
+/*     */   public SuperviseTreeUtil(List<SupervisionType> rootTree, List<SupervisionType> childTree, Map<String, Object> map)
+/*     */   {
+/*  28 */     this.rootTree = rootTree;
+/*  29 */     this.childTree = childTree;
+/*  30 */     this.map = map;
+/*     */   }
+/*     */ 
+/*     */   public List<TreeGirdNode> getTreeGirdNode()
+/*     */   {
+/*  35 */     return getRootNodes();
+/*     */   }
+/*     */ 
+/*     */   public List<TreeGirdNode> getTreeGirdNodeMap() {
+/*  39 */     return getRootNodeMap();
+/*     */   }
+/*     */ 
+/*     */   private List<TreeGirdNode> getRootNodes()
+/*     */   {
+/*  49 */     List rootNodes = new ArrayList();
+/*  50 */     for (SupervisionType fs : this.rootTree) {
+/*  51 */       TreeGirdNode node = RootToNode(fs);
+/*  52 */       if (node != null) {
+/*  53 */         addChlidNodes(node);
+/*  54 */         rootNodes.add(node);
+/*     */       }
+/*     */     }
+/*  57 */     return rootNodes;
+/*     */   }
+/*     */ 
+/*     */   public List<TreeGirdNode> getRootNodeMap()
+/*     */   {
+/*  64 */     List rootNodes = new ArrayList();
+/*  65 */     for (SupervisionType fs : this.rootTree) {
+/*  66 */       TreeGirdNode node = RootToNode(fs);
+/*  67 */       if ((node != null) && (this.map != null)) {
+/*  68 */         if (CheckTree.checkAll(fs.getUserId(), this.map)) {
+/*  69 */           addChlidNodeMap(node, false);
+/*     */         }
+/*  71 */         rootNodes.add(node);
+/*     */       }
+/*     */     }
+/*  74 */     return rootNodes;
+/*     */   }
+/*     */ 
+/*     */   private TreeGirdNode RootToNode(SupervisionType fs)
+/*     */   {
+/*  84 */     if (fs == null) {
+/*  85 */       return null;
+/*     */     }
+/*  87 */     TreeGirdNode node = new TreeGirdNode();
+/*  88 */     Map attributes = new HashMap();
+/*     */ 
+/*  90 */     String[] checkStrings = (fs.getUserName() == null ? "" : fs.getUserName()).split("\\|");
+/*     */ 
+/*  92 */     if (checkStrings.length == 1) {
+/*  93 */       node.setDeptNames(checkStrings[0]);
+/*  94 */       node.setRoleNames("");
+/*  95 */       node.setUserNames("");
+/*     */     }
+/*     */ 
+/*  98 */     if (checkStrings.length == 2) {
+/*  99 */       node.setDeptNames(checkStrings[0]);
+/* 100 */       node.setRoleNames(checkStrings[1]);
+/* 101 */       node.setUserNames("");
+/*     */     }
+/*     */ 
+/* 104 */     if (checkStrings.length == 3) {
+/* 105 */       node.setDeptNames(checkStrings[0]);
+/* 106 */       node.setRoleNames(checkStrings[1]);
+/* 107 */       node.setUserNames(checkStrings[2]);
+/*     */     }
+/* 109 */     node.setId(String.valueOf(fs.getSid()));
+/* 110 */     node.setText(fs.getTypeName());
+/* 111 */     return node;
+/*     */   }
+/*     */ 
+/*     */   private void addChlidNodeMap(TreeGirdNode rootNode, boolean flag)
+/*     */   {
+/* 120 */     List childNodes = new ArrayList();
+/* 121 */     boolean cFlag = false;
+/* 122 */     for (SupervisionType fs : this.childTree) {
+/* 123 */       if (rootNode.getId().equals(String.valueOf(fs.getParentId()))) {
+/* 124 */         TreeGirdNode node = RootToNode(fs);
+/* 125 */         childNodes.add(node);
+/* 126 */         addChlidNodeMap(node, cFlag);
+/*     */       }
+/*     */     }
+/* 129 */     rootNode.setChildren(childNodes);
+/*     */   }
+/*     */ 
+/*     */   private void addChlidNodes(TreeGirdNode rootNode)
+/*     */   {
+/* 137 */     List childNodes = new ArrayList();
+/* 138 */     for (SupervisionType fs : this.childTree) {
+/* 139 */       if ((rootNode.getId().equals(String.valueOf(fs.getParentId()))) && (CheckTree.checkAll(fs.getUserId(), this.map))) {
+/* 140 */         TreeGirdNode node = RootToNode(fs);
+/* 141 */         childNodes.add(node);
+/* 142 */         addChlidNodes(node);
+/*     */       }
+/*     */     }
+/* 145 */     rootNode.setChildren(childNodes);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.treeUtil.SuperviseTreeUtil
+ * JD-Core Version:    0.6.0
+ */

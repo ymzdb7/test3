@@ -1,0 +1,451 @@
+/*     */ package com.xoa.service.attend;
+/*     */ 
+/*     */ import com.xoa.dao.attend.AttendSetMapper;
+/*     */ import com.xoa.dao.users.UserExtMapper;
+/*     */ import com.xoa.model.attend.AttendSet;
+/*     */ import com.xoa.model.users.UserExt;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.attend.wrapper.AttendSetWrappers;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrapper;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class AttendSetService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private AttendSetMapper attendSetMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private UserExtMapper userExtMapper;
+/*     */ 
+/*     */   public BaseWrapper newAttendSet(AttendSet attendSet, String commute1, String commute2, String commute3, String commute4, String commute5, String commute6, String atime1Setother, String atime2Setother, String atime3Setother, String atime4Setother, String atime5Setother, String atime6Setother)
+/*     */   {
+/*  34 */     AttendSetWrappers wrappers = new AttendSetWrappers();
+/*     */ 
+/*  36 */     if (StringUtils.checkNull(attendSet.getTitle()).booleanValue()) {
+/*  37 */       wrappers.setFlag(false);
+/*  38 */       wrappers.setStatus(true);
+/*  39 */       wrappers.setMsg("考勤签到类型名称不能为空");
+/*  40 */       return wrappers;
+/*     */     }
+/*  42 */     if ((Integer.parseInt(atime1Setother) == 1) && 
+/*  43 */       (StringUtils.checkNull(attendSet.getAtime1()).booleanValue())) {
+/*  44 */       wrappers.setFlag(false);
+/*  45 */       wrappers.setStatus(true);
+/*  46 */       wrappers.setMsg("考勤签到时间不能为空");
+/*  47 */       return wrappers;
+/*     */     }
+/*     */ 
+/*  51 */     if ((Integer.parseInt(atime2Setother) == 1) && 
+/*  52 */       (StringUtils.checkNull(attendSet.getAtime2()).booleanValue())) {
+/*  53 */       wrappers.setFlag(false);
+/*  54 */       wrappers.setStatus(true);
+/*  55 */       wrappers.setMsg("考勤签到时间不能为空");
+/*  56 */       return wrappers;
+/*     */     }
+/*     */ 
+/*  60 */     if ((Integer.parseInt(atime3Setother) == 1) && 
+/*  61 */       (StringUtils.checkNull(attendSet.getAtime3()).booleanValue())) {
+/*  62 */       wrappers.setFlag(false);
+/*  63 */       wrappers.setStatus(true);
+/*  64 */       wrappers.setMsg("考勤签到时间不能为空");
+/*  65 */       return wrappers;
+/*     */     }
+/*     */ 
+/*  69 */     if ((Integer.parseInt(atime4Setother) == 1) && 
+/*  70 */       (StringUtils.checkNull(attendSet.getAtime4()).booleanValue())) {
+/*  71 */       wrappers.setFlag(false);
+/*  72 */       wrappers.setStatus(true);
+/*  73 */       wrappers.setMsg("考勤签到时间不能为空");
+/*  74 */       return wrappers;
+/*     */     }
+/*     */ 
+/*  78 */     if ((Integer.parseInt(atime5Setother) == 1) && 
+/*  79 */       (StringUtils.checkNull(attendSet.getAtime5()).booleanValue())) {
+/*  80 */       wrappers.setFlag(false);
+/*  81 */       wrappers.setStatus(true);
+/*  82 */       wrappers.setMsg("考勤签到时间不能为空");
+/*  83 */       return wrappers;
+/*     */     }
+/*     */ 
+/*  87 */     if ((Integer.parseInt(atime6Setother) == 1) && 
+/*  88 */       (StringUtils.checkNull(attendSet.getAtime6()).booleanValue())) {
+/*  89 */       wrappers.setFlag(false);
+/*  90 */       wrappers.setStatus(true);
+/*  91 */       wrappers.setMsg("考勤签到时间不能为空");
+/*  92 */       return wrappers;
+/*     */     }
+/*     */ 
+/*  96 */     attendSet.setSid(Integer.valueOf(0));
+/*  97 */     attendSet.setAtime1Set(atime1Setother + "|" + commute1);
+/*  98 */     attendSet.setAtime2Set(atime2Setother + "|" + commute2);
+/*  99 */     attendSet.setAtime3Set(atime3Setother + "|" + commute3);
+/* 100 */     attendSet.setAtime4Set(atime4Setother + "|" + commute4);
+/* 101 */     attendSet.setAtime5Set(atime5Setother + "|" + commute5);
+/* 102 */     attendSet.setAtime6Set(atime6Setother + "|" + commute6);
+/* 103 */     int res = this.attendSetMapper.addAttendSet(attendSet);
+/* 104 */     if (res > 0) {
+/* 105 */       wrappers.setFlag(true);
+/* 106 */       wrappers.setStatus(true);
+/* 107 */       wrappers.setMsg("更新成功");
+/*     */     } else {
+/* 109 */       wrappers.setFlag(false);
+/* 110 */       wrappers.setStatus(true);
+/* 111 */       wrappers.setMsg("更新失败");
+/*     */     }
+/*     */ 
+/* 114 */     return wrappers;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper updateAttendSet(AttendSet attendSet, String commute1, String commute2, String commute3, String commute4, String commute5, String commute6, String atime1Setother, String atime2Setother, String atime3Setother, String atime4Setother, String atime5Setother, String atime6Setother)
+/*     */   {
+/* 119 */     AttendSetWrappers wrappers = new AttendSetWrappers();
+/* 120 */     if ((Integer.parseInt(atime1Setother) == 1) && 
+/* 121 */       (StringUtils.checkNull(attendSet.getAtime1()).booleanValue())) {
+/* 122 */       wrappers.setFlag(false);
+/* 123 */       wrappers.setStatus(true);
+/* 124 */       wrappers.setMsg("考勤签到时间不能为空");
+/* 125 */       return wrappers;
+/*     */     }
+/*     */ 
+/* 129 */     if ((Integer.parseInt(atime2Setother) == 1) && 
+/* 130 */       (StringUtils.checkNull(attendSet.getAtime2()).booleanValue())) {
+/* 131 */       wrappers.setFlag(false);
+/* 132 */       wrappers.setStatus(true);
+/* 133 */       wrappers.setMsg("考勤签到时间不能为空");
+/* 134 */       return wrappers;
+/*     */     }
+/*     */ 
+/* 138 */     if ((Integer.parseInt(atime3Setother) == 1) && 
+/* 139 */       (StringUtils.checkNull(attendSet.getAtime3()).booleanValue())) {
+/* 140 */       wrappers.setFlag(false);
+/* 141 */       wrappers.setStatus(true);
+/* 142 */       wrappers.setMsg("考勤签到时间不能为空");
+/* 143 */       return wrappers;
+/*     */     }
+/*     */ 
+/* 147 */     if ((Integer.parseInt(atime4Setother) == 1) && 
+/* 148 */       (StringUtils.checkNull(attendSet.getAtime4()).booleanValue())) {
+/* 149 */       wrappers.setFlag(false);
+/* 150 */       wrappers.setStatus(true);
+/* 151 */       wrappers.setMsg("考勤签到时间不能为空");
+/* 152 */       return wrappers;
+/*     */     }
+/*     */ 
+/* 156 */     if ((Integer.parseInt(atime5Setother) == 1) && 
+/* 157 */       (StringUtils.checkNull(attendSet.getAtime5()).booleanValue())) {
+/* 158 */       wrappers.setFlag(false);
+/* 159 */       wrappers.setStatus(true);
+/* 160 */       wrappers.setMsg("考勤签到时间不能为空");
+/* 161 */       return wrappers;
+/*     */     }
+/*     */ 
+/* 165 */     if ((Integer.parseInt(atime6Setother) == 1) && 
+/* 166 */       (StringUtils.checkNull(attendSet.getAtime6()).booleanValue())) {
+/* 167 */       wrappers.setFlag(false);
+/* 168 */       wrappers.setStatus(true);
+/* 169 */       wrappers.setMsg("考勤签到时间不能为空");
+/* 170 */       return wrappers;
+/*     */     }
+/*     */ 
+/* 175 */     attendSet.setAtime1Set(atime1Setother + "|" + commute1);
+/* 176 */     attendSet.setAtime2Set(atime2Setother + "|" + commute2);
+/* 177 */     attendSet.setAtime3Set(atime3Setother + "|" + commute3);
+/* 178 */     attendSet.setAtime4Set(atime4Setother + "|" + commute4);
+/* 179 */     attendSet.setAtime5Set(atime5Setother + "|" + commute5);
+/* 180 */     attendSet.setAtime6Set(atime6Setother + "|" + commute6);
+/* 181 */     int res = this.attendSetMapper.updateAttendSet(attendSet);
+/* 182 */     if (res > 0) {
+/* 183 */       wrappers.setFlag(true);
+/* 184 */       wrappers.setStatus(true);
+/* 185 */       wrappers.setMsg("更新成功");
+/*     */     } else {
+/* 187 */       wrappers.setFlag(false);
+/* 188 */       wrappers.setStatus(true);
+/* 189 */       wrappers.setMsg("更新失败");
+/*     */     }
+/* 191 */     return wrappers;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper selectAttendSet()
+/*     */   {
+/* 197 */     AttendSetWrappers wrappers = new AttendSetWrappers();
+/* 198 */     List attendSetList = this.attendSetMapper.selectAttendSet();
+/* 199 */     if (attendSetList.size() > 0) {
+/* 200 */       wrappers.setData(attendSetList);
+/* 201 */       wrappers.setFlag(true);
+/* 202 */       wrappers.setStatus(true);
+/* 203 */       wrappers.setMsg("ok");
+/*     */     }
+/*     */     else
+/*     */     {
+/* 207 */       wrappers.setFlag(false);
+/* 208 */       wrappers.setStatus(true);
+/* 209 */       wrappers.setMsg("err");
+/*     */     }
+/*     */ 
+/* 212 */     return wrappers;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper queryAttendSetId(String sid, Integer uid, HttpServletRequest request) {
+/* 216 */     Integer uuid = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUid();
+/* 217 */     AttendSetWrappers wrappers = new AttendSetWrappers();
+/* 218 */     UserExt userExt = this.userExtMapper.queryUserExt(uuid.toString());
+/*     */     AttendSet attendSet;
+/* 220 */     if (StringUtils.checkNull(sid).booleanValue())
+/* 221 */       attendSet = this.attendSetMapper.queryAttendSetId(Integer.valueOf(userExt.getDutyType().shortValue()));
+/*     */     else
+/* 223 */       attendSet = this.attendSetMapper.queryAttendSetId(Integer.valueOf(Integer.parseInt(sid)));
+/* 224 */     if (attendSet == null) {
+/* 225 */       wrappers.setFlag(false);
+/* 226 */       wrappers.setStatus(true);
+/* 227 */       wrappers.setMsg("err");
+/*     */     } else {
+/* 229 */       String[] str1 = attendSet.getAtime1Set().split("\\|");
+/* 230 */       for (int i = 0; i < str1.length; i++) {
+/* 231 */         attendSet.setAtime1Setother(str1[0]);
+/* 232 */         attendSet.setCommute1(str1[1]);
+/*     */       }
+/* 234 */       String[] str2 = attendSet.getAtime2Set().split("\\|");
+/* 235 */       for (int i = 0; i < str2.length; i++) {
+/* 236 */         attendSet.setAtime2Setother(str2[0]);
+/* 237 */         attendSet.setCommute2(str2[1]);
+/*     */       }
+/* 239 */       String[] str3 = attendSet.getAtime3Set().split("\\|");
+/* 240 */       for (int i = 0; i < str3.length; i++) {
+/* 241 */         attendSet.setAtime3Setother(str3[0]);
+/* 242 */         attendSet.setCommute3(str3[1]);
+/*     */       }
+/* 244 */       String[] str4 = attendSet.getAtime4Set().split("\\|");
+/* 245 */       for (int i = 0; i < str4.length; i++) {
+/* 246 */         attendSet.setAtime4Setother(str4[0]);
+/* 247 */         attendSet.setCommute4(str4[1]);
+/*     */       }
+/* 249 */       String[] str5 = attendSet.getAtime5Set().split("\\|");
+/* 250 */       for (int i = 0; i < str5.length; i++) {
+/* 251 */         attendSet.setAtime5Setother(str5[0]);
+/* 252 */         attendSet.setCommute5(str5[1]);
+/*     */       }
+/* 254 */       String[] str6 = attendSet.getAtime6Set().split("\\|");
+/* 255 */       for (int i = 0; i < str6.length; i++) {
+/* 256 */         attendSet.setAtime6Setother(str6[0]);
+/* 257 */         attendSet.setCommute6(str6[1]);
+/*     */       }
+/* 259 */       Map map = new HashMap();
+/* 260 */       map.put("atime1Setother", attendSet.getAtime1Setother());
+/* 261 */       map.put("atime2Setother", attendSet.getAtime2Setother());
+/* 262 */       map.put("atime3Setother", attendSet.getAtime3Setother());
+/* 263 */       map.put("atime4Setother", attendSet.getAtime4Setother());
+/* 264 */       map.put("atime5Setother", attendSet.getAtime5Setother());
+/* 265 */       map.put("atime6Setother", attendSet.getAtime6Setother());
+/* 266 */       Map map1 = new HashMap();
+/* 267 */       map1.put("commute1", attendSet.getCommute1());
+/* 268 */       map1.put("commute2", attendSet.getCommute2());
+/* 269 */       map1.put("commute3", attendSet.getCommute3());
+/* 270 */       map1.put("commute4", attendSet.getCommute4());
+/* 271 */       map1.put("commute5", attendSet.getCommute5());
+/* 272 */       map1.put("commute6", attendSet.getCommute6());
+/* 273 */       Map map2 = new HashMap();
+/* 274 */       map2.put("atime1", attendSet.getAtime1());
+/* 275 */       map2.put("atime2", attendSet.getAtime2());
+/* 276 */       map2.put("atime3", attendSet.getAtime3());
+/* 277 */       map2.put("atime4", attendSet.getAtime4());
+/* 278 */       map2.put("atime5", attendSet.getAtime5());
+/* 279 */       map2.put("atime6", attendSet.getAtime6());
+/*     */ 
+/* 305 */       attendSet.setAtimeSetotherList(map);
+/* 306 */       attendSet.setCommuteList(map1);
+/* 307 */       attendSet.setTimeList(map2);
+/* 308 */       wrappers.setData(attendSet);
+/* 309 */       wrappers.setFlag(true);
+/* 310 */       wrappers.setStatus(true);
+/* 311 */       wrappers.setMsg("ok");
+/*     */     }
+/* 313 */     return wrappers;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper queryAttendSetIdDemo(String sid, Integer uid, HttpServletRequest request) {
+/* 317 */     Integer uuid = ((Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users())).getUid();
+/* 318 */     AttendSetWrappers wrappers = new AttendSetWrappers();
+/* 319 */     UserExt userExt = this.userExtMapper.queryUserExt(uuid.toString());
+/* 320 */     AttendSet attendSet = this.attendSetMapper.queryAttendSetId(Integer.valueOf(Integer.parseInt(sid)));
+/* 321 */     if (attendSet == null) {
+/* 322 */       wrappers.setFlag(false);
+/* 323 */       wrappers.setStatus(true);
+/* 324 */       wrappers.setMsg("err");
+/*     */     } else {
+/* 326 */       String[] str1 = attendSet.getAtime1Set().split("\\|");
+/* 327 */       for (int i = 0; i < str1.length; i++) {
+/* 328 */         attendSet.setAtime1Setother(str1[0]);
+/* 329 */         attendSet.setCommute1(str1[1]);
+/*     */       }
+/* 331 */       String[] str2 = attendSet.getAtime2Set().split("\\|");
+/* 332 */       for (int i = 0; i < str2.length; i++) {
+/* 333 */         attendSet.setAtime2Setother(str2[0]);
+/* 334 */         attendSet.setCommute2(str2[1]);
+/*     */       }
+/* 336 */       String[] str3 = attendSet.getAtime3Set().split("\\|");
+/* 337 */       for (int i = 0; i < str3.length; i++) {
+/* 338 */         attendSet.setAtime3Setother(str3[0]);
+/* 339 */         attendSet.setCommute3(str3[1]);
+/*     */       }
+/* 341 */       String[] str4 = attendSet.getAtime4Set().split("\\|");
+/* 342 */       for (int i = 0; i < str4.length; i++) {
+/* 343 */         attendSet.setAtime4Setother(str4[0]);
+/* 344 */         attendSet.setCommute4(str4[1]);
+/*     */       }
+/* 346 */       String[] str5 = attendSet.getAtime5Set().split("\\|");
+/* 347 */       for (int i = 0; i < str5.length; i++) {
+/* 348 */         attendSet.setAtime5Setother(str5[0]);
+/* 349 */         attendSet.setCommute5(str5[1]);
+/*     */       }
+/* 351 */       String[] str6 = attendSet.getAtime6Set().split("\\|");
+/* 352 */       for (int i = 0; i < str6.length; i++) {
+/* 353 */         attendSet.setAtime6Setother(str6[0]);
+/* 354 */         attendSet.setCommute6(str6[1]);
+/*     */       }
+/* 356 */       Map map = new HashMap();
+/* 357 */       map.put("atime1Setother", attendSet.getAtime1Setother());
+/* 358 */       map.put("atime2Setother", attendSet.getAtime2Setother());
+/* 359 */       map.put("atime3Setother", attendSet.getAtime3Setother());
+/* 360 */       map.put("atime4Setother", attendSet.getAtime4Setother());
+/* 361 */       map.put("atime5Setother", attendSet.getAtime5Setother());
+/* 362 */       map.put("atime6Setother", attendSet.getAtime6Setother());
+/* 363 */       Map map1 = new HashMap();
+/* 364 */       map1.put("commute1", attendSet.getCommute1());
+/* 365 */       map1.put("commute2", attendSet.getCommute2());
+/* 366 */       map1.put("commute3", attendSet.getCommute3());
+/* 367 */       map1.put("commute4", attendSet.getCommute4());
+/* 368 */       map1.put("commute5", attendSet.getCommute5());
+/* 369 */       map1.put("commute6", attendSet.getCommute6());
+/* 370 */       Map map2 = new HashMap();
+/* 371 */       map2.put("atime1", attendSet.getAtime1());
+/* 372 */       map2.put("atime2", attendSet.getAtime2());
+/* 373 */       map2.put("atime3", attendSet.getAtime3());
+/* 374 */       map2.put("atime4", attendSet.getAtime4());
+/* 375 */       map2.put("atime5", attendSet.getAtime5());
+/* 376 */       map2.put("atime6", attendSet.getAtime6());
+/*     */ 
+/* 402 */       attendSet.setAtimeSetotherList(map);
+/* 403 */       attendSet.setCommuteList(map1);
+/* 404 */       attendSet.setTimeList(map2);
+/* 405 */       wrappers.setData(attendSet);
+/* 406 */       wrappers.setFlag(true);
+/* 407 */       wrappers.setStatus(true);
+/* 408 */       wrappers.setMsg("ok");
+/*     */     }
+/* 410 */     return wrappers;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrapper delAttendSetbyId(String sid)
+/*     */   {
+/* 415 */     AttendSetWrappers wrappers = new AttendSetWrappers();
+/* 416 */     int res = this.attendSetMapper.delAttendSet(Integer.valueOf(Integer.parseInt(sid)));
+/* 417 */     if (res > 0) {
+/* 418 */       wrappers.setFlag(true);
+/* 419 */       wrappers.setStatus(true);
+/* 420 */       wrappers.setMsg("删除成功");
+/*     */     } else {
+/* 422 */       wrappers.setFlag(false);
+/* 423 */       wrappers.setStatus(true);
+/* 424 */       wrappers.setMsg("删除失败");
+/*     */     }
+/* 426 */     return wrappers;
+/*     */   }
+/*     */ 
+/*     */   public List<AttendSet> selectQuerTop()
+/*     */   {
+/* 435 */     AttendSet attendSet = null;
+/* 436 */     List attendSet1 = this.attendSetMapper.selectQuerTop();
+/* 437 */     return attendSet1;
+/*     */   }
+/*     */ 
+/*     */   public List<AttendSet> userSelectId()
+/*     */   {
+/* 446 */     return this.attendSetMapper.userSelectId();
+/*     */   }
+/*     */ 
+/*     */   public AttendSet queryAttendSetByTuiSongId(Integer uid) {
+/* 450 */     AttendSetWrappers wrappers = new AttendSetWrappers();
+/* 451 */     UserExt userExt = this.userExtMapper.queryUserExt(String.valueOf(uid));
+/* 452 */     AttendSet attendSet = this.attendSetMapper.queryAttendSetId(Integer.valueOf(userExt.getDutyType().shortValue()));
+/*     */ 
+/* 454 */     if (attendSet == null) {
+/* 455 */       wrappers.setFlag(false);
+/* 456 */       wrappers.setStatus(true);
+/* 457 */       wrappers.setMsg("err");
+/*     */     } else {
+/* 459 */       String[] str1 = attendSet.getAtime1Set().split("\\|");
+/* 460 */       for (int i = 0; i < str1.length; i++) {
+/* 461 */         attendSet.setAtime1Setother(str1[0]);
+/* 462 */         attendSet.setCommute1(str1[1]);
+/*     */       }
+/* 464 */       String[] str2 = attendSet.getAtime2Set().split("\\|");
+/* 465 */       for (int i = 0; i < str2.length; i++) {
+/* 466 */         attendSet.setAtime2Setother(str2[0]);
+/* 467 */         attendSet.setCommute2(str2[1]);
+/*     */       }
+/* 469 */       String[] str3 = attendSet.getAtime3Set().split("\\|");
+/* 470 */       for (int i = 0; i < str3.length; i++) {
+/* 471 */         attendSet.setAtime3Setother(str3[0]);
+/* 472 */         attendSet.setCommute3(str3[1]);
+/*     */       }
+/* 474 */       String[] str4 = attendSet.getAtime4Set().split("\\|");
+/* 475 */       for (int i = 0; i < str4.length; i++) {
+/* 476 */         attendSet.setAtime4Setother(str4[0]);
+/* 477 */         attendSet.setCommute4(str4[1]);
+/*     */       }
+/* 479 */       String[] str5 = attendSet.getAtime5Set().split("\\|");
+/* 480 */       for (int i = 0; i < str5.length; i++) {
+/* 481 */         attendSet.setAtime5Setother(str5[0]);
+/* 482 */         attendSet.setCommute5(str5[1]);
+/*     */       }
+/* 484 */       String[] str6 = attendSet.getAtime6Set().split("\\|");
+/* 485 */       for (int i = 0; i < str6.length; i++) {
+/* 486 */         attendSet.setAtime6Setother(str6[0]);
+/* 487 */         attendSet.setCommute6(str6[1]);
+/*     */       }
+/* 489 */       Map map = new HashMap();
+/* 490 */       map.put("atime1Setother", attendSet.getAtime1Setother());
+/* 491 */       map.put("atime2Setother", attendSet.getAtime2Setother());
+/* 492 */       map.put("atime3Setother", attendSet.getAtime3Setother());
+/* 493 */       map.put("atime4Setother", attendSet.getAtime4Setother());
+/* 494 */       map.put("atime5Setother", attendSet.getAtime5Setother());
+/* 495 */       map.put("atime6Setother", attendSet.getAtime6Setother());
+/* 496 */       Map map1 = new HashMap();
+/* 497 */       map1.put("commute1", attendSet.getCommute1());
+/* 498 */       map1.put("commute2", attendSet.getCommute2());
+/* 499 */       map1.put("commute3", attendSet.getCommute3());
+/* 500 */       map1.put("commute4", attendSet.getCommute4());
+/* 501 */       map1.put("commute5", attendSet.getCommute5());
+/* 502 */       map1.put("commute6", attendSet.getCommute6());
+/* 503 */       Map map2 = new HashMap();
+/* 504 */       map2.put("atime1", attendSet.getAtime1());
+/* 505 */       map2.put("atime2", attendSet.getAtime2());
+/* 506 */       map2.put("atime3", attendSet.getAtime3());
+/* 507 */       map2.put("atime4", attendSet.getAtime4());
+/* 508 */       map2.put("atime5", attendSet.getAtime5());
+/* 509 */       map2.put("atime6", attendSet.getAtime6());
+/*     */ 
+/* 535 */       attendSet.setAtimeSetotherList(map);
+/* 536 */       attendSet.setCommuteList(map1);
+/* 537 */       attendSet.setTimeList(map2);
+/* 538 */       wrappers.setData(attendSet);
+/*     */     }
+/*     */ 
+/* 541 */     return attendSet;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.attend.AttendSetService
+ * JD-Core Version:    0.6.0
+ */

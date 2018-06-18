@@ -1,0 +1,110 @@
+/*     */ package com.xoa.service.hierarchical;
+/*     */ 
+/*     */ import com.alibaba.fastjson.JSONObject;
+/*     */ import com.xoa.dao.hierarchical.HierarchicalGlobalMapper;
+/*     */ import com.xoa.dao.users.UserPrivMapper;
+/*     */ import com.xoa.model.hierarchical.HierarchicalGlobal;
+/*     */ import com.xoa.service.department.DepartmentService;
+/*     */ import com.xoa.service.users.UsersService;
+/*     */ import com.xoa.util.AjaxJson;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import org.apache.commons.collections.map.HashedMap;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class HierarchicalGlobalService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private HierarchicalGlobalMapper hierarchicalGlobalMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   private UsersService usersService;
+/*     */ 
+/*     */   @Autowired
+/*     */   private DepartmentService departmentService;
+/*     */ 
+/*     */   @Autowired
+/*     */   private UserPrivMapper userPrivMapper;
+/*     */ 
+/*     */   public ToJson<HierarchicalGlobal> setHierarchicalGlobalPerson(String globalJson)
+/*     */   {
+/*  54 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/*  56 */       int count = 0;
+/*  57 */       List<HierarchicalGlobal> list = new ArrayList();
+/*  58 */       list = JSONObject.parseArray(globalJson, HierarchicalGlobal.class);
+/*  59 */       for (HierarchicalGlobal hierarchicalGlobal : list) {
+/*  60 */         if (this.hierarchicalGlobalMapper.selByModel(hierarchicalGlobal) != null)
+/*  61 */           count = this.hierarchicalGlobalMapper.updatePersonByModel(hierarchicalGlobal);
+/*     */         else {
+/*  63 */           count = this.hierarchicalGlobalMapper.insertGlobal(hierarchicalGlobal);
+/*     */         }
+/*     */       }
+/*  66 */       json.setMsg("ok");
+/*  67 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  69 */       json.setMsg(e.getMessage());
+/*  70 */       L.e(new Object[] { "HierarchicalGlobalService setHierarchicalGlobalPerson:" + e });
+/*     */     }
+/*  72 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson selGlobalPerson()
+/*     */   {
+/*  82 */     AjaxJson ajaxJson = new AjaxJson();
+/*  83 */     ajaxJson.setMsg("error");
+/*  84 */     ajaxJson.setFlag(false);
+/*     */     try {
+/*  86 */       ArrayList<HierarchicalGlobal> arrayList = new ArrayList();
+/*  87 */       Map map = new HashedMap();
+/*  88 */       HierarchicalGlobal hierarchicalGlobal = new HierarchicalGlobal();
+/*  89 */       hierarchicalGlobal.setModelId("0132");
+/*  90 */       HierarchicalGlobal global = this.hierarchicalGlobalMapper.selByModel(hierarchicalGlobal);
+/*  91 */       arrayList.add(global);
+/*  92 */       int i = 1;
+/*  93 */       for (HierarchicalGlobal temp : arrayList) {
+/*  94 */         if (temp != null) {
+/*  95 */           temp.setGlobalPersonName(this.usersService.getUserNameById(temp.getGlobalPerson()));
+/*  96 */           if (!StringUtils.checkNull(temp.getGlobalDept()).booleanValue()) {
+/*  97 */             temp.setGlobalDeptName(this.departmentService.getDeptNameByDeptId(temp.getGlobalDept(), ","));
+/*     */           }
+/*  99 */           if (!StringUtils.checkNull(temp.getGlobalPriv()).booleanValue()) {
+/* 100 */             StringBuffer privBuf = new StringBuffer();
+/* 101 */             String[] privArr = temp.getGlobalPriv().split(",");
+/* 102 */             String str = "";
+/* 103 */             for (String priv : privArr) {
+/* 104 */               if (!StringUtils.checkNull(priv).booleanValue()) {
+/* 105 */                 str = this.userPrivMapper.getPrivNameById(Integer.valueOf(priv));
+/*     */               }
+/* 107 */               if (!StringUtils.checkNull(str).booleanValue()) {
+/* 108 */                 privBuf.append(str + ",");
+/*     */               }
+/*     */             }
+/* 111 */             temp.setGlobalPrivName(privBuf.toString());
+/*     */           }
+/*     */         }
+/* 114 */         map.put("model" + i, temp);
+/* 115 */         i++;
+/*     */       }
+/* 117 */       ajaxJson.setAttributes(map);
+/* 118 */       ajaxJson.setMsg("ok");
+/* 119 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 121 */       ajaxJson.setMsg(e.getMessage());
+/* 122 */       L.e(new Object[] { "HierarchicalGlobalService selGlobalPerson:" + e });
+/*     */     }
+/* 124 */     return ajaxJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.hierarchical.HierarchicalGlobalService
+ * JD-Core Version:    0.6.0
+ */

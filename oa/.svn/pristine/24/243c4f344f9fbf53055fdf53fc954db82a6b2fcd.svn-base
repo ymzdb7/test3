@@ -1,0 +1,149 @@
+/*     */ package com.xoa.service.common.impl;
+/*     */ 
+/*     */ import com.xoa.dao.common.SecureLogMapper;
+/*     */ import com.xoa.dao.common.SecureRuleMapper;
+/*     */ import com.xoa.model.common.SecureLog;
+/*     */ import com.xoa.model.common.SecureRule;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.common.SecureRuleService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.ipUtil.IpAddr;
+/*     */ import java.io.PrintStream;
+/*     */ import java.net.InetAddress;
+/*     */ import java.util.Date;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class SecureRuleServiceImpl
+/*     */   implements SecureRuleService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private SecureRuleMapper secureRuleMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SecureLogMapper secureLogMapper;
+/*     */ 
+/*     */   public ToJson<SecureRule> getAllSecureRule()
+/*     */   {
+/*  36 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/*  38 */       List<SecureRule> allSecureRule = this.secureRuleMapper.getAllSecureRule();
+/*     */ 
+/*  40 */       if (allSecureRule != null) {
+/*  41 */         for (SecureRule secureRule : allSecureRule) {
+/*  42 */           if ((secureRule != null) && (secureRule.getRulePriv() != null))
+/*     */           {
+/*  44 */             if (secureRule.getRulePriv().byteValue() == 1) {
+/*  45 */               secureRule.setRulePrivName("系统管理员");
+/*     */             }
+/*  47 */             else if (secureRule.getRulePriv().byteValue() == 2) {
+/*  48 */               secureRule.setRulePrivName("安全员");
+/*     */             }
+/*  50 */             else if (secureRule.getRulePriv().byteValue() == 3) {
+/*  51 */               secureRule.setRulePrivName("审计员");
+/*     */             }
+/*     */             else {
+/*  54 */               secureRule.setRulePrivName("");
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/*  59 */       json.setObj(allSecureRule);
+/*  60 */       json.setFlag(0);
+/*  61 */       json.setMsg("ok");
+/*     */     }
+/*     */     catch (Exception e) {
+/*  64 */       json.setFlag(1);
+/*  65 */       json.setMsg("err");
+/*  66 */       e.printStackTrace();
+/*     */     }
+/*  68 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> editSecureRule(HttpServletRequest request, SecureRule secureRule)
+/*     */   {
+/*  73 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/*  75 */       int i = this.secureRuleMapper.updateByPrimaryKeySelective(secureRule);
+/*  76 */       SecureLog secureLog = new SecureLog();
+/*  77 */       if (secureRule.getRuleId() != null) {
+/*  78 */         short i1 = secureRule.getRuleId().shortValue();
+/*  79 */         secureLog.setRuleId(Short.valueOf(i1));
+/*     */       }
+/*     */ 
+/*  82 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  83 */       Integer uid = users.getUid();
+/*  84 */       secureLog.setUid(uid);
+/*  85 */       Date date = new Date();
+/*  86 */       long time = date.getTime();
+/*  87 */       int i1 = Math.abs((int)time);
+/*  88 */       secureLog.setLogTime(Integer.valueOf(i1));
+/*  89 */       secureLog.setRemark("修改" + secureRule.getRuleDesc());
+/*  90 */       InetAddress currentIp = IpAddr.getCurrentIp();
+/*  91 */       secureLog.setIp(currentIp.toString().substring(1, currentIp.toString().length()));
+/*  92 */       int i2 = this.secureLogMapper.insertSelective(secureLog);
+/*  93 */       if (i > 0) {
+/*  94 */         json.setFlag(0);
+/*  95 */         json.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  98 */       json.setFlag(1);
+/*  99 */       json.setMsg("err");
+/* 100 */       e.printStackTrace();
+/*     */     }
+/* 102 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SecureRule> getSecureById(String ruleId)
+/*     */   {
+/* 107 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 109 */       if (ruleId != null) {
+/* 110 */         SecureRule secureById = this.secureRuleMapper.getSecureById(Integer.valueOf(ruleId).intValue());
+/* 111 */         if (secureById != null) {
+/* 112 */           json.setFlag(0);
+/* 113 */           json.setMsg("ok");
+/* 114 */           json.setObject(secureById);
+/*     */         } else {
+/* 116 */           json.setFlag(0);
+/* 117 */           json.setMsg("ok");
+/* 118 */           json.setObject("");
+/*     */         }
+/*     */       }
+/*     */     } catch (NumberFormatException e) {
+/* 122 */       e.printStackTrace();
+/*     */     }
+/* 124 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SecureRule> getAllInfoSecureRule()
+/*     */   {
+/* 129 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 131 */       List<SecureRule> allInfoSecureRule = this.secureRuleMapper.getAllSecureRule();
+/* 132 */       if (allInfoSecureRule != null) {
+/* 133 */         for (SecureRule secureRule : allInfoSecureRule) {
+/* 134 */           System.out.println(secureRule);
+/*     */         }
+/*     */       }
+/* 137 */       json.setObj(allInfoSecureRule);
+/* 138 */       json.setFlag(0);
+/* 139 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 141 */       json.setFlag(1);
+/* 142 */       json.setMsg("err");
+/* 143 */       e.printStackTrace();
+/*     */     }
+/* 145 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.common.impl.SecureRuleServiceImpl
+ * JD-Core Version:    0.6.0
+ */

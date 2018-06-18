@@ -1,0 +1,296 @@
+/*     */ package com.xoa.service.documentOrg;
+/*     */ 
+/*     */ import com.xoa.dao.documentOrg.DocumentOrgMapper;
+/*     */ import com.xoa.dao.enclosure.AttachmentMapper;
+/*     */ import com.xoa.model.document.DocumentModelWithBLOBs;
+/*     */ import com.xoa.model.documentOrg.DocumentOrg;
+/*     */ import com.xoa.model.enclosure.Attachment;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.document.DocumentSerivce;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.GetAttachmentListUtil;
+/*     */ import com.xoa.util.ModuleEnum;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import com.xoa.util.page.PageParams;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.FileOutputStream;
+/*     */ import java.io.IOException;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.ResourceBundle;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class DocumentOrgService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   DocumentOrgMapper documentOrgMapper;
+/*     */ 
+/*     */   @Autowired
+/*     */   DocumentSerivce documentSerivce;
+/*     */ 
+/*     */   @Autowired
+/*     */   AttachmentMapper attachmentMapper;
+/*     */ 
+/*     */   public ToJson<Object> saveToDocument(HttpServletRequest request, Integer id, Integer flowId, String documentType)
+/*     */   {
+/*  48 */     ToJson<Object> json = new ToJson<Object>();
+/*     */     try {
+/*  50 */       Users nowUser = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/*  52 */       DocumentModelWithBLOBs documentModelWithBLOBs = this.documentOrgMapper.selDocumentOrgById(id);
+/*  53 */       documentModelWithBLOBs.setDocumentType(documentType);
+/*  54 */       documentModelWithBLOBs.setFlowId(flowId);
+/*  55 */       documentModelWithBLOBs.setCreater(nowUser.getUserId());
+/*  56 */       documentModelWithBLOBs.setCurUserId(nowUser.getUserId());
+/*  57 */       documentModelWithBLOBs.setCreater(nowUser.getUserId());
+/*  58 */       documentModelWithBLOBs.setCreateDept(nowUser.getDeptId().toString());
+/*  59 */       String cureTime = DateFormat.getCurrentTime2();
+/*  60 */       documentModelWithBLOBs.setPrintDate(cureTime);
+/*  61 */       if (documentModelWithBLOBs != null) {
+/*  62 */         json = this.documentSerivce.saveDocument(nowUser, flowId, Integer.valueOf(1), "1", documentModelWithBLOBs.getTitle(), documentModelWithBLOBs, request);
+/*     */ 
+/*  64 */         this.documentOrgMapper.updateTransferFlag(id, Integer.valueOf(1));
+/*     */       }
+/*     */ 
+/*  67 */       json.setMsg("ok");
+/*  68 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  70 */       e.printStackTrace();
+/*  71 */       json.setFlag(1);
+/*  72 */       json.setMsg("err");
+/*     */     }
+/*  74 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<DocumentOrg> selDocumentOrg(DocumentOrg documentOrg, HttpServletRequest request, PageParams pageParams)
+/*     */   {
+/*  83 */     ToJson<DocumentOrg> json = new ToJson<DocumentOrg>();
+/*     */     try {
+/*  85 */       Map<String,Object> map = new HashMap<String,Object>();
+/*  86 */       map.put("page", pageParams);
+/*  87 */       List<DocumentOrg> documentOrgs = this.documentOrgMapper.selDocumentOrg(map);
+/*  88 */       json.setTotleNum(pageParams.getTotal());
+/*  89 */       json.setObj(documentOrgs);
+/*  90 */       json.setFlag(0);
+/*  91 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/*  93 */       e.printStackTrace();
+/*  94 */       json.setMsg("err:" + e);
+/*  95 */       json.setFlag(1);
+/*     */     }
+/*  97 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<DocumentOrg> saveDoc(Integer id, DocumentOrg documentOrg, HttpServletRequest request)
+/*     */   {
+/* 106 */     ToJson<DocumentOrg> json = new ToJson<DocumentOrg>();
+/*     */     try {
+/* 108 */       DocumentOrg oldDocumentOrg = this.documentOrgMapper.selOldDocById(id);
+/*     */ 
+/* 110 */       String firstDBSource = Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse");
+/* 111 */       Users nowUser = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/* 113 */       oldDocumentOrg.setOrgFlag(Integer.valueOf(1));
+/* 114 */       oldDocumentOrg.setTransferFlag(Integer.valueOf(0));
+/*     */ 
+/* 116 */       oldDocumentOrg.setTransferOrg(firstDBSource.replace(Constant.MYOA, ""));
+/* 117 */       oldDocumentOrg.setTransferUser(nowUser.getUserId());
+/*     */ 
+/* 119 */       oldDocumentOrg.setTransferReceiveOrg(documentOrg.getTransferReceiveOrg());
+/* 120 */       oldDocumentOrg.setTransferReceiveUser(documentOrg.getTransferReceiveUser());
+/*     */ 
+/* 122 */       oldDocumentOrg.setTransferTime(new Date());
+/*     */ 
+/* 125 */       this.documentOrgMapper.insertSelective(oldDocumentOrg);
+/*     */ 
+/* 129 */       oldDocumentOrg.setOrgFlag(Integer.valueOf(0));
+/*     */ 
+/* 131 */       if (!StringUtils.checkNull(oldDocumentOrg.getTransferReceiveOrg()).booleanValue()) {
+/* 132 */         String[] split = oldDocumentOrg.getTransferReceiveOrg().split(",");
+/* 133 */         for (String loginId : split)
+/*     */         {
+/* 135 */           String dbSource = Constant.MYOA + loginId;
+/* 136 */           if (firstDBSource.equals(dbSource))
+/*     */             continue;
+/* 138 */           copyWordAndAIPFile(oldDocumentOrg, firstDBSource, dbSource);
+/*     */ 
+/* 140 */           ContextHolder.setConsumerType(dbSource);
+/*     */ 
+/* 142 */           this.documentOrgMapper.insertSelective(oldDocumentOrg);
+/*     */         }
+/*     */ 
+/* 146 */         ContextHolder.setConsumerType(firstDBSource);
+/*     */       }
+/*     */ 
+/* 149 */       json.setFlag(0);
+/* 150 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 152 */       e.printStackTrace();
+/* 153 */       json.setMsg("err:" + e);
+/* 154 */       json.setFlag(1);
+/*     */     }
+/* 156 */     return json;
+/*     */   }
+/*     */ 
+/*     */   private void copyWordAndAIPFile(DocumentOrg documentOrg, String firstDBSource, String dbSource)
+/*     */     throws IOException
+/*     */   {
+/* 165 */     ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 166 */     String osName = System.getProperty("os.name");
+/* 167 */     StringBuffer sb = new StringBuffer();
+/* 168 */     if (osName.toLowerCase().startsWith("win"))
+/* 169 */       sb = sb.append(rb.getString("upload.win"));
+/*     */     else {
+/* 171 */       sb = sb.append(rb.getString("upload.linux"));
+/*     */     }
+/*     */ 
+/* 174 */     if ((!StringUtils.checkNull(documentOrg.getMainFile()).booleanValue()) && (!StringUtils.checkNull(documentOrg.getMainFileName()).booleanValue())) {
+/* 175 */       List<Attachment> attachments = GetAttachmentListUtil.returnAttachment(documentOrg.getMainFileName(), documentOrg.getMainFile(), firstDBSource, "document");
+/* 176 */       if ((attachments != null) && (attachments.size() > 0)) {
+/* 177 */         Attachment attachment = (Attachment)attachments.get(0);
+/*     */ 
+/* 179 */         String path = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + firstDBSource + System.getProperty("file.separator") + "document" + System.getProperty("file.separator") + attachment.getYm() + System.getProperty("file.separator") + attachment.getAttachId() + "." + attachment.getAttachName();
+/*     */ 
+/* 183 */         File file = new File(path);
+/*     */ 
+/* 185 */         if (!file.exists()) {
+/* 186 */           documentOrg.setMainFile("");
+/* 187 */           documentOrg.setMainFileName("");
+/*     */         } else {
+/* 189 */           int attachID = Math.abs((int)System.currentTimeMillis());
+/*     */ 
+/* 191 */           String ym = new SimpleDateFormat("yyMM").format(new Date());
+/*     */ 
+/* 194 */           int moduleID = 0;
+/* 195 */           for (ModuleEnum em : ModuleEnum.values()) {
+/* 196 */             if (em.getName().equals("document")) {
+/* 197 */               moduleID = em.getIndex();
+/*     */             }
+/*     */           }
+/*     */ 
+/* 201 */           byte mid = (byte)moduleID;
+/*     */ 
+/* 203 */           Attachment attachment1 = new Attachment();
+/*     */ 
+/* 205 */           attachment1 = new Attachment();
+/* 206 */           attachment1.setAttachId(Integer.valueOf(attachID));
+/* 207 */           attachment1.setModule(Byte.valueOf(mid));
+/* 208 */           attachment1.setAttachFile(attachment.getAttachName());
+/* 209 */           attachment1.setAttachName(attachment.getAttachName());
+/* 210 */           attachment1.setYm(ym);
+/* 211 */           attachment1.setAttachSign(new Long(0L));
+/* 212 */           attachment1.setDelFlag(Byte.valueOf((byte) 0));
+/* 213 */           attachment1.setPosition(Byte.valueOf((byte) 2));
+/* 214 */           attachment1.setIsImage(Byte.valueOf((byte) 0));
+/* 215 */           attachment1.setFileSize(String.valueOf(file.length()));
+/* 216 */           attachment1.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+/*     */ 
+/* 219 */           ContextHolder.setConsumerType(dbSource);
+/* 220 */           this.attachmentMapper.insertSelective(attachment1);
+/* 221 */           ContextHolder.setConsumerType(firstDBSource);
+/*     */ 
+/* 223 */           String toPath = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + dbSource + System.getProperty("file.separator") + "document" + System.getProperty("file.separator") + attachment1.getYm();
+/*     */ 
+/* 226 */           File file1 = new File(toPath);
+/*     */ 
+/* 228 */           if (!file1.exists()) {
+/* 229 */             file1.mkdirs();
+/*     */           }
+/* 231 */           copyFile(path, toPath + System.getProperty("file.separator") + attachment1.getAttachId() + "." + attachment1.getAttachName());
+/* 232 */           documentOrg.setMainFile(attachment1.getAid() + "@" + attachment1.getYm() + "_" + attachment1.getAttachId());
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/* 237 */     if ((!StringUtils.checkNull(documentOrg.getMainAipFile()).booleanValue()) && (!StringUtils.checkNull(documentOrg.getMainAipFileName()).booleanValue())) {
+/* 238 */       List<Attachment>  attachments = GetAttachmentListUtil.returnAttachment(documentOrg.getMainAipFileName(), documentOrg.getMainAipFile(), firstDBSource, "document");
+/* 239 */       if ((attachments != null) && (attachments.size() > 0)) {
+/* 240 */         Attachment attachment = (Attachment)attachments.get(0);
+/*     */ 
+/* 242 */         String path = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + firstDBSource + System.getProperty("file.separator") + "document" + System.getProperty("file.separator") + attachment.getYm() + System.getProperty("file.separator") + attachment.getAttachId() + "." + attachment.getAttachName();
+/*     */ 
+/* 244 */         File file = new File(path);
+/*     */ 
+/* 246 */         if (!file.exists()) {
+/* 247 */           documentOrg.setMainAipFile("");
+/* 248 */           documentOrg.setMainAipFileName("");
+/*     */         } else {
+/* 250 */           int attachID = Math.abs((int)System.currentTimeMillis());
+/*     */ 
+/* 252 */           String ym = new SimpleDateFormat("yyMM").format(new Date());
+/*     */ 
+/* 255 */           int moduleID = 0;
+/* 256 */           for (ModuleEnum em : ModuleEnum.values()) {
+/* 257 */             if (em.getName().equals("document")) {
+/* 258 */               moduleID = em.getIndex();
+/*     */             }
+/*     */           }
+/*     */ 
+/* 262 */           byte mid = (byte)moduleID;
+/*     */ 
+/* 264 */           Attachment attachment1 = new Attachment();
+/*     */ 
+/* 266 */           attachment1 = new Attachment();
+/* 267 */           attachment1.setAttachId(Integer.valueOf(attachID));
+/* 268 */           attachment1.setModule(Byte.valueOf(mid));
+/* 269 */           attachment1.setAttachFile(attachment.getAttachName());
+/* 270 */           attachment1.setAttachName(attachment.getAttachName());
+/* 271 */           attachment1.setYm(ym);
+/* 272 */           attachment1.setAttachSign(new Long(0L));
+/* 273 */           attachment1.setDelFlag(Byte.valueOf((byte) 0));
+/* 274 */           attachment1.setPosition(Byte.valueOf((byte) 2));
+/* 275 */           attachment1.setIsImage(Byte.valueOf((byte) 0));
+/* 276 */           attachment1.setFileSize(String.valueOf(file.length()));
+/* 277 */           attachment1.setTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+/*     */ 
+/* 280 */           ContextHolder.setConsumerType(dbSource);
+/* 281 */           this.attachmentMapper.insertSelective(attachment1);
+/* 282 */           ContextHolder.setConsumerType(firstDBSource);
+/*     */ 
+/* 284 */           String toPath = sb.toString() + System.getProperty("file.separator") + "attach" + System.getProperty("file.separator") + dbSource + System.getProperty("file.separator") + "document" + System.getProperty("file.separator") + attachment1.getYm();
+/*     */ 
+/* 288 */           File file1 = new File(toPath);
+/*     */ 
+/* 290 */           if (!file1.exists()) {
+/* 291 */             file1.mkdirs();
+/*     */           }
+/* 293 */           copyFile(path, toPath + System.getProperty("file.separator") + attachment1.getAttachId() + "." + attachment1.getAttachName());
+/* 294 */           documentOrg.setMainAipFile(attachment1.getAid() + "@" + attachment1.getYm() + "_" + attachment1.getAttachId());
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   public void copyFile(String from, String to)
+/*     */     throws IOException
+/*     */   {
+/* 307 */     FileInputStream ins = new FileInputStream(new File(from));
+/* 308 */     FileOutputStream out = new FileOutputStream(new File(to));
+/* 309 */     byte[] b = new byte[1024];
+/* 310 */     int n = 0;
+/* 311 */     while ((n = ins.read(b)) != -1) {
+/* 312 */       out.write(b, 0, n);
+/*     */     }
+/*     */ 
+/* 315 */     ins.close();
+/* 316 */     out.close();
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.documentOrg.DocumentOrgService
+ * JD-Core Version:    0.6.0
+ */

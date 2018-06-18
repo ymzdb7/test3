@@ -1,0 +1,77 @@
+/*     */ package com.xoa.controller.supervision;
+/*     */ 
+/*     */ import com.xoa.model.supervision.SupervisionType;
+/*     */ import com.xoa.service.supervision.SupervisionTypeService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.treeUtil.TreeGirdNode;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+/*     */ import org.springframework.web.bind.annotation.RestController;
+/*     */ 
+/*     */ @RestController
+/*     */ @RequestMapping({"/supervisionType"})
+/*     */ public class SupervisionTypeController
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   SupervisionTypeService supervisionTypeService;
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getSupervisionTypeDetail"})
+/*     */   public ToJson<SupervisionType> getSupervisionTypeDetail(HttpServletRequest request, Integer sid)
+/*     */   {
+/*  42 */     return this.supervisionTypeService.getSupervisionTypeDetail(request, sid);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/updateSupervisionType"})
+/*     */   public ToJson<SupervisionType> updateSupervisionType(HttpServletRequest request, SupervisionType supervisionType)
+/*     */   {
+/*  56 */     return this.supervisionTypeService.updateSupervisionType(request, supervisionType);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/addSupervisionType"})
+/*     */   public ToJson<SupervisionType> addSupervisionType(HttpServletRequest request, SupervisionType supervisionType)
+/*     */   {
+/*  69 */     if (supervisionType.getParentId().intValue() == -1) {
+/*  70 */       supervisionType.setParentId(Integer.valueOf(0));
+/*     */     }
+/*  72 */     return this.supervisionTypeService.addSupervisionType(request, supervisionType);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deleteSupervisionTypeBySid"})
+/*     */   public ToJson<SupervisionType> deleteSupervisionTypeBySid(Integer sid)
+/*     */   {
+/*  85 */     return this.supervisionTypeService.deleteSupervisionTypeBySid(sid);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getSupervisionTypeList"})
+/*     */   public ToJson<SupervisionType> getSupervisionTypeList(SupervisionType supervisionType, HttpServletRequest request)
+/*     */   {
+/*  99 */     return this.supervisionTypeService.getSupervisionTypeList(supervisionType, request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getSupTypeList"})
+/*     */   public ToJson<TreeGirdNode> getSupTypeList(HttpServletRequest request)
+/*     */   {
+/* 112 */     return this.supervisionTypeService.getSupTypeList(request);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getSupNameSelect"})
+/*     */   public ToJson<SupervisionType> getSupNameSelect(HttpServletRequest request, SupervisionType supervisionType)
+/*     */   {
+/* 128 */     return this.supervisionTypeService.getSupNameSelect(request, supervisionType);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.supervision.SupervisionTypeController
+ * JD-Core Version:    0.6.0
+ */

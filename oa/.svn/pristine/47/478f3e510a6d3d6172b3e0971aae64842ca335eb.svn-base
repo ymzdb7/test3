@@ -1,0 +1,965 @@
+/*      */ package com.xoa.model.workPlan;
+/*      */ 
+/*      */ import java.util.ArrayList;
+/*      */ import java.util.Iterator;
+/*      */ import java.util.List;
+/*      */ 
+/*      */ public class WorkPlanExample
+/*      */ {
+/*      */   protected String orderByClause;
+/*      */   protected boolean distinct;
+/*      */   protected List<Criteria> oredCriteria;
+/*      */ 
+/*      */   public WorkPlanExample()
+/*      */   {
+/*   40 */     this.oredCriteria = new ArrayList();
+/*      */   }
+/*      */ 
+/*      */   public void setOrderByClause(String orderByClause)
+/*      */   {
+/*   50 */     this.orderByClause = orderByClause;
+/*      */   }
+/*      */ 
+/*      */   public String getOrderByClause()
+/*      */   {
+/*   60 */     return this.orderByClause;
+/*      */   }
+/*      */ 
+/*      */   public void setDistinct(boolean distinct)
+/*      */   {
+/*   70 */     this.distinct = distinct;
+/*      */   }
+/*      */ 
+/*      */   public boolean isDistinct()
+/*      */   {
+/*   80 */     return this.distinct;
+/*      */   }
+/*      */ 
+/*      */   public List<Criteria> getOredCriteria()
+/*      */   {
+/*   90 */     return this.oredCriteria;
+/*      */   }
+/*      */ 
+/*      */   public void or(Criteria criteria)
+/*      */   {
+/*  100 */     this.oredCriteria.add(criteria);
+/*      */   }
+/*      */ 
+/*      */   public Criteria or()
+/*      */   {
+/*  110 */     Criteria criteria = createCriteriaInternal();
+/*  111 */     this.oredCriteria.add(criteria);
+/*  112 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   public Criteria createCriteria()
+/*      */   {
+/*  122 */     Criteria criteria = createCriteriaInternal();
+/*  123 */     if (this.oredCriteria.size() == 0) {
+/*  124 */       this.oredCriteria.add(criteria);
+/*      */     }
+/*  126 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   protected Criteria createCriteriaInternal()
+/*      */   {
+/*  136 */     Criteria criteria = new Criteria();
+/*  137 */     return criteria;
+/*      */   }
+/*      */ 
+/*      */   public void clear()
+/*      */   {
+/*  147 */     this.oredCriteria.clear();
+/*  148 */     this.orderByClause = null;
+/*  149 */     this.distinct = false;
+/*      */   }
+/*      */ 
+/*      */   public static class Criterion
+/*      */   {
+/*      */     private String condition;
+/*      */     private Object value;
+/*      */     private Object secondValue;
+/*      */     private boolean noValue;
+/*      */     private boolean singleValue;
+/*      */     private boolean betweenValue;
+/*      */     private boolean listValue;
+/*      */     private String typeHandler;
+/*      */ 
+/*      */     public String getCondition()
+/*      */     {
+/*  993 */       return this.condition;
+/*      */     }
+/*      */ 
+/*      */     public Object getValue() {
+/*  997 */       return this.value;
+/*      */     }
+/*      */ 
+/*      */     public Object getSecondValue() {
+/* 1001 */       return this.secondValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isNoValue() {
+/* 1005 */       return this.noValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isSingleValue() {
+/* 1009 */       return this.singleValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isBetweenValue() {
+/* 1013 */       return this.betweenValue;
+/*      */     }
+/*      */ 
+/*      */     public boolean isListValue() {
+/* 1017 */       return this.listValue;
+/*      */     }
+/*      */ 
+/*      */     public String getTypeHandler() {
+/* 1021 */       return this.typeHandler;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition)
+/*      */     {
+/* 1026 */       this.condition = condition;
+/* 1027 */       this.typeHandler = null;
+/* 1028 */       this.noValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, String typeHandler)
+/*      */     {
+/* 1033 */       this.condition = condition;
+/* 1034 */       this.value = value;
+/* 1035 */       this.typeHandler = typeHandler;
+/* 1036 */       if ((value instanceof List))
+/* 1037 */         this.listValue = true;
+/*      */       else
+/* 1039 */         this.singleValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value)
+/*      */     {
+/* 1044 */       this(condition, value, null);
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, Object secondValue, String typeHandler)
+/*      */     {
+/* 1049 */       this.condition = condition;
+/* 1050 */       this.value = value;
+/* 1051 */       this.secondValue = secondValue;
+/* 1052 */       this.typeHandler = typeHandler;
+/* 1053 */       this.betweenValue = true;
+/*      */     }
+/*      */ 
+/*      */     protected Criterion(String condition, Object value, Object secondValue) {
+/* 1057 */       this(condition, value, secondValue, null);
+/*      */     }
+/*      */   }
+/*      */ 
+/*      */   public static class Criteria extends WorkPlanExample.GeneratedCriteria
+/*      */   {
+/*      */   }
+/*      */ 
+/*      */   protected static abstract class GeneratedCriteria
+/*      */   {
+/*      */     protected List<WorkPlanExample.Criterion> criteria;
+/*      */ 
+/*      */     protected GeneratedCriteria()
+/*      */     {
+/*  163 */       this.criteria = new ArrayList();
+/*      */     }
+/*      */ 
+/*      */     public boolean isValid() {
+/*  167 */       return this.criteria.size() > 0;
+/*      */     }
+/*      */ 
+/*      */     public List<WorkPlanExample.Criterion> getAllCriteria() {
+/*  171 */       return this.criteria;
+/*      */     }
+/*      */ 
+/*      */     public List<WorkPlanExample.Criterion> getCriteria() {
+/*  175 */       return this.criteria;
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition) {
+/*  179 */       if (condition == null) {
+/*  180 */         throw new RuntimeException("Value for condition cannot be null");
+/*      */       }
+/*  182 */       this.criteria.add(new WorkPlanExample.Criterion(condition));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition, Object value, String property) {
+/*  186 */       if (value == null) {
+/*  187 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*      */       }
+/*  189 */       this.criteria.add(new WorkPlanExample.Criterion(condition, value));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterion(String condition, Object value1, Object value2, String property) {
+/*  193 */       if ((value1 == null) || (value2 == null)) {
+/*  194 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*      */       }
+/*  196 */       this.criteria.add(new WorkPlanExample.Criterion(condition, value1, value2));
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterionForJDBCDate(String condition, java.util.Date value, String property) {
+/*  200 */       if (value == null) {
+/*  201 */         throw new RuntimeException("Value for " + property + " cannot be null");
+/*      */       }
+/*  203 */       addCriterion(condition, new java.sql.Date(value.getTime()), property);
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterionForJDBCDate(String condition, List<java.util.Date> values, String property) {
+/*  207 */       if ((values == null) || (values.size() == 0)) {
+/*  208 */         throw new RuntimeException("Value list for " + property + " cannot be null or empty");
+/*      */       }
+/*  210 */       List dateList = new ArrayList();
+/*  211 */       Iterator iter = values.iterator();
+/*  212 */       while (iter.hasNext()) {
+/*  213 */         dateList.add(new java.sql.Date(((java.util.Date)iter.next()).getTime()));
+/*      */       }
+/*  215 */       addCriterion(condition, dateList, property);
+/*      */     }
+/*      */ 
+/*      */     protected void addCriterionForJDBCDate(String condition, java.util.Date value1, java.util.Date value2, String property) {
+/*  219 */       if ((value1 == null) || (value2 == null)) {
+/*  220 */         throw new RuntimeException("Between values for " + property + " cannot be null");
+/*      */       }
+/*  222 */       addCriterion(condition, new java.sql.Date(value1.getTime()), new java.sql.Date(value2.getTime()), property);
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPlanIdIsNull() {
+/*  226 */       addCriterion("PLAN_ID is null");
+/*  227 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPlanIdIsNotNull() {
+/*  231 */       addCriterion("PLAN_ID is not null");
+/*  232 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPlanIdEqualTo(Integer value) {
+/*  236 */       addCriterion("PLAN_ID =", value, "planId");
+/*  237 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPlanIdNotEqualTo(Integer value) {
+/*  241 */       addCriterion("PLAN_ID <>", value, "planId");
+/*  242 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPlanIdGreaterThan(Integer value) {
+/*  246 */       addCriterion("PLAN_ID >", value, "planId");
+/*  247 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPlanIdGreaterThanOrEqualTo(Integer value) {
+/*  251 */       addCriterion("PLAN_ID >=", value, "planId");
+/*  252 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPlanIdLessThan(Integer value) {
+/*  256 */       addCriterion("PLAN_ID <", value, "planId");
+/*  257 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPlanIdLessThanOrEqualTo(Integer value) {
+/*  261 */       addCriterion("PLAN_ID <=", value, "planId");
+/*  262 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPlanIdIn(List<Integer> values) {
+/*  266 */       addCriterion("PLAN_ID in", values, "planId");
+/*  267 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPlanIdNotIn(List<Integer> values) {
+/*  271 */       addCriterion("PLAN_ID not in", values, "planId");
+/*  272 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPlanIdBetween(Integer value1, Integer value2) {
+/*  276 */       addCriterion("PLAN_ID between", value1, value2, "planId");
+/*  277 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPlanIdNotBetween(Integer value1, Integer value2) {
+/*  281 */       addCriterion("PLAN_ID not between", value1, value2, "planId");
+/*  282 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andNameIsNull() {
+/*  286 */       addCriterion("NAME is null");
+/*  287 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andNameIsNotNull() {
+/*  291 */       addCriterion("NAME is not null");
+/*  292 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andNameEqualTo(String value) {
+/*  296 */       addCriterion("NAME =", value, "name");
+/*  297 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andNameNotEqualTo(String value) {
+/*  301 */       addCriterion("NAME <>", value, "name");
+/*  302 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andNameGreaterThan(String value) {
+/*  306 */       addCriterion("NAME >", value, "name");
+/*  307 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andNameGreaterThanOrEqualTo(String value) {
+/*  311 */       addCriterion("NAME >=", value, "name");
+/*  312 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andNameLessThan(String value) {
+/*  316 */       addCriterion("NAME <", value, "name");
+/*  317 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andNameLessThanOrEqualTo(String value) {
+/*  321 */       addCriterion("NAME <=", value, "name");
+/*  322 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andNameLike(String value) {
+/*  326 */       addCriterion("NAME like", value, "name");
+/*  327 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andNameNotLike(String value) {
+/*  331 */       addCriterion("NAME not like", value, "name");
+/*  332 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andNameIn(List<String> values) {
+/*  336 */       addCriterion("NAME in", values, "name");
+/*  337 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andNameNotIn(List<String> values) {
+/*  341 */       addCriterion("NAME not in", values, "name");
+/*  342 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andNameBetween(String value1, String value2) {
+/*  346 */       addCriterion("NAME between", value1, value2, "name");
+/*  347 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andNameNotBetween(String value1, String value2) {
+/*  351 */       addCriterion("NAME not between", value1, value2, "name");
+/*  352 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andBeginDateIsNull() {
+/*  356 */       addCriterion("BEGIN_DATE is null");
+/*  357 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andBeginDateIsNotNull() {
+/*  361 */       addCriterion("BEGIN_DATE is not null");
+/*  362 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andBeginDateEqualTo(java.util.Date value) {
+/*  366 */       addCriterionForJDBCDate("BEGIN_DATE =", value, "beginDate");
+/*  367 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andBeginDateNotEqualTo(java.util.Date value) {
+/*  371 */       addCriterionForJDBCDate("BEGIN_DATE <>", value, "beginDate");
+/*  372 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andBeginDateGreaterThan(java.util.Date value) {
+/*  376 */       addCriterionForJDBCDate("BEGIN_DATE >", value, "beginDate");
+/*  377 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andBeginDateGreaterThanOrEqualTo(java.util.Date value) {
+/*  381 */       addCriterionForJDBCDate("BEGIN_DATE >=", value, "beginDate");
+/*  382 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andBeginDateLessThan(java.util.Date value) {
+/*  386 */       addCriterionForJDBCDate("BEGIN_DATE <", value, "beginDate");
+/*  387 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andBeginDateLessThanOrEqualTo(java.util.Date value) {
+/*  391 */       addCriterionForJDBCDate("BEGIN_DATE <=", value, "beginDate");
+/*  392 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andBeginDateIn(List<java.util.Date> values) {
+/*  396 */       addCriterionForJDBCDate("BEGIN_DATE in", values, "beginDate");
+/*  397 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andBeginDateNotIn(List<java.util.Date> values) {
+/*  401 */       addCriterionForJDBCDate("BEGIN_DATE not in", values, "beginDate");
+/*  402 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andBeginDateBetween(java.util.Date value1, java.util.Date value2) {
+/*  406 */       addCriterionForJDBCDate("BEGIN_DATE between", value1, value2, "beginDate");
+/*  407 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andBeginDateNotBetween(java.util.Date value1, java.util.Date value2) {
+/*  411 */       addCriterionForJDBCDate("BEGIN_DATE not between", value1, value2, "beginDate");
+/*  412 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andEndDateIsNull() {
+/*  416 */       addCriterion("END_DATE is null");
+/*  417 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andEndDateIsNotNull() {
+/*  421 */       addCriterion("END_DATE is not null");
+/*  422 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andEndDateEqualTo(java.util.Date value) {
+/*  426 */       addCriterionForJDBCDate("END_DATE =", value, "endDate");
+/*  427 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andEndDateNotEqualTo(java.util.Date value) {
+/*  431 */       addCriterionForJDBCDate("END_DATE <>", value, "endDate");
+/*  432 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andEndDateGreaterThan(java.util.Date value) {
+/*  436 */       addCriterionForJDBCDate("END_DATE >", value, "endDate");
+/*  437 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andEndDateGreaterThanOrEqualTo(java.util.Date value) {
+/*  441 */       addCriterionForJDBCDate("END_DATE >=", value, "endDate");
+/*  442 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andEndDateLessThan(java.util.Date value) {
+/*  446 */       addCriterionForJDBCDate("END_DATE <", value, "endDate");
+/*  447 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andEndDateLessThanOrEqualTo(java.util.Date value) {
+/*  451 */       addCriterionForJDBCDate("END_DATE <=", value, "endDate");
+/*  452 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andEndDateIn(List<java.util.Date> values) {
+/*  456 */       addCriterionForJDBCDate("END_DATE in", values, "endDate");
+/*  457 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andEndDateNotIn(List<java.util.Date> values) {
+/*  461 */       addCriterionForJDBCDate("END_DATE not in", values, "endDate");
+/*  462 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andEndDateBetween(java.util.Date value1, java.util.Date value2) {
+/*  466 */       addCriterionForJDBCDate("END_DATE between", value1, value2, "endDate");
+/*  467 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andEndDateNotBetween(java.util.Date value1, java.util.Date value2) {
+/*  471 */       addCriterionForJDBCDate("END_DATE not between", value1, value2, "endDate");
+/*  472 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andTypeIsNull() {
+/*  476 */       addCriterion("TYPE is null");
+/*  477 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andTypeIsNotNull() {
+/*  481 */       addCriterion("TYPE is not null");
+/*  482 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andTypeEqualTo(String value) {
+/*  486 */       addCriterion("TYPE =", value, "type");
+/*  487 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andTypeNotEqualTo(String value) {
+/*  491 */       addCriterion("TYPE <>", value, "type");
+/*  492 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andTypeGreaterThan(String value) {
+/*  496 */       addCriterion("TYPE >", value, "type");
+/*  497 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andTypeGreaterThanOrEqualTo(String value) {
+/*  501 */       addCriterion("TYPE >=", value, "type");
+/*  502 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andTypeLessThan(String value) {
+/*  506 */       addCriterion("TYPE <", value, "type");
+/*  507 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andTypeLessThanOrEqualTo(String value) {
+/*  511 */       addCriterion("TYPE <=", value, "type");
+/*  512 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andTypeLike(String value) {
+/*  516 */       addCriterion("TYPE like", value, "type");
+/*  517 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andTypeNotLike(String value) {
+/*  521 */       addCriterion("TYPE not like", value, "type");
+/*  522 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andTypeIn(List<String> values) {
+/*  526 */       addCriterion("TYPE in", values, "type");
+/*  527 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andTypeNotIn(List<String> values) {
+/*  531 */       addCriterion("TYPE not in", values, "type");
+/*  532 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andTypeBetween(String value1, String value2) {
+/*  536 */       addCriterion("TYPE between", value1, value2, "type");
+/*  537 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andTypeNotBetween(String value1, String value2) {
+/*  541 */       addCriterion("TYPE not between", value1, value2, "type");
+/*  542 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andToIdIsNull() {
+/*  546 */       addCriterion("TO_ID is null");
+/*  547 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andToIdIsNotNull() {
+/*  551 */       addCriterion("TO_ID is not null");
+/*  552 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andToIdEqualTo(String value) {
+/*  556 */       addCriterion("TO_ID =", value, "toId");
+/*  557 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andToIdNotEqualTo(String value) {
+/*  561 */       addCriterion("TO_ID <>", value, "toId");
+/*  562 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andToIdGreaterThan(String value) {
+/*  566 */       addCriterion("TO_ID >", value, "toId");
+/*  567 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andToIdGreaterThanOrEqualTo(String value) {
+/*  571 */       addCriterion("TO_ID >=", value, "toId");
+/*  572 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andToIdLessThan(String value) {
+/*  576 */       addCriterion("TO_ID <", value, "toId");
+/*  577 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andToIdLessThanOrEqualTo(String value) {
+/*  581 */       addCriterion("TO_ID <=", value, "toId");
+/*  582 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andToIdLike(String value) {
+/*  586 */       addCriterion("TO_ID like", value, "toId");
+/*  587 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andToIdNotLike(String value) {
+/*  591 */       addCriterion("TO_ID not like", value, "toId");
+/*  592 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andToIdIn(List<String> values) {
+/*  596 */       addCriterion("TO_ID in", values, "toId");
+/*  597 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andToIdNotIn(List<String> values) {
+/*  601 */       addCriterion("TO_ID not in", values, "toId");
+/*  602 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andToIdBetween(String value1, String value2) {
+/*  606 */       addCriterion("TO_ID between", value1, value2, "toId");
+/*  607 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andToIdNotBetween(String value1, String value2) {
+/*  611 */       addCriterion("TO_ID not between", value1, value2, "toId");
+/*  612 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreatorIsNull() {
+/*  616 */       addCriterion("CREATOR is null");
+/*  617 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreatorIsNotNull() {
+/*  621 */       addCriterion("CREATOR is not null");
+/*  622 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreatorEqualTo(String value) {
+/*  626 */       addCriterion("CREATOR =", value, "creator");
+/*  627 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreatorNotEqualTo(String value) {
+/*  631 */       addCriterion("CREATOR <>", value, "creator");
+/*  632 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreatorGreaterThan(String value) {
+/*  636 */       addCriterion("CREATOR >", value, "creator");
+/*  637 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreatorGreaterThanOrEqualTo(String value) {
+/*  641 */       addCriterion("CREATOR >=", value, "creator");
+/*  642 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreatorLessThan(String value) {
+/*  646 */       addCriterion("CREATOR <", value, "creator");
+/*  647 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreatorLessThanOrEqualTo(String value) {
+/*  651 */       addCriterion("CREATOR <=", value, "creator");
+/*  652 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreatorLike(String value) {
+/*  656 */       addCriterion("CREATOR like", value, "creator");
+/*  657 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreatorNotLike(String value) {
+/*  661 */       addCriterion("CREATOR not like", value, "creator");
+/*  662 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreatorIn(List<String> values) {
+/*  666 */       addCriterion("CREATOR in", values, "creator");
+/*  667 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreatorNotIn(List<String> values) {
+/*  671 */       addCriterion("CREATOR not in", values, "creator");
+/*  672 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreatorBetween(String value1, String value2) {
+/*  676 */       addCriterion("CREATOR between", value1, value2, "creator");
+/*  677 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreatorNotBetween(String value1, String value2) {
+/*  681 */       addCriterion("CREATOR not between", value1, value2, "creator");
+/*  682 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreateDateIsNull() {
+/*  686 */       addCriterion("CREATE_DATE is null");
+/*  687 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreateDateIsNotNull() {
+/*  691 */       addCriterion("CREATE_DATE is not null");
+/*  692 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreateDateEqualTo(java.util.Date value) {
+/*  696 */       addCriterionForJDBCDate("CREATE_DATE =", value, "createDate");
+/*  697 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreateDateNotEqualTo(java.util.Date value) {
+/*  701 */       addCriterionForJDBCDate("CREATE_DATE <>", value, "createDate");
+/*  702 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreateDateGreaterThan(java.util.Date value) {
+/*  706 */       addCriterionForJDBCDate("CREATE_DATE >", value, "createDate");
+/*  707 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreateDateGreaterThanOrEqualTo(java.util.Date value) {
+/*  711 */       addCriterionForJDBCDate("CREATE_DATE >=", value, "createDate");
+/*  712 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreateDateLessThan(java.util.Date value) {
+/*  716 */       addCriterionForJDBCDate("CREATE_DATE <", value, "createDate");
+/*  717 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreateDateLessThanOrEqualTo(java.util.Date value) {
+/*  721 */       addCriterionForJDBCDate("CREATE_DATE <=", value, "createDate");
+/*  722 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreateDateIn(List<java.util.Date> values) {
+/*  726 */       addCriterionForJDBCDate("CREATE_DATE in", values, "createDate");
+/*  727 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreateDateNotIn(List<java.util.Date> values) {
+/*  731 */       addCriterionForJDBCDate("CREATE_DATE not in", values, "createDate");
+/*  732 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreateDateBetween(java.util.Date value1, java.util.Date value2) {
+/*  736 */       addCriterionForJDBCDate("CREATE_DATE between", value1, value2, "createDate");
+/*  737 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andCreateDateNotBetween(java.util.Date value1, java.util.Date value2) {
+/*  741 */       addCriterionForJDBCDate("CREATE_DATE not between", value1, value2, "createDate");
+/*  742 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSuspendFlagIsNull() {
+/*  746 */       addCriterion("SUSPEND_FLAG is null");
+/*  747 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSuspendFlagIsNotNull() {
+/*  751 */       addCriterion("SUSPEND_FLAG is not null");
+/*  752 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSuspendFlagEqualTo(String value) {
+/*  756 */       addCriterion("SUSPEND_FLAG =", value, "suspendFlag");
+/*  757 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSuspendFlagNotEqualTo(String value) {
+/*  761 */       addCriterion("SUSPEND_FLAG <>", value, "suspendFlag");
+/*  762 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSuspendFlagGreaterThan(String value) {
+/*  766 */       addCriterion("SUSPEND_FLAG >", value, "suspendFlag");
+/*  767 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSuspendFlagGreaterThanOrEqualTo(String value) {
+/*  771 */       addCriterion("SUSPEND_FLAG >=", value, "suspendFlag");
+/*  772 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSuspendFlagLessThan(String value) {
+/*  776 */       addCriterion("SUSPEND_FLAG <", value, "suspendFlag");
+/*  777 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSuspendFlagLessThanOrEqualTo(String value) {
+/*  781 */       addCriterion("SUSPEND_FLAG <=", value, "suspendFlag");
+/*  782 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSuspendFlagLike(String value) {
+/*  786 */       addCriterion("SUSPEND_FLAG like", value, "suspendFlag");
+/*  787 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSuspendFlagNotLike(String value) {
+/*  791 */       addCriterion("SUSPEND_FLAG not like", value, "suspendFlag");
+/*  792 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSuspendFlagIn(List<String> values) {
+/*  796 */       addCriterion("SUSPEND_FLAG in", values, "suspendFlag");
+/*  797 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSuspendFlagNotIn(List<String> values) {
+/*  801 */       addCriterion("SUSPEND_FLAG not in", values, "suspendFlag");
+/*  802 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSuspendFlagBetween(String value1, String value2) {
+/*  806 */       addCriterion("SUSPEND_FLAG between", value1, value2, "suspendFlag");
+/*  807 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSuspendFlagNotBetween(String value1, String value2) {
+/*  811 */       addCriterion("SUSPEND_FLAG not between", value1, value2, "suspendFlag");
+/*  812 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPublishIsNull() {
+/*  816 */       addCriterion("PUBLISH is null");
+/*  817 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPublishIsNotNull() {
+/*  821 */       addCriterion("PUBLISH is not null");
+/*  822 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPublishEqualTo(String value) {
+/*  826 */       addCriterion("PUBLISH =", value, "publish");
+/*  827 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPublishNotEqualTo(String value) {
+/*  831 */       addCriterion("PUBLISH <>", value, "publish");
+/*  832 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPublishGreaterThan(String value) {
+/*  836 */       addCriterion("PUBLISH >", value, "publish");
+/*  837 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPublishGreaterThanOrEqualTo(String value) {
+/*  841 */       addCriterion("PUBLISH >=", value, "publish");
+/*  842 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPublishLessThan(String value) {
+/*  846 */       addCriterion("PUBLISH <", value, "publish");
+/*  847 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPublishLessThanOrEqualTo(String value) {
+/*  851 */       addCriterion("PUBLISH <=", value, "publish");
+/*  852 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPublishLike(String value) {
+/*  856 */       addCriterion("PUBLISH like", value, "publish");
+/*  857 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPublishNotLike(String value) {
+/*  861 */       addCriterion("PUBLISH not like", value, "publish");
+/*  862 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPublishIn(List<String> values) {
+/*  866 */       addCriterion("PUBLISH in", values, "publish");
+/*  867 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPublishNotIn(List<String> values) {
+/*  871 */       addCriterion("PUBLISH not in", values, "publish");
+/*  872 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPublishBetween(String value1, String value2) {
+/*  876 */       addCriterion("PUBLISH between", value1, value2, "publish");
+/*  877 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andPublishNotBetween(String value1, String value2) {
+/*  881 */       addCriterion("PUBLISH not between", value1, value2, "publish");
+/*  882 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSmsFlagIsNull() {
+/*  886 */       addCriterion("SMS_FLAG is null");
+/*  887 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSmsFlagIsNotNull() {
+/*  891 */       addCriterion("SMS_FLAG is not null");
+/*  892 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSmsFlagEqualTo(String value) {
+/*  896 */       addCriterion("SMS_FLAG =", value, "smsFlag");
+/*  897 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSmsFlagNotEqualTo(String value) {
+/*  901 */       addCriterion("SMS_FLAG <>", value, "smsFlag");
+/*  902 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSmsFlagGreaterThan(String value) {
+/*  906 */       addCriterion("SMS_FLAG >", value, "smsFlag");
+/*  907 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSmsFlagGreaterThanOrEqualTo(String value) {
+/*  911 */       addCriterion("SMS_FLAG >=", value, "smsFlag");
+/*  912 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSmsFlagLessThan(String value) {
+/*  916 */       addCriterion("SMS_FLAG <", value, "smsFlag");
+/*  917 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSmsFlagLessThanOrEqualTo(String value) {
+/*  921 */       addCriterion("SMS_FLAG <=", value, "smsFlag");
+/*  922 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSmsFlagLike(String value) {
+/*  926 */       addCriterion("SMS_FLAG like", value, "smsFlag");
+/*  927 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSmsFlagNotLike(String value) {
+/*  931 */       addCriterion("SMS_FLAG not like", value, "smsFlag");
+/*  932 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSmsFlagIn(List<String> values) {
+/*  936 */       addCriterion("SMS_FLAG in", values, "smsFlag");
+/*  937 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSmsFlagNotIn(List<String> values) {
+/*  941 */       addCriterion("SMS_FLAG not in", values, "smsFlag");
+/*  942 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSmsFlagBetween(String value1, String value2) {
+/*  946 */       addCriterion("SMS_FLAG between", value1, value2, "smsFlag");
+/*  947 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */ 
+/*      */     public WorkPlanExample.Criteria andSmsFlagNotBetween(String value1, String value2) {
+/*  951 */       addCriterion("SMS_FLAG not between", value1, value2, "smsFlag");
+/*  952 */       return (WorkPlanExample.Criteria)this;
+/*      */     }
+/*      */   }
+/*      */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.model.workPlan.WorkPlanExample
+ * JD-Core Version:    0.6.0
+ */

@@ -1,0 +1,30 @@
+/*    */ package com.xoa.plugin;
+/*    */ 
+/*    */ import com.xoa.dao.notify.NotifyMapper;
+/*    */ import com.xoa.global.proxy.TriggerSubject;
+/*    */ import com.xoa.model.notify.Notify;
+/*    */ import com.xoa.model.workflow.TriggerPlugIn;
+/*    */ import com.xoa.util.dataSource.ContextHolder;
+/*    */ import javax.annotation.Resource;
+/*    */ import org.springframework.stereotype.Service;
+/*    */ 
+/*    */ @Service
+/*    */ public class NotifyTrigger
+/*    */   implements TriggerSubject
+/*    */ {
+/*    */ 
+/*    */   @Resource
+/*    */   private NotifyMapper notifyMapper;
+/*    */ 
+/*    */   public void doRun(String company, Object[] ags)
+/*    */   {
+/* 22 */     ContextHolder.setConsumerType(company);
+/* 23 */     TriggerPlugIn tri = (TriggerPlugIn)ags[0];
+/* 24 */     this.notifyMapper.addNotify(new Notify(tri.getFormmat(), tri.getFromId(), tri.getSendTime(), tri.getSubject(), tri.getContent(), "ALL_DEPT", "1"));
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.plugin.NotifyTrigger
+ * JD-Core Version:    0.6.0
+ */

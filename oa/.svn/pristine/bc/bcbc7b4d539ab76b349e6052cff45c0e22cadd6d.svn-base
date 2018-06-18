@@ -1,0 +1,54 @@
+/*    */ package com.xoa.util.cms.directive;
+/*    */ 
+/*    */ import com.xoa.util.DateFormat;
+/*    */ import com.xoa.util.common.StringUtils;
+/*    */ import freemarker.core.Environment;
+/*    */ import freemarker.template.TemplateDirectiveBody;
+/*    */ import freemarker.template.TemplateDirectiveModel;
+/*    */ import freemarker.template.TemplateException;
+/*    */ import freemarker.template.TemplateModel;
+/*    */ import java.io.IOException;
+/*    */ import java.io.Writer;
+/*    */ import java.util.Calendar;
+/*    */ import java.util.Date;
+/*    */ import java.util.Map;
+/*    */ import java.util.zip.DataFormatException;
+/*    */ 
+/*    */ public class CMSOutDirective
+/*    */   implements TemplateDirectiveModel
+/*    */ {
+/*    */   public void execute(Environment environment, Map map, TemplateModel[] templateModels, TemplateDirectiveBody templateDirectiveBody)
+/*    */     throws TemplateException, IOException
+/*    */   {
+/* 21 */     String name = StringUtils.getString(map.get("name"));
+/* 22 */     String dataFormate = StringUtils.getString(map.get("dataFormate"));
+/*    */ 
+/* 24 */     Map loopObj = (Map)environment.getCustomAttribute("loopObj");
+/* 25 */     Writer w = environment.getOut();
+/*    */ 
+/* 28 */     if (loopObj != null) {
+/* 29 */       if ("".equals(dataFormate))
+/*    */       {
+/* 31 */         w.write(loopObj.get(name) + "");
+/*    */       }
+/*    */       else try {
+/* 34 */           Object o = loopObj.get(name);
+/*    */ 
+/* 36 */           if (((o instanceof Date)) || ((o instanceof Calendar)))
+/* 37 */             w.write(DateFormat.getFormatByUse(dataFormate, o));
+/*    */         }
+/*    */         catch (DataFormatException e) {
+/* 40 */           e.printStackTrace();
+/*    */         }
+/*    */ 
+/*    */     }
+/*    */ 
+/* 45 */     if (templateDirectiveBody != null)
+/* 46 */       templateDirectiveBody.render(w);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.cms.directive.CMSOutDirective
+ * JD-Core Version:    0.6.0
+ */

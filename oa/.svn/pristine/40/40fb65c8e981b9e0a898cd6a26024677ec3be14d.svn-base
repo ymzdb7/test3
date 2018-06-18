@@ -1,0 +1,343 @@
+/*     */ package com.xoa.service.syspara.impl;
+/*     */ 
+/*     */ import com.alibaba.fastjson.JSONArray;
+/*     */ import com.xoa.dao.common.SecureRuleMapper;
+/*     */ import com.xoa.dao.common.SysParaMapper;
+/*     */ import com.xoa.dao.edu.eduUser.EduUserMapper;
+/*     */ import com.xoa.dao.users.UsersMapper;
+/*     */ import com.xoa.model.common.SecureRule;
+/*     */ import com.xoa.model.common.SysPara;
+/*     */ import com.xoa.model.edu.eduUser.EduUser;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.syspara.SysParaService;
+/*     */ import com.xoa.util.AjaxJson;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.annotation.Resource;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class SysParaServiceImpl
+/*     */   implements SysParaService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private SysParaMapper sysParaMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private EduUserMapper eduUserMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private SecureRuleMapper secureRuleMapper;
+/*     */ 
+/*     */   public List<SysPara> getIeTitle()
+/*     */   {
+/*  52 */     return this.sysParaMapper.getIeTitle();
+/*     */   }
+/*     */ 
+/*     */   public List<SysPara> getIeTitle1()
+/*     */   {
+/*  65 */     return this.sysParaMapper.getIeTitle1();
+/*     */   }
+/*     */ 
+/*     */   public void updateSysPara(SysPara sysPara)
+/*     */   {
+/*  80 */     this.sysParaMapper.updateSysPara(sysPara);
+/*     */   }
+/*     */ 
+/*     */   public void updateSysPara1(SysPara sysPara)
+/*     */   {
+/*  94 */     this.sysParaMapper.updateSysPara1(sysPara);
+/*     */   }
+/*     */ 
+/*     */   public List<SysPara> getTheSysParam(String paraName)
+/*     */   {
+/* 109 */     return this.sysParaMapper.getTheSysParam(paraName);
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SysPara> getUserName(String paraName)
+/*     */   {
+/* 114 */     ToJson json = new ToJson();
+/*     */     try {
+/* 116 */       SysPara sysPara = this.sysParaMapper.querySysPara(paraName);
+/* 117 */       StringBuffer userName = new StringBuffer();
+/* 118 */       StringBuffer userId = new StringBuffer();
+/* 119 */       StringBuffer sb = new StringBuffer();
+/* 120 */       List usersList = new ArrayList();
+/* 121 */       String name = "";
+/* 122 */       if ((sysPara != null) && 
+/* 123 */         (sysPara.getParaValue() != null)) {
+/* 124 */         String[] split = sysPara.getParaValue().split(",");
+/*     */ 
+/* 126 */         for (String s : split) {
+/* 127 */           String Name = this.usersMapper.getUsernameById(s);
+/* 128 */           Users byUid = this.usersMapper.getByUid(Integer.valueOf(s).intValue());
+/* 129 */           String user_Id = byUid.getUserId();
+/* 130 */           if ((user_Id != null) && (user_Id != "")) {
+/* 131 */             userId.append(user_Id + ",");
+/*     */           }
+/* 133 */           if ((Name != null) && (Name != "")) {
+/* 134 */             Users userByuid = this.usersMapper.findUserByuid(Integer.valueOf(s).intValue());
+/* 135 */             usersList.add(userByuid);
+/* 136 */             sb.append(s + ",");
+/* 137 */             userName.append(Name + ",");
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 142 */       if ((userName != null) && (userName.toString() != "")) {
+/* 143 */         name = userName.toString().substring(0, userName.toString().length() - 1);
+/*     */       }
+/* 145 */       if (sb != null) {
+/* 146 */         sysPara.setParaValue(sb.toString().substring(0, sb.toString().length() - 1));
+/*     */       }
+/* 148 */       if (name != null) {
+/* 149 */         sysPara.setUserName(name.toString());
+/*     */       }
+/* 151 */       sysPara.setUserId(userId.toString());
+/* 152 */       sysPara.setUsersList(usersList);
+/* 153 */       json.setObject(sysPara);
+/* 154 */       json.setFlag(0);
+/* 155 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 157 */       json.setFlag(1);
+/* 158 */       json.setMsg("err");
+/* 159 */       e.printStackTrace();
+/*     */     }
+/* 161 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> editSysPara(String usersIds)
+/*     */   {
+/* 166 */     ToJson json = new ToJson();
+/*     */     try {
+/* 168 */       StringBuffer paraValue = new StringBuffer();
+/* 169 */       if ((usersIds != null) && (usersIds != "")) {
+/* 170 */         String[] split = usersIds.split(",");
+/* 171 */         List<Users> usersByUserIds = this.usersMapper.getUsersByUserIds(split);
+/* 172 */         for (Users users : usersByUserIds) {
+/* 173 */           Integer uid = users.getUid();
+/* 174 */           if (uid != null) {
+/* 175 */             paraValue.append(uid + ",");
+/*     */           }
+/*     */         }
+/*     */       }
+/* 179 */       SysPara sysPara = new SysPara();
+/* 180 */       sysPara.setParaName("MEETING_MANAGER_TYPE");
+/* 181 */       sysPara.setParaValue(paraValue.toString());
+/* 182 */       updateSysPara(sysPara);
+/* 183 */       json.setFlag(0);
+/* 184 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 186 */       json.setFlag(1);
+/* 187 */       json.setMsg("err");
+/* 188 */       e.printStackTrace();
+/*     */     }
+/* 190 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public boolean checkIsHaveSecure(Users users, Integer type)
+/*     */   {
+/* 196 */     Map m = getAllSecureSwitch();
+/* 197 */     if ((!StringUtils.checkNull((String)m.get("switch")).booleanValue()) && (((String)m.get("switch")).equals("1")))
+/*     */     {
+/* 199 */       Map map = getAllSecureRule();
+/* 200 */       SecureRule secureRule = (SecureRule)map.get(type);
+/* 201 */       if ((secureRule.getSysRule().equals("1")) && (secureRule.getUseFlag().equals("1")))
+/*     */       {
+/* 203 */         String rulePriv = getRulePriv(secureRule);
+/*     */ 
+/* 205 */         return (!StringUtils.checkNull((String)m.get(rulePriv)).booleanValue()) && (((String)m.get(rulePriv)).contains(String.valueOf(users.getUid())));
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */     else
+/*     */     {
+/* 211 */       return true;
+/*     */     }
+/* 213 */     return false;
+/*     */   }
+/*     */ 
+/*     */   public Map<Integer, SecureRule> getAllSecureRule() {
+/* 217 */     List<SecureRule> list = this.secureRuleMapper.getAllSecureRule();
+/* 218 */     Map map = new HashMap();
+/* 219 */     for (SecureRule secureRule : list) {
+/* 220 */       map.put(secureRule.getRuleId(), secureRule);
+/*     */     }
+/* 222 */     return map;
+/*     */   }
+/*     */ 
+/*     */   public Map<String, String> getAllSecureSwitch() {
+/* 226 */     SysPara sysPara = this.sysParaMapper.querySysPara("SECURE_SWITCH");
+/* 227 */     String paraValue = sysPara.getParaValue();
+/* 228 */     Map param = new HashMap();
+/* 229 */     JSONArray json = new JSONArray();
+/* 230 */     param = (Map)JSONArray.parseObject(paraValue, Map.class);
+/* 231 */     String swith = (String)param.get("swith");
+/* 232 */     String syser = (String)param.get("syser");
+/* 233 */     String safer = (String)param.get("safer");
+/* 234 */     String audutor = (String)param.get("auditor");
+/* 235 */     String userPriv = (String)param.get("userPriv");
+/*     */ 
+/* 237 */     Map map = new HashMap();
+/* 238 */     map.put("switch", swith);
+/* 239 */     map.put("syser", syser);
+/* 240 */     map.put("safer", safer);
+/* 241 */     map.put("auditor", audutor);
+/* 242 */     map.put("userPriv", userPriv);
+/* 243 */     return map;
+/*     */   }
+/*     */ 
+/*     */   public String getRulePriv(SecureRule secureRule)
+/*     */   {
+/* 249 */     byte rulePriv = secureRule.getRulePriv().byteValue();
+/* 250 */     if (rulePriv == 1) {
+/* 251 */       return "syser";
+/*     */     }
+/* 253 */     if (rulePriv == 2) {
+/* 254 */       return "safer";
+/*     */     }
+/* 256 */     if (rulePriv == 3) {
+/* 257 */       return "auditor";
+/*     */     }
+/* 259 */     return null;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> getStatus()
+/*     */   {
+/* 265 */     ToJson json = new ToJson(1, "err");
+/* 266 */     SysPara status = this.sysParaMapper.getStatus();
+/* 267 */     if (status != null) {
+/* 268 */       String paraValue = status.getParaValue();
+/* 269 */       Date date = new Date();
+/* 270 */       SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy");
+/* 271 */       String startTime = simpleDateFormat.format(date);
+/* 272 */       int i = Integer.valueOf(startTime).intValue() + 1;
+/* 273 */       String time = startTime + "-" + i;
+/* 274 */       if (time.equals(paraValue)) {
+/* 275 */         json.setMsg("今年学生已经生过级");
+/* 276 */         json.setFlag(0);
+/*     */       }
+/*     */     }
+/* 279 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SysPara> eduSetParam(String firstDate, String secondDate, String initPwd)
+/*     */   {
+/* 291 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 293 */       SysPara sysPara = new SysPara();
+/* 294 */       sysPara.setParaName("SUMMER_VACATION_END");
+/* 295 */       sysPara.setParaValue(firstDate);
+/* 296 */       this.sysParaMapper.updateSysPara(sysPara);
+/* 297 */       sysPara.setParaName("WINTER_VACATION_END");
+/* 298 */       sysPara.setParaValue(secondDate);
+/* 299 */       this.sysParaMapper.updateSysPara(sysPara);
+/* 300 */       sysPara.setParaName("EDU_DEFAULT_PASSWORD");
+/* 301 */       sysPara.setParaValue(initPwd);
+/* 302 */       this.sysParaMapper.updateSysPara(sysPara);
+/* 303 */       json.setFlag(0);
+/* 304 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 306 */       e.printStackTrace();
+/*     */     }
+/* 308 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson selEduParam()
+/*     */   {
+/* 319 */     AjaxJson ajaxJson = new AjaxJson();
+/* 320 */     ajaxJson.setFlag(false);
+/* 321 */     ajaxJson.setMsg("error");
+/*     */     try {
+/* 323 */       Map map = new HashMap();
+/* 324 */       List<SysPara> sysParaList = this.sysParaMapper.selEduParam();
+/* 325 */       for (SysPara sysPara : sysParaList) {
+/* 326 */         map.put(sysPara.getParaName(), sysPara.getParaValue());
+/*     */       }
+/* 328 */       ajaxJson.setAttributes(map);
+/* 329 */       ajaxJson.setFlag(true);
+/* 330 */       ajaxJson.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 332 */       e.printStackTrace();
+/*     */     }
+/* 334 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> editOperator(String usersIds)
+/*     */   {
+/* 339 */     ToJson json = new ToJson();
+/*     */     try {
+/* 341 */       SysPara sysPara = new SysPara();
+/* 342 */       sysPara.setParaName("OPERATOR_NAME");
+/* 343 */       sysPara.setParaValue(usersIds);
+/* 344 */       updateSysPara(sysPara);
+/* 345 */       json.setFlag(0);
+/* 346 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 348 */       json.setFlag(1);
+/* 349 */       json.setMsg("err");
+/* 350 */       e.printStackTrace();
+/*     */     }
+/* 352 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<SysPara> getOperator(String paraName)
+/*     */   {
+/* 357 */     ToJson json = new ToJson();
+/*     */     try {
+/* 359 */       SysPara sysPara = this.sysParaMapper.querySysPara(paraName);
+/* 360 */       StringBuffer userName = new StringBuffer();
+/* 361 */       StringBuffer sb = new StringBuffer();
+/* 362 */       List usersList = new ArrayList();
+/* 363 */       String name = "";
+/* 364 */       if ((sysPara != null) && 
+/* 365 */         (sysPara.getParaValue() != null)) {
+/* 366 */         String[] split = sysPara.getParaValue().split(",");
+/* 367 */         for (String s : split) {
+/* 368 */           EduUser byuserId = this.eduUserMapper.getByuserId(s);
+/* 369 */           if (byuserId != null) {
+/* 370 */             String userName1 = byuserId.getUserName();
+/* 371 */             usersList.add(byuserId);
+/* 372 */             if (!StringUtils.checkNull(userName1).booleanValue()) {
+/* 373 */               sb.append(s + ",");
+/* 374 */               userName.append(userName1 + ",");
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 381 */       if (!StringUtils.checkNull(userName.toString()).booleanValue()) {
+/* 382 */         name = userName.toString().substring(0, userName.toString().length() - 1);
+/* 383 */         sysPara.setUserName(name);
+/*     */       }
+/* 385 */       if (!StringUtils.checkNull(sb.toString()).booleanValue()) {
+/* 386 */         sysPara.setParaValue(sb.toString().substring(0, sb.toString().length() - 1));
+/*     */       }
+/* 388 */       sysPara.setEduUserList(usersList);
+/* 389 */       json.setObject(sysPara);
+/* 390 */       json.setFlag(0);
+/* 391 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 393 */       json.setFlag(1);
+/* 394 */       json.setMsg("err");
+/* 395 */       e.printStackTrace();
+/*     */     }
+/* 397 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.syspara.impl.SysParaServiceImpl
+ * JD-Core Version:    0.6.0
+ */

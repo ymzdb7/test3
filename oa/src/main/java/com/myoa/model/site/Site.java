@@ -1,0 +1,89 @@
+ package com.myoa.model.site;
+ 
+ public class Site
+ {
+   private Integer portalId;
+   private String sortNo;
+   private String portalMark;
+   private String portalName;
+   private Integer homeTemplate;
+   private String path;
+   private String pubFileExt;
+   private String templateName;
+ 
+   public String getTemplateName()
+   {
+     return this.templateName;
+   }
+ 
+   public void setTemplateName(String templateName) {
+     this.templateName = templateName;
+   }
+ 
+   public String getPath() {
+     return this.path;
+   }
+ 
+   public void setPath(String path) {
+     this.path = path;
+   }
+ 
+   public String getPubFileExt() {
+     return this.pubFileExt;
+   }
+ 
+   public void setPubFileExt(String pubFileExt) {
+     this.pubFileExt = pubFileExt;
+   }
+ 
+   public Integer getPortalId()
+   {
+     return this.portalId;
+   }
+ 
+   public void setPortalId(Integer portalId)
+   {
+     this.portalId = portalId;
+   }
+ 
+   public String getSortNo()
+   {
+     return this.sortNo;
+   }
+ 
+   public void setSortNo(String sortNo)
+   {
+     this.sortNo = (sortNo == null ? null : sortNo.trim());
+   }
+ 
+   public String getPortalMark()
+   {
+     return this.portalMark;
+   }
+ 
+   public void setPortalMark(String portalMark)
+   {
+     this.portalMark = (portalMark == null ? null : portalMark.trim());
+   }
+ 
+   public String getPortalName()
+   {
+     return this.portalName;
+   }
+ 
+   public void setPortalName(String portalName)
+   {
+     this.portalName = (portalName == null ? null : portalName.trim());
+   }
+ 
+   public Integer getHomeTemplate()
+   {
+     return this.homeTemplate;
+   }
+ 
+   public void setHomeTemplate(Integer homeTemplate)
+   {
+     this.homeTemplate = homeTemplate;
+   }
+ }
+

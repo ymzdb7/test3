@@ -1,0 +1,62 @@
+package com.myoa.global.component;
+
+import java.util.List;
+import org.springframework.stereotype.Component;
+
+@Component
+public class TruncateInitMenu {
+	List<String> myTableList;
+	List<String> workFlowList;
+	List<String> erpList;
+	List<String> knowledgeList;
+	List<String> documentList;
+	List<String> systemList;
+
+	public List<String> getMyTableList() {
+		return this.myTableList;
+	}
+
+	public void setMyTableList(List<String> myTableList) {
+		this.myTableList = myTableList;
+	}
+
+	public List<String> getWorkFlowList() {
+		return this.workFlowList;
+	}
+
+	public void setWorkFlowList(List<String> workFlowList) {
+		this.workFlowList = workFlowList;
+	}
+
+	public List<String> getErpList() {
+		return this.erpList;
+	}
+
+	public void setErpList(List<String> erpList) {
+		this.erpList = erpList;
+	}
+
+	public List<String> getKnowledgeList() {
+		return this.knowledgeList;
+	}
+
+	public void setKnowledgeList(List<String> knowledgeList) {
+		this.knowledgeList = knowledgeList;
+	}
+
+	public List<String> getDocumentList() {
+		return this.documentList;
+	}
+
+	public void setDocumentList(List<String> documentList) {
+		this.documentList = documentList;
+	}
+
+	public List<String> getSystemList() {
+		return this.systemList;
+	}
+
+	public void setSystemList(List<String> systemList) {
+		this.systemList = systemList;
+	}
+}

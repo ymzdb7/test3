@@ -1,0 +1,301 @@
+/*     */ package com.xoa.service.edu.eduDepartment;
+/*     */ 
+/*     */ import com.xoa.dao.edu.eduDepartment.EduDepartmentMapper;
+/*     */ import com.xoa.model.edu.eduDepartment.EduDepartment;
+/*     */ import com.xoa.model.edu.eduDepartment.EduDepartmentWithBLOBs;
+/*     */ import com.xoa.util.AjaxJson;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.List;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduDepartmentService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private EduDepartmentMapper eduDepartmentMapper;
+/*     */ 
+/*     */   public ToJson<EduDepartmentWithBLOBs> queryListByDeptId(String deptParent, HttpServletRequest request)
+/*     */   {
+/*  31 */     ToJson<EduDepartmentWithBLOBs> baseWrappers = new ToJson<EduDepartmentWithBLOBs>();
+/*     */ 
+/*  34 */     if (StringUtils.checkNull(deptParent).booleanValue()) {
+/*  35 */       baseWrappers.setFlag(1);
+/*  36 */       baseWrappers.setMsg("err");
+/*  37 */       return baseWrappers;
+/*     */     }
+/*  39 */     List eduDepart = this.eduDepartmentMapper.queryListByDeptId(deptParent);
+/*  40 */     if ((eduDepart != null) && (eduDepart.size() > 0)) {
+/*  41 */       baseWrappers.setFlag(0);
+/*  42 */       baseWrappers.setMsg("ok");
+/*  43 */       baseWrappers.setObj(eduDepart);
+/*  44 */       return baseWrappers;
+/*     */     }
+/*  46 */     baseWrappers.setFlag(1);
+/*  47 */     baseWrappers.setMsg("err");
+/*  48 */     return baseWrappers;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduDepartmentWithBLOBs> queryGetObjectByDeptId(String deptParent, HttpServletRequest request) {
+/*  52 */     ToJson baseWrappers = new ToJson();
+/*     */ 
+/*  55 */     if (StringUtils.checkNull(deptParent).booleanValue()) {
+/*  56 */       baseWrappers.setFlag(1);
+/*  57 */       baseWrappers.setMsg("err");
+/*  58 */       return baseWrappers;
+/*     */     }
+/*  60 */     EduDepartmentWithBLOBs eduDepartmentWithBLOBs = this.eduDepartmentMapper.queryGetObjectByDeptId(deptParent);
+/*  61 */     baseWrappers.setFlag(0);
+/*  62 */     baseWrappers.setMsg("ok");
+/*  63 */     baseWrappers.setObject(eduDepartmentWithBLOBs);
+/*  64 */     return baseWrappers;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduDepartmentWithBLOBs> queryGetObj(HttpServletRequest request) {
+/*  68 */     ToJson baseWrappers = new ToJson();
+/*     */ 
+/*  70 */     List eduDepart = this.eduDepartmentMapper.queryListByDeptId("2");
+/*  71 */     if ((eduDepart != null) && (eduDepart.size() > 0)) {
+/*  72 */       baseWrappers.setFlag(0);
+/*  73 */       baseWrappers.setMsg("ok");
+/*  74 */       baseWrappers.setObj(eduDepart);
+/*  75 */       return baseWrappers;
+/*     */     }
+/*  77 */     baseWrappers.setFlag(1);
+/*  78 */     baseWrappers.setMsg("err");
+/*  79 */     return baseWrappers;
+/*     */   }
+/*     */   public ToJson<EduDepartmentWithBLOBs> updateEduDepartmentWithBLOBs(EduDepartmentWithBLOBs eduDepartmentWithBLOBs, HttpServletRequest request) {
+/*  82 */     ToJson baseWrappers = new ToJson();
+/*  83 */     int num = this.eduDepartmentMapper.updateEduDepartmentWithBLOBs(eduDepartmentWithBLOBs);
+/*  84 */     if (num > 0) {
+/*  85 */       baseWrappers.setFlag(0);
+/*  86 */       baseWrappers.setMsg("ok");
+/*     */ 
+/*  88 */       return baseWrappers;
+/*     */     }
+/*     */ 
+/*  91 */     baseWrappers.setFlag(1);
+/*  92 */     baseWrappers.setMsg("err");
+/*     */ 
+/*  94 */     return baseWrappers;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduDepartmentWithBLOBs> addEduDepartmentWithBLOBs(EduDepartmentWithBLOBs eduDepartmentWithBLOBs, HttpServletRequest request)
+/*     */   {
+/* 100 */     ToJson baseWrappers = new ToJson();
+/* 101 */     EduDepartment findEduDepartment = this.eduDepartmentMapper.getClazzByNameParent(eduDepartmentWithBLOBs.getDeptName(), eduDepartmentWithBLOBs.getDeptParent());
+/* 102 */     if (findEduDepartment != null) {
+/* 103 */       baseWrappers.setFlag(1);
+/* 104 */       baseWrappers.setMsg("部门已存在！");
+/* 105 */       return baseWrappers;
+/*     */     }
+/* 107 */     EduDepartmentWithBLOBs eduDepartmentWithBLOBsById = this.eduDepartmentMapper.selectByDepId(eduDepartmentWithBLOBs.getDeptParent());
+/* 108 */     if (eduDepartmentWithBLOBsById != null) {
+/* 109 */       String parentDeptNo = eduDepartmentWithBLOBsById.getDeptNo();
+/* 110 */       String deptNo = parentDeptNo + eduDepartmentWithBLOBs.getDeptNo();
+/* 111 */       eduDepartmentWithBLOBs.setDeptNo(deptNo);
+/*     */     }
+/* 113 */     int num = this.eduDepartmentMapper.insertSelective(eduDepartmentWithBLOBs);
+/* 114 */     if (num > 0) {
+/* 115 */       baseWrappers.setFlag(0);
+/* 116 */       baseWrappers.setMsg("新建成功");
+/* 117 */       return baseWrappers;
+/*     */     }
+/* 119 */     baseWrappers.setFlag(1);
+/* 120 */     baseWrappers.setMsg("新建失败");
+/*     */ 
+/* 122 */     return baseWrappers;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduDepartmentWithBLOBs> deleteEduDepartmentWithBLOBs(String deptId, String deptNo, HttpServletRequest request)
+/*     */   {
+/* 130 */     ToJson baseWrappers = new ToJson();
+/* 131 */     List eduDepart = this.eduDepartmentMapper.queryListBydeptNO(deptNo);
+/* 132 */     if ((eduDepart == null) || (eduDepart.size() == 0)) {
+/* 133 */       int num = this.eduDepartmentMapper.deleteEduDepartmentWithBLOBs(deptId);
+/* 134 */       if (num > 0) {
+/* 135 */         baseWrappers.setFlag(0);
+/* 136 */         baseWrappers.setMsg("ok");
+/*     */ 
+/* 138 */         return baseWrappers;
+/*     */       }
+/*     */ 
+/* 141 */       baseWrappers.setFlag(1);
+/* 142 */       baseWrappers.setMsg("err");
+/*     */ 
+/* 144 */       return baseWrappers;
+/*     */     }
+/*     */ 
+/* 147 */     baseWrappers.setMsg("该部门下有人员，请处理后再删除该部门");
+/* 148 */     baseWrappers.setFlag(1);
+/* 149 */     return baseWrappers;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduDepartmentWithBLOBs> queryObjectsBydeptParent(String deptParent, HttpServletRequest request)
+/*     */   {
+/* 157 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 159 */       List eduDepartmentWithBLOBs = this.eduDepartmentMapper.queryObjectsBydeptParent(deptParent);
+/* 160 */       json.setFlag(0);
+/* 161 */       json.setMsg("ok");
+/* 162 */       json.setObj(eduDepartmentWithBLOBs);
+/*     */     } catch (Exception e) {
+/* 164 */       json.setFlag(1);
+/* 165 */       json.setMsg("err");
+/* 166 */       e.printStackTrace();
+/*     */     }
+/* 168 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<EduDepartmentWithBLOBs> getObjByDeptId(String deptParent, HttpServletRequest request)
+/*     */   {
+/* 173 */     ToJson baseWrappers = new ToJson();
+/*     */ 
+/* 176 */     if (StringUtils.checkNull(deptParent).booleanValue()) {
+/* 177 */       baseWrappers.setFlag(1);
+/* 178 */       baseWrappers.setMsg("err");
+/* 179 */       return baseWrappers;
+/*     */     }
+/*     */ 
+/* 182 */     EduDepartmentWithBLOBs eduDepartmentWithBLOBs = this.eduDepartmentMapper.queryGetObjectByDeptId(deptParent);
+/*     */ 
+/* 184 */     baseWrappers.setFlag(0);
+/* 185 */     baseWrappers.setMsg("ok");
+/* 186 */     List list = new ArrayList();
+/* 187 */     list.add(eduDepartmentWithBLOBs);
+/* 188 */     baseWrappers.setObj(list);
+/* 189 */     return baseWrappers;
+/*     */   }
+/*     */ 
+/*     */   public List<EduDepartmentWithBLOBs> getEduDeptUser(int deptId)
+/*     */   {
+/* 196 */     List list = this.eduDepartmentMapper.getChDeptEduUser(deptId);
+/*     */ 
+/* 204 */     List<EduDepartmentWithBLOBs> list1 = new ArrayList();
+/*     */ 
+/* 206 */     EduDepartmentWithBLOBs eduDepartment = this.eduDepartmentMapper.queryGetObjectByDeptId(String.valueOf(deptId));
+/* 207 */     if (eduDepartment.getDeptName().equals("家长")) {
+/* 208 */       list1 = this.eduDepartmentMapper.queryUserParent(deptId);
+/*     */     } else {
+/* 210 */       list1 = this.eduDepartmentMapper.getChDept(String.valueOf(deptId));
+/* 211 */       for (EduDepartmentWithBLOBs dep : list1) {
+/* 212 */         EduDepartmentWithBLOBs eduDepartmentWithBLOBs = this.eduDepartmentMapper.queryGetObjectByDeptId(dep.getDeptParent().toString());
+/* 213 */         dep.setDeptParentName(eduDepartmentWithBLOBs.getDeptName());
+/* 214 */         List list2 = new ArrayList();
+/* 215 */         list2 = this.eduDepartmentMapper.queryObjectsBydeptParent(dep.getDeptId().toString());
+/* 216 */         if (list2.size() != 0)
+/* 217 */           dep.setIsHaveCh("1");
+/*     */         else {
+/* 219 */           dep.setIsHaveCh("0");
+/*     */         }
+/*     */       }
+/*     */     }
+/* 223 */     if ((list.size() != 0) && (list1.size() != 0)) {
+/* 224 */       for (int i = 0; i < list1.size(); i++) {
+/* 225 */         list.add(list1.get(i));
+/*     */       }
+/* 227 */       return list;
+/*     */     }
+/* 229 */     if ((list.size() != 0) && (list1.size() == 0)) {
+/* 230 */       return list;
+/*     */     }
+/* 232 */     if ((list.size() == 0) && (list1.size() != 0)) {
+/* 233 */       return list1;
+/*     */     }
+/* 235 */     if ((list.size() == 0) && (list1.size() == 0)) {
+/* 236 */       return list;
+/*     */     }
+/* 238 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public List<EduDepartmentWithBLOBs> getAllOrg()
+/*     */   {
+/* 247 */     List<EduDepartmentWithBLOBs> list = this.eduDepartmentMapper.queryListByDeptId("0");
+/* 248 */     for (EduDepartmentWithBLOBs eduDepartmentWithBLOBs : list)
+/*     */     {
+/* 250 */       List<EduDepartmentWithBLOBs> list1 = this.eduDepartmentMapper.getChDept(String.valueOf(eduDepartmentWithBLOBs.getDeptId()));
+/* 251 */       eduDepartmentWithBLOBs.setSonDep(list1);
+/* 252 */       for (EduDepartmentWithBLOBs eduDepartmentWithBLOBs1 : list1) {
+/* 253 */         List liseDept = this.eduDepartmentMapper.getDeptByDeptNo(eduDepartmentWithBLOBs1.getDeptNo());
+/* 254 */         if (liseDept.size() > 1) {
+/* 255 */           List<EduDepartmentWithBLOBs> list2 = this.eduDepartmentMapper.getChDept(String.valueOf(eduDepartmentWithBLOBs1.getDeptId()));
+/* 256 */           eduDepartmentWithBLOBs1.setSonDep(list2);
+/* 257 */           for (EduDepartmentWithBLOBs eduDepartmentWithBLOBs2 : list2)
+/*     */           {
+/* 259 */             List list3 = this.eduDepartmentMapper.getChDeptEduUser(eduDepartmentWithBLOBs2.getDeptId().intValue());
+/* 260 */             eduDepartmentWithBLOBs2.setSonUser(list3);
+/*     */           }
+/*     */         }
+/*     */ 
+/* 264 */         List list3 = this.eduDepartmentMapper.getChDeptEduUser(eduDepartmentWithBLOBs1.getDeptId().intValue());
+/* 265 */         eduDepartmentWithBLOBs1.setSonUser(list3);
+/*     */       }
+/*     */     }
+/* 268 */     return list;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getDpNameByIds(String deptIds)
+/*     */   {
+/* 278 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try {
+/* 280 */       String[] deptArray = deptIds.split(",");
+/* 281 */       StringBuffer stringBuffer = new StringBuffer();
+/* 282 */       for (int i = 0; i < deptArray.length; i++) {
+/* 283 */         EduDepartmentWithBLOBs eduDepartmentWithBLOBs = this.eduDepartmentMapper.queryGetObjectByDeptId(deptArray[i]);
+/* 284 */         if (eduDepartmentWithBLOBs != null) {
+/* 285 */           String deptName = eduDepartmentWithBLOBs.getDeptName();
+/* 286 */           stringBuffer.append(deptName).append(",");
+/*     */         }
+/*     */       }
+/* 289 */       ajaxJson.setObj(stringBuffer.toString());
+/* 290 */       ajaxJson.setFlag(true);
+/* 291 */       ajaxJson.setMsg("OK");
+/*     */     } catch (Exception e) {
+/* 293 */       ajaxJson.setMsg(e.getMessage());
+/* 294 */       ajaxJson.setFlag(false);
+/*     */     }
+/* 296 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getAllGrade()
+/*     */   {
+/* 301 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try {
+/* 303 */       List list = this.eduDepartmentMapper.getAllGrade();
+/* 304 */       ajaxJson.setObj(list);
+/* 305 */       ajaxJson.setMsg("OK");
+/* 306 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 308 */       e.printStackTrace();
+/* 309 */       ajaxJson.setMsg("false");
+/* 310 */       ajaxJson.setFlag(false);
+/*     */     }
+/* 312 */     return ajaxJson;
+/*     */   }
+/*     */ 
+/*     */   public AjaxJson getClazz()
+/*     */   {
+/* 318 */     AjaxJson ajaxJson = new AjaxJson();
+/*     */     try {
+/* 320 */       List list = this.eduDepartmentMapper.getClazz();
+/* 321 */       ajaxJson.setObj(list);
+/* 322 */       ajaxJson.setMsg("OK");
+/* 323 */       ajaxJson.setFlag(true);
+/*     */     } catch (Exception e) {
+/* 325 */       e.printStackTrace();
+/* 326 */       ajaxJson.setMsg("false");
+/* 327 */       ajaxJson.setFlag(false);
+/*     */     }
+/* 329 */     return ajaxJson;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduDepartment.EduDepartmentService
+ * JD-Core Version:    0.6.0
+ */

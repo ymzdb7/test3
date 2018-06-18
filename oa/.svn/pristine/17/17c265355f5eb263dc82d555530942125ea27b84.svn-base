@@ -1,0 +1,220 @@
+ package com.xoa.util.sysUserPush;
+ 
+ import com.tencent.xinge.Message;
+ import com.tencent.xinge.MessageIOS;
+ import com.tencent.xinge.TagTokenPair;
+ import com.tencent.xinge.TimeInterval;
+ import com.tencent.xinge.XingeApp;
+ import java.util.ArrayList;
+ import java.util.List;
+ import java.util.Map;
+ import org.json.JSONException;
+ import org.json.JSONObject;
+ 
+ public class SysUserPush
+ {
+   private XingeApp xinge;
+   private Message message1;
+ 
+   public JSONObject demoPushSingleDeviceMessage(String token, Message messagea)
+   {
+     messagea.setType(2);
+ 
+     JSONObject ret = this.xinge.pushSingleDevice(token, messagea);
+     return ret;
+   }
+ 
+   public JSONObject demoPushSingleDeviceNotification(String token, Message messagea)
+   {
+     JSONObject ret = this.xinge.pushSingleDevice(token, messagea);
+     return ret;
+   }
+ 
+   public JSONObject demoPushSingleDeviceNotificationIntent(String token, Message messagea)
+   {
+     JSONObject ret = this.xinge.pushSingleDevice(token, messagea);
+     return ret;
+   }
+ 
+   public JSONObject demoPushSingleDeviceMessageIOS(String token, MessageIOS messageIOS)
+   {
+     MessageIOS remoteMessageIOS = new MessageIOS();
+     remoteMessageIOS.setType(12);
+     return this.xinge.pushSingleDevice(token, messageIOS, 1);
+   }
+ 
+   public JSONObject demoPushSingleDeviceNotificationIOS(TimeInterval acceptTime1, Map<String, Object> custom, String token)
+   {
+     MessageIOS messageIOS = new MessageIOS();
+     messageIOS.addAcceptTime(acceptTime1);
+     custom.put("key1", "value1");
+     custom.put("key2", Integer.valueOf(2));
+     messageIOS.setCustom(custom);
+     JSONObject ret = this.xinge.pushSingleDevice(token, messageIOS, 1);
+     return ret;
+   }
+ 
+   public JSONObject demoPushSingleAccount(String account, Message message)
+   {
+     message.setType(2);
+     JSONObject ret = this.xinge.pushSingleAccount(0, account, message);
+     return ret;
+   }
+ 
+   public JSONObject demoPushAccountList(List<String> accountList, Message message)
+   {
+     message.setType(2);
+     JSONObject ret = this.xinge.pushAccountList(0, accountList, message);
+     return ret;
+   }
+ 
+   public JSONObject demoPushSingleAccountIOS(String account, MessageIOS messageios, TimeInterval acceptTime1)
+   {
+     messageios.addAcceptTime(acceptTime1);
+     JSONObject ret = this.xinge.pushSingleAccount(0, account, messageios, 1);
+     return ret;
+   }
+ 
+   public JSONObject demoPushAccountListIOS(List<String> accountList, MessageIOS messageIos)
+   {
+     JSONObject ret = this.xinge.pushAccountList(0, accountList, messageIos, 1);
+     return ret;
+   }
+ 
+   public JSONObject demoPushAllDevice(Message message)
+   {
+     JSONObject ret = this.xinge.pushAllDevice(0, message);
+     return ret;
+   }
+ 
+   public JSONObject demoPushTags(List<String> tagList, Message message)
+   {
+     JSONObject ret = this.xinge.pushTags(0, tagList, "OR", message);
+     return ret;
+   }
+ 
+   public JSONObject demoPushAccountListMultiple(Message message) throws JSONException
+   {
+     message.setType(1);
+ 
+     JSONObject ret = this.xinge.createMultipush(message);
+     if (ret.getInt("ret_code") != 0) {
+       return ret;
+     }
+     JSONObject result = new JSONObject();
+ 
+     List accountList1 = new ArrayList();
+     accountList1.add("joelliu1");
+     accountList1.add("joelliu2");
+ 
+     result.append("all", this.xinge.pushAccountListMultiple(ret.getJSONObject("result").getLong("push_id"), accountList1));
+ 
+     List accountList2 = new ArrayList();
+     accountList2.add("joelliu3");
+     accountList2.add("joelliu4");
+ 
+     result.append("all", this.xinge.pushAccountListMultiple(ret.getJSONObject("result").getLong("push_id"), accountList2));
+     return result;
+   }
+ 
+   public JSONObject demoPushDeviceListMultiple()
+     throws JSONException
+   {
+     Message message = new Message();
+     message.setExpireTime(86400);
+     message.setTitle("title");
+     message.setContent("content");
+     message.setType(1);
+ 
+     JSONObject ret = this.xinge.createMultipush(message);
+     if (ret.getInt("ret_code") != 0) {
+       return ret;
+     }
+     JSONObject result = new JSONObject();
+ 
+     List deviceList1 = new ArrayList();
+     deviceList1.add("joelliu1");
+     deviceList1.add("joelliu2");
+ 
+     result.append("all", this.xinge.pushDeviceListMultiple(ret.getJSONObject("result").getLong("push_id"), deviceList1));
+ 
+     List deviceList2 = new ArrayList();
+     deviceList2.add("joelliu3");
+     deviceList2.add("joelliu4");
+ 
+     result.append("all", this.xinge.pushDeviceListMultiple(ret.getJSONObject("result").getLong("push_id"), deviceList2));
+     return result;
+   }
+ 
+   public JSONObject demoQueryPushStatus(List<String> pushIdList)
+   {
+     JSONObject ret = this.xinge.queryPushStatus(pushIdList);
+     return ret;
+   }
+ 
+   public JSONObject demoQueryDeviceCount()
+   {
+     JSONObject ret = this.xinge.queryDeviceCount();
+     return ret;
+   }
+ 
+   public JSONObject demoQueryTags()
+   {
+     JSONObject ret = this.xinge.queryTags();
+     return ret;
+   }
+ 
+   public JSONObject demoQueryTagTokenNum(String tag)
+   {
+     JSONObject ret = this.xinge.queryTagTokenNum(tag);
+     return ret;
+   }
+ 
+   public JSONObject demoQueryTokenTags(String token)
+   {
+     JSONObject ret = this.xinge.queryTokenTags(token);
+     return ret;
+   }
+ 
+   public JSONObject demoCancelTimingPush(String pushld)
+   {
+     JSONObject ret = this.xinge.cancelTimingPush(pushld);
+     return ret;
+   }
+ 
+   public JSONObject demoBatchSetTag(List<TagTokenPair> pairs)
+   {
+     JSONObject ret = this.xinge.BatchSetTag(pairs);
+     return ret;
+   }
+ 
+   public JSONObject demoBatchDelTag(List<TagTokenPair> pairs)
+   {
+     JSONObject ret = this.xinge.BatchDelTag(pairs);
+     return ret;
+   }
+ 
+   public JSONObject demoQueryInfoOfToken(String token) {
+     JSONObject ret = this.xinge.queryInfoOfToken(token);
+     return ret;
+   }
+ 
+   public JSONObject demoQueryTokensOfAccount(String nickName)
+   {
+     JSONObject ret = this.xinge.queryTokensOfAccount(nickName);
+     return ret;
+   }
+ 
+   public JSONObject demoDeleteTokenOfAccount(String nickName, String token)
+   {
+     JSONObject ret = this.xinge.deleteTokenOfAccount(nickName, token);
+     return ret;
+   }
+ 
+   public JSONObject demoDeleteAllTokensOfAccount(String nickName)
+   {
+     JSONObject ret = this.xinge.deleteAllTokensOfAccount(nickName);
+     return ret;
+   }
+ }
+

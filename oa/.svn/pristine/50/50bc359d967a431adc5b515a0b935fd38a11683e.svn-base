@@ -1,0 +1,31 @@
+/*    */ package com.xoa.controller.edu.eduStudentExt;
+/*    */ 
+/*    */ import com.xoa.model.edu.eduStudentExt.EduStudentExt;
+/*    */ import com.xoa.service.edu.eduStudentExt.IEduStudentExtService;
+/*    */ import com.xoa.util.ToJson;
+/*    */ import javax.servlet.http.HttpServletRequest;
+/*    */ import org.springframework.beans.factory.annotation.Autowired;
+/*    */ import org.springframework.stereotype.Controller;
+/*    */ import org.springframework.web.bind.annotation.RequestMapping;
+/*    */ import org.springframework.web.bind.annotation.ResponseBody;
+/*    */ 
+/*    */ @Controller
+/*    */ @RequestMapping({"/eduStudentExt"})
+/*    */ public class EduStudentExtController
+/*    */ {
+/*    */ 
+/*    */   @Autowired
+/*    */   IEduStudentExtService eduStudentExtService;
+/*    */ 
+/*    */   @ResponseBody
+/*    */   @RequestMapping({"/getSemeter"})
+/*    */   public ToJson<EduStudentExt> getSemeter(HttpServletRequest request, EduStudentExt eduStudentExt)
+/*    */   {
+/* 40 */     return this.eduStudentExtService.getSemeter(request, eduStudentExt);
+/*    */   }
+/*    */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.edu.eduStudentExt.EduStudentExtController
+ * JD-Core Version:    0.6.0
+ */

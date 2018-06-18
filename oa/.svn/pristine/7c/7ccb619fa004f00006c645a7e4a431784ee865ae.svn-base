@@ -1,0 +1,365 @@
+/*     */ package com.xoa.controller.common;
+/*     */ 
+/*     */ import com.xoa.model.common.SysCode;
+/*     */ import com.xoa.service.common.SysCodeService;
+import com.xoa.util.Constant;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.dataSource.ContextHolder;
+/*     */ import java.io.File;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.ServletContext;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import net.sf.json.JSONObject;
+/*     */ import org.apache.log4j.Logger;
+/*     */ import org.springframework.context.annotation.Scope;
+/*     */ import org.springframework.stereotype.Controller;
+/*     */ import org.springframework.web.bind.annotation.RequestMapping;
+/*     */ import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Controller
+/*     */ @Scope("prototype")
+/*     */ @RequestMapping({"/code"})
+/*     */ public class SysCodeController
+/*     */ {
+/*  34 */   private Logger loger = Logger.getLogger(SysCodeController.class);
+/*     */ 
+/*     */   @Resource
+/*     */   private SysCodeService sysCodeService;
+/*     */ 
+/*     */   @RequestMapping({"/getCode"})
+/*     */   @ResponseBody
+/*     */   public ToJson<SysCode> getCode(String parentNo, HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/*  52 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  54 */     return this.sysCodeService.getSysCode(parentNo);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/syscode/getAllSysCode"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<SysCode> getAllSysCode(HttpServletRequest request)
+/*     */   {
+/*  69 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  71 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/*  73 */       List list = this.sysCodeService.getAllSysCode();
+/*  74 */       json.setObj(list);
+/*  75 */       json.setMsg("OK");
+/*  76 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/*  78 */       json.setFlag(1);
+/*  79 */       json.setMsg("err");
+/*     */     }
+/*  81 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/syscode/update"}, method={org.springframework.web.bind.annotation.RequestMethod.GET}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<SysCode> update(HttpServletRequest request, SysCode sysCode)
+/*     */   {
+/*  97 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/*  99 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 101 */       this.sysCodeService.update(sysCode);
+/* 102 */       json.setObject(sysCode);
+/* 103 */       json.setMsg("OK");
+/* 104 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 106 */       json.setFlag(1);
+/* 107 */       json.setMsg("err");
+/*     */     }
+/* 109 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/deleteSysCode"})
+/*     */   public ToJson<SysCode> deleteSysCode(HttpServletRequest request, SysCode sysCode)
+/*     */   {
+/* 124 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 126 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 128 */       this.sysCodeService.deleteSysCode(sysCode);
+/*     */ 
+/* 130 */       json.setObject(sysCode);
+/* 131 */       json.setMsg("OK");
+/* 132 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 134 */       json.setFlag(1);
+/* 135 */       json.setMsg("err");
+/*     */     }
+/* 137 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/addSysMainCode"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<SysCode> addSysMainCode(HttpServletRequest request, SysCode sysCode)
+/*     */   {
+/* 151 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 153 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 155 */       this.sysCodeService.addSysMainCode(sysCode);
+/* 156 */       json.setObject(sysCode);
+/* 157 */       json.setMsg("OK");
+/* 158 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 160 */       json.setFlag(1);
+/* 161 */       json.setMsg("err");
+/*     */     }
+/* 163 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/isCodeOrderExits"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Object> isCodeOrderExits(HttpServletRequest request, SysCode sysCode)
+/*     */   {
+/* 176 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 178 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 180 */       Boolean isExits = this.sysCodeService.isCodeOrderExits(sysCode);
+/* 181 */       json.setMsg("OK");
+/* 182 */       if (isExits.booleanValue())
+/* 183 */         json.setFlag(0);
+/*     */       else
+/* 185 */         json.setFlag(1);
+/*     */     }
+/*     */     catch (Exception e) {
+/* 188 */       json.setFlag(1);
+/* 189 */       json.setMsg("err");
+/*     */     }
+/* 191 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/isCodeNoExits"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Object> isCodeNoExits(HttpServletRequest request, SysCode sysCode)
+/*     */   {
+/* 204 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 206 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 208 */       Boolean isExits = this.sysCodeService.isCodeNoExits(sysCode);
+/* 209 */       if (isExits.booleanValue()) {
+/* 210 */         json.setFlag(0);
+/* 211 */         json.setMsg("OK");
+/*     */       } else {
+/* 213 */         json.setFlag(1);
+/* 214 */         json.setMsg("NO");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 217 */       json.setFlag(1);
+/* 218 */       json.setMsg("err");
+/*     */     }
+/* 220 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/iseditCodeNoExits"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Object> iseditCodeNoExits(HttpServletRequest request, SysCode sysCode)
+/*     */   {
+/* 232 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 234 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 236 */       Boolean isExits = this.sysCodeService.iseditCodeNoExits(sysCode);
+/* 237 */       if (isExits.booleanValue()) {
+/* 238 */         json.setFlag(0);
+/* 239 */         json.setMsg("OK");
+/*     */       } else {
+/* 241 */         json.setFlag(1);
+/* 242 */         json.setMsg("NO");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 245 */       json.setFlag(1);
+/* 246 */       json.setMsg("err");
+/*     */     }
+/* 248 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/editisCodeNoExits"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Object> editisCodeNoExits(HttpServletRequest request, SysCode sysCode, String oldCodeNo)
+/*     */   {
+/* 262 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 264 */     return this.sysCodeService.editisCodeNoExits(sysCode, oldCodeNo);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"/ChildisCodeNoExits"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<Object> ChildisCodeNoExits(HttpServletRequest request, SysCode sysCode)
+/*     */   {
+/* 277 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 280 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 282 */       Boolean isExits = this.sysCodeService.ChildisCodeNoExits(sysCode);
+/* 283 */       json.setMsg("OK");
+/* 284 */       if (isExits.booleanValue()) {
+/* 285 */         json.setFlag(0);
+/*     */       } else {
+/* 287 */         json.setFlag(1);
+/* 288 */         json.setMsg("NO");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 291 */       json.setFlag(1);
+/* 292 */       json.setMsg("err");
+/* 293 */       json.setMsg(e.getMessage());
+/*     */     }
+/* 295 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping(value={"addChildSysCode"}, produces={"application/json;charset=UTF-8"})
+/*     */   public ToJson<SysCode> addChildSysCode(HttpServletRequest request, SysCode sysCode)
+/*     */   {
+/* 309 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 311 */     ToJson json = new ToJson(0, null);
+/*     */     try {
+/* 313 */       this.sysCodeService.addChildSysCode(sysCode);
+/* 314 */       json.setObject(sysCode);
+/* 315 */       json.setMsg("OK");
+/* 316 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 318 */       json.setFlag(1);
+/* 319 */       json.setMsg("err");
+/*     */     }
+/* 321 */     return json;
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getErrCode"})
+/*     */   public ToJson<List<SysCode>> getErrSyscode()
+/*     */   {
+/* 335 */     return this.sysCodeService.getErrSysCode();
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/ImportCode"})
+/*     */   @ResponseBody
+/*     */   public ToJson<Object> recoverMenu(HttpServletRequest request, MultipartFile sqlFile)
+/*     */   {
+/* 351 */     ContextHolder.setConsumerType(Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"));
+/*     */ 
+/* 355 */     String realPath = request.getSession().getServletContext().getRealPath("/");
+/* 356 */     ToJson toJson = new ToJson(0, "");
+/*     */     try
+/*     */     {
+/* 359 */       if ((sqlFile != null) && (sqlFile.getOriginalFilename() != null) && (!sqlFile.getOriginalFilename().equals("")))
+/*     */       {
+/* 362 */         String originalFilename = sqlFile.getOriginalFilename();
+/* 363 */         String path = realPath.concat("sys_code.sql");
+/*     */ 
+/* 365 */         File newFile = new File(path);
+/*     */ 
+/* 367 */         sqlFile.transferTo(newFile);
+/*     */ 
+/* 369 */         toJson = this.sysCodeService.recoverCode(request, path);
+/* 370 */         toJson.setFlag(0);
+/* 371 */         toJson.setMsg("ok");
+/*     */       }
+/*     */     }
+/*     */     catch (Exception e) {
+/* 375 */       toJson.setFlag(1);
+/* 376 */       toJson.setMsg("err");
+/*     */     }
+/*     */ 
+/* 380 */     return toJson;
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/ExportCode"})
+/*     */   @ResponseBody
+/*     */   public void exportMenu(HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/*     */     try
+/*     */     {
+/* 394 */       this.sysCodeService.exportCode(request, response);
+/*     */     } catch (Exception e) {
+/* 396 */       e.printStackTrace();
+/*     */     }
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/getErrInfo"})
+/*     */   @ResponseBody
+/*     */   public ToJson<SysCode> getErrInfo(String CodeId)
+/*     */   {
+/* 411 */     return this.sysCodeService.getErrInfo(CodeId);
+/*     */   }
+/*     */ 
+/*     */   @RequestMapping({"/deleteErrCode"})
+/*     */   @ResponseBody
+/*     */   public ToJson<SysCode> deleteErrCode(String CodeId)
+/*     */   {
+/* 423 */     return this.sysCodeService.deleteErrCode(CodeId);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getAllCode"})
+/*     */   public ToJson<List<SysCode>> getAllCode()
+/*     */   {
+/* 435 */     return this.sysCodeService.getAllCode();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/GetDropDownBox"})
+/*     */   public JSONObject DropDownBox(String CodeNos)
+/*     */   {
+/* 447 */     String[] split = CodeNos.split(",");
+/* 448 */     return this.sysCodeService.DropDownBoxs(split);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/updateDabase"})
+/*     */   public ToJson<Object> updateDabase()
+/*     */   {
+/* 461 */     return this.sysCodeService.updateDabase();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/editDabase"})
+/*     */   public ToJson<Object> editDabase(HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/* 473 */     return this.sysCodeService.editDabase(request, response);
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getObjectcount"})
+/*     */   public ToJson<Object> getObjects()
+/*     */   {
+/* 486 */     return this.sysCodeService.getObjects();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/getObjectdetail"})
+/*     */   public ToJson<Object> getObjectdetail()
+/*     */   {
+/* 498 */     return this.sysCodeService.getObjectdetail();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/updateResource"})
+/*     */   public ToJson<Object> updateResource()
+/*     */   {
+/* 511 */     return this.sysCodeService.updateResource();
+/*     */   }
+/*     */ 
+/*     */   @ResponseBody
+/*     */   @RequestMapping({"/downLog"})
+/*     */   public void downLog(HttpServletResponse response, HttpServletRequest request)
+/*     */   {
+/* 524 */     this.sysCodeService.downLog(response, request);
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.controller.common.SysCodeController
+ * JD-Core Version:    0.6.0
+ */

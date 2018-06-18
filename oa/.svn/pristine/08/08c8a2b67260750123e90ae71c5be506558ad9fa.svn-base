@@ -1,0 +1,846 @@
+   package com.myoa.service.diary.impl;
+   
+   import com.myoa.dao.common.SysParaMapper;
+import com.myoa.dao.diary.DiaryCommentModelMapper;
+import com.myoa.dao.diary.DiaryCommentReplyModelMapper;
+import com.myoa.dao.diary.DiaryModelMapper;
+import com.myoa.dao.diary.DiaryTopMapper;
+import com.myoa.dao.users.UsersMapper;
+import com.myoa.model.common.SysPara;
+import com.myoa.model.department.Department;
+import com.myoa.model.diary.DiaryCommentModel;
+import com.myoa.model.diary.DiaryCommentReplyModel;
+import com.myoa.model.diary.DiaryModel;
+import com.myoa.model.diary.DiaryTop;
+import com.myoa.model.enclosure.Attachment;
+import com.myoa.model.users.Users;
+import com.myoa.service.department.DepartmentService;
+import com.myoa.service.diary.DiaryService;
+import com.myoa.service.users.UsersService;
+import com.myoa.util.Constant;
+import com.myoa.util.DateFormat;
+import com.myoa.util.GetAttachmentListUtil;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.L;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.common.session.SessionUtils;
+import com.myoa.util.page.PageParams;
+
+   import java.io.ByteArrayOutputStream;
+   import java.io.IOException;
+   import java.io.UnsupportedEncodingException;
+   import java.text.SimpleDateFormat;
+   import java.util.ArrayList;
+   import java.util.Arrays;
+   import java.util.Calendar;
+   import java.util.Collections;
+   import java.util.Comparator;
+   import java.util.Date;
+   import java.util.HashMap;
+   import java.util.Iterator;
+   import java.util.List;
+   import java.util.Map;
+   import java.util.zip.DataFormatException;
+   import java.util.zip.Inflater;
+   import javax.annotation.Resource;
+   import javax.servlet.http.HttpServletRequest;
+   import javax.servlet.http.HttpSession;
+   import org.apache.log4j.Logger;
+   import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+   
+   @Service
+   public class DiaryServiceImpl
+     implements DiaryService
+   {
+     private Logger loger = Logger.getLogger(DiaryServiceImpl.class);
+   
+     @Resource
+     DiaryModelMapper diaryModelMapper;
+   
+     @Resource
+     DiaryCommentModelMapper diaryCommentModelMapper;
+   
+     @Resource
+     UsersService usersService;
+   
+     @Resource
+     DiaryCommentReplyModelMapper diaryCommentReplyModelMapper;
+   
+     @Resource
+     DiaryTopMapper diaryTopMapper;
+   
+     @Resource
+     DepartmentService departmentService;
+   
+     @Resource
+     UsersMapper usersMapper;
+   
+     @Resource
+     SysParaMapper sysParaMapper;
+   
+     public ToJson<DiaryModel> getDiaryIndex(DiaryModel diaryModel, PageParams pageParams, HttpServletRequest request) { Map<String,Object> diaryMap = new HashMap<String,Object>();
+   
+       diaryMap.put("userId", diaryModel.getUserId());
+       diaryMap.put("pageParams", pageParams);
+   
+       List<DiaryModel> diaryList = this.diaryModelMapper.getDiarySelf(diaryMap);
+   
+       Map<String,Object> diaryMapCount = new HashMap<String,Object>();
+       diaryMapCount.put("userId", diaryModel.getUserId());
+       int countSelf = this.diaryModelMapper.getCountSelf(diaryMapCount);
+       for (DiaryModel dm : diaryList) {
+         String tempDiaTime = dm.getDiaTime();
+         if (dm.getDiaTime().length() > 19) {
+           tempDiaTime = dm.getDiaTime().substring(0, 19);
+         }
+         String tempReaders = readerFlag(diaryModel.getUserId(), dm.getReaders());
+         if ((diaryModel.getPostType() != null) && ("1".equals(diaryModel.getPostType()))) {
+           String tempContent = dm.getContent().replaceAll("\\&[a-zA-Z]{1,10};", "").replaceAll("<[^>]*>", "").replaceAll("\\s*|\t|\r|\n", "");
+   
+           if (tempContent.length() > 60) {
+             tempContent.substring(0, 59);
+           }
+           dm.setContent(tempContent);
+         }
+         dm.setReaders(tempReaders);
+         dm.setDiaTime(tempDiaTime);
+   
+         dm.setComTotal(Integer.valueOf(this.diaryCommentModelMapper.getDiaryCommentCount(dm.getDiaId())));
+   
+         Users usersByuserId = this.usersMapper.findUsersByuserId(dm.getUserId());
+         if (usersByuserId != null) {
+           dm.setUserPrivName(usersByuserId.getUserPrivName());
+           dm.setDeptName(usersByuserId.getDeptName());
+         }
+   
+         DiaryTop diaryTopByDiaId = this.diaryTopMapper.getDiaryTopByDiaId(String.valueOf(dm.getDiaId()));
+         if (diaryTopByDiaId == null)
+           dm.setTopFlag("0");
+         else {
+           dm.setTopFlag("1");
+         }
+   
+         List<Attachment> attachmentList = new ArrayList<Attachment>();
+         if ((dm.getAttachmentName() != null) && (!"".equals(dm.getAttachmentName()))) {
+           attachmentList = GetAttachmentListUtil.returnAttachment(dm.getAttachmentName(), dm.getAttachmentId(), Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "diary");
+         }
+         dm.setAttachment(attachmentList);
+       }
+   
+       Map<String,Object> otherdiaryMap = new HashMap<String,Object>();
+       otherdiaryMap.put("userIdOther", diaryModel.getUserId());
+       otherdiaryMap.put("diaTypeOther", "1");
+   
+       List<DiaryModel> countList = this.diaryModelMapper.getCountOther(otherdiaryMap);
+   
+       ToJson<DiaryModel> diaryListToJson = new ToJson<DiaryModel>(0, countList.size() + countSelf + "," + countSelf + "," + countList.size());
+       diaryListToJson.setObj(diaryList);
+       diaryListToJson.setTotleNum(pageParams.getTotal());
+       return diaryListToJson;
+     }
+   
+     public ToJson<DiaryModel> getDiaryAll(DiaryModel diaryModel, PageParams pageParams, HttpServletRequest request)
+     {
+       Map<String, Object> diaryMap = new HashMap<String, Object>();
+       diaryMap.put("userId", diaryModel.getUserId());
+       diaryMap.put("diaType", "1");
+       diaryMap.put("pageParams", pageParams);
+       List<DiaryModel> diaryAllList = this.diaryModelMapper.getDiaryList(diaryMap);
+       Iterator<DiaryModel> iterator = diaryAllList.iterator();
+       SysPara is_comments = this.sysParaMapper.querySysPara("IS_COMMENTS");
+       while (iterator.hasNext()) {
+         DiaryModel dm = (DiaryModel)iterator.next();
+   
+         List<Attachment>  attachmentList = new ArrayList<Attachment> ();
+         if ((dm.getAttachmentName() != null) && (!"".equals(dm.getAttachmentName()))) {
+           attachmentList = GetAttachmentListUtil.returnAttachment(dm.getAttachmentName(), dm.getAttachmentId(), Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "diary");
+         }
+         dm.setAttachment(attachmentList);
+         if (!StringUtils.checkNull(dm.getDiaTime()).booleanValue()) {
+           String temp = dm.getDiaTime().substring(0, 19);
+           dm.setDiaTime(temp);
+         }
+   
+         dm.setComTotal(Integer.valueOf(this.diaryCommentModelMapper.getDiaryCommentCount(dm.getDiaId())));
+         if (!dm.getUserId().equals(diaryModel.getUserId())) {
+           dm.setIsComments(Integer.valueOf(is_comments.getParaValue()));
+         }
+   
+         Users usersByuserId = this.usersMapper.findUsersByuserId(dm.getUserId());
+         if (usersByuserId != null) {
+           dm.setUserPrivName(usersByuserId.getUserPrivName());
+           dm.setDeptName(usersByuserId.getDeptName());
+         }
+   
+         DiaryTop diaryTopByDiaId = this.diaryTopMapper.getDiaryTopByDiaId(String.valueOf(dm.getDiaId()));
+         if (diaryTopByDiaId == null)
+           dm.setTopFlag("0");
+         else {
+           dm.setTopFlag("1");
+         }
+   
+       }
+   
+       ToJson<DiaryModel> diaryListToJson = new ToJson<DiaryModel>(0, "");
+       diaryListToJson.setObj(diaryAllList);
+       diaryListToJson.setTotleNum(pageParams.getTotal());
+       return diaryListToJson;
+     }
+   
+     public ToJson<DiaryModel> getDiaryOther(DiaryModel diaryModel, PageParams pageParams, HttpServletRequest request)
+     {
+       Map<String,Object> diaryMap = new HashMap<String,Object>();
+       diaryMap.put("userIdOther", diaryModel.getUserId());
+       diaryMap.put("diaTypeOther", "1");
+       diaryMap.put("pageParams", pageParams);
+   
+       List<DiaryModel> otherdiaryList = this.diaryModelMapper.getDiaryOtherList(diaryMap);
+   
+       SysPara is_comments = this.sysParaMapper.querySysPara("IS_COMMENTS");
+   
+       for (DiaryModel dm : otherdiaryList)
+       {
+         String tempReaders = readerFlag(diaryModel.getUserId(), dm.getReaders());
+         if ((diaryModel.getPostType() != null) && ("1".equals(diaryModel.getPostType()))) {
+           String tempContent = dm.getContent().replaceAll("\\&[a-zA-Z]{1,10};", "").replaceAll("<[^>]*>", "").replaceAll("\\s*|\t|\r|\n", "");
+   
+           if (tempContent.length() > 60) {
+             tempContent.substring(0, 59);
+           }
+           dm.setContent(tempContent);
+         }
+   
+         List<Attachment> attachmentList = new ArrayList<Attachment>();
+         if ((dm.getAttachmentName() != null) && (!"".equals(dm.getAttachmentName()))) {
+           attachmentList = GetAttachmentListUtil.returnAttachment(dm.getAttachmentName(), dm.getAttachmentId(), Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "diary");
+         }
+         dm.setAttachment(attachmentList);
+         dm.setReaders(tempReaders);
+         if (!StringUtils.checkNull(dm.getDiaTime()).booleanValue()) {
+           String tempDiaTime = dm.getDiaTime().substring(0, 19);
+           dm.setDiaTime(tempDiaTime);
+         }
+   
+         dm.setComTotal(Integer.valueOf(this.diaryCommentModelMapper.getDiaryCommentCount(dm.getDiaId())));
+   
+         Users usersByuserId = this.usersMapper.findUsersByuserId(dm.getUserId());
+         if (usersByuserId != null) {
+           dm.setUserPrivName(usersByuserId.getUserPrivName());
+           dm.setDeptName(usersByuserId.getDeptName());
+         }
+   
+         dm.setIsComments(Integer.valueOf(is_comments.getParaValue()));
+   
+         DiaryTop diaryTopByDiaId = this.diaryTopMapper.getDiaryTopByDiaId(String.valueOf(dm.getDiaId()));
+         if (diaryTopByDiaId == null)
+           dm.setTopFlag("0");
+         else {
+           dm.setTopFlag("1");
+         }
+       }
+   
+       sortDiaryList(otherdiaryList);
+       ToJson<DiaryModel> diaryListToJson = new ToJson<DiaryModel>(0, "");
+       diaryListToJson.setObj(otherdiaryList);
+       diaryListToJson.setTotleNum(pageParams.getTotal());
+       return diaryListToJson;
+     }
+   
+     public int saveDiary(DiaryModel diaryModel)
+       throws DataFormatException
+     {
+       Calendar c = Calendar.getInstance();
+       if ((diaryModel.getDiaDate() == null) && (!"".equals(diaryModel.getDiaDate()))) {
+         diaryModel.setDiaDate(DateFormat.getFormatByUse("yyyy-MM-dd", c.getTime()));
+       }
+       if ((diaryModel.getDiaTime() == null) && (!"".equals(diaryModel.getDiaTime()))) {
+         diaryModel.setDiaTime(DateFormat.getFormatByUse(" yyyy-MM-dd HH:mm:ss", c.getTime()));
+       }
+       return this.diaryModelMapper.saveDiary(diaryModel);
+     }
+   
+     public int updateDiary(DiaryModel diaryModel)
+     {
+       try
+       {
+         diaryModel.setLastCommentTime(DateFormat.getFormatByUse(" yyyy-MM-dd HH:mm:ss", new Date()));
+       } catch (DataFormatException e) {
+         L.a(new Object[] { "时间格式异常" });
+         e.printStackTrace();
+       }
+       return this.diaryModelMapper.updateDiary(diaryModel);
+     }
+   
+     public int deletDiaById(DiaryModel diaryModel)
+     {
+       int count = 0;
+       count = this.diaryModelMapper.deletDiaById(diaryModel);
+       List<DiaryCommentModel> diaryCommentModelList = this.diaryCommentModelMapper.getDiaryCommentByDiaId(diaryModel.getDiaId().toString());
+       if (count != 0) {
+         for (DiaryCommentModel diaryCommentModel : diaryCommentModelList) {
+           this.diaryCommentModelMapper.delDiaryCommentByCommentId(diaryCommentModel.getCommentId().toString());
+           this.diaryCommentReplyModelMapper.delCommentReplyByCommentId(diaryCommentModel.getCommentId().toString());
+         }
+       }
+       return count;
+     }
+   
+     public ToJson<Attachment> getDiaryByDiaId(DiaryModel diaryModel, String sqlType)
+     {
+       ToJson<Attachment> diaryListToJson = new ToJson<Attachment>(0, "");
+       DiaryModel diary = this.diaryModelMapper.getDiaryByDiaId(diaryModel);
+       if (diary == null) {
+         return diaryListToJson;
+       }
+       if ("0".equals(readerFlag(diaryModel.getUserId(), diary.getReaders()))) {
+         diary.setReaders(diary.getReaders() + diaryModel.getUserId() + ",");
+         this.diaryModelMapper.updateReadersByDiaId(diary);
+       }
+       if (!StringUtils.checkNull(diary.getDiaTime()).booleanValue()) {
+         String temp = diary.getDiaTime().substring(0, 19);
+         diary.setDiaTime(temp);
+       }
+       if ((diary.getToId() != null) && (!"".equals(diary.getToId()))) {
+         String[] toIds = diary.getToId().split(",");
+         List<String> toIdsl = Arrays.asList(toIds);
+         List<String> toIdName = this.diaryModelMapper.selectName(toIdsl);
+         StringBuffer names = new StringBuffer("");
+         for (String s : toIdName) {
+           names.append(s);
+           names.append(",");
+         }
+         diary.setToIdName(names.toString());
+       } else {
+         diary.setToIdName("");
+       }
+       diary.setReaders("");
+       List<Attachment> attachmentList = new ArrayList<Attachment>();
+       if ((diary.getAttachmentName() != null) && (!"".equals(diary.getAttachmentName()))) {
+         attachmentList = GetAttachmentListUtil.returnAttachment(diary.getAttachmentName(), diary.getAttachmentId(), sqlType, "diary");
+       }
+   
+       diary.setComTotal(Integer.valueOf(this.diaryCommentModelMapper.getDiaryCommentCount(diaryModel.getDiaId())));
+       diary.setAttachment(attachmentList);
+       diaryListToJson.setObject(diary);
+       return diaryListToJson;
+     }
+   
+     public ToJson<DiaryModel> diarySelect(Map<String, String> mapSelectParameter, HttpServletRequest request)
+     {
+       ToJson<DiaryModel> toJson = new ToJson<DiaryModel>();
+   
+       String startBegin = (String)mapSelectParameter.get("startBegin");
+       String time = getString(mapSelectParameter.get("time"));
+   
+       String startEnd = (String)mapSelectParameter.get("startEnd");
+   
+       String userIdStrings = getString(mapSelectParameter.get("userId"));
+   
+       String userPrivStrings = getString(mapSelectParameter.get("userPriv"));
+   
+       String deptIdStrings = getString(mapSelectParameter.get("deptId"));
+   
+       Map<String,Object> diaryMap = new HashMap<String,Object>();
+       PageParams value = new PageParams();
+       Integer page = Integer.valueOf(Integer.parseInt((String)mapSelectParameter.get("page")));
+       value.setPage(page);
+       Integer pageSize = Integer.valueOf(Integer.parseInt((String)mapSelectParameter.get("pageSize")));
+       value.setPageSize(pageSize);
+       Boolean useFlag = Boolean.valueOf((String)mapSelectParameter.get("useFlag"));
+       value.setUseFlag(useFlag);
+   
+       diaryMap.put("value", value);
+       HttpSession session = request.getSession();
+       String userid = (String)session.getAttribute("userId");
+       diaryMap.put("userId", userid);
+       diaryMap.put("diaType", "1");
+       diaryMap.put("time", time);
+   
+       if ((startBegin != null) && (!"".equals(startBegin)))
+       {
+         diaryMap.put("timeBegin", startBegin);
+       }
+       if ((startEnd != null) && (!"".equals(startEnd)))
+       {
+         diaryMap.put("timeEnd", startEnd);
+       }
+   
+       List<String> userIdList = new ArrayList<String>();
+       if (!"".equals(userIdStrings)) {
+         String[] userIds = userIdStrings.split(",");
+         List<String> list = Arrays.asList(userIds);
+         userIdList.addAll(list);
+       }
+       if (!"".equals(userPrivStrings)) {
+         String[] userPrivs = userPrivStrings.split(",");
+         List<String> list = Arrays.asList(userPrivs);
+         List<String> userIdPriv = this.diaryModelMapper.getUserIdByPriv(list);
+         userIdList.addAll(userIdPriv);
+       }
+       if (!"".equals(deptIdStrings)) {
+         String[] deptIds = deptIdStrings.split(",");
+         List<Department> deptList = new ArrayList<Department>();
+         for (int i = 0; i <= deptIds.length - 1; i++) {
+           Department de = new Department();
+           de.setDeptId(Integer.valueOf(Integer.parseInt(deptIds[i])));
+           List<Department> depts = getchDept(Integer.parseInt(deptIds[i]), new ArrayList<Department>());
+           deptList.add(de);
+           deptList.addAll(depts);
+         }
+         List<Integer> deptIdList = new ArrayList<Integer>();
+         for (Department de : deptList) {
+           deptIdList.add(de.getDeptId());
+         }
+         Map<String,Object> mapParam = new HashMap<String,Object>();
+         mapParam.put("deptIdList", deptIdList);
+         List<String> userIds = this.diaryModelMapper.getDeptUserId(mapParam);
+         userIdList.addAll(userIds);
+       }
+       diaryMap.put("userIds", userIdList);
+   
+       String queryScope = getString(mapSelectParameter.get("queryScope"));
+       List<DiaryModel> diaryList = new ArrayList<DiaryModel>();
+       switch (Integer.parseInt(queryScope)) {
+       case 1:
+         diaryList = this.diaryModelMapper.diarySelectOne(diaryMap);
+         break;
+       case 2:
+         diaryList = this.diaryModelMapper.diarySelectTwo(diaryMap);
+         break;
+       case 3:
+         diaryList = this.diaryModelMapper.diarySelectThree(diaryMap);
+         break;
+       case 4:
+         diaryList = this.diaryModelMapper.diarySelectFour(diaryMap);
+         break;
+       case 5:
+         diaryList = this.diaryModelMapper.diarySelectFive(diaryMap);
+         break;
+       default:
+         toJson.setMsg("没有该查询条件设置");
+       }
+   
+       SysPara is_comments = this.sysParaMapper.querySysPara("IS_COMMENTS");
+       for (DiaryModel dm : diaryList)
+       {
+         List<Attachment> attachmentList = new ArrayList<Attachment>();
+         if ((dm.getAttachmentName() != null) && (!"".equals(dm.getAttachmentName()))) {
+           attachmentList = GetAttachmentListUtil.returnAttachment(dm.getAttachmentName(), dm.getAttachmentId(), Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "diary");
+         }
+         dm.setAttachment(attachmentList);
+   
+         dm.setComTotal(Integer.valueOf(this.diaryCommentModelMapper.getDiaryCommentCount(dm.getDiaId())));
+   
+         Users usersByuserId = this.usersMapper.findUsersByuserId(dm.getUserId());
+         if (usersByuserId != null) {
+           dm.setUserPrivName(usersByuserId.getUserPrivName());
+           dm.setDeptName(usersByuserId.getDeptName());
+         }
+         if (!dm.getUserId().equals(userid)) {
+           dm.setIsComments(Integer.valueOf(is_comments.getParaValue()));
+         }
+         DiaryTop diaryTopByDiaId = this.diaryTopMapper.getDiaryTopByDiaId(String.valueOf(dm.getDiaId()));
+         if (diaryTopByDiaId == null)
+           dm.setTopFlag("0");
+         else {
+           dm.setTopFlag("1");
+         }
+       }
+   
+       sortDiaryList(diaryList);
+       toJson.setObj(diaryList);
+       toJson.setTotleNum(value.getTotal());
+       toJson.setFlag(0);
+       return toJson;
+     }
+   
+     private List<Department> getchDept(int parseInt, List<Department> childDept)
+     {
+       List<Department> depts = new ArrayList<Department>();
+       depts = this.departmentService.getChDept(parseInt);
+       for (Department d : depts) {
+         childDept.addAll(getchDept(d.getDeptId().intValue(), new ArrayList<Department>()));
+       }
+       depts.addAll(childDept);
+       return depts;
+     }
+   
+     public static Date getDate(Object str, String format)
+     {
+       SimpleDateFormat sdf = new SimpleDateFormat(format);
+       String s = getString(str);
+       if (!"".equals(s)) {
+         try {
+           return sdf.parse(s);
+         } catch (Exception e) {
+           return null;
+         }
+       }
+       return null;
+     }
+   
+     public static String getString(Object str)
+     {
+       if (str == null) {
+         return "";
+       }
+       return String.valueOf(str);
+     }
+   
+     public String readerFlag(String userId, String readers)
+     {
+       if ((readers != null) && (!"".equals(readers))) {
+         String[] readersStrings = readers.split(",");
+         List<String> userList = Arrays.asList(readersStrings);
+         if (userList.contains(userId)) {
+           return "1";
+         }
+         return "0";
+       }
+   
+       return "0";
+     }
+   
+     public static String decompress(String data) throws UnsupportedEncodingException {
+       return decompress(data, "ISO-8859-1");
+     }
+   
+     public static String decompress(String data, String charset)
+       throws UnsupportedEncodingException
+     {
+       byte[] bytes = data.getBytes(charset);
+   
+       byte[] output = new byte[1024];
+   
+       Inflater decompresser = new Inflater();
+       decompresser.reset();
+       decompresser.setInput(bytes);
+   
+       ByteArrayOutputStream o = new ByteArrayOutputStream(bytes.length);
+       try {
+         byte[] buf = new byte[1024];
+         while (!decompresser.finished()) {
+           int i = decompresser.inflate(buf);
+           o.write(buf, 0, i);
+         }
+         output = o.toByteArray();
+       } catch (Exception e) {
+         e.printStackTrace();
+       } finally {
+         try {
+           o.close();
+         } catch (IOException e) {
+           e.printStackTrace();
+         }
+       }
+       decompresser.end();
+       return new String(output);
+     }
+   
+     @Transactional
+     public ToJson<DiaryCommentModel> insertDiaryComment(DiaryCommentModel diaryCommentModel, HttpServletRequest request)
+     {
+       ToJson<DiaryCommentModel> json = new ToJson<DiaryCommentModel>(1, "error");
+       int count = 0;
+       try {
+         Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+         diaryCommentModel.setUserId(user.getUserId());
+         Calendar c = Calendar.getInstance();
+         diaryCommentModel.setSendTime(DateFormat.getFormatByUse(" yyyy-MM-dd HH:mm:ss", c.getTime()));
+         diaryCommentModel.setCommentFlag("0");
+         if (StringUtils.checkNull(diaryCommentModel.getAttachmentId()).booleanValue()) {
+           diaryCommentModel.setAttachmentId("");
+         }
+         if (StringUtils.checkNull(diaryCommentModel.getAttachmentName()).booleanValue()) {
+           diaryCommentModel.setAttachmentName("");
+         }
+         count = this.diaryCommentModelMapper.insertDiaryComment(diaryCommentModel);
+         if (count != 0) {
+           json.setMsg("ok");
+           json.setFlag(0);
+         }
+       } catch (Exception e) {
+         json.setMsg(e.getMessage());
+         L.e(new Object[] { "DiaryServiceImpl insertDiaryComment:" + e });
+       }
+       return json;
+     }
+   
+     public ToJson<DiaryCommentModel> getDiaryCommentByDiaId(String diaId)
+     {
+       ToJson<DiaryCommentModel> json = new ToJson<DiaryCommentModel>(1, "error");
+       try {
+         List<DiaryCommentModel> diaryCommentModelList = new ArrayList<DiaryCommentModel>();
+         List<DiaryCommentReplyModel>  diaryCommentReplyModelList = new ArrayList<DiaryCommentReplyModel>();
+         if (!StringUtils.checkNull(diaId).booleanValue()) {
+           diaryCommentModelList = this.diaryCommentModelMapper.getDiaryCommentByDiaId(diaId);
+         }
+         for (DiaryCommentModel diaryCommentModel : diaryCommentModelList) {
+           if (!StringUtils.checkNull(diaryCommentModel.getSendTime()).booleanValue()) {
+             diaryCommentModel.setSendTime(diaryCommentModel.getSendTime().substring(0, diaryCommentModel.getSendTime().length() - 2));
+           }
+           Users user = this.usersService.findUsersByuserId(diaryCommentModel.getUserId());
+           if (user != null) {
+             diaryCommentModel.setUserName(user.getUserName());
+             diaryCommentReplyModelList = this.diaryCommentReplyModelMapper.getCommentReplyByCommentId(diaryCommentModel.getCommentId().toString());
+             diaryCommentModel.setDiaryCommentReplyModelList(diaryCommentReplyModelList);
+             for (DiaryCommentReplyModel diaryCommentReplyModel : diaryCommentReplyModelList) {
+               if ((diaryCommentReplyModel.getReplyer() != null) && 
+                 (this.usersService.findUsersByuserId(diaryCommentReplyModel.getReplyer()) != null)) {
+                 diaryCommentReplyModel.setReplyerName(this.usersService.findUsersByuserId(diaryCommentReplyModel.getReplyer()).getUserName());
+               }
+   
+               if ((diaryCommentReplyModel.getToId() != null) && 
+                 (this.usersService.findUsersByuserId(diaryCommentReplyModel.getToId()) != null))
+                 diaryCommentReplyModel.setToName(this.usersService.findUsersByuserId(diaryCommentReplyModel.getToId()).getUserName());
+             }
+           }
+           else
+           {
+             diaryCommentModel.setUserName("用户不存在");
+           }
+         }
+   
+         json.setObj(diaryCommentModelList);
+         json.setMsg("ok");
+         json.setFlag(0);
+       }
+       catch (Exception e) {
+         json.setMsg(e.getMessage());
+         L.e(new Object[] { "DiaryServiceImpl getDiaryCommentByDiaId:" + e });
+       }
+       return json;
+     }
+   
+     @Transactional
+     public ToJson<DiaryCommentReplyModel> insertCommentReply(DiaryCommentReplyModel diaryCommentReplyModel, HttpServletRequest request)
+     {
+       ToJson<DiaryCommentReplyModel> json = new ToJson<DiaryCommentReplyModel>(1, "error");
+       int count = 0;
+       try {
+         Calendar c = Calendar.getInstance();
+         diaryCommentReplyModel.setReplyTime(DateFormat.getFormatByUse(" yyyy-MM-dd HH:mm:ss", c.getTime()));
+         Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+         diaryCommentReplyModel.setReplyer(user.getUserId());
+         count = this.diaryCommentReplyModelMapper.insertCommentReply(diaryCommentReplyModel);
+         if (count != 0) {
+           json.setMsg("ok");
+           json.setFlag(0);
+         }
+       } catch (Exception e) {
+         e.printStackTrace();
+         json.setMsg(e.getMessage());
+         L.e(new Object[] { "DiaryServiceImpl insertCommentReply:" + e });
+       }
+       return json;
+     }
+   
+     @Transactional
+     public ToJson<DiaryCommentModel> delDiaryCommentByCommentId(String commentId)
+     {
+       ToJson<DiaryCommentModel> json = new ToJson<DiaryCommentModel>(1, "error");
+       int count1 = 0;
+       int count2 = 0;
+       try {
+         count1 = this.diaryCommentModelMapper.delDiaryCommentByCommentId(commentId);
+         count2 = this.diaryCommentReplyModelMapper.delCommentReplyByCommentId(commentId);
+         if (count1 != 0) {
+           json.setMsg("ok");
+           json.setFlag(0);
+         }
+       } catch (Exception e) {
+         json.setMsg(e.getMessage());
+         L.e(new Object[] { "DiaryServiceImpl delDiaryCommentByCommentId:" + e });
+       }
+       return json;
+     }
+   
+     @Transactional
+     public ToJson<DiaryCommentReplyModel> delCommentReplyByReplyId(String replyId)
+     {
+       ToJson<DiaryCommentReplyModel> json = new ToJson<DiaryCommentReplyModel>(1, "error");
+       int count = 0;
+       try {
+         count = this.diaryCommentReplyModelMapper.delCommentReplyByReplyId(replyId);
+         if (count != 0) {
+           json.setMsg("ok");
+           json.setFlag(0);
+         }
+       } catch (Exception e) {
+         json.setMsg(e.getMessage());
+         L.e(new Object[] { "DiaryServiceImpl delCommentReplyByReplyId:" + e });
+       }
+       return json;
+     }
+   
+     public ToJson<DiaryCommentModel> getDiaryCommentCount(Integer diaId)
+     {
+       ToJson<DiaryCommentModel> json = new ToJson<DiaryCommentModel>(1, "error");
+       try {
+         int count = this.diaryCommentModelMapper.getDiaryCommentCount(diaId);
+         json.setTotleNum(Integer.valueOf(count));
+         json.setMsg("ok");
+         json.setFlag(0);
+       } catch (Exception e) {
+         json.setMsg(e.getMessage());
+         L.e(new Object[] { "DiaryServiceImpl getDiaryCommentCount:" + e });
+       }
+       return json;
+     }
+   
+     @Transactional
+     public ToJson<DiaryModel> insertDiaryTop(String diaId, HttpServletRequest request)
+     {
+       ToJson<DiaryModel> json = new ToJson<DiaryModel>(1, "error");
+       try {
+         Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+         DiaryTop diaryTop = this.diaryTopMapper.getDiaryTopByDiaId(diaId);
+         int count = 0;
+         if (diaryTop != null) {
+           String userId = diaryTop.getUserId();
+           diaryTop.setUserId(userId + "," + user.getUserId());
+           count = this.diaryTopMapper.updUserIdByDiaId(diaryTop);
+         } else {
+           diaryTop = new DiaryTop();
+           diaryTop.setUserId(user.getUserId());
+           diaryTop.setDiaCate(Integer.valueOf(1));
+           diaryTop.setDiaId(Integer.valueOf(diaId));
+           count = this.diaryTopMapper.insertDiaryTop(diaryTop);
+         }
+         if (count != 0) {
+           List<DiaryModel> diaryModelList = this.diaryTopMapper.getOrderDiary(user.getUserId());
+           for (DiaryModel diaryModel : diaryModelList) {
+             if (diaryModel.getDiaryTop() == null)
+               diaryModel.setTopFlag("0");
+             else {
+               diaryModel.setTopFlag("1");
+             }
+           }
+           json.setObj(diaryModelList);
+           json.setMsg("ok");
+           json.setFlag(0);
+         }
+       } catch (Exception e) {
+         json.setMsg(e.getMessage());
+         L.e(new Object[] { "DiaryServiceImpl getDiaryByDiaryTop:" + e });
+       }
+       return json;
+     }
+   
+     @Transactional
+     public ToJson<DiaryModel> deleteDiaryTop(String diaId, HttpServletRequest request)
+     {
+       ToJson<DiaryModel> json = new ToJson<DiaryModel>(1, "error");
+       try {
+         int count = 0;
+         Users user = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+         DiaryTop diaryTop = this.diaryTopMapper.getDiaryTopByDiaId(diaId);
+         StringBuffer newUserId = new StringBuffer();
+         if ((diaryTop != null) && (!StringUtils.checkNull(diaryTop.getUserId()).booleanValue())) {
+           String[] userIdArray = diaryTop.getUserId().split(",");
+           if (userIdArray.length == 1) {
+             count = this.diaryTopMapper.delDiaryTopByDiaId(diaId);
+           } else {
+             for (String userId : userIdArray) {
+               if (!userId.equals(user.getUserId())) {
+                 newUserId.append(userId + ",");
+               }
+             }
+             diaryTop.setUserId(newUserId.toString());
+             diaryTop.setDiaId(Integer.valueOf(diaId));
+             count = this.diaryTopMapper.updUserIdByDiaId(diaryTop);
+           }
+         }
+         if (count != 0) {
+           List<DiaryModel> diaryModelList = this.diaryTopMapper.getOrderDiary(user.getUserId());
+           for (DiaryModel diaryModel : diaryModelList) {
+             if (diaryModel.getDiaryTop() == null)
+               diaryModel.setTopFlag("0");
+             else {
+               diaryModel.setTopFlag("1");
+             }
+           }
+           json.setObj(diaryModelList);
+           json.setMsg("ok");
+           json.setFlag(0);
+         }
+       } catch (Exception e) {
+         json.setMsg(e.getMessage());
+         L.e(new Object[] { "DiaryServiceImpl deleteDiaryTop:" + e });
+       }
+       return json;
+     }
+   
+     public ToJson<DiaryModel> getReadUsers(Integer diaId)
+     {
+       ToJson<DiaryModel> json = new ToJson<DiaryModel>();
+       try {
+         DiaryModel dm = this.diaryModelMapper.getReadUsers(diaId);
+         String readers = dm.getReaders();
+         StringBuffer readersName = new StringBuffer();
+         if (!StringUtils.checkNull(readers).booleanValue()) {
+           List<Users> usersByUserIds = this.usersMapper.getUsersByUserIds(readers.split(","));
+           int count = 0;
+           for (Users u : usersByUserIds) {
+             if (count < 9) {
+               readersName.append(u.getUserName() + ",");
+             } else {
+               readersName.append(u.getUserName() + "等" + usersByUserIds.size() + "人浏览过该日志");
+               break;
+             }
+             count++;
+           }
+           if (count < 9)
+           {
+             dm.setReadersName(readersName.toString().substring(0, readersName.toString().length() - 1));
+           }
+         } else {
+           dm.setReadersName("暂无浏览");
+         }
+   
+         json.setObject(dm);
+         json.setMsg("ok");
+         json.setFlag(0);
+       } catch (Exception e) {
+         e.printStackTrace();
+         json.setMsg("err");
+         json.setFlag(1);
+       }
+       return json;
+     }
+   
+     private void sortDiaryList(List<DiaryModel> diaryList)
+     {
+       Collections.sort(diaryList, new Comparator<DiaryModel>()
+       {
+         public int compare(DiaryModel o1, DiaryModel o2)
+         {
+           if ((o1.getTopFlag().equals("1")) && (o2.getTopFlag().equals("1"))) {
+             if (o1.getDiaryTop() == null)
+               return 1;
+             if (o2.getDiaryTop() == null)
+               return -1;
+             if ((o1.getDiaryTop() != null) && (o2.getDiaryTop() != null)) {
+               if (o1.getDiaryTop().getTopId().intValue() < o2.getDiaryTop().getTopId().intValue()) {
+                 return 1;
+               }
+               return -1;
+             }
+   
+           }
+   
+           if ((o1.getTopFlag().equals("1")) && (o2.getTopFlag().equals("0"))) {
+             return -1;
+           }
+           if ((o1.getTopFlag().equals("0")) && (o2.getTopFlag().equals("1"))) {
+             return 1;
+           }
+           return 0;
+         }
+       });
+     }
+   }
+
+
+ 

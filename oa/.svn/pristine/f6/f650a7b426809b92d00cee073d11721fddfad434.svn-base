@@ -1,0 +1,214 @@
+ package com.myoa.model.smsSettings;
+ 
+ public class SmsSettings
+ {
+   private Integer id;
+   private String name;
+   private String protocol;
+   private String host;
+   private String port;
+   private String username;
+   private String pwd;
+   private String contentField;
+   private String code;
+   private String mobile;
+   private String timeContent;
+   private String sign;
+   private String location;
+   private String extend1;
+   private String extend2;
+   private String extend3;
+   private String extend4;
+   private String extend5;
+   private String state;
+ 
+   public Integer getId()
+   {
+     return this.id;
+   }
+ 
+   public void setId(Integer id)
+   {
+     this.id = id;
+   }
+ 
+   public String getName()
+   {
+     return this.name;
+   }
+ 
+   public void setName(String name)
+   {
+     this.name = (name == null ? null : name.trim());
+   }
+ 
+   public String getProtocol()
+   {
+     return this.protocol;
+   }
+ 
+   public void setProtocol(String protocol)
+   {
+     this.protocol = (protocol == null ? null : protocol.trim());
+   }
+ 
+   public String getHost()
+   {
+     return this.host;
+   }
+ 
+   public void setHost(String host)
+   {
+     this.host = (host == null ? null : host.trim());
+   }
+ 
+   public String getPort()
+   {
+     return this.port;
+   }
+ 
+   public void setPort(String port)
+   {
+     this.port = (port == null ? null : port.trim());
+   }
+ 
+   public String getUsername()
+   {
+     return this.username;
+   }
+ 
+   public void setUsername(String username)
+   {
+     this.username = (username == null ? null : username.trim());
+   }
+ 
+   public String getPwd()
+   {
+     return this.pwd;
+   }
+ 
+   public void setPwd(String pwd)
+   {
+     this.pwd = (pwd == null ? null : pwd.trim());
+   }
+ 
+   public String getContentField()
+   {
+     return this.contentField;
+   }
+ 
+   public void setContentField(String contentField)
+   {
+     this.contentField = (contentField == null ? null : contentField.trim());
+   }
+ 
+   public String getCode()
+   {
+     return this.code;
+   }
+ 
+   public void setCode(String code)
+   {
+     this.code = (code == null ? null : code.trim());
+   }
+ 
+   public String getMobile()
+   {
+     return this.mobile;
+   }
+ 
+   public void setMobile(String mobile)
+   {
+     this.mobile = (mobile == null ? null : mobile.trim());
+   }
+ 
+   public String getTimeContent()
+   {
+     return this.timeContent;
+   }
+ 
+   public void setTimeContent(String timeContent) {
+     this.timeContent = timeContent;
+   }
+ 
+   public String getSign()
+   {
+     return this.sign;
+   }
+ 
+   public void setSign(String sign)
+   {
+     this.sign = (sign == null ? null : sign.trim());
+   }
+ 
+   public String getLocation()
+   {
+     return this.location;
+   }
+ 
+   public void setLocation(String location)
+   {
+     this.location = (location == null ? null : location.trim());
+   }
+ 
+   public String getExtend1()
+   {
+     return this.extend1;
+   }
+ 
+   public void setExtend1(String extend1)
+   {
+     this.extend1 = (extend1 == null ? null : extend1.trim());
+   }
+ 
+   public String getExtend2()
+   {
+     return this.extend2;
+   }
+ 
+   public void setExtend2(String extend2)
+   {
+     this.extend2 = (extend2 == null ? null : extend2.trim());
+   }
+ 
+   public String getExtend3()
+   {
+     return this.extend3;
+   }
+ 
+   public void setExtend3(String extend3)
+   {
+     this.extend3 = (extend3 == null ? null : extend3.trim());
+   }
+ 
+   public String getExtend4()
+   {
+     return this.extend4;
+   }
+ 
+   public void setExtend4(String extend4)
+   {
+     this.extend4 = (extend4 == null ? null : extend4.trim());
+   }
+ 
+   public String getExtend5()
+   {
+     return this.extend5;
+   }
+ 
+   public void setExtend5(String extend5)
+   {
+     this.extend5 = (extend5 == null ? null : extend5.trim());
+   }
+ 
+   public String getState()
+   {
+     return this.state;
+   }
+ 
+   public void setState(String state)
+   {
+     this.state = (state == null ? null : state.trim());
+   }
+ }
+

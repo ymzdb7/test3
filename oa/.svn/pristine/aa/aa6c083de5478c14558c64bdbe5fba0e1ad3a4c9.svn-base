@@ -1,0 +1,140 @@
+/*     */ package com.xoa.service.edu.eduElectiveStudent.impl;
+/*     */ 
+/*     */ import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+/*     */ import com.xoa.dao.edu.eduElectiveStudent.EduElectiveStudentMapper;
+/*     */ import com.xoa.dao.edu.eduElectiveStudentCount.EduElectiveStudentCountMapper;
+/*     */ import com.xoa.model.edu.eduElectiveStudent.EduElectiveStudent;
+/*     */ import com.xoa.model.edu.eduElectiveStudentCount.EduElectiveStudentCount;
+/*     */ import com.xoa.service.edu.eduElectiveStudent.IEduElectiveStudentService;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import java.util.List;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class EduElectiveStudentServiceImpl extends ServiceImpl<EduElectiveStudentMapper, EduElectiveStudent>
+/*     */   implements IEduElectiveStudentService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private EduElectiveStudentMapper eduElectiveStudentMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private EduElectiveStudentCountMapper eduElectiveStudentCountMapper;
+/*     */ 
+/*     */   public ToJson eduElectiveStudentSelect(HttpServletRequest request)
+/*     */   {
+/*  40 */     ToJson json = new ToJson();
+/*     */     try {
+/*  42 */       String electiveCourse = request.getParameter("electiveCourse");
+/*  43 */       List list = this.eduElectiveStudentMapper.eduElectiveStudentSelect(electiveCourse);
+/*  44 */       if (list.size() > 0) {
+/*  45 */         json.setObject(list);
+/*  46 */         json.setMsg("ok");
+/*  47 */         json.setFlag(0);
+/*     */       } else {
+/*  49 */         json.setMsg("err");
+/*  50 */         json.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  53 */       e.printStackTrace();
+/*     */     }
+/*  55 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson eduElectiveStudentClass(HttpServletRequest request)
+/*     */   {
+/*  67 */     ToJson json = new ToJson();
+/*  68 */     String nid = request.getParameter("nid");
+/*     */     try {
+/*  70 */       List list = this.eduElectiveStudentMapper.eduElectiveStudentClass(nid);
+/*  71 */       if (list != null) {
+/*  72 */         json.setObject(list);
+/*  73 */         json.setMsg("ok");
+/*  74 */         json.setFlag(1);
+/*     */       } else {
+/*  76 */         json.setFlag(0);
+/*  77 */         json.setMsg("err");
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  80 */       e.printStackTrace();
+/*     */     }
+/*  82 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson eduElectiveStudentDelete(HttpServletRequest request)
+/*     */   {
+/*  94 */     ToJson json = new ToJson();
+/*     */     try {
+/*  96 */       int id = Integer.parseInt(request.getParameter("id"));
+/*  97 */       int count = this.eduElectiveStudentMapper.eduElectiveStudentDelete(Integer.valueOf(id));
+/*  98 */       if (count > 0) {
+/*  99 */         count = this.eduElectiveStudentCountMapper.eduElecctiveStudentCountUpdate(Integer.valueOf(id));
+/* 100 */         if (count > 0) {
+/* 101 */           json.setMsg("ok");
+/* 102 */           json.setFlag(0);
+/*     */         } else {
+/* 104 */           json.setMsg("err");
+/* 105 */           json.setFlag(1);
+/*     */         }
+/*     */       } else {
+/* 108 */         json.setMsg("err");
+/* 109 */         json.setFlag(1);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 112 */       e.printStackTrace();
+/*     */     }
+/* 114 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson eduElectiveStudentInsert(EduElectiveStudent[] eduElectiveStudent)
+/*     */   {
+/* 126 */     ToJson json = new ToJson();
+/*     */     try
+/*     */     {
+/* 130 */       for (int i = 0; i < eduElectiveStudent.length; i++) {
+/* 131 */         EduElectiveStudent eduElectiveStudent1 = eduElectiveStudent[i];
+/* 132 */         int count = this.eduElectiveStudentMapper.eduElectiveStudentInsert(eduElectiveStudent1);
+/* 133 */         if (count > 0)
+/*     */         {
+/* 135 */           EduElectiveStudentCount eduElectiveStudentCount = this.eduElectiveStudentCountMapper.eduElectiveOneSelect(eduElectiveStudent1.getStudentId());
+/* 136 */           if (eduElectiveStudentCount.getNidCount().intValue() >= 0) {
+/* 137 */             count = this.eduElectiveStudentCountMapper.eduElecctiveStudentCountUpdateAccumulation(eduElectiveStudentCount.getId());
+/* 138 */             if (count > 0) {
+/* 139 */               json.setMsg("ok");
+/* 140 */               json.setFlag(0);
+/*     */             } else {
+/* 142 */               json.setMsg("err");
+/* 143 */               json.setFlag(1);
+/*     */             }
+/*     */           } else {
+/* 146 */             eduElectiveStudentCount.setStudentId(eduElectiveStudent1.getStudentId());
+/* 147 */             eduElectiveStudentCount.setClassId(eduElectiveStudent1.getClassId());
+/* 148 */             eduElectiveStudentCount.setSid(eduElectiveStudent1.getSid());
+/* 149 */             eduElectiveStudentCount.setNidCount(Integer.valueOf(1));
+/* 150 */             count = this.eduElectiveStudentCountMapper.eduElecctiveStudentCountInsert(eduElectiveStudentCount);
+/* 151 */             if (count > 0) {
+/* 152 */               json.setMsg("ok");
+/* 153 */               json.setFlag(0);
+/*     */             } else {
+/* 155 */               json.setMsg("err");
+/* 156 */               json.setFlag(1);
+/*     */             }
+/*     */           }
+/*     */         } else {
+/* 160 */           json.setMsg("err");
+/* 161 */           json.setFlag(1);
+/*     */         }
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 165 */       e.printStackTrace();
+/*     */     }
+/* 167 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.edu.eduElectiveStudent.impl.EduElectiveStudentServiceImpl
+ * JD-Core Version:    0.6.0
+ */

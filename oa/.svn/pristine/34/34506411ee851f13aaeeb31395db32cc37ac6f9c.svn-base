@@ -1,0 +1,237 @@
+/*     */ package com.xoa.service.template.impl;
+/*     */ 
+/*     */ import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.xoa.dao.modulePriv.ModulePrivMapper;
+import com.xoa.dao.template.TemplateModuleMapper;
+import com.xoa.dao.users.UserPrivMapper;
+import com.xoa.dao.users.UsersMapper;
+import com.xoa.model.department.Department;
+import com.xoa.model.enclosure.Attachment;
+import com.xoa.model.template.TemplateModule;
+import com.xoa.model.users.UserPriv;
+import com.xoa.model.users.Users;
+import com.xoa.service.enclosure.EnclosureService;
+import com.xoa.service.template.TemplateService;
+import com.xoa.util.Constant;
+import com.xoa.util.ToJson;
+import com.xoa.util.common.StringUtils;
+import com.xoa.util.common.session.SessionUtils;
+import com.xoa.util.page.PageParams;
+/*     */ 
+/*     */ @Service
+/*     */ public class TemplateServiceImpl
+/*     */   implements TemplateService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private TemplateModuleMapper templateModuleMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private EnclosureService enclosureService;
+/*     */ 
+/*     */   @Resource
+/*     */   private UsersMapper usersMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private ModulePrivMapper modulePrivMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private UserPrivMapper userPrivMapper;
+/*     */ 
+/*     */   public ToJson<TemplateModule> queryTemplate(TemplateModule templateModule, Integer page, Integer pageSize, Boolean useFlag)
+/*     */   {
+/*  54 */     ToJson json = new ToJson();
+/*  55 */     Map map = new HashMap();
+/*     */     try {
+/*  57 */       PageParams pageParams = new PageParams();
+/*  58 */       pageParams.setPage(page);
+/*  59 */       pageParams.setPageSize(pageSize);
+/*  60 */       pageParams.setUseFlag(useFlag);
+/*  61 */       map.put("page", pageParams);
+/*  62 */       map.put("type", templateModule.getType());
+/*  63 */       map.put("categoryId", templateModule.getCategoryId());
+/*  64 */       List<TemplateModule> list = this.templateModuleMapper.query(map);
+/*  65 */       for (TemplateModule t : list)
+/*     */       {
+/*  67 */         if (!StringUtils.checkNull(t.getPrivUser()).booleanValue()) {
+/*  68 */           String[] split = t.getPrivUser().split(",");
+/*  69 */           List<Users> usersByUids = this.usersMapper.getUsersByUserIds(split);
+/*  70 */           if ((usersByUids != null) && (usersByUids.size() > 0)) {
+/*  71 */             StringBuffer sb = new StringBuffer();
+/*  72 */             for (Users u : usersByUids) {
+/*  73 */               sb.append(u.getUserName() + ",");
+/*     */             }
+/*  75 */             t.setPrivUserName(sb.toString());
+/*     */           }
+/*     */         } else {
+/*  78 */           t.setPrivUser("");
+/*  79 */           t.setPrivUserName("");
+/*     */         }
+/*     */ 
+/*  85 */         if (!StringUtils.checkNull(t.getPrivOrg()).booleanValue()) {
+/*  86 */           String[] split = t.getPrivOrg().split(",");
+/*  87 */           List<Department> deptNameByIds = this.modulePrivMapper.getDeptNameByIds(split);
+/*  88 */           if ((deptNameByIds != null) && (deptNameByIds.size() > 0)) {
+/*  89 */             StringBuffer sb = new StringBuffer();
+/*  90 */             for (Department d : deptNameByIds) {
+/*  91 */               sb.append(d.getDeptName() + ",");
+/*     */             }
+/*  93 */             t.setPrivOrgName(sb.toString());
+/*     */           }
+/*     */         } else {
+/*  96 */           t.setPrivOrg("");
+/*  97 */           t.setPrivOrgName("");
+/*     */         }
+/*     */ 
+/* 101 */         if (!StringUtils.checkNull(t.getPrivRole()).booleanValue()) {
+/* 102 */           String[] split = t.getPrivRole().split(",");
+/* 103 */           List<UserPriv> privNameByIds = this.modulePrivMapper.getPrivNameByIds(split);
+/* 104 */           if ((privNameByIds != null) && (privNameByIds.size() > 0)) {
+/* 105 */             StringBuffer sb = new StringBuffer();
+/* 106 */             for (UserPriv up : privNameByIds) {
+/* 107 */               sb.append(up.getPrivName() + ",");
+/*     */             }
+/* 109 */             t.setPrivRoleName(sb.toString());
+/*     */           }
+/*     */         } else {
+/* 112 */           t.setPrivRole("");
+/* 113 */           t.setPrivRoleName("");
+/*     */         }
+/*     */       }
+/*     */ 
+/* 117 */       json.setTotleNum(pageParams.getTotal());
+/* 118 */       json.setObj(list);
+/* 119 */       json.setMsg("ok");
+/* 120 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 122 */       e.printStackTrace();
+/* 123 */       json.setMsg("err");
+/* 124 */       json.setFlag(1);
+/*     */     }
+/* 126 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TemplateModule> addTemplate(HttpServletRequest request, TemplateModule template, MultipartFile file)
+/*     */   {
+/* 137 */     ToJson json = new ToJson();
+/*     */     try
+/*     */     {
+/* 140 */       Users sessionUser = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*     */ 
+/* 142 */       template.setCreateTime(Integer.valueOf((int)(System.currentTimeMillis() / 1000L)));
+/*     */ 
+/* 144 */       template.setCreateUser(sessionUser.getUid());
+/*     */ 
+/* 146 */       if (file != null) {
+/* 147 */         MultipartFile[] files = { file };
+/* 148 */         List template1 = this.enclosureService.upload(files, Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "template");
+/* 149 */         if ((template1 != null) && (template1.size() > 0)) {
+/* 150 */           template.setAttUrl(((Attachment)template1.get(0)).getAttUrl());
+/*     */         }
+/*     */       }
+/* 153 */       this.templateModuleMapper.insertSelective(template);
+/* 154 */       json.setObject(template);
+/* 155 */       json.setMsg("ok");
+/* 156 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 158 */       e.printStackTrace();
+/* 159 */       json.setMsg("err");
+/* 160 */       json.setFlag(1);
+/*     */     }
+/* 162 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TemplateModule> updateTemplate(TemplateModule template, MultipartFile file, Integer deleteFlag, HttpServletRequest request, HttpServletResponse response)
+/*     */   {
+/* 173 */     ToJson json = new ToJson();
+/*     */     try {
+/* 175 */       if (deleteFlag.intValue() == 0) {
+/* 176 */         template.setAttUrl(null);
+/*     */       }
+/* 178 */       if (deleteFlag.intValue() == 1) {
+/* 179 */         template.setAttUrl("");
+/*     */       }
+/* 181 */       if ((deleteFlag.intValue() == 2) && 
+/* 182 */         (file != null)) {
+/* 183 */         MultipartFile[] files = { file };
+/* 184 */         List template1 = this.enclosureService.upload(files, Constant.MYOA + (String)request.getSession().getAttribute("loginDateSouse"), "template");
+/* 185 */         if ((template1 != null) && (template1.size() > 0)) {
+/* 186 */           template.setAttUrl(((Attachment)template1.get(0)).getAttUrl());
+/*     */         }
+/*     */       }
+/*     */ 
+/* 190 */       this.templateModuleMapper.updateByPrimaryKeySelective(template);
+/* 191 */       json.setMsg("ok");
+/* 192 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 194 */       e.printStackTrace();
+/* 195 */       json.setMsg("err");
+/* 196 */       json.setFlag(1);
+/*     */     }
+/* 198 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TemplateModule> deleteTemplate(Integer id)
+/*     */   {
+/* 209 */     ToJson json = new ToJson();
+/*     */     try {
+/* 211 */       if (id != null) {
+/* 212 */         this.templateModuleMapper.deleteByPrimaryKey(id);
+/*     */       }
+/* 214 */       json.setMsg("ok");
+/* 215 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 217 */       e.printStackTrace();
+/* 218 */       json.setMsg("err");
+/* 219 */       json.setFlag(1);
+/*     */     }
+/* 221 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<TemplateModule> queryTemplateByPriv(TemplateModule templateModule, Integer page, Integer pageSize, Boolean useFlag, HttpServletRequest request)
+/*     */   {
+/* 232 */     ToJson json = new ToJson();
+/* 233 */     Map map = new HashMap();
+/*     */     try {
+/* 235 */       Users sessionUser = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 236 */       sessionUser = this.usersMapper.findUsersByuserId(sessionUser.getUserId());
+/* 237 */       PageParams pageParams = new PageParams();
+/* 238 */       pageParams.setPage(page);
+/* 239 */       pageParams.setPageSize(pageSize);
+/* 240 */       pageParams.setUseFlag(useFlag);
+/* 241 */       map.put("page", pageParams);
+/* 242 */       map.put("type", templateModule.getType());
+/* 243 */       map.put("categoryId", templateModule.getCategoryId());
+/* 244 */       map.put("userId", sessionUser.getUserId());
+/* 245 */       map.put("deptId", sessionUser.getDeptId());
+/* 246 */       map.put("userPriv", sessionUser.getUserPriv());
+/* 247 */       List list = this.templateModuleMapper.queryByPriv(map);
+/* 248 */       map.remove("page");
+/* 249 */       Integer count = this.templateModuleMapper.queryCountByPriv(map);
+/* 250 */       json.setTotleNum(count);
+/* 251 */       json.setObj(list);
+/* 252 */       json.setMsg("ok");
+/* 253 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 255 */       e.printStackTrace();
+/* 256 */       json.setMsg("err");
+/* 257 */       json.setFlag(1);
+/*     */     }
+/* 259 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.template.impl.TemplateServiceImpl
+ * JD-Core Version:    0.6.0
+ */

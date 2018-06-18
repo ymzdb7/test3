@@ -1,0 +1,67 @@
+package com.xoa.dao.workPlan;
+
+import com.xoa.model.workPlan.WorkPlan;
+import com.xoa.model.workPlan.WorkPlanExample;
+import com.xoa.model.workPlan.WorkPlanWithBLOBs;
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface WorkPlanMapper {
+	public abstract int countByExample(WorkPlanExample paramWorkPlanExample);
+
+	public abstract int deleteByExample(WorkPlanExample paramWorkPlanExample);
+
+	public abstract int deleteByPrimaryKey(Integer paramInteger);
+
+	public abstract int insert(WorkPlanWithBLOBs paramWorkPlanWithBLOBs);
+
+	public abstract int insertSelective(WorkPlanWithBLOBs paramWorkPlanWithBLOBs);
+
+	public abstract List<WorkPlanWithBLOBs> selectByExampleWithBLOBs(
+			WorkPlanExample paramWorkPlanExample);
+
+	public abstract List<WorkPlan> selectByExample(
+			WorkPlanExample paramWorkPlanExample);
+
+	public abstract WorkPlanWithBLOBs selectByPrimaryKey(Integer paramInteger);
+
+	public abstract int updateByExampleSelective(
+			@Param("record") WorkPlanWithBLOBs paramWorkPlanWithBLOBs,
+			@Param("example") WorkPlanExample paramWorkPlanExample);
+
+	public abstract int updateByExampleWithBLOBs(
+			@Param("record") WorkPlanWithBLOBs paramWorkPlanWithBLOBs,
+			@Param("example") WorkPlanExample paramWorkPlanExample);
+
+	public abstract int updateByExample(
+			@Param("record") WorkPlan paramWorkPlan,
+			@Param("example") WorkPlanExample paramWorkPlanExample);
+
+	public abstract int updateByPrimaryKeySelective(
+			WorkPlanWithBLOBs paramWorkPlanWithBLOBs);
+
+	public abstract int updateByPrimaryKeyWithBLOBs(
+			WorkPlanWithBLOBs paramWorkPlanWithBLOBs);
+
+	public abstract int updateByPrimaryKey(WorkPlan paramWorkPlan);
+
+	public abstract List<WorkPlanWithBLOBs> selectWorkPlanByCond(
+			Map<String, Object> paramMap);
+
+	public abstract int selectWorkPlanTotalByCond(
+			WorkPlanWithBLOBs paramWorkPlanWithBLOBs);
+
+	public abstract int insertWorkPlan(WorkPlanWithBLOBs paramWorkPlanWithBLOBs);
+
+	public abstract int updateWorkPlanById(
+			WorkPlanWithBLOBs paramWorkPlanWithBLOBs);
+
+	public abstract int delWorkPlanById(int paramInt);
+
+	public abstract int clearEndDateById(int paramInt);
+
+	public abstract WorkPlanWithBLOBs selectWorkPlanById(int paramInt);
+
+	public abstract int selManAndPartCount(Map<String, Object> paramMap);
+}

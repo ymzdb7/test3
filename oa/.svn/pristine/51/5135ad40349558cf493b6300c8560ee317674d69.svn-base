@@ -1,0 +1,1062 @@
+package com.myoa.controller.file;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.myoa.model.diary.DiaryModel;
+import com.myoa.model.enclosure.Attachment;
+import com.myoa.model.file.FileAuthWrapper;
+import com.myoa.model.file.FileContentModel;
+import com.myoa.model.file.FileSortModel;
+import com.myoa.model.users.Users;
+import com.myoa.service.file.FileContentService;
+import com.myoa.service.file.FileSortService;
+import com.myoa.util.Constant;
+import com.myoa.util.DateFormat;
+import com.myoa.util.GetAttachmentListUtil;
+import com.myoa.util.ToJson;
+import com.myoa.util.common.L;
+import com.myoa.util.common.MobileCheck;
+import com.myoa.util.common.StringUtils;
+import com.myoa.util.common.session.SessionUtils;
+import com.myoa.util.common.wrapper.BaseWrapper;
+import com.myoa.util.common.wrapper.BaseWrappers;
+import com.myoa.util.dataSource.ContextHolder;
+import com.myoa.util.netdisk.CheckAll;
+import com.myoa.util.netdisk.ZipUtils;
+import com.myoa.util.treeUtil.CheckTree;
+import com.myoa.util.treeUtil.FileCommSortTreeUtil;
+import com.myoa.util.treeUtil.FileSortTreeUtil;
+import com.myoa.util.treeUtil.HtmlUtil;
+import com.myoa.util.treeUtil.TreeNode;
+
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Resource;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+@Controller
+@RequestMapping({ "/file" })
+public class FileController {
+	private Logger loger = Logger.getLogger(FileController.class);
+
+	@Resource
+	FileSortService fileSortService;
+
+	@Resource
+	FileContentService fileContentService;
+
+	@Value("${file_box_new_file}")
+	String file_box_new_file;
+
+	@RequestMapping({ "/home" })
+	public String fileHome(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/file/fileHome";
+	}
+
+	@RequestMapping({ "/persionBox" })
+	public String persionBox(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/file/fileHomePerson";
+	}
+
+	@RequestMapping({ "/temp" })
+	public String temp(HttpServletRequest request, Integer sortId, Model model) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		model.addAttribute("sortId", sortId);
+		return "app/file/temp";
+	}
+
+	@RequestMapping({ "/homePerson" })
+	public String topFrame(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		return "app/file/fileHomePerson";
+	}
+
+	@RequestMapping(value = { "/writeTree" }, produces = { "application/json;charset=UTF-8" })
+	@ResponseBody
+	public void showFile(FileSortModel file, HttpServletResponse response,
+			HttpSession session, HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		List treeList = treeFile(file.getSortId(), session);
+		HtmlUtil.writerJson(response, treeList);
+	}
+
+	public List<TreeNode> treeFile(Integer sortid, HttpSession session) {
+		String userId = session.getAttribute("userId").toString();
+		String userPriv = session.getAttribute("userPriv").toString();
+		String deptId = session.getAttribute("deptId").toString();
+		Map map = new Hashtable();
+		map.put("userId", userId);
+		map.put("userPriv", userPriv);
+		map.put("deptId", deptId);
+
+		List<FileSortModel> rootTree = new LinkedList<FileSortModel>();
+		Map rootMap = new HashMap();
+		if (sortid == null)
+			sortid = Integer.valueOf(0);
+		rootMap.put("sortid", sortid);
+		rootMap.put("sortType", "5");
+		rootTree = this.fileSortService.getRootTree(rootMap);
+
+		List childTree = new LinkedList();
+
+		for (FileSortModel fsm : rootTree) {
+			childTree.addAll(getchildTrees(fsm, map));
+		}
+
+		FileCommSortTreeUtil util = new FileCommSortTreeUtil(rootTree,
+				childTree, map);
+		return util.getTreeNode();
+	}
+
+	public List<FileSortModel> getchildTrees(FileSortModel file,
+			Map<String, Object> map) {
+		List parentList = new ArrayList();
+		Integer tempNo = file.getSortId();
+		if (tempNo == null)
+			tempNo = Integer.valueOf(0);
+		List<FileSortModel> childrenList = new ArrayList();
+		childrenList = this.fileSortService.getSortChrildren(tempNo.intValue());
+		if (childrenList.size() > 0) {
+			for (FileSortModel fs : childrenList) {
+				parentList.addAll(getchildTrees(fs, map));
+			}
+			parentList.addAll(childrenList);
+		}
+		return parentList;
+	}
+
+	@RequestMapping(value = { "/writeTreePerson" }, produces = { "application/json;charset=UTF-8" })
+	@ResponseBody
+	public void showFilePerson(FileSortModel file,
+			HttpServletResponse response, HttpSession session,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		List treeList = treeFilePerson(file.getSortId(), session);
+		HtmlUtil.writerJson(response, treeList);
+	}
+
+	public List<TreeNode> treeFilePerson(Integer sortid, HttpSession session) {
+		String userId = (String) SessionUtils.getSessionInfo(session, "userId",
+				String.class);
+
+		List<FileSortModel> rootTree = new LinkedList<FileSortModel>();
+		FileSortModel fs = new FileSortModel();
+		fs.setUserId(userId);
+		fs.setSortName("根目录");
+		fs.setSortType("4");
+		fs.setSortParent(Integer.valueOf(-1));
+		fs.setSortId(Integer.valueOf(0));
+		rootTree.add(fs);
+		if ((!"".equals(userId)) && (userId != null)) {
+			FileSortModel fsm = new FileSortModel();
+			fsm.setUserId(userId);
+			fsm.setSortType("4");
+			fsm.setSortParent(Integer.valueOf(0));
+			List fList = this.fileSortService.getFileSortList(fsm);
+			if (fList == null) {
+				fList = new ArrayList();
+			}
+			rootTree.addAll(fList);
+		}
+		List childTree = new LinkedList();
+
+		for (FileSortModel fsm : rootTree) {
+			if (fsm.getSortParent().intValue() != -1) {
+				childTree.addAll(getchildTreePerson(fsm));
+			}
+
+		}
+
+		FileSortTreeUtil util = new FileSortTreeUtil(rootTree, childTree);
+		return util.getTreeNode();
+	}
+
+	public List<FileSortModel> getchildTreePerson(FileSortModel file) {
+		List parentList = new ArrayList();
+		Integer tempNo = file.getSortId();
+		List<FileSortModel> childrenList = new ArrayList<FileSortModel>();
+		childrenList = this.fileSortService.getSortChrildren(tempNo == null ? 0
+				: tempNo.intValue());
+		if (childrenList.size() > 0) {
+			for (FileSortModel fs : childrenList) {
+				parentList.addAll(getchildTreePerson(fs));
+			}
+			parentList.addAll(childrenList);
+		}
+		return parentList;
+	}
+
+	@RequestMapping({ "/getFileCheck" })
+	@ResponseBody
+	public String getFileCheck(HttpServletRequest request, FileSortModel file) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		int i = 0;
+		String userId = (String) request.getSession().getAttribute("userId");
+		if (userId != null) {
+			file.setUserId(userId);
+			i = this.fileSortService.getFileCheck(file);
+		}
+		return i + "";
+	}
+
+	@RequestMapping({ "/contentAdd" })
+	public ModelAndView fileHomeOne(HttpServletRequest request, String sortId,
+			String text, String contentId) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+		Map model = new HashMap();
+		ModelAndView modelAndView = null;
+		try {
+			if (StringUtils.checkNull(contentId).booleanValue()) {
+				text = URLDecoder.decode(text, "UTF-8");
+			}
+			model.put("sortId", sortId);
+			model.put("text", text);
+			modelAndView = new ModelAndView("app/file/fileContentAdd", model);
+			return modelAndView;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return modelAndView;
+	}
+
+	@RequestMapping({ "/toFileDetails" })
+	public ModelAndView toFileDetails(HttpServletRequest request) {
+		Map model = new HashMap();
+		ModelAndView modelAndView = new ModelAndView("app/file/fileDetails",
+				model);
+		return modelAndView;
+	}
+
+	@RequestMapping({ "/getContentById" })
+	@ResponseBody
+	public FileContentModel file(HttpServletRequest request, String contentId) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+		FileContentModel fcm = this.fileContentService.getFileConByContentId(
+				contentId, request);
+		List attachmentList = new ArrayList();
+		if ((fcm.getAttachmentName() != null)
+				&& (!"".equals(fcm.getAttachmentName()))) {
+			attachmentList = GetAttachmentListUtil.returnAttachment(
+					fcm.getAttachmentName(),
+					fcm.getAttachmentId(),
+					Constant.MYOA
+							+ (String) request.getSession().getAttribute(
+									"loginDateSouse"), "file_folder");
+		}
+		fcm.setAttachmentList(attachmentList);
+		return fcm;
+	}
+
+	@RequestMapping({ "/updateContent" })
+	@ResponseBody
+	public ToJson updateContent(HttpServletRequest request, FileContentModel fcm) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+		ToJson to = new ToJson();
+		double filerSize = 0.0D;
+		if (!StringUtils.checkNull(fcm.getFileSize()).booleanValue()) {
+			String[] fileSizes = fcm.getFileSize().split(",");
+			for (int i = 0; i < fileSizes.length; i++) {
+				if (fileSizes[i].indexOf("MB") != -1) {
+					String file = fileSizes[i].replace("MB", "");
+					double size = Double.valueOf(file).doubleValue();
+					filerSize += size;
+				} else if (fileSizes[i].indexOf("KB") != -1) {
+					String file = fileSizes[i].replace("KB", "");
+					double size = Double.valueOf(file).doubleValue();
+					double sizeFile = ZipUtils.getM(size);
+					BigDecimal b = new BigDecimal(sizeFile);
+					double f1 = b.setScale(2, 4).doubleValue();
+					filerSize += f1;
+				} else if (fileSizes[i].indexOf("B") != -1) {
+					String file = fileSizes[i].replace("B", "");
+					double size = Double.valueOf(file).doubleValue();
+					double sizeFile = ZipUtils.getKB(size);
+					double sizeFile1 = ZipUtils.getM(sizeFile);
+					BigDecimal b = new BigDecimal(sizeFile1);
+					double f1 = b.setScale(2, 4).doubleValue();
+					filerSize += f1;
+				}
+			}
+		}
+
+		fcm.setFileSize(String.valueOf(filerSize));
+		if (fcm.getSortId().intValue() != 0) {
+			FileSortModel file = new FileSortModel();
+			file.setSortId(fcm.getSortId());
+			FileSortModel fileSortModel = this.fileSortService
+					.getFileSortBySortIds(file);
+			if ("5".equals(fileSortModel.getSortType())) {
+				StringBuffer stringBuffer = new StringBuffer();
+
+				List<FileSortModel> FileSortModels = getfilesDeleteList(file);
+
+				FileSortModels.add(fileSortModel);
+
+				for (FileSortModel treeNode : FileSortModels) {
+					stringBuffer.append(treeNode.getSortId());
+					if (FileSortModels.size() > 1) {
+						stringBuffer.append(",");
+					}
+				}
+
+				List<FileContentModel> fileContentModels = new ArrayList<FileContentModel>();
+				String sortId = "";
+				if (!StringUtils.checkNull(stringBuffer.toString())
+						.booleanValue()) {
+					if (FileSortModels.size() > 1)
+						sortId = stringBuffer.substring(0,
+								stringBuffer.length() - 1);
+					else {
+						sortId = stringBuffer.toString();
+					}
+					fileContentModels = this.fileContentService
+							.selectFileSortList(sortId);
+				}
+				double fileListSize = 0.0D;
+				for (int i = 0; i < fileContentModels.size(); i++) {
+					fileListSize += Double
+							.parseDouble(((FileContentModel) fileContentModels
+									.get(i)).getFileSize());
+				}
+				BaseWrapper bassWrapper = this.fileSortService
+						.getFileAuthBySortId(fcm.getSortId(), request);
+				if ((bassWrapper != null) && (bassWrapper.getData() != null)
+						&& ((bassWrapper.getData() instanceof FileSortModel))) {
+					FileSortModel model = (FileSortModel) bassWrapper.getData();
+					if (!StringUtils.checkNull(
+							String.valueOf(model.getSpaceLimit()))
+							.booleanValue()) {
+						double size = Double.valueOf(
+								model.getSpaceLimit().intValue()).doubleValue();
+						if ((fileListSize + filerSize >= size)
+								&& (size != 0.0D)) {
+							to.setFlag(1);
+							to.setMsg("文件已经到最大容量");
+							return to;
+						}
+					}
+				}
+			}
+
+		}
+
+		int i = this.fileContentService.updateFileCon(fcm);
+
+		to.setFlag(0);
+		to.setMsg(i + "");
+		return to;
+	}
+
+	@RequestMapping({ "/content" })
+	public ModelAndView fileContent(String sortType, String sortId,
+			String text, String postType, HttpServletRequest request)
+			throws UnsupportedEncodingException {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		Map model = new HashMap();
+		model.put("sortId", sortId);
+		model.put("sortType", sortType);
+		model.put("text", text);
+		model.put("postType", postType);
+		ModelAndView modelAndView = new ModelAndView("app/file/fileContent",
+				model);
+		return modelAndView;
+	}
+
+	@RequestMapping({ "saveContent" })
+	@ResponseBody
+	public ToJson<DiaryModel> addContent(FileContentModel fileContentModel,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		ToJson diaryListToJson = new ToJson(0, "");
+		double filerSize = 0.0D;
+		if (!StringUtils.checkNull(fileContentModel.getFileSize())
+				.booleanValue()) {
+			String[] fileSizes = fileContentModel.getFileSize().split(",");
+			for (int i = 0; i < fileSizes.length; i++) {
+				if (fileSizes[i].indexOf("MB") != -1) {
+					String file = fileSizes[i].replace("MB", "");
+					double size = Double.valueOf(file).doubleValue();
+					filerSize += size;
+				} else if (fileSizes[i].indexOf("KB") != -1) {
+					String file = fileSizes[i].replace("KB", "");
+					double size = Double.valueOf(file).doubleValue();
+					double sizeFile = ZipUtils.getM(size);
+					BigDecimal b = new BigDecimal(sizeFile);
+					double f1 = b.setScale(2, 4).doubleValue();
+					filerSize += f1;
+				} else if (fileSizes[i].indexOf("B") != -1) {
+					String file = fileSizes[i].replace("B", "");
+					double size = Double.valueOf(file).doubleValue();
+					double sizeFile = ZipUtils.getKB(size);
+					double sizeFile1 = ZipUtils.getM(sizeFile);
+					BigDecimal b = new BigDecimal(sizeFile1);
+					double f1 = b.setScale(2, 4).doubleValue();
+					filerSize += f1;
+				}
+			}
+		}
+
+		fileContentModel.setFileSize(String.valueOf(filerSize));
+		if (fileContentModel.getSortId().intValue() != 0) {
+			FileSortModel file = new FileSortModel();
+			file.setSortId(fileContentModel.getSortId());
+			FileSortModel fileSortModel = this.fileSortService
+					.getFileSortBySortIds(file);
+			if ("5".equals(fileSortModel.getSortType())) {
+				StringBuffer stringBuffer = new StringBuffer();
+
+				List<FileSortModel> FileSortModels = getfilesDeleteList(file);
+				FileSortModels.add(fileSortModel);
+
+				for (FileSortModel treeNode : FileSortModels) {
+					stringBuffer.append(treeNode.getSortId());
+					if (FileSortModels.size() > 1) {
+						stringBuffer.append(",");
+					}
+				}
+				List fileContentModels = new ArrayList();
+				String sortId = "";
+				if (!StringUtils.checkNull(stringBuffer.toString())
+						.booleanValue()) {
+					if (FileSortModels.size() > 1)
+						sortId = stringBuffer.substring(0,
+								stringBuffer.length() - 1);
+					else {
+						sortId = stringBuffer.toString();
+					}
+					fileContentModels = this.fileContentService
+							.selectFileSortList(sortId);
+				}
+				double fileListSize = 0.0D;
+				for (int i = 0; i < fileContentModels.size(); i++) {
+					fileListSize += Double
+							.parseDouble(((FileContentModel) fileContentModels
+									.get(i)).getFileSize());
+				}
+				BaseWrapper bassWrapper = this.fileSortService
+						.getFileAuthBySortId(fileContentModel.getSortId(),
+								request);
+				if ((bassWrapper != null) && (bassWrapper.getData() != null)
+						&& ((bassWrapper.getData() instanceof FileSortModel))) {
+					FileSortModel model = (FileSortModel) bassWrapper.getData();
+					if (!StringUtils.checkNull(
+							String.valueOf(model.getSpaceLimit()))
+							.booleanValue()) {
+						double size = Double.valueOf(
+								model.getSpaceLimit().intValue()).doubleValue();
+						if ((fileListSize + filerSize >= size)
+								&& (size != 0.0D)) {
+							diaryListToJson.setFlag(1);
+							diaryListToJson.setMsg("文件已经到最大容量");
+							return diaryListToJson;
+						}
+					}
+
+				}
+
+			}
+
+		}
+
+		fileContentModel.setSendTime(DateFormat.getStrDate(new Date()));
+
+		String userId = "";
+		Users users = (Users) SessionUtils.getSessionInfo(request.getSession(),
+				Users.class, new Users());
+		if ((users != null) && (users.getUid() != null)) {
+			userId = users.getUserId();
+		}
+		fileContentModel.setCreater(userId);
+		if (fileContentModel.getSortId().intValue() == 0) {
+			fileContentModel.setUserId(userId);
+		}
+		int i = this.fileContentService.saveContent(fileContentModel);
+		diaryListToJson.setFlag(0);
+		diaryListToJson.setMsg("" + i);
+		return diaryListToJson;
+	}
+
+	@RequestMapping({ "/catContent" })
+	public ModelAndView catContent(String contentId, HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		this.loger.info("--------catContent-------");
+		Map model = new HashMap();
+		FileContentModel fcm = this.fileContentService.getFileConByContentId(
+				contentId, request);
+		model.put("fcm", fcm);
+		ModelAndView modelAndView = new ModelAndView(
+				"app/file/fileContentDetail", model);
+		return modelAndView;
+	}
+
+	@RequestMapping({ "/catalog" })
+	public void showFiles(FileSortModel file, HttpServletResponse response,
+			String postType, HttpServletRequest request, String deptId,
+			String userPriv) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		List fileList = new LinkedList();
+		List tatalList = new LinkedList();
+		List<FileContentModel> fileConList = new LinkedList<FileContentModel>();
+		Map map = new Hashtable();
+		String userId = request.getSession().getAttribute("userId").toString();
+		if (userPriv == null) {
+			userPriv = request.getSession().getAttribute("userPriv").toString();
+		}
+		if (deptId == null) {
+			deptId = request.getSession().getAttribute("deptId").toString();
+		}
+		if (file.getUserId() == null) {
+			file.setUserId(userId);
+		}
+		map.put("userId", file.getUserId() == null ? userId : file.getUserId());
+		map.put("userPriv", userPriv == null ? "" : userPriv);
+		map.put("deptId", deptId == null ? "" : deptId);
+		Integer tempNo = file.getSortId();
+
+		if ((tempNo != null) || (!"5".equals(file.getSortType()))) {
+			fileConList = this.fileContentService.getFileConBySortid(
+					tempNo == null ? 0 : tempNo.intValue(), request);
+		}
+		for (FileContentModel fcm : fileConList) {
+			List attachmentList = new ArrayList();
+			if ((fcm.getAttachmentName() != null)
+					&& (!"".equals(fcm.getAttachmentName()))) {
+				attachmentList = GetAttachmentListUtil.returnAttachment(
+						fcm.getAttachmentName(),
+						fcm.getAttachmentId(),
+						Constant.MYOA
+								+ (String) request.getSession().getAttribute(
+										"loginDateSouse"), "file_folder");
+			}
+			fcm.setAttachmentList(attachmentList);
+		}
+
+		if (file.getSortId() == null) {
+			FileSortModel fileChr = new FileSortModel();
+			fileChr.setSortParent(Integer.valueOf(0));
+			fileChr.setSortType(file.getSortType());
+
+			if ("5".equals(fileChr.getSortType())) {
+				fileList = this.fileSortService.getFileSortList(fileChr);
+
+				if (!MobileCheck
+						.isMobileDevice(request.getHeader("user-agent"))) {
+					Iterator iteratorChr = fileList.iterator();
+					while (iteratorChr.hasNext()) {
+						FileSortModel fsm = (FileSortModel) iteratorChr.next();
+
+						if (!CheckTree.checkAll(fsm.getUserId(), map)) {
+							iteratorChr.remove();
+						}
+					}
+				}
+
+			}
+
+			if ("4".equals(fileChr.getSortType())) {
+				fileChr.setUserId(file.getUserId());
+				fileList = this.fileSortService.getFileSortList(fileChr);
+			}
+		} else {
+			FileSortModel filePar = new FileSortModel();
+			filePar.setSortParent(file.getSortId());
+			filePar.setSortType(file.getSortType());
+			fileList = this.fileSortService.getFileSortList(filePar);
+
+			if (("5".equals(file.getSortType()))
+					&& (!MobileCheck.isMobileDevice(request
+							.getHeader("user-agent")))) {
+				Iterator iteratorChr = fileList.iterator();
+				while (iteratorChr.hasNext()) {
+					FileSortModel fsm = (FileSortModel) iteratorChr.next();
+
+					if (!CheckTree.checkAll(fsm.getUserId(), map)) {
+						iteratorChr.remove();
+					}
+
+				}
+
+			}
+
+			if ("4".equals(file.getSortType())) {
+				filePar.setUserId(userId);
+				fileList = this.fileSortService.getFileSortList(filePar);
+			}
+		}
+
+		if (fileList != null) {
+			checkPriv(fileList, map);
+			tatalList.addAll(fileList);
+		}
+		if (fileConList != null) {
+			tatalList.addAll(fileConList);
+		}
+		HtmlUtil.writerJson(response, tatalList);
+	}
+
+	private void checkPriv(List<FileSortModel> fileList, Map<String, Object> map) {
+		for (FileSortModel m : fileList) {
+			m.setDelPriv(CheckAll.checkAll(m.getDelUser(), map));
+			m.setMakePriv(CheckAll.checkAll(m.getNewUser(), map));
+			m.setDownloadPriv(CheckAll.checkAll(m.getDownUser(), map));
+			m.setUpdatePriv(CheckAll.checkAll(m.getManagerUser(), map));
+		}
+	}
+
+	@RequestMapping({ "/setIndex" })
+	public ModelAndView tofileSet() {
+		ModelAndView modelAndView = new ModelAndView("app/file/fileSet");
+		return modelAndView;
+	}
+
+	@RequestMapping({ "/signReading" })
+	public ModelAndView signReading() {
+		ModelAndView modelAndView = new ModelAndView("app/file/signReading");
+		return modelAndView;
+	}
+
+	@RequestMapping({ "/toFileSet" })
+	@ResponseBody
+	public List<FileSortModel> showFileBySort_id(FileSortModel file,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		HttpSession session = request.getSession();
+		String userId = session.getAttribute("userId").toString();
+		String userPriv = session.getAttribute("userPriv").toString();
+		String deptId = session.getAttribute("deptId").toString();
+		Map map = new Hashtable();
+		map.put("userId", userId == null ? "" : userId);
+		map.put("userPriv", userPriv == null ? "" : userPriv);
+		map.put("deptId", deptId == null ? "" : deptId);
+		file.setSortType("5");
+		file.setSortParent(Integer.valueOf(0));
+		List list = this.fileSortService.getFileSortList(file);
+
+		checkPriv(list, map);
+		Map model = new HashMap();
+		model.put("parentList", list);
+		return list;
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/add" })
+	public ToJson<FileSortModel> fileAdd(FileSortModel file,
+			HttpServletRequest request, HttpServletResponse response)
+			throws UnsupportedEncodingException {
+		ToJson toJson = new ToJson(1, "err");
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		HttpSession session = request.getSession();
+		String userId = session.getAttribute("userId").toString();
+		Map model = null;
+		ModelAndView modelAndView = null;
+
+		String sname = new String(file.getSortName());
+		file.setSortName(sname);
+
+		if (file.getSortId() != null) {
+			file.setSortParent(file.getSortId());
+			file.setSortId(Integer.valueOf(0));
+			int resultSaveChr = this.fileSortService.saveFileSortChr(file);
+			HtmlUtil.writerJson(response, Integer.valueOf(resultSaveChr));
+			return null;
+		}
+
+		if ("5".equals(file.getSortType()))
+			file.setUserId("||" + userId + ",");
+		else {
+			file.setUserId(userId);
+		}
+		if (file.getSortParent() == null) {
+			file.setSortParent(Integer.valueOf(0));
+		}
+		if (file.getSortNo() != null) {
+			FileSortModel file1 = this.fileSortService.singleBySortName(file
+					.getSortName());
+			if (file1 != null) {
+				toJson.setMsg("文件名不能重复");
+				file.setCount(1);
+				toJson.setFlag(1);
+				toJson.setCode("1001");
+			} else {
+				int resultSave = this.fileSortService.saveFileSort(file);
+				HtmlUtil.writerJson(response, Integer.valueOf(resultSave));
+			}
+		}
+		return toJson;
+	}
+
+	@RequestMapping({ "/fileGetOne" })
+	@ResponseBody
+	public ToJson<FileSortModel> filegetOne(FileSortModel file,
+			HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+		ToJson json = new ToJson();
+		FileSortModel fs = this.fileSortService.getFileSortBySortIds(file);
+		json.setObject(fs);
+		return json;
+	}
+
+	@RequestMapping({ "/edit" })
+	public ModelAndView fileEdit(FileSortModel file, HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		Map fileEditMap = new HashMap();
+		List fileslist = this.fileSortService.getFileSortList(file);
+		FileSortModel files = null;
+		if (fileslist.size() > 0) {
+			files = (FileSortModel) fileslist.get(0);
+		}
+		fileEditMap.put("sortid", files.getSortId());
+		fileEditMap.put("sortno", files.getSortNo());
+		fileEditMap.put("sortname", files.getSortName());
+		ModelAndView modelAndView = new ModelAndView("app/file/fileEdit",
+				fileEditMap);
+		return modelAndView;
+	}
+
+	@RequestMapping({ "/update" })
+	public void fileUpdate(FileSortModel file, HttpServletRequest request,
+			HttpServletResponse response) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		int resultUpdate = this.fileSortService.updateFileSort(file);
+		HtmlUtil.writerJson(response, Integer.valueOf(resultUpdate));
+	}
+
+	@RequestMapping({ "/deleteAll" })
+	@ResponseBody
+	public ToJson fileDelete(HttpServletRequest request, FileSortModel file) {
+		int deleConNo;
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		List<FileSortModel> childrenList = getfilesDeleteList(file);
+
+		childrenList.add(file);
+
+		List fileContentList = new ArrayList();
+
+		for (FileSortModel f : childrenList) {
+			int tempNo = f.getSortId().intValue();
+			List fileContent = this.fileContentService.getFileConBySortid(
+					tempNo, request);
+
+			fileContentList.addAll(fileContent);
+
+			deleConNo = this.fileContentService.deleteBySortId(tempNo);
+		}
+		int deleSortNo = 0;
+		for (FileSortModel f : childrenList) {
+			Map fileSortidMap = new HashMap();
+			fileSortidMap.put("sortid", f.getSortId());
+
+			deleSortNo += this.fileSortService.deleteBySortId(fileSortidMap);
+		}
+
+		ToJson tj = new ToJson();
+		if (deleSortNo > 0) {
+			tj.setFlag(0);
+			tj.setMsg("删除成功");
+		}
+		return tj;
+	}
+
+	@RequestMapping({ "/deletefileAndCon" })
+	@ResponseBody
+	public ToJson conDelete(HttpServletRequest request, FileSortModel file,
+			String contentId) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		int deleSortNo = 0;
+		ToJson tj = new ToJson();
+		int deleConNo;
+		if (contentId == null) {
+			List<FileSortModel> childrenList = getfilesDeleteList(file);
+
+			childrenList.add(file);
+
+			for (FileSortModel f : childrenList) {
+				int tempNo = f.getSortId().intValue();
+				deleConNo = this.fileContentService.deleteBySortId(tempNo);
+			}
+			for (FileSortModel f : childrenList) {
+				Map fileSortidMap = new HashMap();
+				fileSortidMap.put("sortid", f.getSortId());
+
+				deleSortNo += this.fileSortService
+						.deleteBySortId(fileSortidMap);
+			}
+
+			tj.setFlag(0);
+			tj.setMsg(deleSortNo + "");
+		} else {
+			Map fileConMap = new HashMap();
+			fileConMap.put("contentId", contentId);
+			deleSortNo = this.fileContentService.deleteByConId(fileConMap);
+			tj.setFlag(0);
+			tj.setMsg(deleSortNo + "");
+		}
+		return tj;
+	}
+
+	public List<FileSortModel> getfilesDeleteList(FileSortModel file) {
+		List parentList = new ArrayList();
+		Integer tempNo = file.getSortId();
+		List<FileSortModel> childrenList = new ArrayList<FileSortModel>();
+		childrenList = this.fileSortService.getSortChrildren(tempNo.intValue());
+		if (childrenList.size() > 0) {
+			for (FileSortModel fs : childrenList) {
+				parentList.addAll(getfilesDeleteList(fs));
+			}
+			parentList.addAll(childrenList);
+		}
+		return parentList;
+	}
+
+	private boolean deleteAttachment(List<FileContentModel> fileContentList,
+			HttpServletRequest request) {
+		List<Attachment> attachmentList = new ArrayList<Attachment>();
+		String path;
+		for (FileContentModel fc : fileContentList) {
+			String[] Att_idArray = fc.getAttachmentId().split(",");
+			for (int i = 0; i < Att_idArray.length; i++) {
+				String[] Att_idArrayAid = Att_idArray[i].split("@");
+				Attachment att = new Attachment();
+				att.setAid(Integer.valueOf(Integer.parseInt(Att_idArrayAid[0])));
+				String[] ymAndAttachId = Att_idArrayAid[1].split("_");
+				att.setYm(ymAndAttachId[0]);
+				att.setAttachId(Integer.valueOf(Integer
+						.parseInt(ymAndAttachId[1])));
+				attachmentList.add(att);
+			}
+		}
+		for (Attachment at : attachmentList) {
+			Map atMap = new HashMap();
+			atMap.put("aidString", at.getAid());
+			atMap.put("ymString", at.getYm());
+			atMap.put("attachIdString", at.getAttachId());
+
+			path = request.getSession().getServletContext().getRealPath("/");
+		}
+
+		return false;
+	}
+
+	@RequestMapping({ "/batchDeleteConId" })
+	@ResponseBody
+	public BaseWrapper deleteByList(
+			@RequestParam(name = "fileId[]") Integer[] fileId) {
+		return this.fileContentService.batchDeleteConId(fileId);
+	}
+
+	@RequestMapping({ "/setFileSortAuth" })
+	@ResponseBody
+	public BaseWrapper setFileAuth(@RequestParam(name = "auth") String auth) {
+		Map mmp = (Map) JSONArray.parseObject(auth, Map.class);
+		L.w(new Object[] { mmp });
+		BaseWrapper wrapper = this.fileSortService.setFileSortAuth(mmp);
+		return wrapper;
+	}
+
+	@RequestMapping({ "/queryBySearchValue" })
+	@ResponseBody
+	public BaseWrappers queryBySearchValue(
+			HttpServletRequest req,
+			Integer sortId,
+			Integer sortType,
+			String subjectName,
+			@RequestParam(name = "creater", required = false) String[] creater,
+			Integer contentNo,
+			String contentValue1,
+			String contentValue2,
+			String contentValue3,
+			String atiachmentDesc,
+			String atiachmentName,
+			String atiachmentCont,
+			String crStartDate,
+			String crEndDate,
+			Integer pageNo,
+			@RequestParam(name = "pageSize", defaultValue = "10", required = false) Integer pageSize) {
+		BaseWrappers wrappers = this.fileContentService.queryBySearchValue(req,
+				sortId, sortType, subjectName, creater, contentNo,
+				contentValue1, contentValue2, contentValue3, atiachmentDesc,
+				atiachmentName, atiachmentCont, crStartDate, crEndDate, pageNo,
+				pageSize);
+		return wrappers;
+	}
+
+	@RequestMapping({ "/getAuthBySortId" })
+	@ResponseBody
+	public FileAuthWrapper getAuthBySortId(Integer sortId) {
+		return this.fileSortService.getAuthBySortId(sortId);
+	}
+
+	@RequestMapping({ "/getFileAuthBySortId" })
+	@ResponseBody
+	public BaseWrapper getFileAuthBySortId(Integer sortId,
+			HttpServletRequest request) {
+		return this.fileSortService.getFileAuthBySortId(sortId, request);
+	}
+
+	@RequestMapping({ "/copyAndParse" })
+	@ResponseBody
+	public BaseWrapper copyAndParse(Integer copyId, Integer witchSortId) {
+		return this.fileContentService.copyAndParse(copyId, witchSortId);
+	}
+
+	@RequestMapping({ "/fileCut" })
+	@ResponseBody
+	public ToJson ContentCut(HttpServletRequest req,
+			@RequestParam("contentId[]") String[] contentId) {
+		return this.fileContentService.contentCut(req, contentId);
+	}
+
+	@RequestMapping({ "/fileBoxUpload" })
+	@ResponseBody
+	public void fileBoxUpload(@RequestParam("file") MultipartFile[] files,
+			HttpServletRequest request, HttpServletResponse response) {
+		try {
+			BaseWrappers wrappers = this.fileContentService.uploadFile(files,
+					request);
+			response.setCharacterEncoding("utf-8");
+			response.setHeader("content-type", "text/html;charset=utf-8");
+			ServletOutputStream out = response.getOutputStream();
+			OutputStreamWriter ow = new OutputStreamWriter(out, "UTF-8");
+
+			ow.write(JSONObject.toJSONString(wrappers));
+			ow.flush();
+			ow.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@RequestMapping({ "/newFileInBox" })
+	@ResponseBody
+	public BaseWrapper newFileInBox(String fileType) {
+		return this.fileContentService.newFileInBox(fileType,
+				this.file_box_new_file);
+	}
+
+	@RequestMapping(value = { "/downFileContent" }, produces = { "application/json;charset=UTF-8" })
+	public ModelAndView downFileContent(HttpServletRequest request,
+			HttpServletResponse response,
+			@RequestParam("contentId") String[] cIds) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+		ToJson tojson = new ToJson();
+		tojson = this.fileContentService.downFileContent(request, response,
+				cIds);
+		Map map = new HashMap();
+		map.put("msg", tojson.getMsg());
+		ModelAndView mod = new ModelAndView("app/common/FileDownAlert", map);
+		return mod;
+	}
+
+	@RequestMapping({ "/serachAll" })
+	@ResponseBody
+	public ToJson serachAll(HttpServletRequest request,
+			HttpServletResponse response) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+		ToJson tojson = new ToJson();
+		Map mapParamter = new HashMap();
+		Map paramMap = request.getParameterMap();
+
+		Iterator iKeys = paramMap.keySet().iterator();
+		while (iKeys.hasNext()) {
+			String key = (String) iKeys.next();
+			String[] value = (String[]) paramMap.get(key);
+			if ((value != null) && (value.length > 0))
+				mapParamter.put(key, value[0]);
+			else {
+				mapParamter.put(key, "");
+			}
+		}
+		tojson = this.fileContentService.serachAll(mapParamter, request);
+		return tojson;
+	}
+
+	@RequestMapping({ "/signConState" })
+	@ResponseBody
+	public ToJson signConState(HttpServletRequest request) {
+		ContextHolder.setConsumerType(Constant.MYOA
+				+ (String) request.getSession().getAttribute("loginDateSouse"));
+
+		ToJson tojson = new ToJson();
+		Map mapParamter = new HashMap();
+		Map paramMap = request.getParameterMap();
+
+		Iterator iKeys = paramMap.keySet().iterator();
+		while (iKeys.hasNext()) {
+			String key = (String) iKeys.next();
+			String[] value = (String[]) paramMap.get(key);
+			if ((value != null) && (value.length > 0))
+				mapParamter.put(key, value[0]);
+			else {
+				mapParamter.put(key, "");
+			}
+		}
+		tojson = this.fileContentService.signConState(mapParamter, request);
+		return tojson;
+	}
+}

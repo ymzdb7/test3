@@ -1,0 +1,532 @@
+/*     */ package com.xoa.service.officesupplies;
+/*     */ 
+/*     */ import com.xoa.dao.department.DepartmentMapper;
+/*     */ import com.xoa.dao.edu.eduUser.EduUserMapper;
+/*     */ import com.xoa.dao.officesupplies.OfficeDepositoryMapper;
+/*     */ import com.xoa.dao.officesupplies.OfficeProductsMapper;
+/*     */ import com.xoa.dao.officesupplies.OfficeTypeMapper;
+/*     */ import com.xoa.model.edu.eduUser.EduUser;
+/*     */ import com.xoa.model.officesupplies.OfficeDepositoryWithBLOBs;
+/*     */ import com.xoa.model.officesupplies.OfficeProductsWithBLOBs;
+/*     */ import com.xoa.model.officesupplies.OfficeType;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.util.ExcelUtil;
+/*     */ import com.xoa.util.ToJson;
+/*     */ import com.xoa.util.common.L;
+/*     */ import com.xoa.util.common.StringUtils;
+/*     */ import com.xoa.util.common.log.FileUtils;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import java.io.File;
+/*     */ import java.io.FileInputStream;
+/*     */ import java.io.InputStream;
+/*     */ import java.io.OutputStream;
+/*     */ import java.math.BigDecimal;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Date;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import java.util.ResourceBundle;
+/*     */ import java.util.UUID;
+/*     */ import javax.annotation.Resource;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import javax.servlet.http.HttpServletResponse;
+/*     */ import javax.servlet.http.HttpSession;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFSheet;
+/*     */ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+/*     */ import org.apache.poi.ss.usermodel.Cell;
+/*     */ import org.apache.poi.ss.usermodel.Row;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ import org.springframework.web.multipart.MultipartFile;
+/*     */ 
+/*     */ @Service
+/*     */ public class OfficeProductService
+/*     */ {
+/*     */ 
+/*     */   @Resource
+/*     */   private OfficeProductsMapper officeProductsMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private EduUserMapper eduUserMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private OfficeDepositoryMapper officeDepositoryMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private OfficeTypeMapper officeTypeMapper;
+/*     */ 
+/*     */   @Resource
+/*     */   private DepartmentMapper departmentMapper;
+/*     */ 
+/*     */   public ToJson<Object> addOfficeProducts(OfficeProductsWithBLOBs officeProductsWithBLOBs)
+/*     */   {
+/*  61 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/*  63 */       int i = this.officeProductsMapper.insertSelective(officeProductsWithBLOBs);
+/*  64 */       if (i > 0) {
+/*  65 */         json.setMsg("ok");
+/*  66 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  69 */       json.setMsg(e.getMessage());
+/*  70 */       json.setFlag(1);
+/*  71 */       e.printStackTrace();
+/*     */     }
+/*  73 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> editOfficeProducts(OfficeProductsWithBLOBs officeProductsWithBLOBs)
+/*     */   {
+/*  82 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/*  84 */       int i = this.officeProductsMapper.updateByPrimaryKeySelective(officeProductsWithBLOBs);
+/*  85 */       if (i > 0) {
+/*  86 */         json.setMsg("ok");
+/*  87 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/*  90 */       json.setMsg(e.getMessage());
+/*  91 */       json.setFlag(1);
+/*  92 */       e.printStackTrace();
+/*     */     }
+/*  94 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> deleteOfficeProductById(Integer proId)
+/*     */   {
+/* 103 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 105 */       int i = this.officeProductsMapper.deleteByPrimaryKey(proId);
+/* 106 */       if (i > 0) {
+/* 107 */         json.setFlag(0);
+/* 108 */         json.setMsg("ok");
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 111 */       json.setFlag(1);
+/* 112 */       json.setMsg(e.getMessage());
+/* 113 */       e.printStackTrace();
+/*     */     }
+/* 115 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> deleteOfficeProducts(String[] proIds)
+/*     */   {
+/* 124 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 126 */       this.officeProductsMapper.deleteOfficeProducts(proIds);
+/* 127 */       json.setFlag(0);
+/* 128 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 130 */       json.setFlag(1);
+/* 131 */       json.setMsg(e.getMessage());
+/* 132 */       e.printStackTrace();
+/*     */     }
+/* 134 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<OfficeProductsWithBLOBs> getOfficeProductById(Integer proId)
+/*     */   {
+/* 143 */     ToJson json = new ToJson(1, "err");
+/*     */     try {
+/* 145 */       OfficeProductsWithBLOBs officeProductsWithBLOBs = this.officeProductsMapper.selectByPrimaryKey(proId);
+/* 146 */       StringBuffer sb = new StringBuffer();
+/* 147 */       StringBuffer sbdept = new StringBuffer();
+/* 148 */       if (officeProductsWithBLOBs != null) {
+/* 149 */         if (!StringUtils.checkNull(officeProductsWithBLOBs.getProManager()).booleanValue()) {
+/* 150 */           String[] split = officeProductsWithBLOBs.getProManager().split(",");
+/* 151 */           for (String s : split) {
+/* 152 */             EduUser byuserId = this.eduUserMapper.getByuserId(s);
+/* 153 */             sb.append(byuserId.getUserName());
+/*     */           }
+/* 155 */           officeProductsWithBLOBs.setProManagerName(sb.toString());
+/*     */         }
+/*     */ 
+/* 158 */         if (!StringUtils.checkNull(officeProductsWithBLOBs.getProDept()).booleanValue()) {
+/* 159 */           if (officeProductsWithBLOBs.getProDept().equals("ALL_DEPT")) {
+/* 160 */             officeProductsWithBLOBs.setProDeptName("全体部门");
+/*     */           } else {
+/* 162 */             String[] split = officeProductsWithBLOBs.getProDept().split(",");
+/* 163 */             for (String s : split) {
+/* 164 */               String deptNameByDeptId = this.departmentMapper.getDeptNameByDeptId(Integer.valueOf(s));
+/* 165 */               sbdept.append(deptNameByDeptId);
+/*     */             }
+/* 167 */             officeProductsWithBLOBs.setProDeptName(sbdept.toString());
+/*     */           }
+/*     */         }
+/* 170 */         if (!StringUtils.checkNull(officeProductsWithBLOBs.getProCreator()).booleanValue()) {
+/* 171 */           EduUser byuserId = this.eduUserMapper.getByuserId(officeProductsWithBLOBs.getProCreator());
+/* 172 */           officeProductsWithBLOBs.setProCreatorName(byuserId.getUserName());
+/*     */         }
+/* 174 */         if (!StringUtils.checkNull(officeProductsWithBLOBs.getOfficeProtype()).booleanValue()) {
+/* 175 */           OfficeType depositoryByProType = this.officeTypeMapper.selectOffTypeByProType(officeProductsWithBLOBs.getOfficeProtype());
+/* 176 */           officeProductsWithBLOBs.setOfficeDepositoryId(String.valueOf(depositoryByProType.getTypeDepository()));
+/*     */         }
+/*     */       }
+/*     */ 
+/* 180 */       json.setFlag(0);
+/* 181 */       json.setMsg("ok");
+/* 182 */       json.setObject(officeProductsWithBLOBs);
+/*     */     } catch (Exception e) {
+/* 184 */       json.setFlag(1);
+/* 185 */       json.setMsg(e.getMessage());
+/* 186 */       e.printStackTrace();
+/*     */     }
+/* 188 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<OfficeProductsWithBLOBs> selectOfficeProducts(HttpServletRequest request, HttpServletResponse response, String id, String typeId, String proId, String export)
+/*     */   {
+/* 197 */     ToJson json = new ToJson(1, "err");
+/* 198 */     if (export == null) {
+/* 199 */       export = "0";
+/*     */     }
+/* 201 */     Map map = new HashMap();
+/* 202 */     map.put("id", id);
+/* 203 */     map.put("typeId", typeId);
+/* 204 */     map.put("proId", proId);
+/* 205 */     List<OfficeProductsWithBLOBs> officeProductsWithBLOBs = null;
+/*     */     try {
+/* 207 */       officeProductsWithBLOBs = this.officeProductsMapper.selectOfficeProducts(map);
+/* 208 */       for (OfficeProductsWithBLOBs officeProductsWithBLOBs1 : officeProductsWithBLOBs) {
+/* 209 */         if (officeProductsWithBLOBs1 != null) {
+/* 210 */           if ((officeProductsWithBLOBs1.getProCreator() != null) && (officeProductsWithBLOBs1.getProCreator() != "")) {
+/* 211 */             EduUser byuserId = this.eduUserMapper.getByuserId(officeProductsWithBLOBs1.getProCreator());
+/* 212 */             if (byuserId != null) {
+/* 213 */               officeProductsWithBLOBs1.setProCreatorName(byuserId.getUserName());
+/*     */             }
+/*     */           }
+/* 216 */           if ((officeProductsWithBLOBs1.getProAuditer() != null) && (officeProductsWithBLOBs1.getProAuditer() != "")) {
+/* 217 */             EduUser byuserId = this.eduUserMapper.getByuserId(officeProductsWithBLOBs1.getProAuditer().substring(0, officeProductsWithBLOBs1.getProAuditer().length() - 1));
+/* 218 */             if (byuserId != null) {
+/* 219 */               officeProductsWithBLOBs1.setProAuditerName(byuserId.getUserName());
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/* 224 */       json.setObj(officeProductsWithBLOBs);
+/* 225 */       json.setMsg("ok");
+/* 226 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 228 */       json.setMsg(e.getMessage());
+/* 229 */       json.setFlag(1);
+/* 230 */       e.printStackTrace();
+/*     */     }
+/*     */ 
+/* 233 */     if (export.equals("1")) {
+/* 234 */       HSSFWorkbook workbook1 = ExcelUtil.makeExcelHead("办公用品信息表", 9);
+/* 235 */       String[] secondTitles = { "办公用品名称", "办公用品类别", "计量单位", "供应商", "警戒库存", "当前库存", "创建人", "审批人" };
+/* 236 */       HSSFWorkbook workbook2 = ExcelUtil.makeSecondHead(workbook1, secondTitles);
+/* 237 */       String[] beanProperty = { "proName", "typeName", "proUnit", "proSupplier", "proLowstock", "proStock", "proCreatorName", "proAuditerName" };
+/* 238 */       HSSFWorkbook workbook = null;
+/*     */       try {
+/* 240 */         workbook = ExcelUtil.exportExcelData(workbook2, officeProductsWithBLOBs, beanProperty);
+/* 241 */         OutputStream out = response.getOutputStream();
+/* 242 */         String filename = "办公用品信息表.xls";
+/* 243 */         filename = FileUtils.encodeDownloadFilename(filename, request.getHeader("user-agent"));
+/* 244 */         response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+/* 245 */         response.setHeader("content-disposition", "attachment;filename=" + filename);
+/* 246 */         workbook.write(out);
+/* 247 */         out.close();
+/*     */       } catch (Exception e) {
+/* 249 */         e.printStackTrace();
+/*     */       }
+/*     */     }
+/*     */ 
+/* 253 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<Object> importOfficeProducts(MultipartFile file, HttpServletRequest request, HttpServletResponse response, HttpSession session)
+/*     */   {
+/* 262 */     ToJson json = new ToJson(1, "err");
+/*     */ 
+/* 264 */     Integer successCount = Integer.valueOf(0);
+/*     */     try
+/*     */     {
+/* 268 */       ResourceBundle rb = ResourceBundle.getBundle("upload");
+/* 269 */       String osName = System.getProperty("os.name");
+/* 270 */       StringBuffer path = new StringBuffer();
+/* 271 */       if (osName.toLowerCase().startsWith("win"))
+/* 272 */         path = path.append(rb.getString("upload.win"));
+/*     */       else {
+/* 274 */         path = path.append(rb.getString("upload.linux"));
+/*     */       }
+/*     */ 
+/* 278 */       if (file.isEmpty()) {
+/* 279 */         json.setMsg("请上传文件！");
+/* 280 */         json.setFlag(1);
+/* 281 */         return json;
+/*     */       }
+/* 283 */       String fileName = file.getOriginalFilename();
+/* 284 */       if ((fileName.endsWith(".xls")) || (fileName.endsWith(".xlsx"))) {
+/* 285 */         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+/* 286 */         int pos = fileName.indexOf(".");
+/* 287 */         String extName = fileName.substring(pos);
+/* 288 */         String newFileName = uuid + extName;
+/* 289 */         File dest = new File(path.toString(), newFileName);
+/* 290 */         file.transferTo(dest);
+/*     */ 
+/* 293 */         String readPath = path.append("\\" + newFileName).toString();
+/* 294 */         InputStream in = new FileInputStream(readPath);
+/* 295 */         HSSFWorkbook excelObj = new HSSFWorkbook(in);
+/* 296 */         HSSFSheet sheetObj = excelObj.getSheetAt(0);
+/* 297 */         Row row = sheetObj.getRow(0);
+/* 298 */         int colNum = row.getPhysicalNumberOfCells();
+/* 299 */         int lastRowNum = sheetObj.getLastRowNum();
+/* 300 */         List saveList = new ArrayList();
+/* 301 */         OfficeProductsWithBLOBs officeProductsWithBLOBs = null;
+/*     */         Cell cell;
+/* 303 */         for (int i = 1; i <= lastRowNum; i++) {
+/* 304 */           OfficeDepositoryWithBLOBs officeDepositoryWithBLOBs = new OfficeDepositoryWithBLOBs();
+/* 305 */           OfficeType officeType = new OfficeType();
+/* 306 */           officeProductsWithBLOBs = new OfficeProductsWithBLOBs();
+/* 307 */           row = sheetObj.getRow(i);
+/* 308 */           if (row != null)
+/*     */           {
+/*     */             EduUser byuserName;
+/* 309 */             for (int j = 0; j < colNum; j++) {
+/* 310 */               cell = row.getCell(j);
+/* 311 */               if (cell != null) {
+/* 312 */                 switch (j)
+/*     */                 {
+/*     */                 case 0:
+/* 315 */                   officeProductsWithBLOBs.setProName(cell.getStringCellValue());
+/* 316 */                   break;
+/*     */                 case 1:
+/* 319 */                   officeDepositoryWithBLOBs = this.officeDepositoryMapper.selDepositoryByName(cell.getStringCellValue());
+/* 320 */                   break;
+/*     */                 case 2:
+/* 323 */                   officeType = this.officeTypeMapper.selectByName(cell.getStringCellValue());
+/* 324 */                   officeProductsWithBLOBs.setOfficeProtype(String.valueOf(officeType.getId()));
+/* 325 */                   break;
+/*     */                 case 3:
+/* 328 */                   officeProductsWithBLOBs.setOfficeProductType(Integer.valueOf((int)cell.getNumericCellValue()));
+/* 329 */                   break;
+/*     */                 case 4:
+/* 332 */                   officeProductsWithBLOBs.setProCode(String.valueOf(cell.getNumericCellValue()));
+/* 333 */                   break;
+/*     */                 case 5:
+/* 336 */                   officeProductsWithBLOBs.setProPrice(BigDecimal.valueOf(cell.getNumericCellValue()));
+/* 337 */                   break;
+/*     */                 case 6:
+/* 340 */                   officeProductsWithBLOBs.setProUnit(cell.getStringCellValue());
+/* 341 */                   break;
+/*     */                 case 7:
+/* 344 */                   officeProductsWithBLOBs.setProSupplier(cell.getStringCellValue());
+/* 345 */                   break;
+/*     */                 case 8:
+/* 348 */                   officeProductsWithBLOBs.setProLowstock(Integer.valueOf((int)cell.getNumericCellValue()));
+/* 349 */                   break;
+/*     */                 case 9:
+/* 352 */                   officeProductsWithBLOBs.setProMaxstock(Integer.valueOf((int)cell.getNumericCellValue()));
+/* 353 */                   break;
+/*     */                 case 10:
+/* 356 */                   officeProductsWithBLOBs.setProStock(Integer.valueOf((int)cell.getNumericCellValue()));
+/* 357 */                   break;
+/*     */                 case 11:
+/* 360 */                   byuserName = this.eduUserMapper.getByuserName(cell.getStringCellValue());
+/* 361 */                   if (byuserName == null) continue;
+/* 362 */                   officeProductsWithBLOBs.setProCreator(byuserName.getUserId()); break;
+/*     */                 case 12:
+/* 367 */                   String Name = cell.getStringCellValue();
+/* 368 */                   if (Name == null) continue;
+/* 369 */                   String[] split = Name.split(",");
+/* 370 */                   for (String s : split) {
+/* 371 */                     EduUser byuserName2 = this.eduUserMapper.getByuserName(s);
+/* 372 */                     if (byuserName2 != null) {
+/* 373 */                       officeProductsWithBLOBs.setProManager(byuserName2.getUserId());
+/*     */                     }
+/*     */                   }
+/* 376 */                   break;
+/*     */                 case 13:
+/* 380 */                   EduUser byuserName3 = this.eduUserMapper.getByuserName(cell.getStringCellValue());
+/* 381 */                   if (byuserName3 == null) continue;
+/* 382 */                   officeProductsWithBLOBs.setProManager(byuserName3.getUserId() + ",");
+/*     */                 }
+/*     */ 
+/*     */               }
+/*     */ 
+/*     */             }
+/*     */ 
+/* 390 */             OfficeProductsWithBLOBs officeProductsWithBLOBs1 = this.officeProductsMapper.selectSingleOfficeProducts(officeProductsWithBLOBs);
+/* 391 */             if (officeProductsWithBLOBs1 != null) {
+/* 392 */               officeProductsWithBLOBs1.setProId(officeProductsWithBLOBs1.getProId());
+/* 393 */               this.officeProductsMapper.updateByPrimaryKeySelective(officeProductsWithBLOBs1);
+///* 394 */               cell = successCount;
+//						byuserName = successCount = Integer.valueOf(successCount.intValue() + 1);
+                         successCount = successCount = Integer.valueOf(successCount.intValue() + 1);
+/*     */             } else {
+/* 396 */               addOfficeProducts(officeProductsWithBLOBs);
+///* 397 */               cell = successCount; 
+//                        byuserName = successCount = Integer.valueOf(successCount.intValue() + 1);
+                          successCount = successCount = Integer.valueOf(successCount.intValue() + 1);
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */       else
+/*     */       {
+/* 404 */         json.setMsg("file type error!");
+/* 405 */         json.setFlag(1);
+/* 406 */         return json;
+/*     */       }
+/*     */ 
+/* 409 */       json.setTotleNum(successCount);
+/* 410 */       json.setMsg("ok");
+/* 411 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 413 */       e.printStackTrace();
+/* 414 */       json.setMsg("err");
+/* 415 */       json.setFlag(1);
+/*     */     }
+/* 417 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<OfficeDepositoryWithBLOBs> selDepositoryByDept(HttpServletRequest request)
+/*     */   {
+/* 428 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 430 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 431 */       List<OfficeDepositoryWithBLOBs> list = this.officeDepositoryMapper.selDepositoryByDept(users.getUserId());
+/* 432 */       for (OfficeDepositoryWithBLOBs officeDepository : list) {
+/* 433 */         List<OfficeType> typeList = this.officeTypeMapper.selectDownObject(String.valueOf(officeDepository.getId()));
+/* 434 */         officeDepository.setOfficeTypeList(typeList);
+/* 435 */         for (OfficeType officeType : typeList) {
+/* 436 */           List officeProductsList = this.officeProductsMapper.selectDownObject(String.valueOf(officeType.getId()));
+/* 437 */           officeType.setOfficeProductsList(officeProductsList);
+/*     */         }
+/*     */       }
+/* 440 */       json.setObj(list);
+/* 441 */       json.setMsg("ok");
+/* 442 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 444 */       json.setMsg(e.getMessage());
+/* 445 */       L.e(new Object[] { "OfficeProductService selDepositoryByDept:" + e });
+/* 446 */       e.printStackTrace();
+/*     */     }
+/* 448 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<OfficeProductsWithBLOBs> selProductByType(String typeId)
+/*     */   {
+/* 460 */     ToJson json = new ToJson(1, "error");
+/*     */     try {
+/* 462 */       List<OfficeProductsWithBLOBs> officeProductsList = this.officeProductsMapper.selectDownObject(typeId);
+/* 463 */       for (OfficeProductsWithBLOBs temp : officeProductsList) {
+/* 464 */         if (temp != null) {
+/* 465 */           if ((temp.getProCreator() != null) && (temp.getProCreator() != "")) {
+/* 466 */             EduUser byuserId = this.eduUserMapper.getByuserId(temp.getProCreator());
+/* 467 */             if (byuserId != null) {
+/* 468 */               temp.setProCreatorName(byuserId.getUserName());
+/*     */             }
+/*     */           }
+/* 471 */           if ((temp.getProAuditer() != null) && (temp.getProAuditer() != "")) {
+/* 472 */             EduUser byuserId = this.eduUserMapper.getByuserId(temp.getProAuditer().substring(0, temp.getProAuditer().length() - 1));
+/* 473 */             if (byuserId != null) {
+/* 474 */               temp.setProAuditerName(byuserId.getUserName());
+/*     */             }
+/*     */           }
+/* 477 */           if (!StringUtils.checkNull(temp.getOfficeProtype()).booleanValue()) {
+/* 478 */             OfficeType type = this.officeTypeMapper.selectByPrimaryKey(Integer.valueOf(temp.getOfficeProtype()));
+/* 479 */             if (type != null) {
+/* 480 */               temp.setOfficeProtypeName(type.getTypeName());
+/*     */             }
+/*     */           }
+/*     */         }
+/*     */       }
+/*     */ 
+/* 486 */       json.setObj(officeProductsList);
+/* 487 */       json.setMsg("ok");
+/* 488 */       json.setFlag(0);
+/*     */     } catch (Exception e) {
+/* 490 */       json.setMsg(e.getMessage());
+/* 491 */       L.e(new Object[] { "OfficeProductService selProductByType:" + e });
+/* 492 */       e.printStackTrace();
+/*     */     }
+/* 494 */     return json;
+/*     */   }
+/*     */ 
+/*     */   public ToJson<OfficeProductsWithBLOBs> transferProduct(HttpServletRequest request, int orgDepository, int orgType, int orgProduct, int count, int destDepository, int destType, int destProduct)
+/*     */   {
+/* 504 */     ToJson json = new ToJson(1, "error");
+/*     */     try
+/*     */     {
+/* 507 */       if ((orgDepository == destDepository) && (orgType == destType)) {
+/* 508 */         return json;
+/*     */       }
+/*     */ 
+/* 511 */       OfficeProductsWithBLOBs officeProductsWithBLOBs = this.officeProductsMapper.selectByPrimaryKey(Integer.valueOf(orgProduct));
+/* 512 */       if (officeProductsWithBLOBs != null) {
+/* 513 */         if (officeProductsWithBLOBs.getProLowstock() != null) {
+/* 514 */           if (officeProductsWithBLOBs.getProStock().intValue() - count < officeProductsWithBLOBs.getProLowstock().intValue()) {
+/* 515 */             json.setMsg("stockNotEnough");
+/* 516 */             return json;
+/*     */           }
+/*     */         }
+/* 519 */         else if (officeProductsWithBLOBs.getProStock().intValue() < count) {
+/* 520 */           json.setMsg("stockNotEnough");
+/* 521 */           return json;
+/*     */         }
+/*     */ 
+/*     */       }
+/*     */ 
+/* 526 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 527 */       if (!officeProductsWithBLOBs.getProKeeper().contains(users.getUserId())) {
+/* 528 */         return json;
+/*     */       }
+/* 530 */       int num = 0;
+/*     */ 
+/* 532 */       officeProductsWithBLOBs.setAllocation(Boolean.valueOf(true));
+/* 533 */       if (officeProductsWithBLOBs.getProStock().intValue() - count == 0) {
+/* 534 */         officeProductsWithBLOBs.setOfficeProtype(String.valueOf(destType));
+/* 535 */         num += this.officeProductsMapper.updateByPrimaryKey(officeProductsWithBLOBs);
+/*     */       } else {
+/* 537 */         officeProductsWithBLOBs.setProStock(Integer.valueOf(officeProductsWithBLOBs.getProStock().intValue() - count));
+/* 538 */         num += this.officeProductsMapper.updateByPrimaryKey(officeProductsWithBLOBs);
+/* 539 */         officeProductsWithBLOBs.setProId(null);
+/* 540 */         officeProductsWithBLOBs.setProStock(Integer.valueOf(count));
+/* 541 */         num += this.officeProductsMapper.insertSelective(officeProductsWithBLOBs);
+/*     */       }
+/* 543 */       if (destProduct != 0) {
+/* 544 */         OfficeProductsWithBLOBs destOfficeProduct = this.officeProductsMapper.selectByPrimaryKey(Integer.valueOf(destProduct));
+/* 545 */         destOfficeProduct.setOfficeProtype(String.valueOf(orgType));
+/* 546 */         num += this.officeProductsMapper.updateByPrimaryKey(destOfficeProduct);
+/*     */       }
+/* 548 */       if (num > 0) {
+/* 549 */         json.setMsg("ok");
+/* 550 */         json.setFlag(0);
+/*     */       }
+/*     */     } catch (Exception e) {
+/* 553 */       json.setMsg(e.getMessage());
+/* 554 */       L.e(new Object[] { "OfficeProductService transferProduct:" + e });
+/* 555 */       e.printStackTrace();
+/*     */     }
+/* 557 */     return json;
+/*     */   }
+/*     */   public ToJson<OfficeProductsWithBLOBs> getInfo(HttpServletRequest request) {
+/* 560 */     ToJson json = new ToJson();
+/* 561 */     Date date = null;
+/*     */     try
+/*     */     {
+/* 564 */       Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/* 565 */       date = new Date();
+/* 566 */       OfficeProductsWithBLOBs officeProductsWithBLOBs = new OfficeProductsWithBLOBs();
+/* 567 */       officeProductsWithBLOBs.setProCode(String.valueOf(date.getTime()));
+/* 568 */       officeProductsWithBLOBs.setProCreator(users.getUserId());
+/* 569 */       officeProductsWithBLOBs.setProCreatorName(users.getUserName());
+/* 570 */       json.setObject(officeProductsWithBLOBs);
+/* 571 */       json.setFlag(0);
+/* 572 */       json.setMsg("ok");
+/*     */     } catch (Exception e) {
+/* 574 */       e.printStackTrace();
+/* 575 */       json.setMsg("err");
+/* 576 */       json.setFlag(1);
+/*     */     }
+/*     */ 
+/* 579 */     return json;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.officesupplies.OfficeProductService
+ * JD-Core Version:    0.6.0
+ */

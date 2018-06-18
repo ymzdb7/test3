@@ -1,0 +1,40 @@
+package com.myoa.dao.hr;
+
+import com.myoa.model.hr.HrStaffContract;
+
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface HrStaffContractMapper {
+	public abstract HrStaffContract getcontractinfo(Integer paramInteger);
+
+	public abstract void updateContractInfo(HrStaffContract paramHrStaffContract);
+
+	public abstract void deleteContractInfo(Integer paramInteger);
+
+	public abstract List<HrStaffContract> getAllContract(
+			Map<String, Object> paramMap);
+
+	public abstract void addContract(HrStaffContract paramHrStaffContract);
+
+	public abstract List<HrStaffContract> getTrialContract(
+			Map<String, String> paramMap);
+
+	public abstract List<HrStaffContract> getMaturityContract(
+			Map<String, Object> paramMap);
+
+	public abstract List<HrStaffContract> getContract(
+			Map<String, Object> paramMap);
+
+	public abstract void deleteByIds(@Param("ids") String[] paramArrayOfString);
+
+	public abstract Integer getAllCount();
+
+	public abstract Integer getAllCountMap(Map<String, Object> paramMap);
+
+	public abstract List<HrStaffContract> getContractInfoByStaffName(
+			String paramString);
+
+	public abstract List<HrStaffContract> getHrCountByType();
+}

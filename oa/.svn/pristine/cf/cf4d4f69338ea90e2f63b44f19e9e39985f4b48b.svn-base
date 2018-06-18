@@ -1,0 +1,14 @@
+package com.myoa.controller.portal;
+
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+@RequestMapping({ "/portal" })
+public class PortalPageController {
+	@RequestMapping({ "/portalStationIndex" })
+	public String portalStationIndex(HttpServletRequest request) {
+		return "app/portal/portal_station/index";
+	}
+}

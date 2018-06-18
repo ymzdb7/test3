@@ -1,0 +1,94 @@
+/*     */ package com.xoa.util.treeUtil;
+/*     */ 
+/*     */ import java.util.Map;
+/*     */ 
+/*     */ public class CheckTree
+/*     */ {
+/*     */   public static boolean checkAll(String checkString, Map<String, Object> map)
+/*     */   {
+/*  18 */     String[] checkStrings = (checkString == null ? "" : checkString).split("\\|");
+/*  19 */     if (checkStrings.length == 0) {
+/*  20 */       return false;
+/*     */     }
+/*     */ 
+/*  23 */     if (checkStrings.length == 1) {
+/*  24 */       String[] checkDept = checkStrings[0].split(",");
+/*  25 */       for (int i = 0; i < checkDept.length; i++)
+/*     */       {
+/*  27 */         if (checkDeptPriv(checkDept[i], map.get("deptId").toString())) {
+/*  28 */           return true;
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/*  33 */     if (checkStrings.length == 2) {
+/*  34 */       String[] checkDept = checkStrings[0].split(",");
+/*  35 */       for (int i = 0; i < checkDept.length; i++)
+/*     */       {
+/*  37 */         if (checkDeptPriv(checkDept[i], map.get("deptId").toString())) {
+/*  38 */           return true;
+/*     */         }
+/*     */       }
+/*  41 */       String[] checkUserPriv = checkStrings[1].split(",");
+/*  42 */       for (int i = 0; i < checkUserPriv.length; i++)
+/*     */       {
+/*  44 */         if (checkUserPriv(checkUserPriv[i], map.get("userPriv").toString())) {
+/*  45 */           return true;
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/*  50 */     if (checkStrings.length == 3) {
+/*  51 */       String[] checkDept = checkStrings[0].split(",");
+/*  52 */       for (int i = 0; i < checkDept.length; i++)
+/*     */       {
+/*  54 */         if (checkDeptPriv(checkDept[i], map.get("deptId").toString())) {
+/*  55 */           return true;
+/*     */         }
+/*     */       }
+/*  58 */       String[] checkUserPriv = checkStrings[1].split(",");
+/*  59 */       for (int i = 0; i < checkUserPriv.length; i++)
+/*     */       {
+/*  61 */         if (checkUserPriv(checkUserPriv[i], map.get("userPriv").toString())) {
+/*  62 */           return true;
+/*     */         }
+/*     */       }
+/*  65 */       String[] checkUserId = checkStrings[2].split(",");
+/*  66 */       for (int i = 0; i < checkUserId.length; i++)
+/*     */       {
+/*  68 */         if (checkUserId(checkUserId[i], map.get("userId").toString())) {
+/*  69 */           return true;
+/*     */         }
+/*     */       }
+/*     */     }
+/*     */ 
+/*  74 */     return false;
+/*     */   }
+/*     */ 
+/*     */   public static boolean checkDeptPriv(String DeptId, String deptIdOfuser_Id)
+/*     */   {
+/*  89 */     if (("ALL_DEPT".equals(DeptId)) || ("ALL_DEPT" == DeptId)) {
+/*  90 */       return true;
+/*     */     }
+/*     */ 
+/*  95 */     return (DeptId != null) && (!"".equals(DeptId)) && 
+/*  94 */       (deptIdOfuser_Id.equals(DeptId));
+/*     */   }
+/*     */ 
+/*     */   public static boolean checkUserPriv(String userPriv, String userPrivOfuser_Id)
+/*     */   {
+/* 115 */     return (userPriv != null) && (!"".equals(userPriv)) && 
+/* 114 */       (userPrivOfuser_Id.equals(userPriv));
+/*     */   }
+/*     */ 
+/*     */   public static boolean checkUserId(String userId, String userIdOfuser_Id)
+/*     */   {
+/* 135 */     return (userId != null) && (!"".equals(userId)) && 
+/* 134 */       (userIdOfuser_Id.equals(userId));
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.treeUtil.CheckTree
+ * JD-Core Version:    0.6.0
+ */

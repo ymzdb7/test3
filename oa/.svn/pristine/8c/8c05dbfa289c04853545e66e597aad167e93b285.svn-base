@@ -1,0 +1,46 @@
+package com.xoa.dao.workflow;
+
+import com.xoa.dao.base.BaseMapper;
+import com.xoa.model.workflow.FlowDetailInfo;
+import com.xoa.model.workflow.FlowTypeModel;
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
+
+public abstract interface FlowTypeModelMapper extends BaseMapper<FlowTypeModel>
+{
+  public abstract List<FlowTypeModel> selectBySortid(@Param("flowId") Integer paramInteger);
+
+  public abstract List<FlowTypeModel> selectBySearch(@Param("searchValue") String paramString, @Param("sortId") Integer paramInteger);
+
+  public abstract List<FlowTypeModel> selectFlowAuthOrSearch(Map<String, Object> paramMap);
+
+  public abstract FlowDetailInfo selectFlowDetailInfo(@Param("flowId") Integer paramInteger);
+
+  public abstract FlowTypeModel selectOnlyType(@Param("flowId") Integer paramInteger1, @Param("formId") Integer paramInteger2);
+
+  public abstract FlowTypeModel queryOneObject(@Param("flowId") Integer paramInteger);
+
+  public abstract FlowTypeModel selectAttachmentAndInstructions(@Param("flowId") Integer paramInteger1, @Param("formId") Integer paramInteger2);
+
+  public abstract FlowTypeModel sflowType(Integer paramInteger);
+
+  public abstract int updateFlowTypeModel(FlowTypeModel paramFlowTypeModel);
+
+  public abstract List<FlowTypeModel> getDataBySortParent(@Param("sortParent") Integer paramInteger);
+
+  public abstract List<FlowTypeModel> selectFlowAuthOrSearchByCodeId(Map<String, Object> paramMap);
+
+  public abstract List<FlowDetailInfo> selectDocumentFloeType();
+
+  public abstract int deleteByFlowId(Integer paramInteger);
+
+  public abstract List<FlowTypeModel> selByFlowSort(Integer paramInteger);
+
+  public abstract List<FlowTypeModel> selAllType();
+}
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.dao.workflow.FlowTypeModelMapper
+ * JD-Core Version:    0.6.0
+ */

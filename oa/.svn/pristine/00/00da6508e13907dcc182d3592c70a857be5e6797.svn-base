@@ -1,0 +1,193 @@
+/*     */ package com.xoa.util;
+/*     */ 
+/*     */ import java.io.PrintStream;
+/*     */ import java.text.ParseException;
+/*     */ import java.text.SimpleDateFormat;
+/*     */ import java.util.ArrayList;
+/*     */ import java.util.Calendar;
+/*     */ import java.util.Date;
+/*     */ import java.util.GregorianCalendar;
+/*     */ import java.util.List;
+/*     */ 
+/*     */ public class DateCompute
+/*     */ {
+/*     */   public static String getWeekOfDate(Date dt)
+/*     */   {
+/*  21 */     String[] weekDays = { "星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六" };
+/*  22 */     Calendar cal = Calendar.getInstance();
+/*  23 */     cal.setTime(dt);
+/*     */ 
+/*  25 */     int w = cal.get(7) - 1;
+/*  26 */     return weekDays[w];
+/*     */   }
+/*     */ 
+/*     */   public static List<Date> getBetweenDates(Date start, Date end)
+/*     */   {
+/*  40 */     List result = new ArrayList();
+/*  41 */     Calendar tempStart = Calendar.getInstance();
+/*  42 */     tempStart.setTime(start);
+/*     */ 
+/*  50 */     while (start.getTime() <= end.getTime()) {
+/*  51 */       result.add(tempStart.getTime());
+/*  52 */       tempStart.add(6, 1);
+/*  53 */       start = tempStart.getTime();
+/*     */     }
+/*  55 */     return result;
+/*     */   }
+/*     */ 
+/*     */   public static String getWeekInterval()
+/*     */   {
+/*  67 */     Calendar cal = Calendar.getInstance();
+/*  68 */     cal.setTime(new Date());
+/*     */ 
+/*  70 */     int dayWeek = cal.get(7);
+/*  71 */     if (1 == dayWeek) {
+/*  72 */       cal.add(5, -1);
+/*     */     }
+/*  74 */     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+/*     */ 
+/*  76 */     cal.setFirstDayOfWeek(2);
+/*     */ 
+/*  78 */     int day = cal.get(7);
+/*     */ 
+/*  80 */     cal.add(5, cal.getFirstDayOfWeek() - day);
+/*  81 */     String imptimeBegin = sdf.format(cal.getTime());
+/*  82 */     cal.add(5, 6);
+/*  83 */     String imptimeEnd = sdf.format(cal.getTime());
+/*  84 */     return imptimeBegin + "," + imptimeEnd;
+/*     */   }
+/*     */ 
+/*     */   public static String getMonthInterval()
+/*     */   {
+/*  96 */     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+/*  97 */     Calendar calendar = Calendar.getInstance();
+/*  98 */     calendar.setTime(new Date());
+/*  99 */     Date theDate = calendar.getTime();
+/*     */ 
+/* 101 */     GregorianCalendar gcLast = (GregorianCalendar)Calendar.getInstance();
+/* 102 */     gcLast.setTime(theDate);
+/* 103 */     gcLast.set(5, 1);
+/* 104 */     String day_first = df.format(gcLast.getTime());
+/* 105 */     StringBuffer str = new StringBuffer().append(day_first);
+/* 106 */     day_first = str.toString();
+/*     */ 
+/* 108 */     calendar.add(2, 1);
+/* 109 */     calendar.set(5, 1);
+/* 110 */     calendar.add(5, -1);
+/* 111 */     String day_last = df.format(calendar.getTime());
+/* 112 */     StringBuffer endStr = new StringBuffer().append(day_last);
+/* 113 */     day_last = endStr.toString();
+/* 114 */     return day_first + "," + day_last;
+/*     */   }
+/*     */ 
+/*     */   public static String getMonthTime(String datadate)
+/*     */   {
+/* 124 */     String day_last = null;
+/* 125 */     String day_first = null;
+/* 126 */     Date date = new Date();
+/* 127 */     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+/*     */     try {
+/* 129 */       date = df.parse(datadate);
+/*     */ 
+/* 131 */       Calendar calendar = Calendar.getInstance();
+/* 132 */       calendar.setTime(date);
+/* 133 */       calendar.add(2, 1);
+/* 134 */       calendar.set(5, 1);
+/* 135 */       calendar.add(5, -1);
+/* 136 */       day_last = df.format(calendar.getTime());
+/* 137 */       System.out.println("当月最后一天" + day_last);
+/*     */ 
+/* 139 */       date = df.parse(datadate);
+/*     */ 
+/* 141 */       calendar.setTime(date);
+/* 142 */       calendar.set(5, 1);
+/* 143 */       day_first = df.format(calendar.getTime());
+/* 144 */       System.out.println("当月第一天" + day_first);
+/*     */     }
+/*     */     catch (Exception e) {
+/* 147 */       e.printStackTrace();
+/*     */     }
+/* 149 */     return day_first + "," + day_last;
+/*     */   }
+/*     */ 
+/*     */   public static String getLastMonthDay(String datadate) throws ParseException
+/*     */   {
+/* 154 */     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM");
+/* 155 */     Date date1 = df.parse(datadate);
+/* 156 */     Calendar calendar = Calendar.getInstance();
+/* 157 */     calendar.setTime(date1);
+/* 158 */     int first1 = calendar.getActualMinimum(5);
+/* 159 */     int last1 = calendar.getActualMaximum(5);
+/* 160 */     return datadate + "-" + last1;
+/*     */   }
+/*     */ 
+/*     */   public static int workAge(Date nowTime, Date workTime)
+/*     */   {
+/* 170 */     int year = 0;
+/*     */ 
+/* 172 */     Calendar cal = Calendar.getInstance();
+/* 173 */     cal.setTime(nowTime);
+/* 174 */     int nowYear = cal.get(1);
+/* 175 */     int nowMonth = cal.get(2);
+/* 176 */     int nowDay = cal.get(5);
+/*     */ 
+/* 179 */     cal.setTime(workTime);
+/* 180 */     int workYear = cal.get(1);
+/* 181 */     int workMonth = cal.get(2);
+/* 182 */     int workDay = cal.get(5);
+/*     */ 
+/* 184 */     year = nowYear - workYear;
+/*     */ 
+/* 186 */     if (nowMonth == workMonth)
+/*     */     {
+/* 188 */       if (nowDay > workDay)
+/* 189 */         year += 1;
+/*     */     }
+/* 191 */     else if (nowMonth > workMonth) {
+/* 192 */       year += 1;
+/*     */     }
+/* 194 */     return year;
+/*     */   }
+/*     */ 
+/*     */   public static int getAge(Date dateOfBirth)
+/*     */   {
+/* 200 */     int age = 0;
+/*     */ 
+/* 202 */     Calendar born = Calendar.getInstance();
+/*     */ 
+/* 204 */     Calendar now = Calendar.getInstance();
+/*     */ 
+/* 206 */     if (dateOfBirth != null)
+/*     */     {
+/* 208 */       now.setTime(new Date());
+/*     */ 
+/* 210 */       born.setTime(dateOfBirth);
+/*     */ 
+/* 212 */       if (born.after(now))
+/*     */       {
+/* 214 */         throw new IllegalArgumentException("年龄不能超过当前日期");
+/*     */       }
+/*     */ 
+/* 218 */       age = now.get(1) - born.get(1);
+/*     */ 
+/* 220 */       int nowDayOfYear = now.get(6);
+/*     */ 
+/* 222 */       int bornDayOfYear = born.get(6);
+/*     */ 
+/* 224 */       System.out.println("nowDayOfYear:" + nowDayOfYear + " bornDayOfYear:" + bornDayOfYear);
+/*     */ 
+/* 226 */       if (nowDayOfYear < bornDayOfYear)
+/*     */       {
+/* 228 */         age--;
+/*     */       }
+/*     */ 
+/*     */     }
+/*     */ 
+/* 234 */     return age;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.util.DateCompute
+ * JD-Core Version:    0.6.0
+ */

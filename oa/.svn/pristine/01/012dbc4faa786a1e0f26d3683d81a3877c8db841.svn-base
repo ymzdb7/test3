@@ -1,0 +1,112 @@
+/*     */ package com.xoa.service.portal;
+/*     */ 
+/*     */ import com.xoa.dao.portal.CapacitySiteInfoMapper;
+/*     */ import com.xoa.model.portal.CapacitySiteInfo;
+/*     */ import com.xoa.model.users.Users;
+/*     */ import com.xoa.service.portal.wrapper.PortalWrapper;
+/*     */ import com.xoa.util.DateFormat;
+/*     */ import com.xoa.util.common.session.SessionUtils;
+/*     */ import com.xoa.util.common.wrapper.BaseWrappers;
+/*     */ import java.util.HashMap;
+/*     */ import java.util.List;
+/*     */ import java.util.Map;
+/*     */ import javax.servlet.http.HttpServletRequest;
+/*     */ import org.springframework.beans.factory.annotation.Autowired;
+/*     */ import org.springframework.stereotype.Service;
+/*     */ 
+/*     */ @Service
+/*     */ public class CapacitySiteInfoService
+/*     */ {
+/*     */ 
+/*     */   @Autowired
+/*     */   private CapacitySiteInfoMapper capacitySiteInfoMapper;
+/*     */ 
+/*     */   public PortalWrapper addCapacitySiteInfo(CapacitySiteInfo capacitySiteInfo, HttpServletRequest request)
+/*     */   {
+/*  24 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  25 */     PortalWrapper portalWrapper = new PortalWrapper();
+/*  26 */     portalWrapper.setStatus(true);
+/*  27 */     capacitySiteInfo.setCrUserid(users.getUid());
+/*  28 */     capacitySiteInfo.setCrUsername(users.getUserId());
+/*  29 */     capacitySiteInfo.setCrTime(DateFormat.DateToStr(DateFormat.getCurrentTime()));
+/*  30 */     capacitySiteInfo.setDetailTpl(Integer.valueOf(0));
+/*  31 */     int a = this.capacitySiteInfoMapper.insertSelective(capacitySiteInfo);
+/*  32 */     if (a > 0) {
+/*  33 */       portalWrapper.setFlag(true);
+/*  34 */       portalWrapper.setMsg("OK");
+/*  35 */       portalWrapper.setData(capacitySiteInfo);
+/*     */     } else {
+/*  37 */       portalWrapper.setFlag(false);
+/*  38 */       portalWrapper.setMsg("err");
+/*     */     }
+/*  40 */     return portalWrapper;
+/*     */   }
+/*     */   public PortalWrapper updateCapacitySiteInfo(CapacitySiteInfo capacitySiteInfo, HttpServletRequest request) {
+/*  43 */     Users users = (Users)SessionUtils.getSessionInfo(request.getSession(), Users.class, new Users());
+/*  44 */     PortalWrapper portalWrapper = new PortalWrapper();
+/*  45 */     portalWrapper.setStatus(true);
+/*  46 */     capacitySiteInfo.setCrUserid(users.getUid());
+/*  47 */     capacitySiteInfo.setCrUsername(users.getUserId());
+/*  48 */     capacitySiteInfo.setCrTime(DateFormat.DateToStr(DateFormat.getCurrentTime()));
+/*  49 */     int a = this.capacitySiteInfoMapper.updateByPrimaryKeySelective(capacitySiteInfo);
+/*  50 */     if (a > 0) {
+/*  51 */       portalWrapper.setFlag(true);
+/*  52 */       portalWrapper.setMsg("OK");
+/*  53 */       portalWrapper.setData(capacitySiteInfo);
+/*     */     } else {
+/*  55 */       portalWrapper.setFlag(false);
+/*  56 */       portalWrapper.setMsg("err");
+/*     */     }
+/*  58 */     return portalWrapper;
+/*     */   }
+/*     */ 
+/*     */   public BaseWrappers selectCapacitySiteInfoList(HttpServletRequest request, Integer page, Integer pageSize)
+/*     */   {
+/*  63 */     BaseWrappers baseWrappers = new BaseWrappers();
+/*  64 */     Map objectMap = new HashMap();
+/*  65 */     page = Integer.valueOf((page.intValue() - 1) * pageSize.intValue());
+/*  66 */     objectMap.put("page", page);
+/*  67 */     objectMap.put("pageSize", pageSize);
+/*  68 */     List capacitySiteInfos = this.capacitySiteInfoMapper.selectList(objectMap);
+/*  69 */     Integer total = this.capacitySiteInfoMapper.selectCount(objectMap);
+/*  70 */     baseWrappers.setStatus(true);
+/*  71 */     baseWrappers.setFlag(true);
+/*  72 */     baseWrappers.setMsg("ok");
+/*  73 */     baseWrappers.setDatas(capacitySiteInfos);
+/*  74 */     baseWrappers.setTotal(total);
+/*  75 */     return baseWrappers;
+/*     */   }
+/*     */   public PortalWrapper queryCapacitySiteInfoOne(Integer sid) {
+/*  78 */     PortalWrapper portalWrapper = new PortalWrapper();
+/*  79 */     portalWrapper.setStatus(true);
+/*  80 */     CapacitySiteInfo capacitySiteInfo = this.capacitySiteInfoMapper.selectByPrimaryKey(sid);
+/*  81 */     if (capacitySiteInfo != null) {
+/*  82 */       portalWrapper.setData(capacitySiteInfo);
+/*  83 */       portalWrapper.setMsg("ok");
+/*  84 */       portalWrapper.setFlag(true);
+/*     */     }
+/*     */     else {
+/*  87 */       portalWrapper.setMsg("err");
+/*  88 */       portalWrapper.setFlag(false);
+/*     */     }
+/*  90 */     return portalWrapper;
+/*     */   }
+/*     */   public PortalWrapper deleteCapacitySiteInfoOne(Integer sid) {
+/*  93 */     PortalWrapper portalWrapper = new PortalWrapper();
+/*  94 */     portalWrapper.setStatus(true);
+/*  95 */     Integer capacitySiteInfo = Integer.valueOf(this.capacitySiteInfoMapper.deleteByPrimaryKey(sid));
+/*  96 */     if (capacitySiteInfo.intValue() > 0) {
+/*  97 */       portalWrapper.setFlag(true);
+/*  98 */       portalWrapper.setMsg("OK");
+/*     */     } else {
+/* 100 */       portalWrapper.setFlag(false);
+/* 101 */       portalWrapper.setMsg("err");
+/*     */     }
+/* 103 */     return portalWrapper;
+/*     */   }
+/*     */ }
+
+/* Location:           D:\xoa\webapps\ROOT\WEB-INF\classes\
+ * Qualified Name:     com.xoa.service.portal.CapacitySiteInfoService
+ * JD-Core Version:    0.6.0
+ */

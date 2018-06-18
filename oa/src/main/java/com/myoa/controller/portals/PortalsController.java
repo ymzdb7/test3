@@ -1,0 +1,68 @@
+package com.myoa.controller.portals;
+
+import com.myoa.model.portals.Portals;
+import com.myoa.model.portals.PortalsUser;
+import com.myoa.service.portals.PortalsService;
+import com.myoa.util.ToJson;
+import com.myoa.util.page.PageParams;
+
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@RequestMapping({ "/portals" })
+public class PortalsController {
+
+	@Autowired
+	private PortalsService portalsService;
+
+	@RequestMapping({ "/index" })
+	public String indexPage() {
+		return "app/portals/index";
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/add" })
+	public ToJson<Portals> addPortals(Portals portals) {
+		return this.portalsService.addPortals(portals);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/update" })
+	public ToJson<Portals> updatePortals(Portals portals) {
+		return this.portalsService.updatePortals(portals);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selPortals" })
+	public ToJson<Portals> selPortals(PageParams pageParams, Portals portals) {
+		return this.portalsService.selPortals(pageParams, portals);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/deletePortals" })
+	public ToJson<Portals> deletePortals(String portalsIds) {
+		return this.portalsService.deletePortals(portalsIds);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selPortalsById" })
+	public ToJson<Portals> selPortalsById(Integer portalsId) {
+		return this.portalsService.selPortalsById(portalsId);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selPortalsUser" })
+	public ToJson<PortalsUser> selPortalsUser(HttpServletRequest request) {
+		return this.portalsService.selPortalsUser(request);
+	}
+
+	@ResponseBody
+	@RequestMapping({ "/selIndexPortals" })
+	public ToJson<Portals> selIndexPortals(HttpServletRequest request) {
+		return this.portalsService.selIndexPortals(request);
+	}
+}
